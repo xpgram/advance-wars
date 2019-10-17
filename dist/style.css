@@ -1,0 +1,151 @@
+#landing {
+  width: 100%;
+  height: 90vh;
+}
+
+#gameframe { /* Specifically for any Pixi.js renderings */
+  position: absolute;
+  overflow: hidden;
+  width: 100%;
+}
+
+#info {
+  box-shadow: 0 0 5px 2px #A15481;
+}
+
+#footer {
+  box-shadow: inset 1px 4px 12px -6px #000D;
+}
+
+#logo {
+  max-width: 32px;
+  max-height: 38px;
+  width: auto;
+  height: auto;
+}
+
+.text-xpg {
+  color: #d3739e;
+}
+
+.text-xpg-light {
+  color: #CCC;
+}
+
+.xpg-project-desc {
+  font-size: 0.85rem;
+  padding-left: 30px;
+  font-style: oblique;
+}
+
+.bg-xpg {
+  background-image: url('../img/PixilBG_faded.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-xpg-black {
+  background-color: #111;
+}
+
+.img-db {
+  max-width: 900px;
+  width: 70%;
+}
+
+.img-db-bitshift {
+  max-width: 200px;
+  width: 20%;
+}
+
+.navbar-separator {
+  height: 100%;
+  border-left: 1.5px solid #778;
+  margin-right: 2rem;
+  padding-top: 2.5rem;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.btn-xpg {
+  width: 160px;
+}
+
+.btn-xpg-black {
+  color: #fff;
+  background-color: #111;
+  border-color: #111;
+}
+
+.btn-xpg-black:hover {
+  color: #fff;
+  background-color: #050505;
+  border-color: #010000;
+}
+
+.w-xpg-l {
+  width: 400px;
+}
+
+.w-xpg-m {    /* This is bad practice. This is 'What I Know', the section; I should just target their IDs or something. */
+  width: 400px;
+}
+
+.w-xpg-s {
+  width: 200px;
+}
+
+/* THIS IS SOME S*** */
+/* THIS IS THE S*** F*** MAN */
+/* I dunno about the below. Maybe author a .ttf that doesn't suck? */
+
+@font-face {
+  font-family: 'xpgType';
+  src: url("./css/fonts/tectac.ttf");
+}
+
+.xpg-font {
+  font-family: xpgType;
+}
+
+.xpg-std-container {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+/* ======================================================== */
+/*    Media Breaks                                          */
+
+@media only screen and (max-width: 1100px) {
+  .xpg-std-container {width: 800px;}
+  .w-xpg-l {
+    width: 100%;
+  }
+  .w-xpg-m {
+    width: 420px;
+    border-right: 4px solid #111;
+  }
+  .w-xpg-s {width: 380px;}
+}
+
+@media only screen and (max-width: 900px) {
+  .xpg-std-container {width: 600px;}
+  .w-xpg-l {
+    width: 100%;
+  }
+  .w-xpg-m {
+    width: 310px;
+    border-right: 4px solid #111;
+  }
+  .w-xpg-s {width: 290px;}
+}
+
+@media only screen and (max-width: 700px) {
+  .xpg-std-container {width: 90%;}
+  .w-xpg-l {width: 100%;}
+  .w-xpg-m {width: 100%; border-right: none;}
+  .w-xpg-s {width: 100%;}
+}

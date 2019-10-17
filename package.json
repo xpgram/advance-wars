@@ -1,0 +1,36 @@
+{
+  "name": "advance-wars",
+  "version": "0.1.0",
+  "description": "A clone of Advance Wars: Days of Ruin.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "tsc && echo 'No unit test script.'",
+    "type-check": "tsc",
+    "production": "webpack --mode production --config webpack.config.prod.js",
+    "build": "webpack --mode development --config webpack.config.dev.js",
+    "start": "webpack-dev-server --config webpack.config.dev.js"
+  },
+  "keywords": [],
+  "author": "Dei Valko",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-typescript": "^7.6.0",
+    "@types/pixi.js": "^4.8.9",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.4",
+    "html-webpack-plugin": "^3.2.0",
+    "typescript": "^3.6.4",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2"
+  },
+  "dependencies": {
+    "pixi.js": "^5.1.5"
+  }
+}

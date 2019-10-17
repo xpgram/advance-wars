@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "moduleResolution": "node",
+        "outDir": "./dist/",
+        "allowJs": true,
+        "noEmit": true,
+        "strict": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "types": [] // Deliberate exclusion of the pixi.js library from the ts compiler.
+    },
+    "include": [
+        "src"
+    ],
+}
