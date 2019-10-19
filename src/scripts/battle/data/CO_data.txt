@@ -1,0 +1,102 @@
+Name        Faction             COP 1Mt Zn  Bst I-M-B-R-F-A-T-M-W-A-A-R-M-R-F-B-S-S-D-C-T-B-G-C-S-C-B-L
+Will        "12th Battalion"    1   0   2   2-0 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+"A former Rubinelle military cadet who joined the 12th Battalion after being rescued by Captain Brenner—whom he idolizes.\n\n\"Never give up!\""
+"Ground Unit Attack Up"     "Direct-attack ground units in CO Zone boosted."        "CO Zone: 2\nBoosts: Direct-attack ground units\nEffect: Attack up ★★"
+"Rally Cry"                 "Boosts mobility of direct-attack ground units by 2."
+
+Brenner     "12th Battalion"    1   0   3   0-2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+"Captain of the 12th Battalion. He has an unshakable faith in humanity's goodness, and will aid any in need.\n\n\"The survivors need our help.\""
+"Universal Defense Boost"   "All units in the CO Zone receive defensive boost."     "CO Zone: 3\nBoosts: All units\nEffect: Defense up ★★"
+"Reinforce"                 "All units recover 3 HP."
+
+Lin         "12th Battalion"    1   0   1   2-2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+"The 12th Battalion's unflappable second in command. She has tremendous respect for Captain Brenner, although they disagree often.\n\n\"Keep a cool head.\""
+"Ground-Force Boost"        "All ground units in CO Zone are boosted."              "CO Zone: 1\nBoosts: Ground units\nEffect: Attack up ★★ Defense up ★★"
+"Scout"                     "+2 to ground-unit vision, including hiding places."
+
+Isabella    "12th Battalion"    1   0   2   1-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+"Has no memory of her past. Rescued by Will, she has joined the 12th Battalion—where she dreams of living in peace.\n\n\"I can't remember anything...\""
+"Overall Force Boost"       "Enhances power of all units in the CO Zone."           "CO Zone: 2\nBoosts: All units\nEffect: Attack up ★ Defense up ★"
+"Deep Strike"               "Boosts mobility and indirect attack range by 1."
+
+Tasha       "Lazurian"          1   0   1   4-2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0
+"A Lazurian soldier who burns with the desire to avenge her late brother.\n\n\"I will have my revenge!\""
+"Aerial-Attack Boost"       "Strengthens attacks of air units in CO Zone."          "CO Zone: 1\nBoosts: Air units\nEffect: Attack up ★★★★ Defense up ★★"
+"Sonic Boom"                "Allows non-soldiers in the CO Zone to move again."
+
+Gage        "Lazurian"          1   0   2   2-1 0 0 0 0 0 0 0 0 0 1 1 1 1 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1
+"A Lazurian soldier. He is a man of few words, but a consummate professional.\n\n\"They don't pay me to think.\""
+"Indirect-Attack Boost"     "Ups naval and indirect-attack units in CO Zone."       "CO Zone: 2\nBoosts: Naval & indirect-attack units\nEffect: Attack up ★★ Defense up ★"
+"Longshot"                  "+2 to range of all indirect-attack units."
+
+Forsythe    "Lazurian"          0   0   5   2-2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+"The Lazurian Army commander. He was called out of retirement to defend his nation.\n\n\"I am a soldier, not a killer.\""
+"Mega Boost"                "Strengthens all units in the CO Zone."                 "CO Zone: 5\nBoosts: All units\nEffect: Attack up ★★ Defense up ★★"
+"No CO Power"               ""
+
+Waylon      "NRA"               1   0   2   2-3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0
+"A member of the Rubinelle Army who seeks only to fulfill his own pleasures and desires.\n\n\"It's time for Waylon to do some whalin'!\""
+"Aerial-Defense Boost"      "Strengthens all air units in the CO Zone."             "CO Zone: 2\nBoosts: Air units\nEffect: Attack up ★★ Defense up ★★★"
+"Wingman"                   "Boosts defense for all air units."
+
+Greyfield   "NRA"               1   0   3   1-4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1 0 1 1 1 1 1 1
+"Abitious and power hungry, he wants to destroy the Lazurian Army and rule the world as its new king.\n\n\"I'll see you hanged for this!\""
+"Naval-Defense Boost"       "Boosts naval units, sea- planes, and copters."          "CO Zone: 3\nBoosts: Naval units, seaplanes, copters\nEffect: Attack up ★ Defense up ★★★★"
+"Supply Chain"              "Refills fuel, ammo, and materials for all units."
+
+Penny       "IDS"               1   0   3   0-0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+"The youngest child of Dr. Caulder. Numerous experiments have left her mind permanently shattered.\n\n\"Tee hee! Let's go, Mr. Bear!\""
+"Proective Effect"          "All units are unaffected by weather conditions."       "CO Zone: 3\nBoosts: All units\nEffect: Units unaffected by weather."
+"Stormfront"                "Changes the weather conditions."
+
+Tabitha     "IDS"               1   0   0   5-5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+"Belongs to the private military company IDS. A daughter of Dr. Caulder, she is extremely cruel and vindictive.\n\n\"Stupid weak people!\""
+"Mega Boost"                "Strengthens all units in the CO Zone."                 "CO Zone: 0\nBoosts: All units\nEffect: Attack up ★★★★★ Defense up ★★★★★"
+"Firestorm"                 "Damages units over a wide area."
+
+Caulder     "IDS"               0   0   3   1-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+"The head of the private military contractor IDS. He seeks a world where he is free to carry out his terrible experiments.\n\n\"Fascinating...\""
+"Supreme Boost"             "Strengthens and adds HP to units in CO Zone."          "CO Zone: 3\nBoosts: All units\nEffect: Attack up ★★★ Defense up ★★★"
+"No CO Power"               "All units in the CO Zone recover each day."
+
+Atk Def Mob Rng Vis HP  Act
+
+Lin, I think, should be able to see cloaked units too.
+This only means subs.
+...
+I mean, it's something.
+What if Lin also invoked Fog of War for a turn or two?
+She's 'balanced', so I don't want to mess with her too much, but I changed Forsythe to 2-2 which I realize makes him a waaay better version of her.
+Maybe I just need to tweak him differently.
+
+Forsythe.
+Okay.
+Maybe the best thing I can do for him is give him a CO Power.
+"What" is a great question...
+He is similar to Kanbei, sorta.
+He's also Mr. Honorable.
+He should play into those traits.
+I thought about letting him counter-attack at full HP (or starting HP) like in SNES days. Reminds me of honorable warfare, taking turns to volley, etc. Kinda silly, though.
+His problem ~right now~ isn't that his 5-radius CO Zone isn't ~good~, it's that it isn't ~great~. And he has no tide-turning CO Power either.
+So, although he seems to cast a wide net, he ends up sort of middling.
+Here's ~an~ idea:
+    5-radius still
+    New CO Power (this means his radius extends to 7)
+    "Counter Break" (Sonja's)   He reduces enemy terrain bonuses by 1 or 2 stars.
+The only thing I don't like about this is that it "messes with too much."
+Most abilities in this game refrain from getting too whacky, and are limited to things like
+improving the mobility of your own units.
+If Forsythe is a tactical maven, maybe his CO Power allows him to attack without enemy terrain bonuses applying.
+I do kind of like that he doesn't have a power though. If I take that away from him, Caulder will be the only one left.
+
+Greyfield's COP is boring. He has high defense, though.
+As far as tips, I'm only getting that "Sea isn't part of the metagame," so I don't know what to tweak.
+
+Penny's weather effect is cool. She's like Olaf.
+What really cripples her is the lack of damage or defense boosts.
+Maybe, the random weather she gets, maybe she should feel the inverse effects?  Like +30% instead of -30% like everyone else. This widens the gap, anyway.
+
+Caulder, holy shit—if I reduce his boosts and limit his COZ repair to 1 HP per turn, he ~might~ be okay.
+I limited his CO Zone to 2 before, but until playtesting I'm not even sure I need to do that.
+You know, if he's a walking city, does he even need a damage boost?
+Playtest!

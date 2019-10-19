@@ -1,0 +1,29 @@
+All are 'false': not banned.
+"Inftry"    0
+"Mech"      0
+"Bike"      0
+"Recon"     0
+"Flare"     0
+"Anti-Air"  0
+"Tank"      0
+"M Tank"    0
+"W Tank"    0
+"Artlry"    0
+"Anti-Tk"   0
+"Rocket"    0
+"Missile"   0
+"Rig"       0
+"Fighter"   0
+"Bomber"    0
+"Stealth"   0
+"Seapl"     0
+"Duster"    0
+"B Cptr"    0
+"T Cptr"    0
+"B Bomb"    0
+"G Boat"    0
+"Cruiser"   0
+"Sub"       0
+"Carrier"   0
+"B Ship"    0
+"Lander"    0
