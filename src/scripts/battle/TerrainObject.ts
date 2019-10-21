@@ -3,6 +3,7 @@ import { UnitClass, MoveType, Faction } from "./EnumTypes";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
 import { TransformableList } from "../TransformableList";
+import { Point } from "../CommonTypes";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -25,7 +26,8 @@ export abstract class TerrainObject {
     /** This terrain's numerical serialization. */
     abstract readonly serial: number;
 
-    /** Whether this terrain is considered land. Generally, this determines the tile's base-layer texture. */
+    /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer
+     * texture and the land-sea border system. */
     get landTile(): boolean { return true; }
 
     /** Whether this tile is naturally shallow sea. Relevant to sea tiles only. */
@@ -34,6 +36,7 @@ export abstract class TerrainObject {
     /** Whether this non-landTile, non-sourceTile is shallow or deep sea. Configured by the map system.
      * Should only be overridden if both landTile and shallowWaterSourceTile are false. */
     get shallowWater(): boolean { return true; }
+    set shallowWater(b) { }
 
     /** This terrain's long-form name. */
     abstract readonly name: string;
@@ -74,11 +77,10 @@ export abstract class TerrainObject {
     // the arduous process of building a graphical object.
     constructor() { }
 
-    /** Initializes the object, builds graphical objects, adds them to the appropriate
-     * layers, and sets up the object's transform. */
-    init(transform?: LowResTransform) {
+    /** Builds graphical sub-objects and sets up the object's transform. */
+    init(neighbors: NeighborMatrix<TerrainObject>, pos: Point) {
         this.layers = [];
-        this.create();      // Allows subclasses to populate the layers list.
+        this.orient(neighbors); // Allows subclasses to populate the layers list.
 
         // Add populated layers to display and this.transform
         let graphicsObjects: TransformableList = new TransformableList();
@@ -87,16 +89,10 @@ export abstract class TerrainObject {
             graphicsObjects.push(layer.object);
         });
 
-        // 'Move' the object set to the desired location, as passed in by transform,
-        // but do not keep it; mapset tiles will never move after being placed, it's
-        // a waste of memory.
-        if (transform)
-            TerrainObject.transform.copyFrom(transform);      // Assign
-        else
-            TerrainObject.transform.pos3D = {x:0,y:0,z:0};    // Or reset
-
-        TerrainObject.transform.object = graphicsObjects;     // Assign ('move')
-        TerrainObject.transform.object = null;                // Then forget
+        // Use TerrainObject's single-instance LowResTransform
+        // to auto-move the graphical set into position.
+        TerrainObject.transform.object = graphicsObjects;
+        TerrainObject.transform.object = null;
     }
 
     /** Instructs the object to disassociate all materials, readying itself for
@@ -104,7 +100,7 @@ export abstract class TerrainObject {
     destroy() {
         this.layers.forEach( layer => {
             MapLayers[layer.name].removeChild(layer.object);
-            layer.object.destroy(); // .destroy({children: true, texture: true})
+            layer.object.destroy({children: true}); // .destroy({children: true, texture: true})
         });
         // Find out if pixi.loader stores generated spritesheet textures anywhere;
         // I should be using those, if so.
@@ -112,17 +108,10 @@ export abstract class TerrainObject {
         // and do not destroy textures on Container.destroy()
     }
 
-    /** Instantiates all the terrain object's supporting constructs.
-     * Must be implemented. */
-    abstract create(): void;
+    /** Builds the tile's graphical object based on its surrounding set of neighbors. */
+    abstract orient(neighbors: NeighborMatrix<TerrainObject>): void;
 
-    /** Instructs the object to pick textures for itself that agree with its
-     * surrounding terrain. */
-    orientSelf(neighbors: NeighborMatrix<TerrainObject>) {
-        return;         // Override if you want to be more specific.
-    }
-
-    /** Returns true if the given configuration of neighbor tiles agrees with this
+    /** Returns true if the given set of neighboring tiles agrees with this
      * tile's graphical limitations. */
     legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
         return true;    // Override if you want to be more specific.

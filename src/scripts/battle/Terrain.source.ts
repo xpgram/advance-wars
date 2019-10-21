@@ -3,6 +3,7 @@ import { TerrainObject } from "./TerrainObject";
 import { UnitClass, Faction, MoveType } from "./EnumTypes";
 import { Common } from "../CommonUtils";
 import { TerrainMethods } from "./TerrainHelpers";
+import { NeighborMatrix } from "../NeighborMatrix";
 
 /**
  * Auto-generated.
@@ -34,12 +35,7 @@ export const Terrain = {
             super();
         }
 
-        create() {
-            let variant: string, sprite: PIXI.Sprite;
-
-            variant = TerrainMethods.randomPlainTile();
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[variant]);
-            this.layers.push({object: sprite, name: 'bottom'});
+        orient(neighbors: NeighborMatrix<TerrainObject>) {
         }
     },
 

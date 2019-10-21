@@ -30,3 +30,13 @@ type Point3D = {
     y: number,
     z: number
 }
+
+/** A dictionary-type which uses numbers as keys. */
+type NumericDictionary<T> = {
+    [key: number]: T
+}
+
+/** A dictionary-type which uses strings as keys. */
+type StringDictionary<T> = {
+    [key: string]: T
+}

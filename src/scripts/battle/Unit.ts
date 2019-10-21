@@ -47,6 +47,11 @@ export class Unit {
         this.gas = 99;  // this.type.Gas
     }
 
+    /* TODO Not yet implemented. */
+    destroy() { 
+
+    }
+
     /** The unit's remaining health. */
     get hp(): number {
         return Common.readBits(this.info, Unit.oneHundredLength, Unit.hpShift);

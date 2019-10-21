@@ -10,7 +10,7 @@ Name            ShrtNm  Mov:I-M-A-B-T-A-S-T     Def Inc Rep Hid Vis Lnd Sha Var 
 "Sea"           "Sea"       0 0 0 0 0 1 1 1     0   -   -   -   -   -   -   -       "Naval and air forces have good mobility on calm seas."
 "Beach"         "Beach"     1 1 2 2 1 1 0 1     0   -   -   -   -   -   1   -       "Landers and gunboats can /load and drop/ units here."
 "Rough Sea"     "Rough"     0 0 0 0 0 1 2 2     2   -   -   -   -   -   -   -       "Slows the movement of naval units, but air units are not affected."
-"Mist"          "Mist"      0 0 0 0 0 1 1 1     1   -   -   1   -   -   -   -       "Mist provides ideal /hiding places/ for naval units in Fog of War."
+"Mist"          "Mist"      0 0 0 0 0 1 1 1     1   -   -   1   -   -   1   -       "Mist provides ideal /hiding places/ for naval units in Fog of War."
 "Reef"          "Reef"      0 0 0 0 0 1 2 2     2   -   -   1   -   -   1   -       "Spiky reefs provide ideal /hiding places/ for naval units in Fog of War."
 "Fire"          "Fire"      0 0 0 0 0 0 0 0     0   -   -   -   5   1   -   -       "Prevents unit movement and illuminates a /5-square/ area in Fog of War."
 "Meteor"        "Meteor"    0 0 0 0 0 0 0 0     0   -   -   -   -   1   -   HP      "/Destroy/ meteor chunks to eliminate any nearby plasma."

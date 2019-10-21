@@ -36,7 +36,7 @@ class Terrain:
 terrainTypes = []
 
 # Read into memory the entire catalogue
-with open(os.path.dirname(os.path.abspath(__file__)) + "data\\terrain_data.txt", 'r') as datafile:
+with open(os.path.dirname(os.path.abspath(__file__)) + "\\data\\terrain_data.txt", 'r') as datafile:
 #with open("C:\\Users\\XPGram\\Home\\Projects\\advance-wars\\src\\scripts\\battle\\data\\terrain_data.txt", 'r') as datafile:
     datafile.readline()
 
@@ -72,17 +72,15 @@ with open(os.path.dirname(os.path.abspath(__file__)) + "data\\terrain_data.txt",
         terrainTypes.append(terrain)
 
 # Read into memory the template
+template = ""
 with open("Terrain.template.ts", 'r') as templateFile:
-    templateFile.readline()
-    # Parse the file for tokens
-    # Keep track of... order?
-    # I mean, I know the order, I could name them under a dictionary, I guess.
+    for line in templateFile.readlines():
+        template += line
 
 # Some pre-gettin-started definitions
 globalStart = "//start"
 globalEnd = "//end"
-tokenStart = "/**/"
-tokenEnd = "/***/"
+tokenDelimiter = "/**/"
 
 def tag(txt):
     return "/*" + txt + "*/"
@@ -92,56 +90,42 @@ def boolean(condition):
 
 def repairType(t):
     types = ['None', 'Ground', 'Naval', 'Air']
-    return "UnitClass." + types[t]
+    return types[t]
 
 # Write it into the template, over and over, in a new file.
 with open("Terrain.source.ts", 'r') as sourcefile:
-    # Copy until after '//start'
-    # CopyFrom template into new mold
-    # Replace tags with data
-    # Post until ain't none left
-    # But don't post tokens with default values or '*Token' == False
-    # Copy until literal file-end
     with open("Terrain.ts", 'w') as newfile:
+        sourcefileLines = sourcefile.readlines()
 
-        template = ""
-        inTemplate = False
-        for line in sourcefile.readlines():
-            if not inTemplate:
-                if line.strip() != "// start":
-                    newfile.write(line)
-                else:
-                    inTemplate = True
-            else:
-                # Gather the template
-                if line.strip() != "// end":
-                    template += line
-                else:
-                    break
-        
-        # Template gathered, only missing a closing '}'
+        # Copy the pre-class lines
+        for line in sourcefileLines:
+            newfile.write(line)
+            if line.strip() == globalStart:
+                break
 
         # Write all terrain objects
-        count = -1
+        serialNo = -1
         for terrain in terrainTypes:
-            newfile.write("\n")
-            count += 1
+            serialNo += 1
+            if (serialNo != 0):
+                newfile.write("\n\n")
 
             cast = template
 
-            cast = cast.replace("Template", terrain.name.replace(' ', ''))
-            cast = cast.replace(tag("serial"), str(count))
-            cast = cast.replace(tag("land"), str(boolean(terrain.land)))
-            cast = cast.replace(tag("shallow"), str(boolean(terrain.shallow)))
-            cast = cast.replace(tag("name"), string(terrain.name))
-            cast = cast.replace(tag("short name"), string(terrain.shortName))
-            cast = cast.replace(tag("defense"), str(terrain.defense))
-            cast = cast.replace(tag("income"), str(boolean(terrain.income)))
-            cast = cast.replace(tag("repair"), repairType(terrain.repair))
-            cast = cast.replace(tag("hideaway"), str(boolean(terrain.hideaway)))
+            cast = cast.replace(tag("Class"), terrain.className)
+            cast = cast.replace(tag("serial"), str(serialNo))
+            cast = cast.replace(tag("landTile"), str(boolean(terrain.landTile)))
+            cast = cast.replace(tag("shallowWaterSourceTile"), str(boolean(terrain.shallowSource)))
+            cast = cast.replace(tag("name"), str(terrain.name))
+            cast = cast.replace(tag("shortName"), str(terrain.shortName))
+            cast = cast.replace(tag("description"), str(terrain.description))
+            cast = cast.replace(tag("defenseRating"), str(terrain.defenseRating))
+            cast = cast.replace(tag("generatesIncome"), str(boolean(terrain.generatesIncome)))
+            cast = cast.replace(tag("repairType"), repairType(terrain.repairTypeIdx))
+            cast = cast.replace(tag("conceals"), str(boolean(terrain.conceals)))
             cast = cast.replace(tag("vision"), str(terrain.vision))
-            cast = cast.replace(tag("desc"), string(terrain.desc))
-
+            cast = cast.replace(tag("valueMax"), str(terrain.valueMax))
+            
             # Movement costs
             cast = cast.replace(tag("inf"), str(terrain.moveMatrix[0]))
             cast = cast.replace(tag("mch"), str(terrain.moveMatrix[1]))
@@ -152,11 +136,44 @@ with open("Terrain.source.ts", 'r') as sourcefile:
             cast = cast.replace(tag("shp"), str(terrain.moveMatrix[6]))
             cast = cast.replace(tag("trp"), str(terrain.moveMatrix[7]))
 
-            if (terrain.value):
-                cast = cast.replace(tag("value"), valueStub)
-            else:
-                cast = cast.replace(tag("value"), "")
+            # Split tokens
+            tmpCast = cast.split(tokenDelimiter)
 
+            # Recombine useful tokens
+            cast = ""
+
+            if (terrain.landTile == True):
+                tmpCast[2] = ""
+                tmpCast[3] = ""
+                tmpCast[4] = ""
+            elif (terrain.shallowSource == True):
+                tmpCast[3] = ""
+                tmpCast[4] = ""
+            
+            if (terrain.generatesIncome == False):
+                tmpCast[10] = ""
+            if (terrain.repairTypeIdx == 0):
+                tmpCast[11] = ""
+            if (terrain.conceals == False):
+                tmpCast[12] = ""
+            if (terrain.vision == 0):
+                tmpCast[13] = ""
+            if (terrain.factionToken == False):
+                tmpCast[14] = ""
+            if (terrain.valueToken == False):
+                tmpCast[15] = ""
+
+            for token in tmpCast:
+                cast += token
+
+            # Post
             newfile.write(cast)
 
-        newfile.write('}')
+        # Copy the post-class lines
+        printing = False
+        for line in sourcefileLines:
+            if line.strip() == globalEnd:
+                printing = True
+                newFile.write("\n")
+            if printing:
+                newfile.write(line)

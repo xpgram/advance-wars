@@ -92,10 +92,11 @@ class App {
     }
 
     /** Unbuilds the current scene and switches context to the given scene object. */
-    switchScene(scene: Scene | null) {
+    switchScene(newScene: Scene | null) {
         if (this.scene)
             this.scene.destroy();
-        this.scene = scene;
+        if (newScene)
+            this.scene = newScene;
     }
 }
 

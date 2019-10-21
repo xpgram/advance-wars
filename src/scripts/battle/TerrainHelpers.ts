@@ -1,6 +1,8 @@
+import * as PIXI from "pixi.js";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Terrain } from "./Terrain";
+import { Faction } from "./EnumTypes";
 
 export const TerrainMethods = {
     randomPlainTile(): string {
@@ -30,6 +32,15 @@ export const TerrainMethods = {
         r = (neighbors.downright.landTile && r == 0 && d != 1) ? 2 : r;
         d = (neighbors.downleft.landTile && d == 0 && l != 1)  ? 2 : d;
         l = (neighbors.upleft.landTile && l == 0 && u != 1)    ? 2 : l;
+
+        // If graphic would be one side, and that side is a river, correct.
+        let sides = u + r + d + l;
+        if (sides == 1) {
+            if (neighbors.up.type == Terrain.River) u = 3;
+            if (neighbors.up.type == Terrain.River) r = 3;
+            if (neighbors.up.type == Terrain.River) d = 3;
+            if (neighbors.up.type == Terrain.River) l = 3;
+        }
     
         return `sea-cliff-${u}${r}${d}${l}.png`;
     },
@@ -121,37 +132,61 @@ export const TerrainMethods = {
         return `${l}${r}`;
     },
 
-    populateSeaLayer(container: PIXI.Container, neighbors: NeighborMatrix<TerrainObject>) {
-        // We do this instead of creating a new one I think because I can't overwrite
-        // a TerrainObject's container or something.
-        // I've done some heavy lifting regarding its implementation, I should confirm.
+    createSeaLayer(neighbors: NeighborMatrix<TerrainObject>,
+            options?: {includeCliffs?: boolean, includeShallowWater?: boolean}) {
 
-        // Also, how does beach know to use a shallow-1111 and to skip the cliff?
-        // I remember the cliff, actually, but the point is cut that shit out.
-        // Configure this method not to include them to begin with why not.
-        container.removeChildren();
+        let container = new PIXI.Container();
     
-        let v;
-        let sea = new PIXI.AnimatedSprite(Terrain.tilesheet().animations['sea']);
-        container.addChild(sea);
+        let sea = new PIXI.AnimatedSprite(Terrain.sheet.animations['sea']);
         sea.animationSpeed = 0.1;
         sea.play();
+        container.addChild(sea);
     
         // Add shallow waters
-        let shallow = new PIXI.Sprite();
-        container.addChild(shallow);
-        shallow.blendMode = PIXI.BLEND_MODES.ADD;
-        shallow.alpha = 0.1;
-        if (neighbors.center.shallowWater) {
-            v = TerrainMethods.seaShallowVariant(neighbors);
-            if (v != "0000")
-                shallow.texture = PIXI.Texture.from(`sea-shallow-${v}.png`);
+        if (options && options.includeShallowWater) {
+            if (neighbors.center.shallowWater) {
+                // Skip particularity if the tile we're building is always surrounded.
+                let variant = "1111";
+                if (!neighbors.center.shallowWaterSourceTile)
+                    variant = TerrainMethods.seaShallowVariant(neighbors);
+
+                // Only if orientation isn't 'none'
+                if (variant != "0000") {
+                    let shallow = new PIXI.Sprite(Terrain.sheet.textures[variant]);
+                    shallow.blendMode = PIXI.BLEND_MODES.ADD;
+                    shallow.alpha = 0.1;
+                    container.addChild(shallow);
+                }
+            }
         }
     
-        let cliff = new PIXI.Sprite();
-        container.addChild(cliff);
-        v = TerrainMethods.seaCliffVariant(neighbors);
-        if (v != "0000")
-            cliff.texture = PIXI.Texture.from(`sea-cliff-${v}.png`);
+        // Add cliffs
+        if (options && options.includeCliffs) {
+            let variant = TerrainMethods.seaCliffVariant(neighbors);
+
+            // Only if orientation isn't 'none'
+            if (variant != "0000") {
+                let cliffs = new PIXI.Sprite(Terrain.sheet.textures[variant]);
+                container.addChild(cliffs);
+            }
+        }
+
+        return container;
+    },
+
+    createPlainLayer() {
+        let variant = TerrainMethods.randomPlainTile();
+        return new PIXI.Sprite(Terrain.sheet.textures[variant]);
+    },
+
+    createBuildingLayers(building: string, faction: Faction) {
+        let bottom = TerrainMethods.createPlainLayer();
+        
+        // Building
+        let color = Terrain.City.colors[faction];
+        let top = new PIXI.AnimatedSprite(Terrain.sheet.animations[`${building}-${color}`]);
+        top.anchor.y = 0.5;
+
+        return {bottom: bottom, top: top};
     }
 }

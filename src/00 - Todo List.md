@@ -1,15 +1,10 @@
-- [x] Python script → generated Javascript code (Terrain Tiles)
-  - [x] Finish JS code template
-- [ ] Add static get landTile() back into Terrain.Tile template (it was convenient)
-- [x] Standardize Terrain tileset picker
-  sea-cliff and sea-shallow are fairly simple now, move them into reusable methods.
+- [x] Migrate Terrain
+- [x] Migrate Map
+  - [x] Rewrite It: Although it should technically be fine, it's still *Javascript* code, so update its style and form to TypeScript (documentation is *mostly* what I'm referring to).
+- [ ] Migrate BattleScene
+- [ ] Post Migration: Test, Tweak and Re-Test until it actually works.
+  - [ ] Add pixi.js imports ... everywhere.
+    - [ ] For that matter, figure out why VSCode doesn't let me know I haven't. Why does it pretend to know what PIXI.anything is? Oh, the docs, maybe...
 - [ ] Figure out how to differentiate between bridge-sea and bridge-river
   - [x] Do that
-  - [ ] But then, like, test it out
-- [x] Standardize the sea tile: it always comes with 3 layers (sea, shallow, cliff) and is used as a base for enough tiles that writing this repeatedly should upset me.
-- [ ] Use import 'pixi.js';
-  - [x] Install pixi using npm (strictly necessary?)
-  - [ ] Add imports to every script that needs them
-  - [ ] Remove <script src="pixi"> from game.html
-- [x] Camera System: Moves stage around.
-  - [x] Camera Zoom: Applies additional scale factor to stage. Stage will need to add it to its fit-to-window scale.
+  - [ ] But then, like, test it out.

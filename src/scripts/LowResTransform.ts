@@ -1,3 +1,4 @@
+import * as PIXI from "pixi.js";
 import { Transformable, Point, Point3D } from "./CommonTypes";
 
 /**

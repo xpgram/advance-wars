@@ -21,8 +21,8 @@ module.exports = {
     devtool: 'inline-source-map',
     plugins: [
         new CopyWebpackPlugin([{
-            from: 'build/assets',
-            to: 'assets'
+            from: path.resolve(__dirname, 'build/assets'),
+            to: 'src/assets'
         }]),
         new HTMLWebpackPlugin({
             template: 'build/index.html',

@@ -1,3 +1,8 @@
+import { TerrainObject } from "./TerrainObject";
+import { Unit } from "./Unit";
+import { Terrain } from "./Terrain";
+import { Point } from "../CommonTypes";
+
 /**
  * Used by Map only. Maybe.
  * Generally a container for map information, but also features many self-managing method for
@@ -7,8 +12,8 @@
  * @version 0.1.0
  */
 export class Square {
-    terrain: Terrain;
-    unit: Unit | null;
+    terrain: TerrainObject;
+    unit: Unit | null = null;
 
     /** A 64-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
@@ -29,7 +34,7 @@ export class Square {
     private static readonly directionLength = 3;
     private static readonly coordinateLength = 8;
 
-    private static readonly Max_Coords = 255;
+    static readonly Max_Coords = 255;
 
     constructor(x = 0, y = 0) {
         this.x = x;
@@ -40,7 +45,8 @@ export class Square {
     /** Destroys this object and its children. */
     destroy() {
         this.terrain.destroy();
-        this.unit.destroy();
+        if (this.unit)
+            this.unit.destroy();
     }
 
     /**
