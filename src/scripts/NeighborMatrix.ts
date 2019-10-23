@@ -56,5 +56,6 @@ export class NeighborMatrix<T> {
             if (typeof obj === 'object')
                 if (obj === value) {}
         });
+        return 0;
     }
 }

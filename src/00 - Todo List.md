@@ -1,10 +1,10 @@
 - [x] Migrate Terrain
 - [x] Migrate Map
   - [x] Rewrite It: Although it should technically be fine, it's still *Javascript* code, so update its style and form to TypeScript (documentation is *mostly* what I'm referring to).
-- [ ] Migrate BattleScene
-- [ ] Post Migration: Test, Tweak and Re-Test until it actually works.
-  - [ ] Add pixi.js imports ... everywhere.
+- [x] Migrate BattleScene
+- [x] Post Migration: Test, Tweak and Re-Test until it actually works.
+  - [x] Add pixi.js imports ... everywhere.
     - [ ] For that matter, figure out why VSCode doesn't let me know I haven't. Why does it pretend to know what PIXI.anything is? Oh, the docs, maybe...
-- [ ] Figure out how to differentiate between bridge-sea and bridge-river
+- [x] Figure out how to differentiate between bridge-sea and bridge-river
   - [x] Do that
-  - [ ] But then, like, test it out.
+  - [x] But then, like, test it out.

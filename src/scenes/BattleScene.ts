@@ -31,7 +31,7 @@ export class BattleScene extends Scene {
 
         // Add an FPS ticker to measure performance
         // TODO Move this into a Debug class or something. Instantiate it in Game or Scene.
-        // Also, include a build number.
+        // TODO Include a build number.
         let graphics = new PIXI.Graphics(); //(0, 160-10, 12, 8);
         graphics.beginFill(0x000000);
         graphics.alpha = 0.25;

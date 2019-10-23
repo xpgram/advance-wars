@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Scene } from './scenes/Scene';
 import { BattleScene } from './scenes/BattleScene';
+import { DebugLayer } from './scripts/DebugLayer';
 
 // Pixi engine settings
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling fuzziness
@@ -85,7 +86,7 @@ class App {
         // Add this game's visual layers to PIXI's app.stage
         this.app.stage.addChild(this.stage);
         this.app.stage.addChild(this.hud);
-        this.app.stage.addChild(this.debugHud);
+        this.app.stage.addChild(new DebugLayer().layer);
     }
 
     /** Main update loop. A state-machine implementing the Scene pattern. */
