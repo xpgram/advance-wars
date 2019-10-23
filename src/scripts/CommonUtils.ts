@@ -44,6 +44,5 @@ export const Common = {
         store = store & ~(mask << shift);
         store += (value & mask) << shift;
         return store;
-    }
-    
+    }        
 }

@@ -7,11 +7,15 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling 
 
 /**
  * @author Dei Valko
- * @version 1.0.0
+ * @version 1.1.0
  */
 class App {
-    /** A graphics-container acting as the game's "display." */
+    /** A graphics-container acting as the game world. */
     readonly stage = new PIXI.Container();
+    /** A graphics-container acting as the game's heads-up display. */
+    readonly hud = new PIXI.Container();
+    /** A graphics-container acting as a special heads-up display for performance information. */
+    readonly debugHud = new PIXI.Container();
 
     /** Namespace for the various scenes the game will switch between. */
     readonly gameScenes = {
@@ -27,10 +31,10 @@ class App {
         get standardLength(): number { return 16; },
 
         /** The width of the game's screen internally. */
-        get renderWidth(): number { return 240; },
+        get renderWidth(): number { return 288; },
 
         /** The height of the game's screen internally. */
-        get renderHeight(): number { return 160; },
+        get renderHeight(): number { return 192; },
 
         /** The real width of the game window in pixels. */
         get width(): number { return this.renderWidth * this.scale; },
@@ -78,8 +82,10 @@ class App {
         // Add the main loop to PIXI's ticker.
         this.app.ticker.add( (delta: number) => {this.loop(delta)} );
 
-        // Add this game's stage to PIXI's app.stage (app.stage is already manipulated to fit-to-window)
+        // Add this game's visual layers to PIXI's app.stage
         this.app.stage.addChild(this.stage);
+        this.app.stage.addChild(this.hud);
+        this.app.stage.addChild(this.debugHud);
     }
 
     /** Main update loop. A state-machine implementing the Scene pattern. */

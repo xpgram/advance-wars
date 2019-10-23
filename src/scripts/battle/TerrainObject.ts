@@ -3,7 +3,7 @@ import { UnitClass, MoveType, Faction } from "./EnumTypes";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
 import { TransformableList } from "../TransformableList";
-import { Point } from "../CommonTypes";
+import { Point, Point3D } from "../CommonTypes";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -21,10 +21,10 @@ export abstract class TerrainObject {
     protected layers: {object: PIXI.Container, name: string}[] = [];
 
     /** A reference to this terrain's constructing type. Useful for comparisons. */
-    abstract readonly type: TerrainType;
+    abstract get type(): TerrainType;
 
     /** This terrain's numerical serialization. */
-    abstract readonly serial: number;
+    abstract get serial(): number;
 
     /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer
      * texture and the land-sea border system. */
@@ -39,16 +39,16 @@ export abstract class TerrainObject {
     set shallowWater(b) { }
 
     /** This terrain's long-form name. */
-    abstract readonly name: string;
+    abstract get name(): string;
 
     /** This terrain's short-form name. */
-    abstract readonly shortName: string;
+    abstract get shortName(): string;
 
     /** This terrain's compendium description. */
-    abstract readonly description: string;
+    abstract get description(): string;
 
     /** This terrain's level of defense-boost. 0–4 */
-    abstract readonly defenseRating: number;
+    abstract get defenseRating(): number;
 
     /** Whether this terrain generates income for its owner. Relevant to buildings only. */
     get generatesIncome(): boolean { return false; }
@@ -78,19 +78,20 @@ export abstract class TerrainObject {
     constructor() { }
 
     /** Builds graphical sub-objects and sets up the object's transform. */
-    init(neighbors: NeighborMatrix<TerrainObject>, pos: Point) {
+    init(neighbors: NeighborMatrix<TerrainObject>, pos: Point3D) {
         this.layers = [];
         this.orient(neighbors); // Allows subclasses to populate the layers list.
 
         // Add populated layers to display and this.transform
         let graphicsObjects: TransformableList = new TransformableList();
         this.layers.forEach( layer => {
-            MapLayers[layer.name].addChild(layer.object);
             graphicsObjects.push(layer.object);
+            MapLayers[layer.name].addChild(layer.object);
         });
 
         // Use TerrainObject's single-instance LowResTransform
         // to auto-move the graphical set into position.
+        TerrainObject.transform.pos3D = pos;
         TerrainObject.transform.object = graphicsObjects;
         TerrainObject.transform.object = null;
     }

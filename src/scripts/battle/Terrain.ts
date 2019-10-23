@@ -5,6 +5,7 @@ import { UnitClass, Faction, MoveType } from "./EnumTypes";
 import { Common } from "../CommonUtils";
 import { TerrainMethods } from "./TerrainHelpers";
 import { NeighborMatrix } from "../NeighborMatrix";
+import { MapLayers } from "./MapLayers";
 
 /**
  * Auto-generated.
@@ -245,8 +246,8 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             if (this.landTile) {
                 // River
-                let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Sea);
-                let sprite = new PIXI.Sprite(Terrain.sheet.textures[variant]);
+                let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
+                let sprite = new PIXI.Sprite(Terrain.sheet.textures[`river-${variant}.png`]);
                 this.layers.push({object: sprite, name: 'bottom'});
             } else {
                 // Sea
@@ -285,9 +286,9 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            // River
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Sea);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[variant]);
+            // River TODO They don't connect to each other
+            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
+            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`river-${variant}.png`]);
             this.layers.push({object: sprite, name: 'bottom'});
         }
     },
@@ -343,7 +344,7 @@ export const Terrain = {
             this.layers.push({object: container, name: 'bottom'});
 
             let variant = TerrainMethods.beachVariant(neighbors);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[variant]);
+            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`beach-${variant}.png`]);
             this.layers.push({object: sprite, name: 'bottom'});
         }
 
@@ -361,6 +362,23 @@ export const Terrain = {
             // No narrow channels
             if (n.left.landTile && n.right.landTile && !n.up.landTile   && !n.down.landTile ||
                 n.up.landTile   && n.down.landTile  && !n.left.landTile && !n.right.landTile)
+                result = false;
+
+            // No all-four-sides
+            if (n.up.landTile && n.right.landTile && n.down.landTile && n.left.landTile)
+                result = false;
+
+            // At least one adjacent side
+            if (!n.up.landTile && !n.right.landTile && !n.down.landTile && !n.left.landTile)
+                result = false;
+
+            // Patch fix for 3-lands + 1-beach neighbor scenario
+            let count = {lands: 0, beaches: 0};
+            n.orthogonals.forEach(tile => {
+                count.lands += (tile.landTile) ? 1 : 0;
+                count.beaches += (tile.type == Terrain.Beach) ? 1 : 0;
+            });
+            if (count.lands == 3 && count.beaches == 1)
                 result = false;
 
             return result;
@@ -403,11 +421,14 @@ export const Terrain = {
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
             // No land tiles
+            let result = true;
             neighbors.list.forEach(tile => {
-                if (tile.landTile)
-                    return false;
+                if (tile.landTile) {
+                    result = false;
+                    return;
+                }
             });
-            return true;
+            return result;
         }
     },
 
@@ -478,11 +499,14 @@ export const Terrain = {
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
             // No land tiles
+            let result = true;
             neighbors.list.forEach(tile => {
-                if (tile.landTile)
-                    return false;
+                if (tile.landTile) {
+                    result = false;
+                    return;
+                }
             });
-            return true;
+            return result;
         }
     },
 
@@ -513,7 +537,7 @@ export const Terrain = {
             // Fire
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`fire`]);
             anim.anchor.y = 0.535;  // TODO: Fix sprite
-            anim.animationSpeed = 0.2;
+            anim.animationSpeed = 0.25;
             anim.play();
             this.layers.push({object: anim, name: 'top'});
         }
@@ -548,8 +572,11 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             if (this.landTile) {
                 // Plain
-                let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-7.png`]);
+                let sprite = TerrainMethods.createPlainLayer();
                 this.layers.push({object: sprite, name: 'bottom'});
+
+                // Not until the meteor is destroyed; looks weird with it.
+                // let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-7.png`]);
             } else {
                 // Sea
                 let container = TerrainMethods.createSeaLayer(neighbors);
@@ -593,9 +620,12 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             if (this.landTile) {
                 // Plain
-                let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
-                let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-${variant}.png`]);
+                let sprite = TerrainMethods.createPlainLayer();
                 this.layers.push({object: sprite, name: 'bottom'});
+
+                // Not until plasma is destroyed; otherwise, plasma has a brown halo and it looks weird.
+                // let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
+                // let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-${variant}.png`]);
             } else {
                 // Sea
                 let container = TerrainMethods.createSeaLayer(neighbors);
@@ -605,7 +635,7 @@ export const Terrain = {
             // Plasma
             let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma, Terrain.Meteor);
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`plasma-${variant}`]);
-            anim.animationSpeed = 0.2;
+            anim.animationSpeed = 0.25;
             anim.play();
             this.layers.push({object: anim, name: 'top'});
         }
@@ -696,7 +726,7 @@ export const Terrain = {
         get serial() { return 19; }
 
         // These intentionally maintain order with Faction.Team
-        static readonly colors = ['white', 'red', 'blue', 'yellow', 'black'];
+        static readonly colors = ['white', 'white', 'red', 'blue', 'yellow', 'black'];
 
         get name() { return "City"; }
         get shortName() { return "City"; }
@@ -807,8 +837,7 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain
-            let variant = TerrainMethods.randomPlainTile();
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[variant]);
+            let sprite = TerrainMethods.createPlainLayer();
             this.layers.push({object: sprite, name: 'bottom'});
 
             // Silo
@@ -883,8 +912,6 @@ export const Terrain = {
         get type() { return PortTile; }
         get serial() { return 25; }
         get landTile() { return false; }
-        get shallowWaterSourceTile() { return false; }
-        shallowWater = false;
 
         get name() { return "Port"; }
         get shortName() { return "Port"; }
@@ -907,6 +934,7 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('port', this.faction);
+            layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.layers.push({object: layers.bottom, name: 'bottom'});
             this.layers.push({object: layers.top, name: 'top'});
         }

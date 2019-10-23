@@ -1,5 +1,10 @@
 import { LowResTransform } from "./LowResTransform"
 
+/** Captures generic classes. */
+type Class<T> = {
+    new (...args: any[]): T
+};
+
 /** Captures PIXI's object-transform style. */
 type Transformable = {
     x: number,

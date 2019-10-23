@@ -80,11 +80,12 @@ export class Map {
             this.squareAt({x:x, y:y}).terrain = new Terrain.Plain();
         }
 
+        // Set in some nice, big, blocky base-oceans.
         for (let x = 2; x < this.width-2; x++)
         for (let y = 2; y < this.height-2; y++) {
-            if (Math.random() < 0.01) {
-                for (let xx = -3; xx < 4; xx++)
-                for (let yy = -3; yy < 4; yy++) {
+            if (Math.random() < 0.035) {
+                for (let xx = -1; xx <= 1; xx++)
+                for (let yy = -1; yy <= 1; yy++) {
                     let pos = {x:xx+x, y:yy+y};
                     this.squareAt(pos).terrain = new Terrain.Sea();
                 }
@@ -94,17 +95,23 @@ export class Map {
         this.generateTile(Terrain.Sea,      [.02,.60,.70,.50,.60,.70,.70,.70,.70], 1, .10);
         this.generateTile(Terrain.Mountain, [.10,.15,.15,.15,.25,.30,.40,.40,.40],.4, 1);
         this.generateTile(Terrain.Wood,     [.08,.30,.30,.20,.20,.20,.20,.20,.20],.4, 1);
+        this.generateTile(Terrain.HQ,       [.01,.01,.01,.01,.01,.01,.01,.01,.01],.3, 1);
         this.generateTile(Terrain.City,     [.05,.05,.05,.05,.05,.05,.05,.05,.05],.3, 1);
+        this.generateTile(Terrain.Factory,  [.03,.03,.03,.03,.03,.03,.03,.03,.03],.3, 1);
+        this.generateTile(Terrain.Airport,  [.03,.03,.03,.03,.03,.03,.03,.03,.03],.3, 1);
+        this.generateTile(Terrain.Port,     [.01,.01,.01,.01,.01,.01,.01,.01,.01],.3, 1);
         this.generateTile(Terrain.Ruins,    [.03,.05,.05,.05,.05,.05,.05,.05,.05],.3, 1);
         this.generateTile(Terrain.Wasteland,[.05,.15,.15,.15,.25,.30,.40,.40,.40],.4, 1);
         this.generateTile(Terrain.Road,     [.10,.98,.90,.70,.40,.05,.05,.05,.05],.4, .35);
-        this.generateTile(Terrain.River,    [.05,.90,.80,.60,.40,.05,.05,.05,.05],.4, .35);
-        this.generateTile(Terrain.Bridge,   [.05,.98,.90,.70,.40,.05,.05,.05,.05],.4, .35);
+        this.generateTile(Terrain.River,    [.05,.95,.80,.60,.40,.05,.05,.05,.05],.4, .35);
+        this.generateTile(Terrain.Bridge,   [.05,.95,.80,.60,.40,.05,.05,.05,.05],.4, .35);
         this.generateTile(Terrain.Fire,     [.02,.02,.02,.02,.02,.02,.02,.02,.02],.3, 1);
         this.generateTile(Terrain.Beach,    [.10,.70,.90,.50,.20,.20,.20,.20,.20],.4, .7);
         this.generateTile(Terrain.Mist,     [.03,.50,.70,.50,.50,.20,.20,.20,.20],.3, .7);
         this.generateTile(Terrain.RoughSea, [.20,.20,.20,.10,.05,.05,.05,.05,.05],.3, .7);
         this.generateTile(Terrain.Reef,     [.20,.20,.20,.05,.05,.05,.05,.05,.05],.3, 1);
+        this.generateTile(Terrain.Meteor,   [.01,.01,.01,.01,.01,.01,.01,.01,.01],.3, 1);
+        this.generateTile(Terrain.Plasma,   [.02,.80,.60,.02,.02,.02,.02,.02,.02],.3, .30);
     }
 
     /** Auto-generates the given terrain type into the map based on the chance modifiers given.
@@ -204,7 +211,7 @@ export class Map {
         for (let y = 0; y < this.height; y++) {
             let neighbors = this.neighborsAt({x:x,y:y});
             let pos = {x:x,y:y};
-            let worldPos = {x: x * tileSize, y: y * tileSize}; 
+            let worldPos = {x: x * tileSize, y: y * tileSize, z: (y - x)*10}; 
             this.squareAt(pos).terrain.init(neighbors, worldPos);
         }
 
@@ -329,5 +336,20 @@ export class Map {
     validPoint(p: Point): boolean {
         return p.x >= 0 && p.x < this.width &&
                p.y >= 0 && p.y < this.height;
+    }
+
+    /**
+     * Prints the map's tile-contents to the console as a grid for inspection.
+     */
+    log() {
+        let string = "";
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                string += this.squareAt({x:x,y:y}).terrain.name.slice(0,2) + ' ';
+            }
+            string += '\n';
+        }
+
+        console.log(string);
     }
 }

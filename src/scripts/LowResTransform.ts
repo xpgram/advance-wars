@@ -11,10 +11,10 @@ import { Transformable, Point, Point3D } from "./CommonTypes";
  */
 export class LowResTransform {
     private _object: Transformable | null = null;
-    private _pos: PIXI.ObservablePoint = new PIXI.ObservablePoint(this.updateObjectPosition, 0,0);
+    private _pos: PIXI.ObservablePoint = new PIXI.ObservablePoint(this.updateObjectPosition, this, 0,0);
     private _zIndex: number = 0;
     private _rotation: number = 0;
-    private _scale: PIXI.ObservablePoint = new PIXI.ObservablePoint(this.updateObjectScale, 1,1);
+    private _scale: PIXI.ObservablePoint = new PIXI.ObservablePoint(this.updateObjectScale, this, 1,1);
 
     constructor(pos?: Point, object?: Transformable) {
         this.pos = pos || {x: 0, y: 0};
