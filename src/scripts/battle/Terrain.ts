@@ -91,7 +91,7 @@ export const Terrain = {
             this.layers.push({object: sprite, name: 'bottom'});
         
             // Road
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Road);
+            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Road, Terrain.Bridge);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`road-${variant}.png`]);
             this.layers.push({object: sprite, name: "bottom"});
         }
