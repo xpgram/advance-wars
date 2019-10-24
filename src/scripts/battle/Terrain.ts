@@ -91,7 +91,7 @@ export const Terrain = {
             this.layers.push({object: sprite, name: 'bottom'});
         
             // Road
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Road, Terrain.Bridge);
+            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Road, Terrain.Bridge, Terrain.HQ, Terrain.City, Terrain.Factory, Terrain.Airport, Terrain.Port, Terrain.Radar, Terrain.ComTower, Terrain.Silo, Terrain.TempAirpt, Terrain.TempPort);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`road-${variant}.png`]);
             this.layers.push({object: sprite, name: "bottom"});
         }
@@ -225,6 +225,8 @@ export const Terrain = {
         get type() { return BridgeTile; }
         get serial() { return 6; }
         readonly landTile: boolean;
+        get shallowWaterSourceTile() { return false; }
+        shallowWater = false;
 
         get name() { return "Bridge"; }
         get shortName() { return "Bridge"; }
@@ -256,7 +258,7 @@ export const Terrain = {
             }
 
             // Bridge
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Bridge);
+            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Bridge, Terrain.Port, Terrain.TempPort);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`bridge-${variant}.png`]);
             this.layers.push({object: sprite, name: 'bottom'});
         }
@@ -599,6 +601,8 @@ export const Terrain = {
         get type() { return PlasmaTile; }
         get serial() { return 15; }
         readonly landTile: boolean;
+        get shallowWaterSourceTile() { return false; }
+        shallowWater = false;
 
         get name() { return "Plasma"; }
         get shortName() { return "Plasma"; }
@@ -973,8 +977,6 @@ export const Terrain = {
         get type() { return TempPortTile; }
         get serial() { return 27; }
         get landTile() { return false; }
-        get shallowWaterSourceTile() { return false; }
-        shallowWater = false;
 
         get name() { return "Temp Port"; }
         get shortName() { return "T Port"; }
@@ -996,6 +998,7 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('tport', this.faction);
+            layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.layers.push({object: layers.bottom, name: 'bottom'});
             this.layers.push({object: layers.top, name: 'top'});
         }

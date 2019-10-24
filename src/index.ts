@@ -86,7 +86,7 @@ class App {
         // Add this game's visual layers to PIXI's app.stage
         this.app.stage.addChild(this.stage);
         this.app.stage.addChild(this.hud);
-        this.app.stage.addChild(new DebugLayer().layer);
+        this.app.stage.addChild(this.debugHud);
     }
 
     /** Main update loop. A state-machine implementing the Scene pattern. */
