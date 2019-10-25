@@ -170,12 +170,13 @@ export const TerrainMethods = {
             l = (neighbors.left.type == type)  ? 1 : l;    
         });
     
-        // Patch fix for bridges: Extend to any land tile that isn't a river
+        // Patch fix for bridges: Extend to any land tile that isn't a river or mountain
+        // TODO Add an excludeTypes: TerrainType[] parameter.
         if (neighbors.center.type == Terrain.Bridge) {
-            u = (neighbors.up.landTile && neighbors.up.type != Terrain.River)       ? 1 : u;
-            r = (neighbors.right.landTile && neighbors.right.type != Terrain.River) ? 1 : r;
-            d = (neighbors.down.landTile && neighbors.down.type != Terrain.River)   ? 1 : d;
-            l = (neighbors.left.landTile && neighbors.left.type != Terrain.River)   ? 1 : l;
+            u = (neighbors.up.landTile && neighbors.up.type != Terrain.River && neighbors.up.type != Terrain.Mountain)          ? 1 : u;
+            r = (neighbors.right.landTile && neighbors.right.type != Terrain.River && neighbors.right.type != Terrain.Mountain) ? 1 : r;
+            d = (neighbors.down.landTile && neighbors.down.type != Terrain.River && neighbors.down.type != Terrain.Mountain)    ? 1 : d;
+            l = (neighbors.left.landTile && neighbors.left.type != Terrain.River && neighbors.left.type != Terrain.Mountain)    ? 1 : l;
         }
 
         // Patch fix for rivers: Extend to any tile that is by nature a sea tile (except f**ing beaches)
