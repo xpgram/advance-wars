@@ -48,6 +48,8 @@ export class Map {
     destroy() {
         // TODO Destroy the Map
         // Break all Map → Square → Terrain/Unit → Sprite connections
+
+        TerrainMethods.stopPaletteAnimation();
     }
 
     /** Builds the data structure representing the map given its width and height.

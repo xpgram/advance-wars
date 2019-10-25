@@ -265,7 +265,8 @@ export const Terrain = {
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>): boolean {
             return (neighbors.center.type == Terrain.Sea ||
-                    neighbors.center.type == Terrain.River);
+                    neighbors.center.type == Terrain.River ||
+                    neighbors.center.type == Terrain.Bridge);
         }
     },
 

@@ -38,28 +38,38 @@ export const TerrainMethods = {
 
     animTime: 0,
     animFrame: 0,
+    animateShoreline: (delta: number) => {
+        // Collect time (I don't know what 6 means——six frames?)
+        TerrainMethods.animTime += delta;
+        if (TerrainMethods.animTime > 6) {
+            TerrainMethods.animTime -= 6;
+            
+            // Choose a new palette-swap color matrix: use a triangle wave pattern to decide.
+            let colorMatrix = TerrainMethods.shorelinePaletteSwaps[TerrainMethods.animFrame];
+            if (TerrainMethods.animFrame > 15)
+                colorMatrix = TerrainMethods.shorelinePaletteSwaps[31 - TerrainMethods.animFrame];
 
-    // TODO Allow young boys to remove it.
-    /** Initiates the shoreline animation ticker. There is currently no
-     * way to remove it. */
+            // Insert the new palette swap in to the color-replacement filter.
+            TerrainMethods.shorelineFilter.replacements = colorMatrix;
+            
+            // Frame-counting maintenance.
+            TerrainMethods.animFrame++;
+            if (TerrainMethods.animFrame > 31)
+                TerrainMethods.animFrame = 0;
+
+        }
+    },
+
+    /** Initiates the shoreline animation ticker and adds the color-swap filter to the bottom texture layer. */
     startPaletteAnimation: () => {
         MapLayers['bottom'].filters = [TerrainMethods.shorelineFilter];
-        Game.app.ticker.add( (delta: number) => {
-            TerrainMethods.animTime += delta;
-            if (TerrainMethods.animTime > 6) {
-                TerrainMethods.animTime -= 6;
-                
-                if (TerrainMethods.animFrame > 15)
-                    TerrainMethods.shorelineFilter.replacements = TerrainMethods.shorelinePaletteSwaps[31 - TerrainMethods.animFrame];
-                else if (TerrainMethods.animFrame <= 15)
-                    TerrainMethods.shorelineFilter.replacements = TerrainMethods.shorelinePaletteSwaps[TerrainMethods.animFrame];
-                
-                TerrainMethods.animFrame++;
-                if (TerrainMethods.animFrame > 31)
-                    TerrainMethods.animFrame = 0;
+        Game.app.ticker.add( TerrainMethods.animateShoreline );
+    },
 
-            }
-        });
+    /** Stops the shoreline animation ticker, and removes the color filter. */
+    stopPaletteAnimation: () => {
+        MapLayers['bottom'].filters = null;
+        Game.app.ticker.remove( TerrainMethods.animateShoreline );  // TODO Does this work?
     },
 
     randomPlainTile(): string {
