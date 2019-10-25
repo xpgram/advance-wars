@@ -1,11 +1,11 @@
 import * as PIXI from "pixi.js";
+import * as PixiFilter from "pixi-filters";
 import { Game } from "../..";
 import { TerrainObject } from "./TerrainObject";
 import { UnitClass, Faction, MoveType } from "./EnumTypes";
 import { Common } from "../CommonUtils";
 import { TerrainMethods } from "./TerrainHelpers";
 import { NeighborMatrix } from "../NeighborMatrix";
-import { MapLayers } from "./MapLayers";
 
 /**
  * Auto-generated.
@@ -374,15 +374,6 @@ export const Terrain = {
             if (!n.up.landTile && !n.right.landTile && !n.down.landTile && !n.left.landTile)
                 result = false;
 
-            // Patch fix for 3-lands + 1-beach neighbor scenario
-            let count = {lands: 0, beaches: 0};
-            n.orthogonals.forEach(tile => {
-                count.lands += (tile.landTile) ? 1 : 0;
-                count.beaches += (tile.type == Terrain.Beach) ? 1 : 0;
-            });
-            if (count.lands == 3 && count.beaches == 1)
-                result = false;
-
             return result;
         }
     },
@@ -665,6 +656,20 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // TODO Implement Pipes
+
+            // There is no such thing as a 3-way pipe.
+            // Pipes have no-direction "0000", 1 direction "0100" or 2 directions "0110"
+            // Pipes will need to save internally which two directions they've chosen.
+            // After choosing two directions, pipes will not update their sprite unless the tiles in those directions update.
+            // If one does, however, the pipe re-runs its sprite-picking algorithm on its neighbors.
+            // If only one does (how would two?), the direction that didn't update should ~not~ change.
+
+            // I could easily do this by saving one 4-bit number (1010) and stipulating that its maximum digit-to-digit add is 2,
+            // and further that the algorithm picks directions by adding ones to the number iteratively, so that when one dir updates
+            // (a 1 is removed) we only bother to pick one more dir to add instead of picking both at once.
+
+            // One more note: Pipes as they are in classic advance wars do not have a no-connections texture. They just pick the
+            // horizontal connection. This looks ugly. When (if) I implement these, draw a no-connections texture.
         }
     },
 
@@ -692,6 +697,12 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // TODO Implement Pipe Seams
+        }
+
+        legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
+            // neighbors.center.type == Terrain.Pipe &&
+            // neighbors.center.direction == 0101 || 1010 // a straight line necessarily connected to other pipes.
+            return false;
         }
     },
 

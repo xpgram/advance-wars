@@ -4,6 +4,7 @@ import { BattleScene } from './scenes/BattleScene';
 import { DebugLayer } from './scripts/DebugLayer';
 
 // Pixi engine settings
+PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling fuzziness
 
 /**

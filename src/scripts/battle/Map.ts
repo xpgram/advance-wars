@@ -7,6 +7,7 @@ import { Game } from "../..";
 import { NumericDictionary, Point } from "../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Unit } from "./Unit";
+import { TerrainMethods } from "./TerrainHelpers";
 
 // Common error messages
 function InvalidLocationError(point: Point) {
@@ -34,9 +35,11 @@ export class Map {
     constructor(width: number, height: number) {
         this.layers.init();
         this.constructMap(width, height);
-        this.generateMap();        // Randomly generates a pleasant-looking map.
-        this.configureMap();       // Preliminary setup for things like sea-tiles knowing they're shallow.
-        this.initializeMap();      // Ask all types to build their graphical objects.
+        this.generateMap();     // Randomly generates a pleasant-looking map.
+        this.forceLegalTiles(); // Removes any illegal tiles left behind by the map generation process.
+        this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
+        this.initializeMap();   // Ask all types to build their graphical objects.
+        TerrainMethods.startPaletteAnimation();
     }
 
     /**
@@ -187,6 +190,20 @@ export class Map {
         multipass(this, 1);
         multipass(this, 0.7);
         multipass(this, 0.4);
+    }
+
+    /** One final board passover to make sure all tiles placed are still legally placed.
+     * This step ensures no graphical mishaps after map-generation. */
+    private forceLegalTiles() {
+        for (let x = 0; x < this.width; x++)
+        for (let y = 0; y < this.height; y++) {
+            let pos = {x:x, y:y};
+            let neighbors = this.neighborsAt(pos);
+
+            // If the center tile is not legally placed among its neighbors, change it to whatever tile makes up its base (land or sea).
+            if (neighbors.center.legalPlacement(neighbors) == false)
+                this.squareAt(pos).terrain = (neighbors.center.landTile) ? new Terrain.Plain() : new Terrain.Sea();
+        }
     }
 
     /** Iterates through the map, applying some preliminary settings to various tiles based on their surroundings.

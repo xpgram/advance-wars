@@ -2,12 +2,6 @@ import * as PIXI from "pixi.js";
 import { Scene } from "./Scene";
 import { Map } from "../scripts/battle/Map";
 import { Game } from "..";
-import { MapLayers } from "../scripts/battle/MapLayers";
-import { Terrain } from "../scripts/battle/Terrain";
-import { NeighborMatrix } from "../scripts/NeighborMatrix";
-import { TerrainObject } from "../scripts/battle/TerrainObject";
-import { MoveType } from "../scripts/battle/EnumTypes";
-import { TerrainMethods } from "../scripts/battle/TerrainHelpers";
 
 var fpsText: PIXI.BitmapText;
 var time: number = 0;

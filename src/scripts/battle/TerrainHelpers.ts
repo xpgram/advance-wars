@@ -1,10 +1,67 @@
 import * as PIXI from "pixi.js";
+import * as PixiFilters from "pixi-filters";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Terrain } from "./Terrain";
 import { Faction } from "./EnumTypes";
+import { Game } from "../..";
+import { MapLayers } from "./MapLayers";
 
 export const TerrainMethods = {
+
+    /** Used to animate the shoreline where land meets sea. */
+    shorelineFilter: new PixiFilters.MultiColorReplaceFilter([[0, 0], [0, 0], [0, 0], [0, 0]], 0.015),
+
+    /** An array of colors for MultiColorReplace to swap; contributes to
+     * animating the shoreline where land meets sea. */
+    shorelinePaletteSwaps: [
+        // Beach Light Blue     Beach Dark Blue       Cliff ~Dark~ Blue     Cliff Dark Blue
+        [[0xC6DEEF, 0xcde6f7], [0x6d9dce, 0x96b5d6], [0x637b9c, 0x5d6f8c], [0x9cb5ce, 0x96b5d6]],
+        [[0xC6DEEF, 0xc9e5f7], [0x6d9dce, 0x94b4d6], [0x637b9c, 0x5c6e94], [0x9cb5ce, 0x94b4d6]],
+        [[0xC6DEEF, 0xbfe4f7], [0x6d9dce, 0x8aaad6], [0x637b9c, 0x627594], [0x9cb5ce, 0x8aaad6]],
+        [[0xC6DEEF, 0xbbd9ef], [0x6d9dce, 0x88abce], [0x637b9c, 0x687d9c], [0x9cb5ce, 0x88abce]],
+        [[0xC6DEEF, 0xb0d9ef], [0x6d9dce, 0x80a1ce], [0x637b9c, 0x667c9c], [0x9cb5ce, 0x80a1ce]],
+        [[0xC6DEEF, 0xadcfe7], [0x6d9dce, 0x7fa2c6], [0x637b9c, 0x6b82a5], [0x9cb5ce, 0x7fa2c6]],
+        [[0xC6DEEF, 0xa3d0e7], [0x6d9dce, 0x7a9bc6], [0x637b9c, 0x698bad], [0x9cb5ce, 0x7a9bc6]],
+        [[0xC6DEEF, 0xa0c3e7], [0x6d9dce, 0x7899c6], [0x637b9c, 0x7188ad], [0x9cb5ce, 0x7899c6]],
+        [[0xC6DEEF, 0x9dc5de], [0x6d9dce, 0x7090bd], [0x637b9c, 0x7293b5], [0x9cb5ce, 0x7090bd]],
+        [[0xC6DEEF, 0x93b9de], [0x6d9dce, 0x7292bd], [0x637b9c, 0x7c91bd], [0x9cb5ce, 0x7292bd]],
+        [[0xC6DEEF, 0x95bcd6], [0x6d9dce, 0x6c8bb5], [0x637b9c, 0x7e9ebd], [0x9cb5ce, 0x6c8bb5]],
+        [[0xC6DEEF, 0x90b2d6], [0x6d9dce, 0x6e8cb5], [0x637b9c, 0x87a6c6], [0x9cb5ce, 0x6e8cb5]],
+        [[0xC6DEEF, 0x93b3d6], [0x6d9dce, 0x698fad], [0x637b9c, 0x8aa8c6], [0x9cb5ce, 0x698fad]],
+        [[0xC6DEEF, 0x8dadce], [0x6d9dce, 0x6a87ad], [0x637b9c, 0x93b0ce], [0x9cb5ce, 0x6a87ad]],
+        [[0xC6DEEF, 0x90afce], [0x6d9dce, 0x6488ad], [0x637b9c, 0x9eb9d6], [0x9cb5ce, 0x6488ad]],
+        [[0xC6DEEF, 0x8ba8c6], [0x6d9dce, 0x6681a5], [0x637b9c, 0xa1bad6], [0x9cb5ce, 0x6681a5]]
+        // Beach dark blue and cliff dark blue are the same source color.
+        // Or, they would have been if I hadn't messed with 'em during ripping.
+    ],
+
+    animTime: 0,
+    animFrame: 0,
+
+    // TODO Allow young boys to remove it.
+    /** Initiates the shoreline animation ticker. There is currently no
+     * way to remove it. */
+    startPaletteAnimation: () => {
+        MapLayers['bottom'].filters = [TerrainMethods.shorelineFilter];
+        Game.app.ticker.add( (delta: number) => {
+            TerrainMethods.animTime += delta;
+            if (TerrainMethods.animTime > 6) {
+                TerrainMethods.animTime -= 6;
+                
+                if (TerrainMethods.animFrame > 15)
+                    TerrainMethods.shorelineFilter.replacements = TerrainMethods.shorelinePaletteSwaps[31 - TerrainMethods.animFrame];
+                else if (TerrainMethods.animFrame <= 15)
+                    TerrainMethods.shorelineFilter.replacements = TerrainMethods.shorelinePaletteSwaps[TerrainMethods.animFrame];
+                
+                TerrainMethods.animFrame++;
+                if (TerrainMethods.animFrame > 31)
+                    TerrainMethods.animFrame = 0;
+
+            }
+        });
+    },
+
     randomPlainTile(): string {
         let n = (Math.random() < 0.3) ? (Math.floor(Math.random()*6) + 1) : 0;
         return `${n}`;
