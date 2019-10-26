@@ -7,7 +7,7 @@ import { Game } from "../..";
 import { NumericDictionary, Point } from "../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Unit } from "./Unit";
-import { TerrainMethods } from "./TerrainHelpers";
+import { TerrainMethods } from "./Terrain.helpers";
 
 // Common error messages
 function InvalidLocationError(point: Point) {
