@@ -19,6 +19,14 @@ export const Common = {
         return n;
     },
 
+    /** Returns true if box1 and box2 overlap in any way. */
+    boxCollision: (box1: PIXI.Rectangle, box2: PIXI.Rectangle) => {
+        return (box1.x < box2.x + box2.width &&
+            box1.x + box1.width > box2.x &&
+            box1.y < box2.y + box2.height &&
+            box1.y + box1.height > box2.y);
+    },
+
     /**
      * Retrieves bits from the object's information number. All JS numbers are 64-bit.
      * @param store The number to read from.

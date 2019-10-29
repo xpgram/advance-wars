@@ -45,3 +45,14 @@ type NumericDictionary<T> = {
 type StringDictionary<T> = {
     [key: string]: T
 }
+
+/** Describes any object whose draw-to-screen is toggleable. */
+type RenderToggleable = {
+    renderable: boolean,
+}
+
+/** An object with a 2d grid of toggleably renderable objects. */
+type Cullable = {
+    getGrid(): RenderToggleable[][],
+    readonly gridCellPixelSize: number
+}

@@ -63,6 +63,7 @@ export const TerrainMethods = {
     /** Initiates the shoreline animation ticker and adds the color-swap filter to the bottom texture layer. */
     startPaletteAnimation: () => {
         MapLayers['bottom'].filters = [TerrainMethods.shorelineFilter];
+        //MapLayers['bottom'].filterArea = camera rect
         Game.app.ticker.add( TerrainMethods.animateShoreline );
     },
 

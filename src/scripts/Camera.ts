@@ -1,6 +1,8 @@
+import * as PIXI from "pixi.js";
 import { LowResTransform } from "./LowResTransform";
-import { TransformContainer, Point } from "./CommonTypes";
+import { TransformContainer, Point, Cullable } from "./CommonTypes";
 import { Game } from "..";
+import { Common } from "./CommonUtils";
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
@@ -30,11 +32,12 @@ export class Camera {
      */
     constructor(stage: PIXI.Container) {
         this.stage = stage;
+        this.toggleCullables(this.stage);
     }
 
     /** The world or layer the camera will move to simulate camera movement. */
     get stage(): PIXI.Container | null {
-        return this.transform.object;
+        return (this.transform.object as PIXI.Container | null);
     }
     set stage(object) {
         this.transform.object = object;
@@ -42,10 +45,10 @@ export class Camera {
 
     /** The camera's x-coordinate in 2D space, anchored in the top-left. */
     get x() { return -this.transform.x; }
-    set x(num) { this.transform.x = -num; }
+    set x(num) { this.transform.x = -num; this.toggleCullables(this.stage); }
     /** The camera's y-coordinate in 2D space, anchored in the top-left. */
     get y() { return -this.transform.y; }
-    set y(num) { this.transform.y = -num; }
+    set y(num) { this.transform.y = -num; this.toggleCullables(this.stage); }
 
     /** A point object representing the camera's position in 2D space, anchored in the top-left. */
     get pos(): Point { return {x: this.x, y: this.y} };
@@ -96,12 +99,43 @@ export class Camera {
 
     /** The camera's angle of rotation. Expressed in radians. */
     get rotation(): number { return -this.transform.rotation; }
-    set rotation(num) { this.transform.rotation = -num; }
+    set rotation(num) { this.transform.rotation = -num; this.toggleCullables(this.stage); }
 
     /** The camera's zoom level, or scaling of the game world it is peering into.
      * Note that this necessarily adjusts the view's pixel density. */
     get zoom(): number { return this.transform.scale.x; }
     set zoom(num) {
         this.transform.scale.setSize(num);
+        this.toggleCullables(this.stage);
+    }
+
+    toggleCullables(container: PIXI.Container) {
+        // Set each sprite to visible if its rect collides with the camera's.
+
+        // Sometimes sprites are put in containers whose transform ~is~ there transform.
+        // This is why the sea is disappearing; we travel to the bottom of the tree, which is the sea graphic,
+        // which technically has a coordinate of 0,0.
+
+        container.children.forEach( sprite => {
+            if ((sprite as PIXI.Container).children.length > 0)
+                this.toggleCullables(sprite as PIXI.Container);
+            else {
+                // This is a bandaid, but should work for now.
+                if (sprite.x == 0 || sprite.y == 0)
+                    return;
+
+                // It does work for now, but it doesn't quite have the effects I was hoping for.
+                // They shouldn't be drawing to any 'buffer', but maybe that was never the problem.
+                // It would make sense if the browser could tell it was drawing something beyond the
+                // width/height of the div and just culling that.
+                // It's also possible, though why I don't know, that the color replace filter is
+                // still being applied to all the sprites in the image even though most of them
+                // aren't visible.
+
+                let cameraRect = new PIXI.Rectangle(this.x - 1, this.y - 1, this.frame.width + 2, this.frame.height + 2);
+                let spriteRect = new PIXI.Rectangle(sprite.x, sprite.y, (sprite as PIXI.Sprite).width, (sprite as PIXI.Sprite).height);
+                sprite.visible = (Common.boxCollision(spriteRect, cameraRect));
+            }
+        });
     }
 }

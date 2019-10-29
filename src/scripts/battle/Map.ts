@@ -4,7 +4,7 @@ import { NeighborMatrix } from "../NeighborMatrix";
 import { LowResTransform } from "../LowResTransform";
 import { MapLayers } from "./MapLayers";
 import { Game } from "../..";
-import { NumericDictionary, Point } from "../CommonTypes";
+import { NumericDictionary, Point, Renderable, Cullable } from "../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Unit } from "./Unit";
 import { TerrainMethods } from "./Terrain.helpers";

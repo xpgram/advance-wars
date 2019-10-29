@@ -44,6 +44,29 @@ export class VirtualGamepad {
 
     constructor() {
         this.reset();
+
+        // TODO Move this to class 'KeyboardListener' and add to virtual gamepad as a static property.
+        window.addEventListener('keydown', (event) => {
+            if (event.defaultPrevented)
+                return;
+
+            switch (event.key) {
+                case "ArrowDown":
+                    this.button.dpadDown.update(true);
+                    break;
+                case "ArrowUp":
+                    this.button.dpadUp.update(true);
+                    break;
+                case "ArrowLeft":
+                    this.button.dpadLeft.update(true);
+                    break;
+                case "ArrowRight":
+                    this.button.dpadRight.update(true);
+                    break;
+                default:
+                    return; // Quit when this doesn't handle the key event.
+            }
+        });
     }
 
     /** Reset button and stick state. */
