@@ -75,8 +75,10 @@ export class BattleScene extends Scene {
 
         if (this.gamepad.button.A.down)
             fpsText.text = "A button is pressed!";
-        if (this.gamepad.button.dpadDown.down)
-            this.camera.y += 0.5 * delta;
+        if (this.gamepad.dpadDown) {
+            this.camera.x += this.gamepad.dpadAxis.x * delta;
+            this.camera.y += this.gamepad.dpadAxis.y * delta;
+        }
     }
 
     destroyStep(): void {

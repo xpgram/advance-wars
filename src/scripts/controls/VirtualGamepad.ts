@@ -1,10 +1,12 @@
 import { Button } from "./Button";
 import { Point, StringDictionary } from "../CommonTypes";
+import { KeyboardObserver } from "./KeyboardObserver";
 
 /**
  * @author Dei Valko
  */
 export class VirtualGamepad {
+    static readonly keyboard = KeyboardObserver;
 
     /** Whether this virtual controller assumes input from the keyboard when its controller is disconnected. */
     defaultToKeyboard: boolean = false;
@@ -26,7 +28,7 @@ export class VirtualGamepad {
 
     button = {
         B: new Button('B', ButtonMap.B, null, null),        // Snes setup
-        A: new Button('A', ButtonMap.A, null, null),
+        A: new Button('A', ButtonMap.A, 'A', 65),
         Y: new Button('Y', ButtonMap.Y, null, null),
         X: new Button('X', ButtonMap.X, null, null),
         leftBumper: new Button('Left Bumper', ButtonMap.leftBumper, null, null),
@@ -37,37 +39,14 @@ export class VirtualGamepad {
         start: new Button('Start', ButtonMap.start, null, null),
         leftStick: new Button('Left Stick', ButtonMap.leftStick, null, null),
         rightStick: new Button('Right Stick', ButtonMap.rightStick, null, null),
-        dpadUp: new Button('D-Pad Up', ButtonMap.dpadUp, null, null),
-        dpadDown: new Button('D-Pad Down', ButtonMap.dpadDown, null, null),
-        dpadLeft: new Button('D-Pad Left', ButtonMap.dpadLeft, null, null),
-        dpadRight: new Button('D-Pad Right', ButtonMap.dpadRight, null, null)
+        dpadUp: new Button('D-Pad Up', ButtonMap.dpadUp, 'Up Arrow', 38),
+        dpadDown: new Button('D-Pad Down', ButtonMap.dpadDown, 'Down Arrow', 40),
+        dpadLeft: new Button('D-Pad Left', ButtonMap.dpadLeft, 'Left Arrow', 37),
+        dpadRight: new Button('D-Pad Right', ButtonMap.dpadRight, 'Right ARrow', 39)
     };
 
     constructor() {
         this.reset();
-
-        // TODO Move this to class 'KeyboardListener' and add to virtual gamepad as a static property.
-        window.addEventListener('keydown', (event) => {
-            if (event.defaultPrevented)
-                return;
-
-            switch (event.key) {
-                case "ArrowDown":
-                    this.button.dpadDown.update(true);
-                    break;
-                case "ArrowUp":
-                    this.button.dpadUp.update(true);
-                    break;
-                case "ArrowLeft":
-                    this.button.dpadLeft.update(true);
-                    break;
-                case "ArrowRight":
-                    this.button.dpadRight.update(true);
-                    break;
-                default:
-                    return; // Quit when this doesn't handle the key event.
-            }
-        });
     }
 
     /** Reset button and stick state. */
@@ -82,17 +61,22 @@ export class VirtualGamepad {
     /** Updates the state of this virtual controller by polling a connected controller for its state. */
     update() {
         let gamepad = this.getFirstGamepad();
-        if (gamepad) {
-            for (let buttonProp in this.button) {
-                let button = (this.button as StringDictionary<Button>)[buttonProp];
+
+        for (let buttonProp in this.button) {
+            let button = (this.button as StringDictionary<Button>)[buttonProp];
+            let pressed = false;
+            if (gamepad)
                 if (button.index)
-                    button.update(gamepad.buttons[ button.index ].pressed);
-                // else if (button.keycode)
-                //     button.update(gamepad.keys[ button.keycode ].pressed);
-                // ↑ Something sorta like this.
-                // But also rewritten like this:
-                //     button.update(button.pressed || key.pressed);
-            }
+                    pressed = gamepad.buttons[button.index].pressed;
+            if (button.keycode)
+                pressed = VirtualGamepad.keyboard.keyDown(button.keycode) || pressed;
+            button.update(pressed);
+
+            // else if (button.keycode)
+            //     button.update(gamepad.keys[ button.keycode ].pressed);
+            // ↑ Something sorta like this.
+            // But also rewritten like this:
+            //     button.update(button.pressed || key.pressed);
         }
     }
 

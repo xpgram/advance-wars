@@ -56,9 +56,9 @@ export class MapCursor {
 
     destroy() {
         this.transform.destroy();
-        Game.hud.removeChild(this.spriteLayer); // TODO This is not a way of doing this that prevents me from forgetting to.
-        this.spriteLayer.destroy({children: true});
         Game.app.ticker.remove( this.updateAnimation ); // FIXME This shouldn't even work.
+        // I think I have to wrap it in a nameless f because of context (this).
+        // It might be easier to just ask Game.app.ticker to purge itself on scene end.
     }
 
     updateAnimation(delta: number) {
@@ -83,15 +83,6 @@ export class MapCursor {
         }
         else
             this.moveTime = MapCursor.moveTime_initial;
-
-        // TODO Let update() be a callback given to the virtual controller.
-        // I don't know what gainz there be, but it makes sense; why
-        // spend every frame assigning moveTime_initial to a var that
-        // already has it?
-        // This does mean the VirtualController needs to have FOUR LISTS
-        // of callback functions to iterate through.
-        // Well, three at least.
-        // I dunno. It's an interesting idea.
     }
 
     move(dir: Point) {
