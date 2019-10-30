@@ -408,7 +408,7 @@ export const Terrain = {
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['rough']);
             anim.animationSpeed = 0.125;
             anim.play();
-            container.addChildAt(anim, 1);  // Insert between sea and shallow-sea overlay
+            container.addChildAt(anim, 0);  // Insert underneath shallow-sea overlay (and cliff if I allow that)
 
             this.layers.push({object: container, name: 'bottom'});
         }

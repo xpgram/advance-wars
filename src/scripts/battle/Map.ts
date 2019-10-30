@@ -1,10 +1,11 @@
+import * as PIXI from "pixi.js";
 import { Terrain } from "./Terrain";
 import { Square } from "./Square";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { LowResTransform } from "../LowResTransform";
 import { MapLayers } from "./MapLayers";
 import { Game } from "../..";
-import { NumericDictionary, Point, Renderable, Cullable } from "../CommonTypes";
+import { NumericDictionary, Point } from "../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Unit } from "./Unit";
 import { TerrainMethods } from "./Terrain.helpers";
@@ -35,6 +36,12 @@ export class Map {
     constructor(width: number, height: number) {
         this.layers.init();
         this.constructMap(width, height);
+
+        let screenWidth = width * Game.display.standardLength;
+        let screenHeight = height * Game.display.standardLength
+
+        this.setupBoardMask(screenWidth, screenHeight);
+        TerrainMethods.addSeaLayer(screenWidth, screenHeight);
         this.generateMap();     // Randomly generates a pleasant-looking map.
         this.forceLegalTiles(); // Removes any illegal tiles left behind by the map generation process.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
@@ -42,14 +49,27 @@ export class Map {
         TerrainMethods.startPaletteAnimation();
     }
 
-    /**
-     * 
-     */
+    /**  */
     destroy() {
         // TODO Destroy the Map
         // Break all Map → Square → Terrain/Unit → Sprite connections
-
+        // I suspect PIXI can handle breaking all the stage layers I've created, but know this theory is untested.
+        TerrainMethods.removeSeaLayer();    // Doesn't do anything.
         TerrainMethods.stopPaletteAnimation();
+    }
+
+    /** Applies a mask to the map to eliminate unwanted overdraw.
+     * Primarily, this eliminates shadows drawn over the maps bottom edge. */
+    setupBoardMask(width: number, height: number) {
+        // Draw one tile-length above the map to the very bottom of the map (overdraw above ~is~ wanted.)
+        let tileSize = Game.display.standardLength;
+        let mapMask = new PIXI.Graphics();
+        mapMask.beginFill(0xFFFFFF);
+        mapMask.drawRect(0, -tileSize, width, height + tileSize);
+
+        // Set the mask and add it to the stage; the mask should move with its object.
+        Game.stage.mask = mapMask;
+        Game.stage.addChild(mapMask);
     }
 
     /** Builds the data structure representing the map given its width and height.

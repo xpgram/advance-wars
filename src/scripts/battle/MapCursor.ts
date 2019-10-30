@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { Point } from "../CommonTypes";
 import { Map } from "./Map";
 import { Game } from "../..";
-import { VirtualGamepad } from "../VirtualGamepad";
+import { VirtualGamepad } from "../controls/VirtualGamepad";
 import { Common } from "../CommonUtils";
 import { LowResTransform } from "../LowResTransform";
 

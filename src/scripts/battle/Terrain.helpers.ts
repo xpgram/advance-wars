@@ -73,7 +73,33 @@ export const TerrainMethods = {
         Game.app.ticker.remove( TerrainMethods.animateShoreline );  // TODO Does this work?
     },
 
+    /** Adds an animated, background sea layer to the overall map image.
+     * Should be added first before anything else.
+     * @param width In pixels, the horizontal size of the sea background layer.
+     * @param height In pixels, the vertical size of the sea background layer.
+     */
+    addSeaLayer: (width: number, height: number) => {
+        let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['sea']);
+        let tsprite = new PIXI.TilingSprite(anim.texture, width, height);
+        MapLayers['bottom'].addChild(tsprite);
+
+        anim.onFrameChange = () => {
+            tsprite.texture = anim.texture;
+        };
+        anim.animationSpeed = 0.1;
+        anim.play();
+    },
+
+    /** Removes the animated, background sea layer from the map image.
+     * (Not implemented) */
+    removeSeaLayer: () => {
+        // This function cannot see anim or tsprite.
+        // Plus, I feel there should be a way to get PIXI to clear
+        // all of its display/ticker objects without writing my own.
+    },
+
     randomPlainTile(): string {
+        // This should grab '6' as the length of a plainTile textures array, but I don't have one set up in the atlas.
         let n = (Math.random() < 0.3) ? (Math.floor(Math.random()*6) + 1) : 0;
         return `${n}`;
     },
@@ -218,11 +244,6 @@ export const TerrainMethods = {
         if (options.includeShallowWater == undefined) options.includeShallowWater = true;
 
         let container = new PIXI.Container();
-    
-        let sea = new PIXI.AnimatedSprite(Terrain.sheet.animations['sea']);
-        sea.animationSpeed = 0.10;
-        sea.play();
-        container.addChild(sea);
     
         // Add shallow waters
         if (options.includeShallowWater) {

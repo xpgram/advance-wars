@@ -32,7 +32,7 @@ export class Camera {
      */
     constructor(stage: PIXI.Container) {
         this.stage = stage;
-        this.toggleCullables(this.stage);
+        //this.toggleCullables(this.stage);
     }
 
     /** The world or layer the camera will move to simulate camera movement. */
@@ -111,7 +111,7 @@ export class Camera {
 
     toggleCullables(container: PIXI.Container) {
         // Set each sprite to visible if its rect collides with the camera's.
-
+        return;
         // Sometimes sprites are put in containers whose transform ~is~ there transform.
         // This is why the sea is disappearing; we travel to the bottom of the tree, which is the sea graphic,
         // which technically has a coordinate of 0,0.
