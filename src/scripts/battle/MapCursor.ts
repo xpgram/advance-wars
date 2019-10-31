@@ -89,8 +89,8 @@ export class MapCursor {
     move(dir: Point) {
         this.pos.x += dir.x;
         this.pos.y += dir.y;
-        Common.confine(this.pos.x, 0, this.mapRef.width);
-        Common.confine(this.pos.y, 0, this.mapRef.height);
+        this.pos.x = Common.confine(this.pos.x, 0, this.mapRef.width - 1);  // Confine's range is inclusive, and .width does not give the last index.
+        this.pos.y = Common.confine(this.pos.y, 0, this.mapRef.height - 1);
 
         let tileSize = Game.display.standardLength;
         let realPos = {x: this.pos.x * tileSize, y: this.pos.y * tileSize};

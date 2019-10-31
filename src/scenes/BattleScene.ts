@@ -66,6 +66,7 @@ export class BattleScene extends Scene {
     }
 
     updateStep(delta: number): void {
+        // FPS Counter
         time += delta;
         if (time > 5) {
             time -= 5;
@@ -73,10 +74,15 @@ export class BattleScene extends Scene {
                 fpsText.text = `${Math.floor(Game.app.ticker.FPS)}`;
         }
 
-        this.gamepad.update();
-        this.cursor.update(delta);
-        this.camera.update(delta);
+        // Update board mask
+        (MapLayers['bottom'] as PIXI.Container).filterArea.width = Game.display.width;
+        (MapLayers['bottom'] as PIXI.Container).filterArea.height = Game.display.height;
 
+        this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
+        this.cursor.update(delta);  // Update map cursor state (I could just have it add its own ticker, you know... hm. I get more control this way, though. I think.)
+        this.camera.update(delta);  // Update camera position (follows cursor)
+
+        // Proof that buttons work.
         if (this.gamepad.button.A.down)
             fpsText.text = "A button is pressed!";
     }

@@ -87,3 +87,5 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+dist/main.js
+dist/index.html

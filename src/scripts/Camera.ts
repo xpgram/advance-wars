@@ -15,6 +15,8 @@ import { Common } from "./CommonUtils";
  * @version 0.1.0
  */
 export class Camera {
+    maxSpeed = 5;   // The number of... something, that the camera can travel per second.
+
     private _transform = new LowResTransform();
     /** Reference to the camera's transform. */
     get transform(): LowResTransform {
@@ -111,19 +113,35 @@ export class Camera {
     /** If camera has a follow target, it will move to keep that target in view. */
     update(delta: number) {
         if (this.followTarget) {
+            // Find absolute values from the world origin for the camera's inner-frame's edges.
             let left = this.x + this.frame.focusBox.x;
             let right = left + this.frame.focusBox.width;
             let top = this.y + this.frame.focusBox.y;
             let bottom = top + this.frame.focusBox.height;
 
-            if (this.followTarget.transform.x > right)
-                this.x += 5 * delta;
-            if (this.followTarget.transform.x < left)
-                this.x -= 5 * delta;
-            if (this.followTarget.transform.y > bottom)
-                this.y += 5 * delta;
-            if (this.followTarget.transform.y < top)
-                this.y -= 5 * delta;
+            let dir = {x:0, y:0};   // Represents the distance we intend to travel this frame.
+            let target = this.followTarget.transform;   // Shorthand for the target-we're-following's transform.
+            let maxTravel = this.maxSpeed * delta;    // The maximum distance we're allowed to travel this frame.
+
+            // Horizontal distance
+            if (target.x > right)
+                dir.x = target.x - right;
+            else if (target.x < left)
+                dir.x = target.x - left;
+
+            // Vertical distance
+            if (target.y > bottom)
+                dir.y = target.y - bottom;
+            else if (target.y < top)
+                dir.y = target.y - top;
+
+            // Cap distance by maximum travel distance this frame
+            dir.x = Common.confine(dir.x, -maxTravel, maxTravel);
+            dir.y = Common.confine(dir.y, -maxTravel, maxTravel);
+
+            // If travel distance is less than maximum, we should travel only as much as needed.
+            this.x += dir.x;
+            this.y += dir.y;
         }
     }
 
