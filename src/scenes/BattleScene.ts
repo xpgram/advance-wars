@@ -46,6 +46,9 @@ export class BattleScene extends Scene {
         // Testing out gamepads, babay
         this.gamepad = new VirtualGamepad();
         this.cursor = new MapCursor(this.map, this.gamepad);
+        this.camera.followTarget = this.cursor;
+        this.camera.frame.focusBox.x = 32;
+        this.camera.frame.focusBox.y = 32;
 
         // Add an FPS ticker to measure performance
         // TODO Move this into a Debug class or something. Instantiate it in Game or Scene.
@@ -72,13 +75,10 @@ export class BattleScene extends Scene {
 
         this.gamepad.update();
         this.cursor.update(delta);
+        this.camera.update(delta);
 
         if (this.gamepad.button.A.down)
             fpsText.text = "A button is pressed!";
-        if (this.gamepad.dpadDown) {
-            this.camera.x += this.gamepad.dpadAxis.x * delta;
-            this.camera.y += this.gamepad.dpadAxis.y * delta;
-        }
     }
 
     destroyStep(): void {

@@ -5,6 +5,7 @@ import { Game } from "../..";
 import { VirtualGamepad } from "../controls/VirtualGamepad";
 import { Common } from "../CommonUtils";
 import { LowResTransform } from "../LowResTransform";
+import { MapLayers } from "./MapLayers";
 
 /**
  * @author Dei Valko
@@ -48,7 +49,7 @@ export class MapCursor {
 
         // Add the created image layer to relevant places
         this.transform.object = this.spriteLayer;
-        Game.hud.addChild(this.spriteLayer);
+        MapLayers['ui'].addChild(this.spriteLayer);
 
         // Add a ticker to manage animation
         Game.app.ticker.add( (delta: number) => this.updateAnimation(delta) );

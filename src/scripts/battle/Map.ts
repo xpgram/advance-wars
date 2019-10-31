@@ -68,7 +68,7 @@ export class Map {
         mapMask.drawRect(0, -tileSize, width, height + tileSize);
 
         // Set the mask and add it to the stage; the mask should move with its object.
-        Game.stage.mask = mapMask;
+        MapLayers['top'].mask = mapMask;
         Game.stage.addChild(mapMask);
     }
 

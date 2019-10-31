@@ -16,7 +16,8 @@ export const MapLayers: any = {
     layerNames: [
         'bottom',
         'top',      // units, meteors and plasma get +1 to z-index
-        'fog'
+        'fog',
+        'ui'        // Map cursor, or any other 'in world' UI details.
     ],
 
     /** Creates containers acting as layers and adds them to the global stage. */

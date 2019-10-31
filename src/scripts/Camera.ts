@@ -32,7 +32,6 @@ export class Camera {
      */
     constructor(stage: PIXI.Container) {
         this.stage = stage;
-        //this.toggleCullables(this.stage);
     }
 
     /** The world or layer the camera will move to simulate camera movement. */
@@ -45,10 +44,10 @@ export class Camera {
 
     /** The camera's x-coordinate in 2D space, anchored in the top-left. */
     get x() { return -this.transform.x; }
-    set x(num) { this.transform.x = -num; this.toggleCullables(this.stage); }
+    set x(num) { this.transform.x = -num; }
     /** The camera's y-coordinate in 2D space, anchored in the top-left. */
     get y() { return -this.transform.y; }
-    set y(num) { this.transform.y = -num; this.toggleCullables(this.stage); }
+    set y(num) { this.transform.y = -num; }
 
     /** A point object representing the camera's position in 2D space, anchored in the top-left. */
     get pos(): Point { return {x: this.x, y: this.y} };
@@ -89,29 +88,48 @@ export class Camera {
 
             /** Two points describing the box the camera will try to keep any followed targets inside. */
             focusBox: ((frame: any) => { return {
-                x1: 0,              // Not sure what I want to do here.
-                y1: 0,              // These should be settable, but there's some logic in making
-                x2: frame.width,    // sure they aren't set up all stupid-like.
-                y2: frame.height    // Also, "frame: any" up there, I wonder what I'm doing.
+                // TODO Find a way not to hardcode these.
+                x: 32,              // Not sure what I want to do here.
+                y: 32,              // These should be settable, but there's some logic in making
+                width: 288 - 80,    // sure they aren't set up all stupid-like.
+                height: 192 - 80    // Also, "frame: any" up there, I wonder what I'm doing.
             }})(this)
         }})(this);
     }
 
     /** The camera's angle of rotation. Expressed in radians. */
     get rotation(): number { return -this.transform.rotation; }
-    set rotation(num) { this.transform.rotation = -num; this.toggleCullables(this.stage); }
+    set rotation(num) { this.transform.rotation = -num; }
 
     /** The camera's zoom level, or scaling of the game world it is peering into.
      * Note that this necessarily adjusts the view's pixel density. */
     get zoom(): number { return this.transform.scale.x; }
     set zoom(num) {
         this.transform.scale.setSize(num);
-        this.toggleCullables(this.stage);
     }
 
+    /** If camera has a follow target, it will move to keep that target in view. */
+    update(delta: number) {
+        if (this.followTarget) {
+            let left = this.x + this.frame.focusBox.x;
+            let right = left + this.frame.focusBox.width;
+            let top = this.y + this.frame.focusBox.y;
+            let bottom = top + this.frame.focusBox.height;
+
+            if (this.followTarget.transform.x > right)
+                this.x += 5 * delta;
+            if (this.followTarget.transform.x < left)
+                this.x -= 5 * delta;
+            if (this.followTarget.transform.y > bottom)
+                this.y += 5 * delta;
+            if (this.followTarget.transform.y < top)
+                this.y -= 5 * delta;
+        }
+    }
+
+    /** Not fully implemented. */
     toggleCullables(container: PIXI.Container) {
         // Set each sprite to visible if its rect collides with the camera's.
-        return;
         // Sometimes sprites are put in containers whose transform ~is~ there transform.
         // This is why the sea is disappearing; we travel to the bottom of the tree, which is the sea graphic,
         // which technically has a coordinate of 0,0.
