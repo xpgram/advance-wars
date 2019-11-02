@@ -6,6 +6,7 @@ import { Camera } from "../scripts/Camera";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
 import { MapCursor } from "../scripts/battle/MapCursor";
 import { MapLayers } from "../scripts/battle/MapLayers";
+import { InfoWindow } from "../scripts/battle/InfoWindow";
 
 var fpsText: PIXI.BitmapText;
 var time: number = 0;
@@ -20,6 +21,7 @@ export class BattleScene extends Scene {
     camera: Camera;
     gamepad: VirtualGamepad;        // TODO Link this up as a property of Game.
     cursor: MapCursor;
+    infoWindow: InfoWindow;
 
     loadStep(): void {
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
@@ -49,6 +51,9 @@ export class BattleScene extends Scene {
         this.camera.followTarget = this.cursor;
         this.camera.frame.focusBox.x = 32;
         this.camera.frame.focusBox.y = 32;
+
+        // Info Window
+        this.infoWindow = new InfoWindow(this.map, this.camera, this.cursor.pos);
 
         // Add an FPS ticker to measure performance
         // TODO Move this into a Debug class or something. Instantiate it in Game or Scene.
@@ -81,6 +86,8 @@ export class BattleScene extends Scene {
         this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
         this.cursor.update(delta);  // Update map cursor state (I could just have it add its own ticker, you know... hm. I get more control this way, though. I think.)
         this.camera.update(delta);  // Update camera position (follows cursor)
+        this.infoWindow.inspectTile(this.cursor.pos);
+        this.infoWindow.positionWindow();
 
         // Proof that buttons work.
         if (this.gamepad.button.A.down)
