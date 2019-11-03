@@ -290,10 +290,14 @@ export const TerrainMethods = {
         faction = (Math.random() < 0.4) ? 1 : faction;
 
         // Building
-        let color = Terrain.City.colors[faction];
-        let top = new PIXI.AnimatedSprite(Terrain.sheet.animations[`${building}-${color}`]);
-        top.anchor.y = 0.5;
+        let top = TerrainMethods.getBuildingSprite(building, faction);
 
         return {bottom: bottom, top: top};
+    },
+
+    getBuildingSprite(building: string, faction: Faction) {
+        let color = Terrain.City.colors[faction];
+        let sprite = new PIXI.AnimatedSprite(Terrain.sheet.animations[`${building}-${color}`]);
+        return sprite;
     }
 }

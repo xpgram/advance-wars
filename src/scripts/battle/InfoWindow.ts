@@ -4,9 +4,10 @@ import { Point } from "../CommonTypes";
 import { TerrainObject } from "./TerrainObject";
 import { Camera } from "../Camera";
 import { Game } from "../..";
+import { Terrain } from "./Terrain";
 
 export class InfoWindow {
-    static readonly WINDOW_WIDTH = 72;
+    static readonly WINDOW_WIDTH = 80;
     static readonly WINDOW_HEIGHT = 48;
     static readonly WINDOW_BORDER = 4;
 
@@ -30,7 +31,7 @@ export class InfoWindow {
 
         // Set up background
         let background = new PIXI.Graphics();
-        background.alpha = 0.3;
+        background.alpha = 0.4;
         background.beginFill(0x000000);
         background.drawRect(0, 24, InfoWindow.WINDOW_WIDTH, InfoWindow.WINDOW_HEIGHT/2);
         background.endFill();
@@ -39,13 +40,19 @@ export class InfoWindow {
         this.tileShowcase = new PIXI.Container();
         this.tileShowcase.x = InfoWindow.WINDOW_BORDER;
         this.tileShowcase.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER;
+        this.tileShowcase.addChild( new PIXI.Sprite(Terrain.sheet.textures['plain-0.png']) );
+        this.tileShowcase.addChild( new PIXI.Sprite(Terrain.sheet.textures['mountain-00.png']) );
+        this.tileShowcase.children[1].anchor.y = 0.5;
 
         // Set up terrain name
-        this.tileName = new PIXI.BitmapText("", {font: {name: "TecTacRegular", size: 8}})
+        this.tileName = new PIXI.BitmapText("", {font: {name: "TecTacRegular", size: 8}});
         this.tileName.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength;
         this.tileName.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER;
 
         // Set up terrain DEF rating
+        this.tileDefense = new PIXI.BitmapText("", {font: {name: "TecTacRegular", size: 8}});
+        this.tileDefense.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength;
+        this.tileDefense.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER + 9;
         //this.starTextureEmpty = PIXI.Texture.from("");
         //this.starTextureFull = PIXI.Texture.from("");
         //this.tileDefense = new PIXI.Sprite(this.starTexture.Empty);  x4
@@ -57,6 +64,7 @@ export class InfoWindow {
         this.container.addChild(this.tileShowcase);
         this.container.addChild(this.tileName);
         //add DEF stars
+        this.container.addChild(this.tileDefense);
         Game.hud.addChild(this.container);
 
         this.inspectTile(pos);
@@ -77,8 +85,8 @@ export class InfoWindow {
             // Don't worry about doing this, DoR has special 'showcase' textures anyway.
             // I can easily just pull one of those based on terrain.name
         });
-        this.tileName.text = square.terrain.shortName;
-        //this.tileDefense = square.terrain.defenseRating;
+        this.tileName.text = square.terrain.name;
+        this.tileDefense.text = `DEF: ${square.terrain.defenseRating}`;
 
         // Gather unit information.
 

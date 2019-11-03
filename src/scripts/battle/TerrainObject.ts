@@ -4,6 +4,8 @@ import { NeighborMatrix } from "../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
 import { TransformableList } from "../TransformableList";
 import { Point, Point3D } from "../CommonTypes";
+import { Terrain } from "./Terrain";
+import { TerrainMethods } from "./Terrain.helpers";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -26,9 +28,27 @@ export abstract class TerrainObject {
     /** This terrain's numerical serialization. */
     abstract get serial(): number;
 
+    /** Returns a preview image of this terrain type. Meant for the Info Window class. */
+    get preview(): PIXI.Sprite {
+        let name = this.name.replace(' ', '').toLowerCase();
+        let sprite;
+        
+        if (this.building) {
+            sprite = new PIXI.Sprite(Terrain.sheet.textures['plain-0.png']);
+            sprite.addChild( TerrainMethods.getBuildingSprite(name, this.faction) );
+        } else {
+            sprite = new PIXI.Sprite(Terrain.sheet.textures[`${name}`]);
+        }
+
+        return sprite;
+    }
+
     /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer
      * texture and the land-sea border system. */
     get landTile(): boolean { return true; }
+
+    /** Whether this terrain represents one of the many building/captureable types. */
+    get building(): boolean { return false; }
 
     /** Whether this tile is naturally shallow sea. Relevant to sea tiles only. */
     get shallowWaterSourceTile(): boolean { return true; }
