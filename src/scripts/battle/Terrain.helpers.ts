@@ -288,14 +288,13 @@ export const TerrainMethods = {
         let bottom: PIXI.Container = TerrainMethods.createPlainLayer();
 
         // Building
-<<<<<<< HEAD
         let top = TerrainMethods.getBuildingSprite(building, faction);
 
         return {bottom: bottom, top: top};
     },
 
     getBuildingSprite(building: string, faction: Faction) {
-        let color = Terrain.City.colors[faction];
+        let color = FactionColors[faction];
         let sprite = new PIXI.AnimatedSprite(Terrain.sheet.animations[`${building}-${color}`]);
         return sprite;
     }
