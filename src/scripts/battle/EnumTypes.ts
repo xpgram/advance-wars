@@ -39,3 +39,13 @@ export enum Faction {
     Yellow, // New Rubinelle Army / NRA
     Black   // Intelligence Defense Systems / IDS
 }
+
+/** The various team factions a unit or building might belong to (as a string.) */
+export var FactionColors = [
+    'white',
+    'white',
+    'red',
+    'blue',
+    'yellow',
+    'black'
+];

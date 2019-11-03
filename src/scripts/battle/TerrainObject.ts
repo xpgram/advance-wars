@@ -1,9 +1,11 @@
+import * as PixiFilter from "pixi-filters";
 import { LowResTransform } from "../LowResTransform";
 import { UnitClass, MoveType, Faction } from "./EnumTypes";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
 import { TransformableList } from "../TransformableList";
 import { Point, Point3D } from "../CommonTypes";
+import { TerrainMethods } from "./Terrain.helpers";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -116,5 +118,5 @@ export abstract class TerrainObject {
      * tile's graphical limitations. */
     legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
         return true;    // Override if you want to be more specific.
-    };
+    }
 }

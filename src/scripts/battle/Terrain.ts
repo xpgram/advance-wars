@@ -91,7 +91,9 @@ export const Terrain = {
             this.layers.push({object: sprite, name: 'bottom'});
         
             // Road
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Road, Terrain.Bridge, Terrain.HQ, Terrain.City, Terrain.Factory, Terrain.Airport, Terrain.Port, Terrain.Radar, Terrain.ComTower, Terrain.Silo, Terrain.TempAirpt, Terrain.TempPort);
+            let variant = TerrainMethods.fourDirectionalVariant(neighbors,  // The rest are tiles we want to connect to.
+                Terrain.Road, Terrain.Bridge, Terrain.HQ, Terrain.City, Terrain.Factory, Terrain.Airport,
+                Terrain.Port, Terrain.Radar, Terrain.ComTower, Terrain.Silo, Terrain.TempAirpt, Terrain.TempPort);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`road-${variant}.png`]);
             this.layers.push({object: sprite, name: "bottom"});
         }
@@ -154,7 +156,6 @@ export const Terrain = {
             // Mountain
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Mountain);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`mountain-${variant}.png`]);
-            sprite.anchor.y = 0.5;
             this.layers.push({object: sprite, name: 'top'});
 
             // Mountain Shadow
@@ -216,7 +217,7 @@ export const Terrain = {
 
             // Ruins
             let variant = TerrainMethods.randomTileVariant(3);
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`ruin-${variant}.png`]);
+            sprite = new PIXI.Sprite(Terrain.sheet.textures[`ruins-${variant}.png`]);
             this.layers.push({object: sprite, name: 'bottom'});
         }
     },
@@ -454,7 +455,6 @@ export const Terrain = {
             // Mist
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, MistTile);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`mist-${variant}.png`]);
-            sprite.anchor.y = 0.5;
             sprite.alpha = 0.75;
             this.layers.push({object: sprite, name: 'top'});
         }
@@ -530,7 +530,6 @@ export const Terrain = {
 
             // Fire
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`fire`]);
-            anim.anchor.y = 0.535;  // TODO: Fix sprite
             anim.animationSpeed = 0.25;
             anim.play();
             this.layers.push({object: anim, name: 'top'});
@@ -580,8 +579,8 @@ export const Terrain = {
             // Meteor
             let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
             variant = '0' + variant.slice(1);   // Up is always 'false' graphically
+            console.log(variant);
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`meteor-${variant}`]);
-            anim.anchor.y = 0.5;
             anim.animationSpeed = 0.2;
             if (variant != "0000")
                 anim.play();
@@ -728,6 +727,8 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -740,9 +741,6 @@ export const Terrain = {
     City: class CityTile extends TerrainObject {
         get type() { return CityTile; }
         get serial() { return 19; }
-
-        // These intentionally maintain order with Faction.Team
-        static readonly colors = ['white', 'white', 'red', 'blue', 'yellow', 'black'];
 
         get name() { return "City"; }
         get shortName() { return "City"; }
@@ -761,6 +759,8 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -790,6 +790,8 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -819,6 +821,8 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -859,7 +863,6 @@ export const Terrain = {
             // Silo
             let which = (this.value == 1) ? 1 : 2;  // Unused : Used
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`silo-${which}.png`]);
-            sprite.anchor.y = 0.5;
             this.layers.push({object: sprite, name: 'top'});
         }
     },
@@ -885,10 +888,12 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('base', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('factory', this.faction);
             this.layers.push({object: layers.bottom, name: 'bottom'});
             this.layers.push({object: layers.top, name: 'top'});
         }
@@ -915,6 +920,8 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -946,6 +953,8 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -976,6 +985,8 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -1006,6 +1017,8 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
