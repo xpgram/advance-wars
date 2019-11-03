@@ -1,3 +1,4 @@
+import * as PixiFilter from "pixi-filters";
 import { LowResTransform } from "../LowResTransform";
 import { UnitClass, MoveType, Faction } from "./EnumTypes";
 import { NeighborMatrix } from "../NeighborMatrix";
@@ -5,6 +6,8 @@ import { MapLayers } from "./MapLayers";
 import { TransformableList } from "../TransformableList";
 import { Point, Point3D } from "../CommonTypes";
 import { Terrain } from "./Terrain";
+=======
+>>>>>>> f49b8637aadd12090626b7044903a71d7ea77e9a
 import { TerrainMethods } from "./Terrain.helpers";
 
 /** An uninstantiated Terrain class. */
@@ -137,4 +140,5 @@ export abstract class TerrainObject {
     legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
         return true;    // Override if you want to be more specific.
     };
+    }
 }

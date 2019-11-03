@@ -3,7 +3,7 @@ import * as PixiFilters from "pixi-filters";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Terrain } from "./Terrain";
-import { Faction } from "./EnumTypes";
+import { Faction, FactionColors } from "./EnumTypes";
 import { Game } from "../..";
 import { MapLayers } from "./MapLayers";
 
@@ -100,6 +100,7 @@ export const TerrainMethods = {
 
     randomPlainTile(): string {
         // This should grab '6' as the length of a plainTile textures array, but I don't have one set up in the atlas.
+        // This is ~different~ from randomTileVariant(), by the way: it prioritizes index 0.
         let n = (Math.random() < 0.3) ? (Math.floor(Math.random()*6) + 1) : 0;
         return `${n}`;
     },
@@ -283,13 +284,11 @@ export const TerrainMethods = {
     },
 
     createBuildingLayers(building: string, faction: Faction) {
+        // Plain
         let bottom: PIXI.Container = TerrainMethods.createPlainLayer();
-        
-        // TODO Remove this
-        faction = Math.floor(Math.random()*3) + 1;
-        faction = (Math.random() < 0.4) ? 1 : faction;
 
         // Building
+<<<<<<< HEAD
         let top = TerrainMethods.getBuildingSprite(building, faction);
 
         return {bottom: bottom, top: top};
