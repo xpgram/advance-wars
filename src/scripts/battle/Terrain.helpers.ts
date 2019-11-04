@@ -295,7 +295,11 @@ export const TerrainMethods = {
 
     getBuildingSprite(building: string, faction: Faction) {
         let color = FactionColors[faction];
-        let sprite = new PIXI.AnimatedSprite(Terrain.sheet.animations[`${building}-${color}`]);
+        let sprite = new PIXI.Sprite(Terrain.sheet.textures[`${building}-${color}.png`]);
+
+        // TODO Remove this —— Fix in texture packer
+        sprite.anchor.y = 0.5;
+        
         return sprite;
     }
 }

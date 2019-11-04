@@ -406,7 +406,7 @@ export const Terrain = {
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
 
             // Rough Sea
-            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['rough']);
+            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['roughsea']);
             anim.animationSpeed = 0.125;
             anim.play();
             container.addChildAt(anim, 0);  // Insert underneath shallow-sea overlay (and cliff if I allow that)
@@ -525,7 +525,7 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain - Cragged
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-8.png`]);
+            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-crag.png`]);
             this.layers.push({object: sprite, name: 'bottom'});
 
             // Fire
@@ -710,6 +710,8 @@ export const Terrain = {
         get type() { return HQTile; }
         get serial() { return 18; }
 
+        get building() { return true; }
+
         get name() { return "HQ"; }
         get shortName() { return "HQ"; }
         get description() { return "Capture the HQ to /end a battle/. Ground units can /resupply/ here too."; }
@@ -741,6 +743,8 @@ export const Terrain = {
     City: class CityTile extends TerrainObject {
         get type() { return CityTile; }
         get serial() { return 19; }
+        
+        get building() { return true; }
 
         get name() { return "City"; }
         get shortName() { return "City"; }
@@ -773,6 +777,8 @@ export const Terrain = {
     ComTower: class ComTowerTile extends TerrainObject {
         get type() { return ComTowerTile; }
         get serial() { return 20; }
+        
+        get building() { return true; }
 
         get name() { return "Com Tower"; }
         get shortName() { return "Com T"; }
@@ -795,7 +801,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('coms', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('comtower', this.faction);
             this.layers.push({object: layers.bottom, name: 'bottom'});
             this.layers.push({object: layers.top, name: 'top'});
         }
@@ -804,6 +810,8 @@ export const Terrain = {
     Radar: class RadarTile extends TerrainObject {
         get type() { return RadarTile; }
         get serial() { return 21; }
+        
+        get building() { return true; }
 
         get name() { return "Radar"; }
         get shortName() { return "Radar"; }
@@ -870,6 +878,8 @@ export const Terrain = {
     Factory: class FactoryTile extends TerrainObject {
         get type() { return FactoryTile; }
         get serial() { return 23; }
+        
+        get building() { return true; }
 
         get name() { return "Factory"; }
         get shortName() { return "Fctry"; }
@@ -902,6 +912,8 @@ export const Terrain = {
     Airport: class AirportTile extends TerrainObject {
         get type() { return AirportTile; }
         get serial() { return 24; }
+        
+        get building() { return true; }
 
         get name() { return "Airport"; }
         get shortName() { return "Airport"; }
@@ -935,6 +947,8 @@ export const Terrain = {
         get type() { return PortTile; }
         get serial() { return 25; }
         get landTile() { return false; }
+        
+        get building() { return true; }
 
         get name() { return "Port"; }
         get shortName() { return "Port"; }
@@ -968,6 +982,8 @@ export const Terrain = {
     TempAirpt: class TempAirptTile extends TerrainObject {
         get type() { return TempAirptTile; }
         get serial() { return 26; }
+        
+        get building() { return true; }
 
         get name() { return "Temp Airpt"; }
         get shortName() { return "T Air"; }
@@ -1000,6 +1016,8 @@ export const Terrain = {
         get type() { return TempPortTile; }
         get serial() { return 27; }
         get landTile() { return false; }
+        
+        get building() { return true; }
 
         get name() { return "Temp Port"; }
         get shortName() { return "T Port"; }

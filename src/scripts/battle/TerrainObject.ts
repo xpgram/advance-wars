@@ -1,4 +1,4 @@
-import * as PixiFilter from "pixi-filters";
+import * as PIXI from "pixi.js";
 import { LowResTransform } from "../LowResTransform";
 import { UnitClass, MoveType, Faction } from "./EnumTypes";
 import { NeighborMatrix } from "../NeighborMatrix";
@@ -38,7 +38,7 @@ export abstract class TerrainObject {
             sprite = new PIXI.Sprite(Terrain.sheet.textures['plain-0.png']);
             sprite.addChild( TerrainMethods.getBuildingSprite(name, this.faction) );
         } else {
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`${name}`]);
+            sprite = new PIXI.Sprite(Terrain.sheet.textures[`${name}.png`]);
         }
 
         return sprite;

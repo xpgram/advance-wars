@@ -40,9 +40,6 @@ export class InfoWindow {
         this.tileShowcase = new PIXI.Container();
         this.tileShowcase.x = InfoWindow.WINDOW_BORDER;
         this.tileShowcase.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER;
-        this.tileShowcase.addChild( new PIXI.Sprite(Terrain.sheet.textures['plain-0.png']) );
-        this.tileShowcase.addChild( new PIXI.Sprite(Terrain.sheet.textures['mountain-00.png']) );
-        this.tileShowcase.children[1].anchor.y = 0.5;
 
         // Set up terrain name
         this.tileName = new PIXI.BitmapText("", {font: {name: "TecTacRegular", size: 8}});
@@ -80,11 +77,8 @@ export class InfoWindow {
         let square = this.mapRef.squareAt(pos);
 
         // Gather tile information.
-        //@ts-ignore
-        square.terrain.layers.forEach( pair => {
-            // Don't worry about doing this, DoR has special 'showcase' textures anyway.
-            // I can easily just pull one of those based on terrain.name
-        });
+        this.tileShowcase.removeChildren();
+        this.tileShowcase.addChild(square.terrain.preview);
         this.tileName.text = square.terrain.name;
         this.tileDefense.text = `DEF: ${square.terrain.defenseRating}`;
 
