@@ -19,7 +19,8 @@ export class InfoWindow {
     private container: PIXI.Container;
     private tileShowcase: PIXI.Container;
     private tileName: PIXI.BitmapText;
-    private tileDefense: PIXI.TilingSprite;
+    private tileDefenseStars: PIXI.Container;
+    private tileDefenseStarsFull: PIXI.TilingSprite;
     private showOnLeftSide!: boolean;
 
     constructor(map: Map, camera: Camera, pos: Point) {
@@ -46,10 +47,17 @@ export class InfoWindow {
         this.tileName.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength;
         this.tileName.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER;
 
+        let sheet = Game.app.loader.resources['UISpritesheet'].spritesheet;
+
         // Set up terrain DEF rating
-        this.tileDefense = new PIXI.BitmapText("", {font: {name: "TecTacRegular", size: 8}});
-        this.tileDefense.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength;
-        this.tileDefense.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER + 9;
+        this.tileDefenseStars = new PIXI.TilingSprite(sheet.textures['icon-star-empty.png'], 4*8, 8);
+        // TODO Get 8 dynamically
+        this.tileDefenseStars.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength - 2;
+        this.tileDefenseStars.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER + 8;
+
+        this.tileDefenseStarsFull = new PIXI.TilingSprite(sheet.textures['icon-star-full.png'], 0, 8);
+        this.tileDefenseStars.addChild(this.tileDefenseStarsFull);
+
         //this.starTextureEmpty = PIXI.Texture.from("");
         //this.starTextureFull = PIXI.Texture.from("");
         //this.tileDefense = new PIXI.Sprite(this.starTexture.Empty);  x4
@@ -61,7 +69,7 @@ export class InfoWindow {
         this.container.addChild(this.tileShowcase);
         this.container.addChild(this.tileName);
         //add DEF stars
-        this.container.addChild(this.tileDefense);
+        this.container.addChild(this.tileDefenseStars);
         Game.hud.addChild(this.container);
 
         this.inspectTile(pos);
@@ -80,7 +88,8 @@ export class InfoWindow {
         this.tileShowcase.removeChildren();
         this.tileShowcase.addChild(square.terrain.preview);
         this.tileName.text = square.terrain.name;
-        this.tileDefense.text = `DEF: ${square.terrain.defenseRating}`;
+        this.tileDefenseStarsFull.width = 8*square.terrain.defenseRating;
+        // TODO Get 8 dynamically
 
         // Gather unit information.
 

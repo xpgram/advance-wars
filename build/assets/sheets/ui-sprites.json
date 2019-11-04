@@ -1,33 +1,60 @@
 {"frames": {
 
-"mapcursor-0.png":
+"icon-ammo.png":
 {
-	"frame": {"x":1,"y":1,"w":22,"h":22},
+	"frame": {"x":71,"y":18,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":22,"h":22},
-	"sourceSize": {"w":22,"h":22},
-	"anchor": {"x":0.136364,"y":0.136364}
+	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
+	"sourceSize": {"w":8,"h":8},
+	"anchor": {"x":0,"y":0}
 },
-"mapcursor-1.png":
+"icon-capture.png":
 {
-	"frame": {"x":25,"y":1,"w":22,"h":22},
+	"frame": {"x":88,"y":17,"w":9,"h":10},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":9,"h":10},
+	"sourceSize": {"w":9,"h":10},
+	"anchor": {"x":0,"y":0}
+},
+"icon-gas.png":
+{
+	"frame": {"x":120,"y":1,"w":7,"h":8},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":22,"h":22},
-	"sourceSize": {"w":22,"h":22},
-	"anchor": {"x":0.136364,"y":0.136364}
+	"spriteSourceSize": {"x":0,"y":0,"w":7,"h":8},
+	"sourceSize": {"w":7,"h":8},
+	"anchor": {"x":0,"y":0}
 },
-"mapcursor-2.png":
+"icon-heart.png":
 {
-	"frame": {"x":49,"y":1,"w":20,"h":20},
+	"frame": {"x":120,"y":11,"w":7,"h":8},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":1,"y":1,"w":20,"h":20},
-	"sourceSize": {"w":22,"h":22},
-	"anchor": {"x":0.136364,"y":0.136364}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":7,"h":8},
+	"sourceSize": {"w":7,"h":8},
+	"anchor": {"x":0,"y":0}
 },
-"mapcursor-arrow-0.png":
+"icon-star-empty.png":
+{
+	"frame": {"x":100,"y":17,"w":8,"h":8},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
+	"sourceSize": {"w":8,"h":8},
+	"anchor": {"x":0,"y":0}
+},
+"icon-star-full.png":
+{
+	"frame": {"x":110,"y":17,"w":8,"h":8},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
+	"sourceSize": {"w":8,"h":8},
+	"anchor": {"x":0,"y":0}
+},
+"MapArrow/mapcursor-arrow-0.png":
 {
 	"frame": {"x":88,"y":1,"w":14,"h":14},
 	"rotated": false,
@@ -36,7 +63,7 @@
 	"sourceSize": {"w":15,"h":15},
 	"anchor": {"x":-0.933333,"y":-0.933333}
 },
-"mapcursor-arrow-1.png":
+"MapArrow/mapcursor-arrow-1.png":
 {
 	"frame": {"x":71,"y":1,"w":15,"h":15},
 	"rotated": false,
@@ -45,7 +72,7 @@
 	"sourceSize": {"w":15,"h":15},
 	"anchor": {"x":-0.933333,"y":-0.933333}
 },
-"mapcursor-arrow-2.png":
+"MapArrow/mapcursor-arrow-2.png":
 {
 	"frame": {"x":104,"y":1,"w":14,"h":14},
 	"rotated": false,
@@ -53,18 +80,45 @@
 	"spriteSourceSize": {"x":1,"y":1,"w":14,"h":14},
 	"sourceSize": {"w":15,"h":15},
 	"anchor": {"x":-0.933333,"y":-0.933333}
+},
+"MapCursor/mapcursor-0.png":
+{
+	"frame": {"x":1,"y":1,"w":22,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":22,"h":22},
+	"sourceSize": {"w":22,"h":22},
+	"anchor": {"x":0.136364,"y":0.136364}
+},
+"MapCursor/mapcursor-1.png":
+{
+	"frame": {"x":25,"y":1,"w":22,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":22,"h":22},
+	"sourceSize": {"w":22,"h":22},
+	"anchor": {"x":0.136364,"y":0.136364}
+},
+"MapCursor/mapcursor-2.png":
+{
+	"frame": {"x":49,"y":1,"w":20,"h":20},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":1,"w":20,"h":20},
+	"sourceSize": {"w":22,"h":22},
+	"anchor": {"x":0.136364,"y":0.136364}
 }},
 "animations": {
-	"mapcursor": ["mapcursor-0.png","mapcursor-1.png","mapcursor-2.png", "mapcursor-1.png", "mapcursor-0.png"],
-	"mapcursor-arrow": ["mapcursor-arrow-0.png","mapcursor-arrow-1.png","mapcursor-arrow-2.png", "mapcursor-arrow-1.png","mapcursor-arrow-0.png"]
+	"MapArrow/mapcursor-arrow": ["MapArrow/mapcursor-arrow-0.png","MapArrow/mapcursor-arrow-1.png","MapArrow/mapcursor-arrow-2.png","MapArrow/mapcursor-arrow-1.png","MapArrow/mapcursor-arrow-0.png"],
+	"MapCursor/mapcursor": ["MapCursor/mapcursor-0.png","MapCursor/mapcursor-1.png","MapCursor/mapcursor-2.png","MapCursor/mapcursor-1.png","MapCursor/mapcursor-0.png"]
 },
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",
 	"version": "1.0",
 	"image": "ui-sprites.png",
 	"format": "RGBA8888",
-	"size": {"w":119,"h":24},
+	"size": {"w":128,"h":27},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:028343e1f0b96c85ad50ad96fc67194d:7c3446e74f5a10b31449d5ac3113099e:7703082df9e3e5b4cde32d891be0eb71$"
+	"smartupdate": "$TexturePacker:SmartUpdate:8bee29a6d97e847be9442cb19b2967a7:71fc0e83d387d6790ffa2adf88c6927e:7703082df9e3e5b4cde32d891be0eb71$"
 }
 }

@@ -1006,7 +1006,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('tair', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('tempairpt', this.faction);
             this.layers.push({object: layers.bottom, name: 'bottom'});
             this.layers.push({object: layers.top, name: 'top'});
         }
@@ -1040,7 +1040,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('tport', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('tempport', this.faction);
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.layers.push({object: layers.bottom, name: 'bottom'});
             this.layers.push({object: layers.top, name: 'top'});

@@ -135,6 +135,15 @@
 	"sourceSize": {"w":16,"h":16},
 	"anchor": {"x":0,"y":0}
 },
+"beach-2111.png":
+{
+	"frame": {"x":209,"y":27,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
 "beach-0112.png":
 {
 	"frame": {"x":194,"y":45,"w":16,"h":16},
@@ -243,6 +252,15 @@
 	"sourceSize": {"w":16,"h":16},
 	"anchor": {"x":0,"y":0}
 },
+"beach-1211.png":
+{
+	"frame": {"x":195,"y":63,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
 "beach-1020.png":
 {
 	"frame": {"x":52,"y":49,"w":16,"h":14},
@@ -288,6 +306,15 @@
 	"sourceSize": {"w":16,"h":16},
 	"anchor": {"x":0,"y":0}
 },
+"beach-1121.png":
+{
+	"frame": {"x":213,"y":81,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
 "beach-1102.png":
 {
 	"frame": {"x":198,"y":99,"w":16,"h":16},
@@ -298,6 +325,15 @@
 	"anchor": {"x":0,"y":0}
 },
 "beach-1110.png":
+{
+	"frame": {"x":216,"y":99,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
+"beach-1112.png":
 {
 	"frame": {"x":216,"y":99,"w":16,"h":16},
 	"rotated": false,
@@ -3159,7 +3195,7 @@
 	"sourceSize": {"w":16,"h":32},
 	"anchor": {"x":0,"y":0.5}
 },
-"tempair-black.png":
+"tempairpt-black.png":
 {
 	"frame": {"x":159,"y":64,"w":16,"h":17},
 	"rotated": false,
@@ -3168,7 +3204,7 @@
 	"sourceSize": {"w":16,"h":32},
 	"anchor": {"x":0,"y":0.5}
 },
-"tempair-blue.png":
+"tempairpt-blue.png":
 {
 	"frame": {"x":88,"y":83,"w":16,"h":17},
 	"rotated": false,
@@ -3177,7 +3213,7 @@
 	"sourceSize": {"w":16,"h":32},
 	"anchor": {"x":0,"y":0.5}
 },
-"tempair-red.png":
+"tempairpt-red.png":
 {
 	"frame": {"x":106,"y":83,"w":16,"h":17},
 	"rotated": false,
@@ -3186,7 +3222,7 @@
 	"sourceSize": {"w":16,"h":32},
 	"anchor": {"x":0,"y":0.5}
 },
-"tempair-white.png":
+"tempairpt-white.png":
 {
 	"frame": {"x":124,"y":83,"w":16,"h":17},
 	"rotated": false,
@@ -3195,7 +3231,7 @@
 	"sourceSize": {"w":16,"h":32},
 	"anchor": {"x":0,"y":0.5}
 },
-"tempair-yellow.png":
+"tempairpt-yellow.png":
 {
 	"frame": {"x":142,"y":83,"w":16,"h":17},
 	"rotated": false,
@@ -3204,7 +3240,7 @@
 	"sourceSize": {"w":16,"h":32},
 	"anchor": {"x":0,"y":0.5}
 },
-"tempair.png":
+"tempairpt.png":
 {
 	"frame": {"x":177,"y":64,"w":16,"h":17},
 	"rotated": false,
@@ -3421,6 +3457,6 @@
 	"format": "RGBA8888",
 	"size": {"w":932,"h":126},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:713bd30d0ea3499c22aa43468b116adb:0378ab530add03d48f7b297ebf8290fb:0a63ece66da2861d7b2a5e79a1044014$"
+	"smartupdate": "$TexturePacker:SmartUpdate:109df079b74b0d4256cd8b5d41a2039b:13805a5283fe560771702b6be6998b8e:0a63ece66da2861d7b2a5e79a1044014$"
 }
 }

@@ -36,11 +36,11 @@ export class MapCursor {
         // Set up the cursor's imagery
         let sheet = Game.app.loader.resources[ MapCursor.spritesheet ].spritesheet;
 
-        let cursor = new PIXI.AnimatedSprite(sheet.animations['mapcursor']);
+        let cursor = new PIXI.AnimatedSprite(sheet.animations['MapCursor/mapcursor']);
         cursor.animationSpeed = MapCursor.animSpeed;
         cursor.loop = false;
 
-        let arrow = new PIXI.AnimatedSprite(sheet.animations['mapcursor-arrow']);
+        let arrow = new PIXI.AnimatedSprite(sheet.animations['MapArrow/mapcursor-arrow']);
         arrow.animationSpeed = MapCursor.animSpeed;
         arrow.loop = false;
 
