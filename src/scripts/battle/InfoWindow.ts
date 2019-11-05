@@ -7,7 +7,7 @@ import { Game } from "../..";
 import { Terrain } from "./Terrain";
 
 export class InfoWindow {
-    static readonly WINDOW_WIDTH = 80;
+    static readonly WINDOW_WIDTH = 82;
     static readonly WINDOW_HEIGHT = 48;
     static readonly WINDOW_BORDER = 4;
 
@@ -21,6 +21,8 @@ export class InfoWindow {
     private tileName: PIXI.BitmapText;
     private tileDefenseStars: PIXI.Container;
     private tileDefenseStarsFull: PIXI.TilingSprite;
+    private tileCaptureIcon: PIXI.Sprite;
+    private tileCaptureMeter: PIXI.BitmapText;
     private showOnLeftSide!: boolean;
 
     constructor(map: Map, camera: Camera, pos: Point) {
@@ -64,12 +66,23 @@ export class InfoWindow {
         //for i in 4: this.tileDefense[i].texture = (i < tile.defense) ? this.starTextureFull : this.starTextureEmpty;
         // Give it a star texture, set its width to whole multiples of its own size by the defense rating.
 
+        // Set up capture meter (buildings)
+        this.tileCaptureIcon = new PIXI.Sprite(sheet.textures['icon-capture.png']);
+        this.tileCaptureIcon.x = this.tileDefenseStars.x + 8*4 + 4;
+        this.tileCaptureIcon.y = this.tileDefenseStars.y - 1;
+
+        this.tileCaptureMeter = new PIXI.BitmapText("20", {font: {name: "TecTacRegular", size: 8}});
+        this.tileCaptureMeter.x = this.tileCaptureIcon.x + 10;
+        this.tileCaptureMeter.y = this.tileCaptureIcon.y + 1;
+
         // Add all children to main
         this.container.addChild(background);
         this.container.addChild(this.tileShowcase);
         this.container.addChild(this.tileName);
         //add DEF stars
         this.container.addChild(this.tileDefenseStars);
+        this.container.addChild(this.tileCaptureIcon);
+        this.container.addChild(this.tileCaptureMeter);
         Game.hud.addChild(this.container);
 
         this.inspectTile(pos);
@@ -90,6 +103,9 @@ export class InfoWindow {
         this.tileName.text = square.terrain.name;
         this.tileDefenseStarsFull.width = 8*square.terrain.defenseRating;
         // TODO Get 8 dynamically
+
+        // Hide capture meter if not hovering over a building
+        this.tileCaptureIcon.visible = this.tileCaptureMeter.visible = (square.terrain.building);
 
         // Gather unit information.
 

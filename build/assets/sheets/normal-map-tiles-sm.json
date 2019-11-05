@@ -135,15 +135,6 @@
 	"sourceSize": {"w":16,"h":16},
 	"anchor": {"x":0,"y":0}
 },
-"beach-2111.png":
-{
-	"frame": {"x":209,"y":27,"w":16,"h":16},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
-	"sourceSize": {"w":16,"h":16},
-	"anchor": {"x":0,"y":0}
-},
 "beach-0112.png":
 {
 	"frame": {"x":194,"y":45,"w":16,"h":16},
@@ -252,15 +243,6 @@
 	"sourceSize": {"w":16,"h":16},
 	"anchor": {"x":0,"y":0}
 },
-"beach-1211.png":
-{
-	"frame": {"x":195,"y":63,"w":16,"h":16},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
-	"sourceSize": {"w":16,"h":16},
-	"anchor": {"x":0,"y":0}
-},
 "beach-1020.png":
 {
 	"frame": {"x":52,"y":49,"w":16,"h":14},
@@ -306,15 +288,6 @@
 	"sourceSize": {"w":16,"h":16},
 	"anchor": {"x":0,"y":0}
 },
-"beach-1121.png":
-{
-	"frame": {"x":213,"y":81,"w":16,"h":16},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
-	"sourceSize": {"w":16,"h":16},
-	"anchor": {"x":0,"y":0}
-},
 "beach-1102.png":
 {
 	"frame": {"x":198,"y":99,"w":16,"h":16},
@@ -345,6 +318,15 @@
 "beach-1120.png":
 {
 	"frame": {"x":231,"y":63,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
+"beach-1121.png":
+{
+	"frame": {"x":213,"y":81,"w":16,"h":16},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
@@ -384,6 +366,15 @@
 	"rotated": true,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":14},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
+"beach-1211.png":
+{
+	"frame": {"x":195,"y":63,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
 	"sourceSize": {"w":16,"h":16},
 	"anchor": {"x":0,"y":0}
 },
@@ -480,6 +471,15 @@
 "beach-2110.png":
 {
 	"frame": {"x":303,"y":24,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
+"beach-2111.png":
+{
+	"frame": {"x":209,"y":27,"w":16,"h":16},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
@@ -3247,7 +3247,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":15,"w":16,"h":17},
 	"sourceSize": {"w":16,"h":32},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0.5}
 },
 "tempport-black.png":
 {
@@ -3457,6 +3457,6 @@
 	"format": "RGBA8888",
 	"size": {"w":932,"h":126},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:109df079b74b0d4256cd8b5d41a2039b:13805a5283fe560771702b6be6998b8e:0a63ece66da2861d7b2a5e79a1044014$"
+	"smartupdate": "$TexturePacker:SmartUpdate:b3219693bec3865e9d836558ea11bdde:978d02d65f84f60c861df65149399b5a:0a63ece66da2861d7b2a5e79a1044014$"
 }
 }
