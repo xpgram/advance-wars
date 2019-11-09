@@ -52,5 +52,17 @@ export const Common = {
         store = store & ~(mask << shift);
         store += (value & mask) << shift;
         return store;
-    }        
+    },
+
+    /** Given a list of things, return a 'bouncing loop' of that list's contents, triangle-wave-style.
+     * Ex: Given the list [1,2,3,4,5], return [1,2,3,4,5,4,3,2].
+     */
+    listToBouncingLoop: (list: Array<any>) => {
+        let result = [];
+        for (let i = 0; i < list.length; i++)
+            result.push(list[i]);
+        for (let i = list.length-2; i > 0; i--)
+            result.push(list[i]);
+        return result;
+    }
 }

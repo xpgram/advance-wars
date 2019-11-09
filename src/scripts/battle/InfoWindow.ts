@@ -7,7 +7,7 @@ import { Game } from "../..";
 import { Terrain } from "./Terrain";
 
 export class InfoWindow {
-    static readonly WINDOW_WIDTH = 82;
+    static readonly WINDOW_WIDTH = 88;
     static readonly WINDOW_HEIGHT = 48;
     static readonly WINDOW_BORDER = 4;
 
@@ -34,7 +34,7 @@ export class InfoWindow {
 
         // Set up background
         let background = new PIXI.Graphics();
-        background.alpha = 0.4;
+        background.alpha = 0.5;
         background.beginFill(0x000000);
         background.drawRect(0, 24, InfoWindow.WINDOW_WIDTH, InfoWindow.WINDOW_HEIGHT/2);
         background.endFill();
@@ -46,16 +46,16 @@ export class InfoWindow {
 
         // Set up terrain name
         this.tileName = new PIXI.BitmapText("", {font: {name: "TecTacRegular", size: 8}});
-        this.tileName.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength;
-        this.tileName.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER;
+        this.tileName.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength - 1;
+        this.tileName.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER - 1;
 
         let sheet = Game.app.loader.resources['UISpritesheet'].spritesheet;
 
         // Set up terrain DEF rating
         this.tileDefenseStars = new PIXI.TilingSprite(sheet.textures['icon-star-empty.png'], 4*8, 8);
         // TODO Get 8 dynamically
-        this.tileDefenseStars.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength - 2;
-        this.tileDefenseStars.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER + 8;
+        this.tileDefenseStars.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength;
+        this.tileDefenseStars.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER + 12;
 
         this.tileDefenseStarsFull = new PIXI.TilingSprite(sheet.textures['icon-star-full.png'], 0, 8);
         this.tileDefenseStars.addChild(this.tileDefenseStarsFull);
@@ -68,8 +68,8 @@ export class InfoWindow {
 
         // Set up capture meter (buildings)
         this.tileCaptureIcon = new PIXI.Sprite(sheet.textures['icon-capture.png']);
-        this.tileCaptureIcon.x = this.tileDefenseStars.x + 8*4 + 4;
-        this.tileCaptureIcon.y = this.tileDefenseStars.y - 1;
+        this.tileCaptureIcon.x = this.tileDefenseStars.x + 8*4 + 6;
+        this.tileCaptureIcon.y = this.tileDefenseStars.y - 2;
 
         this.tileCaptureMeter = new PIXI.BitmapText("20", {font: {name: "TecTacRegular", size: 8}});
         this.tileCaptureMeter.x = this.tileCaptureIcon.x + 10;
@@ -119,6 +119,6 @@ export class InfoWindow {
             return
 
         this.container.x = (this.showOnLeftSide) ? 0 : Game.display.renderWidth - InfoWindow.WINDOW_WIDTH;
-        this.container.y = Game.display.renderHeight - InfoWindow.WINDOW_HEIGHT;
+        this.container.y = Game.display.renderHeight - InfoWindow.WINDOW_HEIGHT - 1;
     }
 }
