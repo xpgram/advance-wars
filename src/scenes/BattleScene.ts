@@ -29,6 +29,7 @@ export class BattleScene extends Scene {
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
         this.linker.push({name: 'UnitSpritesheet', url: 'assets/sheets/unit-sprites.json'});
         this.linker.push({name: 'UISpritesheet', url: 'assets/sheets/ui-sprites.json'});
+        this.linker.push({name: 'background', url: 'assets/background-battle.png'});
         this.linker.push({name: 'font-TecTacRegular', url: 'assets/TecTacRegular.xml'});
         this.linker.push({name: 'font-map-ui', url: 'assets/font-map-ui.xml'});
     }
@@ -37,9 +38,9 @@ export class BattleScene extends Scene {
         this.map = new Map(30, 30);
 
         this.camera = new Camera(Game.stage);
-
         // Do it here.
         // Also, since I need it several places, I should probably initialize it here instead of in new Map()
+        // ↑ I think this is referring to the camera?
 
         // This needs to go somewhere else, like MapLayers.init() or TerrainMethods.startPaletteAnimation(),
         // but how do I inform them... oh, never mind. They don't need to know where the camera's x/y is.
@@ -47,6 +48,10 @@ export class BattleScene extends Scene {
         (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;
         // Game.stage.filterArea = cameraView;
         //Game.app.stage.filterArea = cameraView;
+
+        // Set a backdrop for viewing pleasures
+        let backdrop = new PIXI.Sprite( Game.app.loader.resources['background'].texture );
+        Game.backdrop.addChild( backdrop );
 
         // Testing out gamepads, babay
         this.gamepad = new VirtualGamepad();

@@ -12,6 +12,8 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling 
  * @version 1.1.0
  */
 class App {
+    /** A graphics-container for solid-panel images adding character to blank scenes. */
+    readonly backdrop = new PIXI.Container();
     /** A graphics-container acting as the game world. */
     readonly stage = new PIXI.Container();
     /** A graphics-container acting as the game's heads-up display. */
@@ -85,6 +87,7 @@ class App {
         this.app.ticker.add( (delta: number) => {this.loop(delta)} );
 
         // Add this game's visual layers to PIXI's app.stage
+        this.app.stage.addChild(this.backdrop);
         this.app.stage.addChild(this.stage);
         this.app.stage.addChild(this.hud);
         this.app.stage.addChild(this.debugHud);
