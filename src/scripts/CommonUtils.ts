@@ -64,5 +64,20 @@ export const Common = {
         for (let i = list.length-2; i > 0; i--)
             result.push(list[i]);
         return result;
+    },
+
+    /** Given the frames.length of an animation and the desired time to completion (seconds), returns the fraction
+     * of frames to play per global update (a Pixi.js thing) as a number.
+     */
+    animationSpeedFromTimeDuration: (animLength: number, timeDuration: number) => {
+        return animLength / (60 * timeDuration);
+        // TODO Get 60 fps from Pixi.ticker settings?
+    },
+
+    /** Returns the reciprocal of the elapsed frames desired per frame-change.
+     * Providing this a value of 15 returns a number corresponding to one frame-change per 1/4th a second.
+     */
+    animationSpeedFromFrameInterval: (interval: number) => {
+        return 1 / interval;
     }
 }

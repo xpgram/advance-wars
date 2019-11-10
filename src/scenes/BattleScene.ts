@@ -8,6 +8,7 @@ import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
 import { MapCursor } from "../scripts/battle/MapCursor";
 import { MapLayers } from "../scripts/battle/MapLayers";
 import { InfoWindow } from "../scripts/battle/InfoWindow";
+import { Common } from "../scripts/CommonUtils";
 
 var fpsText: PIXI.BitmapText;
 var time: number = 0;
@@ -28,12 +29,12 @@ export class BattleScene extends Scene {
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
         this.linker.push({name: 'UnitSpritesheet', url: 'assets/sheets/unit-sprites.json'});
         this.linker.push({name: 'UISpritesheet', url: 'assets/sheets/ui-sprites.json'});
-        this.linker.push({name: 'TecTacRegular', url: 'assets/TecTacRegular.xml'});
+        this.linker.push({name: 'font-TecTacRegular', url: 'assets/TecTacRegular.xml'});
+        this.linker.push({name: 'font-map-ui', url: 'assets/font-map-ui.xml'});
     }
 
     setupStep(): void {
         this.map = new Map(30, 30);
-        this.map.log();
 
         this.camera = new Camera(Game.stage);
 
@@ -61,10 +62,10 @@ export class BattleScene extends Scene {
         let unitName = 'infantry/red/idle';
         let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
         let frames = sheet.animations[unitName];
-        //frames.push(frames[1]);                     // This has to be done when the sheet is loaded, and so should be done in json, I guess; asking the units to do it causes muy problemas (too many frames.)
+        frames.push(frames[1]);                     // This has to be done when the sheet is loaded, and so should be done in json, I guess; asking the units to do it causes muy problemas (too many frames.)
         for (let i = 0; i < 5; i++) {
             let unit = new PIXI.AnimatedSprite(sheet.animations[unitName]);
-            unit.animationSpeed = 0.08;
+            unit.animationSpeed = 1 / 12.5;
             //unit.scale.x = -1;
             unit.x = unit.y = 32;
             unit.x += 16*i;
@@ -104,6 +105,7 @@ export class BattleScene extends Scene {
     }
 
     updateStep(delta: number): void {
+
         // FPS Counter
         time += delta;
         if (time > 5) {
@@ -117,7 +119,6 @@ export class BattleScene extends Scene {
         (MapLayers['bottom'] as PIXI.Container).filterArea.height = Game.display.height;
 
         this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
-        this.cursor.update(delta);  // Update map cursor state (I could just have it add its own ticker, you know... hm. I get more control this way, though. I think.)
         this.camera.update(delta);  // Update camera position (follows cursor)
         this.infoWindow.inspectTile(this.cursor.pos);
         this.infoWindow.positionWindow();

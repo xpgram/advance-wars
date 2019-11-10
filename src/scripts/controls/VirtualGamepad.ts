@@ -1,6 +1,7 @@
 import { Button } from "./Button";
 import { Point, StringDictionary } from "../CommonTypes";
 import { KeyboardObserver } from "./KeyboardObserver";
+import { Axis2D } from "./Axis";
 
 /**
  * @author Dei Valko
@@ -10,22 +11,15 @@ export class VirtualGamepad {
 
     /** Whether this virtual controller assumes input from the keyboard when its controller is disconnected. */
     defaultToKeyboard: boolean = false;
-
-    leftStick: Point = {x: 0, y: 0};
-    rightStrick: Point = {x: 0, y: 0};
     
-    get dpadAxis(): Point {
-        // Axes directions are written mimic the gameworld: +x →, +y ↓
-        let y = (this.button.dpadDown.down ? 1 : 0) - (this.button.dpadUp.down ? 1 : 0);
-        let x = (this.button.dpadRight.down ? 1 : 0) - (this.button.dpadLeft.down ? 1 : 0);
-        return {x:x, y:y};
+    /** A collection of this controller's axes. */
+    readonly axis = {
+        leftStick: new Axis2D('Left Stick'),
+        rightStick: new Axis2D('Right Stick'),
+        dpad: new Axis2D('D-Pad')
     }
 
-    get dpadDown(): boolean {
-        let p = this.dpadAxis;
-        return (p.x != 0 || p.y != 0);
-    }
-
+    /** A collection of this controller's buttons. */
     button = {
         B: new Button('B', ButtonMap.B, null, null),        // Snes setup
         A: new Button('A', ButtonMap.A, 'A', 65),
@@ -51,8 +45,9 @@ export class VirtualGamepad {
 
     /** Reset button and stick state. */
     reset() {
-        this.leftStick = {x: 0, y: 0};
-        this.rightStrick = {x: 0, y: 0};
+        this.axis.leftStick.reset();
+        this.axis.rightStick.reset();
+        this.axis.dpad.reset();
         for (let button in this.button) {
             (this.button as StringDictionary<Button>)[button].reset();
         }
@@ -72,12 +67,23 @@ export class VirtualGamepad {
                 pressed = VirtualGamepad.keyboard.keyDown(button.keycode) || pressed;
             button.update(pressed);
 
+            // TODO Sort out desired behavior: gamepad vs keyboard when both are enabled.
+
             // else if (button.keycode)
             //     button.update(gamepad.keys[ button.keycode ].pressed);
             // ↑ Something sorta like this.
             // But also rewritten like this:
             //     button.update(button.pressed || key.pressed);
         }
+
+        // Update D-Pad
+        let y = (this.button.dpadDown.down ? 1 : 0) - (this.button.dpadUp.down ? 1 : 0);
+        let x = (this.button.dpadRight.down ? 1 : 0) - (this.button.dpadLeft.down ? 1 : 0);
+        this.axis.dpad.update( {x:x, y:y} );
+
+        // Update axes
+        // ...
+        // TODO How do I reference gamepad axes again?
     }
 
     // TODO Multiplayer? How do I generalize this? Controller's supposedly have IDs...
@@ -93,6 +99,8 @@ export class VirtualGamepad {
     }
 }
 
+
+// TODO Convert this silly enum into some kind of json script. Something loadable, configurable.
 enum ButtonMap {
     B = 0,
     A = 1,

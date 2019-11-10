@@ -31,14 +31,15 @@ export class Button {
 
     /** Given the pressed/unpressed state of this button in buttonDown, update this button's state. */
     update(buttonDown: boolean) {
+        // Absolve single-frame states
+        if (this.pressed) this._state = ButtonState.Down;
+        if (this.released) this._state = ButtonState.Up;
+
+        // Affect state if there's been a change
         if (this.up && buttonDown)
             this._state = ButtonState.Pressed;
-        else if (this.pressed && buttonDown)
-            this._state = ButtonState.Down;
-        else if (this.down && !buttonDown)
+        if (this.down && !buttonDown)
             this._state = ButtonState.Released;
-        else if (this.released && !buttonDown)
-            this._state = ButtonState.Up;
     }
 
     /** Resets the button state; sets it to 'Up,' skipping 'Released,' basically. */

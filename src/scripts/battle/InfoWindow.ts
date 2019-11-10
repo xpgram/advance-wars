@@ -45,8 +45,8 @@ export class InfoWindow {
         this.tileShowcase.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER;
 
         // Set up terrain name
-        this.tileName = new PIXI.BitmapText("", {font: {name: "TecTacRegular", size: 8}});
-        this.tileName.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength - 1;
+        this.tileName = new PIXI.BitmapText("", {font: {name: 'font-map-ui', size: 13}});
+        this.tileName.x = InfoWindow.WINDOW_BORDER*2 + Game.display.standardLength;
         this.tileName.y = InfoWindow.WINDOW_HEIGHT * 0.5 + InfoWindow.WINDOW_BORDER - 1;
 
         let sheet = Game.app.loader.resources['UISpritesheet'].spritesheet;
@@ -71,9 +71,10 @@ export class InfoWindow {
         this.tileCaptureIcon.x = this.tileDefenseStars.x + 8*4 + 6;
         this.tileCaptureIcon.y = this.tileDefenseStars.y - 2;
 
-        this.tileCaptureMeter = new PIXI.BitmapText("20", {font: {name: "TecTacRegular", size: 8}});
-        this.tileCaptureMeter.x = this.tileCaptureIcon.x + 10;
-        this.tileCaptureMeter.y = this.tileCaptureIcon.y + 1;
+        this.tileCaptureMeter = new PIXI.BitmapText("20", {font: {name: 'font-map-ui', size: 13}});
+        this.tileCaptureMeter.anchor = new PIXI.Point(1, 0);
+        this.tileCaptureMeter.x = this.tileCaptureIcon.x + 24;
+        this.tileCaptureMeter.y = this.tileCaptureIcon.y - 1;
 
         // Add all children to main
         this.container.addChild(background);

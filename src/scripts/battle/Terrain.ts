@@ -579,7 +579,6 @@ export const Terrain = {
             // Meteor
             let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
             variant = '0' + variant.slice(1);   // Up is always 'false' graphically
-            console.log(variant);
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`meteor-${variant}`]);
             anim.animationSpeed = 0.2;
             if (variant != "0000")
