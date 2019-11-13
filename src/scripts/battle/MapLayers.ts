@@ -15,7 +15,6 @@ export const MapLayers: any = {
     destroyed: true,
     layerNames: [
         'bottom',                   // Most terrain tiles
-        'bottom-color-filtered',    // Beaches and shorelines, specifically
         'top',                      // Over-hanging sprites: mountains, mist, etc. Units, meteors and plasma get +1 to z-index
         'ui'                        // Map cursor, or any other 'in world' UI details.
     ],
