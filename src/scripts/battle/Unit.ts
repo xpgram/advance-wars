@@ -9,6 +9,21 @@ import { Common } from "../CommonUtils";
  * For fun, and because Advance Wars itself does this, I have packed all or most of its
  * vital information into one 64-bit value to save memory. This actually saves a lot of space.
  * 
+ * TODO:
+ * This is the main class,
+ * other's will extend this one.
+ * 
+ * This class holds most of the gameplay methods,
+ * extenders add constants and sprite info.
+ * Particularly:
+ *  - buildSprite()                             Loads and sets the sprite representing this unit in the game world and gives the reference to this.sprite (this is always/only the idle animation)
+ *     - animSpeed is assumed to be ??? unless we are an infantry/mech, in which case it is ???
+ *     - When units are moving up/down, ~when~ do they change their z-index? Do they? Does the railcar just display over everything?
+ *        - I mean, clearly not important for idle animations, but still a pertinent question.
+ *  - damageMatrix(type: UnitType): number      Given a unit type (like terrain.type), return a number representing base damage.
+ *  - moveType: MoveType                        Return this units method of travel as a MoveType value (enum)
+ *  - 
+ * 
  * TODO: Unit sprites
  * TODO: Link-up sprites (kind) to the movement car?
  * TODO: Read unit-type constants into the unit container (this)

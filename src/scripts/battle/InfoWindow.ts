@@ -68,12 +68,12 @@ export class InfoWindow {
 
         // Set up capture meter (buildings)
         this.tileCaptureIcon = new PIXI.Sprite(sheet.textures['icon-capture.png']);
-        this.tileCaptureIcon.x = this.tileDefenseStars.x + 8*4 + 6;
+        this.tileCaptureIcon.x = this.tileDefenseStars.x + 8*4 + 4;
         this.tileCaptureIcon.y = this.tileDefenseStars.y - 2;
 
-        this.tileCaptureMeter = new PIXI.BitmapText("20", {font: {name: 'font-map-ui', size: 13}});
+        this.tileCaptureMeter = new PIXI.BitmapText("20", {font: {name: 'font-map-ui', size: 14}});
         this.tileCaptureMeter.anchor = new PIXI.Point(1, 0);
-        this.tileCaptureMeter.x = this.tileCaptureIcon.x + 24;
+        this.tileCaptureMeter.x = this.tileCaptureIcon.x + 25;
         this.tileCaptureMeter.y = this.tileCaptureIcon.y - 1;
 
         // Add all children to main
@@ -112,7 +112,7 @@ export class InfoWindow {
 
         // Figure out which side of the screen to display on.
         let worldX = pos.x * Game.display.standardLength;
-        this.showOnLeftSide = (worldX > this.cameraRef.center.x);
+        this.showOnLeftSide = (worldX >= this.cameraRef.center.x);
     }
 
     positionWindow() {
