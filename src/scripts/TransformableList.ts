@@ -20,6 +20,12 @@ export class TransformableList {
         this.list = [];
     }
 
+    get length(): number {
+        return this.list.length;
+    }
+
+    // FIXME There are no protections against an empty list.
+
     get x(): number { return this.list[0].x; }
     set x(num) { this.list.forEach( obj => obj.x = num ); }
 

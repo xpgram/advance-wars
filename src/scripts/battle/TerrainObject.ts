@@ -124,10 +124,6 @@ export abstract class TerrainObject {
             MapLayers[layer.name].removeChild(layer.object);
             layer.object.destroy({children: true}); // .destroy({children: true, texture: true})
         });
-        // Find out if pixi.loader stores generated spritesheet textures anywhere;
-        // I should be using those, if so.
-        // Otherwise, TODO: Load textures for common tiles somewhere, use as necessary,
-        // and do not destroy textures on Container.destroy()
     }
 
     /** Builds the tile's graphical object based on its surrounding set of neighbors. */

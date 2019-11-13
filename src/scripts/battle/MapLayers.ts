@@ -9,15 +9,14 @@ import { Game } from "../..";
  * Layers: 'bottom', 'top', 'fog'
  * 
  * @author Dei Valko
- * @version 0.1.0
+ * @version 0.1.3
  */
 export const MapLayers: any = {
     destroyed: true,
     layerNames: [
-        'bottom',
-        'top',      // units, meteors and plasma get +1 to z-index
-        'fog',
-        'ui'        // Map cursor, or any other 'in world' UI details.
+        'bottom',                   // Most terrain tiles
+        'top',                      // Over-hanging sprites: mountains, mist, etc. Units, meteors and plasma get +1 to z-index
+        'ui'                        // Map cursor, or any other 'in world' UI details.
     ],
 
     /** Creates containers acting as layers and adds them to the global stage. */

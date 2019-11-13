@@ -56,3 +56,11 @@ type Cullable = {
     getGrid(): RenderToggleable[][],
     readonly gridCellPixelSize: number
 }
+
+/** A container type which attaches labels to sprites for depth categorization. */
+type LayeredSprite = {
+    /** An sprite-object or container of sprite-objects. */
+    image: PIXI.Container,
+    /** The name of the layer this sprite-set belongs to. */
+    layerName: string
+}
