@@ -246,15 +246,20 @@ export const TerrainMethods = {
 
         let container = new PIXI.Container();
     
+        // Animated sea is itself inferred now: the scene uses one large TilingSprite to cover the
+        // entire board instead of creating <900 AnimatedSprites.
+
         // Add shallow waters
         if (options.includeShallowWater) {
             if (neighbors.center.shallowWater || neighbors.center.shallowWaterSourceTile) {
                 // Skip particularity if the tile we're building is always surrounded.
                 let variant = "1111";
+
+                // Skip particularity if the tile we're building is naturally 'surrounded'.
                 if (!neighbors.center.shallowWaterSourceTile)
                     variant = TerrainMethods.seaShallowVariant(neighbors);
 
-                // Only if orientation isn't 'none'
+                // If determined orientation isn't 'none'
                 if (variant != "0000") {
                     let shallow = new PIXI.Sprite(Terrain.sheet.textures[`sea-shallow-${variant}.png`]);
                     shallow.blendMode = PIXI.BLEND_MODES.ADD;
