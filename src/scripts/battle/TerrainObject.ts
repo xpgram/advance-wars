@@ -30,7 +30,7 @@ export abstract class TerrainObject {
     abstract get serial(): number;
 
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
-    get preview(): PIXI.Sprite {
+    get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
         let name = this.name.replace(' ', '').toLowerCase();
         let sprite;
         
@@ -42,6 +42,12 @@ export abstract class TerrainObject {
         }
 
         return sprite;
+    }
+
+    /** Returns an 'establishing shot' image of this terrain type as a sprite. */
+    get landscape(): PIXI.Sprite {
+        let name = this.name.replace(' ', '').toLowerCase();
+        return new PIXI.Sprite( Terrain.landscapeSheet.textures[`${name}-landscape.png`] );
     }
 
     /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer

@@ -73,7 +73,7 @@ export class MapCursor {
         this.movementPulsar = new Pulsar( MapCursor.movementSettings.moveTime_first, this.triggerMovement, this );
 
         // Add this object's controller input manager to the Game ticker.
-        Game.app.ticker.add( this.updateInput, this );
+        Game.scene.ticker.add( this.updateInput, this );
     }
 
     /** Destroys this object's external references. */
@@ -82,7 +82,7 @@ export class MapCursor {
         this.animPulsar.destroy();
         this.movementPulsar.destroy();
         this.spriteLayer.destroy({children: true});
-        Game.app.ticker.remove( this.updateInput, this );
+        Game.scene.ticker.remove( this.updateInput, this );
 
         // TODO Add protections against trying to use a destroyed map cursor.
         //@ts-ignore

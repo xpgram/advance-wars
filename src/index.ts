@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Scene } from './scenes/Scene';
 import { BattleScene } from './scenes/BattleScene';
 import { DebugLayer } from './scripts/DebugLayer';
+import { BlankScene } from './scenes/BlankScene';
 
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
@@ -23,11 +24,12 @@ class App {
 
     /** Namespace for the various scenes the game will switch between. */
     readonly gameScenes = {
+        blankScene: new BlankScene(),
         battleScene: new BattleScene(),
     };
 
     /** type {GameState} Reference to the game's current scene. */
-    scene: Scene | null = null;
+    scene: Scene = this.gameScenes.blankScene;
 
     /** Object containing various display constants. */
     readonly display = {
@@ -95,16 +97,14 @@ class App {
 
     /** Main update loop. A state-machine implementing the Scene pattern. */
     loop(delta: number) {
-        if (this.scene) {
-            if (this.scene.mustInitialize)
-                this.scene.init();
-            this.scene.update(delta);
-        }
+        if (this.scene.mustInitialize)
+            this.scene.init();
+        this.scene.update(delta);
     }
 
     /** Unbuilds the current scene and switches context to the given scene object. */
     switchScene(newScene: Scene | null) {
-        if (this.scene)
+        if (this.scene.ready)
             this.scene.destroy();
         if (newScene)
             this.scene = newScene;

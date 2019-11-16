@@ -13,7 +13,9 @@ import { NeighborMatrix } from "../NeighborMatrix";
  */
 export const Terrain = {
     tileset: 'NormalMapTilesheet',
+    landImageset: 'NormalMapLandscapeSheet',
     get sheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.tileset ].spritesheet; },
+    get landscapeSheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.landImageset ].spritesheet; },
 
     Void: class VoidTile extends TerrainObject {
         // Not for nothin', but these properties are all technically condensible into one 64-bit value.
@@ -45,6 +47,15 @@ export const Terrain = {
     Plain: class PlainTile extends TerrainObject {
         get type() { return PlainTile; }
         get serial() { return 0; }
+        get landscape(): PIXI.Sprite {
+            if (this.variation == 1)
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-meteor-landscape.png'] );
+            else if (this.variation == 2)
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-plasma-landscape.png'] );
+            else
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-landscape.png'] );
+        }
+        private variation = 0;
 
         get name() { return "Plain"; }
         get shortName() { return "Plain"; }
@@ -64,6 +75,10 @@ export const Terrain = {
             // Plain
             let sprite = TerrainMethods.createPlainLayer();
             this.layers.push({object: sprite, name: 'bottom'});
+
+            // if neighbors.center == Meteor: assume crater
+            // if neighbors.center == Plasma: assume razed grass
+            // set this.variation to whichever
         }
     },
 
@@ -236,7 +251,10 @@ export const Terrain = {
 
         movementCost(type: MoveType) {
             let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
+            if (this.landTile)
+                return costs[type];
+            else
+                return 1;
         }
 
         constructor(prevTile?: TerrainObject) {
@@ -383,6 +401,9 @@ export const Terrain = {
     RoughSea: class RoughSeaTile extends TerrainObject {
         get type() { return RoughSeaTile; }
         get serial() { return 10; }
+        get landscape(): PIXI.Sprite {
+            return new PIXI.Sprite( Terrain.landscapeSheet.textures['sea-landscape.png'] );
+        }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -430,6 +451,9 @@ export const Terrain = {
     Mist: class MistTile extends TerrainObject {
         get type() { return MistTile; }
         get serial() { return 11; }
+        get landscape(): PIXI.Sprite {
+            return new PIXI.Sprite( Terrain.landscapeSheet.textures['sea-landscape.png'] );
+        }
         get landTile() { return false; }
 
         get name() { return "Mist"; }
@@ -507,6 +531,12 @@ export const Terrain = {
     Fire: class FireTile extends TerrainObject {
         get type() { return FireTile; }
         get serial() { return 13; }
+        get landscape(): PIXI.AnimatedSprite {
+            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            anim.animationSpeed = 6 / 20;
+            anim.play();
+            return anim;
+        }
 
         get name() { return "Fire"; }
         get shortName() { return "Fire"; }
@@ -539,6 +569,12 @@ export const Terrain = {
     Meteor: class MeteorTile extends TerrainObject {
         get type() { return MeteorTile; }
         get serial() { return 14; }
+        get landscape(): PIXI.AnimatedSprite {
+            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            anim.animationSpeed = 6 / 20;
+            anim.play();
+            return anim;
+        }
         readonly landTile: boolean;
 
         get name() { return "Meteor"; }
@@ -590,6 +626,12 @@ export const Terrain = {
     Plasma: class PlasmaTile extends TerrainObject {
         get type() { return PlasmaTile; }
         get serial() { return 15; }
+        get landscape(): PIXI.AnimatedSprite {
+            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            anim.animationSpeed = 6 / 20;
+            anim.play();
+            return anim;
+        }
         readonly landTile: boolean;
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -842,6 +884,12 @@ export const Terrain = {
     Silo: class SiloTile extends TerrainObject {
         get type() { return SiloTile; }
         get serial() { return 22; }
+        get landscape(): PIXI.Sprite {
+            if (this.value == 1)
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['silo-unused-landscape.png'] );
+            else
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['silo-used-landscape.png'] );
+        }
 
         get name() { return "Silo"; }
         get shortName() { return "Silo"; }

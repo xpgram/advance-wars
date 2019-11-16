@@ -1,3 +1,4 @@
+import * as PIXI from "pixi.js";
 import { Game } from "..";
 
 /**
@@ -17,16 +18,38 @@ export abstract class Scene {
     /** Whether the scene object is set up and ready to be used. */
     get ready() { return this.state == Scene.READY; };
 
+    /** Volatile ticker used to update object processes during the scene. Destroyed on scene closing. */
+    get ticker(): PIXI.Ticker {
+        if (!this._ticker)
+            throw new Error("Attempted to access the scene's destroyed ticker.");
+        return this._ticker;
+    }
+    private _ticker!: PIXI.Ticker | null;
+
     constructor() {
         this.state = Scene.UNBUILT;
     }
 
     /** Initialize step sets up the scene and readies it for the game-loop. */
     init() {
-        if (this.state == Scene.UNBUILT)
+        if (this.state == Scene.UNBUILT) {
+            this._ticker = new PIXI.Ticker();
+            this.ticker.start();
             this.load(); // → setup → ready
+        }
         else
             throw new Error("Attempted to reconstruct a constructed scene.");
+    }
+
+    /** Destroy step disassembles the scene object and un-readies it for game-looping. */
+    destroy() {
+        if (this.state == Scene.READY) {
+            if (this._ticker) this._ticker.destroy();
+            this._ticker = null;
+            this.destroyStep();
+            this.state = Scene.UNBUILT;
+        } else
+            throw new Error("Attempted to destroy an unconstructed scene.");
     }
 
     /** Collects resource links from inheriting scene, then loads them
@@ -54,15 +77,6 @@ export abstract class Scene {
     update(delta: number) {
         if (this.state == Scene.READY)
             this.updateStep(delta);
-    }
-
-    /** Destroy step disassembles the scene object and un-readies it for game-looping. */
-    destroy() {
-        if (this.state == Scene.READY) {
-            this.destroyStep();
-            this.state = Scene.UNBUILT;
-        } else
-            throw new Error("Attempted to destroy an unconstructed scene.");
     }
 
     protected abstract loadStep(): void;
