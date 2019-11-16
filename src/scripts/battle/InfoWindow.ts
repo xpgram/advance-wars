@@ -10,6 +10,20 @@ import { MoveType } from "./EnumTypes";
 /**
  * This class is a goddamn mess because I'm experimenting right now.
  * For real, though. Mom says I need to clean my room in here.
+ * 
+ * Plans:
+ * Default State:
+ *  - Show CO Blurb
+ *  - Show Tile Blurb
+ *  - Show Unit Blurb (if present)
+ *     - Unit blurb includes two little squares above for loaded units
+ * Hold L:
+ *  - Detailed Tile/Unit info window slides in
+ *     - X changes page (tile to unit and back again)
+ *  - Blocks access to Hold R
+ * Hold R:
+ *  - Other CO Blurbs slide in
+ *  - Blocks access to Hold L
  */
 export class InfoWindow {
     static readonly WINDOW_WIDTH = 88;
