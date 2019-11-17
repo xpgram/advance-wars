@@ -90,7 +90,16 @@ export abstract class TerrainObject {
     get vision(): number { return 0; }
 
     /** Given a movement type, how many movement points must be spent to travel into this tile. */
-    abstract movementCost(type: MoveType): number;
+    abstract readonly movementCost: {
+        readonly infantry: number,
+        readonly mech: number,
+        readonly tireA: number,
+        readonly tireB: number,
+        readonly tread: number,
+        readonly air: number,
+        readonly ship: number,
+        readonly transport: number
+    };
 
     /** Which faction has ownership of this terrain. Relevant to buildings only. */
     get faction(): Faction { return Faction.None; }

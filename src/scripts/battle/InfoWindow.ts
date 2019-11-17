@@ -11,6 +11,10 @@ import { MoveType } from "./EnumTypes";
  * This class is a goddamn mess because I'm experimenting right now.
  * For real, though. Mom says I need to clean my room in here.
  * 
+ * Missing Ingredients:
+ *  - I need a title font; font-panel is not working, it looks dumb.
+ *  - A layout backdrop for Detail Window
+ * 
  * Plans:
  * Default State:
  *  - Show CO Blurb
@@ -189,10 +193,10 @@ export class InfoWindow {
 
         /*** Testing Out Detail Window Layout *********************************/
 
-        // Consolidate windows
-        this.container.addChild(this.windowDetail); // Draw order: first
+        // Consolidate windows - this is also first to last draw order
+        this.container.addChild(this.windowDetail);
         this.container.addChild(this.windowUnit);
-        this.container.addChild(this.windowTile);   // Draw order: last
+        this.container.addChild(this.windowTile);
         Game.hud.addChild(this.container);
 
         // Set up windows' screen position  (There's no reason to set y more than once)
@@ -283,14 +287,14 @@ export class InfoWindow {
             // I really thought I could tint individual letters...
             this.description.text = this.description.text.replace(/\//g,'');
 
-            this.moveCosts[0].text = square.terrain.movementCost(MoveType.Infantry).toString();
-            this.moveCosts[1].text = square.terrain.movementCost(MoveType.Mech).toString();
-            this.moveCosts[2].text = square.terrain.movementCost(MoveType.TireA).toString();
-            this.moveCosts[3].text = square.terrain.movementCost(MoveType.Tread).toString();
-            this.moveCosts[4].text = square.terrain.movementCost(MoveType.TireB).toString();
-            this.moveCosts[5].text = square.terrain.movementCost(MoveType.Air).toString();
-            this.moveCosts[6].text = square.terrain.movementCost(MoveType.Ship).toString();
-            this.moveCosts[7].text = square.terrain.movementCost(MoveType.Transport).toString();
+            this.moveCosts[0].text = square.terrain.movementCost.infantry.toString();
+            this.moveCosts[1].text = square.terrain.movementCost.mech.toString();
+            this.moveCosts[2].text = square.terrain.movementCost.tireA.toString();
+            this.moveCosts[3].text = square.terrain.movementCost.tread.toString();
+            this.moveCosts[4].text = square.terrain.movementCost.tireB.toString();
+            this.moveCosts[5].text = square.terrain.movementCost.air.toString();
+            this.moveCosts[6].text = square.terrain.movementCost.ship.toString();
+            this.moveCosts[7].text = square.terrain.movementCost.transport.toString();
 
             for (let bitmapText of this.moveCosts)
                 if (bitmapText.text == "0")

@@ -30,10 +30,16 @@ export const Terrain = {
         get description() { return "Void"; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -62,10 +68,16 @@ export const Terrain = {
         get description() { return "Plains are easily traveled but offer little defense."; }
         get defenseRating() { return 1; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,2,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 2,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -91,10 +103,16 @@ export const Terrain = {
         get description() { return "Well-surfaced roads provide optimum mobility, but little cover."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -124,10 +142,16 @@ export const Terrain = {
         get defenseRating() { return 3; }
         get conceals() { return true; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,3,3,2,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 3,
+            tireB: 3,
+            tread: 2,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -154,10 +178,16 @@ export const Terrain = {
         get description() { return "In Fog of War, these add 3 to the /vision/ of infantry and mech units."; }
         get defenseRating() { return 4; }
 
-        movementCost(type: MoveType) {
-            let costs = [2,1,0,0,0,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 2,
+            mech: 1,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -189,10 +219,16 @@ export const Terrain = {
         get description() { return "This impairs mobility for all but infantry and mech units."; }
         get defenseRating() { return 2; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,3,3,2,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 3,
+            tireB: 3,
+            tread: 2,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -216,10 +252,16 @@ export const Terrain = {
         get defenseRating() { return 1; }
         get conceals() { return true; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,2,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 2,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -249,19 +291,26 @@ export const Terrain = {
         get description() { return "Naval units can't pass under river bridges."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            if (this.landTile)
-                return costs[type];
-            else
-                return 1;
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
             this.landTile = false;
             if (prevTile)
                 this.landTile = prevTile.landTile;
+            if (!this.landTile) {
+                this.movementCost.ship = 1;
+                this.movementCost.transport = 1;
+            }
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -298,10 +347,16 @@ export const Terrain = {
         get description() { return "Only foot soldiers can ford rivers."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [2,1,0,0,0,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 2,
+            mech: 1,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -327,10 +382,16 @@ export const Terrain = {
         get description() { return "Naval and air forces have good mobility on calm seas."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,1,1,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 1,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -352,10 +413,16 @@ export const Terrain = {
         get description() { return "Landers and gunboats can /load and drop/ units here."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,2,2,1,1,0,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 2,
+            tireB: 2,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -413,10 +480,16 @@ export const Terrain = {
         get description() { return "Slows the movement of naval units, but air units are not affected."; }
         get defenseRating() { return 2; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,1,2,2];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 2,
+            transport: 2
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -462,10 +535,16 @@ export const Terrain = {
         get defenseRating() { return 1; }
         get conceals() { return true; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,1,1,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 1,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -495,10 +574,16 @@ export const Terrain = {
         get defenseRating() { return 2; }
         get conceals() { return true; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,1,2,2];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 2,
+            transport: 2
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -544,10 +629,16 @@ export const Terrain = {
         get defenseRating() { return 0; }
         get vision() { return 5; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -586,10 +677,16 @@ export const Terrain = {
         get value(): number { return this._value; }
         set value(n) { this._value = Common.confine(n, 0, 99); }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -641,10 +738,16 @@ export const Terrain = {
         get description() { return "Plasma is impassable but disappears if /meteor chunks/ are destroyed."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -686,10 +789,16 @@ export const Terrain = {
         get description() { return "Its armor renders the pipeline indestructible. No units can pass it."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -727,10 +836,16 @@ export const Terrain = {
         get value(): number { return this._value; }
         set value(n) { this._value = Common.confine(n, 0, 99); }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -763,10 +878,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Red;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -797,10 +918,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -830,10 +957,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -863,10 +996,16 @@ export const Terrain = {
         get vision() { return 5; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -901,10 +1040,16 @@ export const Terrain = {
         get value(): number { return this._value; }
         set value(n) { this._value = Common.confine(n, 0, 1); }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -938,10 +1083,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -972,10 +1123,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -1007,10 +1164,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,1,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 1,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -1041,10 +1204,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -1075,10 +1244,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,1,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 1,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
