@@ -21,16 +21,16 @@ export class VirtualGamepad {
 
     /** A collection of this controller's buttons. */
     button = {
-        B: new Button('B', ButtonMap.B, null, null),        // Snes setup
-        A: new Button('A', ButtonMap.A, 'A', 65),
-        Y: new Button('Y', ButtonMap.Y, null, null),
-        X: new Button('X', ButtonMap.X, null, null),
-        leftBumper: new Button('Left Bumper', ButtonMap.leftBumper, null, null),
-        rightBumper: new Button('Right Bumper', ButtonMap.rightBumper, null, null),
-        leftTrigger: new Button('Left Trigger', ButtonMap.leftTrigger, null, null),
-        rightTrigger: new Button('Right Trigger', ButtonMap.rightTrigger, null, null),
-        select: new Button('Select', ButtonMap.select, null, null),
-        start: new Button('Start', ButtonMap.start, null, null),
+        B: new Button('B', ButtonMap.B, 'X', 88),        // Snes setup
+        A: new Button('A', ButtonMap.A, 'Z', 90),
+        Y: new Button('Y', ButtonMap.Y, 'V', 86),
+        X: new Button('X', ButtonMap.X, 'C', 67),
+        leftBumper: new Button('Left Bumper', ButtonMap.leftBumper, 'Ctrl', 17),
+        rightBumper: new Button('Right Bumper', ButtonMap.rightBumper, 'D', 68),
+        leftTrigger: new Button('Left Trigger', ButtonMap.leftTrigger, 'Shift', 16),
+        rightTrigger: new Button('Right Trigger', ButtonMap.rightTrigger, 'F', 70),
+        select: new Button('Select', ButtonMap.select, 'A', 65),
+        start: new Button('Start', ButtonMap.start, 'S', 83),
         leftStick: new Button('Left Stick', ButtonMap.leftStick, null, null),
         rightStick: new Button('Right Stick', ButtonMap.rightStick, null, null),
         dpadUp: new Button('D-Pad Up', ButtonMap.dpadUp, 'Up Arrow', 38),
