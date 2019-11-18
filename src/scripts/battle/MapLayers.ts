@@ -16,6 +16,7 @@ export const MapLayers: any = {
     layerNames: [
         'bottom',                   // Most terrain tiles
         'top',                      // Over-hanging sprites: mountains, mist, etc. Units, meteors and plasma get +1 to z-index
+        'cloud-shadow',
         'ui'                        // Map cursor, or any other 'in world' UI details.
     ],
 

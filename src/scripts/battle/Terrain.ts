@@ -13,7 +13,9 @@ import { NeighborMatrix } from "../NeighborMatrix";
  */
 export const Terrain = {
     tileset: 'NormalMapTilesheet',
+    landImageset: 'NormalMapLandscapeSheet',
     get sheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.tileset ].spritesheet; },
+    get landscapeSheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.landImageset ].spritesheet; },
 
     Void: class VoidTile extends TerrainObject {
         // Not for nothin', but these properties are all technically condensible into one 64-bit value.
@@ -28,10 +30,16 @@ export const Terrain = {
         get description() { return "Void"; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -45,16 +53,31 @@ export const Terrain = {
     Plain: class PlainTile extends TerrainObject {
         get type() { return PlainTile; }
         get serial() { return 0; }
+        get landscape(): PIXI.Sprite {
+            if (this.variation == 1)
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-meteor-landscape.png'] );
+            else if (this.variation == 2)
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-plasma-landscape.png'] );
+            else
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-landscape.png'] );
+        }
+        private variation = 0;
 
         get name() { return "Plain"; }
         get shortName() { return "Plain"; }
         get description() { return "Plains are easily traveled but offer little defense."; }
         get defenseRating() { return 1; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,2,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 2,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -64,6 +87,10 @@ export const Terrain = {
             // Plain
             let sprite = TerrainMethods.createPlainLayer();
             this.layers.push({object: sprite, name: 'bottom'});
+
+            // if neighbors.center == Meteor: assume crater
+            // if neighbors.center == Plasma: assume razed grass
+            // set this.variation to whichever
         }
     },
 
@@ -76,10 +103,16 @@ export const Terrain = {
         get description() { return "Well-surfaced roads provide optimum mobility, but little cover."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -109,10 +142,16 @@ export const Terrain = {
         get defenseRating() { return 3; }
         get conceals() { return true; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,3,3,2,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 3,
+            tireB: 3,
+            tread: 2,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -139,10 +178,16 @@ export const Terrain = {
         get description() { return "In Fog of War, these add 3 to the /vision/ of infantry and mech units."; }
         get defenseRating() { return 4; }
 
-        movementCost(type: MoveType) {
-            let costs = [2,1,0,0,0,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 2,
+            mech: 1,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -174,10 +219,16 @@ export const Terrain = {
         get description() { return "This impairs mobility for all but infantry and mech units."; }
         get defenseRating() { return 2; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,3,3,2,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 3,
+            tireB: 3,
+            tread: 2,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -201,10 +252,16 @@ export const Terrain = {
         get defenseRating() { return 1; }
         get conceals() { return true; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,2,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 2,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -234,16 +291,26 @@ export const Terrain = {
         get description() { return "Naval units can't pass under river bridges."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
             this.landTile = false;
             if (prevTile)
                 this.landTile = prevTile.landTile;
+            if (!this.landTile) {
+                this.movementCost.ship = 1;
+                this.movementCost.transport = 1;
+            }
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
@@ -280,10 +347,16 @@ export const Terrain = {
         get description() { return "Only foot soldiers can ford rivers."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [2,1,0,0,0,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 2,
+            mech: 1,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -309,10 +382,16 @@ export const Terrain = {
         get description() { return "Naval and air forces have good mobility on calm seas."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,1,1,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 1,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -334,10 +413,16 @@ export const Terrain = {
         get description() { return "Landers and gunboats can /load and drop/ units here."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,2,2,1,1,0,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 2,
+            tireB: 2,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -383,6 +468,9 @@ export const Terrain = {
     RoughSea: class RoughSeaTile extends TerrainObject {
         get type() { return RoughSeaTile; }
         get serial() { return 10; }
+        get landscape(): PIXI.Sprite {
+            return new PIXI.Sprite( Terrain.landscapeSheet.textures['sea-landscape.png'] );
+        }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -392,10 +480,16 @@ export const Terrain = {
         get description() { return "Slows the movement of naval units, but air units are not affected."; }
         get defenseRating() { return 2; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,1,2,2];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 2,
+            transport: 2
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -430,6 +524,9 @@ export const Terrain = {
     Mist: class MistTile extends TerrainObject {
         get type() { return MistTile; }
         get serial() { return 11; }
+        get landscape(): PIXI.Sprite {
+            return new PIXI.Sprite( Terrain.landscapeSheet.textures['sea-landscape.png'] );
+        }
         get landTile() { return false; }
 
         get name() { return "Mist"; }
@@ -438,10 +535,16 @@ export const Terrain = {
         get defenseRating() { return 1; }
         get conceals() { return true; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,1,1,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 1,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -471,10 +574,16 @@ export const Terrain = {
         get defenseRating() { return 2; }
         get conceals() { return true; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,1,2,2];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 1,
+            ship: 2,
+            transport: 2
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -507,6 +616,12 @@ export const Terrain = {
     Fire: class FireTile extends TerrainObject {
         get type() { return FireTile; }
         get serial() { return 13; }
+        get landscape(): PIXI.AnimatedSprite {
+            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            anim.animationSpeed = 6 / 20;
+            anim.play();
+            return anim;
+        }
 
         get name() { return "Fire"; }
         get shortName() { return "Fire"; }
@@ -514,10 +629,16 @@ export const Terrain = {
         get defenseRating() { return 0; }
         get vision() { return 5; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -539,6 +660,12 @@ export const Terrain = {
     Meteor: class MeteorTile extends TerrainObject {
         get type() { return MeteorTile; }
         get serial() { return 14; }
+        get landscape(): PIXI.AnimatedSprite {
+            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            anim.animationSpeed = 6 / 20;
+            anim.play();
+            return anim;
+        }
         readonly landTile: boolean;
 
         get name() { return "Meteor"; }
@@ -550,10 +677,16 @@ export const Terrain = {
         get value(): number { return this._value; }
         set value(n) { this._value = Common.confine(n, 0, 99); }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -590,6 +723,12 @@ export const Terrain = {
     Plasma: class PlasmaTile extends TerrainObject {
         get type() { return PlasmaTile; }
         get serial() { return 15; }
+        get landscape(): PIXI.AnimatedSprite {
+            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            anim.animationSpeed = 6 / 20;
+            anim.play();
+            return anim;
+        }
         readonly landTile: boolean;
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -599,10 +738,16 @@ export const Terrain = {
         get description() { return "Plasma is impassable but disappears if /meteor chunks/ are destroyed."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -644,10 +789,16 @@ export const Terrain = {
         get description() { return "Its armor renders the pipeline indestructible. No units can pass it."; }
         get defenseRating() { return 0; }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -685,10 +836,16 @@ export const Terrain = {
         get value(): number { return this._value; }
         set value(n) { this._value = Common.confine(n, 0, 99); }
 
-        movementCost(type: MoveType) {
-            let costs = [0,0,0,0,0,0,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 0,
+            mech: 0,
+            tireA: 0,
+            tireB: 0,
+            tread: 0,
+            air: 0,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -721,10 +878,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Red;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -755,10 +918,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -788,10 +957,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -821,10 +996,16 @@ export const Terrain = {
         get vision() { return 5; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -842,6 +1023,12 @@ export const Terrain = {
     Silo: class SiloTile extends TerrainObject {
         get type() { return SiloTile; }
         get serial() { return 22; }
+        get landscape(): PIXI.Sprite {
+            if (this.value == 1)
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['silo-unused-landscape.png'] );
+            else
+                return new PIXI.Sprite( Terrain.landscapeSheet.textures['silo-used-landscape.png'] );
+        }
 
         get name() { return "Silo"; }
         get shortName() { return "Silo"; }
@@ -853,10 +1040,16 @@ export const Terrain = {
         get value(): number { return this._value; }
         set value(n) { this._value = Common.confine(n, 0, 1); }
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -890,10 +1083,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -924,10 +1123,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -959,10 +1164,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,1,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 1,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -993,10 +1204,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,0,0];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 0,
+            transport: 0
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();
@@ -1027,10 +1244,16 @@ export const Terrain = {
         get vision() { return 2; }
         faction: Faction = Faction.Neutral;
 
-        movementCost(type: MoveType) {
-            let costs = [1,1,1,1,1,1,1,1];
-            return costs[type];
-        }
+        movementCost = {
+            infantry: 1,
+            mech: 1,
+            tireA: 1,
+            tireB: 1,
+            tread: 1,
+            air: 1,
+            ship: 1,
+            transport: 1
+        };
 
         constructor(prevTile?: TerrainObject) {
             super();

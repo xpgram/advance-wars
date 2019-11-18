@@ -1,5 +1,4 @@
 import * as PIXI from "pixi.js";
-import * as PixiFilters from "pixi-filters";
 import { Scene } from "./Scene";
 import { Map } from "../scripts/battle/Map";
 import { Game } from "..";
@@ -8,7 +7,7 @@ import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
 import { MapCursor } from "../scripts/battle/MapCursor";
 import { MapLayers } from "../scripts/battle/MapLayers";
 import { InfoWindow } from "../scripts/battle/InfoWindow";
-import { Common } from "../scripts/CommonUtils";
+import { LowResTransform } from "../scripts/LowResTransform";
 
 var fpsText: PIXI.BitmapText;
 var time: number = 0;
@@ -25,13 +24,23 @@ export class BattleScene extends Scene {
     cursor!: MapCursor;
     infoWindow!: InfoWindow;
 
+    clouds!: PIXI.TilingSprite;
+    cloudsTransform!: LowResTransform;
+
     loadStep(): void {
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
+        this.linker.push({name: 'NormalMapLandscapeSheet', url: 'assets/sheets/normal-map-landscapes.json'});
         this.linker.push({name: 'UnitSpritesheet', url: 'assets/sheets/unit-sprites.json'});
         this.linker.push({name: 'UISpritesheet', url: 'assets/sheets/ui-sprites.json'});
         this.linker.push({name: 'background', url: 'assets/background-battle.png'});
+
+
         this.linker.push({name: 'font-TecTacRegular', url: 'assets/TecTacRegular.xml'});
         this.linker.push({name: 'font-map-ui', url: 'assets/font-map-ui.xml'});
+        this.linker.push({name: 'font-script', url: 'assets/font-script.xml'});
+        this.linker.push({name: 'font-menu', url: 'assets/font-menu.xml'});
+        this.linker.push({name: 'font-table-header', url: 'assets/font-table-header.xml'});
+        this.linker.push({name: 'font-label', url: 'assets/font-label.xml'});
     }
 
     setupStep(): void {
@@ -61,10 +70,11 @@ export class BattleScene extends Scene {
         this.camera.frame.focusBox.y = 32;
 
         // Info Window
-        this.infoWindow = new InfoWindow(this.map, this.camera, this.cursor.pos);
+        this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
+        this.infoWindow.inspectTile(this.cursor.pos);
 
         // Testing unit sprites
-        let unitName = 'infantry/red/idle';
+        let unitName = 'seeker/red/idle';
         let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
         let frames = sheet.animations[unitName];
         frames.push(frames[1]);                     // This has to be done when the sheet is loaded, and so should be done in json, I guess; asking the units to do it causes muy problemas (too many frames.)
@@ -126,11 +136,13 @@ export class BattleScene extends Scene {
         this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
         this.camera.update(delta);  // Update camera position (follows cursor)
         this.infoWindow.inspectTile(this.cursor.pos);
-        this.infoWindow.positionWindow();
 
         // Proof that buttons work.
-        if (this.gamepad.button.A.down)
+        if (this.gamepad.button.A.down) {
             fpsText.text = "A button is pressed!";
+
+            console.log(Game.app.ticker);
+        }
     }
 
     destroyStep(): void {

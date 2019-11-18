@@ -30,7 +30,7 @@ export abstract class TerrainObject {
     abstract get serial(): number;
 
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
-    get preview(): PIXI.Sprite {
+    get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
         let name = this.name.replace(' ', '').toLowerCase();
         let sprite;
         
@@ -42,6 +42,12 @@ export abstract class TerrainObject {
         }
 
         return sprite;
+    }
+
+    /** Returns an 'establishing shot' image of this terrain type as a sprite. */
+    get landscape(): PIXI.Sprite {
+        let name = this.name.replace(' ', '').toLowerCase();
+        return new PIXI.Sprite( Terrain.landscapeSheet.textures[`${name}-landscape.png`] );
     }
 
     /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer
@@ -84,7 +90,16 @@ export abstract class TerrainObject {
     get vision(): number { return 0; }
 
     /** Given a movement type, how many movement points must be spent to travel into this tile. */
-    abstract movementCost(type: MoveType): number;
+    abstract readonly movementCost: {
+        readonly infantry: number,
+        readonly mech: number,
+        readonly tireA: number,
+        readonly tireB: number,
+        readonly tread: number,
+        readonly air: number,
+        readonly ship: number,
+        readonly transport: number
+    };
 
     /** Which faction has ownership of this terrain. Relevant to buildings only. */
     get faction(): Faction { return Faction.None; }
