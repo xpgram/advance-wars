@@ -1,5 +1,10 @@
 import { Common } from "../CommonUtils";
 
+/** An uninstantiated Unit class type. */
+export interface UnitType {
+    new (): UnitObject;
+}
+
 /**
  * This class is a container for unit variable-stat information.
  * Things like its HP, its remaining Gas, etc.
@@ -32,9 +37,9 @@ import { Common } from "../CommonUtils";
  * @author Dei Valko
  * @version 0.1.0
  */
-export class Unit {
+export abstract class UnitObject {
     /** A reference to this object's unit-kind. Used for retrieving constants about the unit. */
-    readonly type: UnitType;
+    abstract readonly type: UnitType;
 
     /** A 64-bit number representing all or most of Unit's relevant information. */
     private info = 0;
@@ -55,8 +60,7 @@ export class Unit {
     private static readonly eightLength = 3;        // Integers 0–7
     private static readonly coordinateLength = 8;   // Up to 255
 
-    constructor(type: UnitType) {
-        this.type = type;
+    constructor() {
         this.hp = 100;
         this.ammo = 0;  // this.type.ammo
         this.gas = 99;  // this.type.Gas
