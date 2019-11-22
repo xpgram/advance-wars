@@ -8,6 +8,7 @@ import { MapCursor } from "../scripts/battle/MapCursor";
 import { MapLayers } from "../scripts/battle/MapLayers";
 import { InfoWindow } from "../scripts/battle/InfoWindow";
 import { LowResTransform } from "../scripts/LowResTransform";
+import { InfoWindowSystem } from "../scripts/battle/ui-windows/InfoWindowSystem";
 
 var fpsText: PIXI.BitmapText;
 var time: number = 0;
@@ -70,8 +71,15 @@ export class BattleScene extends Scene {
         this.camera.frame.focusBox.y = 32;
 
         // Info Window
+        // this.infoWindow = new InfoWindowSystem();
+        // this.infoWindow.gp = this.gamepad;
+        // this.infoWindow.map = this.map;
+        // this.infoWindow.cursor = this.cursor;
+        // this.infoWindow.camera = this.camera;
         this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
         this.infoWindow.inspectTile(this.cursor.pos);
+
+        
 
         // Testing unit sprites
         let unitName = 'seeker/red/idle';
