@@ -23,7 +23,7 @@ export class BattleScene extends Scene {
     camera!: Camera;
     gamepad!: VirtualGamepad;        // TODO Link this up as a property of Game.
     cursor!: MapCursor;
-    infoWindow!: InfoWindow;
+    infoWindow!: InfoWindowSystem;
 
     clouds!: PIXI.TilingSprite;
     cloudsTransform!: LowResTransform;
@@ -71,13 +71,13 @@ export class BattleScene extends Scene {
         this.camera.frame.focusBox.y = 32;
 
         // Info Window
-        // this.infoWindow = new InfoWindowSystem();
-        // this.infoWindow.gp = this.gamepad;
-        // this.infoWindow.map = this.map;
-        // this.infoWindow.cursor = this.cursor;
-        // this.infoWindow.camera = this.camera;
-        this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
-        this.infoWindow.inspectTile(this.cursor.pos);
+        this.infoWindow = new InfoWindowSystem();
+        this.infoWindow.gp = this.gamepad;
+        this.infoWindow.map = this.map;
+        this.infoWindow.cursor = this.cursor;
+        this.infoWindow.camera = this.camera;
+        // this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
+        // this.infoWindow.inspectTile(this.cursor.pos);
 
         
 
@@ -143,13 +143,10 @@ export class BattleScene extends Scene {
 
         this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
         this.camera.update(delta);  // Update camera position (follows cursor)
-        this.infoWindow.inspectTile(this.cursor.pos);
 
         // Proof that buttons work.
         if (this.gamepad.button.A.down) {
             fpsText.text = "A button is pressed!";
-
-            console.log(Game.app.ticker);
         }
     }
 

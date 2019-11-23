@@ -15,7 +15,7 @@ import { Common } from "./CommonUtils";
  * @version 0.1.0
  */
 export class Camera {
-    maxSpeed = 5;   // The number of... something, that the camera can travel per second.
+    maxSpeed = 5.25;   // The number of... something, that the camera can travel per second.
 
     private _transform = new LowResTransform();
     /** Reference to the camera's transform. */

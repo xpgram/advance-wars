@@ -1,16 +1,15 @@
 import { TerrainWindow } from "./TerrainWindow";
 import { Game } from "../../..";
 import { UnitWindow } from "./UnitWindow";
-import { DetailWindow } from "./DetailWindow";
 import { COWindow } from "./COWindow";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { MapCursor } from "../MapCursor";
 import { Camera } from "../../Camera";
 import { Point } from "../../CommonTypes";
-import { InfoUI } from "./DisplayInfo";
 import { Square } from "../Square";
 import { Map } from "../Map";
-import { SlidingWindow } from "./SlidingWindow";
+import { Terrain } from "../Terrain";
+import { TerrainDetailWindow } from "./TerrainDetailWindow";
 
 export class InfoWindowSystem {
 
@@ -32,36 +31,34 @@ export class InfoWindowSystem {
         visualBoundaryWidth: Game.display.renderWidth
     }
 
-    masterWindow = new SlidingWindow({
-        width: 0,
-        height: 0,
-        visualBoundaryWidth: Game.display.renderWidth,
-        show: false
-    });
-
-    terrainInfo = new TerrainWindow(this.options);
+    detailedInfo = new TerrainDetailWindow(this.options);
+    commanderInfo = new COWindow(this.options, 0);
     unitInfo = new UnitWindow(this.options);
-    commanderInfo = new COWindow(this.options);
-    detailedInfo = new DetailWindow(this.options);
+    terrainInfo = new TerrainWindow(this.options);
 
     constructor() {
         // Apply mask to screen-wipeable ui elements
         this.unitInfo.displayContainer.mask = this.detailedInfo.mask;
         this.commanderInfo.displayContainer.mask = this.detailedInfo.mask;
 
+        // Position windows (thaaat's right, I didn't use verticalDistance in the options...!)
+        this.detailedInfo.displayContainer.y = 1;
+        this.commanderInfo.displayContainer.y = 1;
+        // TODO Add the slide-in other CO windows
+        this.unitInfo.displayContainer.y = 142;
+        this.terrainInfo.displayContainer.y = 167;
+
         // Add independent updater to ticker
         Game.scene.ticker.add(this.update, this);
     }
 
     update() {
-        // The block below needs to be reworked. It doesn't make a lot of sense.
-
         let show = false;
         let showOnLeft = true;
 
         if (this.gp.button.leftTrigger.down)
             show = true;
-        if (this.cursor.pos.x >= (Game.display.renderWidth + this.camera.pos.x) / Game.display.standardLength)
+        if (this.cursor.transform.x < (Game.display.renderWidth / 2 + this.camera.x))
             showOnLeft = false;
 
         this.terrainInfo.showOnLeftSide = showOnLeft;
@@ -74,28 +71,86 @@ export class InfoWindowSystem {
         // Update tile info
         if (this.terrainInfo.refreshable) {
             if (this.cursor.pos.x != this.lastTileInspected.x
-                && this.cursor.pos.y != this.lastTileInspected.y)
+                || this.cursor.pos.y != this.lastTileInspected.y) {
+                this.lastTileInspected = {x: this.cursor.pos.x, y: this.cursor.pos.y};
                 this.inspectTile(this.map.squareAt(this.cursor.pos));
+            }
         }
     }
 
     inspectTile(square: Square) {
-        InfoUI.terrainName = square.terrain.name;
-        InfoUI.terrainThumbnail = square.terrain.preview;
-        InfoUI.terrainDefenseStarsValue = square.terrain.defenseRating;
-        InfoUI.captureMeterValue = '20';
-        InfoUI.captureMeterHidden = (square.terrain.building == false);
+        // Terrain Window
+        this.terrainInfo.setName(square.terrain.name);
+        this.terrainInfo.setThumbnail(square.terrain.preview);
+        this.terrainInfo.setDefenseMeter(square.terrain.defenseRating);
+        if (square.terrain.building)
+            this.terrainInfo.setCaptureMeter('20');
+        else if (square.terrain.type == Terrain.Meteor)
+            this.terrainInfo.setHPMeter('99');
+        else
+            this.terrainInfo.hideCaptureMeter();
 
-        InfoUI.articleHeader = square.terrain.name;
-        InfoUI.articleBody = square.terrain.description;
-        InfoUI.articleIllustration = square.terrain.landscape;
-        InfoUI.articleStats.moveCosts.infantry = square.terrain.movementCost.infantry.toString();
-        InfoUI.articleStats.moveCosts.mech = square.terrain.movementCost.mech.toString();
-        InfoUI.articleStats.moveCosts.tireA = square.terrain.movementCost.tireA.toString();
-        InfoUI.articleStats.moveCosts.tireB = square.terrain.movementCost.tireB.toString();
-        InfoUI.articleStats.moveCosts.tread = square.terrain.movementCost.tread.toString();
-        InfoUI.articleStats.moveCosts.air = square.terrain.movementCost.air.toString();
-        InfoUI.articleStats.moveCosts.ship = square.terrain.movementCost.ship.toString();
-        InfoUI.articleStats.moveCosts.transport = square.terrain.movementCost.transport.toString();
+        // Unit Window
+        if (square.unit) {
+            this.unitInfo.displayContainer.visible = true;
+
+            this.unitInfo.setThumbnail(square.unit.preview);
+            this.unitInfo.setName(square.unit.name);
+            this.unitInfo.setHPMeterValue(square.unit.hp.toString());
+            this.unitInfo.setGasMeterValue(square.unit.gas.toString());
+            this.unitInfo.setAmmoMeterValue(square.unit.ammo.toString());
+            // TODO Show a '-' if unit max ammo is 0
+            // TODO Show the materials meter instead if the unit is an APC. (Any others?)
+            this.unitInfo.setFirstLoadUnit(null);
+            this.unitInfo.setSecondLoadUnit(null);
+            // this.unitInfo.setFirstLoadUnit(square.unit.loaded.first);
+            // this.unitInfo.setSecondLoadUnit(square.unit.loaded.second);
+            // TODO loaded.first should return null if no units are loaded.
+        }
+        else {
+            this.unitInfo.displayContainer.visible = (Math.random() < 0.25);
+
+            // TODO Remove
+            this.unitInfo.setName('Infantry');
+            this.unitInfo.setHPMeterValue('10');
+            this.unitInfo.setGasMeterValue('99');
+            this.unitInfo.setAmmoMeterValue('-');
+            this.unitInfo.setFirstLoadUnit(null);
+            this.unitInfo.setSecondLoadUnit(null);
+        }
+
+        // CO Window
+        this.commanderInfo.setArmyCountValue(5);
+        this.commanderInfo.setCityCountValue(4);
+        this.commanderInfo.setFundsValue(4000);
+        this.commanderInfo.setPowerMeterValue(8);
+
+        // Detailed Terrain Window
+        this.detailedInfo.setHeaderText(square.terrain.name);
+        this.detailedInfo.setIllustration(square.terrain.landscape);
+        this.detailedInfo.setDescriptionText(square.terrain.description);
+        this.detailedInfo.setIncomeValue( (square.terrain.building) ? 1000 : 0 );
+        if (square.terrain.type == Terrain.TempAirpt || square.terrain.type == Terrain.TempPort)
+            this.detailedInfo.setIncomeValue(0);
+
+        this.detailedInfo.setRepTypeG(false);
+        this.detailedInfo.setRepTypeN(false);
+        this.detailedInfo.setRepTypeA(false);
+        if (square.terrain.type == Terrain.Port || square.terrain.type == Terrain.TempPort)
+            this.detailedInfo.setRepTypeN(true);
+        else if (square.terrain.type == Terrain.Airport || square.terrain.type == Terrain.TempAirpt)
+            this.detailedInfo.setRepTypeA(true);
+        else if (square.terrain.building && square.terrain.type != Terrain.Radar && square.terrain.type != Terrain.ComTower)
+            this.detailedInfo.setRepTypeG(true);
+        
+        this.detailedInfo.setInfantryMoveCost( square.terrain.movementCost.infantry );
+        this.detailedInfo.setMechMoveCost( square.terrain.movementCost.mech );
+        this.detailedInfo.setTireAMoveCost( square.terrain.movementCost.tireA );
+        this.detailedInfo.setTireBMoveCost( square.terrain.movementCost.tireB );
+        this.detailedInfo.setTreadMoveCost( square.terrain.movementCost.tread );
+        this.detailedInfo.setAirMoveCost( square.terrain.movementCost.air );
+        this.detailedInfo.setShipMoveCost( square.terrain.movementCost.ship );
+        this.detailedInfo.setTransportMoveCost( square.terrain.movementCost.transport );
+        // TODO Why not define MoveCostMatrix as a type and pass that into the window? Let the f*in' window do this.
     }
 }

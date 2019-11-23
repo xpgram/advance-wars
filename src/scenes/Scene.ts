@@ -24,7 +24,15 @@ export abstract class Scene {
             throw new Error("Attempted to access the scene's destroyed ticker.");
         return this._ticker;
     }
-    private _ticker!: PIXI.Ticker | null;
+    private _ticker: PIXI.Ticker | null = null;
+
+    /** Volatile reference to the scene's loaded resources. */
+    get resources(): PIXI.IResourceDictionary {
+        if (!this._resources)
+            throw new Error("Attempted to access the scene's destroyed resources.");
+        return this._resources;
+    }
+    private _resources: PIXI.IResourceDictionary | null = null;
 
     constructor() {
         this.state = Scene.UNBUILT;
@@ -62,6 +70,7 @@ export abstract class Scene {
         });
         this.state = Scene.BUILDING;// Prevent calls to init() and update() while loading.
         Game.app.loader.load().onComplete.add( () => {
+            this._resources = Game.app.loader.resources;
             this.setup()
         });
     }

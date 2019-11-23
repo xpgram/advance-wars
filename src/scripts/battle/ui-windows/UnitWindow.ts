@@ -1,38 +1,135 @@
-import { InfoUI } from "./DisplayInfo";
+import * as PIXI from "pixi.js";
+import { fonts } from "./DisplayInfo";
 import { SlidingWindow } from "./SlidingWindow";
+import { RectBuilder } from "./RectBuilder";
 
 export class UnitWindow extends SlidingWindow {
 
+    // Textures
+    private ammoIcon = this.sheet.textures['icon-ammo.png'];
+    private materialsIcon = this.sheet.textures['icon-material.png'];
+
+    // Objects
+    private thumbnail = new PIXI.Container();
+    private name = new PIXI.BitmapText('', fonts.scriptOutlined);
+    private hpMeter = new PIXI.Sprite( this.sheet.textures['icon-heart.png'] );
+    private hpMeterText = new PIXI.BitmapText('', fonts.scriptOutlined);
+    private gasMeter = new PIXI.Sprite( this.sheet.textures['icon-gas.png'] );
+    private gasMeterText = new PIXI.BitmapText('', fonts.scriptOutlined);
+    private ammoMeter = new PIXI.Sprite( this.sheet.textures['icon-ammo.png'] );
+    private ammoMeterText = new PIXI.BitmapText('', fonts.scriptOutlined);
+    private firstLoad = new PIXI.Graphics();
+    private secondLoad = new PIXI.Graphics();
+
     constructor(options: SlidingWindowOptions) {
-        // Change options here, if needed
         super(options);
 
-        let thumbnail = InfoUI.displayObjects.unitThumbnail;
-        thumbnail.x = thumbnail.y = SlidingWindow.stdLength;
+        let background = RectBuilder({
+            width: 88,
+            height: 24,
+            color: 0x000000,
+            alpha: 0.5
+        });
 
-        let name = InfoUI.displayObjects.unitName;
-        name.x = 24; name.y = 3;
+        // Unit Thumbnail
+        this.thumbnail.x = this.thumbnail.y = 4;
 
-        let hpMeter = InfoUI.displayObjects.unitHPMeter;
-        hpMeter.x = 24; hpMeter.y = 16;
+        // Unit Name
+        this.name.x = 24; this.name.y = 3;
 
-        let gasMeter = InfoUI.displayObjects.unitGasMeter;
-        gasMeter.x = 48; gasMeter.y = 16;
+        // Unit HP, Gas and Ammo Icons
+        this.hpMeter.x = 24; this.hpMeter.y = 16;
+        this.gasMeter.x = 48; this.gasMeter.y = 16;
+        this.ammoMeter.x = 71; this.ammoMeter.y = 16;
 
-        let ammoMeter = InfoUI.displayObjects.unitAmmoMeter;
-        ammoMeter.x = 72; ammoMeter.y = 16;
+        // Unit HP, Gas and Ammo numbers
+        this.hpMeter.addChild(this.hpMeterText);
+        this.gasMeter.addChild(this.gasMeterText);
+        this.ammoMeter.addChild(this.ammoMeterText);
 
-        // Loaded 1
-        //x = 0; y = -16;
+        this.hpMeterText.x = 22;   this.hpMeterText.y = -3;
+        this.gasMeterText.x = 22;  this.gasMeterText.y = -3;
+        this.ammoMeterText.x = 15; this.ammoMeterText.y = -3;
 
-        // Loaded 2
-        //x = 16; y = -16;
+        (this.hpMeterText.anchor as PIXI.Point).x = 1;
+        (this.gasMeterText.anchor as PIXI.Point).x = 1;
+        (this.ammoMeterText.anchor as PIXI.Point).x = 1;
+
+        // Unit first-loaded unit window
+        this.firstLoad = RectBuilder({
+            offset: { x: -1, y: -1 },
+            width: 18,
+            height: 17,
+            color: 0x000000,
+            alpha: 0.5
+        });
+        this.firstLoad.x = 1; this.firstLoad.y = -16;
+
+        // Unit second-loaded unit window
+        this.secondLoad = RectBuilder({
+            offset: { x: -1, y: -1 },
+            width: 18,
+            height: 17,
+            color: 0x000000,
+            alpha: 0.5
+        });
+        this.secondLoad.x = 19; this.secondLoad.y = -16;
 
         // Formal add
-        this.displayContainer.addChild(thumbnail);
-        this.displayContainer.addChild(name);
-        this.displayContainer.addChild(hpMeter);
-        this.displayContainer.addChild(gasMeter);
-        this.displayContainer.addChild(ammoMeter);
+        this.displayContainer.addChild(background);
+        this.displayContainer.addChild(this.thumbnail, this.name);
+        this.displayContainer.addChild(this.hpMeter, this.gasMeter, this.ammoMeter);
+        this.displayContainer.addChild(this.firstLoad, this.secondLoad);
+    }
+
+    positionWindow(options = {skip: false}) {
+        super.positionWindow(options);
+
+        // Move the loaded units mini-window to the other side when displayed on the right edge of the screen.
+        if (this.firstLoad) {   // ← This is a dumb bandaid solution. SlidingWindow probably shouldn't call positionWindow in its constructor. The window system can handle that.
+            this.firstLoad.x = (this.onLeftSide) ? 0 : 53;
+            this.secondLoad.x = (this.onLeftSide) ? 18 : 71;
+        }
+    }
+
+    setThumbnail(container: PIXI.Container) {
+        this.thumbnail.removeChildren();
+        this.thumbnail.addChild(container);
+    }
+
+    setName(name: string) {
+        this.name.text = name;
+    }
+
+    setHPMeterValue(value: string) {
+        this.hpMeterText.text = value.slice(0,2);
+    }
+
+    setGasMeterValue(value: string) {
+        this.gasMeterText.text = value.slice(0,2);
+    }
+
+    setAmmoMeterValue(value: string) {
+        this.ammoMeterText.text = value.slice(0,2);
+        this.ammoMeter.texture = this.ammoIcon;
+    }
+
+    setMaterialMeterValue(value: string) {
+        this.ammoMeterText.text = value.slice(0,2);
+        this.ammoMeter.texture = this.materialsIcon;
+    }
+
+    setFirstLoadUnit(img: PIXI.Sprite | null) {
+        this.firstLoad.removeChildren();
+        this.firstLoad.visible = Boolean(img);
+        if (img)
+            this.firstLoad.addChild(img);
+    }
+
+    setSecondLoadUnit(img: PIXI.Sprite | null) {
+        this.secondLoad.removeChildren();
+        this.secondLoad.visible = Boolean(img);
+        if (img)
+            this.secondLoad.addChild(img);
     }
 }

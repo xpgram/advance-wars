@@ -6,15 +6,18 @@ import { Game } from "../../..";
  * 
  */
 export class SlidingWindow {
-    /** The theoretical width of the window. Not enforced. */
-    width: number;
-    /** The theoretical height of the window. Not enforced. */
-    height: number;
 
+    /** Reference to the spritesheet containing all the UI images. */
+    readonly sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
     /** Standard pixel distance. Useful for UI positioning. */
     static readonly stdLength = 4;
     /** Standard width of UI windows in pixels. */
     static readonly stdWidth = 88;
+
+    /** The theoretical width of the window. Not enforced. */
+    width: number;
+    /** The theoretical height of the window. Not enforced. */
+    height: number;
 
     /** The pixel distance of the right boundary edge from the left. This should be set to the display's width. */
     readonly visualBoundaryWidth: number;
@@ -41,54 +44,7 @@ export class SlidingWindow {
     readonly mask: PIXI.Graphics | null = null;
 
     constructor(options: SlidingWindowOptions) {
-        let bgProps = {
-            width: options.width,
-            height: options.height,
-            color: options.color || 0x000000,
-            alpha: 0.5,
-            borderSize: options.borderSize || {
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0
-            },
-            borderColor: options.borderColor || 0x000000
-        };
-
-        // Draw the window's background
-        if (options.drawBackground != false) {
-            let background = new PIXI.Graphics();
-
-            // Main fill
-            background.beginFill(bgProps.color, bgProps.alpha);
-            background.drawRect(0, 0, bgProps.width, bgProps.height);
-            background.endFill();
-
-            // Border
-            background.beginFill(bgProps.borderColor, bgProps.alpha);
-            background.drawRect(0, 0, bgProps.width, bgProps.borderSize.top);
-            background.drawRect(0, bgProps.height, bgProps.width, -bgProps.borderSize.bottom);
-            background.drawRect(0, 0, bgProps.borderSize.left, bgProps.height);
-            background.drawRect(bgProps.width, 0, -bgProps.borderSize.right, bgProps.height);
-            background.endFill();
-
-            background.zIndex = -1;
-            this.displayContainer.addChild(background);
-        }
-
-        // Draw the window's mask
-        if (options.drawMask == true) {     // Must be explicitly requested
-            let mask = new PIXI.Graphics();
-
-            mask.beginFill(0xFFFFFF);
-            mask.drawRect(0, 0, bgProps.width, bgProps.height);
-            mask.endFill();
-
-            this.mask = mask;
-            this.mask.zIndex = -2;
-            this.mask.x = bgProps.width;                // Set to the right of this window so it may reveal something there.
-            this.displayContainer.addChild(this.mask);  // Must set as mask somewhere or this will just be a white box on screen.
-        }
+        console.assert(Boolean(this.sheet), "UI spritesheet does not exist. Do not initialize SlidingWindow before loading assets.");
 
         this.displayContainer.y = options.verticalDistance || 0;
         this.width = options.width;
@@ -113,19 +69,16 @@ export class SlidingWindow {
         if (options.skip)
             this.skipSlideAnimation();
 
-        // In the range -1 to 1, 0 is the delimiter.
-        let showOnLeftSide = (this.sideChangeSlider.value < 0);
-
         // Calculate each slider's effect on the window's x-position (from its flagged ideal position)
         let sideChangeDisplace = -this.slideDistance * this.sideChangeSlider.value;
         let holdToOpenDisplace = this.slideDistance - (this.slideDistance * this.holdToOpenSlider.value);
-        if (showOnLeftSide) {
+        if (this.onLeftSide)
             holdToOpenDisplace = -holdToOpenDisplace;   // Should always point off-screen
-            if (this.mask) this.mask.x = -this.mask.x;  // Should always point on-screen
-        }
+        if (this.mask)
+            this.mask.x = (this.onLeftSide) ? this.width : -this.width; // Should always point on-screen
 
         // Pick the relevant off-screen x-position for our side and apply our calculated displaces.
-        let x = (showOnLeftSide) ? -this.slideDistance : this.visualBoundaryWidth;
+        let x = (this.onLeftSide) ? -this.slideDistance : this.visualBoundaryWidth;
         x += sideChangeDisplace;
         x += holdToOpenDisplace;
         
@@ -150,6 +103,12 @@ export class SlidingWindow {
         let onRightSide = (this.sideChangeSlider.value == this.sideChangeSlider.max && !this.showOnLeftSide);
 
         return offscreen || onLeftSide || onRightSide;
+    }
+
+    /** Returns true if the window is actually on the left side of the screen currently. */
+    get onLeftSide() {
+        let middlePoint = (this.sideChangeSlider.min + this.sideChangeSlider.max) / 2;
+        return this.sideChangeSlider.value < middlePoint;
     }
 
     /** Instantly positions the window wherever it is desired to be. */
