@@ -10,6 +10,7 @@ import { Square } from "../Square";
 import { Map } from "../Map";
 import { Terrain } from "../Terrain";
 import { TerrainDetailWindow } from "./TerrainDetailWindow";
+import { Slider } from "../../Common/Slider";
 
 export class InfoWindowSystem {
 
@@ -25,6 +26,8 @@ export class InfoWindowSystem {
 
     lastTileInspected: Point = {x: -1, y: -1};
 
+    commandersSlider = new Slider();
+
     options: SlidingWindowOptions = {
         width: 88,
         height: 24,
@@ -33,6 +36,9 @@ export class InfoWindowSystem {
 
     detailedInfo = new TerrainDetailWindow(this.options);
     commanderInfo = new COWindow(this.options, 0);
+    commander2Info = new COWindow(this.options, 1);
+    commander3Info = new COWindow(this.options, 2);
+    commander4Info = new COWindow(this.options, 3);
     unitInfo = new UnitWindow(this.options);
     terrainInfo = new TerrainWindow(this.options);
 
@@ -40,10 +46,16 @@ export class InfoWindowSystem {
         // Apply mask to screen-wipeable ui elements
         this.unitInfo.displayContainer.mask = this.detailedInfo.mask;
         this.commanderInfo.displayContainer.mask = this.detailedInfo.mask;
+        this.commander2Info.displayContainer.mask = this.detailedInfo.mask;
+        this.commander3Info.displayContainer.mask = this.detailedInfo.mask;
+        this.commander4Info.displayContainer.mask = this.detailedInfo.mask;
 
         // Position windows (thaaat's right, I didn't use verticalDistance in the options...!)
         this.detailedInfo.displayContainer.y = 1;
         this.commanderInfo.displayContainer.y = 1;
+        this.commander2Info.displayContainer.y = 33;
+        this.commander3Info.displayContainer.y = 63;
+        this.commander4Info.displayContainer.y = 93;
         // TODO Add the slide-in other CO windows
         this.unitInfo.displayContainer.y = 142;
         this.terrainInfo.displayContainer.y = 167;
@@ -54,19 +66,30 @@ export class InfoWindowSystem {
 
     update() {
         let show = false;
+        let showCOwindows = false;
         let showOnLeft = true;
 
         if (this.gp.button.leftTrigger.down)
             show = true;
+        if (this.gp.button.leftBumper.down)
+            showCOwindows = true;
         if (this.cursor.transform.x < (Game.display.renderWidth / 2 + this.camera.x))
             showOnLeft = false;
 
         this.terrainInfo.showOnLeftSide = showOnLeft;
         this.unitInfo.showOnLeftSide = showOnLeft;
         this.commanderInfo.showOnLeftSide = showOnLeft;
+        this.commander2Info.showOnLeftSide = showOnLeft;
+        this.commander3Info.showOnLeftSide = showOnLeft;
+        this.commander4Info.showOnLeftSide = showOnLeft;
         this.detailedInfo.showOnLeftSide = showOnLeft;
 
         this.detailedInfo.show = show;
+
+        this.commandersSlider.value += (showCOwindows) ? 0.2 : -0.2;
+        this.commander2Info.show = (this.commandersSlider.value > 0);
+        this.commander3Info.show = (this.commandersSlider.value > 0.4);
+        this.commander4Info.show = (this.commandersSlider.value == 1);
 
         // Update tile info
         if (this.terrainInfo.refreshable) {
@@ -124,6 +147,21 @@ export class InfoWindowSystem {
         this.commanderInfo.setCityCountValue(4);
         this.commanderInfo.setFundsValue(4000);
         this.commanderInfo.setPowerMeterValue(8);
+
+        this.commander2Info.setArmyCountValue(4);
+        this.commander2Info.setCityCountValue(6);
+        this.commander2Info.setFundsValue(7500);
+        this.commander2Info.setPowerMeterValue(10);
+
+        this.commander3Info.setArmyCountValue(7);
+        this.commander3Info.setCityCountValue(5);
+        this.commander3Info.setFundsValue(1500);
+        this.commander3Info.setPowerMeterValue(2);
+
+        this.commander4Info.setArmyCountValue(8);
+        this.commander4Info.setCityCountValue(4);
+        this.commander4Info.setFundsValue(500);
+        this.commander4Info.setPowerMeterValue(0);
 
         // Detailed Terrain Window
         this.detailedInfo.setHeaderText(square.terrain.name);

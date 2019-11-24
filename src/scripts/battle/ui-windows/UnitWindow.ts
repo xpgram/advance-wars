@@ -87,8 +87,8 @@ export class UnitWindow extends SlidingWindow {
 
         // Move the loaded units mini-window to the other side when displayed on the right edge of the screen.
         if (this.firstLoad) {   // ← This is a dumb bandaid solution. SlidingWindow probably shouldn't call positionWindow in its constructor. The window system can handle that.
-            this.firstLoad.x = (this.onLeftSide) ? 0 : 53;
-            this.secondLoad.x = (this.onLeftSide) ? 18 : 71;
+            this.firstLoad.x = (this.onLeftSide) ? 0 : 71;
+            this.secondLoad.x = (this.onLeftSide) ? 18 : 53;
         }
     }
 

@@ -21,7 +21,7 @@ export class COWindow extends SlidingWindow {
 
     constructor(options: SlidingWindowOptions, player: number) {
         super(options);
-        console.assert((player >= 0 && player <= 4), `CO Window: Given player number was not valid: ${player}`);
+        console.assert((player >= 0 && player < 4), `CO Window: Given player number was not valid: ${player}`);
 
         let colors = [0x943142, 0x294a9c, 0x736321, 0x4a424a];  // Red, Blue, Yellow, Black tints
         let color = colors[player];
