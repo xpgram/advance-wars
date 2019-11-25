@@ -29,35 +29,39 @@ export class Slider {
         this.min = options.min || 0;
         this.max = options.max || 1;
         this._value = options.value || this.min;
-        this.granularity = options.granularity || 0.01;         // By default, hundredths.
-        this.shape = options.shape || ((v) => { return v; });   // By default, linear.
-        this.outputPrecision = options.outputPrecision || 0;    // By default, 0 means off.
+        this.granularity = Math.abs(options.granularity || 0.01);       // By default, hundredths.
+        this.shape = options.shape || ((v) => { return v; });           // By default, linear.
+        this.outputPrecision = Math.abs(options.outputPrecision || 0);  // By default, 0 means off.
 
         console.assert(this.min <= this.max, `Slider was given conflicting min/max values: min=${this.min}, max=${this.max}`);
     }
 
+    /** The value of the slider's tracked position as shaped by the slider's shaping function. */
     get shapedValue() {
         return this.applyGrain(this.shape(this._value), this.outputPrecision);
     }
 
+    /** The value of the slider's tracked position. Between slider.min and .max by definition. */
     get value() { return this._value; }
     set value(n: number) {
-        let v = Common.confine(n, this.min, this.max);      // Limit input
-        this._value = this.applyGrain(v, this.granularity); // Limit to granularity.
+        let v = this.applyGrain(n, this.granularity);       // Lose detail by slider granularity.
+        this._value = Common.confine(v, this.min, this.max);// Limit range to slider min/max.
     }
 
-    // Users might think increment(100) means "increase by 100"
-    // Either increment(n) should mean "increase n times", which is sort of intuitive-ish, or
-    // increment(?) should not use positive/negative numbers to determine which direction to move in.
-    increment(dir?: number) {
-        let d = dir || 1;
-        this.value += (d >= 0) ? this.granularity : -this.granularity;
+    /** Increments the slider the given number of times by the slider's granularity (use negative numbers to decrement.)
+     * Increases the track-value by +1 granules by default. */
+    increment(times: number = 1) {
+        this.value += this.granularity * times;
     }
 
-    decrement() {
-        this.value += this.granularity;
+    /** Decrements the slider the given number of times by the slider's granularity (use negative numbers to increment.)
+     * Decreases the track-value by 1 granules by default. */
+    decrement(times: number = 1) {
+        this.value += this.granularity * times;
     }
 
+    /** Rounds the given number v to the nearest multiple of the number 'grain.'
+     * This is used to limit numerical precision in cases it's needed. Use grain=0 to ignore grain. */
     private applyGrain(v: number, grain: number) {
         if (grain === 0)
             return v;

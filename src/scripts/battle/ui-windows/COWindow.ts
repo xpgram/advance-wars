@@ -24,6 +24,7 @@ export class COWindow extends SlidingWindow {
         console.assert((player >= 0 && player < 4), `CO Window: Given player number was not valid: ${player}`);
 
         let colors = [0x943142, 0x294a9c, 0x736321, 0x4a424a];  // Red, Blue, Yellow, Black tints
+        let tints = [0xFFCCCC, 0xCCCCFF, 0xEEDDAA, 0xCCCCCC];
         let color = colors[player];
         let background = RectBuilder({
             width: 88,
@@ -54,12 +55,12 @@ export class COWindow extends SlidingWindow {
 
         // Insignia
         this.insignia.x = 4; this.insignia.y = 1;
-        this.insignia.tint = 0xFFCCCC;
+        this.insignia.tint = tints[player];
         // TODO Pick Insignia
 
         // City Icon
         this.cityIcon.x = 4; this.cityIcon.y = 16;
-        this.cityIcon.tint = 0xFFCCCC;
+        this.cityIcon.tint = tints[player];
         // TODO Pick or properly tint city icon
 
         // Funds
