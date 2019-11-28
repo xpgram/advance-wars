@@ -33,6 +33,7 @@
         <char id="88"    x="276"    y="0"      width="7"    height="14" xoffset="1"     yoffset="0"     xadvance="6"    page="0"  chnl="0"/>
         <char id="89"    x="288"    y="0"      width="7"    height="14" xoffset="1"     yoffset="0"     xadvance="6"    page="0"  chnl="0"/>
         <char id="90"    x="300"    y="0"      width="7"    height="14" xoffset="1"     yoffset="0"     xadvance="6"    page="0"  chnl="0"/>
+
         <char id="97"    x="0"      y="14"     width="6"    height="14" xoffset="1"     yoffset="0"     xadvance="5"    page="0"  chnl="0"/>
         <char id="98"    x="12"     y="14"     width="6"    height="14" xoffset="1"     yoffset="0"     xadvance="5"    page="0"  chnl="0"/>
         <char id="99"    x="24"     y="14"     width="6"    height="14" xoffset="1"     yoffset="0"     xadvance="5"    page="0"  chnl="0"/>
@@ -59,6 +60,7 @@
         <char id="120"   x="276"    y="14"     width="7"    height="14" xoffset="1"     yoffset="0"     xadvance="6"    page="0"  chnl="0"/>
         <char id="121"   x="288"    y="14"     width="7"    height="14" xoffset="1"     yoffset="0"     xadvance="6"    page="0"  chnl="0"/>
         <char id="122"   x="300"    y="14"     width="6"    height="14" xoffset="1"     yoffset="0"     xadvance="5"    page="0"  chnl="0"/>
+        
         <char id="49"    x="0"      y="28"     width="6"    height="14" xoffset="1"     yoffset="0"     xadvance="6"    page="0"  chnl="0"/>
         <char id="50"    x="12"     y="28"     width="8"    height="14" xoffset="1"     yoffset="0"     xadvance="8"    page="0"  chnl="0"/>
         <char id="51"    x="24"     y="28"     width="8"    height="14" xoffset="1"     yoffset="0"     xadvance="8"    page="0"  chnl="0"/>
@@ -69,6 +71,7 @@
         <char id="56"    x="84"     y="28"     width="8"    height="14" xoffset="1"     yoffset="0"     xadvance="8"    page="0"  chnl="0"/>
         <char id="57"    x="96"     y="28"     width="8"    height="14" xoffset="1"     yoffset="0"     xadvance="8"    page="0"  chnl="0"/>
         <char id="48"    x="108"    y="28"     width="8"    height="14" xoffset="1"     yoffset="0"     xadvance="8"    page="0"  chnl="0"/>
-        <char id="45"    x="120"    y="28"     width="8"    height="14" xoffset="1"     yoffset="0"     xadvance="8"    page="0"  chnl="0"/>
+        <char id="45"    x="120"    y="28"     width="8"    height="14" xoffset="1"     yoffset="0"     xadvance="4"    page="0"  chnl="0"/>
+        <char id="95"    x="132"    y="28"     width="8"    height="14" xoffset="1"     yoffset="0"     xadvance="8"    page="0"  chnl="0"/>
     </chars>
 </font>

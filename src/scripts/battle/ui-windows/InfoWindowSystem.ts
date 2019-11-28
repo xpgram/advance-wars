@@ -137,7 +137,7 @@ export class InfoWindowSystem {
             this.unitInfo.setName('Infantry');
             this.unitInfo.setHPMeterValue('10');
             this.unitInfo.setGasMeterValue('99');
-            this.unitInfo.setAmmoMeterValue('-');
+            this.unitInfo.setAmmoMeterValue('_');
             this.unitInfo.setFirstLoadUnit(null);
             this.unitInfo.setSecondLoadUnit(null);
         }

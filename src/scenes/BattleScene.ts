@@ -41,6 +41,7 @@ export class BattleScene extends Scene {
         this.linker.push({name: 'font-script', url: 'assets/font-script.xml'});
         this.linker.push({name: 'font-menu', url: 'assets/font-menu.xml'});
         this.linker.push({name: 'font-table-header', url: 'assets/font-table-header.xml'});
+        this.linker.push({name: 'font-title', url: 'assets/font-title.xml'});
         this.linker.push({name: 'font-label', url: 'assets/font-label.xml'});
     }
 
