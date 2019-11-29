@@ -5,6 +5,17 @@ export interface UnitType {
     new (): UnitObject;
 }
 
+var hpBits = {shift: 0, length: 7};
+var ammoBits = {shift: 7, length: 4};
+var captureBits = {shift: 11, length: 5};
+var gasBits = {shift: 16, length: 7};
+var rankBits = {shift: 23, length: 3};
+var xCoordBits = {shift: 26, length: 8};
+var yCoordBits = {shift: 34, length: 8};
+
+let shift = 0;
+for (let )
+
 /**
  * This class is a container for unit variable-stat information.
  * Things like its HP, its remaining Gas, etc.
@@ -43,22 +54,6 @@ export abstract class UnitObject {
 
     /** A 64-bit number representing all or most of Unit's relevant information. */
     private info = 0;
-
-    // Constants/accessor-values for Unit.info —— Any way to make these numbers
-    // auto-configurable, by the way, would be wonderful.
-    private static readonly hpShift = 0;
-    private static readonly ammoShift = 7;
-    private static readonly captureShift = 11;
-    private static readonly gasShift = 16;
-    private static readonly rankShift = 23;
-    private static readonly xCoordShift = 26;
-    private static readonly yCoordShift = 34;
-
-    private static readonly oneHundredLength = 7;   // Up to "100" in decimal numbers
-    private static readonly twentyLength = 5;       // Up to "20" in decimal numbers
-    private static readonly tenLength = 4;          // Up to "10"
-    private static readonly eightLength = 3;        // Integers 0–7
-    private static readonly coordinateLength = 8;   // Up to 255
 
     constructor() {
         this.hp = 100;

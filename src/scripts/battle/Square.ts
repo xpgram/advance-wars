@@ -1,7 +1,7 @@
 import { TerrainObject } from "./TerrainObject";
 import { Unit } from "./Unit";
 import { Terrain } from "./Terrain";
-import { Point, Renderable } from "../CommonTypes";
+import { Point } from "../CommonTypes";
 
 /**
  * Used by Map only. Maybe.

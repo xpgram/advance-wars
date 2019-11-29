@@ -617,7 +617,6 @@ export const Terrain = {
         get type() { return FireTile; }
         get serial() { return 13; }
         get landscape(): PIXI.AnimatedSprite {
-            // TODO Turn this into a static, always-playing sprite somewhere that we can give out instead; not everything has to be hand-crafted.
             let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
