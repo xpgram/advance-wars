@@ -155,16 +155,11 @@ export class TerrainDetailWindow extends SlidingWindow {
         this.incomeText.text = text;
     }
 
-    setRepTypeG(b: boolean) {
-        this.repairTypeG.tint = (b) ? 0xDDDDDD : 0x888888;
-    }
-
-    setRepTypeN(b: boolean) {
-        this.repairTypeN.tint = (b) ? 0xDDDDDD : 0x888888;
-    }
-
-    setRepTypeA(b: boolean) {
-        this.repairTypeA.tint = (b) ? 0xDDDDDD : 0x888888;
+    setRepType(ground: boolean, naval: boolean, air: boolean) {
+        let bright = 0xDDDDDD, dimmed = 0x888888;
+        this.repairTypeG.tint = (ground) ? bright : dimmed;
+        this.repairTypeN.tint = (naval) ? bright : dimmed;
+        this.repairTypeA.tint = (air) ? bright : dimmed;
     }
 
     setInfantryMoveCost(mc: number) { this.moveCostTable.infantry.value.text = (mc == 0) ? '-' : mc.toString().slice(0,1); }

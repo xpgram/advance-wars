@@ -6,7 +6,7 @@ import { Game } from "../..";
  * Use: MapLayers['layer name'].doSomething();
  * Must be initialized before use.
  * 
- * Layers: 'bottom', 'top', 'fog'
+ * Layers: 'bottom', 'top', 'cloud-shadow', 'ui'
  * 
  * @author Dei Valko
  * @version 0.1.3

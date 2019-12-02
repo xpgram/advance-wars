@@ -102,11 +102,11 @@ export class UnitWindow extends SlidingWindow {
     }
 
     setHPMeterValue(value: number) {
-        this.hpMeterText.text = value.toString().slice(0,2);
+        this.hpMeterText.text = value.toString();
     }
 
     setGasMeterValue(value: number) {
-        this.gasMeterText.text = value.toString().slice(0,2);
+        this.gasMeterText.text = value.toString();
     }
 
     setAmmoMeterValue(value: number, max: number) {

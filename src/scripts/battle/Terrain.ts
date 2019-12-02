@@ -1,5 +1,4 @@
 import * as PIXI from "pixi.js";
-import * as PixiFilter from "pixi-filters";
 import { Game } from "../..";
 import { TerrainObject } from "./TerrainObject";
 import { UnitClass, Faction, MoveType } from "./EnumTypes";

@@ -1,10 +1,9 @@
+
 /**
  * Commonly useful functions.
- * 
  * @author Dei Valko
  * @version 0.1.0
  */
-
 export const Common = {
 
     /** Confines n to the range [min, max] inclusive. */

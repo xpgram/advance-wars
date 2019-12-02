@@ -7,6 +7,7 @@ import { Common } from "../CommonUtils";
 import { LowResTransform } from "../LowResTransform";
 import { MapLayers } from "./MapLayers";
 import { Pulsar } from "../timer/Pulsar";
+import { Slider } from "../Common/Slider";
 
 /**
  * @author Dei Valko
@@ -28,6 +29,10 @@ export class MapCursor {
 
     /** Where this cursor exists on the map it is selecting over. */
     pos: Point;
+    /** Where this cursor was last. */
+    private lastPos: Point;
+    /** The direction of movement being held from last frame. */
+    private travelDir: Point;
     /** Where this cursor exists graphically in the game world. */
     transform: LowResTransform;
     /** A reference to the map object we are selecting over.
@@ -41,9 +46,15 @@ export class MapCursor {
     animPulsar: Pulsar;
     /** The pulsar trigger-controller for movement pulses. */
     movementPulsar: Pulsar;
+    /** Guides the cursor's position on-screen as it animates its lateral movement. */
+    slideAnimSlider = new Slider({
+        granularity: 1 / MapCursor.movementSettings.moveTime_repeated
+    });
 
     constructor(map: Map, gp: VirtualGamepad) {
         this.pos = {x:0,y:0};
+        this.lastPos = {x:0,y:0};
+        this.travelDir = {x:0,y:0};
         this.transform = new LowResTransform(this.pos);
         this.mapRef = map;
         this.controller = gp;
@@ -74,6 +85,7 @@ export class MapCursor {
 
         // Add this object's controller input manager to the Game ticker.
         Game.scene.ticker.add( this.updateInput, this );
+        Game.scene.ticker.add( this.updateGameWorldPosition, this );
     }
 
     /** Destroys this object's external references. */
@@ -101,28 +113,39 @@ export class MapCursor {
     /** Triggers this object's position to move according to the directional input of the dpad.
      * Also sets the next interval to a faster time. */
     private triggerMovement() {
-        this.move(this.controller.axis.dpad.point);
+        this.move(this.travelDir);
         this.movementPulsar.interval = MapCursor.movementSettings.moveTime_repeated;
     }
 
     /** Gathers an interperets controller input as movement. */
-    updateInput() {
-        // Instantaneous cursor movement.
-        let moveCursor = (dir: Point) => {
-            this.move(dir);
+    private updateInput() {
+        let dirChangesThisFrame = {x:0,y:0};
+
+        let resetInterval = () => {
             this.movementPulsar.reset();    // Resets the timer to avoid double-pressing.
             this.movementPulsar.interval = MapCursor.movementSettings.moveTime_first;
         }
-        // Input correction: cursor should ~always~ move when a button is pressed.
-        if (this.controller.button.dpadUp.pressed)    { moveCursor({x: 0, y:-1}); }
-        if (this.controller.button.dpadDown.pressed)  { moveCursor({x: 0, y: 1}); }
-        if (this.controller.button.dpadLeft.pressed)  { moveCursor({x:-1, y: 0}); }
-        if (this.controller.button.dpadRight.pressed) { moveCursor({x: 1, y: 0}); }
-        // Further correction: cursor should always pause/reset after a change in input.
-        if (this.controller.button.dpadUp.released)    { moveCursor({x: 0, y: 0}); }
-        if (this.controller.button.dpadDown.released)  { moveCursor({x: 0, y: 0}); }
-        if (this.controller.button.dpadLeft.released)  { moveCursor({x: 0, y: 0}); }
-        if (this.controller.button.dpadRight.released) { moveCursor({x: 0, y: 0}); }
+
+        // Gather additive input changes this frame
+        if (this.controller.button.dpadUp.pressed)    { dirChangesThisFrame.y += -1 }
+        if (this.controller.button.dpadDown.pressed)  { dirChangesThisFrame.y +=  1 }
+        if (this.controller.button.dpadLeft.pressed)  { dirChangesThisFrame.x += -1 }
+        if (this.controller.button.dpadRight.pressed) { dirChangesThisFrame.x +=  1 }
+        // If any input was released, reset the interval timer
+        if (this.controller.button.dpadUp.released)    { resetInterval(); }
+        if (this.controller.button.dpadDown.released)  { resetInterval(); }
+        if (this.controller.button.dpadLeft.released)  { resetInterval(); }
+        if (this.controller.button.dpadRight.released) { resetInterval(); }
+
+        // If any directional changes were made this frame, handle them immediately.
+        if (dirChangesThisFrame.x != 0 || dirChangesThisFrame.y != 0) {
+            this.move(dirChangesThisFrame);
+            resetInterval();
+        }
+
+        // Update held direction for the input pulsar
+        this.travelDir.x = this.controller.axis.dpad.point.x;
+        this.travelDir.y = this.controller.axis.dpad.point.y;
 
         // Held input handler
         if (this.controller.axis.dpad.roaming) {
@@ -133,21 +156,64 @@ export class MapCursor {
         else if (this.controller.axis.dpad.returned) {
             this.movementPulsar.stop();
             this.movementPulsar.interval = MapCursor.movementSettings.moveTime_first;
+            this.travelDir.x = this.travelDir.y = 0;
         }
+    }
+
+    /** Calculates the cursor's game world position and updates it as such. */
+    private updateGameWorldPosition() {
+        if (this.pos.x == this.lastPos.x && this.pos.y == this.lastPos.y)
+            return; // Skip, nothing to do here.
+
+        if (this.slideAnimSlider.value != this.slideAnimSlider.max)
+            this.slideAnimSlider.increment();
+        else
+            this.lastPos = {x: this.pos.x, y: this.pos.y};  // Force skips in future calls.
+
+        // Calculate intermediary distance between last position and current position.
+        let tileSize = Game.display.standardLength;
+
+        let x = this.lastPos.x * tileSize;
+        let y = this.lastPos.y * tileSize;
+        let xDiff = (this.pos.x - this.lastPos.x) * tileSize;
+        let yDiff = (this.pos.y - this.lastPos.y) * tileSize;
+        x += xDiff * this.slideAnimSlider.value;
+        y += yDiff * this.slideAnimSlider.value;
+        let newPos = {x:x, y:y};
+
+        // Assign
+        this.transform.pos = newPos;
     }
 
     /** Moves this cursor's position on the game map and graphically in the game world. */
     move(dir: Point) {
-        this.pos.x += dir.x;
-        this.pos.y += dir.y;
+        // Calculate the new position
+        let newPos = {
+            x: this.pos.x + dir.x,
+            y: this.pos.y + dir.y
+        }
+        // Clamp it to the board's width and height.
+        newPos.x = Common.confine(newPos.x, 0, this.mapRef.width - 1);
+        newPos.y = Common.confine(newPos.y, 0, this.mapRef.height - 1);
 
-        // Clamp this cursor's position to the board's width and height.
-        this.pos.x = Common.confine(this.pos.x, 0, this.mapRef.width - 1);  // Confine's range is inclusive, and .width does not give the last index.
-        this.pos.y = Common.confine(this.pos.y, 0, this.mapRef.height - 1);
+        // Continue only if this new position *is* a new position.
+        if (this.pos.x != newPos.x || this.pos.y != newPos.y) {
+            this.lastPos.x = this.pos.x;
+            this.lastPos.y = this.pos.y;
 
-        // Convert this cursor's board position into a new game-world position.
-        let tileSize = Game.display.standardLength;
-        let realPos = {x: this.pos.x * tileSize, y: this.pos.y * tileSize};
-        this.transform.pos = realPos;
+            this.pos.x = newPos.x;
+            this.pos.y = newPos.y;
+
+            // Reset the slide animator
+            this.slideAnimSlider.value = this.slideAnimSlider.min;
+        }
+    }
+
+    /** Moves this cursor's position directly (non-relatively) to some other position on the game map and graphically in the game world. */
+    moveTo(place: Point) {
+        // This is meant to allow 'teleportion' over long distances (like by a click.)
+        // It should still animate if the new position is adjacent to the current one,
+        // but other wise it should zwip! hrrrmm—shooooo! Drkakaka keeeerrrsshh pop
+        // pop in to the new location.
     }
 }

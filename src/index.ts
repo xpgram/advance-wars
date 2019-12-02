@@ -22,6 +22,10 @@ class App {
     /** A graphics-container acting as a special heads-up display for performance information. */
     readonly debugHud = new PIXI.Container();
 
+    /** The number of frames that have elapsed since the game started. Note that this will cap out at infinity if left on for 9.8 billion years. */
+    get frameCount() { return this._frameCount; }
+    private _frameCount = 0;
+
     /** Namespace for the various scenes the game will switch between. */
     readonly gameScenes = {
         blankScene: new BlankScene(),
@@ -100,6 +104,7 @@ class App {
         if (this.scene.mustInitialize)
             this.scene.init();
         this.scene.update(delta);
+        this._frameCount++;
     }
 
     /** Unbuilds the current scene and switches context to the given scene object. */

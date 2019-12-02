@@ -1,8 +1,12 @@
 - [ ] Re-rip the plasma textures: some of them are clipped by 1px.
 - [ ] Sea looks nicer, I think, but my frame-animation skills are a teense lacking. Update it.
-- [ ] UI Icons: Missing Wrench cursor icon that appears when hovering over factories.
 - [ ] Debug information (FPS, etc.) needs to go into a debug class that populates a debug visual layer.
   - [ ] Game.init()'s process should look like this:
     - [x] Setup Pixi app
     - [ ] pre(): Load universally useful resources and save them as Game.resources
     - [ ] On completion, do some post setup (new DebugLayer()), assign the first scene and start the game loop.
+- [ ] Refactor unit sprites
+    - [ ] All face the same direction
+    - [ ] All colors feature rubinelle and lazurian infantry, mech and bike variations
+    - [ ] All types/colors feature a single preview.png thumbnail image
+    - [ ] (On a different sheet) All have an 'exhibit' image matching the dimensions of landscape images for terrain.
