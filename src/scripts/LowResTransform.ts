@@ -115,9 +115,17 @@ export class LowResTransform {
         },
         
         /** Sets object scale linearly; scale.x = scale.y = value */
-        setSize(num: number) {
+        set(num: number) {
             parent._scale.set(num, num);
         }
+    }})(this);
+
+    /** Contains accessor methods for the exact details of the object on screen. */
+    readonly exact = ((parent: LowResTransform) => { return {
+        get x() { return (parent.object) ? parent.object.x : parent.x; },
+        get y() { return (parent.object) ? parent.object.y : parent.y; },
+        get z() { return (parent.object) ? parent.object.zIndex : parent.zIndex; }
+        // TODO Expand this? X and Y are currently the only relevant properties.
     }})(this);
 
     /** Conforms the controlled object to this transform. Used once only when a new object is assigned. */

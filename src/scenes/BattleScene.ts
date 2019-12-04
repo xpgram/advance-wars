@@ -12,6 +12,7 @@ import { InfoWindowSystem } from "../scripts/battle/ui-windows/InfoWindowSystem"
 import { Unit } from "../scripts/battle/Unit";
 import { Common } from "../scripts/CommonUtils";
 import { UnitObject } from "../scripts/battle/UnitObject";
+import { Slider } from "../scripts/Common/Slider";
 
 var fpsText: PIXI.BitmapText;
 var time: number = 0;
@@ -30,6 +31,11 @@ export class BattleScene extends Scene {
 
     unitsList: UnitObject[] = [];
     unitSwap: UnitObject | null = null;
+
+    cameraZoomSlider = new Slider({
+        value: 'max',
+        granularity: 0.08
+    });
 
     loadStep(): void {
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
@@ -89,6 +95,7 @@ export class BattleScene extends Scene {
         MapLayers['ui'].sortChildren();
 
         this.camera = new Camera(Game.stage);
+        this.camera.zoom = 1;
         // Do it here.
         // Also, since I need it several places, I should probably initialize it here instead of in new Map()
         // ↑ I think this is referring to the camera?
@@ -108,8 +115,6 @@ export class BattleScene extends Scene {
         this.gamepad = new VirtualGamepad();
         this.cursor = new MapCursor(this.map, this.gamepad);
         this.camera.followTarget = this.cursor;
-        this.camera.frame.focusBox.x = 32;
-        this.camera.frame.focusBox.y = 32;
 
         // Info Window
         this.infoWindow = new InfoWindowSystem();
@@ -183,7 +188,6 @@ export class BattleScene extends Scene {
         (MapLayers['bottom'] as PIXI.Container).filterArea.height = Game.display.height;
 
         this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
-        this.camera.update(delta);  // Update camera position (follows cursor)
 
         // Proof that buttons work.
         if (this.gamepad.button.A.pressed) {
@@ -201,17 +205,19 @@ export class BattleScene extends Scene {
 
         // Playin wit units
         if (this.gamepad.button.B.pressed) {
-            for (let unit of this.unitsList) {
-                unit.sprite.alpha = 0.30;
-                unit.uiBox.alpha = 0.15;
-            }
+            for (let unit of this.unitsList)
+                unit.transparent = true;
         }
         if (this.gamepad.button.B.released) {
-            for (let unit of this.unitsList) {
-                unit.sprite.alpha = 1;
-                unit.uiBox.alpha = 1;
-            }
+            for (let unit of this.unitsList) 
+                unit.transparent = false;
         }
+
+        if (this.gamepad.button.Y.pressed) {
+            this.cameraZoomSlider.autoIncrementFactor = -this.cameraZoomSlider.autoIncrementFactor;
+        }
+        this.cameraZoomSlider.autoIncrement();
+        this.camera.zoom = .6 + (.4 * this.cameraZoomSlider.shapedValue);
     }
 
     destroyStep(): void {

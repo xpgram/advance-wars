@@ -8,6 +8,7 @@ import { fonts } from "./ui-windows/DisplayInfo";
 import { MapLayers } from "./MapLayers";
 import { Point } from "../CommonTypes";
 import { Unit } from "./Unit";
+import { Slider } from "../Common/Slider";
 
 /** An uninstantiated Unit class type. */
 export interface UnitType {
@@ -72,11 +73,17 @@ export abstract class UnitObject {
     private statusIcons!: PIXI.Sprite;
     private statusTextures: PIXI.Texture[] = []
 
+    transparent = false;
+    private transparencySlider = new Slider({
+        max: .7,
+        granularity: .3     // About 3 frames between min and max.
+    });
+
     private team!: Army;
 
     /** A 64-bit number representing all of the Unit's volatile information. */
     private conditionInfo = 0;
-    private stateInfo = 0;
+    private stateInfo = 0;      // TODO Come up with good names for these
 
     /** A reference to this object's unit-kind. Used for retrieving constants about the unit. */
     abstract get type(): UnitType;
@@ -86,6 +93,7 @@ export abstract class UnitObject {
 
     /** A 16x16 thumbnail image for this unit type. */
     get preview(): PIXI.Sprite {
+        // TODO This process, identifying the filepath, asking about soldier sprites because they're different, is common. Encapsulate it somewhere.
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
         let color = FactionColors[this.faction];
         let army = ['rubinelle', 'lazurian'][this.faction % 2]; // TODO Get this from team.CO.armyType or something.
@@ -105,12 +113,37 @@ export abstract class UnitObject {
         return new PIXI.Sprite(Unit.exhibitSheet.textures[`${name}-exhibit.png`]);
     }
 
+    get movementSpriteObject() {
+        // TODO Jesus christ, this is awful
+        let name = this.name.replace(' ','').replace('-','').toLowerCase();
+        let color = FactionColors[this.faction];
+        let army = ['rubinelle', 'lazurian'][this.faction % 2];
+
+        let soldierSprites = (name: string, army: string, color: string, action: string): PIXI.AnimatedSprite => {
+            return Unit.sheet.animations[`${name}/${army}/${color}/${action}`];
+        }
+        let vehicleSprites = (name: string, army: string, color: string, action: string): PIXI.AnimatedSprite => {
+            return Unit.sheet.animations[`${name}/${color}/${action}`];
+        }
+        let accessor: {(a:string, b:string, c:string, d:string): PIXI.AnimatedSprite} = (this.type == Unit.Infantry || this.type == Unit.Mech || this.type == Unit.Bike) ? soldierSprites : vehicleSprites;
+
+        let o = {
+            up: accessor(name, army, color, 'up'),
+            down: accessor(name, army, color, 'down'),
+            left: accessor(name, army, color, 'left'),
+            right: accessor(name, army, color, 'right')
+        }
+        
+        return o;
+    }
+
     abstract get name(): string;
     abstract get description(): string;
     get vision() { return 2; }
 
     get maxGas() { return 99; }
     get maxAmmo() { return 6; }
+    get soldierUnit() { return false; }             // Whether this unit is an Infantry, Mech or Bike
     get materialsInsteadOfAmmo() { return false; }
     get moveType() { return MoveType.Tread; }
     get armorType() { return ArmorType.Vehicle; }
@@ -328,6 +361,7 @@ export abstract class UnitObject {
     private update() {
         this.setCurrentAnimationFrame();
         this.setCurrentStatusIcon();
+        this.setTransparency();
     }
 
     /** Chooses an animation frame based on the unit's animation speed and the the Game's elapsed frame count.
@@ -369,6 +403,15 @@ export abstract class UnitObject {
             //@ts-ignore
             this.statusIcons.texture = null;
         }
+    }
+
+    /**  */
+    private setTransparency() {
+        let dir = (this.transparent) ? 1 : -1;
+        this.transparencySlider.increment(dir);
+
+        this.sprite.alpha = 1 - this.transparencySlider.shapedValue;
+        this.uiBox.alpha = 1 - this.transparencySlider.shapedValue * 1.15;
     }
 
     /** Request the unit to make progress toward capturing the building they are located over. */
