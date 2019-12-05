@@ -1,7 +1,7 @@
 import { TerrainObject } from "./TerrainObject";
-import { Unit } from "./Unit";
+import { UnitObject } from "./UnitObject";
 import { Terrain } from "./Terrain";
-import { Point, Renderable } from "../CommonTypes";
+import { Point } from "../CommonTypes";
 
 /**
  * Used by Map only. Maybe.
@@ -13,7 +13,7 @@ import { Point, Renderable } from "../CommonTypes";
  */
 export class Square {
     terrain: TerrainObject;
-    unit: Unit | null = null;
+    unit: UnitObject | null = null;
 
     /** A 64-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
@@ -154,16 +154,16 @@ export class Square {
         // If seeable is true, destroy (null?) the FoW sprite
     }
 
-    occupiable(unit: Unit): boolean {
-        // does terrain.moveCost(unit) return >= 1?
-        // does unit == null?
-        return true;
+    occupiable(unit: UnitObject): boolean {
+        let traversable = this.traversable(unit);
+        let empty = (this.unit == null);
+        return traversable && empty;
     }
 
-    traversable(unit: Unit): boolean {
-        // does this.terrain.moveCost(unit) return >= 1?
-        // is this.unit either null or allied to unit?
-        return true;
+    traversable(unit: UnitObject): boolean {
+        let legalMovement = (this.terrain.getMovementCost(unit.moveType) > 0);
+        let unitAlliedOrEmpty = (this.unit == null || this.unit.faction == unit.faction);
+        return legalMovement && unitAlliedOrEmpty;
     }
 
     // ↓ Methods for iteratively depth-searching tiles ↓

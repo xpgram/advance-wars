@@ -73,14 +73,13 @@ export class TerrainDetailWindow extends SlidingWindow {
         this.mask.x = (this.showOnLeftSide) ? options.width : -options.width;
 
         // Header
-        this.header.x = 8; this.header.y = 4;
-        this.header.tint = 0xE3E6E9;
+        this.header.x = 5; this.header.y = 4;
 
         // Illustration
-        this.illustration.x = 8; this.illustration.y = 12;
+        this.illustration.x = 8; this.illustration.y = 18;
 
         // Body Text
-        this.description.x = 8; this.description.y = 58;
+        this.description.x = 8; this.description.y = 62;
         this.description.maxWidth = this.width - 16;
 
         // Income
@@ -100,8 +99,8 @@ export class TerrainDetailWindow extends SlidingWindow {
 
         // Formal add
         this.displayContainer.addChild(background, this.mask);
-        this.displayContainer.addChild(this.header);
         this.displayContainer.addChild(this.illustration);
+        this.displayContainer.addChild(this.header);
         this.displayContainer.addChild(this.description);
         this.displayContainer.addChild(this.income);
         this.displayContainer.addChild(this.repairType);
@@ -156,16 +155,11 @@ export class TerrainDetailWindow extends SlidingWindow {
         this.incomeText.text = text;
     }
 
-    setRepTypeG(b: boolean) {
-        this.repairTypeG.tint = (b) ? 0xDDDDDD : 0x888888;
-    }
-
-    setRepTypeN(b: boolean) {
-        this.repairTypeN.tint = (b) ? 0xDDDDDD : 0x888888;
-    }
-
-    setRepTypeA(b: boolean) {
-        this.repairTypeA.tint = (b) ? 0xDDDDDD : 0x888888;
+    setRepType(ground: boolean, naval: boolean, air: boolean) {
+        let bright = 0xDDDDDD, dimmed = 0x888888;
+        this.repairTypeG.tint = (ground) ? bright : dimmed;
+        this.repairTypeN.tint = (naval) ? bright : dimmed;
+        this.repairTypeA.tint = (air) ? bright : dimmed;
     }
 
     setInfantryMoveCost(mc: number) { this.moveCostTable.infantry.value.text = (mc == 0) ? '-' : mc.toString().slice(0,1); }

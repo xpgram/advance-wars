@@ -89,7 +89,7 @@ export abstract class TerrainObject {
     /** How far into Fog of War conditions this terrain can 'see'. Relevant to buildings and Fire Pillars. */
     get vision(): number { return 0; }
 
-    /** Given a movement type, how many movement points must be spent to travel into this tile. */
+    /** A container for all 8 different movement types and their costs to travel into this terrain type. */
     abstract readonly movementCost: {
         readonly infantry: number,
         readonly mech: number,
@@ -100,6 +100,21 @@ export abstract class TerrainObject {
         readonly ship: number,
         readonly transport: number
     };
+
+    /** Given a movement type, returns how many movement points must be spent to travel into this tile. */
+    getMovementCost(moveType: MoveType) {
+        let costs = [
+            this.movementCost.infantry,
+            this.movementCost.mech,
+            this.movementCost.tireA,
+            this.movementCost.tireB,
+            this.movementCost.tread,
+            this.movementCost.air,
+            this.movementCost.ship,
+            this.movementCost.transport
+        ]
+        return costs[moveType]; // This is obviously dependant on MoveType's order never changing.
+    }
 
     /** Which faction has ownership of this terrain. Relevant to buildings only. */
     get faction(): Faction { return Faction.None; }

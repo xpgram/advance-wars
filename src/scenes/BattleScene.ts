@@ -9,6 +9,10 @@ import { MapLayers } from "../scripts/battle/MapLayers";
 import { InfoWindow } from "../scripts/battle/InfoWindow";
 import { LowResTransform } from "../scripts/LowResTransform";
 import { InfoWindowSystem } from "../scripts/battle/ui-windows/InfoWindowSystem";
+import { Unit } from "../scripts/battle/Unit";
+import { Common } from "../scripts/CommonUtils";
+import { UnitObject } from "../scripts/battle/UnitObject";
+import { Slider } from "../scripts/Common/Slider";
 
 var fpsText: PIXI.BitmapText;
 var time: number = 0;
@@ -25,8 +29,13 @@ export class BattleScene extends Scene {
     cursor!: MapCursor;
     infoWindow!: InfoWindowSystem;
 
-    clouds!: PIXI.TilingSprite;
-    cloudsTransform!: LowResTransform;
+    unitsList: UnitObject[] = [];
+    unitSwap: UnitObject | null = null;
+
+    cameraZoomSlider = new Slider({
+        value: 'max',
+        granularity: 0.08
+    });
 
     loadStep(): void {
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
@@ -38,16 +47,55 @@ export class BattleScene extends Scene {
 
         this.linker.push({name: 'font-TecTacRegular', url: 'assets/TecTacRegular.xml'});
         this.linker.push({name: 'font-map-ui', url: 'assets/font-map-ui.xml'});
+        this.linker.push({name: 'font-small-ui', url: 'assets/font-small-ui.xml'});
         this.linker.push({name: 'font-script', url: 'assets/font-script.xml'});
         this.linker.push({name: 'font-menu', url: 'assets/font-menu.xml'});
         this.linker.push({name: 'font-table-header', url: 'assets/font-table-header.xml'});
+        this.linker.push({name: 'font-title', url: 'assets/font-title.xml'});
         this.linker.push({name: 'font-label', url: 'assets/font-label.xml'});
     }
 
     setupStep(): void {
-        this.map = new Map(30, 30);
+        this.map = new Map(25, 9);
+
+        let unitTypes = [Unit.Infantry, Unit.Mech, Unit.Bike, Unit.Tank, Unit.MdTank, Unit.WarTank,
+            Unit.Recon, Unit.Rig, Unit.AntiAir, Unit.Flare, Unit.Artillery, Unit.AntiTank, Unit.Rockets,
+            Unit.Missiles, Unit.TCopter, Unit.BCopter, Unit.Duster, Unit.Fighter, Unit.Bomber, Unit.Seaplane,
+            Unit.Stealth, Unit.Seeker, Unit.Lander, Unit.Gunboat, Unit.Cruiser, Unit.Submarine, Unit.Carrier, Unit.Battleship];
+
+        // Create some unts, bb ye
+        for (let i = 0; i < 30; i++) {
+            let unit = new unitTypes[ Math.floor(Math.random()*unitTypes.length) ]();
+            unit.init(null);
+
+            this.unitsList.push(unit);
+
+            let roll = (n: number) => {
+                return Math.round((Math.pow(-Math.pow(Math.random(), 4) + 1, 2)) * n);
+            }
+
+            unit.hp = roll(100);
+            unit.gas = roll(unit.maxGas);
+            unit.ammo = Math.round(Math.random() * unit.maxAmmo);
+            unit.sprite.x = unit.sprite.y = -100;  // I can't destroy units yet, so here.
+            unit.uiBox.x = unit.uiBox.y = -100;
+
+            for (let i = 0; i < 10; i++) {   // Only attempt 5 times
+                let x = Math.floor(Math.random()*this.map.width);
+                let y = Math.floor(Math.random()*this.map.height);
+
+                if (this.map.squareAt({x:x,y:y}).occupiable(unit) &&
+                    this.map.squareAt({x:x,y:y}).terrain.getMovementCost(unit.moveType) != 0) {
+                    this.map.placeUnit(unit, {x:x, y:y});
+                    break;
+                }
+            }
+        }
+        MapLayers['top'].sortChildren();
+        MapLayers['ui'].sortChildren();
 
         this.camera = new Camera(Game.stage);
+        this.camera.zoom = 1;
         // Do it here.
         // Also, since I need it several places, I should probably initialize it here instead of in new Map()
         // ↑ I think this is referring to the camera?
@@ -67,8 +115,6 @@ export class BattleScene extends Scene {
         this.gamepad = new VirtualGamepad();
         this.cursor = new MapCursor(this.map, this.gamepad);
         this.camera.followTarget = this.cursor;
-        this.camera.frame.focusBox.x = 32;
-        this.camera.frame.focusBox.y = 32;
 
         // Info Window
         this.infoWindow = new InfoWindowSystem();
@@ -82,21 +128,21 @@ export class BattleScene extends Scene {
         
 
         // Testing unit sprites
-        let unitName = 'seeker/red/idle';
-        let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
-        let frames = sheet.animations[unitName];
-        frames.push(frames[1]);                     // This has to be done when the sheet is loaded, and so should be done in json, I guess; asking the units to do it causes muy problemas (too many frames.)
-        for (let i = 0; i < 5; i++) {
-            let unit = new PIXI.AnimatedSprite(sheet.animations[unitName]);
-            unit.animationSpeed = 1 / 12.5;
-            //unit.scale.x = -1;
-            unit.x = unit.y = 32;
-            unit.x += 16*i;
-            unit.play();
-            if (i % 3 == 0)
-                unit.tint = 0x888888;
-            Game.stage.addChild(unit);
-        }
+        // let unitName = 'seeker/red/idle';
+        // let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
+        // let frames = sheet.animations[unitName];
+        // frames.push(frames[1]);                     // This has to be done when the sheet is loaded, and so should be done in json, I guess; asking the units to do it causes muy problemas (too many frames.)
+        // for (let i = 0; i < 5; i++) {
+        //     let unit = new PIXI.AnimatedSprite(sheet.animations[unitName]);
+        //     unit.animationSpeed = 1 / 12.5;     // Or 5 / 60, which is 5 frame updates per second.
+        //     //unit.scale.x = -1;                // Then running could be 10 / 60.
+        //     unit.x = unit.y = 32;               // And driving could be 15 / 60.
+        //     unit.x += 16*i;
+        //     unit.play();                        // Alt: idle = 4 / 50, which is 4 frames over 5/6ths a second.
+        //     if (i % 3 == 0)                     //   running = 4 / 25       .42 seconds
+        //         unit.tint = 0x888888;           //   driving = 3 / 12       .25 seconds
+        //     Game.stage.addChild(unit);
+        // }
 
         //// Syncing all units sprites:
         // Let there be a ticker of speed 0.08, whatever that is.
@@ -105,9 +151,9 @@ export class BattleScene extends Scene {
         // It would be smart of me to verify frameIdx is valid.
         // Eh.
 
-        // Idle anim speed:        0.08     // Ping-pongs 3 frames
-        // Legs move anim speed:   0.15     // Ping-pongs 3 frames      // There are only 8 of these total. // TODO Copy frame 1 as 3 in texture-packer source.
-        // Wheels move anim speed: 0.25     // Loops 3 frames           // Movement sprites do not need to be synced
+        // Idle anim speed:        1/12.5   // Ping-pongs 3 frames      ← Both infantry and vehicles follow this one
+        // Legs move anim speed:   1/6.25   // Ping-pongs 3 frames      // There are only 8 of these total. // TODO Copy frame 1 as 3 in texture-packer source.
+        // Wheels move anim speed: 1/4      // Loops 3 frames           // Movement sprites do not need to be synced
         // Unit-spent tint:        0x888888
         // Unit-right is unit-left with scale.x = -1
         // MovementRailcar does ~not~ pause animation once it reaches its destination. It is just usually too fast to notice this.
@@ -142,12 +188,36 @@ export class BattleScene extends Scene {
         (MapLayers['bottom'] as PIXI.Container).filterArea.height = Game.display.height;
 
         this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
-        this.camera.update(delta);  // Update camera position (follows cursor)
 
         // Proof that buttons work.
-        if (this.gamepad.button.A.down) {
-            fpsText.text = "A button is pressed!";
+        if (this.gamepad.button.A.pressed) {
+            let square = this.map.squareAt(this.cursor.pos);
+            if (square.unit)
+                this.unitSwap = square.unit;
+            if (!square.unit && this.unitSwap && square.occupiable(this.unitSwap)) {
+                this.map.squareAt(this.unitSwap.boardLocation).unit = null;
+                this.map.placeUnit(this.unitSwap, this.cursor.pos);
+                this.unitSwap = null;
+                MapLayers['top'].sortChildren();
+                this.infoWindow.inspectTile(square);
+            }
         }
+
+        // Playin wit units
+        if (this.gamepad.button.B.pressed) {
+            for (let unit of this.unitsList)
+                unit.transparent = true;
+        }
+        if (this.gamepad.button.B.released) {
+            for (let unit of this.unitsList) 
+                unit.transparent = false;
+        }
+
+        if (this.gamepad.button.Y.pressed) {
+            this.cameraZoomSlider.autoIncrementFactor = -this.cameraZoomSlider.autoIncrementFactor;
+        }
+        this.cameraZoomSlider.autoIncrement();
+        this.camera.zoom = .6 + (.4 * this.cameraZoomSlider.shapedValue);
     }
 
     destroyStep(): void {

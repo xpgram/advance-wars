@@ -22,6 +22,12 @@ export enum ArmorType {
     Sub
 }
 
+/** Used to describe a unit's method of attack: which of their two weapons they'll be using. */
+export enum AttackMethod {
+    Primary,
+    Secondary
+}
+
 /** The various kinds of units one might be. Useful for targeting broad unit-types, like which kind cities will repair. */
 export enum UnitClass {
     None,

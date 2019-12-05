@@ -11,6 +11,7 @@ import { Map } from "../Map";
 import { Terrain } from "../Terrain";
 import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
+import { UnitClass } from "../EnumTypes";
 
 export class InfoWindowSystem {
 
@@ -107,9 +108,9 @@ export class InfoWindowSystem {
         this.terrainInfo.setThumbnail(square.terrain.preview);
         this.terrainInfo.setDefenseMeter(square.terrain.defenseRating);
         if (square.terrain.building)
-            this.terrainInfo.setCaptureMeter('20');
+            this.terrainInfo.setCaptureMeter(20);
         else if (square.terrain.type == Terrain.Meteor)
-            this.terrainInfo.setHPMeter('99');
+            this.terrainInfo.setHPMeter(99);
         else
             this.terrainInfo.hideCaptureMeter();
 
@@ -119,10 +120,12 @@ export class InfoWindowSystem {
 
             this.unitInfo.setThumbnail(square.unit.preview);
             this.unitInfo.setName(square.unit.name);
-            this.unitInfo.setHPMeterValue(square.unit.hp.toString());
-            this.unitInfo.setGasMeterValue(square.unit.gas.toString());
-            this.unitInfo.setAmmoMeterValue(square.unit.ammo.toString());
-            // TODO Show a '-' if unit max ammo is 0
+            this.unitInfo.setHPMeterValue(square.unit.displayHP);
+            this.unitInfo.setGasMeterValue(square.unit.gas);
+            if (square.unit.materialsInsteadOfAmmo)
+                this.unitInfo.setMaterialMeterValue(square.unit.ammo);
+            else
+                this.unitInfo.setAmmoMeterValue(square.unit.ammo, square.unit.maxAmmo);
             // TODO Show the materials meter instead if the unit is an APC. (Any others?)
             this.unitInfo.setFirstLoadUnit(null);
             this.unitInfo.setSecondLoadUnit(null);
@@ -131,15 +134,7 @@ export class InfoWindowSystem {
             // TODO loaded.first should return null if no units are loaded.
         }
         else {
-            this.unitInfo.displayContainer.visible = (Math.random() < 0.25);
-
-            // TODO Remove
-            this.unitInfo.setName('Infantry');
-            this.unitInfo.setHPMeterValue('10');
-            this.unitInfo.setGasMeterValue('99');
-            this.unitInfo.setAmmoMeterValue('-');
-            this.unitInfo.setFirstLoadUnit(null);
-            this.unitInfo.setSecondLoadUnit(null);
+            this.unitInfo.displayContainer.visible = false;
         }
 
         // CO Window
@@ -167,19 +162,12 @@ export class InfoWindowSystem {
         this.detailedInfo.setHeaderText(square.terrain.name);
         this.detailedInfo.setIllustration(square.terrain.landscape);
         this.detailedInfo.setDescriptionText(square.terrain.description);
-        this.detailedInfo.setIncomeValue( (square.terrain.building) ? 1000 : 0 );
-        if (square.terrain.type == Terrain.TempAirpt || square.terrain.type == Terrain.TempPort)
-            this.detailedInfo.setIncomeValue(0);
-
-        this.detailedInfo.setRepTypeG(false);
-        this.detailedInfo.setRepTypeN(false);
-        this.detailedInfo.setRepTypeA(false);
-        if (square.terrain.type == Terrain.Port || square.terrain.type == Terrain.TempPort)
-            this.detailedInfo.setRepTypeN(true);
-        else if (square.terrain.type == Terrain.Airport || square.terrain.type == Terrain.TempAirpt)
-            this.detailedInfo.setRepTypeA(true);
-        else if (square.terrain.building && square.terrain.type != Terrain.Radar && square.terrain.type != Terrain.ComTower)
-            this.detailedInfo.setRepTypeG(true);
+        this.detailedInfo.setIncomeValue( (square.terrain.generatesIncome) ? 1000 : 0 );
+        this.detailedInfo.setRepType(
+            square.terrain.repairType == UnitClass.Ground,
+            square.terrain.repairType == UnitClass.Naval,
+            square.terrain.repairType == UnitClass.Air,
+        );
         
         this.detailedInfo.setInfantryMoveCost( square.terrain.movementCost.infantry );
         this.detailedInfo.setMechMoveCost( square.terrain.movementCost.mech );

@@ -8,16 +8,13 @@ export class TerrainWindow extends SlidingWindow {
     // Constants
     private readonly starSize = 8;
 
-    // Textures
-    private buildingIcon = this.sheet.textures['icon-capture.png'];
-    private heartIcon = this.sheet.textures['icon-heart.png'];
-
     // Objects
     private thumbnail = new PIXI.Container();
     private name = new PIXI.BitmapText('', fonts.scriptOutlined);
     private defenseStars = new PIXI.TilingSprite( this.sheet.textures['icon-star-empty.png'], this.starSize*4, this.starSize );
     private defenseStarsFill = new PIXI.TilingSprite( this.sheet.textures['icon-star-full.png'], 0, this.starSize );
-    private numberMeter = new PIXI.Sprite(this.buildingIcon);
+    private buildingIcon = new PIXI.Sprite( this.sheet.textures['icon-capture.png'] );
+    private heartIcon = new PIXI.Sprite( this.sheet.textures['icon-heart.png'] );
     private numberMeterText = new PIXI.BitmapText('', fonts.scriptOutlined);
 
     constructor(options: SlidingWindowOptions) {
@@ -41,15 +38,19 @@ export class TerrainWindow extends SlidingWindow {
         this.defenseStars.addChild( this.defenseStarsFill );
 
         // Capture/MeteorHP Meter
-        this.numberMeter.x = 60; this.numberMeter.y = 16;
-        this.numberMeter.addChild( this.numberMeterText );
-        this.numberMeterText.x = 25; this.numberMeterText.y = -3;   // y must be adjusted because the font's origin is 0,0; every letter is like 14px high or something.
+        this.buildingIcon.x = 60; this.buildingIcon.y = 16;
+        this.numberMeterText.x = 85; this.numberMeterText.y = 13;
         (this.numberMeterText.anchor as PIXI.Point).x = 1;  // Right aligned
+
+        // Heart Meter alt.
+        this.heartIcon.x = this.buildingIcon.x;
+        this.heartIcon.y = this.buildingIcon.y;
+        this.heartIcon.visible = false;
 
         // Formal add
         this.displayContainer.addChild(background);
         this.displayContainer.addChild(this.thumbnail, this.name);
-        this.displayContainer.addChild(this.defenseStars, this.numberMeter);
+        this.displayContainer.addChild(this.defenseStars, this.buildingIcon, this.heartIcon, this.numberMeterText);
     }
 
     setThumbnail(container: PIXI.Container) {
@@ -66,19 +67,25 @@ export class TerrainWindow extends SlidingWindow {
         this.defenseStarsFill.width = this.starSize * stars;
     }
 
-    setCaptureMeter(value: string) {
-        this.numberMeterText.text = value.slice(0,2);
-        this.numberMeter.texture = this.buildingIcon;
-        this.numberMeter.visible = true;
+    setCaptureMeter(value: number) {
+        value = Common.confine(value, 0, 20);   // Keep displayable
+        this.numberMeterText.text = value.toString();
+        this.buildingIcon.visible = true;
+        this.heartIcon.visible = false;
+        this.numberMeterText.visible = true;
     }
 
-    setHPMeter(value: string) {
-        this.numberMeterText.text = value.slice(0,2);
-        this.numberMeter.texture = this.heartIcon;
-        this.numberMeter.visible = true;
+    setHPMeter(value: number) {
+        value = Common.confine(value, 0, 99);   // Keep displayable
+        this.numberMeterText.text = value.toString();
+        this.heartIcon.visible = true;
+        this.buildingIcon.visible = false;
+        this.numberMeterText.visible = true;
     }
 
     hideCaptureMeter() {
-        this.numberMeter.visible = false;
+        this.heartIcon.visible = false;
+        this.buildingIcon.visible = false;
+        this.numberMeterText.visible = false;
     }
 }

@@ -8,6 +8,10 @@ import { VirtualGamepad } from "../controls/VirtualGamepad";
 import { MoveType } from "./EnumTypes";
 
 /**
+ * Deprecated
+ * I have a more sophisticated or at least more organized system in place now.
+ * I'm pretty sure I can safely delete this, even.
+ * 
  * This class is a goddamn mess because I'm experimenting right now.
  * For real, though. Mom says I need to clean my room in here.
  * 

@@ -2,12 +2,11 @@ import * as PIXI from "pixi.js";
 import { Terrain } from "./Terrain";
 import { Square } from "./Square";
 import { NeighborMatrix } from "../NeighborMatrix";
-import { LowResTransform } from "../LowResTransform";
 import { MapLayers } from "./MapLayers";
 import { Game } from "../..";
 import { NumericDictionary, Point } from "../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
-import { Unit } from "./Unit";
+import { UnitObject } from "./UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
 
 // Common error messages
@@ -255,7 +254,7 @@ export class Map {
         for (let y = 0; y < this.height; y++) {
             let neighbors = this.neighborsAt({x:x,y:y});
             let pos = {x:x,y:y};
-            let worldPos = {x: x * tileSize, y: y * tileSize, z: (y - x)*10}; 
+            let worldPos = {x: x * tileSize, y: y * tileSize, z: (y*2 - x)*10};
             this.squareAt(pos).terrain.init(neighbors, worldPos);
         }
 
@@ -326,10 +325,11 @@ export class Map {
      * @param unit Unit object to be placed on the grid.
      * @param pos The location on the map to place it.
      */
-    placeUnit(unit: Unit, pos: Point) {
+    placeUnit(unit: UnitObject, pos: Point) {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         this.squareAt(pos).unit = unit;
+        unit.boardLocation = pos;
     }
 
     /** Removes and destroys a Unit object on the map.

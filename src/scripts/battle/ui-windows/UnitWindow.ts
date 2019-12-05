@@ -101,21 +101,24 @@ export class UnitWindow extends SlidingWindow {
         this.name.text = name;
     }
 
-    setHPMeterValue(value: string) {
-        this.hpMeterText.text = value.slice(0,2);
+    setHPMeterValue(value: number) {
+        this.hpMeterText.text = value.toString();
     }
 
-    setGasMeterValue(value: string) {
-        this.gasMeterText.text = value.slice(0,2);
+    setGasMeterValue(value: number) {
+        this.gasMeterText.text = value.toString();
     }
 
-    setAmmoMeterValue(value: string) {
-        this.ammoMeterText.text = value.slice(0,2);
+    setAmmoMeterValue(value: number, max: number) {
+        if (max == 0)
+            this.ammoMeterText.text = '_';
+        else
+            this.ammoMeterText.text = value.toString().slice(0,2);
         this.ammoMeter.texture = this.ammoIcon;
     }
 
-    setMaterialMeterValue(value: string) {
-        this.ammoMeterText.text = value.slice(0,2);
+    setMaterialMeterValue(value: number) {
+        this.ammoMeterText.text = value.toString().slice(0,2);
         this.ammoMeter.texture = this.materialsIcon;
     }
 
