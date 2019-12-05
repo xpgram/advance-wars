@@ -45,7 +45,7 @@ export class BattleScene extends Scene {
     }
 
     setupStep(): void {
-        this.map = new Map(14, 8);
+        this.map = new Map(30, 30);
 
         this.camera = new Camera(Game.stage);
         // Do it here.

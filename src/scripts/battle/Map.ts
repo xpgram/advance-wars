@@ -211,7 +211,7 @@ export class Map {
         // Add terrain type to map
         multipass(this, 1);
         multipass(this, 0.7);
-        multipass(this, 0.4);
+        // multipass(this, 0.4); // This is just too slow for such little product
     }
 
     /** One final board passover to make sure all tiles placed are still legally placed.
