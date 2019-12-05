@@ -76,7 +76,7 @@ export abstract class UnitObject {
     transparent = false;
     private transparencySlider = new Slider({
         max: .7,
-        granularity: .3     // About 3 frames between min and max.
+        granularity: .35     // About 3 frames between min and max.
     });
 
     private team!: Army;

@@ -34,7 +34,7 @@ export class BattleScene extends Scene {
 
     cameraZoomSlider = new Slider({
         value: 'max',
-        granularity: 0.08
+        granularity: 0.1
     });
 
     loadStep(): void {
@@ -95,7 +95,6 @@ export class BattleScene extends Scene {
         MapLayers['ui'].sortChildren();
 
         this.camera = new Camera(Game.stage);
-        this.camera.zoom = 1;
         // Do it here.
         // Also, since I need it several places, I should probably initialize it here instead of in new Map()
         // ↑ I think this is referring to the camera?
@@ -216,8 +215,9 @@ export class BattleScene extends Scene {
         if (this.gamepad.button.Y.pressed) {
             this.cameraZoomSlider.autoIncrementFactor = -this.cameraZoomSlider.autoIncrementFactor;
         }
+        if (this.cameraZoomSlider.value != this.cameraZoomSlider.min && this.cameraZoomSlider.value != this.cameraZoomSlider.max)
+            this.camera.zoom = .7 + (.3 * this.cameraZoomSlider.shapedValue);
         this.cameraZoomSlider.autoIncrement();
-        this.camera.zoom = .6 + (.4 * this.cameraZoomSlider.shapedValue);
     }
 
     destroyStep(): void {

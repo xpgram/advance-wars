@@ -74,8 +74,8 @@ export class Camera {
     get x() { return this.frame.x; }
     set x(num) { this.frame.x = num; }
     /** The camera's y-coordinate in 2D space, anchored in the top-left. */
-    get y() { return -this.frame.y; }
-    set y(num) { this.frame.y = -num; }
+    get y() { return this.frame.y; }
+    set y(num) { this.frame.y = num; }
 
     /** A point object representing the camera's position in 2D space, anchored in the top-left. */
     get pos(): Point { return {x: this.x, y: this.y} };
@@ -123,8 +123,23 @@ export class Camera {
         return this.baseDimensions.width / this.frame.width;
     }
     set zoom(n: number) {
+        let dist = {
+            x: this.followTarget.transform.exact.x - this.x,
+            y: this.followTarget.transform.exact.y - this.y
+        }
+
+        dist.x = dist.x * this.zoom / n;
+        dist.y = dist.y * this.zoom / n;
+        this.x = this.followTarget.transform.exact.x - dist.x;
+        this.y = this.followTarget.transform.exact.y - dist.y;
+
         this.frame.width = this.baseDimensions.width / n;
         this.frame.height = this.baseDimensions.height / n;
+
+        this.stageTransform.scale.x = this.zoom;
+        this.stageTransform.scale.y = this.zoom;
+        this.stageTransform.x = -this.x * this.zoom;
+        this.stageTransform.y = -this.y * this.zoom;
     }
 
     /** The camera's zoom level by magnification of areas.
@@ -146,17 +161,18 @@ export class Camera {
             return;
     
         // TODO Softcode these somewhere, or at least meaningfully hardcode them.
-        let border = 32 + 8;
+        let border = 32;
+        let tileSize = 16;  // TODO Adjust this depending on focal position: tl→tl, tr→r, etc.
         let focal = {
-            x: this.followTarget.transform.exact.x + 8,
-            y: this.followTarget.transform.exact.y + 8
+            x: this.followTarget.transform.exact.x,
+            y: this.followTarget.transform.exact.y,
         };
 
         // Find absolute values from the world origin for the camera's inner-frame's edges.
         let left = this.frame.x + border;
-        let right = left + this.frame.width - border*2;
+        let right = left + this.frame.width - border*2 - tileSize;
         let top = this.frame.y + border;
-        let bottom = top + this.frame.height - border*2;
+        let bottom = top + this.frame.height - border*2 - tileSize;
 
         let moveDist = {x:0, y:0};  // The distance we intend to travel this frame.
 
@@ -176,9 +192,9 @@ export class Camera {
         this.y += moveDist.y;
 
         // Adjust the stage to fit the camera
-        this.stageTransform.x = this.x;
-        this.stageTransform.y = this.y;
+        this.stageTransform.x = -this.x * this.zoom;    // *zoom converts in-world pixel distance to real pixel distance.
+        this.stageTransform.y = -this.y * this.zoom;
 
-        console.log(`${this.stageTransform.x},${this.stageTransform.y}`);
+        // I am, by the way, supposed to calculate the zoom here based on the width/height.
     }
 }
