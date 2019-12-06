@@ -64,7 +64,8 @@ export class BattleScene extends Scene {
             Unit.Stealth, Unit.Seeker, Unit.Lander, Unit.Gunboat, Unit.Cruiser, Unit.Submarine, Unit.Carrier, Unit.Battleship];
 
         // Create some unts, bb ye
-        for (let i = 0; i < 30; i++) {
+        let numUnits = Math.floor(Math.pow(Math.random(), 2)*25) + 15;
+        for (let i = 0; i < numUnits; i++) {
             let unit = new unitTypes[ Math.floor(Math.random()*unitTypes.length) ]();
             unit.init(null);
 
@@ -215,9 +216,40 @@ export class BattleScene extends Scene {
         if (this.gamepad.button.Y.pressed) {
             this.cameraZoomSlider.autoIncrementFactor = -this.cameraZoomSlider.autoIncrementFactor;
         }
-        if (this.cameraZoomSlider.value != this.cameraZoomSlider.min && this.cameraZoomSlider.value != this.cameraZoomSlider.max)
-            this.camera.zoom = .7 + (.3 * this.cameraZoomSlider.shapedValue);
+        // Hardcoded constants are just different screen widths.
+        this.camera.zoom = (320/448) + ((1 - 320/448) * this.cameraZoomSlider.shapedValue);
         this.cameraZoomSlider.autoIncrement();
+
+        // Stage centering when stage is too smol
+        // This, uh... don't look at it.
+        // TODO Don't look at it.
+        this.camera.followTarget = ((scene: BattleScene) => { return {
+            get x() { return scene.cursor.transform.exact.x; },
+            get y() { return scene.cursor.transform.exact.y; }
+        }})(this);
+        if (this.camera.width >= this.map.width*16 + 80 && this.camera.height >= this.map.height*16 + 64)
+            this.camera.followTarget = {
+                x: this.map.width*8,
+                y: this.map.height*8
+            }
+        else if (this.camera.width >= this.map.width*16 + 80)
+            this.camera.followTarget = ((scene: BattleScene) => { return {
+                x: this.map.width*8,
+                get y() { return scene.cursor.transform.exact.y; }
+            }})(this);
+        else if (this.camera.height >= this.map.height*16 + 64)
+            this.camera.followTarget = ((scene: BattleScene) => { return {
+                get x() { return scene.cursor.transform.exact.x; },
+                y: this.map.height*8
+            }})(this);
+        //   Here's what the above block is doing and what to focus on when refactoring:
+        // As *soon* as the map is too small not to fit neatly inside the camera frame,
+        // the x or y (or both) coordinate that we're 'following' snaps to the middle of
+        // the map, and at that point, zooming out just means zoomin out evenly from the center.
+        //   Another note: The cursor has a draw order issue with the camera that I haven't
+        // kinked out yet. The camera needs to shift the stage (or itself) *after* the cursor
+        // has moved, but *before* draw has been called. Otherwise you get mom's massage head
+        // as a tile selector.
     }
 
     destroyStep(): void {

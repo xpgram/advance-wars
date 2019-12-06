@@ -8,11 +8,6 @@ import { Common } from "./CommonUtils";
  * Takes control of a PIXI container, usually the global stage, and manipulates it
  * to simulate camera movement and other camera features.
  * 
- * // TODO: Camera Rect placed into game world, the same one it's manipulating.
- * // TODO: Fit Camera to Rect method.
- * // TODO: Follow Target method should be a function that accepts a coordinate/transform.
- * // TODO: Add update() to ticker
- * 
  * @author Dei Valko
  * @version 0.1.0
  */
@@ -20,6 +15,7 @@ export class Camera {
 
     private baseDimensions = {
         // TODO Make this settable from the constructor
+        // TODO Adjust it with the aspect ratio? Currently, zooming resets any funny business you've done with width/height back to these defaults.
         width: Game.display.renderWidth,
         height: Game.display.renderHeight
     }
@@ -38,18 +34,24 @@ export class Camera {
     }
 
     /** The object which the camera will try to keep in frame. If null, the camera does not follow. */
-    followTarget: TransformContainer | null = null;
+    followTarget: TransformContainer | Point | null = null;
+
+    /** Called on every update; determines how the camera should move to keep the follow target in frame. */
+    followAlgorithm: ((camera: Camera) => void) | null = null;
 
     /**
      * @param stage The 'world' container the camera will manipulate to pan, rotate and zoom.
      */
     constructor(stage: PIXI.Container) {
         this.stage = stage;
-
-        this.frame.width = this.baseDimensions.width;
-        this.frame.height = this.baseDimensions.height;
+        this.width = this.baseDimensions.width;
+        this.height = this.baseDimensions.height;
+        this.followAlgorithm = borderedScreenPush; // Defined at the bottom, outside the class.
         
-        Game.scene.ticker.add(this.update, this);
+        Game.scene.ticker.add(this.update, this, -1);
+        // I presume priority -1 means this update happens last.
+        // This is important such that the cursor doesn't move after the stage
+        // has been adjusted to it but before the draw call.
     }
 
     /** The world or layer the camera will move to simulate camera movement. */
@@ -59,15 +61,14 @@ export class Camera {
     set stage(object) {
         // Remove view from last stage.
         if (this.stageTransform.object)
-            //@ts-ignore
-            this.stageTransform.object.removeChild(this.frame);
-
-        this.stageTransform.object = object;
+            (this.stageTransform.object as PIXI.Container).removeChild(this.frame);
 
         // Add view to new stage.
-        if (this.stageTransform.object)
-            //@ts-ignore
-            this.stageTransform.object.addChild(this.frame);
+        if (object)
+            object.addChild(this.frame);
+
+        // Assign the new 'stage' to the camera.
+        this.stageTransform.object = object;
     }
 
     /** The camera's x-coordinate in 2D space, anchored in the top-left. */
@@ -123,23 +124,16 @@ export class Camera {
         return this.baseDimensions.width / this.frame.width;
     }
     set zoom(n: number) {
-        let dist = {
-            x: this.followTarget.transform.exact.x - this.x,
-            y: this.followTarget.transform.exact.y - this.y
-        }
+        // Get the focal point to zoom in on.
+        let focal = this.getFocalPoint();
 
-        dist.x = dist.x * this.zoom / n;
-        dist.y = dist.y * this.zoom / n;
-        this.x = this.followTarget.transform.exact.x - dist.x;
-        this.y = this.followTarget.transform.exact.y - dist.y;
+        // Adjust camera coords to new coords that keep the focal point in the same screen position.
+        this.x = focal.x - ((focal.x - this.x) * this.zoom / n);
+        this.y = focal.y - ((focal.y - this.y) * this.zoom / n);
 
-        this.frame.width = this.baseDimensions.width / n;
-        this.frame.height = this.baseDimensions.height / n;
-
-        this.stageTransform.scale.x = this.zoom;
-        this.stageTransform.scale.y = this.zoom;
-        this.stageTransform.x = -this.x * this.zoom;
-        this.stageTransform.y = -this.y * this.zoom;
+        // Adjust camera frame to reflect new zoomed dimensions.
+        this.width = this.baseDimensions.width / n;
+        this.height = this.baseDimensions.height / n;
     }
 
     /** The camera's zoom level by magnification of areas.
@@ -154,47 +148,79 @@ export class Camera {
     /** The camera's angle of rotation. Expressed in radians. */
     get rotation(): number { return this.frame.rotation; }
     set rotation(num) { this.frame.rotation = num; }
+
+    /** Returns a point corresponding either to the target of focus, or the center of the camera if none exists. */
+    getFocalPoint() {
+        let focal;
+
+        let isPoint = (p: any): p is Point => {
+            return typeof p.x === 'number' && typeof p.y === 'number';
+        }
+
+        if (this.followTarget) {
+            focal = {
+                x: isPoint(this.followTarget) ? this.followTarget.x : this.followTarget.transform.exact.x,
+                y: isPoint(this.followTarget) ? this.followTarget.y : this.followTarget.transform.exact.y
+            }
+        }
+        else {
+            focal = {
+                x: this.center.x,
+                y: this.center.y
+            }
+        }
+        return focal;
+    }
     
     /** If camera has a follow target, it will move to keep that target in view. */
-    update() {
-        if (!this.followTarget)
-            return;
-    
-        // TODO Softcode these somewhere, or at least meaningfully hardcode them.
-        let border = 32;
-        let tileSize = 16;  // TODO Adjust this depending on focal position: tl→tl, tr→r, etc.
-        let focal = {
-            x: this.followTarget.transform.exact.x,
-            y: this.followTarget.transform.exact.y,
-        };
+    private update() {
+        // Follow the focused object, if an algorithm for doing so exists.
+        if (this.followAlgorithm)
+            this.followAlgorithm(this);
 
-        // Find absolute values from the world origin for the camera's inner-frame's edges.
-        let left = this.frame.x + border;
-        let right = left + this.frame.width - border*2 - tileSize;
-        let top = this.frame.y + border;
-        let bottom = top + this.frame.height - border*2 - tileSize;
-
-        let moveDist = {x:0, y:0};  // The distance we intend to travel this frame.
-
-        // Horizontal distance
-        if (focal.x > right)
-            moveDist.x = focal.x - right;
-        else if (focal.x < left)
-            moveDist.x = focal.x - left;
-
-        // Vertical distance
-        if (focal.y > bottom)
-            moveDist.y = focal.y - bottom;
-        else if (focal.y < top)
-            moveDist.y = focal.y - top;
-
-        this.x += moveDist.x;
-        this.y += moveDist.y;
-
-        // Adjust the stage to fit the camera
-        this.stageTransform.x = -this.x * this.zoom;    // *zoom converts in-world pixel distance to real pixel distance.
-        this.stageTransform.y = -this.y * this.zoom;
-
-        // I am, by the way, supposed to calculate the zoom here based on the width/height.
+        // Adjust the stage to fit the camera — (Coordinates are un-zoomed to correctly translate to unmodified 2D space.)
+        this.stageTransform.x = Math.round(-this.x * this.zoom);
+        this.stageTransform.y = Math.round(-this.y * this.zoom);
+        this.stageTransform.scale.x = this.zoom;
+        this.stageTransform.scale.y = this.zoom;
     }
+}
+
+function borderedScreenPush(camera: Camera) {
+    // TODO Softcode these somewhere, or at least meaningfully hardcode them.
+    let border = 32;
+    let tileSize = 16;
+    let focal = camera.getFocalPoint();
+
+    let cam = {
+        x: Math.floor(camera.x),
+        y: Math.floor(camera.y),
+        width: camera.width,
+        height: camera.height
+    }
+
+    // Find absolute values from the world origin for the camera's inner-frame's edges.
+    let left = cam.x + border + tileSize/2;   // tileSize/2 feels nice since we're in super widescreen.
+    let right = cam.x + cam.width - border - tileSize - tileSize/2;
+    let top = cam.y + border;
+    let bottom = cam.y + cam.height - border - tileSize;
+
+    // The distance we intend to travel this frame.
+    let moveDist = {x:0, y:0};
+
+    // Get horizontal distance
+    if (focal.x > right)
+        moveDist.x = focal.x - right;
+    else if (focal.x < left)
+        moveDist.x = focal.x - left;
+
+    // Get vertical distance
+    if (focal.y > bottom)
+        moveDist.y = focal.y - bottom;
+    else if (focal.y < top)
+        moveDist.y = focal.y - top;
+
+    // Move the frame.
+    camera.x += moveDist.x;
+    camera.y += moveDist.y;
 }

@@ -1,6 +1,3 @@
-import * as PIXI from "pixi.js";
-import { Game } from "../../..";
-import { Common } from "../../CommonUtils";
 
 export const fonts = {
     title: {font: {name: 'font-title', size: 10}},

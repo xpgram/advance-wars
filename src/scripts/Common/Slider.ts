@@ -27,7 +27,7 @@ export class Slider {
 
         this.min = options.min || 0;
         this.max = options.max || 1;
-        this._value = (options.value = 'max') ? this.max : this.min;
+        this._value = (options.value == 'max') ? this.max : this.min;
         if (typeof options.value == 'number')
             this._value = options.value;
         

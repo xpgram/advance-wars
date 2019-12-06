@@ -53,7 +53,7 @@ export class SlidingWindow {
         this.visualBoundaryWidth = options.visualBoundaryWidth;
 
         this.show = (options.show != false);
-        this.showOnLeftSide = true;
+        this.showOnLeftSide = false;
         this.positionWindow({skip: true});
 
         Game.hud.addChild(this.displayContainer);
@@ -113,7 +113,7 @@ export class SlidingWindow {
 
     /** Instantly positions the window wherever it is desired to be. */
     private skipSlideAnimation() {
-        this.holdToOpenSlider.value = (this.show) ? this.holdToOpenSlider.min : this.holdToOpenSlider.max;
+        this.holdToOpenSlider.value = (this.show) ? this.holdToOpenSlider.max : this.holdToOpenSlider.min;
         this.sideChangeSlider.value = (this.showOnLeftSide)? this.sideChangeSlider.min : this.sideChangeSlider.max;
     }
 }

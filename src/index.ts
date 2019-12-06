@@ -41,7 +41,7 @@ class App {
         get standardLength(): number { return 16; },
 
         /** The width of the game's screen internally. */
-        get renderWidth(): number { return 288; },
+        get renderWidth(): number { return 320; },
 
         /** The height of the game's screen internally. */
         get renderHeight(): number { return 192; },

@@ -29,19 +29,26 @@ export class InfoWindowSystem {
 
     commandersSlider = new Slider();
 
-    options: SlidingWindowOptions = {
+    alwaysOnOptions: SlidingWindowOptions = {
         width: 88,
         height: 24,
         visualBoundaryWidth: Game.display.renderWidth
     }
 
-    detailedInfo = new TerrainDetailWindow(this.options);
-    commanderInfo = new COWindow(this.options, 0);
-    commander2Info = new COWindow(this.options, 1);
-    commander3Info = new COWindow(this.options, 2);
-    commander4Info = new COWindow(this.options, 3);
-    unitInfo = new UnitWindow(this.options);
-    terrainInfo = new TerrainWindow(this.options);
+    notAlwaysOnOptions: SlidingWindowOptions = {
+        width: 88,
+        height: 24,
+        show: false,
+        visualBoundaryWidth: Game.display.renderWidth
+    }
+
+    detailedInfo = new TerrainDetailWindow(this.notAlwaysOnOptions);
+    commanderInfo = new COWindow(this.alwaysOnOptions, 0);
+    commander2Info = new COWindow(this.notAlwaysOnOptions, 1);
+    commander3Info = new COWindow(this.notAlwaysOnOptions, 2);
+    commander4Info = new COWindow(this.notAlwaysOnOptions, 3);
+    unitInfo = new UnitWindow(this.alwaysOnOptions);
+    terrainInfo = new TerrainWindow(this.alwaysOnOptions);
 
     constructor() {
         // Apply mask to screen-wipeable ui elements
@@ -57,42 +64,51 @@ export class InfoWindowSystem {
         this.commander2Info.displayContainer.y = 33;
         this.commander3Info.displayContainer.y = 63;
         this.commander4Info.displayContainer.y = 93;
-        // TODO Add the slide-in other CO windows
         this.unitInfo.displayContainer.y = 142;
         this.terrainInfo.displayContainer.y = 167;
+
 
         // Add independent updater to ticker
         Game.scene.ticker.add(this.update, this);
     }
 
     update() {
-        let show = false;
+        let showDetailWindow = false;
         let showCOwindows = false;
-        let showOnLeft = true;
+        let showWindowsOnLeft = true;
 
+        // Set flags
         if (this.gp.button.leftTrigger.down)
-            show = true;
+            showDetailWindow = true;
         if (this.gp.button.leftBumper.down)
             showCOwindows = true;
-        if (this.cursor.transform.x < (Game.display.renderWidth / 2 + this.camera.x))
-            showOnLeft = false;
 
-        this.terrainInfo.showOnLeftSide = showOnLeft;
-        this.unitInfo.showOnLeftSide = showOnLeft;
-        this.commanderInfo.showOnLeftSide = showOnLeft;
-        this.commander2Info.showOnLeftSide = showOnLeft;
-        this.commander3Info.showOnLeftSide = showOnLeft;
-        this.commander4Info.showOnLeftSide = showOnLeft;
-        this.detailedInfo.showOnLeftSide = showOnLeft;
+        // Set the window side flag — This block displaces the
+        // trigger lines depending on which side the windows are already on.
+        let tileSize = Game.display.standardLength;
+        let triggerLine = Math.floor(this.camera.center.x / tileSize);
+        triggerLine += (this.terrainInfo.showOnLeftSide) ? -3 : 2;
+        showWindowsOnLeft = (this.cursor.pos.x > triggerLine);
 
-        this.detailedInfo.show = show;
+        // Tell each window which side to be on.
+        this.terrainInfo.showOnLeftSide = showWindowsOnLeft;
+        this.unitInfo.showOnLeftSide = showWindowsOnLeft;
+        this.commanderInfo.showOnLeftSide = showWindowsOnLeft;
+        this.commander2Info.showOnLeftSide = showWindowsOnLeft;
+        this.commander3Info.showOnLeftSide = showWindowsOnLeft;
+        this.commander4Info.showOnLeftSide = showWindowsOnLeft;
+        this.detailedInfo.showOnLeftSide = showWindowsOnLeft;
 
+        // Show the detail window
+        this.detailedInfo.show = showDetailWindow;
+
+        // Increment CO Window slider (staggers their reveal)
         this.commandersSlider.value += (showCOwindows) ? 0.2 : -0.2;
         this.commander2Info.show = (this.commandersSlider.value > 0);
         this.commander3Info.show = (this.commandersSlider.value > 0.4);
         this.commander4Info.show = (this.commandersSlider.value == 1);
 
-        // Update tile info
+        // Update tile info unless already inspected.
         if (this.terrainInfo.refreshable) {
             if (this.cursor.pos.x != this.lastTileInspected.x
                 || this.cursor.pos.y != this.lastTileInspected.y) {

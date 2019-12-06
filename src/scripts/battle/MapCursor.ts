@@ -198,8 +198,8 @@ export class MapCursor {
 
         // Continue only if this new position *is* a new position.
         if (this.pos.x != newPos.x || this.pos.y != newPos.y) {
-            this.lastPos.x = this.pos.x;
-            this.lastPos.y = this.pos.y;
+            this.lastPos.x = this.transform.x / 16; // Use the transform in case we're
+            this.lastPos.y = this.transform.y / 16; // interrupting active movement.
 
             this.pos.x = newPos.x;
             this.pos.y = newPos.y;
