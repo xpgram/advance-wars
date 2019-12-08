@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import * as PixiFilters from "pixi-filters";
 import { LowResTransform } from "../LowResTransform";
 import { UnitClass, MoveType, Faction } from "./EnumTypes";
 import { NeighborMatrix } from "../NeighborMatrix";
@@ -124,6 +125,9 @@ export abstract class TerrainObject {
     get value(): number { return 0; }
     set value(n) { }
 
+    /** Reference to a flat-color, tintable square underlay. */
+    private tintable!: PIXI.Graphics;
+
     // Left blank so that map can create an accessor to the above constants without starting
     // the arduous process of building a graphical object.
     constructor() { }
@@ -132,6 +136,16 @@ export abstract class TerrainObject {
     init(neighbors: NeighborMatrix<TerrainObject>, pos: Point3D) {
         this.layers = [];
         this.orient(neighbors); // Allows subclasses to populate the layers list.
+
+        // Create a flat square beneath all other graphical constructs that can be tinted.
+        this.tintable = new PIXI.Graphics();
+        this.tintable.beginFill(0xFFFFFF);
+        this.tintable.drawRect(0,0,16,16);
+        this.tintable.endFill();
+        this.tintable.alpha = 0.2;
+        this.tintable.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+        this.tintable.visible = false;
+        this.layers.unshift({object: this.tintable, name: 'bottom'});
 
         // Add populated layers to display and this.transform
         let graphicsObjects: TransformableList = new TransformableList();
@@ -163,5 +177,44 @@ export abstract class TerrainObject {
      * tile's graphical limitations. */
     legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
         return true;    // Override if you want to be more specific.
+    }
+
+    private _tint: number | null = 0xFFFFFF;
+    /**  */
+    get tint() { return this._tint; }
+    set tint(color: number | null) {
+        let filter = new PixiFilters.AdjustmentFilter({
+            red: (color) ? (color >> 16 & 0xFF)/255 : 1,
+            green: (color) ? (color >> 8 & 0xFF)/255 : 1,
+            blue: (color) ? (color & 0xFF)/255 : 1
+        });
+
+        this._tint = color;
+        this.layers.forEach( layer => {
+            if (color != null) {
+                this.tintable.visible = true;
+                if (layer.object.isSprite)
+                    (layer.object as PIXI.Sprite).shader = filter;
+                else
+                    for (let child of layer.object.children)
+                        (child as PIXI.Sprite).shader = filter;
+                // TODO Shader does nothing.
+            }
+            else {
+                this.tintable.visible = false;
+                layer.object.filters = [];
+            }
+        });
+
+        // FIXME Don't use filters.
+        // This works, technically. It looks cool, anyway.
+        // But, it's entirely too slow.
+        // Here's what I should try instead:
+        // Draw a white box: -1, -8, 18, 24
+        // Set whiteBox.mask = this.toplayer
+        // Set visible = tint color != FFFFFF
+        // Any tint applied to white is like drawing that tint directly.
+        // Set alpha to .4
+        // Blend mode probably just to normal
     }
 }

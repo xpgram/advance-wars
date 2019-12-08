@@ -431,4 +431,10 @@ export abstract class UnitObject {
         this.gas = this.maxGas;
         this.ammo = this.maxAmmo;
     }
+
+    get visible() { return this.sprite.visible; }
+    set visible(b: boolean) {
+        this.sprite.visible = b;
+        this.uiBox.visible = b;
+    }
 }

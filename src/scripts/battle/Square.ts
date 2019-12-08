@@ -1,7 +1,10 @@
+import * as PIXI from "pixi.js";
+import * as PixiFilters from "pixi-filters";
 import { TerrainObject } from "./TerrainObject";
 import { UnitObject } from "./UnitObject";
 import { Terrain } from "./Terrain";
 import { Point } from "../CommonTypes";
+import { Game } from "../..";
 
 /**
  * Used by Map only. Maybe.
@@ -14,6 +17,7 @@ import { Point } from "../CommonTypes";
 export class Square {
     terrain: TerrainObject;
     unit: UnitObject | null = null;
+    panel: PIXI.Container | null = null;
 
     /** A 64-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
@@ -59,6 +63,7 @@ export class Square {
         return (this.displayInfo >> shift & mask);
     }
 
+    // TODO Use Common.writeBits() instead
     /**
      * Writes bits to the object's information number. All JS numbers are 64-bit.
      * @param length The length of the bit-mask.
@@ -75,6 +80,7 @@ export class Square {
     /** Whether this tile is reachable by a traveling unit. */
     get moveable(): boolean {
         return 1 == this.displayInfoGet(Square.boolLength, Square.moveableShift);
+        //reconfigureHighlight()    ← Determines terrain tint / whether to show unit, etc.
     }
     /** Whether this tile is attackable by a unit. */
     get attackable(): boolean {
@@ -146,12 +152,71 @@ export class Square {
     }
 
     updateHighlight(): void {
-        // Maintain a sprite object at this position (the terrain.transform, probably)
-        // Highlight precedence: blue > red > maroon > grey
-        // Dark grey, Fog of War is separate and underneath the above colors.
+        let colors = {
+            natural: null,
+            blue: 0x8888FF,
+            red: 0xFFAAAA,
+            maroon: 0xCC88AA,
+            grey: 0xBBBBBB,
+            darkgrey: 0x888888
+        }
 
-        // If blue, red, maroon and grey are all false, destroy (null?) the sprite
-        // If seeable is true, destroy (null?) the FoW sprite
+        if (this.unit)
+            this.unit.visible = true;
+
+        if (this.hidden) {
+            // this.terrain.tint = colors.darkgrey;
+            if (this.panel === null) {
+                this.panel = this.generateWhiteTexture(colors.blue);
+                this.panel.x = this.x * 16 - 16;
+                this.panel.y = this.y * 16 - 32;
+                Game.stage.addChild(this.panel);
+            }
+            if (this.unit)
+                this.unit.visible = false;
+        }
+
+        else if (this.moveable)
+            this.terrain.tint = colors.blue;
+        else if (this.attackable)
+            this.terrain.tint = colors.red;
+        else if (this.dangerous)
+            this.terrain.tint = colors.maroon;
+        else if (this.COEffected)
+            this.terrain.tint = colors.grey;
+        else if (this.terrain)
+            this.terrain.tint = colors.natural;
+
+        // TODO Improve
+        // So, neat as this is, this isn't the solution to my problem.
+        // In Pixi, sprites are tinted white all the time, this means any other color is necessarily darker than natural,
+        // which particularly means I can't tint blue without tinting dark blue.
+        // For bright blues, I'm going to need to create a 16x20 shape, mask it with the terrain's shape... they're on different layers.
+        // I may have to do that twice. Ugh.
+        // Anyway, shape (color) → masked → overlay (add, probably)
+        // 
+        // I should probably tinker with these ideas in a Pixi demo before trying to apply them.
+        //
+        // Also, hidden buildings need to be the white variant.
+        // Also-also, sea tiles are technically empty, so they don't darken much when tinting (deep sea doesn't darken at all.)
+    }
+
+    generateWhiteTexture(color: number) {
+        let s = new PIXI.Sprite();
+        s.texture = this.terrain.preview.texture;
+        let mask = new PIXI.Sprite();
+        mask.addChild(s);
+
+        let filter = new PixiFilters.AdjustmentFilter({
+            red: (color >> 16 & 0xFF) / 127,
+            green: (color >> 8 & 0xFF) / 127,
+            blue: (color & 0xFF) / 127
+        });
+        s.filters = [filter];
+        s.cacheAsBitmap = true;
+
+        mask.alpha = 0.4;
+        return mask;
     }
 
     occupiable(unit: UnitObject): boolean {
