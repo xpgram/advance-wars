@@ -205,15 +205,39 @@ export class MapCursor {
             this.pos.y = newPos.y;
 
             // Reset the slide animator
-            this.slideAnimSlider.value = this.slideAnimSlider.min;
+            this.slideAnimSlider.setToMin();
         }
     }
 
     /** Moves this cursor's position directly (non-relatively) to some other position on the game map and graphically in the game world. */
     moveTo(place: Point) {
-        // This is meant to allow 'teleportion' over long distances (like by a click.)
-        // It should still animate if the new position is adjacent to the current one,
-        // but other wise it should zwip! hrrrmm—shooooo! Drkakaka keeeerrrsshh pop
-        // pop in to the new location.
+        place = {
+            x: Common.confine(place.x, 0, this.mapRef.width - 1),
+            y: Common.confine(place.y, 0, this.mapRef.height - 1)
+        }
+        let relativePos = {x: place.x - this.pos.x, y: place.y - this.pos.y};
+
+        // Using pythagorean theorem
+        let distance = Math.sqrt(Math.pow(relativePos.x, 2) + Math.pow(relativePos.y, 2));
+
+        // If we are already placed at this location.
+        if (distance == 0)
+            return;
+
+        // If we are close enough to animate
+        else if (distance < 2)
+            this.move(relativePos);
+
+        // We are far enough to teleport.
+        else {
+            this.lastPos.x = this.transform.x / 16;
+            this.lastPos.y = this.transform.y / 16;
+            this.slideAnimSlider.setToMax();
+
+            this.pos.x = place.x;
+            this.pos.y = place.y;
+        }
+
+        // TODO This *should* definitely be in move(), not here.
     }
 }

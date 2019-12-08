@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Game } from "../..";
 import { TerrainObject } from "./TerrainObject";
-import { UnitClass, Faction, MoveType } from "./EnumTypes";
+import { UnitClass, Faction } from "./EnumTypes";
 import { Common } from "../CommonUtils";
 import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../NeighborMatrix";

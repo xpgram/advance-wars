@@ -90,8 +90,8 @@ export class SlidingWindow {
         // Increment sliders
         let holdToOpenDir = (this.show) ? this.slideSpeed : -this.slideSpeed;
         let sideChangeDir = (this.showOnLeftSide) ? -this.slideSpeed : this.slideSpeed;
-        this.holdToOpenSlider.value += holdToOpenDir;
-        this.sideChangeSlider.value += sideChangeDir;
+        this.holdToOpenSlider.track += holdToOpenDir;
+        this.sideChangeSlider.track += sideChangeDir;
         this.positionWindow();
     }
 
@@ -113,7 +113,7 @@ export class SlidingWindow {
 
     /** Instantly positions the window wherever it is desired to be. */
     private skipSlideAnimation() {
-        this.holdToOpenSlider.value = (this.show) ? this.holdToOpenSlider.max : this.holdToOpenSlider.min;
-        this.sideChangeSlider.value = (this.showOnLeftSide)? this.sideChangeSlider.min : this.sideChangeSlider.max;
+        this.holdToOpenSlider.track = (this.show) ? this.holdToOpenSlider.max : this.holdToOpenSlider.min;
+        this.sideChangeSlider.track = (this.showOnLeftSide)? this.sideChangeSlider.min : this.sideChangeSlider.max;
     }
 }

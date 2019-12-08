@@ -410,8 +410,8 @@ export abstract class UnitObject {
         let dir = (this.transparent) ? 1 : -1;
         this.transparencySlider.increment(dir);
 
-        this.sprite.alpha = 1 - this.transparencySlider.shapedValue;
-        this.uiBox.alpha = 1 - this.transparencySlider.shapedValue * 1.15;
+        this.sprite.alpha = 1 - this.transparencySlider.value;
+        this.uiBox.alpha = 1 - this.transparencySlider.value * 1.15;
     }
 
     /** Request the unit to make progress toward capturing the building they are located over. */

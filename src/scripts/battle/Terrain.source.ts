@@ -2,7 +2,7 @@ import { Game } from "../..";
 import { TerrainObject } from "./TerrainObject";
 import { UnitClass, Faction, MoveType } from "./EnumTypes";
 import { Common } from "../CommonUtils";
-import { TerrainMethods } from "./TerrainHelpers";
+import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../NeighborMatrix";
 
 /**

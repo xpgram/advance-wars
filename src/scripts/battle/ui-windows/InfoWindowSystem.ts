@@ -103,7 +103,7 @@ export class InfoWindowSystem {
         this.detailedInfo.show = showDetailWindow;
 
         // Increment CO Window slider (staggers their reveal)
-        this.commandersSlider.value += (showCOwindows) ? 0.2 : -0.2;
+        this.commandersSlider.track += (showCOwindows) ? 0.2 : -0.2;
         this.commander2Info.show = (this.commandersSlider.value > 0);
         this.commander3Info.show = (this.commandersSlider.value > 0.4);
         this.commander4Info.show = (this.commandersSlider.value == 1);

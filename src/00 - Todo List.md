@@ -8,13 +8,6 @@
 - [ ] Refactor unit sprites
     - [ ] (On a different sheet) All have an 'exhibit' image matching the dimensions of landscape images for terrain.
 
- - [ ] UI Window Update
-    - [ ] One 24 px, 1 px gap, one 8 px
-    - [ ] The 'main' window switches with the x-button to either unit or terrain, just like Detail.
-    - [ ] To transition, there is a 2–3 frame wipe effect
-        - [ ] First wipe: 8 px bar moves down, maintaining 1px gaps above and below it, revealing the other window.
-            - [ ] For terrains with visual spillover, spillover is masked away *only* as the transition is happening.
-        - [ ] Second wipe (concurrent): A 1px gap moves across the 8px bar horizontally, revealing the essential details of whichever subject isn't being focused on.
-    - [ ] The switching variation of this window set only exists when both terrain and unit need to be displayed. Otherwise, we default to the normal 24px terrain window.
-        - [ ] If units are the focused subject: moving between an empty tile and an occupied one should instantly (no anim) shrink the terrain window to 8px and display the unit window above it.
-        - [ ] If terrain is the focused subject: the 8px bar showing unit essential details should pop in.
+- [ ] Set up turn-by-turn state-machine in Battlescene
+- [ ] Clean up Window UI classes
+- [ ] Finish UnitObject / Unit classes

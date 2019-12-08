@@ -33,7 +33,7 @@ export class BattleScene extends Scene {
     unitSwap: UnitObject | null = null;
 
     cameraZoomSlider = new Slider({
-        value: 'max',
+        track: 'max',
         granularity: 0.1
     });
 
@@ -214,11 +214,11 @@ export class BattleScene extends Scene {
         }
 
         if (this.gamepad.button.Y.pressed) {
-            this.cameraZoomSlider.autoIncrementFactor = -this.cameraZoomSlider.autoIncrementFactor;
+            this.cameraZoomSlider.incrementFactor = -this.cameraZoomSlider.incrementFactor;
         }
         // Hardcoded constants are just different screen widths.
-        this.camera.zoom = (320/448) + ((1 - 320/448) * this.cameraZoomSlider.shapedValue);
-        this.cameraZoomSlider.autoIncrement();
+        this.camera.zoom = (320/448) + ((1 - 320/448) * this.cameraZoomSlider.value);
+        this.cameraZoomSlider.increment();
 
         // Stage centering when stage is too smol
         // This, uh... don't look at it.
