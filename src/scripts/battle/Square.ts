@@ -161,7 +161,8 @@ export class Square {
 
         let colors = {
             natural: {color: 0xFFFFFF, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
-            blue: {color: 0x55CCCC, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
+            //blue: {color: 0x88FFFF, alpha: 0.8, mode: PIXI.BLEND_MODES.MULTIPLY},
+            blue: {color: 0x44CCDD, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
             red: {color: 0xFF6666, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
             maroon: {color: 0x883388, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
             grey: {color: 0x444444, alpha: 0.5, mode: PIXI.BLEND_MODES.MULTIPLY}, // CO Affected, should be animated

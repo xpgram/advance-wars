@@ -208,8 +208,7 @@ export abstract class TerrainObject {
         let filter = new PixiFilters.AdjustmentFilter({
             red: 10.0,
             green: 10.0,
-            blue: 10.0,
-            alpha: 1.25
+            blue: 10.0
         });
         container.filters = [filter];
 
