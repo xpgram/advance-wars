@@ -5,6 +5,8 @@ import { UnitObject } from "./UnitObject";
 import { Terrain } from "./Terrain";
 import { Point } from "../CommonTypes";
 import { Game } from "../..";
+import { MapLayers } from "./MapLayers";
+import { TerrainBuildingObject } from "./TerrainBuildingObject";
 
 /**
  * Used by Map only. Maybe.
@@ -17,7 +19,6 @@ import { Game } from "../..";
 export class Square {
     terrain: TerrainObject;
     unit: UnitObject | null = null;
-    panel: PIXI.Container | null = null;
 
     /** A 64-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
@@ -152,71 +153,47 @@ export class Square {
     }
 
     updateHighlight(): void {
+        if (!this.terrain)      // TODO Remove this
+            return;
+
+        let hidePanel = this.terrain.hiddenOverlay;
+        let glassPanel = this.terrain.glassOverlay;
+
         let colors = {
-            natural: null,
-            blue: 0x8888FF,
-            red: 0xFFAAAA,
-            maroon: 0xCC88AA,
-            grey: 0xBBBBBB,
-            darkgrey: 0x888888
+            natural: {color: 0xFFFFFF, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
+            blue: {color: 0x55CCCC, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
+            red: {color: 0xFF6666, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
+            maroon: {color: 0x883388, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
+            grey: {color: 0x444444, alpha: 0.5, mode: PIXI.BLEND_MODES.MULTIPLY}, // CO Affected, should be animated
+            darkgrey: {color: 0x000000, alpha: 0.4, mode: PIXI.BLEND_MODES.MULTIPLY}
+        }
+        let setColor = (panel: PIXI.Sprite, options: {color:number, alpha:number, mode:number}) => {
+            panel.tint = options.color;
+            panel.alpha = options.alpha;
+            panel.blendMode = options.mode;
         }
 
+        // Hidden tiles in Fog of War
+        hidePanel.visible = this.hidden;
+        setColor(hidePanel, colors.darkgrey);
+
+        if (this.terrain instanceof TerrainBuildingObject)
+            this.terrain.hidden = this.hidden;
         if (this.unit)
-            this.unit.visible = true;
+            this.unit.visible = !this.hidden;
 
-        if (this.hidden) {
-            // this.terrain.tint = colors.darkgrey;
-            if (this.panel === null) {
-                this.panel = this.generateWhiteTexture(colors.blue);
-                this.panel.x = this.x * 16 - 16;
-                this.panel.y = this.y * 16 - 32;
-                Game.stage.addChild(this.panel);
-            }
-            if (this.unit)
-                this.unit.visible = false;
-        }
-
-        else if (this.moveable)
-            this.terrain.tint = colors.blue;
+        // Setup movement, attackable, etc. glass overlay.
+        glassPanel.visible = true;
+        if (this.moveable)
+            setColor(glassPanel, colors.blue);
         else if (this.attackable)
-            this.terrain.tint = colors.red;
+            setColor(glassPanel, colors.red);
         else if (this.dangerous)
-            this.terrain.tint = colors.maroon;
+            setColor(glassPanel, colors.maroon);
         else if (this.COEffected)
-            this.terrain.tint = colors.grey;
-        else if (this.terrain)
-            this.terrain.tint = colors.natural;
-
-        // TODO Improve
-        // So, neat as this is, this isn't the solution to my problem.
-        // In Pixi, sprites are tinted white all the time, this means any other color is necessarily darker than natural,
-        // which particularly means I can't tint blue without tinting dark blue.
-        // For bright blues, I'm going to need to create a 16x20 shape, mask it with the terrain's shape... they're on different layers.
-        // I may have to do that twice. Ugh.
-        // Anyway, shape (color) → masked → overlay (add, probably)
-        // 
-        // I should probably tinker with these ideas in a Pixi demo before trying to apply them.
-        //
-        // Also, hidden buildings need to be the white variant.
-        // Also-also, sea tiles are technically empty, so they don't darken much when tinting (deep sea doesn't darken at all.)
-    }
-
-    generateWhiteTexture(color: number) {
-        let s = new PIXI.Sprite();
-        s.texture = this.terrain.preview.texture;
-        let mask = new PIXI.Sprite();
-        mask.addChild(s);
-
-        let filter = new PixiFilters.AdjustmentFilter({
-            red: (color >> 16 & 0xFF) / 127,
-            green: (color >> 8 & 0xFF) / 127,
-            blue: (color & 0xFF) / 127
-        });
-        s.filters = [filter];
-        s.cacheAsBitmap = true;
-
-        mask.alpha = 0.4;
-        return mask;
+            setColor(glassPanel, colors.grey);
+        else
+            glassPanel.visible = false;
     }
 
     occupiable(unit: UnitObject): boolean {

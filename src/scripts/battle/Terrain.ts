@@ -5,6 +5,7 @@ import { UnitClass, Faction } from "./EnumTypes";
 import { Common } from "../CommonUtils";
 import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../NeighborMatrix";
+import { TerrainBuildingObject } from "./TerrainBuildingObject";
 
 /**
  * Auto-generated.
@@ -200,7 +201,7 @@ export const Terrain = {
             // Mountain
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Mountain);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`mountain-${variant}.png`]);
-            this.layers.push({object: sprite, name: 'top'});
+            this.layers.push({object: sprite, name: 'top', maskShape: true});
 
             // Mountain Shadow
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`shadow.png`]);
@@ -558,7 +559,7 @@ export const Terrain = {
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, MistTile);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`mist-${variant}.png`]);
             sprite.alpha = 0.75;
-            this.layers.push({object: sprite, name: 'top'});
+            this.layers.push({object: sprite, name: 'top', maskShape: true});
         }
     },
 
@@ -715,7 +716,7 @@ export const Terrain = {
             anim.animationSpeed = 0.2;
             if (variant != "0000")
                 anim.play();
-            this.layers.push({object: anim, name: 'top'});
+            this.layers.push({object: anim, name: 'top', maskShape: true});
         }
     },
 
@@ -861,11 +862,9 @@ export const Terrain = {
         }
     },
 
-    HQ: class HQTile extends TerrainObject {
+    HQ: class HQTile extends TerrainBuildingObject {
         get type() { return HQTile; }
         get serial() { return 18; }
-
-        get building() { return true; }
 
         get name() { return "HQ"; }
         get shortName() { return "HQ"; }
@@ -875,7 +874,9 @@ export const Terrain = {
         get repairType() { return UnitClass.Ground; }
         get conceals() { return true; }
         get vision() { return 2; }
-        faction: Faction = Faction.Red;
+
+        // Nullify color-whiting when hidden
+        set hidden(b: boolean) { }
 
         movementCost = {
             infantry: 1,
@@ -890,22 +891,23 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('hq', this.faction);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*4) + 2;
         }
     },
 
-    City: class CityTile extends TerrainObject {
+    City: class CityTile extends TerrainBuildingObject {
         get type() { return CityTile; }
         get serial() { return 19; }
-        
-        get building() { return true; }
 
         get name() { return "City"; }
         get shortName() { return "City"; }
@@ -915,7 +917,6 @@ export const Terrain = {
         get repairType() { return UnitClass.Ground; }
         get conceals() { return true; }
         get vision() { return 2; }
-        faction: Faction = Faction.Neutral;
 
         movementCost = {
             infantry: 1,
@@ -930,22 +931,23 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('city', this.faction);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
     },
 
-    ComTower: class ComTowerTile extends TerrainObject {
+    ComTower: class ComTowerTile extends TerrainBuildingObject {
         get type() { return ComTowerTile; }
         get serial() { return 20; }
-        
-        get building() { return true; }
 
         get name() { return "Com Tower"; }
         get shortName() { return "Com T"; }
@@ -954,7 +956,6 @@ export const Terrain = {
         get generatesIncome() { return true; }
         get conceals() { return true; }
         get vision() { return 2; }
-        faction: Faction = Faction.Neutral;
 
         movementCost = {
             infantry: 1,
@@ -969,22 +970,23 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('comtower', this.faction);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
     },
 
-    Radar: class RadarTile extends TerrainObject {
+    Radar: class RadarTile extends TerrainBuildingObject {
         get type() { return RadarTile; }
         get serial() { return 21; }
-        
-        get building() { return true; }
 
         get name() { return "Radar"; }
         get shortName() { return "Radar"; }
@@ -993,7 +995,6 @@ export const Terrain = {
         get generatesIncome() { return true; }
         get conceals() { return true; }
         get vision() { return 5; }
-        faction: Faction = Faction.Neutral;
 
         movementCost = {
             infantry: 1,
@@ -1008,14 +1009,17 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('radar', this.faction);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
     },
 
@@ -1062,15 +1066,13 @@ export const Terrain = {
             // Silo
             let which = (this.value == 1) ? 1 : 2;  // Unused : Used
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`silo-${which}.png`]);
-            this.layers.push({object: sprite, name: 'top'});
+            this.layers.push({object: sprite, name: 'top', maskShape: true});
         }
     },
 
-    Factory: class FactoryTile extends TerrainObject {
+    Factory: class FactoryTile extends TerrainBuildingObject {
         get type() { return FactoryTile; }
         get serial() { return 23; }
-        
-        get building() { return true; }
 
         get name() { return "Factory"; }
         get shortName() { return "Fctry"; }
@@ -1080,7 +1082,6 @@ export const Terrain = {
         get repairType() { return UnitClass.Ground; }
         get conceals() { return true; }
         get vision() { return 2; }
-        faction: Faction = Faction.Neutral;
 
         movementCost = {
             infantry: 1,
@@ -1095,22 +1096,23 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('factory', this.faction);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
     },
 
-    Airport: class AirportTile extends TerrainObject {
+    Airport: class AirportTile extends TerrainBuildingObject {
         get type() { return AirportTile; }
         get serial() { return 24; }
-        
-        get building() { return true; }
 
         get name() { return "Airport"; }
         get shortName() { return "Airport"; }
@@ -1120,7 +1122,6 @@ export const Terrain = {
         get repairType() { return UnitClass.Air; }
         get conceals() { return true; }
         get vision() { return 2; }
-        faction: Faction = Faction.Neutral;
 
         movementCost = {
             infantry: 1,
@@ -1135,23 +1136,24 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('airport', this.faction);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
     },
 
-    Port: class PortTile extends TerrainObject {
+    Port: class PortTile extends TerrainBuildingObject {
         get type() { return PortTile; }
         get serial() { return 25; }
         get landTile() { return false; }
-        
-        get building() { return true; }
 
         get name() { return "Port"; }
         get shortName() { return "Port"; }
@@ -1161,7 +1163,6 @@ export const Terrain = {
         get repairType() { return UnitClass.Naval; }
         get conceals() { return true; }
         get vision() { return 2; }
-        faction: Faction = Faction.Neutral;
 
         movementCost = {
             infantry: 1,
@@ -1176,23 +1177,24 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('port', this.faction);
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
     },
 
-    TempAirpt: class TempAirptTile extends TerrainObject {
+    TempAirpt: class TempAirptTile extends TerrainBuildingObject {
         get type() { return TempAirptTile; }
         get serial() { return 26; }
-        
-        get building() { return true; }
 
         get name() { return "Temp Airpt"; }
         get shortName() { return "T Air"; }
@@ -1201,7 +1203,6 @@ export const Terrain = {
         get repairType() { return UnitClass.Air; }
         get conceals() { return true; }
         get vision() { return 2; }
-        faction: Faction = Faction.Neutral;
 
         movementCost = {
             infantry: 1,
@@ -1216,23 +1217,24 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('tempairpt', this.faction);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // Temp - Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
     },
 
-    TempPort: class TempPortTile extends TerrainObject {
+    TempPort: class TempPortTile extends TerrainBuildingObject {
         get type() { return TempPortTile; }
         get serial() { return 27; }
         get landTile() { return false; }
-        
-        get building() { return true; }
 
         get name() { return "Temp Port"; }
         get shortName() { return "T Port"; }
@@ -1241,7 +1243,6 @@ export const Terrain = {
         get repairType() { return UnitClass.Naval; }
         get conceals() { return true; }
         get vision() { return 2; }
-        faction: Faction = Faction.Neutral;
 
         movementCost = {
             infantry: 1,
@@ -1256,15 +1257,18 @@ export const Terrain = {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            // Temp - Chooses a random color
-            this.faction = Math.floor(Math.random()*5) + 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let layers = TerrainMethods.createBuildingLayers('tempport', this.faction);
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
+            this.buildingSprite = layers.top;
+
             this.layers.push({object: layers.bottom, name: 'bottom'});
-            this.layers.push({object: layers.top, name: 'top'});
+            this.layers.push({object: layers.top, name: 'top', maskShape: true});
+
+            // TODO Remove: Chooses a random color
+            this.faction = Math.floor(Math.random()*5) + 1;
         }
     },
     //end

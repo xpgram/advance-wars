@@ -8,6 +8,7 @@ import { TransformableList } from "../TransformableList";
 import { Point, Point3D } from "../CommonTypes";
 import { Terrain } from "./Terrain";
 import { TerrainMethods } from "./Terrain.helpers";
+import { Game } from "../..";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -22,13 +23,25 @@ export interface TerrainType {
  */
 export abstract class TerrainObject {
     protected static transform: LowResTransform = new LowResTransform();
-    protected layers: {object: PIXI.Container, name: string}[] = [];
+    protected layers: {object: PIXI.Container, name: string, maskShape?: boolean}[] = [];
 
     /** A reference to this terrain's constructing type. Useful for comparisons. */
     abstract get type(): TerrainType;
 
     /** This terrain's numerical serialization. */
     abstract get serial(): number;
+
+    private _hiddenOverlay: PIXI.Sprite = new PIXI.Sprite();    // Blank by default
+    /** Returns a Sprite white-copy of this terrain's shape for hiding tiles in FoW. */
+    get hiddenOverlay(): PIXI.Sprite {
+        return this._hiddenOverlay;
+    }
+
+    private _glassOverlay: PIXI.Sprite = new PIXI.Sprite();     // Blank by default
+    /** Returns a Sprite white-copy of this terrain's shape for highlighting tiles. */
+    get glassOverlay(): PIXI.Sprite {
+        return this._glassOverlay;
+    }
 
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
     get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
@@ -125,9 +138,6 @@ export abstract class TerrainObject {
     get value(): number { return 0; }
     set value(n) { }
 
-    /** Reference to a flat-color, tintable square underlay. */
-    private tintable!: PIXI.Graphics;
-
     // Left blank so that map can create an accessor to the above constants without starting
     // the arduous process of building a graphical object.
     constructor() { }
@@ -137,15 +147,15 @@ export abstract class TerrainObject {
         this.layers = [];
         this.orient(neighbors); // Allows subclasses to populate the layers list.
 
-        // Create a flat square beneath all other graphical constructs that can be tinted.
-        this.tintable = new PIXI.Graphics();
-        this.tintable.beginFill(0xFFFFFF);
-        this.tintable.drawRect(0,0,16,16);
-        this.tintable.endFill();
-        this.tintable.alpha = 0.2;
-        this.tintable.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-        this.tintable.visible = false;
-        this.layers.unshift({object: this.tintable, name: 'bottom'});
+        // Get this tile's white mask, apply it to both overlay panels
+        this._hiddenOverlay = this.constructWhiteMask();
+        this._hiddenOverlay.visible = false;
+        this.layers.push({object: this._hiddenOverlay, name: 'top'});
+
+        this._glassOverlay = new PIXI.Sprite( this._hiddenOverlay.texture );
+        this._glassOverlay.anchor.copyFrom(this._hiddenOverlay.anchor);
+        this._glassOverlay.visible = false;
+        this.layers.push({object: this._glassOverlay, name: 'top'});
 
         // Add populated layers to display and this.transform
         let graphicsObjects: TransformableList = new TransformableList();
@@ -159,6 +169,10 @@ export abstract class TerrainObject {
         TerrainObject.transform.pos3D = pos;
         TerrainObject.transform.object = graphicsObjects;
         TerrainObject.transform.object = null;
+
+        // Overlay z-index correction
+        this._hiddenOverlay.zIndex += 11;
+        this._glassOverlay.zIndex += 11;
     }
 
     /** Instructs the object to disassociate all materials, readying itself for
@@ -170,6 +184,59 @@ export abstract class TerrainObject {
         });
     }
 
+    /** Generates a white-mask from the graphical objects in this.layers. */
+    private constructWhiteMask(): PIXI.Sprite {
+        let container = new PIXI.Container();
+
+        // Square base
+        let tileSize = Game.display.standardLength;
+        let base = new PIXI.Graphics();
+        base.beginFill(0xFFFFFF);
+        base.drawRect(tileSize,tileSize,tileSize,tileSize); // Draw 16x16 at (16,16)
+        base.endFill();
+        container.addChild(base);
+
+        // Any other shapes
+        this.layers.forEach( layer => {
+            if (layer.maskShape) {
+                layer.object.x = layer.object.y = tileSize;
+                container.addChild(layer.object);
+            }
+        });
+
+        // White-out colors in shape sprites
+        let filter = new PixiFilters.AdjustmentFilter({
+            red: 10.0,
+            green: 10.0,
+            blue: 10.0,
+            alpha: 1.25
+        });
+        container.filters = [filter];
+
+        // Texture generation
+        let tex = Game.app.renderer.generateTexture(container, PIXI.SCALE_MODES.NEAREST, 1,
+            new PIXI.Rectangle(0,0,32,32)); // Area and anchor here are to correct for silliness
+        let spr = new PIXI.Sprite(tex);
+        spr.anchor.x = spr.anchor.y = 0.5;  // when 16x32 sprites are in use.
+
+        return spr;
+    }
+
+    /** Returns a 0–4 index for a building color frame, given a faction type. */
+    protected buildingColorFrameIndex(faction: Faction) {
+        if (faction == Faction.Red)
+            return 1;
+        if (faction == Faction.Blue)
+            return 2;
+        if (faction == Faction.Yellow)
+            return 3;
+        if (faction == Faction.Black)
+            return 4;
+        return 0;
+    }
+
+
+
     /** Builds the tile's graphical object based on its surrounding set of neighbors. */
     abstract orient(neighbors: NeighborMatrix<TerrainObject>): void;
 
@@ -177,44 +244,5 @@ export abstract class TerrainObject {
      * tile's graphical limitations. */
     legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
         return true;    // Override if you want to be more specific.
-    }
-
-    private _tint: number | null = 0xFFFFFF;
-    /**  */
-    get tint() { return this._tint; }
-    set tint(color: number | null) {
-        let filter = new PixiFilters.AdjustmentFilter({
-            red: (color) ? (color >> 16 & 0xFF)/255 : 1,
-            green: (color) ? (color >> 8 & 0xFF)/255 : 1,
-            blue: (color) ? (color & 0xFF)/255 : 1
-        });
-
-        this._tint = color;
-        this.layers.forEach( layer => {
-            if (color != null) {
-                this.tintable.visible = true;
-                if (layer.object.isSprite)
-                    (layer.object as PIXI.Sprite).shader = filter;
-                else
-                    for (let child of layer.object.children)
-                        (child as PIXI.Sprite).shader = filter;
-                // TODO Shader does nothing.
-            }
-            else {
-                this.tintable.visible = false;
-                layer.object.filters = [];
-            }
-        });
-
-        // FIXME Don't use filters.
-        // This works, technically. It looks cool, anyway.
-        // But, it's entirely too slow.
-        // Here's what I should try instead:
-        // Draw a white box: -1, -8, 18, 24
-        // Set whiteBox.mask = this.toplayer
-        // Set visible = tint color != FFFFFF
-        // Any tint applied to white is like drawing that tint directly.
-        // Set alpha to .4
-        // Blend mode probably just to normal
     }
 }

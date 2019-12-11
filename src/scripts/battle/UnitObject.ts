@@ -9,6 +9,7 @@ import { MapLayers } from "./MapLayers";
 import { Point } from "../CommonTypes";
 import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
+import { Map } from "./Map";
 
 /** An uninstantiated Unit class type. */
 export interface UnitType {
@@ -305,6 +306,25 @@ export abstract class UnitObject {
         this.rebuildStatusIcons();
     }
 
+    /** Whether this unit is capable of receiving commands. */
+    get orderable(): boolean {
+        let n = Common.readBits(this.conditionInfo, orderableBits.length, orderableBits.shift);
+        return n == 1;
+    }
+    set orderable(b: boolean) {
+        let n = Number(b);
+        this.conditionInfo = Common.writeBits(this.conditionInfo, n, orderableBits.length, orderableBits.shift);
+        // Visually indicate un-orderable-ness.
+        this.sprite.tint = (b) ? 0xFFFFFF : 0x888888;
+    }
+
+    /** Whether this unit's sprite should show up on the board. */
+    get visible() { return this.sprite.visible; }
+    set visible(b: boolean) {
+        this.sprite.visible = b;
+        this.uiBox.visible = b;
+    }
+
     /** The unit's x-coordinate on the game board. */
     private get x(): number {
         return Common.readBits(this.stateInfo, xCoordBits.length, xCoordBits.shift);
@@ -344,7 +364,7 @@ export abstract class UnitObject {
         UnitObject.transform.object = null;
 
         // Recalculate z-index
-        this.sprite.zIndex = (this.y*2 - this.x)*10 + 1;
+        this.sprite.zIndex = Map.calculateZIndex(point) + 12;
         this.uiBox.zIndex = -1; // Below the cursor, menus etc.
     }
 
@@ -430,11 +450,5 @@ export abstract class UnitObject {
     resupply() {
         this.gas = this.maxGas;
         this.ammo = this.maxAmmo;
-    }
-
-    get visible() { return this.sprite.visible; }
-    set visible(b: boolean) {
-        this.sprite.visible = b;
-        this.uiBox.visible = b;
     }
 }

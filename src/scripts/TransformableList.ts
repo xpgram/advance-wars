@@ -7,6 +7,7 @@ import { Transformable } from "./CommonTypes";
  */
 export class TransformableList {
     list: Transformable[] = [];
+    controlZIndex = true;
 
     push(obj: Transformable) {
         this.list.push(obj);

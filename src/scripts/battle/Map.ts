@@ -28,6 +28,11 @@ export class Map {
      * Should never be used directly unless you intend to deal with the border of blank terrain objects. */
     private board: NumericDictionary< NumericDictionary<Square> > = {};
 
+    /** Returns a z-index number based on the board-coordinates given. */
+    static calculateZIndex(point: Point) {
+        return (point.y*2 - point.x)*10;
+    }
+
     /** 
      * @param width The integer width of the board in tiles.
      * @param height The integer height of the board in tiles.
@@ -254,7 +259,7 @@ export class Map {
         for (let y = 0; y < this.height; y++) {
             let neighbors = this.neighborsAt({x:x,y:y});
             let pos = {x:x,y:y};
-            let worldPos = {x: x * tileSize, y: y * tileSize, z: (y*2 - x)*10};
+            let worldPos = {x: x * tileSize, y: y * tileSize, z: Map.calculateZIndex(pos)};
             this.squareAt(pos).terrain.init(neighbors, worldPos);
         }
 
