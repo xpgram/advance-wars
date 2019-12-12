@@ -9,6 +9,7 @@ import { Point, Point3D } from "../CommonTypes";
 import { Terrain } from "./Terrain";
 import { TerrainMethods } from "./Terrain.helpers";
 import { Game } from "../..";
+import { TerrainBuildingObject } from "./TerrainBuildingObject";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -46,15 +47,7 @@ export abstract class TerrainObject {
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
     get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
         let name = this.name.replace(' ', '').toLowerCase();
-        let sprite;
-        
-        if (this.building) {
-            sprite = new PIXI.Sprite(Terrain.sheet.textures['plain-0.png']);
-            sprite.addChild( TerrainMethods.getBuildingSprite(name, this.faction) );
-        } else {
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`${name}.png`]);
-        }
-
+        let sprite = new PIXI.Sprite(Terrain.sheet.textures[`${name}.png`]);
         return sprite;
     }
 

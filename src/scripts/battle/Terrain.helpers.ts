@@ -298,7 +298,7 @@ export const TerrainMethods = {
         return {bottom: bottom, top: top};
     },
 
-    getBuildingSprite(building: string, faction: Faction) {
+    getBuildingSprite(building: string) {
         let colors = [
             FactionColors[Faction.Neutral],
             FactionColors[Faction.Red],

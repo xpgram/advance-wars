@@ -1,12 +1,27 @@
+import * as PIXI from "pixi.js";
 import { TerrainObject } from "./TerrainObject";
 import { Faction } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
-import { NeighborMatrix } from "../NeighborMatrix";
+import { Terrain } from "./Terrain";
+import { TerrainMethods } from "./Terrain.helpers";
 
 /**  */
 export abstract class TerrainBuildingObject extends TerrainObject {
     // Handle for the building sprite, allows easy color changing.
     protected buildingSprite: PIXI.AnimatedSprite | null = null;
+
+    // Override preview-getting method——match the color currently shown by the tile on the field.
+    get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
+        let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-0.png`]);
+
+        let name = this.name.replace(' ', '').toLowerCase();
+        let building = TerrainMethods.getBuildingSprite(name);
+        if (this.buildingSprite)
+            building.gotoAndStop( this.buildingSprite.currentFrame );
+        sprite.addChild( building );
+
+        return sprite;
+    }
 
     // All TerrainBuildingObject's are naturally buildings.
     get building() { return true; }
