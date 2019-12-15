@@ -1,8 +1,8 @@
 import * as PIXI from "pixi.js";
 import { LowResTransform } from "./LowResTransform";
-import { TransformContainer, Point } from "./CommonTypes";
+import { TransformContainer } from "./CommonTypes";
 import { Game } from "..";
-import { Common } from "./CommonUtils";
+import { PointPrimitive } from "./Common/Point";
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
@@ -34,7 +34,7 @@ export class Camera {
     }
 
     /** The object which the camera will try to keep in frame. If null, the camera does not follow. */
-    followTarget: TransformContainer | Point | null = null;
+    followTarget: TransformContainer | PointPrimitive | null = null;
 
     /** Called on every update; determines how the camera should move to keep the follow target in frame. */
     followAlgorithm: ((camera: Camera) => void) | null = null;
@@ -79,7 +79,7 @@ export class Camera {
     set y(num) { this.frame.y = num; }
 
     /** A point object representing the camera's position in 2D space, anchored in the top-left. */
-    get pos(): Point { return {x: this.x, y: this.y} };
+    get pos(): PointPrimitive { return {x: this.x, y: this.y} };
     set pos(point) {
         this.x = point.x;
         this.y = point.y;
@@ -102,9 +102,9 @@ export class Camera {
     /** The camera's height to width ratio. */
     get aspectRatio() { return this.width / this.height; }
 
-    private _center: Point = {x: 0, y: 0};
+    private _center: PointPrimitive = {x: 0, y: 0};
     /** A point representing the camera's center-of-frame coordinates. */
-    get center(): Point { return ((parent: Camera) => { return {
+    get center(): PointPrimitive { return ((parent: Camera) => { return {
         /** The camera-center's x-coordinate. */
         get x() { return parent.x + parent._center.x; },
         set x(num) { parent.x = num - parent._center.x; },
@@ -153,7 +153,7 @@ export class Camera {
     getFocalPoint() {
         let focal;
 
-        let isPoint = (p: any): p is Point => {
+        let isPoint = (p: any): p is PointPrimitive => {
             return typeof p.x === 'number' && typeof p.y === 'number';
         }
 

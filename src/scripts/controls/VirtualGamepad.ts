@@ -1,5 +1,5 @@
 import { Button } from "./Button";
-import { Point, StringDictionary } from "../CommonTypes";
+import { StringDictionary } from "../CommonTypes";
 import { KeyboardObserver } from "./KeyboardObserver";
 import { Axis2D } from "./Axis";
 

@@ -1,4 +1,3 @@
-import * as PIXI from "pixi.js";
 import { Scene } from "./Scene";
 import { Map } from "../scripts/battle/Map";
 import { Game } from "..";
@@ -6,16 +5,11 @@ import { Camera } from "../scripts/Camera";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
 import { MapCursor } from "../scripts/battle/MapCursor";
 import { MapLayers } from "../scripts/battle/MapLayers";
-import { InfoWindow } from "../scripts/battle/InfoWindow";
-import { LowResTransform } from "../scripts/LowResTransform";
 import { InfoWindowSystem } from "../scripts/battle/ui-windows/InfoWindowSystem";
 import { Unit } from "../scripts/battle/Unit";
-import { Common } from "../scripts/CommonUtils";
 import { UnitObject } from "../scripts/battle/UnitObject";
 import { Slider } from "../scripts/Common/Slider";
-
-var fpsText: PIXI.BitmapText;
-var time: number = 0;
+import { Debug } from "../scripts/DebugUtils";
 
 /**
  * @author Dei Valko
@@ -44,8 +38,6 @@ export class BattleScene extends Scene {
         this.linker.push({name: 'UISpritesheet', url: 'assets/sheets/ui-sprites.json'});
         this.linker.push({name: 'background', url: 'assets/background-battle.png'});
 
-
-        this.linker.push({name: 'font-TecTacRegular', url: 'assets/TecTacRegular.xml'});
         this.linker.push({name: 'font-map-ui', url: 'assets/font-map-ui.xml'});
         this.linker.push({name: 'font-small-ui', url: 'assets/font-small-ui.xml'});
         this.linker.push({name: 'font-script', url: 'assets/font-script.xml'});
@@ -103,9 +95,10 @@ export class BattleScene extends Scene {
         // This needs to go somewhere else, like MapLayers.init() or TerrainMethods.startPaletteAnimation(),
         // but how do I inform them... oh, never mind. They don't need to know where the camera's x/y is.
         let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
+        (MapLayers['top'] as PIXI.Container).filterArea = cameraView;
         (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;
-        // Game.stage.filterArea = cameraView;
-        //Game.app.stage.filterArea = cameraView;
+        // I think this ('bottom', anyway) was meant to cull processing by filters placed on them.
+        // I don't know if this has any appreciable effect.
 
         // Set a backdrop for viewing pleasures
         let backdrop = new PIXI.Sprite( Game.app.loader.resources['background'].texture );
@@ -157,35 +150,9 @@ export class BattleScene extends Scene {
         // Unit-spent tint:        0x888888
         // Unit-right is unit-left with scale.x = -1
         // MovementRailcar does ~not~ pause animation once it reaches its destination. It is just usually too fast to notice this.
-
-        // Add an FPS ticker to measure performance
-        // TODO Move this into a Debug class or something. Instantiate it in Game or Scene.
-        // TODO Include a build number.
-        let graphics = new PIXI.Graphics(); //(0, 160-10, 12, 8);
-        graphics.beginFill(0x000000);
-        graphics.alpha = 0.25;
-        graphics.drawRect(0, Game.display.renderHeight-10, 14, 10);
-        Game.debugHud.addChild(graphics);
-
-        fpsText = new PIXI.BitmapText("", { font: {name: 'TecTacRegular', size: 8}, align: 'left'});
-        fpsText.x = 2;
-        fpsText.y = Game.display.renderHeight - 9;
-        Game.debugHud.addChild(fpsText);
     }
 
     updateStep(delta: number): void {
-
-        // FPS Counter
-        time += delta;
-        if (time > 5) {
-            time -= 5;
-            if (fpsText)
-                fpsText.text = `${Math.floor(Game.app.ticker.FPS)}`;
-        }
-
-        // Update board mask
-        (MapLayers['bottom'] as PIXI.Container).filterArea.width = Game.display.width;
-        (MapLayers['bottom'] as PIXI.Container).filterArea.height = Game.display.height;
 
         this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
 

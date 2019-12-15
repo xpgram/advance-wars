@@ -1,12 +1,10 @@
-import * as PIXI from "pixi.js";
-import * as PixiFilters from "pixi-filters";
 import { TerrainObject } from "./TerrainObject";
 import { UnitObject } from "./UnitObject";
 import { Terrain } from "./Terrain";
-import { Point } from "../CommonTypes";
-import { Game } from "../..";
 import { MapLayers } from "./MapLayers";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
+import { Map } from "./Map";
+import { Point, PointPrimitive } from "../Common/Point";
 
 /**
  * Used by Map only. Maybe.
@@ -17,8 +15,25 @@ import { TerrainBuildingObject } from "./TerrainBuildingObject";
  * @version 0.1.0
  */
 export class Square {
-    terrain: TerrainObject;
-    unit: UnitObject | null = null;
+    private _terrain!: TerrainObject;
+    /**  */
+    get terrain() { return this._terrain; }
+    set terrain(terr: TerrainObject) {
+        this._terrain = terr;
+        //this.overlay = terr.whiteTexture; // This should work, but... ??
+    }
+
+    private _unit: UnitObject | null = null;
+    /**  */
+    get unit() { return this._unit; }
+    set unit(unitObj: UnitObject | null) {
+        this._unit = unitObj;
+        // TODO Conform unit's display properties to this tile's.
+        // You know, like hidden being hidden.
+    }
+
+    /**  */
+    private overlay!: PIXI.Sprite;
 
     /** A 64-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
@@ -116,7 +131,7 @@ export class Square {
         return this.displayInfoGet(Square.coordinateLength, Square.yCoordShift);
     }
     /** A point object representing this square's positional coordinates on the map. */
-    get pos(): Point {
+    get pos(): PointPrimitive {
         return {x: this.x, y: this.y};
     }
 
@@ -153,12 +168,44 @@ export class Square {
     }
 
     updateHighlight(): void {
-        if (!this.terrain)      // TODO Remove this
+        if (!this.terrain)      // TODO Remove this——after converting displayInfoSet, of course.
             return;
+        
+        // I think this only works here, not on terrain assignment, because
+        // terrain is never assigned pre-initialized. So, this.overlay was always a blank sprite.
+        // There is a small chance this was also the failure of my mask technique (it was.)
+        // Whatever my technique, don't use masks, they're too slow to shade every tile on the map.
+        //
+        // There might be a way to use VoidFilter to something-something multiply-blend one sprite
+        // over another without affecting the entire stage. This would (in theory) allow me to "mask"
+        // the rotating light onto movement tiles without invoking the masking process.
+        // Also, filters:
+        //      let filter = new Filter(??)
+        //      filter.resolution = Game.app.renderer.resolution;
+        //      sprite.filters = [filter]
+        // This fixes (well, untested) the pixel sprites getting curfuggled by filters issue.
+        // Filters still be slow, tho.
 
-        let hidePanel = this.terrain.hiddenOverlay;
-        let glassPanel = this.terrain.glassOverlay;
+        // So, I found out about a trick.
+        // You can get a container of things to blend into each other in isolation if you
+        // run the filters engine with a blank filter. Sort of like masking. Faster, too.
+        // Or, you *could* do this. In the past. v4, specifically.
+        // So, really, you *can't* do this. Ugh.
 
+        if (this.terrain.whiteTexture.texture && !this.overlay) {
+            this.overlay = this.terrain.whiteTexture;
+            this.overlay.zIndex = Map.calculateZIndex({x:this.x, y:this.y}, 'glass-overlay');
+            MapLayers['top'].sortChildren();    // ← This is ridiculous.
+        }
+        // TODO Initialize Squares → initialize terrains. Maybe? This would allow me to set this.overlay once.
+
+        // TODO Before doing anything else here, run some experiments.
+        // Try to get like 25x9 different little squares doing the thing to different shapes.
+        // You know what I should do? Use one of my scenes as a test room.
+        // That way I can (write and then) import my debug setup and post that right on the screen,
+        // and the rest of that scene-writing space is just me dicking around.
+
+        // Define glassy-overlay presets.
         let colors = {
             natural: {color: 0xFFFFFF, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
             //blue: {color: 0x88FFFF, alpha: 0.8, mode: PIXI.BLEND_MODES.MULTIPLY},
@@ -168,33 +215,34 @@ export class Square {
             grey: {color: 0x444444, alpha: 0.5, mode: PIXI.BLEND_MODES.MULTIPLY}, // CO Affected, should be animated
             darkgrey: {color: 0x000000, alpha: 0.4, mode: PIXI.BLEND_MODES.MULTIPLY}
         }
-        let setColor = (panel: PIXI.Sprite, options: {color:number, alpha:number, mode:number}) => {
-            panel.tint = options.color;
-            panel.alpha = options.alpha;
-            panel.blendMode = options.mode;
+
+        // Function which adjusts the look of the glassy overlay to a preset.
+        let setColor = (options: {color:number, alpha:number, mode:number}) => {
+            this.overlay.tint = options.color;
+            this.overlay.alpha = options.alpha;
+            this.overlay.blendMode = options.mode;
+            this.overlay.visible = true;
         }
 
-        // Hidden tiles in Fog of War
-        hidePanel.visible = this.hidden;
-        setColor(hidePanel, colors.darkgrey);
-
+        // Hidden tiles in Fog of War — Hide units and building details
         if (this.terrain instanceof TerrainBuildingObject)
             this.terrain.hidden = this.hidden;
         if (this.unit)
             this.unit.visible = !this.hidden;
 
-        // Setup movement, attackable, etc. glass overlay.
-        glassPanel.visible = true;
+        // Choose glassy overlay preset
+        this.overlay.visible = false;
+
         if (this.moveable)
-            setColor(glassPanel, colors.blue);
+            setColor(colors.blue);
         else if (this.attackable)
-            setColor(glassPanel, colors.red);
+            setColor(colors.red);
         else if (this.dangerous)
-            setColor(glassPanel, colors.maroon);
+            setColor(colors.maroon);
+        else if (this.hidden)
+            setColor(colors.darkgrey);
         else if (this.COEffected)
-            setColor(glassPanel, colors.grey);
-        else
-            glassPanel.visible = false;
+            setColor(colors.grey);
     }
 
     occupiable(unit: UnitObject): boolean {
@@ -211,3 +259,6 @@ export class Square {
 
     // ↓ Methods for iteratively depth-searching tiles ↓
 }
+
+// add to queue
+// run queue

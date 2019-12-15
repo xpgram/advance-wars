@@ -23,12 +23,6 @@ type TransformContainer = {
     transform: LowResTransform
 }
 
-/** Represents a point in 2D space. */
-type Point = {
-    x: number,
-    y: number
-}
-
 /** Represents a point in 3D space. */
 type Point3D = {
     x: number,

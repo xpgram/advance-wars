@@ -1,12 +1,16 @@
-import * as PIXI from 'pixi.js';
 import { Scene } from './scenes/Scene';
 import { BattleScene } from './scenes/BattleScene';
-import { DebugLayer } from './scripts/DebugLayer';
+import { DiagnosticLayer } from './scripts/DiagnosticLayer';
 import { BlankScene } from './scenes/BlankScene';
+import { Debug } from './scripts/DebugUtils';
 
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling fuzziness
+//PIXI.settings.RESOLUTION =        // TODO Figure out what this should be.
+                                    // I think not setting this messes up my filters (they dingle my pixels), but I don't know what I'm setting it to.
+                                    // App options below already sets resolution to devicePixelRatio || 1, so what else do I need?
+                                    // My guy in the thread, I'm inferring that this resolution and app.resolution are different.
 
 /**
  * @author Dei Valko
@@ -21,6 +25,8 @@ class App {
     readonly hud = new PIXI.Container();
     /** A graphics-container acting as a special heads-up display for performance information. */
     readonly debugHud = new PIXI.Container();
+
+    readonly globalResources!: PIXI.IResourceDictionary;
 
     /** The number of frames that have elapsed since the game started. Note that this will cap out at infinity if left on for 9.8 billion years. */
     get frameCount() { return this._frameCount; }
@@ -89,14 +95,33 @@ class App {
         // Set entry point for the game (the first scene)
         this.switchScene(this.gameScenes.battleScene);
 
-        // Add the main loop to PIXI's ticker.
-        this.app.ticker.add( (delta: number) => {this.loop(delta)} );
-
         // Add this game's visual layers to PIXI's app.stage
         this.app.stage.addChild(this.backdrop);
         this.app.stage.addChild(this.stage);
         this.app.stage.addChild(this.hud);
-        this.app.stage.addChild(this.debugHud);
+        
+        // Preload game-wide resources, start the game on completion.
+        this.preload( () => {
+            // Add the debugger/diagnostics UI to the global scene.
+            this.app.stage.addChild(new DiagnosticLayer().container);
+            
+            // Add the main loop to PIXI's ticker.
+            this.app.ticker.add( (delta: number) => {this.loop(delta)} );
+        });
+    }
+
+    /** Loads assets into memory, then calls the callback function when completed. */
+    private preload(callback?: Function) {
+        // Move these to another file if they get massive big.
+        this.app.loader.add('TecTacRegular', 'assets/TecTacRegular.xml');
+        
+        // Final loader call
+        this.app.loader.load().onComplete.once( () => {
+            //@ts-ignore    This is the first/only globalResources assignment.
+            this.globalResources = this.app.loader.resources;
+            if (callback)
+                callback();
+        })
     }
 
     /** Main update loop. A state-machine implementing the Scene pattern. */

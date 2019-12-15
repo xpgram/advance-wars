@@ -39,7 +39,7 @@ export const TerrainMethods = {
     animTime: 0,
     animFrame: 0,
     animateShoreline: (delta: number) => {
-        // Collect time (I don't know what 6 means——six frames?)
+        // Collect time, update every nth frame.
         TerrainMethods.animTime += delta;
         if (TerrainMethods.animTime > 6) {
             TerrainMethods.animTime -= 6;
@@ -52,6 +52,8 @@ export const TerrainMethods = {
             // Insert the new palette swap in to the color-replacement filter.
             TerrainMethods.shorelineFilter.replacements = colorMatrix;
             
+            // TODO Assign filterArea to camera.frame? Would this even accomplish anything?
+
             // Frame-counting maintenance.
             TerrainMethods.animFrame++;
             if (TerrainMethods.animFrame > 31)
@@ -62,8 +64,10 @@ export const TerrainMethods = {
 
     /** Initiates the shoreline animation ticker and adds the color-swap filter to the bottom texture layer. */
     startPaletteAnimation: () => {
+        // Pixi defaults to low resolutions for filters, undo that.
+        TerrainMethods.shorelineFilter.resolution = Game.app.renderer.resolution;
+
         MapLayers['bottom'].filters = [TerrainMethods.shorelineFilter];
-        //MapLayers['bottom'].filterArea = camera rect
         Game.app.ticker.add( TerrainMethods.animateShoreline );
     },
 
@@ -201,10 +205,10 @@ export const TerrainMethods = {
         // Patch fix for bridges: Extend to any land tile that isn't a river or mountain
         // TODO Add an excludeTypes: TerrainType[] parameter.
         if (neighbors.center.type == Terrain.Bridge) {
-            u = (neighbors.up.landTile && neighbors.up.type != Terrain.River && neighbors.up.type != Terrain.Mountain)          ? 1 : u;
-            r = (neighbors.right.landTile && neighbors.right.type != Terrain.River && neighbors.right.type != Terrain.Mountain) ? 1 : r;
-            d = (neighbors.down.landTile && neighbors.down.type != Terrain.River && neighbors.down.type != Terrain.Mountain)    ? 1 : d;
-            l = (neighbors.left.landTile && neighbors.left.type != Terrain.River && neighbors.left.type != Terrain.Mountain)    ? 1 : l;
+            u = (neighbors.up.landTile && neighbors.up.type != Terrain.River && neighbors.up.type != Terrain.Mountain && neighbors.up.type != Terrain.Fire)             ? 1 : u;
+            r = (neighbors.right.landTile && neighbors.right.type != Terrain.River && neighbors.right.type != Terrain.Mountain && neighbors.right.type != Terrain.Fire) ? 1 : r;
+            d = (neighbors.down.landTile && neighbors.down.type != Terrain.River && neighbors.down.type != Terrain.Mountain && neighbors.down.type != Terrain.Fire)     ? 1 : d;
+            l = (neighbors.left.landTile && neighbors.left.type != Terrain.River && neighbors.left.type != Terrain.Mountain && neighbors.left.type != Terrain.Fire)     ? 1 : l;
         }
 
         // Patch fix for rivers: Extend to any tile that is by nature a sea tile (except f**ing beaches)
@@ -312,10 +316,7 @@ export const TerrainMethods = {
         for (let color of colors) {
             textures.push(Terrain.sheet.textures[`${building}-${color}.png`]);  // TODO Fix this in TexturePacker too.
         }
-
         let sprite = new PIXI.AnimatedSprite(textures);
-        sprite.anchor.y = 0.5;  // TODO Fix in TexturePacker, remove.
-        
         return sprite;
     }
 }

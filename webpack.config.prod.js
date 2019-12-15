@@ -1,6 +1,7 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const webpack = require('webpack');
 
 module.exports = {
     entry: './src/index.ts',
@@ -34,6 +35,9 @@ module.exports = {
             filename: 'index.html',
             hash: true,
             minify: false
+        }),
+        new webpack.ProvidePlugin({
+            PIXI: 'pixi.js'
         })
     ]
 }

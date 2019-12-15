@@ -1,5 +1,6 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
+const webpack = require('webpack')
 
 module.exports = {
     entry: './src/index.ts',
@@ -27,6 +28,9 @@ module.exports = {
         new HTMLWebpackPlugin({
             template: 'build/index.html',
             filename: 'index.html'
+        }),
+        new webpack.ProvidePlugin({
+            PIXI: 'pixi.js'
         })
     ]
 }

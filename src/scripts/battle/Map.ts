@@ -1,16 +1,16 @@
-import * as PIXI from "pixi.js";
 import { Terrain } from "./Terrain";
 import { Square } from "./Square";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
 import { Game } from "../..";
-import { NumericDictionary, Point } from "../CommonTypes";
+import { NumericDictionary, StringDictionary } from "../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { UnitObject } from "./UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
+import { PointPrimitive } from "../Common/Point";
 
 // Common error messages
-function InvalidLocationError(point: Point) {
+function InvalidLocationError(point: PointPrimitive) {
     return `Attempting to access invalid grid location: (${point.x}, ${point.y})`;
 }
 
@@ -29,8 +29,17 @@ export class Map {
     private board: NumericDictionary< NumericDictionary<Square> > = {};
 
     /** Returns a z-index number based on the board-coordinates given. */
-    static calculateZIndex(point: Point) {
-        return (point.y*2 - point.x)*10;
+    static calculateZIndex(point: PointPrimitive, layer?: 'glass-overlay' | 'unit') {
+        let layerDict: StringDictionary<number> = {
+            'glass-overlay': 2,     // This is put above mountain shadows from left-adjacent.
+            'unit': 3
+        }
+
+        let z = point.y*10 - point.x;
+        if (layer)
+            z += layerDict[layer];
+        
+        return z;
     }
 
     /** 
@@ -91,7 +100,7 @@ export class Map {
         for (let x = 0; x < width; x++) {
             this.board[x] = {};
             for (let y = 0; y < height; y++) {
-                this.board[x][y] = new Square(x, y);
+                this.board[x][y] = new Square(x-1, y-1);    // Squares don't "know about" there being a void perimeter.
 
                 // Add null-object border
                 if (x == 0 || x == (width - 1) || y == 0 || y == (height - 1))
@@ -156,7 +165,7 @@ export class Map {
      */
     private generateTile(type: TerrainType, chanceMatrix: number[], existingLandmarkRate: number, diagonalRate: number) {
         // Generate a list of indices to access the board
-        let points: Point[] = [];
+        let points: PointPrimitive[] = [];
         for (let x = 0; x < this.width; x++) {
         for (let y = 0; y < this.height; y++) {
             points.push({x:x,y:y});
@@ -296,7 +305,7 @@ export class Map {
      * these locations.
      * @param pos The location on the map to retrieve.
      */
-    squareAt(pos: Point): Square {
+    squareAt(pos: PointPrimitive): Square {
         // (-1,-1) and (width,height) refer to the border objects. They are secret.
         if (pos.x < -1 || pos.y < -1 || pos.x >= this.trueWidth || pos.y >= this.trueHeight)
             throw new Error(InvalidLocationError(pos));
@@ -308,7 +317,7 @@ export class Map {
     /** Gathers the nearest-neighboring tiles adjacent to the tile at pos and returns them as a ProximityBox object.
      * @param pos The location on the map to inspect.
      */
-    neighborsAt(pos: Point): NeighborMatrix<TerrainObject> {
+    neighborsAt(pos: PointPrimitive): NeighborMatrix<TerrainObject> {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         
@@ -330,7 +339,7 @@ export class Map {
      * @param unit Unit object to be placed on the grid.
      * @param pos The location on the map to place it.
      */
-    placeUnit(unit: UnitObject, pos: Point) {
+    placeUnit(unit: UnitObject, pos: PointPrimitive) {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         this.squareAt(pos).unit = unit;
@@ -340,7 +349,7 @@ export class Map {
     /** Removes and destroys a Unit object on the map.
      * @param pos The location on the map to modify.
      */
-    removeUnit(pos: Point) {
+    removeUnit(pos: PointPrimitive) {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         let square = this.squareAt(pos);
@@ -356,7 +365,7 @@ export class Map {
      * @returns True if the operation was successful.
      * @throws If either src or dest are invalid locations.
      */
-    moveUnit(src: Point, dest: Point): boolean {
+    moveUnit(src: PointPrimitive, dest: PointPrimitive): boolean {
         if (!this.validPoint(src))
             throw new Error(InvalidLocationError(src));
         if (!this.validPoint(dest))
@@ -382,7 +391,7 @@ export class Map {
      * @param p A grid location to check the existence of.
      * @return True if point lies within the map's boundaries.
      */
-    validPoint(p: Point): boolean {
+    validPoint(p: PointPrimitive): boolean {
         return p.x >= 0 && p.x < this.width &&
                p.y >= 0 && p.y < this.height;
     }

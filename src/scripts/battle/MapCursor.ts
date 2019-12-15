@@ -1,5 +1,3 @@
-import * as PIXI from "pixi.js";
-import { Point } from "../CommonTypes";
 import { Map } from "./Map";
 import { Game } from "../..";
 import { VirtualGamepad } from "../controls/VirtualGamepad";
@@ -8,6 +6,7 @@ import { LowResTransform } from "../LowResTransform";
 import { MapLayers } from "./MapLayers";
 import { Pulsar } from "../timer/Pulsar";
 import { Slider } from "../Common/Slider";
+import { PointPrimitive } from "../Common/Point";
 
 /**
  * @author Dei Valko
@@ -28,11 +27,11 @@ export class MapCursor {
     }
 
     /** Where this cursor exists on the map it is selecting over. */
-    pos: Point;
+    pos: PointPrimitive;
     /** Where this cursor was last. */
-    private lastPos: Point;
+    private lastPos: PointPrimitive;
     /** The direction of movement being held from last frame. */
-    private travelDir: Point;
+    private travelDir: PointPrimitive;
     /** Where this cursor exists graphically in the game world. */
     transform: LowResTransform;
     /** A reference to the map object we are selecting over.
@@ -186,7 +185,7 @@ export class MapCursor {
     }
 
     /** Moves this cursor's position on the game map and graphically in the game world. */
-    move(dir: Point) {
+    move(dir: PointPrimitive) {
         // Calculate the new position
         let newPos = {
             x: this.pos.x + dir.x,
@@ -210,7 +209,7 @@ export class MapCursor {
     }
 
     /** Moves this cursor's position directly (non-relatively) to some other position on the game map and graphically in the game world. */
-    moveTo(place: Point) {
+    moveTo(place: PointPrimitive) {
         place = {
             x: Common.confine(place.x, 0, this.mapRef.width - 1),
             y: Common.confine(place.y, 0, this.mapRef.height - 1)

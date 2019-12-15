@@ -63,13 +63,14 @@ export abstract class Scene {
     /** Collects resource links from inheriting scene, then loads them
      * with a provided callback to setup() on completion. */
     private load() {
-        Game.app.loader.reset();    // Empty contents.
-        this.loadStep();            // Collects resource URLs into this.linker
+        Game.app.loader.reset();                // Empty contents.
+        Game.app.loader.removeAllListeners();   // Let go of any callbacks we may have added.
+        this.loadStep();                        // Collects resource URLs into this.linker[]
         this.linker.forEach(link => {
             Game.app.loader.add(link.name, link.url);
         });
-        this.state = Scene.BUILDING;// Prevent calls to init() and update() while loading.
-        Game.app.loader.load().onComplete.add( () => {
+        this.state = Scene.BUILDING;            // Prevent calls to init() and update() while loading.
+        Game.app.loader.load().onComplete.once( () => {
             this._resources = Game.app.loader.resources;
             this.setup()
         });

@@ -1,11 +1,11 @@
 import { ButtonState } from "./ButtonState";
-import { Point } from "../CommonTypes";
 import { Common } from "../CommonUtils";
+import { PointPrimitive } from "../Common/Point";
 
 /**  */
 export class Axis2D {
     private _name: string | null;
-    private _point: Point;
+    private _point: PointPrimitive;
     private _state: ButtonState;
 
     constructor(name: string | null) {
@@ -27,7 +27,7 @@ export class Axis2D {
     get returned() { return this._state == ButtonState.Released; }
 
     /** Updates this axis with new values. Used by the parent-controller object. */
-    update(input: Point) {
+    update(input: PointPrimitive) {
         this._point.x = Common.confine(input.x, -1, 1);
         this._point.y = Common.confine(input.y, -1, 1);
 

@@ -1,4 +1,3 @@
-import * as PIXI from "pixi.js";
 import { Common } from "../CommonUtils";
 import { LowResTransform } from "../LowResTransform";
 import { Game } from "../..";
@@ -6,10 +5,10 @@ import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod } 
 import { Debug } from "../DebugUtils";
 import { fonts } from "./ui-windows/DisplayInfo";
 import { MapLayers } from "./MapLayers";
-import { Point } from "../CommonTypes";
 import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
 import { Map } from "./Map";
+import { PointPrimitive } from "../Common/Point";
 
 /** An uninstantiated Unit class type. */
 export interface UnitType {
@@ -342,10 +341,10 @@ export abstract class UnitObject {
     }
 
     /** This unit's position on the game board. This is *not* the unit-graphic's position in the game-world, though it does affect that. */
-    get boardLocation(): Point {
+    get boardLocation(): PointPrimitive {
         return {x: this.x, y: this.y};
     }
-    set boardLocation(point: Point) {
+    set boardLocation(point: PointPrimitive) {
         this.x = point.x;
         this.y = point.y;
 
@@ -364,7 +363,7 @@ export abstract class UnitObject {
         UnitObject.transform.object = null;
 
         // Recalculate z-index
-        this.sprite.zIndex = Map.calculateZIndex(point) + 12;
+        this.sprite.zIndex = Map.calculateZIndex(point, 'unit');
         this.uiBox.zIndex = -1; // Below the cursor, menus etc.
     }
 

@@ -5,11 +5,9 @@ import { UnitClass, MoveType, Faction } from "./EnumTypes";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
 import { TransformableList } from "../TransformableList";
-import { Point, Point3D } from "../CommonTypes";
+import { Point3D } from "../CommonTypes";
 import { Terrain } from "./Terrain";
-import { TerrainMethods } from "./Terrain.helpers";
 import { Game } from "../..";
-import { TerrainBuildingObject } from "./TerrainBuildingObject";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -32,16 +30,10 @@ export abstract class TerrainObject {
     /** This terrain's numerical serialization. */
     abstract get serial(): number;
 
-    private _hiddenOverlay: PIXI.Sprite = new PIXI.Sprite();    // Blank by default
-    /** Returns a Sprite white-copy of this terrain's shape for hiding tiles in FoW. */
-    get hiddenOverlay(): PIXI.Sprite {
-        return this._hiddenOverlay;
-    }
-
-    private _glassOverlay: PIXI.Sprite = new PIXI.Sprite();     // Blank by default
-    /** Returns a Sprite white-copy of this terrain's shape for highlighting tiles. */
-    get glassOverlay(): PIXI.Sprite {
-        return this._glassOverlay;
+    private _whiteTexture: PIXI.Sprite = new PIXI.Sprite();    // Blank by default
+    /** Returns a Sprite white-copy of this terrain's shape. */
+    get whiteTexture(): PIXI.Sprite {
+        return this._whiteTexture;
     }
 
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
@@ -141,14 +133,9 @@ export abstract class TerrainObject {
         this.orient(neighbors); // Allows subclasses to populate the layers list.
 
         // Get this tile's white mask, apply it to both overlay panels
-        this._hiddenOverlay = this.constructWhiteMask();
-        this._hiddenOverlay.visible = false;
-        this.layers.push({object: this._hiddenOverlay, name: 'top'});
-
-        this._glassOverlay = new PIXI.Sprite( this._hiddenOverlay.texture );
-        this._glassOverlay.anchor.copyFrom(this._hiddenOverlay.anchor);
-        this._glassOverlay.visible = false;
-        this.layers.push({object: this._glassOverlay, name: 'top'});
+        this._whiteTexture = this.constructWhiteMask();
+        this._whiteTexture.visible = false; // TODO This should be true. If it's a mask, anyway. I dunno.
+        this.layers.push({object: this._whiteTexture, name: 'top'});
 
         // Add populated layers to display and this.transform
         let graphicsObjects: TransformableList = new TransformableList();
@@ -162,10 +149,6 @@ export abstract class TerrainObject {
         TerrainObject.transform.pos3D = pos;
         TerrainObject.transform.object = graphicsObjects;
         TerrainObject.transform.object = null;
-
-        // Overlay z-index correction
-        this._hiddenOverlay.zIndex += 11;
-        this._glassOverlay.zIndex += 11;
     }
 
     /** Instructs the object to disassociate all materials, readying itself for

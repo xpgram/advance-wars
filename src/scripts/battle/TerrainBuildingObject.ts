@@ -1,4 +1,3 @@
-import * as PIXI from "pixi.js";
 import { TerrainObject } from "./TerrainObject";
 import { Faction } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
