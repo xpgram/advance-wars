@@ -10,18 +10,43 @@ export class Point {
     x: number = 0;
     y: number = 0;
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
+    constructor(x?: number | PointPrimitive, y?: number) {
+        let isPointPrimitive = (p: any): p is PointPrimitive => {
+            return (p.x != undefined);  // y's presence is confirmed implicitly
+        }
+
+        if (isPointPrimitive(x)) {
+            this.x = x.x;
+            this.y = x.y;
+        } else {
+            this.x = x || 0;
+            this.y = typeof y == 'number' ? y : this.x;     // TODO Clean this little bit up
+        }
+    }
+
+    /** Returns a new vector, the sum of this and the given vector. */
+    add(p: PointPrimitive): Point {
+        return new Point((this.x + p.x), (this.y + p.y));
     }
 
     /** Gets the integer grid-distance between this point and a given point. */
-    taxicabDistance(point: PointPrimitive) {
+    taxicabDistance(point: PointPrimitive): number {
         return Math.abs(point.x - this.x) + Math.abs(point.y - this.y);
     }
 
     /** Gets the real distance between this point and a given point. */
-    distance(point: PointPrimitive) {
+    distance(point: PointPrimitive): number {
         return Math.sqrt(Math.pow(point.x - this.x, 2) + Math.pow(point.y - this.y, 2));
     }
+
+    // Common Vectors
+
+    /** Identity vector pointing conventionally up. */
+    static get Up(): Point { return new Point(0,-1); }
+    /** Identity vector pointing conventionally down. */
+    static get Down(): Point { return new Point(0,1); }
+    /** Identity vector pointing conventionally left. */
+    static get Left(): Point { return new Point(-1,0); }
+    /** Identity vector pointing conventionally right. */
+    static get Right(): Point { return new Point(1,0); }
 }

@@ -113,27 +113,35 @@ export abstract class UnitObject {
         return new PIXI.Sprite(Unit.exhibitSheet.textures[`${name}-exhibit.png`]);
     }
 
-    get movementSpriteObject() {
-        // TODO Jesus christ, this is awful
+    /** An object containing the texture sets for the sprite's three movement facings (left must be reflected for right-facing.) */
+    get movementAnimations() {
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
         let color = FactionColors[this.faction];
         let army = ['rubinelle', 'lazurian'][this.faction % 2];
 
-        let soldierSprites = (name: string, army: string, color: string, action: string): PIXI.AnimatedSprite => {
+        // Spriteset lookup functions
+        let soldierSprites = (name: string, army: string, color: string, action: string): PIXI.Texture[] => {
             return Unit.sheet.animations[`${name}/${army}/${color}/${action}`];
         }
-        let vehicleSprites = (name: string, army: string, color: string, action: string): PIXI.AnimatedSprite => {
+        let vehicleSprites = (name: string, army: string, color: string, action: string): PIXI.Texture[] => {
             return Unit.sheet.animations[`${name}/${color}/${action}`];
         }
-        let accessor: {(a:string, b:string, c:string, d:string): PIXI.AnimatedSprite} = (this.type == Unit.Infantry || this.type == Unit.Mech || this.type == Unit.Bike) ? soldierSprites : vehicleSprites;
 
+        // Pick the spriteset lookup function relevant to this unit.
+        let accessor: {(a:string, b:string, c:string, d:string): PIXI.Texture[]};
+        accessor = (this.soldierUnit || this.type == Unit.Bike) ? soldierSprites : vehicleSprites;
+
+        // Collect spritesets
         let o = {
             up: accessor(name, army, color, 'up'),
             down: accessor(name, army, color, 'down'),
-            left: accessor(name, army, color, 'left'),
-            right: accessor(name, army, color, 'right')
+            left: accessor(name, army, color, 'left')
         }
-        
+
+        // Typically, this happens because new Unit() does not .init(), meaning faction is left blank or whatever. No bueno. I need to refactor a bit.
+        // I think this method just needs to ensure it's only called on 'existing' units, not just constructed ones.
+        Debug.assert(Boolean(o.up) && Boolean(o.down) && Boolean(o.left), `Generated set of movement textures is not complete or does not exist. Was name, faction and country all provided?`);
+
         return o;
     }
 

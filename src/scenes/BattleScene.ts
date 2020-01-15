@@ -10,6 +10,8 @@ import { Unit } from "../scripts/battle/Unit";
 import { UnitObject } from "../scripts/battle/UnitObject";
 import { Slider } from "../scripts/Common/Slider";
 import { Debug } from "../scripts/DebugUtils";
+import { TrackCar } from "../scripts/battle/TrackCar";
+import { CardinalDirection } from "../scripts/Common/CardinalDirection";
 
 /**
  * @author Dei Valko
@@ -25,6 +27,8 @@ export class BattleScene extends Scene {
 
     unitsList: UnitObject[] = [];
     unitSwap: UnitObject | null = null;
+
+    car!: TrackCar;
 
     cameraZoomSlider = new Slider({
         track: 'max',
@@ -150,6 +154,14 @@ export class BattleScene extends Scene {
         // Unit-spent tint:        0x888888
         // Unit-right is unit-left with scale.x = -1
         // MovementRailcar does ~not~ pause animation once it reaches its destination. It is just usually too fast to notice this.
+
+        let c =  CardinalDirection;
+        let unit = new Unit.Recon();
+        unit.init();
+        this.car = new TrackCar({x:3, y:3},
+            [c.East, c.East, c.North, c.East, c.East, c.South, c.South, c.South, c.West, c.South, c.West, c.South, c.South, c.East, c.East, c.East, c.East],
+            unit,
+            true);
     }
 
     updateStep(delta: number): void {
@@ -158,6 +170,8 @@ export class BattleScene extends Scene {
 
         // Proof that buttons work.
         if (this.gamepad.button.A.pressed) {
+            this.car.start();
+
             let square = this.map.squareAt(this.cursor.pos);
             if (square.unit)
                 this.unitSwap = square.unit;

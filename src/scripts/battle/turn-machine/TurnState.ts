@@ -2,27 +2,20 @@ import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
 
 export abstract class TurnState {
-    /** A compendium of battle-scene objects.
-     * Provides access to the MapCursor, the Map itself, the UI windows, etc., etc. */
-    controls: BattleSceneControllables;
-
-    /** A compendium of battle-scene operation-scripts.
-     * Provides access to all ControlScript objects, which must be explicitly enabled in each state.
-     * ControlScripts do things like allowing you to press B on empty land to hide units, or B on
-     * inhabited land to see their attack range.
-     * Then again, maybe these are just properties of the cursor. */
-    controlScripts: BattleScenePlayerInputScripts;
+    /** All battle-scene-relevant objects, script controllers, and assets.
+     * Provides access to the MapCursor, the Map itself, the UI windows, etc. */
+    sceneAssets: BattleSceneObjectHandle;
 
     constructor() {}
 
-    /** Throws an error (great for debugging) if controllables dependencies aren't met.
+    /** Throws an error (great for debugging) if controllables' dependencies aren't met.
      * Things like there not being a source and destination point defined during the
      * unit-railcar-animation step, or worse Railcar.unitType not being defined. */
     protected abstract assertDependencies(): void;
 
     /** Explicitly enables control scripts relevant to the state (important to avoid conflicts.)
      * ControlScripts not enabled here are necessarily disabled. */
-    protected abstract enableControls(): void;
+    protected abstract configureScene(): void;
 
     /** Probably won't need to do much, but still.
      * Most control scripts will add themselves to the game.scene.ticker
@@ -33,9 +26,8 @@ export abstract class TurnState {
      * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
     protected abstract prev(): void;
 
-    init(controllables: BattleSceneControllables, inputControls: BattleScenePlayerInputScripts) {
-        this.controls = controllables;
-        this.controlScripts = inputControls;
+    init(assets: BattleSceneAssets) {
+        this.sceneAssets = assets;
         this.assertDependencies();
 
         // Clean up previous state's configurations.
@@ -46,8 +38,7 @@ export abstract class TurnState {
         this.controlScripts.disableAll();
 
         this.configureScene();  // Explicitly enable UI elements and interactibles.
-        this.enableControls();  // Explicitly enable control scripts
-        Game.scene.ticker.add(this.update, this);
+        Game.scene.ticker.add(this.update, this);   // TODO This prevents me from controlling the update step in the stack. Without controls, anyway.
     }
 
     destroy() {
