@@ -62,7 +62,9 @@ export abstract class TurnState {
      * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
     abstract prev(): void;
 
-    nextState: nextState | null = null;
+    nextState: NextState | null = null;
+
+    // Move to 'real' implementations of TurnState
     advanceStates = {
         // Ex.
         pickAttackTarget: {state: PickAttackTargetState, pre: () => {} },
@@ -76,17 +78,23 @@ export abstract class TurnState {
         // .next() runs a callback described by the given new state to do any pre-setup this state might need to.
         // Often, it probably won't need to.
         // I'm tired.
-    }
 
-    // IMPLEMENT Not sure where, but something needs to signal/return the new state we're advancing to.
-    // .next() is mostly a cleanup function. Probably useless, but maybe necessary.
-    next() {
-        if (this.nextState)
-            this.nextState.pre();
+        // pre(), speicifically, is probably not needed,
+        // but a way to send messages to new states will be.
+        // controller.assets is ~kind of~ that service, but I dunno.
+
+        // Basically, I need to decide if 'attack execution step' gets which
+        // attack is to be done from controller.assets or a special message from
+        // the previous state. Assets sounds easier, but I wonder.
     }
 }
 
-type nextState = {
-    state: TurnState,
+type TurnStateConstructor = {
+    new (cont: TurnStateController): TurnState;
+}
+
+// I'm saving this as an idea in case I run into a scenario that might need it.
+type NextState = {
+    state: TurnStateConstructor,
     pre: Function
 }
