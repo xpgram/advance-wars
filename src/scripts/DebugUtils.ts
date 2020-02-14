@@ -9,6 +9,12 @@ type ErrorType = {
  * @version 0.1.0
  */
 export const Debug = {
+
+    /** Throws a traceable error and fails the program. */
+    error: (msg: string) => {
+        throw new Error(msg);
+    },
+
     /** If the condition is false, throws an AssertionError with the given message, or an
      * error of errorType if one is provided. */
     assert: (condition: boolean, msg: string, errorType?: ErrorType) => {
