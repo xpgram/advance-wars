@@ -24,9 +24,19 @@ export class Point {
         }
     }
 
-    /** Returns a new vector, the sum of this and the given vector. */
+    /** Returns a new vector: a complete copy of this vector. */
+    clone(): Point {
+        return (new Point()).add(this);
+    }
+
+    /** Returns a new vector: the sum of this and the given vector. */
     add(p: PointPrimitive): Point {
         return new Point((this.x + p.x), (this.y + p.y));
+    }
+
+    /** Returns a new vector: the sum of this vector and the given vector coordinates. */
+    addCoords(x: number, y: number): Point {
+        return this.add({x:x, y:y});
     }
 
     /** Gets the integer grid-distance between this point and a given point. */

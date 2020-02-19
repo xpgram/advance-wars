@@ -94,24 +94,24 @@ export class Square {
     }
 
     /** Whether this tile is reachable by a traveling unit. */
-    get moveable(): boolean {
+    get moveFlag(): boolean {
         return 1 == this.displayInfoGet(Square.boolLength, Square.moveableShift);
         //reconfigureHighlight()    ← Determines terrain tint / whether to show unit, etc.
     }
     /** Whether this tile is attackable by a unit. */
-    get attackable(): boolean {
+    get attackFlag(): boolean {
         return 1 == this.displayInfoGet(Square.boolLength, Square.attackableShift);
     }
     /** Whether this tile is attackable by enemy troops. */
-    get dangerous(): boolean {
+    get dangerFlag(): boolean {
         return 1 == this.displayInfoGet(Square.boolLength, Square.dangerousShift);
     }
     /** Whether this tile is affected by CO Unit influence. */
-    get COEffected(): boolean {
+    get COAffectedFlag(): boolean {
         return 1 == this.displayInfoGet(Square.boolLength, Square.COEffectedShift);
     }
     /** Whether this tile's contents are obscured by Fog of War. */
-    get hidden(): boolean {
+    get hiddenFlag(): boolean {
         return 1 == this.displayInfoGet(Square.boolLength, Square.hiddenShift);
     }
     /** The from direction of the movement arrow splice. Range 0–4: none, up, right, down, left. */
@@ -135,19 +135,19 @@ export class Square {
         return {x: this.x, y: this.y};
     }
 
-    set moveable(value) {
+    set moveFlag(value) {
         this.displayInfoSet(Square.boolLength, Square.moveableShift, ~~value);
     }
-    set attackable(value) {
+    set attackFlag(value) {
         this.displayInfoSet(Square.boolLength, Square.attackableShift, ~~value);
     }
-    set dangerous(value) {
+    set dangerFlag(value) {
         this.displayInfoSet(Square.boolLength, Square.dangerousShift, ~~value);
     }
-    set COEffected(value) {
+    set COAffectedFlag(value) {
         this.displayInfoSet(Square.boolLength, Square.COEffectedShift, ~~value);
     }
-    set hidden(value) {
+    set hiddenFlag(value) {
         this.displayInfoSet(Square.boolLength, Square.hiddenShift, ~~value);
     }
     set arrowFrom(value) {
@@ -226,22 +226,22 @@ export class Square {
 
         // Hidden tiles in Fog of War — Hide units and building details
         if (this.terrain instanceof TerrainBuildingObject)
-            this.terrain.hidden = this.hidden;
+            this.terrain.hidden = this.hiddenFlag;
         if (this.unit)
-            this.unit.visible = !this.hidden;
+            this.unit.visible = !this.hiddenFlag;
 
         // Choose glassy overlay preset
         this.overlay.visible = false;
 
-        if (this.moveable)
+        if (this.moveFlag)
             setColor(colors.blue);
-        else if (this.attackable)
+        else if (this.attackFlag)
             setColor(colors.red);
-        else if (this.dangerous)
+        else if (this.dangerFlag)
             setColor(colors.maroon);
-        else if (this.hidden)
+        else if (this.hiddenFlag)
             setColor(colors.darkgrey);
-        else if (this.COEffected)
+        else if (this.COAffectedFlag)
             setColor(colors.grey);
     }
 
@@ -257,8 +257,10 @@ export class Square {
         return legalMovement && unitAlliedOrEmpty;
     }
 
-    // ↓ Methods for iteratively depth-searching tiles ↓
+    attackable(unit: UnitObject): boolean {
+        if (this.unit)
+            return unit.targetable(this.unit);
+        else
+            return false;
+    }
 }
-
-// add to queue
-// run queue

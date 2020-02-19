@@ -16,20 +16,35 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get moveType() { return MoveType.Infantry; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject): AttackMethod {
             throw new Error("Not implemented!");
+            return AttackMethod.Primary;
+
+            // TODO Move this into UnitObject, keep the matrix protected abstract
+
             let matrix = [
                 [false,true],[false,true],[false,true],[true,true]
             ]
-            return matrix[target.armorType][attackMethod];
+            let method = (matrix[target.armorType][0]) ? AttackMethod.Primary : AttackMethod.None;
+            if (!method) method = (matrix[target.armorType][1]) ? AttackMethod.Secondary : AttackMethod.None;
+            return method;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
+
+            // TODO Move this into UnitObject, keep the matrix protected abstract
+
             let matrix = [
                 [55,25],[45,25]
             ]
-            return matrix[target.serial][attackMethod];
+
+            let method = this.attackMethod(target);
+            if (method == AttackMethod.Primary)
+                return matrix[target.serial][0];
+            if (method == AttackMethod.Secondary)
+                return matrix[target.serial][1];
+            return 0;
         }
     },
 
@@ -43,20 +58,14 @@ export const Unit = {
         get maxAmmo() { return 3; }
         get moveType() { return MoveType.Mech; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -70,20 +79,14 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get moveType() { return MoveType.TireB; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -97,20 +100,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Tread; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -124,20 +121,14 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get moveType() { return MoveType.TireA; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -151,20 +142,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Tread; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -179,20 +164,14 @@ export const Unit = {
         get maxAmmo() { return 1; }
         get moveType() { return MoveType.Tread; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -206,20 +185,14 @@ export const Unit = {
         get maxAmmo() { return 3; }
         get moveType() { return MoveType.Tread; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -233,20 +206,14 @@ export const Unit = {
         get maxAmmo() { return 5; }
         get moveType() { return MoveType.Tread; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -260,20 +227,14 @@ export const Unit = {
         get maxAmmo() { return 5; }
         get moveType() { return MoveType.Tread; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -287,20 +248,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Tread; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -314,20 +269,14 @@ export const Unit = {
         get maxAmmo() { return 5; }
         get moveType() { return MoveType.TireA; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -341,20 +290,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.TireB; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -368,20 +311,14 @@ export const Unit = {
         get maxAmmo() { return 5; }
         get moveType() { return MoveType.TireA; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -395,20 +332,14 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get moveType() { return MoveType.Air; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -422,20 +353,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Air; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -449,20 +374,14 @@ export const Unit = {
         get maxAmmo() { return 9; }
         get moveType() { return MoveType.Air; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -476,20 +395,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Air; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -503,20 +416,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Air; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -530,20 +437,14 @@ export const Unit = {
         get maxAmmo() { return 3; }
         get moveType() { return MoveType.Air; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -557,20 +458,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Air; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -584,20 +479,14 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get moveType() { return MoveType.Air; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -611,20 +500,14 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get moveType() { return MoveType.Transport; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -638,20 +521,14 @@ export const Unit = {
         get maxAmmo() { return 1; }
         get moveType() { return MoveType.Transport; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -665,20 +542,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Ship; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -692,20 +563,14 @@ export const Unit = {
         get maxAmmo() { return 9; }
         get moveType() { return MoveType.Ship; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -720,20 +585,14 @@ export const Unit = {
         get maxAmmo() { return 4; }
         get moveType() { return MoveType.Ship; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 
@@ -747,20 +606,14 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get moveType() { return MoveType.Ship; }
 
-        targetable(target: UnitObject, attackMethod: AttackMethod) {
+        attackMethod(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [false,true],[false,true],[false,true],[true,true]
-            ]
-            return matrix[target.armorType][attackMethod];
+            return AttackMethod.Primary;
         }
 
-        baseDamage(target: UnitObject, attackMethod: AttackMethod) {
+        baseDamage(target: UnitObject) {
             throw new Error("Not implemented!");
-            let matrix = [
-                [55,25],[45,25]
-            ]
-            return matrix[target.serial][attackMethod];
+            return 70;
         }
     },
 }

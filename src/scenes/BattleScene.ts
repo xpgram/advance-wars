@@ -186,11 +186,11 @@ export class BattleScene extends Scene {
 
         if (this.gamepad.button.X.pressed) {
             let square = this.map.squareAt(this.cursor.pos);
-            square.hidden = !square.hidden;
+            square.hiddenFlag = !square.hiddenFlag;
         }
         if (this.gamepad.button.B.pressed) {
             let square = this.map.squareAt(this.cursor.pos);
-            square.moveable = !square.moveable;
+            square.moveFlag = !square.moveFlag;
         }
 
         // Playin wit units

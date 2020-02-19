@@ -7,7 +7,9 @@ import { NumericDictionary, StringDictionary } from "../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { UnitObject } from "./UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
-import { PointPrimitive } from "../Common/Point";
+import { PointPrimitive, Point } from "../Common/Point";
+import { MoveType } from "./EnumTypes";
+import { Debug } from "../DebugUtils";
 
 // Common error messages
 function InvalidLocationError(point: PointPrimitive) {
@@ -381,9 +383,6 @@ export class Map {
         this.placeUnit(traveler, dest);
         this.removeUnit(src);
 
-        // TODO This would be the prime location for a send-message in an Object Listener pattern…
-        // ↑ Although, I forget why.
-        // Oh. Just that something moved. Uh. Nah, I still don't remember why.
         return true;
     }
 
@@ -396,9 +395,64 @@ export class Map {
                p.y >= 0 && p.y < this.height;
     }
 
-    /**
-     * Prints the map's tile-contents to the console as a grid for inspection.
-     */
+    /** Removes movement and attack flags from all squares on the map, flags important to the movement system. */
+    clearMovementMap() {
+        for (let y = 0; y < this.height; y++)
+        for (let x = 0; x < this.width; x++) {
+            let square = this.squareAt({x:x,y:y});
+            square.moveFlag = false;
+            square.attackFlag = false;
+        }
+    }
+
+    /** Given a source point (a square to move from) and the unit whom is traveling,  */
+    generateMovementMap(unit: UnitObject) {
+        let sourcePoint = unit.boardLocation;
+
+        if (!this.validPoint(sourcePoint))
+            Debug.error(`Given unit is located at (${sourcePoint.x},${sourcePoint.y}), an invalid board location.`);
+        
+        // Blank any previous move and attack map decorations.
+        this.clearMovementMap();
+
+        // Set up a list of squares to examine, starting with the square inhabited by the moving unit.
+        type queuedSquare = {point: Point, movePoints: number};
+        let queue: queuedSquare[] = [{point: new Point(sourcePoint), movePoints: unit.movementPoints}];
+
+        // Loop terminates after all queued squares have been shifted out
+        while (queue.length) {
+            // Parse the next queued square for details
+            let next = queue.shift() as queuedSquare;
+            let square = this.squareAt(next.point);
+            let location = next.point;
+            let remainingMovePoints = next.movePoints;
+            let movementCost = square.terrain.getMovementCost(unit.moveType);
+
+            // If we've considered this square before, or if we've reached the edge of the map, skip.
+            if (square.moveFlag || square.attackFlag
+                || square.terrain.type == Terrain.Void)
+                continue;
+
+            // If unit may travel to this square, mark it as such and extend the search to more tiles.
+            if (remainingMovePoints >= movementCost && square.traversable(unit)) {
+                square.moveFlag = true;
+
+                let nextMovePoints = remainingMovePoints - movementCost;
+
+                // Add all newly encountered squares to the search queue.
+                queue.push({point: location.add(Point.Up), movePoints: nextMovePoints});
+                queue.push({point: location.add(Point.Down), movePoints: nextMovePoints});
+                queue.push({point: location.add(Point.Left), movePoints: nextMovePoints});
+                queue.push({point: location.add(Point.Right), movePoints: nextMovePoints});
+            }
+
+            // If there is an attackable target in this square, mark it as such.
+            if (square.attackable(unit))
+                square.attackFlag = true;
+        }
+    }
+
+    /** Prints the map's tile-contents to the console as a grid for inspection. */
     log() {
         let string = "";
         for (let y = 0; y < this.height; y++) {

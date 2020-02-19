@@ -151,18 +151,19 @@ export abstract class UnitObject {
 
     get maxGas() { return 99; }
     get maxAmmo() { return 6; }
-    get soldierUnit() { return false; }             // Whether this unit is an Infantry, Mech or Bike
+    get soldierUnit() { return false; }             // True if this unit is an Infantry, Mech or Bike
     get materialsInsteadOfAmmo() { return false; }
     get moveType() { return MoveType.Tread; }
+    get movementPoints() { return 6; }              // TODO This should be abstract
     get armorType() { return ArmorType.Vehicle; }
     get repairType() { return UnitClass.Ground; }
     // TODO Other constant stats go here
 
-    /** Returns true if the given target is attackable via the given attack method. */
-    abstract targetable(target: UnitObject, attackMethod: AttackMethod): boolean;
+    /** Returns true if the given target is attackable via either this unit's primary or secondary weapons. */
+    abstract attackMethod(target: UnitObject): AttackMethod;
 
-    /** Returns a number representing the base damage of an attack on the target via the given attack method. */
-    abstract baseDamage(target: UnitObject, attackMethod: AttackMethod): number;
+    /** Returns a number representing the base damage of an attack on the target. Defaults to primary weapon when applicable. */
+    abstract baseDamage(target: UnitObject): number;
 
     /* Left blank so that units can be instantiated as reference material without building expensive graphic objects, etc. */
     constructor() { }
