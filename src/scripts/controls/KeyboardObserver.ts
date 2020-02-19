@@ -15,6 +15,7 @@ window.addEventListener('keydown', (event) => {
     let keyset = Math.floor(key / 64);
     let keyindex = key % 64;
     keys[keyset] = Common.writeBits(keys[keyset], 1, 1, keyindex);
+    event.preventDefault();
 });
 
 // On key up, write 'false' (0) to the keycode index of keys.
@@ -23,6 +24,7 @@ window.addEventListener('keyup', (event) => {
     let keyset = Math.floor(key / 64);
     let keyindex = key % 64;
     keys[keyset] = Common.writeBits(keys[keyset], 0, 1, keyindex);
+    event.preventDefault();
 });
 
 /** An observer object which relays keyboard key up/down state. */
