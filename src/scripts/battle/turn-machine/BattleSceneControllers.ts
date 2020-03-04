@@ -36,16 +36,21 @@ export class BattleSceneControllers {
         
         this.gamepad = new VirtualGamepad();
 
+        // Setup Map
+        this.map = new Map(25,9);
+        this.mapCursor = new MapCursor(this.map, this.gamepad); // TODO A gamepad proxy for whichever is current-player
+
+        // TODO Since MapLayers are dependent on map being initialized, why aren't they properties of it?
+        // I think because MapLayers is globally accessible, but that probably isn't necessary; I can link
+        // it to units here, which I think are the only 'external' things that need it.
+        // Terrain objects need it, but they're in the map, it should be trivial to fix.
+
         // Setup Camera
         this.camera = new Camera(Game.stage);
         
         let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
         (MapLayers['top'] as PIXI.Container).filterArea = cameraView;
         (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;    // TODO Is this doing anything? It was meant to cull processing on filters, I believe.
-
-        // Setup Map
-        this.map = new Map(25,9);
-        this.mapCursor = new MapCursor(this.map, this.gamepad); // TODO A gamepad proxy for whichever is current-player
 
         // Setup UI Window System
         // TODO This was a rushed, demo implementation. Clean it up.
@@ -67,6 +72,7 @@ export class BattleSceneControllers {
         // trackCar demo
         let c = CardinalDirection;
         let unit = this.unitsList[0];
+        unit.visible = false;
         this.trackCar = new TrackCar({x: unit.boardLocation.x, y: unit.boardLocation.y},
             [c.East, c.East, c.North, c.East, c.East, c.South, c.South, c.South, c.West, c.South, c.West, c.South, c.South, c.East, c.East, c.East, c.East],
             unit,
@@ -80,9 +86,15 @@ export class BattleSceneControllers {
         // Then it is to start the turn engine.
     }
 
+    /** Hides all UI and player-interface systems. */
+    hidePlayerSystems() {
+        this.mapCursor.hide();
+        this.trackCar.hide();
+        this.uiSystem.hide();
+    }
 
+    /** For demo purposes. Deprecate this. */
     spawnRandomUnits() {
-
         // Spawn units
         let unitTypes = [Unit.Infantry, Unit.Mech, Unit.Bike, Unit.Tank, Unit.MdTank, Unit.WarTank,
             Unit.Recon, Unit.Rig, Unit.AntiAir, Unit.Flare, Unit.Artillery, Unit.AntiTank, Unit.Rockets,

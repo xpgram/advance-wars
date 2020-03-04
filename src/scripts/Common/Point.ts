@@ -12,7 +12,7 @@ export class Point {
 
     constructor(x?: number | PointPrimitive, y?: number) {
         let isPointPrimitive = (p: any): p is PointPrimitive => {
-            return (p.x != undefined);  // y's presence is confirmed implicitly
+            return (typeof p == 'object');  // PointPrimitive is confirmed implicitly
         }
 
         if (isPointPrimitive(x)) {
@@ -20,7 +20,7 @@ export class Point {
             this.y = x.y;
         } else {
             this.x = x || 0;
-            this.y = typeof y == 'number' ? y : this.x;     // TODO Clean this little bit up
+            this.y = (typeof y == 'number') ? y : this.x;     // TODO Clean this little bit up
         }
     }
 
@@ -29,9 +29,23 @@ export class Point {
         return (new Point()).add(this);
     }
 
+    equals(p: PointPrimitive): boolean {
+        return (this.x == p.x && this.y == p.y);
+    }
+
     /** Returns a new vector: the sum of this and the given vector. */
     add(p: PointPrimitive): Point {
         return new Point((this.x + p.x), (this.y + p.y));
+    }
+
+    /** Returns a new vector: the difference between this and the given vector. */
+    subtract(p: PointPrimitive): Point {
+        return new Point((this.x - p.x), (this.y - p.y));
+    }
+
+    /** Returns a new vector: this vector's inverse. */
+    negative(): Point {
+        return new Point(-this.x, -this.y);
     }
 
     /** Returns a new vector: the sum of this vector and the given vector coordinates. */
@@ -51,6 +65,8 @@ export class Point {
 
     // Common Vectors
 
+    /** Additive identity vector with all components set to zero. */
+    static get Origin(): Point { return new Point(0,0); }
     /** Identity vector pointing conventionally up. */
     static get Up(): Point { return new Point(0,-1); }
     /** Identity vector pointing conventionally down. */

@@ -26,6 +26,8 @@ export class MapCursor {
         moveTime_repeated: 3
     }
 
+    /** Whether the cursor should listen for input from a controller. */
+    private controlsEnabled = true;
     /** Where this cursor exists on the map it is selecting over. */
     pos: PointPrimitive;
     /** Where this cursor was last. */
@@ -102,6 +104,18 @@ export class MapCursor {
         this.controller = null;
     }
 
+    /** Hides the cursor's graphics and disables player controls. */
+    hide(): void {
+        this.spriteLayer.visible = false;
+        this.controlsEnabled = false;
+    }
+
+    /** Reveals the cursor's graphics and enables player controls. */
+    show(): void {
+        this.spriteLayer.visible = true;
+        this.controlsEnabled = true;
+    }
+
     /** Triggers this object's animation to play once. */
     private triggerAnimation() {
         this.spriteLayer.children.forEach( displayObj => {
@@ -118,6 +132,9 @@ export class MapCursor {
 
     /** Gathers an interperets controller input as movement. */
     private updateInput() {
+        if (!this.controlsEnabled)
+            return;
+
         let dirChangesThisFrame = {x:0,y:0};
 
         let resetInterval = () => {

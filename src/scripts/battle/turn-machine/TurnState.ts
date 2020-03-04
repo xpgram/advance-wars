@@ -49,7 +49,7 @@ export abstract class TurnState {
 
     wake() {
         this.assert();
-        this.controllers.disableAll();  // Reset the scene configuration
+        this.controllers.hidePlayerSystems();  // Reset the scene configuration
         this.configureScene();
     }
 
@@ -90,7 +90,7 @@ export abstract class TurnState {
 }
 
 type TurnStateConstructor = {
-    new (cont: TurnStateController): TurnState;
+    new (cont: BattleSceneControllers): TurnState;
 }
 
 // I'm saving this as an idea in case I run into a scenario that might need it.

@@ -13,6 +13,7 @@ import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
 import { UnitClass } from "../EnumTypes";
 
+/** // TODO finish writing this class; I only ever completed the working draft. */
 export class InfoWindowSystem {
 
     // TODO Remove
@@ -70,6 +71,28 @@ export class InfoWindowSystem {
 
         // Add independent updater to ticker
         Game.scene.ticker.add(this.update, this);
+    }
+
+    /** Hides the window-system's graphics from the screen. */
+    hide(): void {
+        this.detailedInfo.displayContainer.visible = false;
+        this.commanderInfo.displayContainer.visible = false;
+        this.commander2Info.displayContainer.visible = false;
+        this.commander3Info.displayContainer.visible = false;
+        this.commander4Info.displayContainer.visible = false;
+        this.unitInfo.displayContainer.visible = false;
+        this.terrainInfo.displayContainer.visible = false;
+    }
+
+    /** Reveals the window-system's graphics on the screen. */
+    show(): void {
+        this.detailedInfo.displayContainer.visible = true;
+        this.commanderInfo.displayContainer.visible = true;
+        this.commander2Info.displayContainer.visible = true;
+        this.commander3Info.displayContainer.visible = true;
+        this.commander4Info.displayContainer.visible = true;
+        this.unitInfo.displayContainer.visible = true;
+        this.terrainInfo.displayContainer.visible = true;
     }
 
     update() {

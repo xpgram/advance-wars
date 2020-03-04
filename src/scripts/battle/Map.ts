@@ -10,6 +10,7 @@ import { TerrainMethods } from "./Terrain.helpers";
 import { PointPrimitive, Point } from "../Common/Point";
 import { MoveType } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
+import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../Common/CardinalDirection";
 
 // Common error messages
 function InvalidLocationError(point: PointPrimitive) {
@@ -395,17 +396,31 @@ export class Map {
                p.y >= 0 && p.y < this.height;
     }
 
-    /** Removes movement and attack flags from all squares on the map, flags important to the movement system. */
+    /** Sets all temporary store values on the map to zero. Does not need to be called if any other clear-fields
+     * method was called. */
+    clearTemporaryValues() {
+        for (let y = 0; y < this.height; y++)
+        for (let x = 0; x < this.width; x++) {
+            let square = this.squareAt({x:x,y:y});
+            square.value = 0;
+            square.flag = false;
+        }
+    }
+
+    /** Removes movement and attack flags from all squares on the map: flags important to the movement system;
+     * and sets all temporary store values to zero. */
     clearMovementMap() {
         for (let y = 0; y < this.height; y++)
         for (let x = 0; x < this.width; x++) {
             let square = this.squareAt({x:x,y:y});
             square.moveFlag = false;
             square.attackFlag = false;
+            square.value = 0;
+            square.flag = false;
         }
     }
 
-    /** Given a source point (a square to move from) and the unit whom is traveling,  */
+    /** Given a source point (a square to move from) and the unit whom is traveling, ....*/
     generateMovementMap(unit: UnitObject) {
         let sourcePoint = unit.boardLocation;
 
@@ -416,40 +431,180 @@ export class Map {
         this.clearMovementMap();
 
         // Set up a list of squares to examine, starting with the square inhabited by the moving unit.
-        type queuedSquare = {point: Point, movePoints: number};
-        let queue: queuedSquare[] = [{point: new Point(sourcePoint), movePoints: unit.movementPoints}];
+        type queuedSquare = {loc: Point, movePoints: number, last: Point};
+        let queue: queuedSquare[] = [{loc: new Point(sourcePoint), movePoints: unit.movementPoints, last: new Point(sourcePoint)}];
 
         // Loop terminates after all queued squares have been shifted out
         while (queue.length) {
             // Parse the next queued square for details
-            let next = queue.shift() as queuedSquare;
-            let square = this.squareAt(next.point);
-            let location = next.point;
-            let remainingMovePoints = next.movePoints;
-            let movementCost = square.terrain.getMovementCost(unit.moveType);
+            let cur = queue.shift() as queuedSquare;
+            let square = this.squareAt(cur.loc);
 
-            // If we've considered this square before, or if we've reached the edge of the map, skip.
-            if (square.moveFlag || square.attackFlag
-                || square.terrain.type == Terrain.Void)
-                continue;
+            let next: queuedSquare;
+            let nextSquare: Square;
+            let movementCost: number;
 
-            // If unit may travel to this square, mark it as such and extend the search to more tiles.
-            if (remainingMovePoints >= movementCost && square.traversable(unit)) {
-                square.moveFlag = true;
+            let dirs = [Point.Up, Point.Right, Point.Down, Point.Left];
 
-                let nextMovePoints = remainingMovePoints - movementCost;
-
-                // Add all newly encountered squares to the search queue.
-                queue.push({point: location.add(Point.Up), movePoints: nextMovePoints});
-                queue.push({point: location.add(Point.Down), movePoints: nextMovePoints});
-                queue.push({point: location.add(Point.Left), movePoints: nextMovePoints});
-                queue.push({point: location.add(Point.Right), movePoints: nextMovePoints});
-            }
-
-            // If there is an attackable target in this square, mark it as such.
+            // Check if this square contains an attackable target.
             if (square.attackable(unit))
                 square.attackFlag = true;
+
+            // If this square is on the map edge, or if we've already been here and with more move points, skip.
+            if (square.terrain.type == Terrain.Void
+                || square.flag && cur.movePoints <= square.value)
+                continue;
+
+            // Indicate that we've been to this square at least once.
+            square.flag = true;
+
+            // If we are able to move to this square, mark it as such and add its neighbors to queue.
+            if (cur.movePoints >= 0 && square.traversable(unit)) {
+                square.moveFlag = true;
+                square.value = cur.movePoints;  // square.value cannot accept negative numbers
+
+                dirs.forEach( dirVector => {
+                    next = { loc: cur.loc.add(dirVector), movePoints: cur.movePoints, last: cur.loc };
+
+                    // Don't bother checking the direction we came from.
+                    if (next.loc.equals(cur.last))
+                        return;
+
+                    // Get accurate remaining movement points for next
+                    nextSquare = this.squareAt(next.loc);
+                    movementCost = nextSquare.terrain.getMovementCost(unit.moveType);
+                    next.movePoints -= movementCost;
+
+                    queue.push(next);
+                });
+            }
         }
+    }
+
+    /** Given a new board location, re-route the board's mapping of some unit's projected travel
+     * path to this new board location if possible. */
+    recalculatePathToPoint(unit: UnitObject, destination: PointPrimitive) {
+        let newPathFound = false;
+        let givenUp = false;
+        let source = new Point(unit.boardLocation);
+        let joint = source.clone();
+        let jointSquare = this.squareAt(source);
+        let jointMovePts = unit.movementPoints;
+
+        const dirs = [Point.Up, Point.Down, Point.Left, Point.Right];     // Iterable reference
+
+        this.clearTemporaryValues();
+
+        // If destination is not within movement range, don't bother.
+        // This does not erase the old path.
+        if (this.squareAt(destination).moveFlag == false)
+            return;
+    
+        // Find the end point of the current arrow-path leading from the unit's location.
+        // At the same time, if the new destination point is found, simply cut the current path short.
+        while (jointSquare.arrowTo != 0) {
+            // Check if the destination square is on the old path, the joint we're currently looking at.
+            if (joint.equals(destination)) {
+                newPathFound = true;
+                jointSquare.arrowTo = 0;     // Erase path lead, making this the final square.
+            }
+
+            // Move the joint up the old path. Keep track of movement points for path searching later.
+            joint = joint.add(CardinalVector(jointSquare.arrowTo));
+            jointSquare = this.squareAt(joint);
+            jointMovePts -= jointSquare.terrain.getMovementCost(unit.moveType);
+            
+            // If destination was found on the old path, erase all arrows after its occurrence.
+            if (newPathFound) {
+                jointSquare.arrowFrom = 0;
+                jointSquare.arrowTo = 0;
+            }
+        }
+
+        // If new path was already found, do not bother searching for it.
+        while (!newPathFound && !givenUp) {
+
+            // Breadth-first search for the destination point.
+            // This algorithm does not care about efficiency of travel, only efficiency of distance.
+            type queuedSquare = {loc: Point, movePts: number, path: Point[]};
+            let queue: queuedSquare[] = [{loc: joint, movePts: jointMovePts, path: []}];
+            while (queue.length) {
+                let cur = queue.shift() as queuedSquare;
+                
+                // Check if we've found a path to the board location we're looking for.
+                if (cur.loc.equals(destination)) {
+                    // Make sure end-of-path terminates. Beginning may connect to old path.
+                    this.squareAt(cur.loc).arrowTo = CardinalDirection.None;
+
+                    // iterate over squares indicated by path, setting their arrows
+                    for (let i = 0; i < (cur.path.length - 1); i++) {
+                        let square = this.squareAt(cur.path[i]);
+                        let nextSquare = this.squareAt(cur.path[i+1]);
+
+                        // Get direction of next adjacent square (assert it really is adjacent)
+                        let cardinalVector = cur.path[i+1].subtract(cur.path[i]);
+                        Debug.assert(cardinalVector.taxicabDistance(Point.Origin) == 1, "New travel path was not continuous.");
+
+                        // Connect adjacent squares via path arrows.
+                        square.arrowTo = CardinalVectorToCardinal(cardinalVector);
+                        nextSquare.arrowFrom = CardinalVectorToCardinal(cardinalVector.negative());
+                    }
+
+                    // Tell the algorithm to stop looking.
+                    newPathFound = true;
+                    break;
+                }
+
+                // For each cardinal direction, confirm that it is worth checking,
+                // and if so, add it to the search queue.
+                dirs.forEach( dirVector => {
+                    let newLoc = cur.loc.add(dirVector);
+                    let newPath: Point[];
+                    let newSquare = this.squareAt(newLoc);
+                    let moveCost = newSquare.terrain.getMovementCost(unit.moveType)
+
+                    if (newSquare.arrowFrom == 0 && newSquare.arrowTo == 0) // Check that the new square isn't on the old path (no crossing)
+                        if (newSquare.traversable(unit))
+                            if (cur.movePts > newSquare.value)              // Check that re-checking this square is worth the effort. (naturally prevents checking squares we just came from)
+                                if (moveCost <= cur.movePts) {
+                                    newSquare.value = cur.movePts;  // Inform next occurrence of square in search that we've been here
+                                    newPath = cur.path.slice();     // Copies path array
+                                    newPath.push(newLoc);           // Add newest square to path
+                                    queue.push({                    // Add newest search path to queue
+                                        loc: newLoc,
+                                        movePts: cur.movePts - moveCost,
+                                        path: newPath
+                                    });
+                                }
+                });
+            }
+
+            // If the last search did not yield results, shorten the old path, leaving travel length for another attempt.
+            if (newPathFound == false) {
+                // If our last search was from the unit's board location, give up searching on next cycle.
+                if (joint.equals(unit.boardLocation)) {
+                    givenUp = true;
+                }
+
+                // Remove arrow directions from this square and travel two squares back up the travel path.
+                for (let i = 0; i < 2; i++) {
+                    // Stop 'moving' along the old travel path if there's nowhere to move to.
+                    if (jointSquare.arrowFrom == 0) {
+                        jointSquare.arrowTo = 0;
+                        break;
+                    }
+
+                    // Otherwise, move the old/new path joint, blank the current square's settings,
+                    // reacquire movement points, and set the reference square to the new joint.
+                    joint = joint.add(dirs[jointSquare.arrowFrom]);
+                    jointSquare.arrowFrom = 0;
+                    jointSquare.arrowTo = 0;
+                    jointMovePts += jointSquare.terrain.getMovementCost(unit.moveType);
+                    jointSquare = this.squareAt(joint);
+                }
+            }
+        }
+
     }
 
     /** Prints the map's tile-contents to the console as a grid for inspection. */

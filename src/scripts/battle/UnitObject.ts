@@ -154,7 +154,8 @@ export abstract class UnitObject {
     get soldierUnit() { return false; }             // True if this unit is an Infantry, Mech or Bike
     get materialsInsteadOfAmmo() { return false; }
     get moveType() { return MoveType.Tread; }
-    get movementPoints() { return 6; }              // TODO This should be abstract
+    private get maxMovementPoints() { return 6; }   // TODO This should be abstract
+    get movementPoints() { return (this.gas < this.maxMovementPoints) ? this.gas : this.maxMovementPoints; }
     get armorType() { return ArmorType.Vehicle; }
     get repairType() { return UnitClass.Ground; }
     // TODO Other constant stats go here

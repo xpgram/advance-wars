@@ -12,6 +12,7 @@ import { Slider } from "../scripts/Common/Slider";
 import { Debug } from "../scripts/DebugUtils";
 import { TrackCar } from "../scripts/battle/TrackCar";
 import { CardinalDirection } from "../scripts/Common/CardinalDirection";
+import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSceneControllers";
 
 /**
  * @author Dei Valko
@@ -19,21 +20,9 @@ import { CardinalDirection } from "../scripts/Common/CardinalDirection";
  */
 export class BattleScene extends Scene {
 
-    map!: Map;
-    camera!: Camera;
-    gamepad!: VirtualGamepad;        // TODO Link this up as a property of Game.
-    cursor!: MapCursor;
-    infoWindow!: InfoWindowSystem;
+    controllers!: BattleSceneControllers;
 
-    unitsList: UnitObject[] = [];
     unitSwap: UnitObject | null = null;
-
-    car!: TrackCar;
-
-    cameraZoomSlider = new Slider({
-        track: 'max',
-        granularity: 0.1
-    });
 
     loadStep(): void {
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
@@ -52,78 +41,8 @@ export class BattleScene extends Scene {
     }
 
     setupStep(): void {
-        this.map = new Map(25, 9);
-
-        let unitTypes = [Unit.Infantry, Unit.Mech, Unit.Bike, Unit.Tank, Unit.MdTank, Unit.WarTank,
-            Unit.Recon, Unit.Rig, Unit.AntiAir, Unit.Flare, Unit.Artillery, Unit.AntiTank, Unit.Rockets,
-            Unit.Missiles, Unit.TCopter, Unit.BCopter, Unit.Duster, Unit.Fighter, Unit.Bomber, Unit.Seaplane,
-            Unit.Stealth, Unit.Seeker, Unit.Lander, Unit.Gunboat, Unit.Cruiser, Unit.Submarine, Unit.Carrier, Unit.Battleship];
-
-        // Create some unts, bb ye
-        let numUnits = Math.floor(Math.pow(Math.random(), 2)*25) + 15;
-        for (let i = 0; i < numUnits; i++) {
-            let unit = new unitTypes[ Math.floor(Math.random()*unitTypes.length) ]();
-            unit.init(null);
-
-            this.unitsList.push(unit);
-
-            let roll = (n: number) => {
-                return Math.round((Math.pow(-Math.pow(Math.random(), 4) + 1, 2)) * n);
-            }
-
-            unit.hp = roll(100);
-            unit.gas = roll(unit.maxGas);
-            unit.ammo = Math.round(Math.random() * unit.maxAmmo);
-            unit.sprite.x = unit.sprite.y = -100;  // I can't destroy units yet, so here.
-            unit.uiBox.x = unit.uiBox.y = -100;
-
-            for (let i = 0; i < 10; i++) {   // Only attempt 5 times
-                let x = Math.floor(Math.random()*this.map.width);
-                let y = Math.floor(Math.random()*this.map.height);
-
-                if (this.map.squareAt({x:x,y:y}).occupiable(unit) &&
-                    this.map.squareAt({x:x,y:y}).terrain.getMovementCost(unit.moveType) != 0) {
-                    this.map.placeUnit(unit, {x:x, y:y});
-                    break;
-                }
-            }
-        }
-        MapLayers['top'].sortChildren();
-        MapLayers['ui'].sortChildren();
-
-        this.camera = new Camera(Game.stage);
-        // Do it here.
-        // Also, since I need it several places, I should probably initialize it here instead of in new Map()
-        // ↑ I think this is referring to the camera?
-
-        // This needs to go somewhere else, like MapLayers.init() or TerrainMethods.startPaletteAnimation(),
-        // but how do I inform them... oh, never mind. They don't need to know where the camera's x/y is.
-        let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
-        (MapLayers['top'] as PIXI.Container).filterArea = cameraView;
-        (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;
-        // I think this ('bottom', anyway) was meant to cull processing by filters placed on them.
-        // I don't know if this has any appreciable effect.
-
-        // Set a backdrop for viewing pleasures
-        let backdrop = new PIXI.Sprite( Game.app.loader.resources['background'].texture );
-        Game.backdrop.addChild( backdrop );
-
-        // Testing out gamepads, babay
-        this.gamepad = new VirtualGamepad();
-        this.cursor = new MapCursor(this.map, this.gamepad);
-        this.camera.followTarget = this.cursor;
-
-        // Info Window
-        this.infoWindow = new InfoWindowSystem();
-        this.infoWindow.gp = this.gamepad;
-        this.infoWindow.map = this.map;
-        this.infoWindow.cursor = this.cursor;
-        this.infoWindow.camera = this.camera;
-        // this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
-        // this.infoWindow.inspectTile(this.cursor.pos);
-
+        this.controllers = new BattleSceneControllers({mapData: {width: 0, height: 0}});
         
-
         // Testing unit sprites
         // let unitName = 'seeker/red/idle';
         // let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
@@ -154,83 +73,106 @@ export class BattleScene extends Scene {
         // Unit-spent tint:        0x888888
         // Unit-right is unit-left with scale.x = -1
         // MovementRailcar does ~not~ pause animation once it reaches its destination. It is just usually too fast to notice this.
-
-        let c =  CardinalDirection;
-        let unit = new Unit.Recon();
-        unit.init();
-        this.car = new TrackCar({x:3, y:3},
-            [c.East, c.East, c.North, c.East, c.East, c.South, c.South, c.South, c.West, c.South, c.West, c.South, c.South, c.East, c.East, c.East, c.East],
-            unit,
-            true);
     }
 
     updateStep(delta: number): void {
 
-        this.gamepad.update();      // Update gamepad state (should probably be in main game loop)
+        // Migration of code in this step is massively incomplete.
+        // I haven't even started the process.
+        // A lot of this, which is almost entirely demo code, will be moved to various
+        // turn states as toggleable scripts or as state-specific update scripts.
+        // Some of it might remain here, though.
+        // gamepad.update() shouldn't.
+        // 
+        // Speaking of gamepad, I need a gamepad manager that can handle losing and regaining
+        // connections to more than one controller, and which will pass these connections on
+        // to its VirtualGamepads.
+        // This gamepad manager should route control of the first controller to P1, second to P2,
+        // the first to P2 if there is no second, and the keyboard to all of them unless 2+ controllers
+        // are connected.
+
+        this.controllers.gamepad.update();  // Update gamepad state (should probably be in main game loop)
+
+        // Window resize: camera-view rectangle fix.
+        if (Game.display.width != (MapLayers['top'] as PIXI.Container).filterArea.width
+            || Game.display.height != (MapLayers['top'] as PIXI.Container).filterArea.height) {
+            let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
+            (MapLayers['top'] as PIXI.Container).filterArea = cameraView;
+            (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;
+        }
 
         // Proof that buttons work.
-        if (this.gamepad.button.A.pressed) {
-            this.car.start();
+        if (this.controllers.gamepad.button.A.pressed) {
+            this.controllers.trackCar.start();
 
-            let square = this.map.squareAt(this.cursor.pos);
+            let square = this.controllers.map.squareAt(this.controllers.mapCursor.pos);
             if (square.unit)
                 this.unitSwap = square.unit;
             if (!square.unit && this.unitSwap && square.occupiable(this.unitSwap)) {
-                this.map.squareAt(this.unitSwap.boardLocation).unit = null;
-                this.map.placeUnit(this.unitSwap, this.cursor.pos);
+                this.controllers.map.squareAt(this.unitSwap.boardLocation).unit = null;
+                this.controllers.map.placeUnit(this.unitSwap, this.controllers.mapCursor.pos);
                 this.unitSwap = null;
                 MapLayers['top'].sortChildren();
-                this.infoWindow.inspectTile(square);
+                this.controllers.uiSystem.inspectTile(square);
             }
+
+            // Arrows
+            square.arrowFrom++;
+            if (square.arrowFrom == 5) {
+                square.arrowTo++;
+                square.arrowFrom = 0;
+            }
+            if (square.arrowTo == 5)
+                square.arrowTo = 0;
         }
 
-        if (this.gamepad.button.X.pressed) {
-            let square = this.map.squareAt(this.cursor.pos);
+        if (this.controllers.gamepad.button.X.pressed) {
+            let square = this.controllers.map.squareAt(this.controllers.mapCursor.pos);
             square.hiddenFlag = !square.hiddenFlag;
         }
-        if (this.gamepad.button.B.pressed) {
-            let square = this.map.squareAt(this.cursor.pos);
+        if (this.controllers.gamepad.button.B.pressed) {
+            let square = this.controllers.map.squareAt(this.controllers.mapCursor.pos);
             square.moveFlag = !square.moveFlag;
         }
 
         // Playin wit units
-        if (this.gamepad.button.B.pressed) {
-            for (let unit of this.unitsList)
+        if (this.controllers.gamepad.button.B.pressed) {
+            for (let unit of this.controllers.unitsList)
                 unit.transparent = true;
         }
-        if (this.gamepad.button.B.released) {
-            for (let unit of this.unitsList) 
+        if (this.controllers.gamepad.button.B.released) {
+            for (let unit of this.controllers.unitsList) 
                 unit.transparent = false;
         }
 
-        if (this.gamepad.button.Y.pressed) {
-            this.cameraZoomSlider.incrementFactor = -this.cameraZoomSlider.incrementFactor;
+        if (this.controllers.gamepad.button.Y.pressed) {
+            this.controllers.cameraZoomSlider.incrementFactor = -this.controllers.cameraZoomSlider.incrementFactor;
         }
         // Hardcoded constants are just different screen widths.
-        this.camera.zoom = (320/448) + ((1 - 320/448) * this.cameraZoomSlider.value);
-        this.cameraZoomSlider.increment();
+        this.controllers.camera.zoom = (320/448) + ((1 - 320/448) * this.controllers.cameraZoomSlider.value);
+        this.controllers.cameraZoomSlider.increment();
 
         // Stage centering when stage is too smol
         // This, uh... don't look at it.
         // TODO Don't look at it.
-        this.camera.followTarget = ((scene: BattleScene) => { return {
-            get x() { return scene.cursor.transform.exact.x; },
-            get y() { return scene.cursor.transform.exact.y; }
+        this.controllers.camera.followTarget = ((scene: BattleScene) => { return {
+            get x() { return scene.controllers.mapCursor.transform.exact.x; },
+            get y() { return scene.controllers.mapCursor.transform.exact.y; }
         }})(this);
-        if (this.camera.width >= this.map.width*16 + 80 && this.camera.height >= this.map.height*16 + 64)
-            this.camera.followTarget = {
-                x: this.map.width*8,
-                y: this.map.height*8
+        if (this.controllers.camera.width >= this.controllers.map.width*16 + 80 && this.controllers.camera.height >= this.controllers.map.height*16 + 64)
+            this.controllers.camera.followTarget = {
+                x: this.controllers.map.width*8,
+                y: this.controllers.map.height*8
             }
-        else if (this.camera.width >= this.map.width*16 + 80)
-            this.camera.followTarget = ((scene: BattleScene) => { return {
-                x: this.map.width*8,
-                get y() { return scene.cursor.transform.exact.y; }
+        else if (this.controllers.camera.width >= this.controllers.map.width*16 + 80)
+            this.controllers.camera.followTarget = ((scene: BattleScene) => { return {
+                x: this.controllers.map.width*8,
+                get y() { return scene.controllers.mapCursor.transform.exact.y; }
             }})(this);
-        else if (this.camera.height >= this.map.height*16 + 64)
-            this.camera.followTarget = ((scene: BattleScene) => { return {
-                get x() { return scene.cursor.transform.exact.x; },
-                y: this.map.height*8
+        else if (this.controllers.camera.height >= this.controllers.map.height*16 + 64)
+            this.controllers.camera.followTarget = ((scene: BattleScene) => { return {
+                get x() { return scene.controllers.mapCursor.transform.exact.x; },
+                y: this.controllers.map.height*8
             }})(this);
         //   Here's what the above block is doing and what to focus on when refactoring:
         // As *soon* as the map is too small not to fit neatly inside the camera frame,

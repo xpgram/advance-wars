@@ -2,6 +2,9 @@ import { Button } from "./Button";
 import { StringDictionary } from "../CommonTypes";
 import { KeyboardObserver } from "./KeyboardObserver";
 import { Axis2D } from "./Axis";
+import { ButtonMap } from "./ButtonMap";
+import { Point } from "../Common/Point";
+import { Debug } from "../DebugUtils";
 
 /**
  * @author Dei Valko
@@ -11,6 +14,9 @@ export class VirtualGamepad {
 
     /** Whether this virtual controller assumes input from the keyboard when its controller is disconnected. */
     defaultToKeyboard: boolean = false;
+
+    /** Which 'controller port' this gamepad listens to for input. */
+    readonly controllerPortNumber: number;
     
     /** A collection of this controller's axes. */
     readonly axis = {
@@ -21,25 +27,26 @@ export class VirtualGamepad {
 
     /** A collection of this controller's buttons. */
     button = {
-        B: new Button('B', ButtonMap.B, 'X', 88),        // Snes setup
-        A: new Button('A', ButtonMap.A, 'Z', 90),
-        Y: new Button('Y', ButtonMap.Y, 'V', 86),
-        X: new Button('X', ButtonMap.X, 'C', 67),
-        leftBumper: new Button('Left Bumper', ButtonMap.leftBumper, 'Ctrl', 17),
-        rightBumper: new Button('Right Bumper', ButtonMap.rightBumper, 'D', 68),
-        leftTrigger: new Button('Left Trigger', ButtonMap.leftTrigger, 'Shift', 16),
-        rightTrigger: new Button('Right Trigger', ButtonMap.rightTrigger, 'F', 70),
-        select: new Button('Select', ButtonMap.select, 'A', 65),
-        start: new Button('Start', ButtonMap.start, 'S', 83),
-        leftStick: new Button('Left Stick', ButtonMap.leftStick, null, null),
-        rightStick: new Button('Right Stick', ButtonMap.rightStick, null, null),
-        dpadUp: new Button('D-Pad Up', ButtonMap.dpadUp, 'Up Arrow', 38),
-        dpadDown: new Button('D-Pad Down', ButtonMap.dpadDown, 'Down Arrow', 40),
-        dpadLeft: new Button('D-Pad Left', ButtonMap.dpadLeft, 'Left Arrow', 37),
-        dpadRight: new Button('D-Pad Right', ButtonMap.dpadRight, 'Right ARrow', 39)
+        B: new Button(new ButtonMap(DefaultControllerMap.B, null, DefaultKeyboardMap.X, null)),
+        A: new Button(new ButtonMap(DefaultControllerMap.A, null, DefaultKeyboardMap.Z, null)),
+        Y: new Button(new ButtonMap(DefaultControllerMap.Y, null, DefaultKeyboardMap.V, null)),
+        X: new Button(new ButtonMap(DefaultControllerMap.X, null, DefaultKeyboardMap.C, null)),
+        leftBumper: new Button(new ButtonMap(DefaultControllerMap.leftBumper, null, DefaultKeyboardMap.Ctrl, null)),
+        rightBumper: new Button(new ButtonMap(DefaultControllerMap.rightBumper, null, DefaultKeyboardMap.D, null)),
+        leftTrigger: new Button(new ButtonMap(DefaultControllerMap.leftTrigger, null, DefaultKeyboardMap.Shift, null)),
+        rightTrigger: new Button(new ButtonMap(DefaultControllerMap.rightTrigger, null, DefaultKeyboardMap.F, null)),
+        select: new Button(new ButtonMap(DefaultControllerMap.select, null, DefaultKeyboardMap.A, null)),
+        start: new Button(new ButtonMap(DefaultControllerMap.start, null, DefaultKeyboardMap.S, null)),
+        leftStick: new Button(new ButtonMap(DefaultControllerMap.leftStick, null, DefaultKeyboardMap.Comma, null)),
+        rightStick: new Button(new ButtonMap(DefaultControllerMap.rightStick, null, DefaultKeyboardMap.Period, null)),
+        dpadUp: new Button(new ButtonMap(DefaultControllerMap.dpadUp, null, DefaultKeyboardMap.UpArrow, null)),
+        dpadDown: new Button(new ButtonMap(DefaultControllerMap.dpadDown, null, DefaultKeyboardMap.DownArrow, null)),
+        dpadLeft: new Button(new ButtonMap(DefaultControllerMap.dpadLeft, null, DefaultKeyboardMap.LeftArrow, null)),
+        dpadRight: new Button(new ButtonMap(DefaultControllerMap.dpadRight, null, DefaultKeyboardMap.RightArrow, null))
     };
 
-    constructor() {
+    constructor(/*portNumber: number*/) {
+        this.controllerPortNumber = 0;  // = portNumber;
         this.reset();
     }
 
@@ -55,55 +62,72 @@ export class VirtualGamepad {
 
     /** Updates the state of this virtual controller by polling a connected controller for its state. */
     update() {
-        let gamepad = this.getFirstGamepad();
+        let gamepad = this.getNthGamepad(this.controllerPortNumber);
 
+        // Update all virtual buttons
         for (let buttonProp in this.button) {
             let button = (this.button as StringDictionary<Button>)[buttonProp];
-            let pressed = false;
-            if (gamepad)
-                if (button.index)
-                    pressed = gamepad.buttons[button.index].pressed;
-            if (button.keycode)
-                pressed = VirtualGamepad.keyboard.keyDown(button.keycode) || pressed;
-            button.update(pressed);
+            let down = false; // False unless any of the button's mappable inputs can be considered 'down'
 
-            // TODO Sort out desired behavior: gamepad vs keyboard when both are enabled.
+            // If either mapped gamepad button is down
+            if (gamepad) {
+                if (button.map.button1 != null)
+                    down = gamepad.buttons[button.map.button1].pressed;
+                if (button.map.button2 != null)
+                    down = gamepad.buttons[button.map.button2].pressed || down;
+            }
+            // Or if either keyboard key is down
+            if (button.map.key1 != null)
+                down = VirtualGamepad.keyboard.keyDown(button.map.key1) || down;
+            if (button.map.key2 != null)
+                down = VirtualGamepad.keyboard.keyDown(button.map.key2) || down;
 
-            // else if (button.keycode)
-            //     button.update(gamepad.keys[ button.keycode ].pressed);
-            // ↑ Something sorta like this.
-            // But also rewritten like this:
-            //     button.update(button.pressed || key.pressed);
+            button.update(down);
         }
 
-        // Update D-Pad
+        // Update D-Pad axis
         let y = (this.button.dpadDown.down ? 1 : 0) - (this.button.dpadUp.down ? 1 : 0);
         let x = (this.button.dpadRight.down ? 1 : 0) - (this.button.dpadLeft.down ? 1 : 0);
-        this.axis.dpad.update( {x:x, y:y} );
+        this.axis.dpad.update(new Point(x,y));
 
         // Update axes
-        // ...
-        // TODO How do I reference gamepad axes again?
+        if (gamepad) {
+            if (gamepad.axes.length == 2)
+                this.axis.leftStick.update(new Point(gamepad.axes[0], gamepad.axes[1]));
+            else if (gamepad.axes.length >= 4) {
+                this.axis.leftStick.update(new Point(gamepad.axes[0], gamepad.axes[1]));
+                this.axis.rightStick.update(new Point(gamepad.axes[2], gamepad.axes[3]));
+            }
+            // As of writing, browsers only support the gamepad 'Standard Layout'
+            // If different controllers report axes in different ways, they're only
+            // interpretted one way here.
+            // I'm not even certain the first condition will ever evaluate to true.
+        }
     }
 
-    // TODO Multiplayer? How do I generalize this? Controller's supposedly have IDs...
-    // connectedGamepad: string; should be the ID of whichever controller we were listening to.
-    // If this connection breaks, pick a new controller (.?)
-    // What if we pick one already picked? We should keep a list somewhere.
-    // If none are available, use the keyboard.
-    // If the keyboard is banned, complain. (Should more-or-less trigger a "Please reconnect controller" message.)
-    /** Gets the first gamepad in the browser's list of connected gamepads. */
-    getFirstGamepad(): Gamepad | null {
-        for (const gamepad of navigator.getGamepads()) if (gamepad) return gamepad;
+    /** Gets the nth gamepad in the browser's list of connected gamepads, or returns
+     * null if nth gamepad does not exist. */
+    getNthGamepad(n: number): Gamepad | null {
+        // Attempt to retrieve nth gamepad
+        let i = 0;
+        for (const gamepad of navigator.getGamepads()) {
+            // Not all entries in 'gamepads' returned by navigator are real.
+            if (gamepad && gamepad.mapping == "standard") {
+                if (i == n)
+                    return gamepad;
+                i++;
+            }
+        }
+        // Failed
         return null;
     }
 }
 
 
 // TODO Convert this silly enum into some kind of json script. Something loadable, configurable.
-enum ButtonMap {
-    B = 0,
-    A = 1,
+enum DefaultControllerMap {
+    A = 0,
+    B = 1,
     Y = 2,
     X,
     leftBumper,
@@ -118,4 +142,24 @@ enum ButtonMap {
     dpadDown,
     dpadLeft,
     dpadRight
+}
+
+// This should be converted to ButtonConfig at some point.
+enum DefaultKeyboardMap {
+    X = 88,
+    Z = 90,
+    V = 86,
+    C = 67,
+    Ctrl = 17,
+    D = 68,
+    Shift = 16,
+    F = 70,
+    A = 65,
+    S = 83,
+    Comma = 188,
+    Period = 190,
+    UpArrow = 38,
+    DownArrow = 40,
+    LeftArrow = 37,
+    RightArrow = 39,
 }

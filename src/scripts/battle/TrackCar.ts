@@ -6,8 +6,7 @@ import { CardinalDirection, CardinalVector } from "../Common/CardinalDirection";
 import { Debug } from "../DebugUtils";
 
 export class TrackCar {
-
-    //enabled: boolean = false;               // Whether or not this object processes.
+    
     private started = false;                // Whether this object's update process is doing so.
 
     tileSize: number = Game.display.standardLength; // Conversion factor from board points to world points.
@@ -64,6 +63,16 @@ export class TrackCar {
         this.car.destroy({children: true});
     }
 
+    /** Hides graphics on the world stage. */
+    hide() {
+        this.car.visible = false;
+    }
+
+    /** Reveals graphics on the world stage. */
+    show() {
+        this.car.visible = true;
+    }
+
     /* True if this moving animation has completed its journey. */
     get finished(): boolean {
         return (this.directionIndex >= this.directions.length);
@@ -79,11 +88,13 @@ export class TrackCar {
         this.stop();                    // If already started, stop and idle at starting point.
     }
 
-    /** Starts the movement animation from current board location to final destination. */
+    /** Starts the movement animation from current board location to final destination.
+     * If this element is hidden, this method will reveal it. */
     start(): void {
         if (this.started)
             return;
 
+        this.show();
         this.started = true;
         this.directionIndex--;  // Re-initiate the current instruction.
         this.prepareNextInstruction();
@@ -107,7 +118,7 @@ export class TrackCar {
 
     /** Incremental frame update function. */
     private update(): void {
-        // Skip if 'turned off'
+        // Skip if 'turned off' 
         if (this.finished)
             return;
 
@@ -139,7 +150,7 @@ export class TrackCar {
             this.setFacing(dir);
         }
         else
-            this.nextMove = new Point(0,0);
+            this.nextMove = new Point();
     }
 
     /** Sets the car-passenger's facing according to the given direction. */

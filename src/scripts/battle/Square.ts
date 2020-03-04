@@ -5,11 +5,16 @@ import { MapLayers } from "./MapLayers";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { Map } from "./Map";
 import { Point, PointPrimitive } from "../Common/Point";
+import { Game } from "../..";
 
 /**
  * Used by Map only. Maybe.
- * Generally a container for map information, but also features many self-managing method for
- * search propogation and map UI artifacts.
+ * Generally a container for map information, but also self-manages appearance for UI purposes, etc.
+ * 
+ * // TODO Needs major refactoring, along with its associated links to Map and Terrain.
+ *  - Bitwise properties should be converted to the UnitObject model.
+ *  - The order of initialization between Map→Square→Terrain is weird and disfunctional.
+ *  - overlayPanel can be alpha'd and tinted cheaply, but the overhead-lights effect I haven't worked out.
  * 
  * @author Dei Valko
  * @version 0.1.0
@@ -20,7 +25,11 @@ export class Square {
     get terrain() { return this._terrain; }
     set terrain(terr: TerrainObject) {
         this._terrain = terr;
+
         //this.overlay = terr.whiteTexture; // This should work, but... ??
+        // I believe terrain gets added to square before initialization/graphics-configuration
+        // TODO Have map initialize tile graphics by calling Square.init() instead of Square.terrain.init()?
+        // Is that even what it does?
     }
 
     private _unit: UnitObject | null = null;
@@ -33,9 +42,11 @@ export class Square {
     }
 
     /**  */
-    private overlay!: PIXI.Sprite;
+    private overlay = new PIXI.Container();
+    private overlayPanel = new PIXI.Sprite();
+    private overlayArrow = new PIXI.Sprite();
 
-    /** A 64-bit number representing all or most of Square's relevant information. */
+    /** A 32-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
 
     // Constants/accessor-values for displayInfo —— Any way to make these numbers
@@ -49,10 +60,13 @@ export class Square {
     private static readonly arrowToShift = 8;
     private static readonly xCoordShift = 11;
     private static readonly yCoordShift = 19;
+    private static readonly tempShift = 27;
+    private static readonly searchVisitedShift = 31;
     
     private static readonly boolLength = 1;
     private static readonly directionLength = 3;
     private static readonly coordinateLength = 8;
+    private static readonly tempLength = 4;
 
     static readonly Max_Coords = 255;
 
@@ -60,6 +74,16 @@ export class Square {
         this.x = x;
         this.y = y;
         this.terrain = new Terrain.Void();
+
+        this.overlay.x = this.x * 16;
+        this.overlay.y = this.y * 16;
+        this.overlay.zIndex = Map.calculateZIndex({x:this.x, y:this.y}, 'glass-overlay');
+
+        this.overlay.addChild(this.overlayPanel);
+        this.overlay.addChild(this.overlayArrow);
+        this.overlayPanel.x = this.overlayPanel.y = -16;
+
+        MapLayers['top'].addChild(this.overlay);
     }
 
     /** Destroys this object and its children. */
@@ -91,6 +115,7 @@ export class Square {
         this.displayInfo = this.displayInfo & ~(mask << shift);
         this.displayInfo += (value & mask) << shift;
         this.updateHighlight();
+        this.updateArrows();            // TODO Using arrowTo/arrowFrom, display arrow graphics
     }
 
     /** Whether this tile is reachable by a traveling unit. */
@@ -134,6 +159,14 @@ export class Square {
     get pos(): PointPrimitive {
         return {x: this.x, y: this.y};
     }
+    /** Temporary store: A 4-bit number (value range 0–15) useful in search algorithms. */
+    get value(): number {
+        return this.displayInfoGet(Square.tempLength, Square.tempShift);
+    }
+    /** Temporary store: A boolean value useful in search algorithms. */
+    get flag(): boolean {
+        return 1 == this.displayInfoGet(Square.boolLength, Square.searchVisitedShift);
+    }
 
     set moveFlag(value) {
         this.displayInfoSet(Square.boolLength, Square.moveableShift, ~~value);
@@ -166,8 +199,14 @@ export class Square {
         this.x = point.x;
         this.y = point.y;
     }
+    set value(n: number) {
+        this.displayInfoSet(Square.tempLength, Square.tempShift, n);
+    }
+    set flag(b: boolean) {
+        this.displayInfoSet(Square.boolLength, Square.searchVisitedShift, ~~b);
+    }
 
-    updateHighlight(): void {
+    private updateHighlight(): void {
         if (!this.terrain)      // TODO Remove this——after converting displayInfoSet, of course.
             return;
         
@@ -192,11 +231,13 @@ export class Square {
         // Or, you *could* do this. In the past. v4, specifically.
         // So, really, you *can't* do this. Ugh.
 
-        if (this.terrain.whiteTexture.texture && !this.overlay) {
-            this.overlay = this.terrain.whiteTexture;
-            this.overlay.zIndex = Map.calculateZIndex({x:this.x, y:this.y}, 'glass-overlay');
-            MapLayers['top'].sortChildren();    // ← This is ridiculous.
+        // This is very temporary—I need some major refactoring between square, map and terrain.
+        if (this.overlayPanel.texture.height <= 1) {
+            let whiteSprite = this._terrain.whiteTexture;
+            if (whiteSprite.texture)
+                this.overlayPanel.texture = whiteSprite.texture;
         }
+
         // TODO Initialize Squares → initialize terrains. Maybe? This would allow me to set this.overlay once.
 
         // TODO Before doing anything else here, run some experiments.
@@ -218,10 +259,10 @@ export class Square {
 
         // Function which adjusts the look of the glassy overlay to a preset.
         let setColor = (options: {color:number, alpha:number, mode:number}) => {
-            this.overlay.tint = options.color;
-            this.overlay.alpha = options.alpha;
-            this.overlay.blendMode = options.mode;
-            this.overlay.visible = true;
+            this.overlayPanel.tint = options.color;
+            this.overlayPanel.alpha = options.alpha;
+            this.overlayPanel.blendMode = options.mode;
+            this.overlayPanel.visible = true;
         }
 
         // Hidden tiles in Fog of War — Hide units and building details
@@ -231,7 +272,7 @@ export class Square {
             this.unit.visible = !this.hiddenFlag;
 
         // Choose glassy overlay preset
-        this.overlay.visible = false;
+        this.overlayPanel.visible = false;
 
         if (this.moveFlag)
             setColor(colors.blue);
@@ -245,18 +286,64 @@ export class Square {
             setColor(colors.grey);
     }
 
+    /**  */
+    private updateArrows() {
+        if (!this.overlay)  // TODO Remove this after converting—something, something—the above. I dunno. Refactoring this whole class, maybe.
+            return;
+
+        let sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
+
+        // char decrementers for arrow path directions
+        let from = this.arrowFrom
+        let to = this.arrowTo;
+
+        // char decrementer for arrow head direction (always opposite 'from')
+        let arrowHead = (this.arrowFrom && !this.arrowTo) ? this.arrowFrom + 2 : 0;
+        if (arrowHead > 4) arrowHead -= 4;  // Cap at 4; only 4 directions
+
+        // Find the arrow-graphic variation described by path directions.
+        // This method depends on up-right-down-left being the standard order of cardinal directions.
+        let variation = '';
+        let c = 4
+        while (c > 0) {
+            c--; from--; to--; arrowHead--;
+
+            if (arrowHead == 0)
+                variation += '2';
+            else if (from == 0 || to == 0)
+                variation += '1';
+            else
+                variation += '0';
+        }
+
+        // Blank old setting
+        this.overlayArrow.visible = false;
+
+        // If variation isn't "none," set new arrow path graphic.
+        if (variation != '0000') {
+            this.overlayArrow.texture = sheet.textures[`MovementArrow/movement-arrow-${variation}.png`];
+            this.overlayArrow.visible = true;
+        }
+    }
+
+    /** Returns true if the given unit may legally inhabit this square. */
     occupiable(unit: UnitObject): boolean {
         let traversable = this.traversable(unit);
         let empty = (this.unit == null);
         return traversable && empty;
     }
 
+    /** Returns true if the given unit object may legally pass through this square, false
+     * only if this square presents an obstruction to the travelling unit. */
     traversable(unit: UnitObject): boolean {
-        let legalMovement = (this.terrain.getMovementCost(unit.moveType) > 0);
-        let unitAlliedOrEmpty = (this.unit == null || this.unit.faction == unit.faction);
+        let legalMovement = (this.terrain.getMovementCost(unit.moveType) > 0);              // Ships ≠ Land, Any ≠ Void Tiles
+        let unitAlliedOrEmpty = (this.unit == null || this.unit.faction == unit.faction);   // Team ≠ not-Team
         return legalMovement && unitAlliedOrEmpty;
     }
 
+    /** Returns true if the given unit may launch an attack on a unit inhabiting this square.
+     * Returns false if there is no inhabiting unit to attack, or if the inhabiting unit is not targetable
+     * by the given unit. */
     attackable(unit: UnitObject): boolean {
         if (this.unit)
             return unit.targetable(this.unit);
