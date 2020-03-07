@@ -4,6 +4,8 @@ import { Slider } from "../Common/Slider";
 import { Game } from "../..";
 import { CardinalDirection, CardinalVector } from "../Common/CardinalDirection";
 import { Debug } from "../DebugUtils";
+import { MapLayers } from "./MapLayers";
+import { Unit } from "./Unit";
 
 export class TrackCar {
     
@@ -19,12 +21,12 @@ export class TrackCar {
     directionIndex: number = 0;             // The current direction this animator is working on.
 
     moveSlider = new Slider({               // Incremental tile-to-tile slide animation controller.
-        granularity: 1 / 5                  // 1 over number of frames
+        granularity: 1 / 6                  // 1 over number of frames
     });
 
     car = new PIXI.Container();             // The traveling car.
     sprite: PIXI.AnimatedSprite;            // The car passenger representing the moving sprite.
-    leftFacing: boolean;                    // Whether the idle, before-transit-has-begun sprite is facing left or right.
+    leftFacing: boolean = false;            // Whether the idle, before-transit-has-begun sprite is facing left or right.
     movementSpriteSet: {
         up: PIXI.Texture[],
         down: PIXI.Texture[],
@@ -37,24 +39,29 @@ export class TrackCar {
      * @param type Which unit-kind is being traveled.
      * @param leftFacing Whether to reverse the horizontal, idle sprite-facing before travel has begun.
      */
-    constructor(startPos: PointPrimitive, directions: CardinalDirection[], type: UnitObject, leftFacing: boolean) {
-        this.startPoint = new Point(startPos);
-        this.directions = directions;
-        this.leftFacing = leftFacing;
-        this.movementSpriteSet = type.movementAnimations;
+    constructor() {
+        this.directions = [];
+        this.movementSpriteSet = {
+            up: [],
+            down: [],
+            left: []
+        }
+
+        //@ts-ignore
+        // TODO I should have a Game.nullTexture just for this exact situation...
+        // Using a real movement animation feeds the image origin into the sprite object.
+        let tempImage = Game.scene.resources['UnitSpritesheet'].spritesheet.animations['infantry/rubinelle/red/left'];
 
         // Create the on-screen sprite and place it in-world.
-        this.sprite = new PIXI.AnimatedSprite(this.movementSpriteSet.left);
-        let runningInterval = 6.25;     // Frames-per-texture-update for soldier units.
-        let vehicleInterval = 4;        // "…" for vehicle units.
-        let frameTick = type.soldierUnit ? runningInterval : vehicleInterval;
-        this.sprite.animationSpeed = 1 / frameTick;     // 1 over frames-per-texture-update
-        this.sprite.play();
-        this.car.addChild(this.sprite);
-        Game.stage.addChild(this.car);       // Car must be on top of all other board iconography
+        this.sprite = new PIXI.AnimatedSprite(tempImage);   // AnimSprites cannot have an empty texture list
 
-        // Set animation state to starting conditions.
-        this.reset();
+        this.car.addChild(this.sprite);
+        this.car.zIndex = 11;               // Car must be on top of all other board iconography // TODO Move this into a function with declarable layers
+
+        MapLayers['ui'].addChild(this.car)
+
+        // Hide until TrackCar's presence is formally requested.
+        this.hide();
     }
 
     /** Dismantles this object and its dependencies. */
@@ -71,6 +78,26 @@ export class TrackCar {
     /** Reveals graphics on the world stage. */
     show() {
         this.car.visible = true;
+    }
+
+    /**  */
+    buildNewAnimation(unit: UnitObject) {
+        let runningInterval = 6.25; // Frames-per-texture-update for foot-soldiers.
+        let vehicleInterval = 4;    // The same for vehicle units.
+
+        // Compile new animation details
+        this.startPoint = new Point(unit.boardLocation);
+        this.directions = [];
+        this.leftFacing = unit.reverseFacing;
+        this.movementSpriteSet = unit.movementAnimations;
+
+        // Reconfigure the world sprite
+        this.sprite.textures = this.movementSpriteSet.left;
+        let frameInterval = (unit.soldierUnit) ? runningInterval : vehicleInterval;
+        this.sprite.animationSpeed = 1 / frameInterval;
+
+        // Set animation progress to none, or idling.
+        this.reset();
     }
 
     /* True if this moving animation has completed its journey. */
@@ -104,7 +131,7 @@ export class TrackCar {
     /** Halts the animation by removing update processes from the game loop. */
     stop(): void {
         this.started = false;
-        Game.scene.ticker.remove(this.update, this);
+        Game.scene.ticker.remove(this.update, this);    // TODO Why am I doing this?
     }
 
     /** Skips to the end of the animation. */
@@ -146,8 +173,15 @@ export class TrackCar {
 
         if (!this.finished) {
             let dir = this.directions[this.directionIndex];
+            let lastDir = (this.directionIndex != 0) ? this.directions[this.directionIndex - 1] : -1;
+
             this.nextMove = CardinalVector(dir);
-            this.setFacing(dir);
+
+            // For uninterrupted sprite-playing purposes, do not change the directional sprite set
+            // unless the track car has actually changed direction.
+            let directionChanged = (dir != lastDir);
+            if (this.directionIndex == 0 || directionChanged)
+                this.setFacing(dir);
         }
         else
             this.nextMove = new Point();

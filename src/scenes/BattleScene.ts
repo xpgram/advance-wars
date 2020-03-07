@@ -13,6 +13,7 @@ import { Debug } from "../scripts/DebugUtils";
 import { TrackCar } from "../scripts/battle/TrackCar";
 import { CardinalDirection } from "../scripts/Common/CardinalDirection";
 import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSceneControllers";
+import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystemManager";
 
 /**
  * @author Dei Valko
@@ -20,6 +21,7 @@ import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSce
  */
 export class BattleScene extends Scene {
 
+    battleSystem!: BattleSystemManager;
     controllers!: BattleSceneControllers;
 
     unitSwap: UnitObject | null = null;
@@ -41,7 +43,12 @@ export class BattleScene extends Scene {
     }
 
     setupStep(): void {
-        this.controllers = new BattleSceneControllers({mapData: {width: 0, height: 0}});
+        //this.controllers = new BattleSceneControllers({mapData: {width: 0, height: 0}});
+        this.battleSystem = new BattleSystemManager({
+            // stub
+        });
+        
+        this.controllers = this.battleSystem.controllers;
         
         // Testing unit sprites
         // let unitName = 'seeker/red/idle';
@@ -96,13 +103,14 @@ export class BattleScene extends Scene {
         // Window resize: camera-view rectangle fix.
         if (Game.display.width != (MapLayers['top'] as PIXI.Container).filterArea.width
             || Game.display.height != (MapLayers['top'] as PIXI.Container).filterArea.height) {
+
             let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
             (MapLayers['top'] as PIXI.Container).filterArea = cameraView;
             (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;
         }
 
         // Proof that buttons work.
-        if (this.controllers.gamepad.button.A.pressed) {
+        /*if (this.controllers.gamepad.button.A.pressed) {
             this.controllers.trackCar.start();
 
             let square = this.controllers.map.squareAt(this.controllers.mapCursor.pos);
@@ -115,27 +123,10 @@ export class BattleScene extends Scene {
                 MapLayers['top'].sortChildren();
                 this.controllers.uiSystem.inspectTile(square);
             }
-
-            // Arrows
-            square.arrowFrom++;
-            if (square.arrowFrom == 5) {
-                square.arrowTo++;
-                square.arrowFrom = 0;
-            }
-            if (square.arrowTo == 5)
-                square.arrowTo = 0;
-        }
-
-        if (this.controllers.gamepad.button.X.pressed) {
-            let square = this.controllers.map.squareAt(this.controllers.mapCursor.pos);
-            square.hiddenFlag = !square.hiddenFlag;
-        }
-        if (this.controllers.gamepad.button.B.pressed) {
-            let square = this.controllers.map.squareAt(this.controllers.mapCursor.pos);
-            square.moveFlag = !square.moveFlag;
-        }
+        }*/
 
         // Playin wit units
+        // TODO Make this an activateable script for controllers.
         if (this.controllers.gamepad.button.B.pressed) {
             for (let unit of this.controllers.unitsList)
                 unit.transparent = true;
@@ -145,6 +136,7 @@ export class BattleScene extends Scene {
                 unit.transparent = false;
         }
 
+        // TODO Make this an activateable script for controllers.
         if (this.controllers.gamepad.button.Y.pressed) {
             this.controllers.cameraZoomSlider.incrementFactor = -this.controllers.cameraZoomSlider.incrementFactor;
         }

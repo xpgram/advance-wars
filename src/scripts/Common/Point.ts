@@ -29,8 +29,12 @@ export class Point {
         return (new Point()).add(this);
     }
 
-    equals(p: PointPrimitive): boolean {
+    equal(p: PointPrimitive): boolean {
         return (this.x == p.x && this.y == p.y);
+    }
+
+    notEqual(p: PointPrimitive): boolean {
+        return (this.x != p.x || this.y != p.y);
     }
 
     /** Returns a new vector: the sum of this and the given vector. */

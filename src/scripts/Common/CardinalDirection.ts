@@ -32,7 +32,7 @@ export function CardinalVectorToCardinal(point: Point) {
                 CardinalDirection.West];
 
     for (let i = 0; i < points.length; i++) {
-        if (points[i].equals(point))
+        if (points[i].equal(point))
             return dirs[i];
     }
 

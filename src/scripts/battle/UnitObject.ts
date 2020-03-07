@@ -140,7 +140,7 @@ export abstract class UnitObject {
 
         // Typically, this happens because new Unit() does not .init(), meaning faction is left blank or whatever. No bueno. I need to refactor a bit.
         // I think this method just needs to ensure it's only called on 'existing' units, not just constructed ones.
-        Debug.assert(Boolean(o.up) && Boolean(o.down) && Boolean(o.left), `Generated set of movement textures is not complete or does not exist. Was name, faction and country all provided?`);
+        Debug.assert(Boolean(o.up) && Boolean(o.down) && Boolean(o.left), `Generated set of movement textures is not complete or does not exist. [Up:${Boolean(o.up)}, Down:${Boolean(o.down)}, Left:${Boolean(o.left)}]`);
 
         return o;
     }
@@ -211,7 +211,7 @@ export abstract class UnitObject {
         // TODO Use Army to fill in this unit object's faction, player orientation (player 2 always faces left), etc.
 
         // Configure basic stats.
-        Common.writeBits(this.stateInfo, this.serial, typeBits.length, typeBits.shift);
+        this.stateInfo = Common.writeBits(this.stateInfo, this.serial, typeBits.length, typeBits.shift);
         this.hp = 100;
         this.ammo = this.maxAmmo;
         this.gas = this.maxGas;
@@ -459,5 +459,17 @@ export abstract class UnitObject {
     resupply() {
         this.gas = this.maxGas;
         this.ammo = this.maxAmmo;
+    }
+
+    /** Returns true if this unit can launch an attack against the given unit. */
+    canTarget(unit: UnitObject) {
+        // TODO Stub
+        return true;
+
+        // if (this.baseDamageMatrix[unit.serial] > 0)
+        // or
+        // if (this.primaryType == unit.armorType && this.ammo > 0
+        //     || this.secondaryType == unit.armorType)
+        // I'm not sure what strategy I want yet.
     }
 }

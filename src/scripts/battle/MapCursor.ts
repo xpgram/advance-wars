@@ -77,6 +77,7 @@ export class MapCursor {
 
         // Add the created image layer to the relevant places
         this.transform.object = this.spriteLayer;
+        this.transform.z = 100;     // TODO This needs to be somewhere much more accessible.
         MapLayers['ui'].addChild(this.spriteLayer);
 
         // Initiate pulsars controlling animation and movement input.

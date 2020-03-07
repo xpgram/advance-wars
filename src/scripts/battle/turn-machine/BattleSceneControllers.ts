@@ -66,17 +66,11 @@ export class BattleSceneControllers {
         let backdrop = new PIXI.Sprite( Game.scene.resources['background'].texture );
         Game.backdrop.addChild(backdrop);
 
-        // Units demo (must be called before trackCar below)
+        // Units demo
         this.spawnRandomUnits();
 
         // trackCar demo
-        let c = CardinalDirection;
-        let unit = this.unitsList[0];
-        unit.visible = false;
-        this.trackCar = new TrackCar({x: unit.boardLocation.x, y: unit.boardLocation.y},
-            [c.East, c.East, c.North, c.East, c.East, c.South, c.South, c.South, c.West, c.South, c.West, c.South, c.South, c.East, c.East, c.East, c.East],
-            unit,
-            true);
+        this.trackCar = new TrackCar();
 
         // Apply z-sort correction to scene objects.
         MapLayers['top'].sortChildren();

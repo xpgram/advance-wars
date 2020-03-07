@@ -272,7 +272,7 @@ export class Map {
             let neighbors = this.neighborsAt({x:x,y:y});
             let pos = {x:x,y:y};
             let worldPos = {x: x * tileSize, y: y * tileSize, z: Map.calculateZIndex(pos)};
-            this.squareAt(pos).terrain.init(neighbors, worldPos);
+            this.squareAt(pos).finalize(neighbors);
         }
 
         // Apply z-ordering. Bottom layer never overlaps——is fine.
@@ -396,6 +396,9 @@ export class Map {
                p.y >= 0 && p.y < this.height;
     }
 
+    // TODO Consolidate these clear methods into one; if I have to use more than one, why iterate over the map twice??
+    // Use an options type → {tempVals: true, movementFlags: true, movementArrows: false}
+
     /** Sets all temporary store values on the map to zero. Does not need to be called if any other clear-fields
      * method was called. */
     clearTemporaryValues() {
@@ -413,8 +416,12 @@ export class Map {
         for (let y = 0; y < this.height; y++)
         for (let x = 0; x < this.width; x++) {
             let square = this.squareAt({x:x,y:y});
+            // Movement Map
             square.moveFlag = false;
             square.attackFlag = false;
+            square.arrowFrom = 0;
+            square.arrowTo = 0;
+            // Temp Values
             square.value = 0;
             square.flag = false;
         }
@@ -467,7 +474,7 @@ export class Map {
                     next = { loc: cur.loc.add(dirVector), movePoints: cur.movePoints, last: cur.loc };
 
                     // Don't bother checking the direction we came from.
-                    if (next.loc.equals(cur.last))
+                    if (next.loc.equal(cur.last))
                         return;
 
                     // Get accurate remaining movement points for next
@@ -482,10 +489,11 @@ export class Map {
     }
 
     /** Given a new board location, re-route the board's mapping of some unit's projected travel
-     * path to this new board location if possible. */
+     * path to this new board location, if possible. */
     recalculatePathToPoint(unit: UnitObject, destination: PointPrimitive) {
         let newPathFound = false;
         let givenUp = false;
+        let completeRecalculate = false;
         let source = new Point(unit.boardLocation);
         let joint = source.clone();
         let jointSquare = this.squareAt(source);
@@ -504,35 +512,53 @@ export class Map {
         // At the same time, if the new destination point is found, simply cut the current path short.
         while (jointSquare.arrowTo != 0) {
             // Check if the destination square is on the old path, the joint we're currently looking at.
-            if (joint.equals(destination)) {
+            if (joint.equal(destination))
                 newPathFound = true;
-                jointSquare.arrowTo = 0;     // Erase path lead, making this the final square.
-            }
+
+            // Save new square dir before possible erasure
+            let arrowTo = jointSquare.arrowTo;
+
+            // If new path already found, erase path leads
+            if (newPathFound)
+                jointSquare.arrowTo = 0;
 
             // Move the joint up the old path. Keep track of movement points for path searching later.
-            joint = joint.add(CardinalVector(jointSquare.arrowTo));
+            joint = joint.add(CardinalVector(arrowTo));
             jointSquare = this.squareAt(joint);
             jointMovePts -= jointSquare.terrain.getMovementCost(unit.moveType);
             
-            // If destination was found on the old path, erase all arrows after its occurrence.
-            if (newPathFound) {
+            // If new path already found, erase path tracks
+            if (newPathFound)
                 jointSquare.arrowFrom = 0;
-                jointSquare.arrowTo = 0;
-            }
+            // Otherwise, if movement points are exhausted, prefer a more direct path on recalculation.
+            else if (jointMovePts <= 0)
+                completeRecalculate = true;
         }
 
-        // If new path was already found, do not bother searching for it.
+        // When recalculating the path from source, erase the old path completely.
+        if (completeRecalculate) {
+            while (source.notEqual(jointSquare.pos)) {
+                joint = joint.add(CardinalVector(jointSquare.arrowFrom));
+                jointSquare.arrowFrom = 0;
+                jointSquare.arrowTo = 0;
+                jointSquare = this.squareAt(joint);
+            }
+            this.squareAt(source).arrowTo = 0;
+            jointMovePts = unit.movementPoints;
+        }
+
+        // If new path wasn't already found, search for it.
         while (!newPathFound && !givenUp) {
 
             // Breadth-first search for the destination point.
             // This algorithm does not care about efficiency of travel, only efficiency of distance.
             type queuedSquare = {loc: Point, movePts: number, path: Point[]};
-            let queue: queuedSquare[] = [{loc: joint, movePts: jointMovePts, path: []}];
+            let queue: queuedSquare[] = [{loc: joint, movePts: jointMovePts, path: [joint]}];
             while (queue.length) {
                 let cur = queue.shift() as queuedSquare;
                 
                 // Check if we've found a path to the board location we're looking for.
-                if (cur.loc.equals(destination)) {
+                if (cur.loc.equal(destination)) {
                     // Make sure end-of-path terminates. Beginning may connect to old path.
                     this.squareAt(cur.loc).arrowTo = CardinalDirection.None;
 
@@ -582,21 +608,16 @@ export class Map {
             // If the last search did not yield results, shorten the old path, leaving travel length for another attempt.
             if (newPathFound == false) {
                 // If our last search was from the unit's board location, give up searching on next cycle.
-                if (joint.equals(unit.boardLocation)) {
+                if (joint.equal(unit.boardLocation)) {
                     givenUp = true;
                 }
 
                 // Remove arrow directions from this square and travel two squares back up the travel path.
-                for (let i = 0; i < 2; i++) {
-                    // Stop 'moving' along the old travel path if there's nowhere to move to.
-                    if (jointSquare.arrowFrom == 0) {
-                        jointSquare.arrowTo = 0;
-                        break;
-                    }
+                for (let i = 0; i < 1; i++) {
 
                     // Otherwise, move the old/new path joint, blank the current square's settings,
                     // reacquire movement points, and set the reference square to the new joint.
-                    joint = joint.add(dirs[jointSquare.arrowFrom]);
+                    joint = joint.add(CardinalVector(jointSquare.arrowFrom));
                     jointSquare.arrowFrom = 0;
                     jointSquare.arrowTo = 0;
                     jointMovePts += jointSquare.terrain.getMovementCost(unit.moveType);

@@ -6,6 +6,7 @@ import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { Map } from "./Map";
 import { Point, PointPrimitive } from "../Common/Point";
 import { Game } from "../..";
+import { NeighborMatrix } from "../NeighborMatrix";
 
 /**
  * Used by Map only. Maybe.
@@ -26,10 +27,6 @@ export class Square {
     set terrain(terr: TerrainObject) {
         this._terrain = terr;
 
-        //this.overlay = terr.whiteTexture; // This should work, but... ??
-        // I believe terrain gets added to square before initialization/graphics-configuration
-        // TODO Have map initialize tile graphics by calling Square.init() instead of Square.terrain.init()?
-        // Is that even what it does?
     }
 
     private _unit: UnitObject | null = null;
@@ -41,13 +38,17 @@ export class Square {
         // You know, like hidden being hidden.
     }
 
-    /**  */
-    private overlay = new PIXI.Container();
+    /** The tinted-glass tile highlight that informs the player what actions or information is available for this square. */
     private overlayPanel = new PIXI.Sprite();
+    /** The arrow-path layer which, by segment, informs the player what path a travelling unit would intend to take. */
     private overlayArrow = new PIXI.Sprite();
 
     /** A 32-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
+
+    // TODO Fit this into the bitshifted properties below
+    /** Whether this square should hide its unit if one is present. */
+    hideUnit = false;
 
     // Constants/accessor-values for displayInfo —— Any way to make these numbers
     // auto-configurable, by the way, would be wonderful.
@@ -75,15 +76,8 @@ export class Square {
         this.y = y;
         this.terrain = new Terrain.Void();
 
-        this.overlay.x = this.x * 16;
-        this.overlay.y = this.y * 16;
-        this.overlay.zIndex = Map.calculateZIndex({x:this.x, y:this.y}, 'glass-overlay');
-
-        this.overlay.addChild(this.overlayPanel);
-        this.overlay.addChild(this.overlayArrow);
-        this.overlayPanel.x = this.overlayPanel.y = -16;
-
-        MapLayers['top'].addChild(this.overlay);
+        MapLayers['top'].addChild(this.overlayPanel);
+        MapLayers['ui'].addChild(this.overlayArrow);
     }
 
     /** Destroys this object and its children. */
@@ -91,6 +85,35 @@ export class Square {
         this.terrain.destroy();
         if (this.unit)
             this.unit.destroy();
+    }
+
+    /** This method sets up terrain graphics, grabs its white texture, etc.
+     * I'm trying to figure out, between this class and Map, which *should*
+     * hold responsibility over what, though.
+     * // TODO Make it work, but like, better-like. */
+    finalize(neighbors: NeighborMatrix<TerrainObject>) {
+        let tileSize = Game.display.standardLength;
+
+        // Terrain Graphic Layer
+        let worldPos = {
+            x: this.x * tileSize,
+            y: this.y * tileSize,
+            z: Map.calculateZIndex({x: this.x, y: this.y})
+        };
+        this.terrain.init(neighbors, worldPos);
+
+        // Tinted-Glass Panel Layer
+        this.overlayPanel.x = this.x * tileSize - tileSize; // Generated textures (32x32) do not have
+        this.overlayPanel.y = this.y * tileSize - tileSize; // preset origins, so adjust position by tileSize
+        this.overlayPanel.zIndex = Map.calculateZIndex({x:this.x, y:this.y}, 'glass-overlay');
+        this.overlayPanel.texture = this.terrain.whiteTexture.texture;
+
+        // Arrow Layer
+        this.overlayArrow.x = this.x * tileSize;
+        this.overlayArrow.y = this.y * tileSize;
+        this.overlayArrow.zIndex = 10;  // Puts arrows above unit info. // TODO Put this in a function somewhere? Like Map.calculateZIndex()?
+
+        this.updateHighlight();
     }
 
     /**
@@ -115,7 +138,7 @@ export class Square {
         this.displayInfo = this.displayInfo & ~(mask << shift);
         this.displayInfo += (value & mask) << shift;
         this.updateHighlight();
-        this.updateArrows();            // TODO Using arrowTo/arrowFrom, display arrow graphics
+        this.updateArrows();
     }
 
     /** Whether this tile is reachable by a traveling unit. */
@@ -206,58 +229,23 @@ export class Square {
         this.displayInfoSet(Square.boolLength, Square.searchVisitedShift, ~~b);
     }
 
+    /** Updates the tile overlay to reflect whatever UI state the tile is in. */
     private updateHighlight(): void {
-        if (!this.terrain)      // TODO Remove this——after converting displayInfoSet, of course.
-            return;
-        
-        // I think this only works here, not on terrain assignment, because
-        // terrain is never assigned pre-initialized. So, this.overlay was always a blank sprite.
-        // There is a small chance this was also the failure of my mask technique (it was.)
-        // Whatever my technique, don't use masks, they're too slow to shade every tile on the map.
-        //
-        // There might be a way to use VoidFilter to something-something multiply-blend one sprite
-        // over another without affecting the entire stage. This would (in theory) allow me to "mask"
-        // the rotating light onto movement tiles without invoking the masking process.
-        // Also, filters:
-        //      let filter = new Filter(??)
-        //      filter.resolution = Game.app.renderer.resolution;
-        //      sprite.filters = [filter]
-        // This fixes (well, untested) the pixel sprites getting curfuggled by filters issue.
-        // Filters still be slow, tho.
-
-        // So, I found out about a trick.
-        // You can get a container of things to blend into each other in isolation if you
-        // run the filters engine with a blank filter. Sort of like masking. Faster, too.
-        // Or, you *could* do this. In the past. v4, specifically.
-        // So, really, you *can't* do this. Ugh.
-
-        // This is very temporary—I need some major refactoring between square, map and terrain.
-        if (this.overlayPanel.texture.height <= 1) {
-            let whiteSprite = this._terrain.whiteTexture;
-            if (whiteSprite.texture)
-                this.overlayPanel.texture = whiteSprite.texture;
-        }
-
-        // TODO Initialize Squares → initialize terrains. Maybe? This would allow me to set this.overlay once.
-
-        // TODO Before doing anything else here, run some experiments.
-        // Try to get like 25x9 different little squares doing the thing to different shapes.
-        // You know what I should do? Use one of my scenes as a test room.
-        // That way I can (write and then) import my debug setup and post that right on the screen,
-        // and the rest of that scene-writing space is just me dicking around.
+        // 2-second sawtooth wave, range 0–1
+        //let wave = Math.abs((Game.frameCount % 120) - 120) / 60;
 
         // Define glassy-overlay presets.
         let colors = {
-            natural: {color: 0xFFFFFF, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
+            natural:{color: 0xFFFFFF, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},  // Deprecated. Was for sprite tints.
             //blue: {color: 0x88FFFF, alpha: 0.8, mode: PIXI.BLEND_MODES.MULTIPLY},
-            blue: {color: 0x44CCDD, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
-            red: {color: 0xFF6666, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
+            blue:   {color: 0x44CCDD, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
+            red:    {color: 0xFF6666, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
             maroon: {color: 0x883388, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
-            grey: {color: 0x444444, alpha: 0.5, mode: PIXI.BLEND_MODES.MULTIPLY}, // CO Affected, should be animated
+            grey:   {color: 0x222222, alpha: 0.25, mode: PIXI.BLEND_MODES.MULTIPLY}, // CO Affected, // TODO Animate shades
             darkgrey: {color: 0x000000, alpha: 0.4, mode: PIXI.BLEND_MODES.MULTIPLY}
         }
 
-        // Function which adjusts the look of the glassy overlay to a preset.
+        // Adjusts the look of the glassy overlay to some preset.
         let setColor = (options: {color:number, alpha:number, mode:number}) => {
             this.overlayPanel.tint = options.color;
             this.overlayPanel.alpha = options.alpha;
@@ -265,15 +253,10 @@ export class Square {
             this.overlayPanel.visible = true;
         }
 
-        // Hidden tiles in Fog of War — Hide units and building details
-        if (this.terrain instanceof TerrainBuildingObject)
-            this.terrain.hidden = this.hiddenFlag;
-        if (this.unit)
-            this.unit.visible = !this.hiddenFlag;
-
-        // Choose glassy overlay preset
+        // Hidden by default
         this.overlayPanel.visible = false;
 
+        // Choose glassy overlay preset
         if (this.moveFlag)
             setColor(colors.blue);
         else if (this.attackFlag)
@@ -284,13 +267,16 @@ export class Square {
             setColor(colors.darkgrey);
         else if (this.COAffectedFlag)
             setColor(colors.grey);
+
+        // Hidden tiles in Fog of War — Hide units and building details
+        if (this.terrain instanceof TerrainBuildingObject)
+            this.terrain.hidden = this.hiddenFlag;
+        if (this.unit)
+            this.unit.visible = !this.hiddenFlag && !this.hideUnit;
     }
 
-    /**  */
+    /** Updates the tile's arrow-path overlay to reflect its UI state.  */
     private updateArrows() {
-        if (!this.overlay)  // TODO Remove this after converting—something, something—the above. I dunno. Refactoring this whole class, maybe.
-            return;
-
         let sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
 
         // char decrementers for arrow path directions
@@ -346,7 +332,7 @@ export class Square {
      * by the given unit. */
     attackable(unit: UnitObject): boolean {
         if (this.unit)
-            return unit.targetable(this.unit);
+            return unit.canTarget(this.unit);
         else
             return false;
     }

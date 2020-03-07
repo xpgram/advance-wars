@@ -12,6 +12,8 @@ export const Unit = {
         get name() { return "Infantry"; }
         get description() { return "Yo. Dis guy got it."; }
 
+        get soldierUnit() { return true; }
+
         get maxGas() { return 99; }
         get maxAmmo() { return 0; }
         get moveType() { return MoveType.Infantry; }
@@ -53,6 +55,8 @@ export const Unit = {
         get serial() { return 1; }
         get name() { return "Mech"; }
         get description() { return "Yo. Dis guy got it."; }
+
+        get soldierUnit() { return true; }
 
         get maxGas() { return 70; }
         get maxAmmo() { return 3; }
