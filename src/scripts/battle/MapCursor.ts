@@ -117,6 +117,11 @@ export class MapCursor {
         this.controlsEnabled = true;
     }
 
+    /** Whether this cursor is invisible and uninteractable. */
+    hidden() {
+        return (!this.controlsEnabled);
+    }
+
     /** Triggers this object's animation to play once. */
     private triggerAnimation() {
         this.spriteLayer.children.forEach( displayObj => {
