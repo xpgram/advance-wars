@@ -2,7 +2,7 @@ import { TurnState, TurnStateConstructor } from "./TurnState";
 import { Debug } from "../../DebugUtils";
 import { BattleSceneControllers } from "./BattleSceneControllers";
 import { Game } from "../../..";
-import { PickUnit } from "./states/PickUnit";
+import { IssueOrderStart } from "./states/IssueOrderStart";
 
 const STACK_TRACE_LIMIT = 20;
 const STACK_SIZE_LIMIT = 100;   // Unenforced, but allocated.
@@ -55,7 +55,7 @@ export class BattleSystemManager {
         //      etc.
 
         let firstState: NextState = {
-            state: PickUnit,
+            state: IssueOrderStart,
             pre: () => {}
         }
 

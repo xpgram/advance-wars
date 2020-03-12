@@ -10,6 +10,9 @@ import { Slider } from "../../Common/Slider";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { CardinalDirection } from "../../Common/CardinalDirection";
+import { Point } from "../../Common/Point";
+import { StringDictionary } from "../../CommonTypes";
+import { ShowUnitAttackRange } from "../control-scripts/showUnitAttackRange";
 
 
 export class BattleSceneControllers {
@@ -22,9 +25,35 @@ export class BattleSceneControllers {
 
     trackCar: TrackCar;
 
+    /** A collection of references to notable unit objects. */
+    units: {
+        traveler: UnitObject | null,
+        target: UnitObject | null
+    } = {
+        traveler: null,
+        target: null
+    }
+
+    /** A collection of notable point objects. */
+    locations: {
+        travelDestination: Point | null
+    } = {
+        travelDestination: null
+    }
+
+    scripts = {
+        showUnitAttackRange: new ShowUnitAttackRange(this.gamepad, this.map, this.mapCursor),
+        //...
+    }
+    // ↑ iterate with
+    // for (let script of (this.scripts as StringDictionary<ControlScript>)) {
+    //     script.update();
+    // }
+    // Getting that to work may be a teense tricky. I don't know.
+
+
     // Brought from Battle Scene — Please refactor
     unitsList: UnitObject[] = [];
-    unitSwap: UnitObject | null = null;
     cameraZoomSlider = new Slider({
         track: 'max',
         granularity: 0.1
@@ -93,7 +122,7 @@ export class BattleSceneControllers {
         let unitTypes = [Unit.Infantry, Unit.Mech, Unit.Bike, Unit.Tank, Unit.MdTank, Unit.WarTank,
             Unit.Recon, Unit.Rig, Unit.AntiAir, Unit.Flare, Unit.Artillery, Unit.AntiTank, Unit.Rockets,
             Unit.Missiles, Unit.TCopter, Unit.BCopter, Unit.Duster, Unit.Fighter, Unit.Bomber, Unit.Seaplane,
-            Unit.Stealth, Unit.Seeker, Unit.Lander, Unit.Gunboat, Unit.Cruiser, Unit.Submarine, Unit.Carrier, Unit.Battleship];
+            /*Unit.Stealth, Unit.Seeker,*/ Unit.Lander, Unit.Gunboat, Unit.Cruiser, Unit.Submarine, Unit.Carrier, Unit.Battleship];
 
         let unitsToSpawn = Math.floor(Math.pow(Math.random(), 2)*25) + 15;
 

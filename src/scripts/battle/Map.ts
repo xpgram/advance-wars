@@ -373,16 +373,16 @@ export class Map {
             throw new Error(InvalidLocationError(src));
         if (!this.validPoint(dest))
             throw new Error(InvalidLocationError(dest));
-        if (!this.squareAt(dest).occupiable)
-            return false;
-        // check if src.unit is null?
 
         let traveler = this.squareAt(src).unit;
-        if (!traveler)
-            throw new Error("Attempting to move a unit that does not exist: " + src + " to " + dest)
         
-        this.placeUnit(traveler, dest);
+        if (traveler == null)
+            return false;
+        if (!this.squareAt(dest).occupiable(traveler))
+            return false;
+
         this.removeUnit(src);
+        this.placeUnit(traveler, dest);
 
         return true;
     }
@@ -484,6 +484,28 @@ export class Map {
 
                     queue.push(next);
                 });
+            }
+        }
+    }
+
+    /** Shows on the map which tiles a given unit is capable of reaching for attack. Generated map
+     * is clearable with Map.clearMovementMap().
+     */
+    generateAttackRangeMap(unit: UnitObject) {
+        this.generateMovementMap(unit);
+
+        // Convert all blue tiles to red
+        // TODO This method (is slow) isn't complete: it misses the outer perimeter unless there
+        // is an enemy unit on every outer-perimeter tile.
+        for (let y = 0; y < this.height; y++)
+        for (let x = 0; x < this.width; x++) {
+            let square = this.squareAt({x:x,y:y});
+            if (square.moveFlag) {
+                square.moveFlag = false;
+                square.attackFlag = true;
+                if (square.unit)
+                    if (square.unit.faction == unit.faction)
+                        square.attackFlag = false;
             }
         }
     }
