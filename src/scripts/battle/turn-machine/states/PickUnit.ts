@@ -1,9 +1,11 @@
 import { TurnState } from "../TurnState";
-import { MoveUnit } from "./MoveUnit";
+import { PickMoveLocation } from "./PickMoveLocation";
+import { BattleSystemManager } from "../BattleSystemManager";
+import { Debug } from "../../../DebugUtils";
 
 
-export class IssueOrderStart extends TurnState {
-    get name() { return 'IssueOrderStart'; }
+export class PickUnit extends TurnState {
+    get name() { return 'PickUnit'; }
     get revertible() { return true; }   // If each state is either auto-skipped on undo or must be explicitly cancelled via
     get skipOnUndo() { return false; }  //   some control or button press, I wonder if this property is even necessary.
 
@@ -17,9 +19,7 @@ export class IssueOrderStart extends TurnState {
         // Ensure correct information is being displayed on UI Window System Reveal
         this.assets.uiSystem.inspectTile(this.assets.map.squareAt(this.assets.mapCursor.pos));
 
-        this.assets.units.traveler == null;
-
-        //this.assets.scripts.showUnitAttackRangeByHoldingB.enable();
+        this.assets.unitSwap == null;
     }
 
     update() {
@@ -29,11 +29,11 @@ export class IssueOrderStart extends TurnState {
             let square = this.assets.map.squareAt(pos);
 
             // TODO This should check team affiliation
-            this.assets.units.traveler = square.unit;
+            this.assets.unitSwap = square.unit;
         }
 
         // If a unit was a picked, flag advancement to next state
-        if (this.assets.units.traveler != null)
+        if (this.assets.unitSwap != null)
             this.battleSystemManager.advanceToState(this.advanceStates.pickMoveLocation);
     }
 
@@ -42,6 +42,6 @@ export class IssueOrderStart extends TurnState {
     }
 
     advanceStates = {
-        pickMoveLocation: {state: MoveUnit, pre: () => {}}
+        pickMoveLocation: {state: PickMoveLocation, pre: () => {}}
     }
 }

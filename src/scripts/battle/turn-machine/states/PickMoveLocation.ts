@@ -3,10 +3,9 @@ import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
 import { Debug } from "../../../DebugUtils";
 import { CardinalDirection, CardinalVector } from "../../../Common/CardinalDirection";
-import { AnimateMoveUnit } from "./AnimateMoveUnit";
 
-export class MoveUnit extends TurnState {
-    get name() { return 'MoveUnit'; }
+export class PickMoveLocation extends TurnState {
+    get name() { return 'PickMoveLocation'; }
     get revertible() { return true; }
     get skipOnUndo() { return false; }
 
@@ -14,7 +13,7 @@ export class MoveUnit extends TurnState {
     private lastCursorPos = new Point(-1, -1);
 
     assert() {
-        if (this.assets.units.traveler == null)
+        if (this.assets.unitSwap == null)
             this.throwError("Missing UnitObject for unit movement step.")
     }
 
@@ -22,7 +21,7 @@ export class MoveUnit extends TurnState {
         this.assets.mapCursor.show();
         this.assets.uiSystem.show();
 
-        this.travellingUnit = this.assets.units.traveler as UnitObject;
+        this.travellingUnit = this.assets.unitSwap as UnitObject;
         this.assets.map.squareAt(this.travellingUnit.boardLocation).hideUnit = true;
 
         this.assets.trackCar.buildNewAnimation(this.travellingUnit);
@@ -34,30 +33,40 @@ export class MoveUnit extends TurnState {
     update() {
         if (this.lastCursorPos.notEqual(this.assets.mapCursor.pos)) {
             this.lastCursorPos = new Point(this.assets.mapCursor.pos);
-            this.assets.map.recalculatePathToPoint(this.assets.units.traveler as UnitObject, this.lastCursorPos);
+            this.assets.map.recalculatePathToPoint(this.assets.unitSwap as UnitObject, this.lastCursorPos);
         }
 
         if (this.assets.gamepad.button.B.pressed)
             this.battleSystemManager.regressToPreviousState();
         else if (this.assets.gamepad.button.A.pressed
-            && this.assets.map.squareAt(this.lastCursorPos).moveFlag == true
-            && this.assets.map.squareAt(this.lastCursorPos).occupiable(this.assets.units.traveler as UnitObject)) {
+            && this.assets.map.squareAt(this.lastCursorPos).moveFlag == true) {
 
-            this.assets.locations.travelDestination = new Point(this.lastCursorPos);
-            this.battleSystemManager.advanceToState(this.advanceStates.animateMoveUnit);
+            // Build the new path, blah blah, test-out demo
+            let trackPoint = new Point(this.travellingUnit.boardLocation);
+            let trackSquare = this.assets.map.squareAt(trackPoint);
+            let directions: CardinalDirection[] = [];
+
+            // TODO What if squares are not in a path that ends?
+            while (trackSquare.arrowTo) {
+                directions.push(trackSquare.arrowTo);
+                trackPoint = trackPoint.add(CardinalVector(trackSquare.arrowTo));
+                trackSquare = this.assets.map.squareAt(trackPoint);
+            }
+
+            this.assets.trackCar.directions = directions;
+
+            this.assets.trackCar.start();
         }
     }
 
     prev() {
-        this.assets.units.traveler = null;
+        this.assets.unitSwap = null;
         this.assets.map.squareAt(this.travellingUnit.boardLocation).hideUnit = false;
         this.assets.trackCar.hide();
         this.assets.map.clearMovementMap();
-
-        this.assets.mapCursor.moveTo(this.travellingUnit.boardLocation);
     }
 
-    advanceStates = {
-        animateMoveUnit: {state: AnimateMoveUnit, pre: () => {} }
-    }
+    //advanceStates = {
+    //    animateUnitTravel: {state: AnimateUnitTravel, pre: () => {}}
+    //}
 }

@@ -315,7 +315,7 @@ export class Square {
     /** Returns true if the given unit may legally inhabit this square. */
     occupiable(unit: UnitObject): boolean {
         let traversable = this.traversable(unit);
-        let empty = (this.unit == null || this.unit === unit);  // Do not return 'inoccupiable' if the unit is already located there.
+        let empty = (this.unit == null);
         return traversable && empty;
     }
 

@@ -154,7 +154,7 @@ export abstract class UnitObject {
     get soldierUnit() { return false; }             // True if this unit is an Infantry, Mech or Bike
     get materialsInsteadOfAmmo() { return false; }
     get moveType() { return MoveType.Tread; }
-    private get maxMovementPoints() { return 9; }   // TODO This should be abstract
+    private get maxMovementPoints() { return 6; }   // TODO This should be abstract
     get movementPoints() { return (this.gas < this.maxMovementPoints) ? this.gas : this.maxMovementPoints; }
     get armorType() { return ArmorType.Vehicle; }
     get repairType() { return UnitClass.Ground; }
@@ -464,7 +464,7 @@ export abstract class UnitObject {
     /** Returns true if this unit can launch an attack against the given unit. */
     canTarget(unit: UnitObject) {
         // TODO Stub
-        return (this.faction != unit.faction);
+        return true;
 
         // if (this.baseDamageMatrix[unit.serial] > 0)
         // or
