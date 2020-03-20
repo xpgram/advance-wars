@@ -7,6 +7,9 @@ import { Map } from "./Map";
 import { Point, PointPrimitive } from "../Common/Point";
 import { Game } from "../..";
 import { NeighborMatrix } from "../NeighborMatrix";
+import { Debug } from "../DebugUtils";
+import { DiagnosticLayer } from "../DiagnosticLayer";
+import { CardinalDirection } from "../Common/CardinalDirection";
 
 /**
  * Used by Map only. Maybe.
@@ -279,33 +282,31 @@ export class Square {
     private updateArrows() {
         let sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
 
-        // char decrementers for arrow path directions
-        let from = this.arrowFrom
-        let to = this.arrowTo;
+        // String array and index accessors——setup to build variation string.
+        let variationChars = ['0','0','0','0'];
+        let fromIdx = this.arrowFrom - 1;
+        let toIdx = this.arrowTo - 1;
+        let arrowHeadIdx = (fromIdx + 2) % variationChars.length;
 
-        // char decrementer for arrow head direction (always opposite 'from')
-        let arrowHead = (this.arrowFrom && !this.arrowTo) ? this.arrowFrom + 2 : 0;
-        if (arrowHead > 4) arrowHead -= 4;  // Cap at 4; only 4 directions
-
-        // Find the arrow-graphic variation described by path directions.
-        // This method depends on up-right-down-left being the standard order of cardinal directions.
-        let variation = '';
-        let c = 4
-        while (c > 0) {
-            c--; from--; to--; arrowHead--;
-
-            if (arrowHead == 0)
-                variation += '2';
-            else if (from == 0 || to == 0)
-                variation += '1';
-            else
-                variation += '0';
+        // Set 'from' direction flag——and 'to' direction flag if path ends here.
+        if (this.arrowFrom != CardinalDirection.None) {
+            variationChars[fromIdx] = '1';
+            if (this.arrowTo == CardinalDirection.None)
+                variationChars[arrowHeadIdx] = '2';
         }
+        // Set 'to' direction flag
+        if (this.arrowTo != CardinalDirection.None)
+            variationChars[toIdx] = '1';
 
-        // Blank old setting
+        // Assemble string
+        let variation = '';
+        variationChars.forEach( char => {
+            variation += char;
+        });
+
+        // If variation isn't "none," set new arrow path graphic, otherwise hide the old one.
         this.overlayArrow.visible = false;
 
-        // If variation isn't "none," set new arrow path graphic.
         if (variation != '0000') {
             this.overlayArrow.texture = sheet.textures[`MovementArrow/movement-arrow-${variation}.png`];
             this.overlayArrow.visible = true;

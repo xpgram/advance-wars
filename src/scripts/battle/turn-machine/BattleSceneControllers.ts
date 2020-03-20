@@ -9,11 +9,18 @@ import { MapLayers } from "../MapLayers";
 import { Slider } from "../../Common/Slider";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
-import { CardinalDirection } from "../../Common/CardinalDirection";
 import { Point } from "../../Common/Point";
+import { CameraZoom } from "../control-scripts/cameraZoom";
 import { StringDictionary } from "../../CommonTypes";
-import { ShowUnitAttackRange } from "../control-scripts/showUnitAttackRange";
+import { ControlScript } from "../../ControlScript";
 
+
+type BattleSceneOptions = {
+    mapData: {
+        width: number,
+        height: number
+    }
+}
 
 export class BattleSceneControllers {
 
@@ -28,36 +35,31 @@ export class BattleSceneControllers {
     /** A collection of references to notable unit objects. */
     units: {
         traveler: UnitObject | null,
-        target: UnitObject | null
+        target: UnitObject | null,
+        focus: UnitObject | null
     } = {
         traveler: null,
-        target: null
+        target: null,
+        focus: null
     }
 
     /** A collection of notable point objects. */
     locations: {
-        travelDestination: Point | null
+        travelDestination: Point | null,
+        focus: Point | null
     } = {
-        travelDestination: null
+        travelDestination: null,
+        focus: null
     }
 
-    scripts = {
-        showUnitAttackRange: new ShowUnitAttackRange(this.gamepad, this.map, this.mapCursor),
+    /** A collection of scripts which, when enabled, control various systems of the battlefield. */
+    scripts: {
+        cameraZoom: CameraZoom,
         //...
     }
-    // ↑ iterate with
-    // for (let script of (this.scripts as StringDictionary<ControlScript>)) {
-    //     script.update();
-    // }
-    // Getting that to work may be a teense tricky. I don't know.
-
 
     // Brought from Battle Scene — Please refactor
     unitsList: UnitObject[] = [];
-    cameraZoomSlider = new Slider({
-        track: 'max',
-        granularity: 0.1
-    });
 
     constructor(options: BattleSceneOptions) {
         
@@ -107,6 +109,19 @@ export class BattleSceneControllers {
 
         // The objective here is to build a complete battle scene given scenario options.
         // Then it is to start the turn engine.
+
+        // This has to be done here, btw: the initializer runs before the constructor,
+        // meaning this.gamepad only means something here.
+        this.scripts = {
+            cameraZoom: new CameraZoom(this.gamepad, this.camera),
+        }
+
+        // Add the script iterator to the ticker.
+        Game.scene.ticker.add(this.updateControlScripts, this);
+    }
+
+    destroy() {
+        Game.scene.ticker.remove(this.updateControlScripts, this);
     }
 
     /** Hides all UI and player-interface systems. */
@@ -114,6 +129,24 @@ export class BattleSceneControllers {
         this.mapCursor.hide();
         this.trackCar.hide();
         this.uiSystem.hide();
+
+        // Reset all scripts
+        let scripts = this.scripts as StringDictionary<ControlScript>;
+        for (let name in scripts) {
+            let script = scripts[name];
+            if (script.defaultEnabled())
+                script.enable();
+            else
+                script.disable();
+        }
+    }
+
+    /** Iterates through all control scripts and runs their update methods. */
+    private updateControlScripts() {
+        let scripts = this.scripts as StringDictionary<ControlScript>;
+        for (let name in scripts) {
+            scripts[name].update();
+        }
     }
 
     /** For demo purposes. Deprecate this. */
@@ -121,8 +154,8 @@ export class BattleSceneControllers {
         // Spawn units
         let unitTypes = [Unit.Infantry, Unit.Mech, Unit.Bike, Unit.Tank, Unit.MdTank, Unit.WarTank,
             Unit.Recon, Unit.Rig, Unit.AntiAir, Unit.Flare, Unit.Artillery, Unit.AntiTank, Unit.Rockets,
-            Unit.Missiles, Unit.TCopter, Unit.BCopter, Unit.Duster, Unit.Fighter, Unit.Bomber, Unit.Seaplane,
-            /*Unit.Stealth, Unit.Seeker,*/ Unit.Lander, Unit.Gunboat, Unit.Cruiser, Unit.Submarine, Unit.Carrier, Unit.Battleship];
+            Unit.Missiles, Unit.TCopter, Unit.BCopter, Unit.Duster, Unit.Fighter, Unit.Bomber, Unit.SeaPlane,
+            /*Unit.Stealth, Unit.Seeker,*/ Unit.Lander, Unit.GunBoat, Unit.Cruiser, Unit.Submarine, Unit.Carrier, Unit.Battleship];
 
         let unitsToSpawn = Math.floor(Math.pow(Math.random(), 2)*25) + 15;
 
@@ -160,12 +193,10 @@ export class BattleSceneControllers {
                 }
             }
         }
-    }
-}
 
-type BattleSceneOptions = {
-    mapData: {
-        width: number,
-        height: number
+        // TODO Remove, along with this entire function
+        this.unitsList.forEach( unit => {
+            unit.orderable = true;
+        });
     }
 }

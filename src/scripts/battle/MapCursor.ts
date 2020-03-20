@@ -118,7 +118,7 @@ export class MapCursor {
     }
 
     /** Whether this cursor is invisible and uninteractable. */
-    hidden() {
+    get hidden() {
         return (!this.controlsEnabled);
     }
 
@@ -261,5 +261,25 @@ export class MapCursor {
         }
 
         // TODO This *should* definitely be in move(), not here.
+    }
+
+    teleport(place: PointPrimitive) {
+        // Confine new cursor position to some place on the board.
+        place = {
+            x: Common.confine(place.x, 0, this.mapRef.width - 1),
+            y: Common.confine(place.y, 0, this.mapRef.height - 1)
+        };
+        
+        // System maintenance: set the last cursor position to something invalid.
+        this.lastPos.x = -1;
+        this.lastPos.y = -1;
+        this.slideAnimSlider.setToMax();
+
+        // Place the new cursor position
+        this.pos.x = place.x;
+        this.pos.y = place.y;
+
+        // Update transform position now, not next cycle
+        this.updateGameWorldPosition();
     }
 }

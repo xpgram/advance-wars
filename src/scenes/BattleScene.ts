@@ -84,22 +84,10 @@ export class BattleScene extends Scene {
 
     updateStep(delta: number): void {
 
-        // Migration of code in this step is massively incomplete.
-        // I haven't even started the process.
-        // A lot of this, which is almost entirely demo code, will be moved to various
-        // turn states as toggleable scripts or as state-specific update scripts.
-        // Some of it might remain here, though.
-        // gamepad.update() shouldn't.
-        // 
-        // Speaking of gamepad, I need a gamepad manager that can handle losing and regaining
-        // connections to more than one controller, and which will pass these connections on
-        // to its VirtualGamepads.
-        // This gamepad manager should route control of the first controller to P1, second to P2,
-        // the first to P2 if there is no second, and the keyboard to all of them unless 2+ controllers
-        // are connected.
+        // TODO Move this to the game's main update loop / ticker / something.
+        this.controllers.gamepad.update();
 
-        this.controllers.gamepad.update();  // Update gamepad state (should probably be in main game loop)
-
+        // TODO Move this to Camera.update(), a function which should add itself to the scene's ticker.
         // Window resize: camera-view rectangle fix.
         if (Game.display.width != (MapLayers['top'] as PIXI.Container).filterArea.width
             || Game.display.height != (MapLayers['top'] as PIXI.Container).filterArea.height) {
@@ -109,48 +97,15 @@ export class BattleScene extends Scene {
             (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;
         }
 
-        // Proof that buttons work.
-        /*if (this.controllers.gamepad.button.A.pressed) {
-            this.controllers.trackCar.start();
-
-            let square = this.controllers.map.squareAt(this.controllers.mapCursor.pos);
-            if (square.unit)
-                this.unitSwap = square.unit;
-            if (!square.unit && this.unitSwap && square.occupiable(this.unitSwap)) {
-                this.controllers.map.squareAt(this.unitSwap.boardLocation).unit = null;
-                this.controllers.map.placeUnit(this.unitSwap, this.controllers.mapCursor.pos);
-                this.unitSwap = null;
-                MapLayers['top'].sortChildren();
-                this.controllers.uiSystem.inspectTile(square);
-            }
-        }*/
-
-        // Playin wit units
-        // TODO Make this an activateable script for controllers.
-        if (this.controllers.gamepad.button.B.pressed) {
-            for (let unit of this.controllers.unitsList)
-                unit.transparent = true;
-        }
-        if (this.controllers.gamepad.button.B.released) {
-            for (let unit of this.controllers.unitsList) 
-                unit.transparent = false;
-        }
-
-        // TODO Make this an activateable script for controllers.
-        if (this.controllers.gamepad.button.Y.pressed) {
-            this.controllers.cameraZoomSlider.incrementFactor = -this.controllers.cameraZoomSlider.incrementFactor;
-        }
-        // Hardcoded constants are just different screen widths.
-        this.controllers.camera.zoom = (320/448) + ((1 - 320/448) * this.controllers.cameraZoomSlider.value);
-        this.controllers.cameraZoomSlider.increment();
+        // TODO Move this to... Camera.update()..?
+        // I might actually make this a ControlScript that defaults to on.
+        // It doesn't need to be toggleable, so... I dunno, but any other place
+        // would seem odd.
 
         // Stage centering when stage is too smol
         // This, uh... don't look at it.
         // TODO Don't look at it.
-        this.controllers.camera.followTarget = ((scene: BattleScene) => { return {
-            get x() { return scene.controllers.mapCursor.transform.exact.x; },
-            get y() { return scene.controllers.mapCursor.transform.exact.y; }
-        }})(this);
+
         if (this.controllers.camera.width >= this.controllers.map.width*16 + 80 && this.controllers.camera.height >= this.controllers.map.height*16 + 64)
             this.controllers.camera.followTarget = {
                 x: this.controllers.map.width*8,

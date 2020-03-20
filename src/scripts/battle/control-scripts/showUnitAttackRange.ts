@@ -2,16 +2,15 @@ import { ControlScript } from "../../ControlScript";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { Map } from "../Map";
 import { MapCursor } from "../MapCursor";
-import { UnitObject } from "../UnitObject";
 
-export class ShowUnitAttackRange extends ControlScript {
+/** Deprecated and in fact not used.
+ * I leave this here as an example of how ControlScripts should look, though. */
+class ShowUnitAttackRange extends ControlScript {
 
     private gamepad: VirtualGamepad;
     private map: Map;
     private mapCursor: MapCursor;
     private cursorHiddenByScript = false;
-
-    // TODO These are 'public,' are they accessible even though ControlScript declares them protected?
 
     constructor(gp: VirtualGamepad, map: Map, cursor: MapCursor) {
         super();
@@ -20,11 +19,11 @@ export class ShowUnitAttackRange extends ControlScript {
         this.mapCursor = cursor;
     }
 
-    enableScript() {
+    protected enableScript() {
 
     }
 
-    updateScript() {
+    protected updateScript() {
         if (this.gamepad.button.B.pressed) {
             this.showAttackRange();
         }
@@ -33,7 +32,7 @@ export class ShowUnitAttackRange extends ControlScript {
         }
     }
 
-    disableScript() {
+    protected disableScript() {
         this.hideAttackRange();
     }
 

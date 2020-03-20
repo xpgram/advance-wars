@@ -67,6 +67,11 @@ export class Point {
         return Math.sqrt(Math.pow(point.x - this.x, 2) + Math.pow(point.y - this.y, 2));
     }
 
+    /** Returns this point as a string of the form (x,y). */
+    toString(): string {
+        return `(${this.x},${this.y})`;
+    }
+
     // Common Vectors
 
     /** Additive identity vector with all components set to zero. */

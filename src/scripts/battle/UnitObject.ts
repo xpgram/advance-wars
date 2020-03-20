@@ -107,6 +107,7 @@ export abstract class UnitObject {
         return sprite;
     }
 
+    // TODO Rename this; 'exhibit' is stupid, I'm tired of reading it.
     /** A larger preview image of this unit type.  */
     get exhibitImage(): PIXI.Sprite {
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
@@ -145,26 +146,50 @@ export abstract class UnitObject {
         return o;
     }
 
+    /** The unit's proper name. */
     abstract get name(): string;
+
+    /** The unit's shortened, space-conserving name. */
+    abstract get shortName(): string;
+
+    /** A short description of the unit's traits and purpose. */
     abstract get description(): string;
+
+    /** The unit's maximum gas: a stat depleted while moving. */
+    abstract get maxGas(): number;
+
+    /** The unit's maximum ammunition: a stat depleted by attacking. */
+    abstract get maxAmmo(): number;
+
+    /** The unit's maximum travel distance, or travel effort, depending on terrain travel efficiency. */
+    abstract get maxMovementPoints(): number;
+
+    /** The distance this unit can see into fog of war conditions. */
     get vision() { return 2; }
 
-    get maxGas() { return 99; }
-    get maxAmmo() { return 6; }
-    get soldierUnit() { return false; }             // True if this unit is an Infantry, Mech or Bike
+    /** Whether this unit is a soldier-type. Soldier's have unique graphics depending on faction,
+     * and have the unique ability to capture properties. */
+    get soldierUnit() { return false; }
+
+    /** Whether this unit has materials for building instead of ammunition for attacking.
+     * Materials take over the ammunition stat when in effect. */
     get materialsInsteadOfAmmo() { return false; }
-    get moveType() { return MoveType.Tread; }
-    private get maxMovementPoints() { return 9; }   // TODO This should be abstract
-    get movementPoints() { return (this.gas < this.maxMovementPoints) ? this.gas : this.maxMovementPoints; }
-    get armorType() { return ArmorType.Vehicle; }
-    get repairType() { return UnitClass.Ground; }
-    // TODO Other constant stats go here
 
-    /** Returns true if the given target is attackable via either this unit's primary or secondary weapons. */
-    abstract attackMethod(target: UnitObject): AttackMethod;
+    /** The unit's class: either Groundforce, Airforce or Navy. */
+    abstract get unitClass(): UnitClass;
 
-    /** Returns a number representing the base damage of an attack on the target. Defaults to primary weapon when applicable. */
-    abstract baseDamage(target: UnitObject): number;
+    /** The unit's method of movement, which affects its efficiency of travel over terrain. */
+    abstract get moveType(): MoveType;
+
+    /** The unit's armor kind, which affects what may attack it. Generally, a marginal player convenience. */
+    abstract get armorType(): ArmorType;
+
+    /** A 6x2 matrix of unit armor-types and booleans indicating attackable/non-attackable armors. */
+    protected abstract readonly armorTargetMatrix: number[][];
+
+    /** An Nx2 matrix of base damage numbers, where N is the number of unit types. */
+    protected abstract baseDamageMatrix: number[][];
+
 
     /* Left blank so that units can be instantiated as reference material without building expensive graphic objects, etc. */
     constructor() { }
@@ -276,6 +301,12 @@ export abstract class UnitObject {
         return (this.ammo <= lowAmmoThreshold);
     }
 
+    /** Returns the maximum number of movement points this unit currently has available for use.
+     * This is either their move-points limit, or their remaining gas. */
+    get movementPoints() {
+        return (this.gas < this.maxMovementPoints) ? this.gas : this.maxMovementPoints;
+    }
+
     /** The unit's progress toward capturing a building. */
     get capture(): number {
         return Common.readBits(this.conditionInfo, captureBits.length, captureBits.shift);
@@ -325,6 +356,11 @@ export abstract class UnitObject {
         this.conditionInfo = Common.writeBits(this.conditionInfo, n, orderableBits.length, orderableBits.shift);
         // Visually indicate un-orderable-ness.
         this.sprite.tint = (b) ? 0xFFFFFF : 0x888888;
+        // Visually ... the UI Box as well.
+        this.uiBox.children.forEach( child => {
+            if ((child as PIXI.Sprite).tint)
+                (child as PIXI.Sprite).tint = (b) ? 0xFFFFFF : 0x888888;
+        });
     }
 
     /** Whether this unit's sprite should show up on the board. */
@@ -390,7 +426,7 @@ export abstract class UnitObject {
     private update() {
         this.setCurrentAnimationFrame();
         this.setCurrentStatusIcon();
-        this.setTransparency();
+        this.setTransparencySlider();
     }
 
     /** Chooses an animation frame based on the unit's animation speed and the the Game's elapsed frame count.
@@ -434,8 +470,8 @@ export abstract class UnitObject {
         }
     }
 
-    /**  */
-    private setTransparency() {
+    /** Increments the unit's transparency toward one of the slider's extremes, depending on the unit's transparency state. */
+    private setTransparencySlider() {
         let dir = (this.transparent) ? 1 : -1;
         this.transparencySlider.increment(dir);
 
@@ -461,15 +497,49 @@ export abstract class UnitObject {
         this.ammo = this.maxAmmo;
     }
 
+    /** Returns the AttackMethod-type if the given target is attackable via either this unit's
+     * primary or secondary weapons; if it isn't, returns AttackMethod.None */
+    attackMethodFor(target: UnitObject): AttackMethod {
+        let armorType = target.armorType;
+
+        // TODO Debug.assert(something)
+        // Just make sure armorType (number) is legal, ya know? A legal index
+
+        let armorTuple = this.armorTargetMatrix[target.armorType];
+        let primary = armorTuple[0];
+        let secondary = armorTuple[1];
+
+        if (primary && this.ammo > 0)
+            return AttackMethod.Primary;
+        else if (secondary)
+            return AttackMethod.Secondary;
+        else
+            return AttackMethod.None;
+    }
+
     /** Returns true if this unit can launch an attack against the given unit. */
     canTarget(unit: UnitObject) {
-        // TODO Stub
-        return (this.faction != unit.faction);
+        let attackable = (this.attackMethodFor(unit) != AttackMethod.None);
+        let nonAllied = (this.faction != unit.faction);
+        return (attackable && nonAllied);
+    }
 
-        // if (this.baseDamageMatrix[unit.serial] > 0)
-        // or
-        // if (this.primaryType == unit.armorType && this.ammo > 0
-        //     || this.secondaryType == unit.armorType)
-        // I'm not sure what strategy I want yet.
+    /** Returns a number representing the base damage of an attack on the target.
+     * Defaults to primary weapon when applicable.
+     * Note: this method ~does not~ reduce the unit's ammunition. */
+    baseDamage(target: UnitObject): number {
+        Debug.assert((target.serial < this.baseDamageMatrix.length && target.serial > 0),
+            `Unit type ${target.name} has a serial not found in unit type ${this.name}'s base-damage matrix.`);
+
+        let damageTuple = this.baseDamageMatrix[target.serial];
+        let attackType = this.attackMethodFor(target);
+        let damage = 0;
+
+        if (attackType == AttackMethod.Primary)
+            damage = damageTuple[0];
+        else if (attackType == AttackMethod.Secondary)
+            damage = damageTuple[1];
+        
+        return damage;
     }
 }

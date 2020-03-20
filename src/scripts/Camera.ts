@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { LowResTransform } from "./LowResTransform";
 import { TransformContainer } from "./CommonTypes";
 import { Game } from "..";
-import { PointPrimitive } from "./Common/Point";
+import { PointPrimitive, Point } from "./Common/Point";
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
@@ -20,9 +20,11 @@ export class Camera {
         height: Game.display.renderHeight
     }
 
-    /** Represents the in-world (in-stage) coordinates of the camera.
-     * An empty Sprite only because an empty Container wouldn't keep width/height values. */
-    private frame = new PIXI.Sprite();
+    /** A rectangle representing the in-world coordinates of the camera's view. */
+    private frame = new PIXI.Rectangle(0,0,this.baseDimensions.width,this.baseDimensions.height);
+
+    /** A rectangle representing the relative coordinates of the camera's peripheral border. */
+    viewBorder = this.frame.clone();
 
     private _stageTransform = new LowResTransform();
     /** Reference to the controlled stage's transform. */
@@ -59,14 +61,6 @@ export class Camera {
         return (this.stageTransform.object as PIXI.Container | null);
     }
     set stage(object) {
-        // Remove view from last stage.
-        if (this.stageTransform.object)
-            (this.stageTransform.object as PIXI.Container).removeChild(this.frame);
-
-        // Add view to new stage.
-        if (object)
-            object.addChild(this.frame);
-
         // Assign the new 'stage' to the camera.
         this.stageTransform.object = object;
     }
@@ -102,7 +96,7 @@ export class Camera {
     /** The camera's height to width ratio. */
     get aspectRatio() { return this.width / this.height; }
 
-    private _center: PointPrimitive = {x: 0, y: 0};
+    private _center = new Point();
     /** A point representing the camera's center-of-frame coordinates. */
     get center(): PointPrimitive { return ((parent: Camera) => { return {
         /** The camera-center's x-coordinate. */
@@ -118,8 +112,7 @@ export class Camera {
         this.center.y = point.y;
     }
  
-    /** The camera's zoom level by magnification of lengths.
-     * Note that setting this necessarily adjusts the view's pixel density. */
+    /** The camera's zoom level by magnification of lengths. */
     get zoom() {
         return this.baseDimensions.width / this.frame.width;
     }
@@ -136,8 +129,7 @@ export class Camera {
         this.height = this.baseDimensions.height / n;
     }
 
-    /** The camera's zoom level by magnification of areas.
-     * Note that settings this necessarily adjusts the view's pixel density. */
+    /** The camera's zoom level by magnification of areas. */
     get magnification() {
         return Math.pow(this.zoom, 2);
     }
@@ -146,8 +138,7 @@ export class Camera {
     }
 
     /** The camera's angle of rotation. Expressed in radians. */
-    get rotation(): number { return this.frame.rotation; }
-    set rotation(num) { this.frame.rotation = num; }
+    rotation = 0;
 
     /** Returns a point corresponding either to the target of focus, or the center of the camera if none exists. */
     getFocalPoint() {
@@ -183,6 +174,7 @@ export class Camera {
         this.stageTransform.y = Math.round(-this.y * this.zoom);
         this.stageTransform.scale.x = this.zoom;
         this.stageTransform.scale.y = this.zoom;
+        this.stageTransform.rotation = -this.rotation;
     }
 }
 
@@ -204,6 +196,8 @@ function borderedScreenPush(camera: Camera) {
     let right = cam.x + cam.width - border - tileSize - tileSize/2;
     let top = cam.y + border;
     let bottom = cam.y + cam.height - border - tileSize;
+
+    // TODO Use camera.viewBorder, or whatever we're calling it..
 
     // The distance we intend to travel this frame.
     let moveDist = {x:0, y:0};

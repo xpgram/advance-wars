@@ -25,6 +25,11 @@ module.exports = {
             }
         })]
     },
+    devServer: {
+        contentBase: 'dist',
+        port: 3000
+    },
+    devtool: 'inline-source-map',
     plugins: [
         new CopyWebpackPlugin([{
             from: 'build/assets',

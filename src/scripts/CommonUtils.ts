@@ -2,7 +2,7 @@
 /**
  * Commonly useful functions.
  * @author Dei Valko
- * @version 0.1.0
+ * @version 0.1.2
  */
 export const Common = {
 
@@ -16,6 +16,19 @@ export const Common = {
         if (n < min) n = min;
         else if (n > max) n = max;
         return n;
+    },
+
+    /** Returns true if n is in the range [min,max], default inclusive. */
+    within: (n: number, min: number, max: number, exclusive?: boolean) => {
+        if (exclusive)  // By default, undefined
+            return (n > min && n < max);
+        else
+            return (n >= min && n <= max);
+    },
+
+    /** Returns true if n is in the range [0,length), inclusive-exclusive. */
+    validIndex: (n: number, length: number) => {
+        return Common.within(n, 0, length-1);
     },
 
     /** Returns true if box1 and box2 overlap in any way. */

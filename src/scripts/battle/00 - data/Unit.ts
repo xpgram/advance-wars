@@ -188,10 +188,10 @@ export const Unit = {
         ];
     },
 
-    MdTank: class MdTankUnit extends UnitObject {
-        get type() { return MdTankUnit; }
+    MediumTank: class MediumTankUnit extends UnitObject {
+        get type() { return MediumTankUnit; }
         get serial() { return 7; }
-        get name() { return "Md Tank"; }
+        get name() { return "Medium Tank"; }
         get shortName() { return "M Tank"; }
         get description() { return "A strong tank with better attack and defense than standard tanks."; }
     

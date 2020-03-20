@@ -29,6 +29,10 @@ export class AnimateMoveUnit extends TurnState {
         this.assets.trackCar.buildNewAnimation(this.travellingUnit);
         this.assets.trackCar.show();    // It should already be shown
 
+        //this.followTargetSwap = this.assets.camera.followTarget;
+        //this.assets.camera.followTarget = this.assets.trackCar;
+        //on state→close: this.assets.camera.followTarget = this.followTargetSwap; 
+
         // Build path from source point
         // Confirm final destination equals this.assets.selectedDestination
         // Setup and start animation
@@ -72,7 +76,10 @@ export class AnimateMoveUnit extends TurnState {
             this.assets.map.squareAt(this.travelDestination).hideUnit = false;
             this.assets.map.squareAt(this.travelDestination).moveFlag = false;  // Triggers setInfo
             // TODO Fix the setInfo bug above
-            this.assets.units.traveler.visible = true;  // ← And this bug
+            this.assets.units.traveler.visible = true;  // ← A
+            
+            // TODO Move this to after the wait command step
+            this.assets.units.traveler.orderable = false;
 
             this.assets.map.moveUnit(this.travellingUnit.boardLocation, this.travelDestination);
             this.travellingUnit.gas -= this.travelPoints;

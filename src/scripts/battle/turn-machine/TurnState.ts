@@ -1,6 +1,7 @@
 import { Debug } from "../../DebugUtils";
 import { BattleSceneControllers } from "./BattleSceneControllers";
-import { BattleSystemManager } from "./BattleSystemManager";
+import { BattleSystemManager, NextState } from "./BattleSystemManager";
+import { StringDictionary } from "../../CommonTypes";
 
 export type TurnStateConstructor = {
     new (manager: BattleSystemManager): TurnState;
@@ -66,4 +67,7 @@ export abstract class TurnState {
     /** Any to-dos before regressing to previous state.
      * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
     abstract prev(): void;
+
+    /** // TODO Write */
+    abstract advanceStates: StringDictionary<NextState>;
 }

@@ -8,7 +8,8 @@
     "type-check": "tsc",
     "production": "webpack --mode production --config webpack.config.prod.js",
     "build": "webpack --mode development --config webpack.config.dev.js",
-    "start": "webpack-dev-server --config webpack.config.dev.js"
+    "start": "webpack-dev-server --config webpack.config.dev.js",
+    "start-uglied": "webpack-dev-server --config webpack.config.prod.js"
   },
   "keywords": [],
   "author": "Dei Valko",

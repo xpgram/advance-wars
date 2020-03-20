@@ -3,7 +3,11 @@
  * which must be written into an abstract inherited method. */
 export abstract class ControlScript {
     /** Whether this script updates. */
-    private active: boolean = true;
+    private active: boolean;
+
+    constructor() {
+        this.active = this.defaultEnabled();
+    }
 
     /** Updates or runs the main script. Will not run even if called if the script is disabled. */
     update() {
@@ -27,6 +31,8 @@ export abstract class ControlScript {
         }
     }
 
+    /** Whether or not this script is enabled by default, disabled by request. */
+    abstract defaultEnabled(): boolean;
     /** The main control script. Runs once per cycle, whatever a cycle may be. */
     protected abstract updateScript(): void;
     /** The opening script. Runs once during enabling. */
