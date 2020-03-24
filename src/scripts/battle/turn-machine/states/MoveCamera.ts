@@ -1,10 +1,8 @@
 import { TurnState } from "../TurnState";
 import { TransformContainer } from "../../../CommonTypes";
 import { PointPrimitive, Point } from "../../../Common/Point";
-import { Camera } from "../../../Camera";
 import { Game } from "../../../..";
-import { Debug } from "../../../DebugUtils";
-import { BattleSystemManager } from "../BattleSystemManager";
+import { Common } from "../../../CommonUtils";
 
 export class MoveCamera extends TurnState {
     get name(): string { return "MoveCamera"; }
@@ -13,19 +11,8 @@ export class MoveCamera extends TurnState {
 
     private followTargetSwap!: TransformContainer | PointPrimitive | null;
 
-    private cameraSpeed = 6;        // How many tiles the camera travels per 60 frames.
-    private followPoint: Point;     // The point the camera follows in this mode.
+    private cameraSpeed = 7;        // How many tiles the camera travels per 60 frames.
     private lastMoveDir = new Point();  // The last axis input to the camera driver.
-
-    constructor(manager: BattleSystemManager) {
-        super(manager);
-
-        let tileSize = Game.display.standardLength;
-        this.followPoint = new Point({
-            x: this.assets.mapCursor.pos.x * tileSize,
-            y: this.assets.mapCursor.pos.y * tileSize
-        });
-    }
 
     protected assert(): void {
         
@@ -39,11 +26,8 @@ export class MoveCamera extends TurnState {
         // Save old camera configuration
         this.followTargetSwap = this.assets.camera.followTarget;
 
-        // Note: This assumes that Camera is using the BorderedScreenPush follow algorithm.
-        // It would be ideal to save the camera's follow algorithm and provide BorderedScreenPush ourselves.
-
-        // Assume control of camera
-        this.assets.camera.followTarget = this.followPoint;
+        // Disable the camera's follow algorithm
+        this.assets.camera.followTarget = null;
     }
 
     update(): void {
@@ -69,18 +53,22 @@ export class MoveCamera extends TurnState {
             dirPoint.x *= this.cameraSpeed;
             dirPoint.y *= this.cameraSpeed;
 
-            // TODO Use follow point to move the camera because...
-            // For now, move followPoint out of the way to it doesn't trigger the camera's aggressive follow algorithm.
-            this.followPoint.x = this.assets.camera.center.x + dirPoint.x;
-            this.followPoint.y = this.assets.camera.center.y + dirPoint.y;
-
             // Move the camera
             this.assets.camera.x += dirPoint.x;
             this.assets.camera.y += dirPoint.y;
 
-            // TODO Adjusting this.followPoint does not adjust camera.followTarget, even though
-            // they should be the same object. Why?
-            this.assets.camera.followTarget = this.followPoint;
+            // Confine the camera to the map space
+            let tileSize = Game.display.standardLength;
+            let min = new Point();
+            let max = new Point(this.assets.map.width * tileSize, this.assets.map.height * tileSize);
+
+            min.x -= this.assets.camera.frameBorder.x;
+            min.y -= this.assets.camera.frameBorder.y;
+            max.x -= this.assets.camera.frameBorder.width;
+            max.y -= this.assets.camera.frameBorder.height;
+
+            this.assets.camera.x = Common.confine(this.assets.camera.x, min.x, max.x);
+            this.assets.camera.y = Common.confine(this.assets.camera.y, min.y, max.y);
         }
 
         // Allow leftTrigger to show units during camera movement.

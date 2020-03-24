@@ -501,14 +501,18 @@ export abstract class UnitObject {
      * primary or secondary weapons; if it isn't, returns AttackMethod.None */
     attackMethodFor(target: UnitObject): AttackMethod {
         let armorType = target.armorType;
+        let armorTypes = this.armorTargetMatrix.length;
 
-        // TODO Debug.assert(something)
-        // Just make sure armorType (number) is legal, ya know? A legal index
+        // Confirm armorType is a legal index (there's no reason [besides incompetence] it shouldn't be)
+        Debug.assert(Common.validIndex(armorType, armorTypes),
+            `The target's armor type (#${armorType}) is outside the range of possible armor types (max index = ${armorTypes - 1})`);
 
-        let armorTuple = this.armorTargetMatrix[target.armorType];
+        // Gather primary/secondary attack-effectiveness ratings (0, 1 or 2)
+        let armorTuple = this.armorTargetMatrix[armorType];
         let primary = armorTuple[0];
         let secondary = armorTuple[1];
 
+        // If not 0, either primary or secondary are useable attacks.
         if (primary && this.ammo > 0)
             return AttackMethod.Primary;
         else if (secondary)

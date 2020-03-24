@@ -83,23 +83,31 @@ export class BattleSystemManager {
             this.currentState.update();
 
         // nextState->new handler
-        if (this.transitionIntent == TransitionTo.Next) {
-            let newState = new this.nextState.state(this);
-            this.log(newState.name);    // Log new state to trace history
-            this.stack.push(newState);  // Add new state to stack (implicitly changes current)
-
-            this.nextState.pre();       // Run any pre-setup from the last state
-            this.currentState.wake();   // Run new state's scene configurer
-
+        while (this.transitionIntent == TransitionTo.Next) {
             this.transitionIntent = TransitionTo.None;
+            
+            // If a current-state exists in the stack, run its generic close procedure.
+            if (this.currentState)
+                this.currentState.close();
+            
+            let newStateConstructor = this.nextState.state;
+            let newStatePreFunc = this.nextState.pre;
+
+            let newState = new newStateConstructor(this);
+            this.stack.push(newState);  // Add new state to stack (implicitly changes current)
+            this.log(newState.name);    // Log new state to trace history
+            newStatePreFunc();          // Run any pre-setup passed in from the last state
+            this.currentState.wake();   // Run new state's scene configurer
+            // If next state is transitionary, call advanceState() in configureScene()
         }
         
         // nextState->previous handler
         while (this.transitionIntent == TransitionTo.Previous) {
-            let state = this.stack.pop();
-            if (state) {
-                state.prev();       // Ctrl+Z Undo for smooth backwards transition
-                state.destroy();    // Free up memory
+            let oldState = this.stack.pop();    // Implicitly changes current
+            if (oldState) {
+                oldState.close();      // Runs generic close procedure
+                oldState.prev();       // Ctrl+Z Undo for smooth backwards transition
+                oldState.destroy();    // Free up memory
             }
 
             // Log transition and wake the new current state, or continue moving backwards if current state is not 'stable.'

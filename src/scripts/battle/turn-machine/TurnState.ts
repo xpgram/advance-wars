@@ -16,6 +16,9 @@ export abstract class TurnState {
     abstract get revertible(): boolean;     // Whether this state may revert to a previous one.
     abstract get skipOnUndo(): boolean;     // Whether this state is skipped when reached via reversion.
 
+    /** A collection of states and pre-transition functions this state would lead to. */
+    protected abstract advanceStates: StringDictionary<NextState>;
+
     /** A reference to the controlling battle system manager, the object which runs the
      * turn-state machine. */
     protected battleSystemManager: BattleSystemManager;
@@ -64,10 +67,10 @@ export abstract class TurnState {
      * so this is primarily used for state-observation and next-state triggering. */
     abstract update(): void;
 
+    /** Generic close procedure called during any state transition. */
+    close(): void {};
+
     /** Any to-dos before regressing to previous state.
      * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
     abstract prev(): void;
-
-    /** // TODO Write */
-    abstract advanceStates: StringDictionary<NextState>;
 }

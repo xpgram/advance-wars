@@ -6,8 +6,10 @@ import { CardinalDirection, CardinalVector } from "../Common/CardinalDirection";
 import { Debug } from "../DebugUtils";
 import { MapLayers } from "./MapLayers";
 import { Unit } from "./Unit";
+import { LowResTransform } from "../LowResTransform";
 
 export class TrackCar {
+    transform: LowResTransform = new LowResTransform();
     
     private started = false;                // Whether this object's update process is doing so.
 
@@ -54,11 +56,12 @@ export class TrackCar {
 
         // Create the on-screen sprite and place it in-world.
         this.sprite = new PIXI.AnimatedSprite(tempImage);   // AnimSprites cannot have an empty texture list
-
         this.car.addChild(this.sprite);
-        this.car.zIndex = 11;               // Car must be on top of all other board iconography // TODO Move this into a function with declarable layers
+        MapLayers['ui'].addChild(this.car);
 
-        MapLayers['ui'].addChild(this.car)
+        // Set up transform
+        this.transform.object = this.car;
+        this.transform.zIndex = 11;         // Car must be on top of all other board iconography // TODO Move this into a function with declarable layers
 
         // Hide until TrackCar's presence is formally requested.
         this.hide();
@@ -163,8 +166,8 @@ export class TrackCar {
 
     /** Update the on-screen sprite's world position. */
     private updateWorldPosition() {
-        this.car.x = (this.curPoint.x + this.nextMove.x * this.moveSlider.value) * this.tileSize;
-        this.car.y = (this.curPoint.y + this.nextMove.y * this.moveSlider.value) * this.tileSize;
+        this.transform.x = (this.curPoint.x + this.nextMove.x * this.moveSlider.value) * this.tileSize;
+        this.transform.y = (this.curPoint.y + this.nextMove.y * this.moveSlider.value) * this.tileSize;
     }
 
     /** Returns a 2D movement-vector representing the next instructional step, and changes the car's sprite facing accordingly. */

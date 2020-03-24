@@ -29,6 +29,12 @@ export class MoveUnit extends TurnState {
         this.assets.trackCar.show();
 
         this.assets.map.generateMovementMap(this.travellingUnit);
+
+        // TODO On undo from CommandMenu, which is what this line is for, this does
+        // not preserve the drawn path the player made
+        // The directions should be saved in assets and checked for here.
+        // If they aren't empty, rebuild the path track car used before.
+        this.assets.map.recalculatePathToPoint(this.assets.units.traveler as UnitObject, this.lastCursorPos);
     }
 
     update() {

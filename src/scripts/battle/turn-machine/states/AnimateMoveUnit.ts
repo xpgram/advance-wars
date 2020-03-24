@@ -1,15 +1,18 @@
 import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
-import { IssueOrderStart } from "./IssueOrderStart";
 import { CardinalDirection, CardinalVector } from "../../../Common/CardinalDirection";
-import { MapLayers } from "../../MapLayers";
 import { Debug } from "../../../DebugUtils";
+import { CommandMenu } from "./CommandMenu";
 
 export class AnimateMoveUnit extends TurnState {
     get name() { return 'AnimateMoveUnit'; }
     get revertible() { return true; }
     get skipOnUndo() { return true; }
+
+    advanceStates = {
+        commandMenu: {state: CommandMenu, pre: () => {}}
+    }
 
     travellingUnit!: UnitObject;
     travelDestination!: Point;
@@ -26,40 +29,42 @@ export class AnimateMoveUnit extends TurnState {
         this.travellingUnit = this.assets.units.traveler as UnitObject;
         this.travelDestination = this.assets.locations.travelDestination as Point;
 
+        // Reset track car's animation and show it
         this.assets.trackCar.buildNewAnimation(this.travellingUnit);
-        this.assets.trackCar.show();    // It should already be shown
+        this.assets.trackCar.show();
 
-        //this.followTargetSwap = this.assets.camera.followTarget;
-        //this.assets.camera.followTarget = this.assets.trackCar;
-        //on state→close: this.assets.camera.followTarget = this.followTargetSwap; 
+        // Set camera to follow the car
+        this.assets.camera.followTarget = this.assets.trackCar;
 
-        // Build path from source point
-        // Confirm final destination equals this.assets.selectedDestination
-        // Setup and start animation
-        // move unit on the board
+        // Build the track the TrackCar will follow
+        let trackPoint = new Point(this.travellingUnit.boardLocation);  // The point being looked at
+        let trackSquare = this.assets.map.squareAt(trackPoint);         // The square at trackPoint
+        let directions: CardinalDirection[] = [];                       // Cumulative list of cardinal directions.
 
-        // Build the new path, blah blah, test-out demo
-        let trackPoint = new Point(this.travellingUnit.boardLocation);
-        let trackSquare = this.assets.map.squareAt(trackPoint);
-        let directions: CardinalDirection[] = [];
-
-        // TODO What if squares are not in a path that ends?
-        // TODO Throw error if final point is not destination
+        // Follow the arrow path leading from the traveler, tallying the travel cost along the way
         this.travelPoints = 0;
         while (trackSquare.arrowTo) {
-            directions.push(trackSquare.arrowTo);
-            trackPoint = trackPoint.add(CardinalVector(trackSquare.arrowTo));
-            trackSquare = this.assets.map.squareAt(trackPoint);
+            directions.push(trackSquare.arrowTo);                               // Add new direction
+            trackPoint = trackPoint.add(CardinalVector(trackSquare.arrowTo));   // Add directional vector
+            trackSquare = this.assets.map.squareAt(trackPoint);                 // Update focused square
+
+            // Tally travel cost——This should be in Ratify, but that means copying this algo somewhere..
             this.travelPoints += this.assets.map.squareAt(trackPoint).terrain.getMovementCost(this.travellingUnit.moveType);
 
+            // Confirm by extreme case that the path leading from traveler does not loop.
             if (this.travelPoints > 200)
-                Debug.error("Board arrow-path from source to destination may be looping.");
+                Debug.error("Board arrow-path from source to destination may be looping; 200+ accumulated travel cost.");
         }
 
-        this.assets.trackCar.directions = directions;
+        // Confirm that travel destination and path end are the same board location.
+        Debug.assert((this.travelDestination.equal(trackSquare)),
+            `TrackCar's travel path does not end in its destination: ${this.travelDestination.toString()} → ${(new Point(trackSquare)).toString()}`);
 
+        // Give travel directions to TrackCar and rev those engines
+        this.assets.trackCar.directions = directions;
         this.assets.trackCar.start();
 
+        // Clear markings from the board
         this.assets.map.clearMovementMap();
     }
 
@@ -71,42 +76,12 @@ export class AnimateMoveUnit extends TurnState {
         
         // When finished, advance to next state
         if (this.assets.trackCar.finished) {
-            // TODO This is a temporary unit loop and should not be handled in this state.
-            this.assets.map.squareAt(this.travellingUnit.boardLocation).hideUnit = false;
-            this.assets.map.squareAt(this.travelDestination).hideUnit = false;
-            this.assets.map.squareAt(this.travelDestination).moveFlag = false;  // Triggers setInfo
-            // TODO Fix the setInfo bug above
-            this.assets.units.traveler.visible = true;  // ← A
-            
-            // TODO Move this to after the wait command step
-            this.assets.units.traveler.orderable = false;
-
-            this.assets.map.moveUnit(this.travellingUnit.boardLocation, this.travelDestination);
-            this.travellingUnit.gas -= this.travelPoints;
-
-            this.battleSystemManager.advanceToState(this.advanceStates.issueOrderStart);
+            this.travellingUnit.gas -= this.travelPoints;   // TODO Move this to RatifyIssuedOrder
+            this.battleSystemManager.advanceToState(this.advanceStates.commandMenu);
         }
     }
 
     prev() {
-        // moves unit at this.assets.selectedDestination back to source
-        // moves cursor back to source?
-        /*
-        this.assets.unitSwap = null;
-        this.assets.map.squareAt(this.travellingUnit.boardLocation).hideUnit = false;
-        this.assets.trackCar.hide();
-        this.assets.map.clearMovementMap();
-
-        this.assets.mapCursor.moveTo(this.travellingUnit.boardLocation);
-        */
-    }
-
-    advanceStates = {
-       issueOrderStart: {state: IssueOrderStart, pre: () => {
-           this.assets.units.traveler = null;
-           this.assets.units.target = null;
-           this.assets.locations.travelDestination = null;
-           MapLayers['top'].sortChildren();
-       }}
+        this.assets.camera.followTarget = this.assets.mapCursor;
     }
 }

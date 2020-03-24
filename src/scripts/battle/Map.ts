@@ -384,6 +384,8 @@ export class Map {
         this.removeUnit(src);
         this.placeUnit(traveler, dest);
 
+        MapLayers['top'].sortChildren();
+
         return true;
     }
 

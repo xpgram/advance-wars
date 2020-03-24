@@ -147,7 +147,6 @@ export class Square {
     /** Whether this tile is reachable by a traveling unit. */
     get moveFlag(): boolean {
         return 1 == this.displayInfoGet(Square.boolLength, Square.moveableShift);
-        //reconfigureHighlight()    ← Determines terrain tint / whether to show unit, etc.
     }
     /** Whether this tile is attackable by a unit. */
     get attackFlag(): boolean {
