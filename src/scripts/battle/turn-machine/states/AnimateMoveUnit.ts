@@ -16,7 +16,7 @@ export class AnimateMoveUnit extends TurnState {
 
     travellingUnit!: UnitObject;
     travelDestination!: Point;
-    travelPoints!: number;
+    travelDistance!: number;
 
     assert() {
         if (this.assets.units.traveler == null)
@@ -42,18 +42,21 @@ export class AnimateMoveUnit extends TurnState {
         let directions: CardinalDirection[] = [];                       // Cumulative list of cardinal directions.
 
         // Follow the arrow path leading from the traveler, tallying the travel cost along the way
-        this.travelPoints = 0;
+        this.travelDistance = 0;
         while (trackSquare.arrowTo) {
             directions.push(trackSquare.arrowTo);                               // Add new direction
             trackPoint = trackPoint.add(CardinalVector(trackSquare.arrowTo));   // Add directional vector
             trackSquare = this.assets.map.squareAt(trackPoint);                 // Update focused square
 
-            // Tally travel cost——This should be in Ratify, but that means copying this algo somewhere..
-            this.travelPoints += this.assets.map.squareAt(trackPoint).terrain.getMovementCost(this.travellingUnit.moveType);
+            this.travelDistance += 1;   // Keep track of calculated path length for debugging purposes
 
             // Confirm by extreme case that the path leading from traveler does not loop.
-            if (this.travelPoints > 200)
-                Debug.error("Board arrow-path from source to destination may be looping; 200+ accumulated travel cost.");
+            // If it does, abort the travel operation.
+            if (this.travelDistance > 200) {
+                Debug.assert(false, "Board arrow-path from source to destination may be looping; 200+ steps.");
+                this.battleSystemManager.regressToPreviousState();
+                break;
+            }
         }
 
         // Confirm that travel destination and path end are the same board location.
@@ -70,15 +73,15 @@ export class AnimateMoveUnit extends TurnState {
 
     update() {
         // Skip animation on A.press or B.press
-        if (this.assets.gamepad.button.A.pressed
-            || this.assets.gamepad.button.B.pressed)
-            this.assets.trackCar.skip();
+        // if (this.assets.gamepad.button.A.pressed
+        //     || this.assets.gamepad.button.B.pressed)
+        //     this.assets.trackCar.speed = 11;
+        // else
+        //     this.assets.trackCar.speed = 7;
         
         // When finished, advance to next state
-        if (this.assets.trackCar.finished) {
-            this.travellingUnit.gas -= this.travelPoints;   // TODO Move this to RatifyIssuedOrder
+        if (this.assets.trackCar.finished)
             this.battleSystemManager.advanceToState(this.advanceStates.commandMenu);
-        }
     }
 
     prev() {
