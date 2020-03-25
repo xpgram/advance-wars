@@ -78,7 +78,7 @@ export class RatifyIssuedOrder extends TurnState {
             // Counter-attack check: is target adjacent to attacker?
             let p1 = new Point(traveler.boardLocation);
             let p2 = new Point(attackTarget.boardLocation);
-            let distance = p1.subtract(p2).taxicabDistance(Point.Origin);
+            let distance = p1.subtract(p2).manhattanDistance(Point.Origin);
 
             // Apply the effects of battle.
             damageApply(traveler, attackTarget);

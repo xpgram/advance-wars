@@ -5,13 +5,13 @@ import { COWindow } from "./COWindow";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { MapCursor } from "../MapCursor";
 import { Camera } from "../../Camera";
-import { Point } from "../../CommonTypes";
 import { Square } from "../Square";
 import { Map } from "../Map";
 import { Terrain } from "../Terrain";
 import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
 import { UnitClass } from "../EnumTypes";
+import { PointPrimitive } from "../../Common/Point";
 
 /** // TODO finish writing this class; I only ever completed the working draft. */
 export class InfoWindowSystem {
@@ -26,7 +26,7 @@ export class InfoWindowSystem {
     //@ts-ignore
     map: Map;
 
-    lastTileInspected: Point = {x: -1, y: -1};
+    lastTileInspected: PointPrimitive = {x: -1, y: -1};
 
     commandersSlider = new Slider();
 
@@ -130,6 +130,8 @@ export class InfoWindowSystem {
         this.commander2Info.show = (this.commandersSlider.value > 0);
         this.commander3Info.show = (this.commandersSlider.value > 0.4);
         this.commander4Info.show = (this.commandersSlider.value == 1);
+
+        // TODO Set up a listener→callback pattern between this and map cursor
 
         // Update tile info unless already inspected.
         if (this.terrainInfo.refreshable) {

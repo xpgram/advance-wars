@@ -6,12 +6,14 @@ import { LowResTransform } from "../LowResTransform";
 import { MapLayers } from "./MapLayers";
 import { Pulsar } from "../timer/Pulsar";
 import { Slider } from "../Common/Slider";
-import { PointPrimitive } from "../Common/Point";
+import { PointPrimitive, Point } from "../Common/Point";
+import { triggerAsyncId } from "async_hooks";
+import { Observable } from "../Observable";
 
 /**
  * @author Dei Valko
  */
-export class MapCursor {
+export class MapCursor extends Observable {
     static readonly spritesheet = 'UISpritesheet';
 
     /** Cursor animation settings. */
@@ -28,35 +30,52 @@ export class MapCursor {
 
     /** Whether the cursor should listen for input from a controller. */
     private controlsEnabled = true;
+
+    private _pos = new Point();
     /** Where this cursor exists on the map it is selecting over. */
-    pos: PointPrimitive;
+    get pos() {
+        let p = this._pos.clone();
+        // Return immutable
+        return {
+            get x() { return p.x; },
+            get y() { return p.y; }
+        }
+    }
+
     /** Where this cursor was last. */
-    private lastPos: PointPrimitive;
+    private lastPos = new Point();
+
     /** The direction of movement being held from last frame. */
-    private travelDir: PointPrimitive;
+    private travelDir = new Point();
+
     /** Where this cursor exists graphically in the game world. */
-    transform: LowResTransform;
+    transform = new LowResTransform(this.pos);
+    // TODO Major refactor: introduce ReadonlyTransform or ImmutableTransform type to protect this one.
+
     /** A reference to the map object we are selecting over.
      * This is 'needed' so that this cursor knows where it can and can not be. */
-    mapRef: Map;
+    private mapRef: Map;
+
     /** A reference to the controller we are recieving input from. */
-    controller: VirtualGamepad;
+    private controller: VirtualGamepad;
+
     /** The container object representing this cursor graphically. */
-    spriteLayer = new PIXI.Container();
+    private spriteLayer = new PIXI.Container();
+
     /** The pulsar trigger-controller for animation pulses. */
-    animPulsar: Pulsar;
+    private animPulsar: Pulsar;
+
     /** The pulsar trigger-controller for movement pulses. */
-    movementPulsar: Pulsar;
+    private movementPulsar: Pulsar;
+
     /** Guides the cursor's position on-screen as it animates its lateral movement. */
-    slideAnimSlider = new Slider({
+    private slideAnimSlider = new Slider({
         granularity: 1 / MapCursor.movementSettings.moveTime_repeated
     });
 
     constructor(map: Map, gp: VirtualGamepad) {
-        this.pos = {x:0,y:0};
-        this.lastPos = {x:0,y:0};
-        this.travelDir = {x:0,y:0};
-        this.transform = new LowResTransform(this.pos);
+        super();
+
         this.mapRef = map;
         this.controller = gp;
         // TODO Get the controller from Game.player[0] or something.
@@ -92,6 +111,7 @@ export class MapCursor {
 
     /** Destroys this object's external references. */
     destroy() {
+        this.clearListeners();
         this.transform.destroy();
         this.animPulsar.destroy();
         this.movementPulsar.destroy();
@@ -190,7 +210,7 @@ export class MapCursor {
         if (this.slideAnimSlider.value != this.slideAnimSlider.max)
             this.slideAnimSlider.increment();
         else
-            this.lastPos = {x: this.pos.x, y: this.pos.y};  // Force skips in future calls.
+            this.lastPos.set(this.pos); // Force skips in future calls.
 
         // Calculate intermediary distance between last position and current position.
         let tileSize = Game.display.standardLength;
@@ -207,79 +227,57 @@ export class MapCursor {
         this.transform.pos = newPos;
     }
 
-    /** Moves this cursor's position on the game map and graphically in the game world. */
+    /** Moves the cursor's actual position while updating any listeners about this change. */
+    private setCursorLocation(p: PointPrimitive) {
+        this._pos.set(p);
+        this.updateListeners();
+    }
+
+    /** Moves this cursor's position on the game map relative to its current position.
+     * Invokes cursor animation when new location is close enough. */
     move(dir: PointPrimitive) {
-        // Calculate the new position
-        let newPos = {
-            x: this.pos.x + dir.x,
-            y: this.pos.y + dir.y
-        }
-        // Clamp it to the board's width and height.
+        // Get new position and clamp it to board width and height.
+        let newPos = this._pos.add(dir);
         newPos.x = Common.confine(newPos.x, 0, this.mapRef.width - 1);
         newPos.y = Common.confine(newPos.y, 0, this.mapRef.height - 1);
 
-        // Continue only if this new position *is* a new position.
-        if (this.pos.x != newPos.x || this.pos.y != newPos.y) {
-            this.lastPos.x = this.transform.x / 16; // Use the transform in case we're
-            this.lastPos.y = this.transform.y / 16; // interrupting active movement.
+        // Get the distance between the current position and new.
+        let distance = this._pos.distance(newPos);
 
-            this.pos.x = newPos.x;
-            this.pos.y = newPos.y;
-
-            // Reset the slide animator
-            this.slideAnimSlider.setToMin();
-        }
-    }
-
-    /** Moves this cursor's position directly (non-relatively) to some other position on the game map and graphically in the game world. */
-    moveTo(place: PointPrimitive) {
-        place = {
-            x: Common.confine(place.x, 0, this.mapRef.width - 1),
-            y: Common.confine(place.y, 0, this.mapRef.height - 1)
-        }
-        let relativePos = {x: place.x - this.pos.x, y: place.y - this.pos.y};
-
-        // Using pythagorean theorem
-        let distance = Math.sqrt(Math.pow(relativePos.x, 2) + Math.pow(relativePos.y, 2));
-
-        // If we are already placed at this location.
+        // These are the same point, skip.
         if (distance == 0)
             return;
 
-        // If we are close enough to animate
-        else if (distance < 2)
-            this.move(relativePos);
-
-        // We are far enough to teleport.
-        else {
-            this.lastPos.x = this.transform.x / 16;
-            this.lastPos.y = this.transform.y / 16;
-            this.slideAnimSlider.setToMax();
-
-            this.pos.x = place.x;
-            this.pos.y = place.y;
+        // New position is close enough to animate to
+        else if (distance < 2) {
+            let p = new Point(this.transform).multiply(1/16);   // Update lastPos to transform's 'board location'
+            this.lastPos.set(p);                                // in case we're interrupting active movement.
+            this.setCursorLocation(newPos);
+            this.slideAnimSlider.setToMin();                    // Reset animation state
         }
 
-        // TODO This *should* definitely be in move(), not here.
+        // New position is far enough to teleport to
+        else
+            this.teleport(newPos);
+    }
+
+    /** Moves this cursor's position directly to some other position on the game map.
+     * Invokes cursor animation when new location is close enough. */
+    moveTo(place: PointPrimitive) {
+        let relativePos = new Point(place).subtract(this.pos);
+        this.move(relativePos);
     }
 
     teleport(place: PointPrimitive) {
-        // Confine new cursor position to some place on the board.
+        // Clamp new cursor position to some place on the board.
         place = {
             x: Common.confine(place.x, 0, this.mapRef.width - 1),
             y: Common.confine(place.y, 0, this.mapRef.height - 1)
         };
         
-        // System maintenance: set the last cursor position to something invalid.
-        this.lastPos.x = -1;
-        this.lastPos.y = -1;
-        this.slideAnimSlider.setToMax();
-
-        // Place the new cursor position
-        this.pos.x = place.x;
-        this.pos.y = place.y;
-
-        // Update transform position now, not next cycle
-        this.updateGameWorldPosition();
+        this.lastPos.set(-1,-1);            // System maintenance: set the last cursor position to something invalid.
+        this.slideAnimSlider.setToMax();    // Set cursor sprite to new location
+        this.setCursorLocation(place);      // Place the cursor in new position
+        this.updateGameWorldPosition();     // Update transform position now, not next cycle
     }
 }

@@ -72,9 +72,9 @@ export class AnimateMoveUnit extends TurnState {
     }
 
     update() {
-        // Skip animation on A.press or B.press
-        // if (this.assets.gamepad.button.A.pressed
-        //     || this.assets.gamepad.button.B.pressed)
+        // Speed up animation on A.press or B.press
+        // if (this.assets.gamepad.button.A.down
+        //     || this.assets.gamepad.button.B.down)
         //     this.assets.trackCar.speed = 11;
         // else
         //     this.assets.trackCar.speed = 7;

@@ -593,7 +593,7 @@ export class Map {
 
                         // Get direction of next adjacent square (assert it really is adjacent)
                         let cardinalVector = cur.path[i+1].subtract(cur.path[i]);
-                        Debug.assert(cardinalVector.taxicabDistance(Point.Origin) == 1, "New travel path was not continuous.");
+                        Debug.assert(cardinalVector.manhattanDistance(Point.Origin) == 1, "New travel path was not continuous.");
 
                         // Connect adjacent squares via path arrows.
                         square.arrowTo = CardinalVectorToCardinal(cardinalVector);
