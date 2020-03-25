@@ -100,6 +100,14 @@ export class BattleSceneControllers {
         // Units demo
         this.spawnRandomUnits();
 
+        // TODO This needs to be more formal, or maybe moved into InfoWindowSystem
+        let updateUI = () => {
+            this.uiSystem.inspectListenerCallback();
+        }
+        // Initiates uiSystem listener → mapCursor position relationship — implementation is still a bit primitive
+        this.mapCursor.addListener(updateUI);
+        // TODO InfoWindowSystem desperately needs a refactor
+
         // trackCar demo
         this.trackCar = new TrackCar();
 

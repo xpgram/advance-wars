@@ -17,8 +17,6 @@ export class IssueOrderStart extends TurnState {
     protected configureScene() {
         this.assets.mapCursor.show();
         this.assets.uiSystem.show();
-        // Ensure correct information is being displayed on UI Window System Reveal
-        this.assets.uiSystem.inspectTile(this.assets.map.squareAt(this.assets.mapCursor.pos));
 
         this.assets.camera.followTarget = this.assets.mapCursor;
 

@@ -12,6 +12,7 @@ import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
 import { UnitClass } from "../EnumTypes";
 import { PointPrimitive } from "../../Common/Point";
+import { Debug } from "../../DebugUtils";
 
 /** // TODO finish writing this class; I only ever completed the working draft. */
 export class InfoWindowSystem {
@@ -26,7 +27,7 @@ export class InfoWindowSystem {
     //@ts-ignore
     map: Map;
 
-    lastTileInspected: PointPrimitive = {x: -1, y: -1};
+    inspectionFlag = true;
 
     commandersSlider = new Slider();
 
@@ -68,7 +69,6 @@ export class InfoWindowSystem {
         this.unitInfo.displayContainer.y = 142;
         this.terrainInfo.displayContainer.y = 167;
 
-
         // Add independent updater to ticker
         Game.scene.ticker.add(this.update, this);
     }
@@ -91,8 +91,12 @@ export class InfoWindowSystem {
         this.commander2Info.displayContainer.visible = true;
         this.commander3Info.displayContainer.visible = true;
         this.commander4Info.displayContainer.visible = true;
-        this.unitInfo.displayContainer.visible = true;
+        this.unitInfo.displayContainer.visible = Boolean(this.map.squareAt(this.cursor.pos).unit);
         this.terrainInfo.displayContainer.visible = true;
+
+        // TODO I didn't even know I'd done that. UnitInfo should *not* be visible *every time* the
+        // ui system is shown.
+        // Geez, this class sucks...
     }
 
     update() {
@@ -131,16 +135,15 @@ export class InfoWindowSystem {
         this.commander3Info.show = (this.commandersSlider.value > 0.4);
         this.commander4Info.show = (this.commandersSlider.value == 1);
 
-        // TODO Set up a listener→callback pattern between this and map cursor
-
-        // Update tile info unless already inspected.
-        if (this.terrainInfo.refreshable) {
-            if (this.cursor.pos.x != this.lastTileInspected.x
-                || this.cursor.pos.y != this.lastTileInspected.y) {
-                this.lastTileInspected = {x: this.cursor.pos.x, y: this.cursor.pos.y};
-                this.inspectTile(this.map.squareAt(this.cursor.pos));
-            }
+        // Update window info
+        if (this.terrainInfo.refreshable && this.inspectionFlag) {
+            this.inspectionFlag = false;
+            this.inspectTile(this.map.squareAt(this.cursor.pos));
         }
+    }
+
+    inspectListenerCallback() {
+        this.inspectionFlag = true;
     }
 
     inspectTile(square: Square) {

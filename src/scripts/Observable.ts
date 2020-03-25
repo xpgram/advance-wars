@@ -1,27 +1,28 @@
+import { Debug } from "./DebugUtils";
 
 
 export abstract class Observable {
 
-    private observers: (() => void)[] = [];
+    private observers: {callback: () => void, context: undefined | object}[] = [];
 
-    /** Adds the given callback function to the list of observers if it isn't already present. */
-    addListener(callback: () => void): void {
-        if (this.observers.findIndex(cb => cb === callback) == -1)
-            this.observers.push(callback);
+    /** Adds the given callback function and context to the list of observers if it isn't already present. */
+    addListener(callback: () => void, context?: object): void {
+        if (!this.observers.some(obs => obs.callback === callback && obs.context === context))
+            this.observers.push({callback: callback, context: context});
     }
 
-    /** Removes the given callback from the list of obersvers, if it was present. */
-    removeListener(callback: () => void): void {
-        this.observers = this.observers.filter(cb => cb !== callback);
+    /** Removes the given callback and context from the list of observers, if it was present. */
+    removeListener(callback: () => void, context?: object): void {
+        this.observers = this.observers.filter(obs => obs.callback !== callback || obs.context !== context);
     }
 
-    /** Empties the list of callbacks. */
+    /** Empties the list of callback-context pairs. */
     protected clearListeners(): void {
         this.observers = [];
     }
 
-    /** Triggers each callback function in the list of observer callbacks. */
+    /** Triggers each callback function within their supplied context in the list of observers. */
     protected updateListeners(): void {
-        this.observers.forEach( cb => cb() );
+        this.observers.forEach( obs => obs.callback.call(obs.context) );
     }
 }
