@@ -32,6 +32,9 @@ export class BattleSceneControllers {
 
     trackCar: TrackCar;
 
+    /** How much gas is expended during travel. */
+    travelCost: number = 0;
+
     /** A collection of references to notable unit objects. */
     units: {
         traveler: UnitObject | null,

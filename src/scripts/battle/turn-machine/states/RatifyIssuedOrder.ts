@@ -30,10 +30,6 @@ export class RatifyIssuedOrder extends TurnState {
         let oldLoc = this.assets.map.squareAt(traveler.boardLocation);
         let newLoc = this.assets.map.squareAt(destinationPoint);
 
-        let accumulatedTravelCost = 0;
-        let point = new Point(oldLoc);
-        let square = this.assets.map.squareAt(point);
-
         // Move traveling unit on the board.
         oldLoc.hideUnit = false;    // Cleanup settings left by TrackCar.
         traveler.orderable = false; // Set traveling unit as 'spent' for this turn.
@@ -43,17 +39,8 @@ export class RatifyIssuedOrder extends TurnState {
         if (moveSuccessful == false)
             this.throwError(`Move operation was unsuccessful: [Unit (${oldLoc.x},${oldLoc.y}) '${oldLoc.unit}' → Unit (${newLoc.x},${newLoc.y}) '${newLoc.unit}'] failed.w`);
         
-        // Calculate expended gas during travel
-        while (square.arrowTo) {
-            point = point.add( CardinalVector(square.arrowTo) );
-            square = this.assets.map.squareAt(point);
-            accumulatedTravelCost += square.terrain.getMovementCost(traveler.moveType);
-
-            // Confirm by extreme case that the path leading from the traveler does not loop.
-            Debug.assert((accumulatedTravelCost < 200),
-                `Cumulative travel cost greater than 200: is the arrow path on the board looping?`);
-        }
-        traveler.gas -= accumulatedTravelCost;
+        // Expend gas during travel
+        traveler.gas -= this.assets.travelCost;
 
         // If an attack target was selected, compute damage and apply.
         if (attackTarget) {

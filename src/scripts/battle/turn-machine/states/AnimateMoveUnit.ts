@@ -16,7 +16,6 @@ export class AnimateMoveUnit extends TurnState {
 
     travellingUnit!: UnitObject;
     travelDestination!: Point;
-    travelDistance!: number;
 
     assert() {
         if (this.assets.units.traveler == null)
@@ -42,17 +41,18 @@ export class AnimateMoveUnit extends TurnState {
         let directions: CardinalDirection[] = [];                       // Cumulative list of cardinal directions.
 
         // Follow the arrow path leading from the traveler, tallying the travel cost along the way
-        this.travelDistance = 0;
+        this.assets.travelCost = 0;
         while (trackSquare.arrowTo) {
             directions.push(trackSquare.arrowTo);                               // Add new direction
             trackPoint = trackPoint.add(CardinalVector(trackSquare.arrowTo));   // Add directional vector
             trackSquare = this.assets.map.squareAt(trackPoint);                 // Update focused square
 
-            this.travelDistance += 1;   // Keep track of calculated path length for debugging purposes
+            // Keep track of calculated travel cost for gas expenditure later and for debugging.
+            this.assets.travelCost += trackSquare.terrain.getMovementCost(this.travellingUnit.moveType);
 
             // Confirm by extreme case that the path leading from traveler does not loop.
             // If it does, abort the travel operation.
-            if (this.travelDistance > 200) {
+            if (this.assets.travelCost > 200) {
                 Debug.assert(false, "Board arrow-path from source to destination may be looping; 200+ steps.");
                 this.battleSystemManager.regressToPreviousState();
                 break;
@@ -85,6 +85,7 @@ export class AnimateMoveUnit extends TurnState {
     }
 
     prev() {
+        this.assets.travelCost = 0;
         this.assets.camera.followTarget = this.assets.mapCursor;
     }
 }
