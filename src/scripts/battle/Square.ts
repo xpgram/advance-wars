@@ -10,6 +10,7 @@ import { NeighborMatrix } from "../NeighborMatrix";
 import { Debug } from "../DebugUtils";
 import { DiagnosticLayer } from "../DiagnosticLayer";
 import { CardinalDirection } from "../Common/CardinalDirection";
+import { Common } from "../CommonUtils";
 
 /**
  * Used by Map only. Maybe.
@@ -43,15 +44,16 @@ export class Square {
 
     /** The tinted-glass tile highlight that informs the player what actions or information is available for this square. */
     private overlayPanel = new PIXI.Sprite();
+
+    private tileReflectionBox = new PIXI.Container();
+
+    private tileReflection = new PIXI.Sprite();
+
     /** The arrow-path layer which, by segment, informs the player what path a travelling unit would intend to take. */
     private overlayArrow = new PIXI.Sprite();
 
     /** A 32-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
-
-    // TODO Fit this into the bitshifted properties below
-    /** Whether this square should hide its unit if one is present. */
-    hideUnit = false;
 
     // Constants/accessor-values for displayInfo —— Any way to make these numbers
     // auto-configurable, by the way, would be wonderful.
@@ -60,27 +62,71 @@ export class Square {
     private static readonly dangerousShift = 2;
     private static readonly COEffectedShift = 3;
     private static readonly hiddenShift = 4;
-    private static readonly arrowFromShift = 5;
-    private static readonly arrowToShift = 8;
-    private static readonly xCoordShift = 11;
+    private static readonly hideUnitShift = 5;
+    private static readonly arrowFromShift = 6;
+    private static readonly arrowToShift = 9;
+    private static readonly xCoordShift = 12;
     private static readonly yCoordShift = 19;
-    private static readonly tempShift = 27;
-    private static readonly searchVisitedShift = 31;
+    private static readonly tempShift = 26;
+    private static readonly tempFlagShift = 30;
     
     private static readonly boolLength = 1;
     private static readonly directionLength = 3;
-    private static readonly coordinateLength = 8;
+    private static readonly coordinateLength = 7;
     private static readonly tempLength = 4;
 
-    static readonly Max_Coords = 255;
+    static readonly Max_Coords = Math.pow(2, Square.coordinateLength);
+
+    // TODO Overlay prettifier dummy code
+    static readonly tileTex = (() => {
+        let fc = Game.frameCount;
+        let f = (n: number) => {
+            n = n % 160;
+            n = Math.abs(n - 80);
+            n = Common.confine(n, 20, 60);
+            n -= 20;
+            n /= 40;
+            return n;
+        }
+        let frame = {
+            x: f(fc)*16,
+            y: f(fc + 40)*16
+        };
+
+        let sheet = Game.scene.resources['NormalMapTilesheet'].spritesheet as PIXI.Spritesheet;
+
+        let sheetTex = sheet.baseTexture;
+        let region = sheet.data['frames']['tile-reflection.png'] as {
+            "frame": {"x": number, "y": number, "w": number, "h": number}
+        }
+        
+        var texture = new PIXI.Texture(sheetTex, new PIXI.Rectangle(
+            region.frame.x + frame.x,
+            region.frame.y + frame.y,
+            16, 16)
+        );
+        
+        return texture;
+    });
 
     constructor(x = 0, y = 0) {
-        this.x = x;
-        this.y = y;
+        this.setCoords(x,y);
         this.terrain = new Terrain.Void();
 
         MapLayers['top'].addChild(this.overlayPanel);
         MapLayers['ui'].addChild(this.overlayArrow);
+
+        // TODO Overlay prettifier dummy code
+        Game.scene.ticker.add( () => {
+            if (this.moveFlag || this.attackFlag) {
+                this.tileReflection.texture = Square.tileTex();
+            }
+        }, this);
+
+        this.tileReflection.x = this.tileReflection.y = 16;
+        this.tileReflection.blendMode = PIXI.BLEND_MODES.ADD;
+        this.tileReflection.alpha = 0.20;
+        this.overlayPanel.addChild(this.tileReflection);
     }
 
     /** Destroys this object and its children. */
@@ -164,6 +210,10 @@ export class Square {
     get hiddenFlag(): boolean {
         return 1 == this.displayInfoGet(Square.boolLength, Square.hiddenShift);
     }
+    /** Whether this square should hide its unit if one is present. */
+    get hideUnit(): boolean {
+        return 1 == this.displayInfoGet(Square.boolLength, Square.hideUnitShift);
+    }
     /** The from direction of the movement arrow splice. Range 0–4: none, up, right, down, left. */
     get arrowFrom(): number {
         return this.displayInfoGet(Square.directionLength, Square.arrowFromShift);
@@ -190,7 +240,7 @@ export class Square {
     }
     /** Temporary store: A boolean value useful in search algorithms. */
     get flag(): boolean {
-        return 1 == this.displayInfoGet(Square.boolLength, Square.searchVisitedShift);
+        return 1 == this.displayInfoGet(Square.boolLength, Square.tempFlagShift);
     }
 
     set moveFlag(value) {
@@ -208,27 +258,24 @@ export class Square {
     set hiddenFlag(value) {
         this.displayInfoSet(Square.boolLength, Square.hiddenShift, ~~value);
     }
+    set hideUnit(value) {
+        this.displayInfoSet(Square.boolLength, Square.hideUnitShift, ~~value);
+    }
     set arrowFrom(value) {
         this.displayInfoSet(Square.directionLength, Square.arrowFromShift, value);
     }
     set arrowTo(value) {
         this.displayInfoSet(Square.directionLength, Square.arrowToShift, value);
     }
-    set x(value) {
-        this.displayInfoSet(Square.coordinateLength, Square.xCoordShift, value);
-    }
-    set y(value) {
-        this.displayInfoSet(Square.coordinateLength, Square.yCoordShift, value);
-    }
-    set pos(point) {
-        this.x = point.x;
-        this.y = point.y;
+    private setCoords(x: number, y: number) {
+        this.displayInfoSet(Square.coordinateLength, Square.xCoordShift, x);
+        this.displayInfoSet(Square.coordinateLength, Square.yCoordShift, y);
     }
     set value(n: number) {
         this.displayInfoSet(Square.tempLength, Square.tempShift, n);
     }
     set flag(b: boolean) {
-        this.displayInfoSet(Square.boolLength, Square.searchVisitedShift, ~~b);
+        this.displayInfoSet(Square.boolLength, Square.tempFlagShift, ~~b);
     }
 
     /** Updates the tile overlay to reflect whatever UI state the tile is in. */
@@ -238,13 +285,14 @@ export class Square {
 
         // Define glassy-overlay presets.
         let colors = {
-            natural:{color: 0xFFFFFF, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},  // Deprecated. Was for sprite tints.
-            //blue: {color: 0x88FFFF, alpha: 0.8, mode: PIXI.BLEND_MODES.MULTIPLY},
-            blue:   {color: 0x44CCDD, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
-            red:    {color: 0xFF6666, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
-            maroon: {color: 0x883388, alpha: 0.5, mode: PIXI.BLEND_MODES.NORMAL},
-            grey:   {color: 0x222222, alpha: 0.25, mode: PIXI.BLEND_MODES.MULTIPLY}, // CO Affected, // TODO Animate shades
-            darkgrey: {color: 0x000000, alpha: 0.4, mode: PIXI.BLEND_MODES.MULTIPLY}
+            natural:{color: 0xFFFFFF, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL},      // Deprecated. Was for sprite tints.
+            //blue: {color: 0x88FFFF, alpha: 0.80, mode: PIXI.BLEND_MODES.MULTIPLY},
+            blue:   {color: 0x44CCDD, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL},
+            red:    {color: 0xFF6666, alpha: 0.40, mode: PIXI.BLEND_MODES.NORMAL},
+            maroon: {color: 0x883388, alpha: 0.40, mode: PIXI.BLEND_MODES.NORMAL},
+            grey:   {color: 0x222222, alpha: 0.25, mode: PIXI.BLEND_MODES.MULTIPLY},    // CO Affected, // TODO Animate shades
+            darkgrey: {color: 0x000000, alpha: 0.4, mode: PIXI.BLEND_MODES.MULTIPLY},
+            shape:  {color: 0xFFFFFF, alpha: 1.0, mode: PIXI.BLEND_MODES.NORMAL}        // Show white mask sprite
         }
 
         // Adjusts the look of the glassy overlay to some preset.

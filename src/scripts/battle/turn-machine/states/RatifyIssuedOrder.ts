@@ -33,7 +33,6 @@ export class RatifyIssuedOrder extends TurnState {
         // Move traveling unit on the board.
         oldLoc.hideUnit = false;    // Cleanup settings left by TrackCar.
         traveler.orderable = false; // Set traveling unit as 'spent' for this turn.
-        traveler.visible = true;    // TODO Remove (refactor Square.hideUnit)
 
         let moveSuccessful = this.assets.map.moveUnit(traveler.boardLocation, destinationPoint);
         if (moveSuccessful == false)

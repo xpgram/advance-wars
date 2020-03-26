@@ -174,18 +174,14 @@ export abstract class TerrainObject {
 
         // Any other shapes
         this.layers.forEach( layer => {
-            if (layer.maskShape) {
+            //if (layer.maskShape) {
                 layer.object.x = layer.object.y = tileSize;
                 container.addChild(layer.object);
-            }
+            //}
         });
 
         // White-out colors in shape sprites
-        let filter = new PixiFilters.AdjustmentFilter({
-            red: 10.0,
-            green: 10.0,
-            blue: 10.0
-        });
+        let filter = new PixiFilters.ColorReplaceFilter(0xFFFFFF, 0xFFFFFF, 10.0);
         container.filters = [filter];
 
         // Texture generation

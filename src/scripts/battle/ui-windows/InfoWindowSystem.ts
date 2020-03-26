@@ -27,8 +27,6 @@ export class InfoWindowSystem {
     //@ts-ignore
     map: Map;
 
-    inspectionFlag = true;
-
     commandersSlider = new Slider();
 
     alwaysOnOptions: SlidingWindowOptions = {
@@ -134,16 +132,16 @@ export class InfoWindowSystem {
         this.commander2Info.show = (this.commandersSlider.value > 0);
         this.commander3Info.show = (this.commandersSlider.value > 0.4);
         this.commander4Info.show = (this.commandersSlider.value == 1);
-
-        // Update window info
-        if (this.terrainInfo.refreshable && this.inspectionFlag) {
-            this.inspectionFlag = false;
-            this.inspectTile(this.map.squareAt(this.cursor.pos));
-        }
     }
 
+    /** Calls inspectTile on cursor position change. */
     inspectListenerCallback() {
-        this.inspectionFlag = true;
+        Game.workOrders.send( () => {
+            if (this.terrainInfo.refreshable) {
+                this.inspectTile(this.map.squareAt(this.cursor.pos));
+                return true;
+            }
+        }, this);
     }
 
     inspectTile(square: Square) {

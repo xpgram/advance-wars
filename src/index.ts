@@ -3,6 +3,7 @@ import { BattleScene } from './scenes/BattleScene';
 import { DiagnosticLayer } from './scripts/DiagnosticLayer';
 import { BlankScene } from './scenes/BlankScene';
 import { Debug } from './scripts/DebugUtils';
+import { WorkOrderHandler } from './scripts/system/WorkOrderHandler';
 
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
@@ -27,6 +28,9 @@ class App {
     readonly debugHud = new PIXI.Container();
 
     readonly globalResources!: PIXI.IResourceDictionary;
+
+    /** A repository for delayed function calls. */
+    readonly workOrders = new WorkOrderHandler();
 
     /** The number of frames that have elapsed since the game started. Note that this will cap out at infinity if left on for 9.8 billion years. */
     get frameCount() { return this._frameCount; }
@@ -129,6 +133,7 @@ class App {
         if (this.scene.mustInitialize)
             this.scene.init();
         this.scene.update(delta);
+        this.workOrders.close();
         this._frameCount++;
     }
 

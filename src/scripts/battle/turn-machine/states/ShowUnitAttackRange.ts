@@ -30,6 +30,11 @@ export class ShowUnitAttackRange extends TurnState {
 
         // Ask map to reveal the unit's attack range.
         this.assets.map.generateAttackRangeMap(unit);
+
+        // Visual fun: inform the player whom they're looking at, beyond the unit being the center.
+        this.assets.trackCar.buildNewAnimation(unit);
+        this.assets.trackCar.show();
+        this.assets.map.squareAt(loc).hideUnit = true;
     }
 
     update(): void {
@@ -39,6 +44,7 @@ export class ShowUnitAttackRange extends TurnState {
     }
     
     prev(): void {
+        this.assets.map.squareAt(this.assets.locations.focus as Point).hideUnit = false;
         this.assets.locations.focus = null;
         this.assets.map.clearMovementMap();
     }

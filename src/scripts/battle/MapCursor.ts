@@ -24,7 +24,7 @@ export class MapCursor extends Observable {
 
     /** Cursor movement interval settings. */
     static readonly movementSettings = {
-        moveTime_first: 12,
+        moveTime_first: 15,
         moveTime_repeated: 3
     }
 
@@ -188,6 +188,14 @@ export class MapCursor extends Observable {
         // Update held direction for the input pulsar
         this.travelDir.x = this.controller.axis.dpad.point.x;
         this.travelDir.y = this.controller.axis.dpad.point.y;
+
+        // QoL check: Reset move handler if held-dir intends to move beyond the movement map.
+        let square = this.mapRef.squareAt(this._pos);
+        let nextSquare = this.mapRef.squareAt(this._pos.add(this.travelDir));
+        let beyondMovementMap = (square.moveFlag && !nextSquare.moveFlag);
+        let fastCursorTravel = (this.movementPulsar.interval == MapCursor.movementSettings.moveTime_repeated);
+        if (beyondMovementMap && fastCursorTravel)
+            resetInterval();
 
         // Held input handler
         if (this.controller.axis.dpad.roaming) {

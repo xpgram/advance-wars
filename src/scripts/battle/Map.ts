@@ -429,8 +429,8 @@ export class Map {
         }
     }
 
-    /** Given a source point (a square to move from) and the unit whom is traveling, ....*/
-    generateMovementMap(unit: UnitObject) {
+    /** Generates a full attack/movement map for a given unit. The results should be culled according to the map's purpose. */
+    private generateUnitReachMap(unit: UnitObject) {
         let sourcePoint = unit.boardLocation;
 
         if (!this.validPoint(sourcePoint))
@@ -455,10 +455,6 @@ export class Map {
 
             let dirs = [Point.Up, Point.Right, Point.Down, Point.Left];
 
-            // Check if this square contains an attackable target.
-            if (square.attackable(unit))
-                square.attackFlag = true;
-
             // If this square is on the map edge, or if we've already been here and with more move points, skip.
             if (square.terrain.type == Terrain.Void
                 || square.flag && cur.movePoints <= square.value)
@@ -466,6 +462,9 @@ export class Map {
 
             // Indicate that we've been to this square at least once.
             square.flag = true;
+
+            // All reachable tiles are 'attackable' — whether this is shown comes down to circumstance.
+            square.attackFlag = true;
 
             // If we are able to move to this square, mark it as such and add its neighbors to queue.
             if (cur.movePoints >= 0 && square.traversable(unit)) {
@@ -490,25 +489,27 @@ export class Map {
         }
     }
 
-    /** Shows on the map which tiles a given unit is capable of reaching for attack. Generated map
-     * is clearable with Map.clearMovementMap().
-     */
-    generateAttackRangeMap(unit: UnitObject) {
-        this.generateMovementMap(unit);
+    /** Given a source point (a square to move from) and the unit whom is traveling, ....*/
+    generateMovementMap(unit: UnitObject) {
+        this.generateUnitReachMap(unit);
 
-        // Convert all blue tiles to red
-        // TODO This method (is slow) isn't complete: it misses the outer perimeter unless there
-        // is an enemy unit on every outer-perimeter tile.
         for (let y = 0; y < this.height; y++)
         for (let x = 0; x < this.width; x++) {
             let square = this.squareAt({x:x,y:y});
-            if (square.moveFlag) {
-                square.moveFlag = false;
-                square.attackFlag = true;
-                if (square.unit)
-                    if (square.unit.faction == unit.faction)
-                        square.attackFlag = false;
-            }
+            if (!square.attackable(unit))
+                square.attackFlag = false;
+        }
+    }
+
+    /** Shows on the map which tiles a given unit is capable of reaching for attack. Generated map
+     * is clearable with Map.clearMovementMap(). */
+    generateAttackRangeMap(unit: UnitObject) {
+        this.generateUnitReachMap(unit);
+
+        for (let y = 0; y < this.height; y++)
+        for (let x = 0; x < this.width; x++) {
+            let square = this.squareAt({x:x,y:y});
+            square.moveFlag = false;
         }
     }
 
