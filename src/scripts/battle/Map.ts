@@ -11,6 +11,7 @@ import { PointPrimitive, Point } from "../Common/Point";
 import { MoveType } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
 import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../Common/CardinalDirection";
+import { Common } from "../CommonUtils";
 
 // Common error messages
 function InvalidLocationError(point: PointPrimitive) {
@@ -103,7 +104,7 @@ export class Map {
         for (let x = 0; x < width; x++) {
             this.board[x] = {};
             for (let y = 0; y < height; y++) {
-                this.board[x][y] = new Square(x-1, y-1);    // Squares don't "know about" there being a void perimeter.
+                this.board[x][y] = new Square(this, x-1, y-1);    // Squares don't "know about" there being a void perimeter.
 
                 // Add null-object border
                 if (x == 0 || x == (width - 1) || y == 0 || y == (height - 1))
@@ -191,7 +192,7 @@ export class Map {
             for (let i = 0; i < points.length; i++) {
                 // Get context and skip if pointless
                 let pos = points[i];
-                let neighbors = parent.neighborsAt(pos);
+                let neighbors = parent.neighboringTerrainAt(pos);
                 let prevTile = parent.squareAt(pos).terrain;
                 let newTile = new type(prevTile);
 
@@ -202,7 +203,7 @@ export class Map {
                 // But, I should also keep the flat rate; it's good for lines.
 
                 // Calculate final chance ratio
-                let sameKindNeighbors = neighbors.list.filter((tile: TerrainObject) => { return (tile.type == type); }).length;
+                let sameKindNeighbors = neighbors.surrounding.filter( square => { return (square.type == type); }).length;
                 let ratio = chanceMatrix[sameKindNeighbors];
                 if (neighbors.left.type != type &&
                     neighbors.right.type != type &&
@@ -236,7 +237,7 @@ export class Map {
         for (let x = 0; x < this.width; x++)
         for (let y = 0; y < this.height; y++) {
             let pos = {x:x, y:y};
-            let neighbors = this.neighborsAt(pos);
+            let neighbors = this.neighboringTerrainAt(pos);
 
             // If the center tile is not legally placed among its neighbors, change it to whatever tile makes up its base (land or sea).
             if (neighbors.center.legalPlacement(neighbors) == false)
@@ -255,8 +256,8 @@ export class Map {
             let square = this.squareAt(pos);
             if (square.terrain.landTile ||
                 square.terrain.shallowWaterSourceTile) {
-                this.neighborsAt(pos).list.forEach(tile => {
-                    tile.shallowWater = true;
+                this.neighboringTerrainAt(pos).surrounding.forEach( terrain => {
+                    terrain.shallowWater = true;
                 });
             }
         }
@@ -264,14 +265,11 @@ export class Map {
 
     /** Asks each tile on the board to set up its graphics objects and add them to the scene. */
     private initializeMap() {
-        let tileSize = Game.display.standardLength;
-
         // Initialize each tile, providing its adjacent neighbors and game-world position (in pixels).
         for (let x = 0; x < this.width; x++)
         for (let y = 0; y < this.height; y++) {
-            let neighbors = this.neighborsAt({x:x,y:y});
+            let neighbors = this.neighboringTerrainAt({x:x,y:y});
             let pos = {x:x,y:y};
-            let worldPos = {x: x * tileSize, y: y * tileSize, z: Map.calculateZIndex(pos)};
             this.squareAt(pos).finalize(neighbors);
         }
 
@@ -317,25 +315,34 @@ export class Map {
         return this.board[pos.x][pos.y];
     }
 
-    /** Gathers the nearest-neighboring tiles adjacent to the tile at pos and returns them as a ProximityBox object.
+    /** Gathers the nearest-neighboring tiles adjacent to the tile at pos and returns them as a NeighborMatrix object.
      * @param pos The location on the map to inspect.
      */
-    neighborsAt(pos: PointPrimitive): NeighborMatrix<TerrainObject> {
+    neighborsAt(pos: PointPrimitive): NeighborMatrix<Square> {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         
-        let list = [], terrain, cursor;
+        let list = [], square, cursor;
         pos = {x: (pos.x - 1), y: (pos.y - 1)};
 
         // Collect neighboring tiles
         for (let x = 0; x < 3; x++)
         for (let y = 0; y < 3; y++) {
             cursor = {x: (pos.x + x), y: (pos.y + y)};
-            terrain = this.squareAt(cursor).terrain;    // this.squareAt(-1,-1) → Terrain.Void
-            list.push(terrain);
+            square = this.squareAt(cursor);     // this.squareAt(-1,-1) → Terrain.Void
+            list.push(square);
         }
 
         return new NeighborMatrix(list);
+    }
+
+    /** Gathers the TerrainObjects nearest-neighboring the tile at pos and returns them as a NeighborMatrix object.
+     * @param pos The location on the map to inspect.
+     */
+    neighboringTerrainAt(pos: PointPrimitive): NeighborMatrix<TerrainObject> {
+        let neighbors = this.neighborsAt(pos);
+        let list = neighbors.list.map( square => square.terrain );
+        return new NeighborMatrix<TerrainObject>(list);
     }
 
     /**
@@ -439,6 +446,8 @@ export class Map {
         // Blank any previous move and attack map decorations.
         this.clearMovementMap();
 
+        //// Generate Movement Reach Map ////
+
         // Set up a list of squares to examine, starting with the square inhabited by the moving unit.
         type queuedSquare = {loc: Point, movePoints: number, last: Point};
         let queue: queuedSquare[] = [{loc: new Point(sourcePoint), movePoints: unit.movementPoints, last: new Point(sourcePoint)}];
@@ -463,9 +472,6 @@ export class Map {
             // Indicate that we've been to this square at least once.
             square.flag = true;
 
-            // All reachable tiles are 'attackable' — whether this is shown comes down to circumstance.
-            square.attackFlag = true;
-
             // If we are able to move to this square, mark it as such and add its neighbors to queue.
             if (cur.movePoints >= 0 && square.traversable(unit)) {
                 square.moveFlag = true;
@@ -487,6 +493,44 @@ export class Map {
                 });
             }
         }
+
+        //// Generate Attack Reach Map ////
+
+        // Describe a valid box within the greater map of reasonably reachable squares.
+        let rect = this.unitReachOfInfluence(unit);
+
+        // Iterate over each one
+        for (let y = 0; y < rect.height; y++)
+        for (let x = 0; x < rect.width; x++) {
+            let point = new Point(x + rect.x, y + rect.y);
+            let neighbors = this.neighborsAt(point);
+
+            // If this square could be moved to,
+            if (neighbors.center.moveFlag && neighbors.center.occupiable(unit)) {
+                neighbors.orthogonals.forEach( square => {
+                    // And this square hasn't been set before,
+                    if (!square.attackFlag)
+                        // It is 'attackable' if it is targetable.
+                        square.attackFlag = square.targetable(unit);
+                });
+            }
+        }
+    }
+
+    /** Returns a rectangle area by which a given unit may hypothetically interact. */
+    unitReachOfInfluence(unit: UnitObject): PIXI.Rectangle {
+        // Describe a square (2r + 1)^2, where r is movement range + max attack range.
+        // Limit this square by the size of the board.
+        let range = unit.movementPoints + 1; // TODO unit.maxAttackRange;
+        let tl = {
+            x: Common.confine(unit.boardLocation.x - range, 0, this.width - 1), // -1: this is considered an index value
+            y: Common.confine(unit.boardLocation.y - range, 0, this.height - 1)
+        }
+        let br = {
+            x: Common.confine(unit.boardLocation.x + range + 1, 0, this.width), // +1: include the column/row the unit exists in
+            y: Common.confine(unit.boardLocation.y + range + 1, 0, this.height),
+        }
+        return new PIXI.Rectangle(tl.x, tl.y, (br.x - tl.x), (br.y - tl.y));
     }
 
     /** Given a source point (a square to move from) and the unit whom is traveling, ....*/

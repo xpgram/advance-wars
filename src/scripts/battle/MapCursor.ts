@@ -45,9 +45,6 @@ export class MapCursor extends Observable {
     /** Where this cursor was last. */
     private lastPos = new Point();
 
-    /** The direction of movement being held from last frame. */
-    private travelDir = new Point();
-
     /** Where this cursor exists graphically in the game world. */
     transform = new LowResTransform(this.pos);
     // TODO Major refactor: introduce ReadonlyTransform or ImmutableTransform type to protect this one.
@@ -129,6 +126,8 @@ export class MapCursor extends Observable {
     hide(): void {
         this.spriteLayer.visible = false;
         this.controlsEnabled = false;
+        this.movementPulsar.stop();
+        this.movementPulsar.interval = MapCursor.movementSettings.moveTime_first;
     }
 
     /** Reveals the cursor's graphics and enables player controls. */
@@ -152,7 +151,12 @@ export class MapCursor extends Observable {
     /** Triggers this object's position to move according to the directional input of the dpad.
      * Also sets the next interval to a faster time. */
     private triggerMovement() {
-        this.move(this.travelDir);
+        // Get held direction
+        let travelDir = {
+            x: this.controller.axis.dpad.point.x,
+            y: this.controller.axis.dpad.point.y
+        }
+        this.move(travelDir);
         this.movementPulsar.interval = MapCursor.movementSettings.moveTime_repeated;
     }
 
@@ -185,13 +189,15 @@ export class MapCursor extends Observable {
             resetInterval();
         }
 
-        // Update held direction for the input pulsar
-        this.travelDir.x = this.controller.axis.dpad.point.x;
-        this.travelDir.y = this.controller.axis.dpad.point.y;
+        // Get held direction // TODO Remove this
+        let travelDir = {
+            x: this.controller.axis.dpad.point.x,
+            y: this.controller.axis.dpad.point.y
+        }
 
         // QoL check: Reset move handler if held-dir intends to move beyond the movement map.
         let square = this.mapRef.squareAt(this._pos);
-        let nextSquare = this.mapRef.squareAt(this._pos.add(this.travelDir));
+        let nextSquare = this.mapRef.squareAt(this._pos.add(travelDir));
         let beyondMovementMap = (square.moveFlag && !nextSquare.moveFlag);
         let fastCursorTravel = (this.movementPulsar.interval == MapCursor.movementSettings.moveTime_repeated);
         if (beyondMovementMap && fastCursorTravel)
@@ -206,7 +212,6 @@ export class MapCursor extends Observable {
         else if (this.controller.axis.dpad.returned) {
             this.movementPulsar.stop();
             this.movementPulsar.interval = MapCursor.movementSettings.moveTime_first;
-            this.travelDir.x = this.travelDir.y = 0;
         }
     }
 

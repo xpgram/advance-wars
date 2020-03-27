@@ -31,6 +31,18 @@ export class ShowUnitAttackRange extends TurnState {
         // Ask map to reveal the unit's attack range.
         this.assets.map.generateAttackRangeMap(unit);
 
+        // Does anything light up red?
+        let someAttackableSquare = false;
+        for (let y = 0; y < this.assets.map.height; y++)
+        for (let x = 0; x < this.assets.map.width; x++) {
+            if (this.assets.map.squareAt({x:x,y:y}).attackFlag)
+                someAttackableSquare = true;
+        }
+
+        // If nothing lights up, show movement range instead
+        if (!someAttackableSquare)
+            this.assets.map.generateMovementMap(unit);
+
         // Visual fun: inform the player whom they're looking at, beyond the unit being the center.
         this.assets.trackCar.buildNewAnimation(unit);
         this.assets.trackCar.show();

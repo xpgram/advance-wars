@@ -94,7 +94,7 @@ export class BattleSceneControllers {
         this.uiSystem.cursor = this.mapCursor;
         this.uiSystem.camera = this.camera;
         // this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
-        // this.infoWindow.inspectTile(this.cursor.pos);
+        this.uiSystem.inspectListenerCallback();    // IWS should do this itself in its constructor
 
         // Setup static background image.
         let backdrop = new PIXI.Sprite( Game.scene.resources['background'].texture );

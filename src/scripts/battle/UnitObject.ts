@@ -509,10 +509,9 @@ export abstract class UnitObject {
 
         // Gather primary/secondary attack-effectiveness ratings (0, 1 or 2)
         let armorTuple = this.armorTargetMatrix[armorType];
-        let primary = armorTuple[0];
-        let secondary = armorTuple[1];
+        let primary = armorTuple[0];    // Tuple values range 0–2
+        let secondary = armorTuple[1];  // If not 0, it is a useable attack
 
-        // If not 0, either primary or secondary are useable attacks.
         if (primary && this.ammo > 0)
             return AttackMethod.Primary;
         else if (secondary)
@@ -526,6 +525,20 @@ export abstract class UnitObject {
         let attackable = (this.attackMethodFor(unit) != AttackMethod.None);
         let nonAllied = (this.faction != unit.faction);
         return (attackable && nonAllied);
+    }
+
+    /** Returns true if this unit could attack the given armor type. */
+    couldTarget(armorType: ArmorType) {
+
+        let armorTypes = this.armorTargetMatrix.length;
+        Debug.assert(Common.validIndex(armorType, armorTypes),
+            `Given armor type (#${armorType}) is outside the range of possible armor types (max index = ${armorTypes - 1})`);
+
+        let armorTuple = this.armorTargetMatrix[armorType];
+        let primary = armorTuple[0];
+        let secondary = armorTuple[1];
+
+        return ((primary && this.ammo > 0) || secondary);
     }
 
     /** Returns a number representing the base damage of an attack on the target.

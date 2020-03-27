@@ -11,6 +11,7 @@ import { Debug } from "../DebugUtils";
 import { DiagnosticLayer } from "../DiagnosticLayer";
 import { CardinalDirection } from "../Common/CardinalDirection";
 import { Common } from "../CommonUtils";
+import { ArmorType, MoveType } from "./EnumTypes";
 
 /**
  * Used by Map only. Maybe.
@@ -25,12 +26,13 @@ import { Common } from "../CommonUtils";
  * @version 0.1.0
  */
 export class Square {
+    private board: Map;
+
     private _terrain!: TerrainObject;
     /**  */
     get terrain() { return this._terrain; }
     set terrain(terr: TerrainObject) {
         this._terrain = terr;
-
     }
 
     private _unit: UnitObject | null = null;
@@ -109,8 +111,10 @@ export class Square {
         return texture;
     });
 
-    constructor(x = 0, y = 0) {
+    constructor(board: Map, x = 0, y = 0) {
         this.setCoords(x,y);
+        this.board = board;
+
         this.terrain = new Terrain.Void();
 
         MapLayers['top'].addChild(this.overlayPanel);
@@ -375,12 +379,47 @@ export class Square {
         return legalMovement && unitAlliedOrEmpty;
     }
 
+    /** Returns true if the given unit can successfully target this square for attack. */
+    targetable(unit: UnitObject): boolean {
+        if (this.terrain.type == Terrain.Void)
+            return false;
+
+        let targetable = false;
+
+        // Used to quick-check if at least one movement type in the list is allowed in this square.
+        let sumMovementCosts = (list: MoveType[]) => {
+            let sum = 0;
+            list.forEach( moveType => {
+                sum += this.terrain.getMovementCost(moveType);
+            });
+            return sum;
+        };
+
+        // Check if this _square_ is targetable. If uninhabited, use hypotheticals.
+        if (this.unit == null) {
+            // Unit can attack land units + this square allows land units
+            if (unit.couldTarget(ArmorType.Infantry) || unit.couldTarget(ArmorType.Vehicle))
+                targetable = (sumMovementCosts([MoveType.Infantry, MoveType.Mech, MoveType.Tread, MoveType.TireA, MoveType.TireB]) > 0);
+            // Unit can attack air units + this square allows air units
+            if (unit.couldTarget(ArmorType.Air) || unit.couldTarget(ArmorType.Heli))
+                targetable = (sumMovementCosts([MoveType.Air]) > 0) || targetable;
+            // Unit can attack sea units + this square allows sea units
+            if (unit.couldTarget(ArmorType.Ship) || unit.couldTarget(ArmorType.Sub))
+                targetable = (sumMovementCosts([MoveType.Ship, MoveType.Transport]) > 0) || targetable;
+        } else {  // a unit resides here
+            targetable = unit.canTarget(this.unit);
+        }
+
+        return targetable;
+    }
+
     /** Returns true if the given unit may launch an attack on a unit inhabiting this square.
-     * Returns false if there is no inhabiting unit to attack, or if the inhabiting unit is not targetable
-     * by the given unit. */
+     * Returns false if there is no inhabiting unit to attack, or if the inhabiting unit is not
+     * targetable by the given.
+     */
     attackable(unit: UnitObject): boolean {
         if (this.unit)
-            return unit.canTarget(this.unit);
+            return this.targetable(unit);
         else
             return false;
     }

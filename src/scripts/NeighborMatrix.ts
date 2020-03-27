@@ -1,4 +1,5 @@
 import { Class } from "./CommonTypes";
+import { Debug } from "./DebugUtils";
 
 /**
  * A 3x3 matrix representing the neighboring elements surrounding a central element.
@@ -9,28 +10,32 @@ import { Class } from "./CommonTypes";
  */
 export class NeighborMatrix<T> {
     /** An iterable list of all neighboring elements, excluding the center element. */
-    readonly list: T[];
-    /** The center element of the 3x3 matrix, or the source element of the neighoring list. */
-    readonly center: T;
+    private readonly grid: T[];
 
     constructor(list: T[]) {
         if (list.length != 9)
-            throw new Error(`Expected a list of 9 elements, recieved ${list.length}`);
-        this.center = list[4];
-        list.splice(4,1);       // Remove index 4
-        this.list = list;
+            Debug.error(`Expected a list of 9 elements, recieved ${list.length}`);
+
+        this.grid = list;
     }
 
-    get upleft() { return this.list[0]; }
-    get left() { return this.list[1]; }
-    get downleft() { return this.list[2]; }
-    get up() { return this.list[3]; }
-    get down() { return this.list[4]; }
-    get upright() { return this.list[5]; }
-    get right() { return this.list[6]; }
-    get downright() { return this.list[7]; }
+    get upleft() { return this.grid[0]; }
+    get left() { return this.grid[1]; }
+    get downleft() { return this.grid[2]; }
+    get up() { return this.grid[3]; }
+    get center() { return this.grid[4]; }
+    get down() { return this.grid[5]; }
+    get upright() { return this.grid[6]; }
+    get right() { return this.grid[7]; }
+    get downright() { return this.grid[8]; }
 
+    /** A value-copy of the 3x3 matrix in list form. */
+    get list() { return this.grid.slice(0,9); }
+    /** All 8 surrounding objects of type T returned as an array. */
+    get surrounding() { return this.grid.slice(0,4).concat( this.grid.slice(5,9) ); }
+    /** The four orthogonal direction-objects of type T returned as an array. */
     get orthogonals() { return [this.up, this.right, this.down, this.left]; }
+    /** The four diagonal direction-objects of type T returned as an array. */
     get diagonals() { return [this.upright, this.downright, this.downleft, this.upleft]; }
 
     countInstances<Y>(type: Class<Y>, list: T[]): number {
@@ -40,22 +45,5 @@ export class NeighborMatrix<T> {
                 count += 1;
         });
         return count;
-    }
-
-    countPropertyValues(property: string, value: any, list: T[]): number {
-        let count = 0;
-
-        // TODO Implement countPropertyValues()?
-        // The idea was to let me write:
-        //    countPropertyValues('landTile', true, neighbors.orthogonals);
-        // and have it return how many neighboring tiles ~were~ land tiles.
-        // I'm just not sure how to do that, though.
-        // NeighborMatrix is a generic class and I'm trying to keep it that way.
-
-        list.forEach(obj => {
-            if (typeof obj === 'object')
-                if (obj === value) {}
-        });
-        return 0;
     }
 }
