@@ -3,7 +3,7 @@ import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
 import { CardinalDirection, CardinalVector } from "../../../Common/CardinalDirection";
 import { Debug } from "../../../DebugUtils";
-import { CommandMenu } from "./CommandMenu";
+import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
 export class AnimateMoveUnit extends TurnState {
     get name() { return 'AnimateMoveUnit'; }
@@ -11,7 +11,7 @@ export class AnimateMoveUnit extends TurnState {
     get skipOnUndo() { return true; }
 
     advanceStates = {
-        commandMenu: {state: CommandMenu, pre: () => {}}
+        ratifyIssuedOrder: {state: RatifyIssuedOrder, pre: () => {}}
     }
 
     travellingUnit!: UnitObject;
@@ -81,7 +81,7 @@ export class AnimateMoveUnit extends TurnState {
         
         // When finished, advance to next state
         if (this.assets.trackCar.finished)
-            this.battleSystemManager.advanceToState(this.advanceStates.commandMenu);
+            this.battleSystemManager.advanceToState(this.advanceStates.ratifyIssuedOrder);
     }
 
     prev() {

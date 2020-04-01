@@ -1,6 +1,7 @@
 import { TurnState } from "../TurnState";
 import { Debug } from "../../../DebugUtils";
 import { Point } from "../../../Common/Point";
+import { Game } from "../../../..";
 
 export class ShowUnitAttackRange extends TurnState {
     get name(): string { return "ShowUnitAttackRange"; }
@@ -39,14 +40,27 @@ export class ShowUnitAttackRange extends TurnState {
                 someAttackableSquare = true;
         }
 
-        // If nothing lights up, show movement range instead
-        if (!someAttackableSquare)
-            this.assets.map.generateMovementMap(unit);
+        // If nothing lights up, cancel the action with short player-feedback delay
+        if (!someAttackableSquare) {
+            let frameCount = Game.frameCount + 2;
+            Game.workOrders.send( () => {
+                if (Game.frameCount == frameCount) {
+                    if (this.battleSystemManager)   // Protection against this state's closing before the timer.
+                        this.battleSystemManager.regressToPreviousState();
+                        // TODO regress should not function if the state calling it is not the current one.
+                        // That said, going backwards, this state being discarded seems to protect against that just fine.
+                        // Forwards would be a problem, though.
+                    return true;
+                }
+            }, this);
+        }
 
         // Visual fun: inform the player whom they're looking at, beyond the unit being the center.
-        this.assets.trackCar.buildNewAnimation(unit);
-        this.assets.trackCar.show();
-        this.assets.map.squareAt(loc).hideUnit = true;
+        if (someAttackableSquare) {
+            this.assets.trackCar.buildNewAnimation(unit);
+            this.assets.trackCar.show();
+            this.assets.map.squareAt(loc).hideUnit = true;
+        }
     }
 
     update(): void {

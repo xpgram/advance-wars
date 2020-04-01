@@ -1,9 +1,8 @@
 import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
-import { Debug } from "../../../DebugUtils";
-import { CardinalDirection, CardinalVector } from "../../../Common/CardinalDirection";
-import { AnimateMoveUnit } from "./AnimateMoveUnit";
+import { CommandMenu } from "./CommandMenu";
+import { CardinalDirection } from "../../../Common/CardinalDirection";
 
 export class MoveUnit extends TurnState {
     get name() { return 'MoveUnit'; }
@@ -23,18 +22,21 @@ export class MoveUnit extends TurnState {
         this.assets.uiSystem.show();
 
         this.travellingUnit = this.assets.units.traveler as UnitObject;
-        this.assets.map.squareAt(this.travellingUnit.boardLocation).hideUnit = true;
+        let square = this.assets.map.squareAt(this.travellingUnit.boardLocation);
+        square.hideUnit = true;
 
         this.assets.trackCar.buildNewAnimation(this.travellingUnit);
         this.assets.trackCar.show();
 
+        // Generate movement map
         this.assets.map.generateMovementMap(this.travellingUnit);
 
         // TODO On undo from CommandMenu, which is what this line is for, this does
         // not preserve the drawn path the player made
         // The directions should be saved in assets and checked for here.
         // If they aren't empty, rebuild the path track car used before.
-        this.assets.map.recalculatePathToPoint(this.assets.units.traveler as UnitObject, this.lastCursorPos);
+        if (square.arrowTo == CardinalDirection.None)
+            this.assets.map.recalculatePathToPoint(this.assets.units.traveler as UnitObject, this.lastCursorPos);
     }
 
     update() {
@@ -50,7 +52,7 @@ export class MoveUnit extends TurnState {
             && this.assets.map.squareAt(this.lastCursorPos).occupiable(this.assets.units.traveler as UnitObject)) {
 
             this.assets.locations.travelDestination = new Point(this.lastCursorPos);
-            this.battleSystemManager.advanceToState(this.advanceStates.animateMoveUnit);
+            this.battleSystemManager.advanceToState(this.advanceStates.commandMenu);
         }
     }
 
@@ -64,6 +66,6 @@ export class MoveUnit extends TurnState {
     }
 
     advanceStates = {
-        animateMoveUnit: {state: AnimateMoveUnit, pre: () => {} }
+        commandMenu: {state: CommandMenu, pre: () => {} }
     }
 }

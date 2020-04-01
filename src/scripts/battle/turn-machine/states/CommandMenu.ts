@@ -1,5 +1,6 @@
 import { TurnState } from "../TurnState";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
+import { AnimateMoveUnit } from "./AnimateMoveUnit";
 
 export class CommandMenu extends TurnState {
     get name(): string { return "CommandMenu"; }
@@ -7,7 +8,7 @@ export class CommandMenu extends TurnState {
     get skipOnUndo(): boolean { return false; }
 
     advanceStates = {
-        ratifyIssuedOrder: {state: RatifyIssuedOrder, pre: () => {}},
+        animateMoveUnit: {state: AnimateMoveUnit, pre: () => {}},
 
         // TODO Fill these in proper
         attackTarget: {state: RatifyIssuedOrder, pre: () => {}},
@@ -25,12 +26,19 @@ export class CommandMenu extends TurnState {
 
         // leave trackCar on
         this.assets.trackCar.show();
+
+        // Clean up map UI — hide highlights from irrelevant tiles.
+        this.assets.map.clearTileOverlay();     // I need one which doesn't erase the arrow
+        let travelerPos = this.assets.units.traveler.boardLocation;
+        let destination = this.assets.locations.travelDestination;
+        this.assets.map.squareAt(travelerPos).moveFlag = true;
+        this.assets.map.squareAt(destination).moveFlag = true;
     }
 
     update(): void {
         // If A, assume 'Wait' (until command menu is written)
         if (this.assets.gamepad.button.A.pressed) {
-            this.battleSystemManager.advanceToState(this.advanceStates.ratifyIssuedOrder);
+            this.battleSystemManager.advanceToState(this.advanceStates.animateMoveUnit);
         }
 
         // If B, cancel

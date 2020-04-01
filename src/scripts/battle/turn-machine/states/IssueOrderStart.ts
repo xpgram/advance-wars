@@ -3,6 +3,7 @@ import { MoveUnit } from "./MoveUnit";
 import { Point } from "../../../Common/Point";
 import { ShowUnitAttackRange } from "./ShowUnitAttackRange";
 import { MoveCamera } from "./MoveCamera";
+import { Terrain } from "../../Terrain";
 
 
 export class IssueOrderStart extends TurnState {
@@ -49,6 +50,18 @@ export class IssueOrderStart extends TurnState {
             else
                 this.battleSystemManager.advanceToState(this.advanceStates.moveCamera);
         }
+
+        // TODO Remove / Refactor
+        // Since MapCursor is a ~Map~Cursor anyway, it makes sense for it to figure this out itself.
+        // Then again, it should probably only happen under certain contexts.. like this one.. only..
+        let terrainType = this.assets.map.squareAt(this.assets.mapCursor.pos).terrain.type;
+        if (terrainType == Terrain.Factory || terrainType == Terrain.Airport || terrainType == Terrain.Port) {
+            if (this.assets.mapCursor.pointerSprite.textures[0] !== this.assets.mapCursor.cursorGraphics.constructPointer[0])
+                this.assets.mapCursor.pointerSprite.textures = this.assets.mapCursor.cursorGraphics.constructPointer;
+        }
+        else
+            if (this.assets.mapCursor.pointerSprite.textures[0] !== this.assets.mapCursor.cursorGraphics.arrowPointer[0])
+                this.assets.mapCursor.pointerSprite.textures = this.assets.mapCursor.cursorGraphics.arrowPointer;
     }
 
     prev() {

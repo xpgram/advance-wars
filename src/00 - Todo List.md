@@ -1,7 +1,7 @@
 - [ ] Re-rip the plasma textures: some of them are clipped by 1px.
 - [ ] Sea looks nicer, I think, but my frame-animation skills are a teense lacking. Update it.
-- [ ] Refactor unit sprites (...?)
-    - [ ] (On a different sheet) All have an 'exhibit' image matching the dimensions of landscape images for terrain.
+- [ ] Setup unit 'exhibit' image spritesheet.
+    - [ ] Come up with a different name for them.
 
 - [ ] Implement Team & CO classes
 - [ ] TurnState: Start→Move→Anim→Command→Cancel→Start loses the player-drawn path
@@ -13,10 +13,10 @@
 
 Map.generateTravelMapBase sets every reachable tile as attackable since they technically are,
 but we need more sophistication.
-- [ ] Boats which cannot attack land or air units should not list land tiles as attackable.
+- [X] Boats which cannot attack land or air units should not list land tiles as attackable.
 - [ ] genMap(), when it has reached the end of a path, should light up all tiles within unit range **if** unit can both move and attack.
     - [ ] Else, light up all tiles with manhatten distance in-range. This will have to be a separate loop, probably. We only need to check a square of area (2x+1)^2, where x is max range, though.
-        - [ ] In fact, use that formula to speed up genMap() culling in the other methods.
+        - [X] In fact, use that formula to speed up genMap() culling in the other methods.
 
 - [ ] Update Unit.ts and UnitObject.ts to include:
     - [ ] isIndirect: max range > 1
@@ -25,3 +25,5 @@ but we need more sophistication.
     - [ ] min and max range *facepalm*: range.max returns a constant, 1 or 0, depending on ammo and secondary.
 
 - [ ] Reorder turn structure to MoveUnit → CommandMenu → AnimateTravel → Ratify
+
+- [ ] MoveUnit step: if square at cursor.pos is marked as attackable, cursor.targetReticle = true

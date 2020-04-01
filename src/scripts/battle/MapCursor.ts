@@ -28,6 +28,14 @@ export class MapCursor extends Observable {
         moveTime_repeated: 3
     }
 
+    private cursorGraphics: {
+        selector: PIXI.Texture[],
+        //targetReticle: PIXI.Texture[],
+        arrowPointer: PIXI.Texture[],
+        constructPointer: PIXI.Texture[],
+        banPointer: PIXI.Texture[]
+    }
+
     /** Whether the cursor should listen for input from a controller. */
     private controlsEnabled = true;
 
@@ -59,6 +67,12 @@ export class MapCursor extends Observable {
     /** The container object representing this cursor graphically. */
     private spriteLayer = new PIXI.Container();
 
+    /** The tile-selector sprite object representing the cursor itself. */
+    private cursorSprite: PIXI.AnimatedSprite;
+
+    /** The arrow-pointer sprite which accompanies the cursor. */
+    private pointerSprite: PIXI.AnimatedSprite;
+
     /** The pulsar trigger-controller for animation pulses. */
     private animPulsar: Pulsar;
 
@@ -80,16 +94,25 @@ export class MapCursor extends Observable {
         // Set up the cursor's imagery
         let sheet = Game.app.loader.resources[ MapCursor.spritesheet ].spritesheet;
 
-        let cursor = new PIXI.AnimatedSprite(sheet.animations['MapCursor/mapcursor']);
-        cursor.animationSpeed = MapCursor.animSettings.animSpeed;
-        cursor.loop = false;    // Looping is off because we'll be pulsing over longer intervals.
+        // Collect all cursor-variation textures
+        this.cursorGraphics = {
+            selector: sheet.animations['MapCursor/mapcursor'],
+            //targetReticle: sheet.animations['MapCursor/mapcursor-reticle'],
+            arrowPointer: sheet.animations['MapCursor/mapcursor-arrow'],
+            constructPointer: sheet.animations['MapCursor/mapcursor-wrench'],
+            banPointer: sheet.animations['MapCursor/mapcursor-wrong']
+        }
 
-        let arrow = new PIXI.AnimatedSprite(sheet.animations['MapCursor/mapcursor-arrow']);
-        arrow.animationSpeed = MapCursor.animSettings.animSpeed;
-        arrow.loop = false;
+        this.cursorSprite = new PIXI.AnimatedSprite(this.cursorGraphics.selector);
+        this.cursorSprite.animationSpeed = MapCursor.animSettings.animSpeed;
+        this.cursorSprite.loop = false;    // Looping is off because we'll be pulsing over longer intervals.
 
-        this.spriteLayer.addChild(cursor);
-        this.spriteLayer.addChild(arrow);
+        this.pointerSprite = new PIXI.AnimatedSprite(this.cursorGraphics.arrowPointer);
+        this.pointerSprite.animationSpeed = MapCursor.animSettings.animSpeed;
+        this.pointerSprite.loop = false;
+
+        this.spriteLayer.addChild(this.cursorSprite);
+        this.spriteLayer.addChild(this.pointerSprite);
 
         // Add the created image layer to the relevant places
         this.transform.object = this.spriteLayer;

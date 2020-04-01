@@ -107,7 +107,7 @@ export class Square {
             region.frame.y + frame.y,
             16, 16)
         );
-        
+
         return texture;
     });
 
@@ -124,6 +124,7 @@ export class Square {
         Game.scene.ticker.add( () => {
             if (this.moveFlag || this.attackFlag) {
                 this.tileReflection.texture = Square.tileTex();
+                this.tileReflection.alpha = 0.25 + Math.sin(Game.frameCount / 14)*0.05;
             }
         }, this);
 
@@ -238,9 +239,9 @@ export class Square {
     get pos(): PointPrimitive {
         return {x: this.x, y: this.y};
     }
-    /** Temporary store: A 4-bit number (value range 0–15) useful in search algorithms. */
+    /** Temporary store: A 4-bit number (value range -1–14) useful in search algorithms. */
     get value(): number {
-        return this.displayInfoGet(Square.tempLength, Square.tempShift);
+        return this.displayInfoGet(Square.tempLength, Square.tempShift) - 1;    // -1 corrects the shifted range as it was stored
     }
     /** Temporary store: A boolean value useful in search algorithms. */
     get flag(): boolean {
@@ -276,7 +277,7 @@ export class Square {
         this.displayInfoSet(Square.coordinateLength, Square.yCoordShift, y);
     }
     set value(n: number) {
-        this.displayInfoSet(Square.tempLength, Square.tempShift, n);
+        this.displayInfoSet(Square.tempLength, Square.tempShift, n + 1);    // +1 shifts the range to -1 through 14
     }
     set flag(b: boolean) {
         this.displayInfoSet(Square.boolLength, Square.tempFlagShift, ~~b);
@@ -291,9 +292,9 @@ export class Square {
         let colors = {
             natural:{color: 0xFFFFFF, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL},      // Deprecated. Was for sprite tints.
             //blue: {color: 0x88FFFF, alpha: 0.80, mode: PIXI.BLEND_MODES.MULTIPLY},
-            blue:   {color: 0x44CCDD, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL},
-            red:    {color: 0xFF6666, alpha: 0.40, mode: PIXI.BLEND_MODES.NORMAL},
-            maroon: {color: 0x883388, alpha: 0.40, mode: PIXI.BLEND_MODES.NORMAL},
+            blue:   {color: 0x33CCBB, alpha: 0.45, mode: PIXI.BLEND_MODES.NORMAL},
+            red:    {color: 0xFF6060, alpha: 0.45, mode: PIXI.BLEND_MODES.NORMAL},
+            maroon: {color: 0x883388, alpha: 0.45, mode: PIXI.BLEND_MODES.NORMAL},
             grey:   {color: 0x222222, alpha: 0.25, mode: PIXI.BLEND_MODES.MULTIPLY},    // CO Affected, // TODO Animate shades
             darkgrey: {color: 0x000000, alpha: 0.4, mode: PIXI.BLEND_MODES.MULTIPLY},
             shape:  {color: 0xFFFFFF, alpha: 1.0, mode: PIXI.BLEND_MODES.NORMAL}        // Show white mask sprite
@@ -396,7 +397,8 @@ export class Square {
         };
 
         // Check if this _square_ is targetable. If uninhabited, use hypotheticals.
-        if (this.unit == null) {
+        // (As a visual convenience, treat ally-unit squares as empty)
+        if (this.unit == null || this.unit.faction == unit.faction) {
             // Unit can attack land units + this square allows land units
             if (unit.couldTarget(ArmorType.Infantry) || unit.couldTarget(ArmorType.Vehicle))
                 targetable = (sumMovementCosts([MoveType.Infantry, MoveType.Mech, MoveType.Tread, MoveType.TireA, MoveType.TireB]) > 0);
