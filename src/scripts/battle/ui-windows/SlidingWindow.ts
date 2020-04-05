@@ -29,12 +29,30 @@ export class SlidingWindow {
     /** Grammatically, which side of the screen the window should appear on. */
     showOnLeftSide = true;
 
-    /** Determines x-position and controls the window's button-hold slide-in quality. */
-    private holdToOpenSlider = new Slider({max: 1});
-    /** Determines x-position and controls the window's side-switching quality. */
-    private sideChangeSlider = new Slider({min: -1, max: 1});
-    /** How fast the slider transitions between min and max, but indirectly how fast the window moves on screen when sliding in and out. */
+    /** Describes the motion of the window as its slider moves from one extreme to the other. */
+    private shapeFunction(x: number): number {
+        let pow = Math.pow;
+        let cos = Math.cos;
+        let PI = Math.PI;
+        let y = -pow(cos(PI*x / 2), 2) + 1;
+        return y;
+    }
+    /** How fast the slider transitions between min and max, and indirectly how fast the window moves on screen when sliding in and out. */
     private slideSpeed = 0.15;
+
+    /** Determines x-position and controls the window's button-hold slide-in quality. */
+    private holdToOpenSlider = new Slider({
+        max: 1,
+        granularity: this.slideSpeed,
+        shape: this.shapeFunction
+    });
+    /** Determines x-position and controls the window's side-switching quality. */
+    private sideChangeSlider = new Slider({
+        min: 0,
+        max: 1,
+        granularity: this.slideSpeed/2,
+        shape: x => (this.shapeFunction(x) * 2 - 1)     // Change output range: [0, 1] —→ [-1, 1]
+    });
     /** The horizontal distance the window slides between min and max position. */
     private slideDistance: number;
 
@@ -87,11 +105,15 @@ export class SlidingWindow {
 
     /** Gradually positions the window after incrementing its controlling sliders toward their limiting values. */
     private update() {
-        // Increment sliders
-        let holdToOpenDir = (this.show) ? this.slideSpeed : -this.slideSpeed;
-        let sideChangeDir = (this.showOnLeftSide) ? -this.slideSpeed : this.slideSpeed;
-        this.holdToOpenSlider.track += holdToOpenDir;
-        this.sideChangeSlider.track += sideChangeDir;
+        // Set increment direction
+        this.holdToOpenSlider.incrementFactor = (this.show) ? 1 : -1;
+        this.sideChangeSlider.incrementFactor = (this.showOnLeftSide) ? -1 : 1;
+
+        // Update slider incrementers
+        this.holdToOpenSlider.increment();
+        this.sideChangeSlider.increment();
+
+        // Move the window graphically
         this.positionWindow();
     }
 
