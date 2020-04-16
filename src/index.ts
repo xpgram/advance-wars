@@ -29,6 +29,20 @@ class App {
 
     readonly globalResources!: PIXI.IResourceDictionary;
 
+    /** The number of seconds which have passed since the last loop cycle. Always >= 0. */
+    // Preventing negative values is a protection against user-modified system time.
+    get delta() { return (this._delta >= 0) ? this._delta : 0; }
+    private _delta = 0;
+
+    // Setting this to MAX_INT ensures the first-frame delta call returns 0 as the first calc is always negative.
+    private _lastCycleTimestamp: number = Number.MAX_SAFE_INTEGER;
+    /** Updates delta to reflect the time since the last updateDelta call. */
+    private updateDelta() {
+        let timestamp = Date.now();
+        this._delta = (timestamp - this._lastCycleTimestamp) / 1000;
+        this._lastCycleTimestamp = timestamp;
+    }
+
     /** A repository for delayed function calls. */
     readonly workOrders = new WorkOrderHandler();
 
@@ -130,6 +144,7 @@ class App {
 
     /** Main update loop. A state-machine implementing the Scene pattern. */
     loop(delta: number) {
+        this.updateDelta();
         if (this.scene.mustInitialize)
             this.scene.init();
         this.scene.update(delta);
