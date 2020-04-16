@@ -14,7 +14,7 @@
 Map.generateTravelMapBase sets every reachable tile as attackable since they technically are,
 but we need more sophistication.
 - [X] Boats which cannot attack land or air units should not list land tiles as attackable.
-- [ ] genMap(), when it has reached the end of a path, should light up all tiles within unit range **if** unit can both move and attack.
+- [X] genMap(), when it has reached the end of a path, should light up all tiles within unit range **if** unit can both move and attack.
     - [ ] Else, light up all tiles with manhatten distance in-range. This will have to be a separate loop, probably. We only need to check a square of area (2x+1)^2, where x is max range, though.
         - [X] In fact, use that formula to speed up genMap() culling in the other methods.
 
@@ -24,6 +24,29 @@ but we need more sophistication.
     - [ ] canMoveAndAttack: default true, most indirects set to false
     - [ ] min and max range *facepalm*: range.max returns a constant, 1 or 0, depending on ammo and secondary.
 
-- [ ] Reorder turn structure to MoveUnit → CommandMenu → AnimateTravel → Ratify
+- [ ] Reorganize BattleSystemManager to use or describe an 'Order' to a unit as a single object.
+    - [ ] Acting Unit: Point
+    - [ ] Travel Path: CardinalDirection[]
+    - [ ] Travel Destination: Point (to check against travel path, like a checksum)
+    - [ ] Attack Target: Point
+    - [ ] How do I simplify contextual actions? I'll list them:
+        - Capture Building
+        - Build Temporary Base
+        - Fire Flare
+        - Fire Silo
+        - Release held unit (transport units)
+        - Hide (subs and stealth planes)
+        - 
+        - Build Unit (the only one that doesn't explicitly fit here, but if this object is to be the game's standard internet packet, I may want to think about it); also
+        - Build Unit (carriers, though just Seaplanes)
 
-- [ ] MoveUnit step: if square at cursor.pos is marked as attackable, cursor.targetReticle = true
+- [X] Reorder turn structure to MoveUnit → CommandMenu → AnimateTravel → Ratify
+- [ ] MoveUnit step: if square under cursor is an attackable target, change to target reticle.
+    - [X] Cursor graphic switching infrastructure
+    - [ ] Alternate cursor graphics in spritesheet
+    - [ ] Cursor graphics change logic in relevant turn-states
+        - [ ] Graphics change logic is written in MapCursor.ts, enable switches are given to turn states to configure behaviour.
+        - [ ] Cursor over base and base is uninhabited → wrench icon
+        - [ ] Cursor over attackable target square → target reticle
+        - [ ] TurnState == DestroyUnits → ban icon / 'X' icon
+    - [ ] Reset cursor switches to default cursor graphics

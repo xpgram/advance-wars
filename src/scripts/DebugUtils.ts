@@ -43,6 +43,11 @@ export const Debug = {
         console.warn(msg);
     },
 
+    /** Prints a traceable warning message to the console. */
+    warn: (msg: string) => {
+        console.warn(msg);
+    },
+
     /** Given a list of objects or primitives, logs each one to the console underneath a traceable
      * ping. Handy when you want to report on multiple objects at once. */
     report: (...data: any[]) => {
