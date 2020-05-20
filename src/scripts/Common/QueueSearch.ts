@@ -9,14 +9,6 @@ enum SearchMode {
     BreadthFirst
 }
 
-/** Enum describing the three possible results of a node-check:
- * "failure" (stop), "pass" (continue) or "final" (target found; cease search). */
-enum NodeResult {
-    Fail,
-    Pass,
-    Final
-}
-
 /** A generic scaffolding-pattern for search algorithms,
  * the methodology of which is completely determinable by the invoking script.  
  * 
@@ -29,8 +21,7 @@ enum NodeResult {
  */
 export class QueueSearch<T> {
 
-    SearchMode = SearchMode;
-    NodeResult = NodeResult;
+    static SearchMode = SearchMode;
 
     /** A 'deposit-box' containing the final result of the fully evaluated algorithm. */
     resultNode: T | undefined;
@@ -39,12 +30,15 @@ export class QueueSearch<T> {
      * Generally only useful for staccatoed searches. */
     private name: string | undefined;
 
+    /** Algorithm start timestamp */
     private startTime = Date.now();
+    /** Algorithm end timestamp */
     private endTime: number | undefined;
+
     /** The time in milliseconds the algorithm will wait before warning that it may be looping forever. */
     private warningTimerLimit: number;
 
-    /** The time since the search was started until now or when the search completed. */
+    /** The time since the search was started or the elapsed time taken to complete. */
     get elapsedTime(): number {
         if (this.endTime)
             return (this.endTime - this.startTime);
@@ -60,12 +54,9 @@ export class QueueSearch<T> {
      * yourself, but allows you to staccato the search across multiple program cycles. */
     staccatoSearch: boolean;
 
-    private checkNode: (node: T) => NodeResult;
-    private queueNodes: (node: T) => T[];
-    private onVisit: (node: T) => void;
-    private onPass: (node: T) => void;
-    private onFail: (node: T) => void;
-    private onFinal: (node: T) => void;
+    /** Called on each node handled by the search algorithm.
+     * May return a list of nodes to queue, nothing at all, or the signal ('break') to halt. */
+    private handleNode: (node: T) => T[] | null | 'break';
 
     /** The list of requests for search-nodes to consider. */
     private queue: T[];
@@ -74,18 +65,17 @@ export class QueueSearch<T> {
     get finished(): boolean { return this._finished; }
     private _finished: boolean = false;
 
+
     constructor(options: {
         firstNode: T,
         searchMode: SearchMode,
+
         staccatoSearch?: boolean,
         warningTimer?: number,
         algorithmName?: string,
-        checkNode: (node: T) => NodeResult,
-        queueNodes: (node: T) => T[],
-        onVisit?: (node: T) => void,
-        onPass?: (node: T) => void,
-        onFail?: (node: T) => void,
-        onFinal?: (node: T) => void
+
+        /** Expected to return a list of nodes to queue, none at all, or the signal to stop. */
+        nodeHandler: (node: T) => T[] | null | 'break',
     }) {
         this.mode = options.searchMode;
         this.queue = [options.firstNode];
@@ -93,12 +83,7 @@ export class QueueSearch<T> {
         this.warningTimerLimit = options.warningTimer || 1000; // Default: 1 second
         this.name = options.algorithmName;
 
-        this.checkNode = options.checkNode;
-        this.queueNodes = options.queueNodes;
-        this.onVisit = options.onVisit || (() => {});
-        this.onFail = options.onFail   || (() => {});
-        this.onPass = options.onPass   || (() => {});
-        this.onFinal = options.onFinal || (() => {});
+        this.handleNode = options.nodeHandler;
 
         // setup loop
         if (!this.staccatoSearch) {
@@ -106,6 +91,7 @@ export class QueueSearch<T> {
                 this.handleNextNode();
         }
     }
+
 
     /** Pulls one node from the queue and evaluates it. This may extend the search or stop it,
      * depending. */
@@ -115,16 +101,22 @@ export class QueueSearch<T> {
             return;
 
         // Check the algorithm's elapsed time and warn the developer if it's taking too long.
-        if (this.warningTimerLimit >= 0) {  // Allow negative timers to cancel this warning.
-            if (this.elapsedTime >= this.warningTimerLimit) {
+        // Allow negative timers to cancel this warning.
+        if (this.warningTimerLimit >= 0) {
+
+            let warnMsg = (msg: string) => {
                 let name = this.name || 'Nameless';
-                Debug.warn(`Search algorithm '${name}' exceeded an expected completion time of ${this.elapsedTime}ms.`)                
+                Debug.warn(`Search algorithm '${name}': ${msg}`)
             }
-            // The idea, I think, is to prevent program catastrophic failure.
-            // I wonder if this is the best way, though.
+
+            // Inform the developer if the warning limit has fully elapsed.
+            if (this.elapsedTime >= this.warningTimerLimit) {
+                warnMsg(`Exceeded an expected completion time of ${this.elapsedTime}ms.`)
+            }
+
+            // Emergency search halt in the case of infinite loop (inferred by time elapsed)
             if (this.elapsedTime >= this.warningTimerLimit*2) {
-                let name = this.name || 'Nameless';
-                Debug.warn(`Search algorithm '${name}' failed: too long. Stopping.`);
+                warnMsg(`Search took extroardinarily long. Assuming loop failure.`);
                 this.endSearch();
             }
         }
@@ -132,12 +124,10 @@ export class QueueSearch<T> {
         // Get the next node for consideration.
         let node: T | undefined;
 
-        if (this.mode == SearchMode.BreadthFirst)
-            node = this.queue.shift();
-        else if (this.mode == SearchMode.DepthFirst)
+        if (this.mode == SearchMode.BreadthFirst)       // If this gets any more complicated,
+            node = this.queue.shift();                  // write something of the form:
+        else if (this.mode == SearchMode.DepthFirst)    // mode = () => T; node = mode();
             node = this.queue.pop();
-        // (( If this gets any more complicated, write something of the form:
-        // mode = function => T; node = mode(); ))
 
         // If the queue is empty, cease the search
         if (node == undefined) {
@@ -145,28 +135,55 @@ export class QueueSearch<T> {
             return;
         }
 
-        this.onVisit(node);
-        let result = this.checkNode(node);
+        let result = this.handleNode(node);
 
-        if (result == NodeResult.Fail) {
-            this.onFail(node);
-        }
-        else if (result == NodeResult.Pass) {
-            this.onPass(node);
-            this.queue.concat(this.queueNodes(node));
-        }
-        else if (result == NodeResult.Final) {
-            this.onFinal(node);
+        // If result was the signal to stop searching, break.
+        if (result == 'break') {
             this.resultNode = node;
             this.endSearch();
         }
+        // If result is not null (thus T[])
+        else if (result != null) {
+            this.queue = this.queue.concat(result);
+        }
     }
 
-    /** If staccatoed-search is enabled, executes one iteration of the search algorithm.
-     * Otherwise, does nothing. */
-    update() {
-        if (this.staccatoSearch)
-            this.handleNextNode();
+    /** If staccatoed-search is enabled, executes one iteration of the search algorithm. Otherwise does nothing.
+     * Giving options.repeat an integer n will iterate over n nodes.
+     * Giving options.duration an integer t will iterate until elapsed-time == t. */
+    update(options?: {repeat?: number, duration?: number}) {
+        // If not set to staccato, do nothing.
+        if (!this.staccatoSearch)
+            return;
+
+        // Configure update limits
+        let times;
+        let duration;
+
+        if (options) {
+            times = (options.repeat != undefined) ? options.repeat : times;
+            duration = (options.duration != undefined) ? options.duration : duration;
+        }
+
+        // No given options default case
+        if (times == undefined && duration == undefined)
+            times = 100;
+
+        // Duration counters
+        let count = 0;
+        let start = Date.now();
+
+        // Update until either limit reached
+        while (duration == undefined || Date.now() - start < duration) {
+            // Prevent CPU hogging when there's no work to do.
+            if (this.finished) break;
+
+            if (times == undefined || count < times) {
+                this.handleNextNode();
+                ++count;
+            }
+            else break;
+        }
     }
 
     /** Ceases function of the search algorithm and timestamps its end. */

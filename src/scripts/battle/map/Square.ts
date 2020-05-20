@@ -1,26 +1,23 @@
 import { TerrainObject } from "./TerrainObject";
-import { UnitObject } from "./UnitObject";
+import { UnitObject } from "../UnitObject";
 import { Terrain } from "./Terrain";
 import { MapLayers } from "./MapLayers";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { Map } from "./Map";
-import { Point, PointPrimitive } from "../Common/Point";
-import { Game } from "../..";
-import { NeighborMatrix } from "../NeighborMatrix";
-import { Debug } from "../DebugUtils";
-import { DiagnosticLayer } from "../DiagnosticLayer";
-import { CardinalDirection } from "../Common/CardinalDirection";
-import { Common } from "../CommonUtils";
-import { ArmorType, MoveType } from "./EnumTypes";
+import { Point, PointPrimitive } from "../../Common/Point";
+import { Game } from "../../..";
+import { NeighborMatrix } from "../../NeighborMatrix";
+import { Debug } from "../../DebugUtils";
+import { DiagnosticLayer } from "../../DiagnosticLayer";
+import { CardinalDirection } from "../../Common/CardinalDirection";
+import { Common } from "../../CommonUtils";
+import { ArmorType, MoveType } from "../EnumTypes";
 
 /**
  * Used by Map only. Maybe.
  * Generally a container for map information, but also self-manages appearance for UI purposes, etc.
  * 
- * // TODO Needs major refactoring, along with its associated links to Map and Terrain.
- *  - Bitwise properties should be converted to the UnitObject model.
- *  - The order of initialization between Map→Square→Terrain is weird and disfunctional.
- *  - overlayPanel can be alpha'd and tinted cheaply, but the overhead-lights effect I haven't worked out.
+ *  - overlayPanel: colors well, but the overhead-lights effect is incomplete. (low priority)
  * 
  * @author Dei Valko
  * @version 0.1.0

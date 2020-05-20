@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Slider } from "../../Common/Slider";
 import { Game } from "../../..";
+import { Debug } from "../../DebugUtils";
 
 /** 
  * 
@@ -88,8 +89,8 @@ export class SlidingWindow {
             this.skipSlideAnimation();
 
         // Calculate each slider's effect on the window's x-position (from its flagged ideal position)
-        let sideChangeDisplace = -this.slideDistance * this.sideChangeSlider.value;
-        let holdToOpenDisplace = this.slideDistance - (this.slideDistance * this.holdToOpenSlider.value);
+        let sideChangeDisplace = -this.slideDistance * this.sideChangeSlider.output;
+        let holdToOpenDisplace = this.slideDistance - (this.slideDistance * this.holdToOpenSlider.output);
         if (this.onLeftSide)
             holdToOpenDisplace = -holdToOpenDisplace;   // Should always point off-screen
         if (this.mask)
@@ -120,9 +121,9 @@ export class SlidingWindow {
     /** Returns true if the window is in a pleasant position to refresh its display, i.e., not switching screen sides. */
     get refreshable() {
         let deadZone = 0.1;
-        let offscreen = (this.sideChangeSlider.value < deadZone && this.sideChangeSlider.value > -deadZone);
-        let onLeftSide = (this.sideChangeSlider.value == this.sideChangeSlider.min && this.showOnLeftSide);
-        let onRightSide = (this.sideChangeSlider.value == this.sideChangeSlider.max && !this.showOnLeftSide);
+        let offscreen = (this.sideChangeSlider.output < deadZone && this.sideChangeSlider.output > -deadZone);
+        let onLeftSide = (this.sideChangeSlider.track == this.sideChangeSlider.min && this.showOnLeftSide);
+        let onRightSide = (this.sideChangeSlider.track == this.sideChangeSlider.max && !this.showOnLeftSide);
 
         return offscreen || onLeftSide || onRightSide;
     }
@@ -130,7 +131,7 @@ export class SlidingWindow {
     /** Returns true if the window is actually on the left side of the screen currently. */
     get onLeftSide() {
         let middlePoint = (this.sideChangeSlider.min + this.sideChangeSlider.max) / 2;
-        return this.sideChangeSlider.value < middlePoint;
+        return this.sideChangeSlider.track < middlePoint;
     }
 
     /** Instantly positions the window wherever it is desired to be. */

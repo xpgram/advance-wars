@@ -1,4 +1,4 @@
-import { Game } from "../..";
+import { Game } from "../../..";
 
 /**
  * Globally accessible dictionary of layers for the map system's sprites.

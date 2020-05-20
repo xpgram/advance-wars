@@ -1,10 +1,10 @@
 import * as PIXI from "pixi.js";
-import { Game } from "../..";
+import { Game } from "../../..";
 import { TerrainObject } from "./TerrainObject";
-import { UnitClass, Faction } from "./EnumTypes";
-import { Common } from "../CommonUtils";
+import { UnitClass, Faction } from "../EnumTypes";
+import { Common } from "../../CommonUtils";
 import { TerrainMethods } from "./Terrain.helpers";
-import { NeighborMatrix } from "../NeighborMatrix";
+import { NeighborMatrix } from "../../NeighborMatrix";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 
 /**
@@ -894,7 +894,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('hq', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('hq');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, name: 'bottom'});
@@ -934,7 +934,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('city', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('city');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, name: 'bottom'});
@@ -973,7 +973,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('comtower', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('comtower');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, name: 'bottom'});
@@ -1012,7 +1012,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('radar', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('radar');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, name: 'bottom'});
@@ -1099,7 +1099,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('factory', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('factory');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, name: 'bottom'});
@@ -1139,7 +1139,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('airport', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('airport');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, name: 'bottom'});
@@ -1180,7 +1180,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('port', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('port');
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.buildingSprite = layers.top;
 
@@ -1220,7 +1220,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('tempairpt', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('tempairpt');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, name: 'bottom'});
@@ -1260,7 +1260,7 @@ export const Terrain = {
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('tempport', this.faction);
+            let layers = TerrainMethods.createBuildingLayers('tempport');
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.buildingSprite = layers.top;
 

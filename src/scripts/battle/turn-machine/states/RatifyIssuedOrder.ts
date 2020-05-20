@@ -2,7 +2,7 @@ import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
 import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
-import { MapLayers } from "../../MapLayers";
+import { MapLayers } from "../../map/MapLayers";
 import { CardinalVector } from "../../../Common/CardinalDirection";
 import { Debug } from "../../../DebugUtils";
 

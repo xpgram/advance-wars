@@ -1,18 +1,20 @@
 import { Terrain } from "./Terrain";
 import { Square } from "./Square";
-import { NeighborMatrix } from "../NeighborMatrix";
+import { NeighborMatrix } from "../../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
-import { Game } from "../..";
-import { NumericDictionary, StringDictionary } from "../CommonTypes";
+import { Game } from "../../..";
+import { NumericDictionary, StringDictionary } from "../../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
-import { UnitObject } from "./UnitObject";
+import { UnitObject } from "../UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
-import { PointPrimitive, Point } from "../Common/Point";
-import { MoveType } from "./EnumTypes";
-import { Debug } from "../DebugUtils";
-import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../Common/CardinalDirection";
-import { Common } from "../CommonUtils";
+import { PointPrimitive, Point } from "../../Common/Point";
+import { MoveType } from "../EnumTypes";
+import { Debug } from "../../DebugUtils";
+import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../../Common/CardinalDirection";
+import { Common } from "../../CommonUtils";
 import { inspect } from "util";
+import { TileInspector } from "./TileInspector";
+import { QueueSearch } from "../../Common/QueueSearch";
 
 // Common error messages
 function InvalidLocationError(point: PointPrimitive) {
@@ -406,131 +408,131 @@ export class Map {
                p.y >= 0 && p.y < this.height;
     }
 
-    // TODO Consolidate these clear methods into one; if I have to use more than one, why iterate over the map twice??
-    // Use an options type → {tempVals: true, movementFlags: true, movementArrows: false}
+    /** A base for the other map-clearing methods to lean on. This pattern helps ensure the map iter request
+     * is always once only without lots of repeated code. */
+    private clearMapValues(options: {tempVals?: boolean, colorFlags?: boolean, arrowPaths?: boolean}) {
+        let temp = options.tempVals || false;
+        let color = options.colorFlags || false;
+        let arrows = options.arrowPaths || false;
+
+        for (let y = 0; y < this.height; y++)
+        for (let x = 0; x < this.width; x++) {
+            let square = this.squareAt({x:x, y:y});
+
+            if (temp) {
+                square.value = -1;
+                square.flag = false;
+            }
+            if (color) {
+                square.moveFlag = false;
+                square.attackFlag = false;
+            }
+            if (arrows) {
+                square.arrowFrom = 0;
+                square.arrowTo = 0;
+            }
+        }
+    }
 
     /** Sets all temporary store values on the map to zero. Does not need to be called if any other clear-fields
      * method was called. */
     clearTemporaryValues() {
-        for (let y = 0; y < this.height; y++)
-        for (let x = 0; x < this.width; x++) {
-            let square = this.squareAt({x:x,y:y});
-            square.value = -1;
-            square.flag = false;
-        }
+        this.clearMapValues({tempVals: true});
     }
 
     /**  */
+    // TODO Rename this to clearMapForPathfinding() or something? At present, it isn't technically accurate.
     clearTileOverlay() {
-        for (let y = 0; y < this.height; y++)
-        for (let x = 0; x < this.width; x++) {
-            let square = this.squareAt({x:x,y:y});
-            square.moveFlag = false;
-            square.attackFlag = false;
-            // Temp values
-            square.value = 0;
-            square.flag = false;
-        }
+        this.clearMapValues({tempVals: true, colorFlags: true});
     }
 
+    /**  */
     clearTileArrows() {
-        for (let y = 0; y < this.height; y++)
-        for (let x = 0; x < this.width; x++) {
-            let square = this.squareAt({x:x,y:y});
-            square.arrowFrom = 0;
-            square.arrowTo = 0;
-        }
+        this.clearMapValues({arrowPaths: true});
     }
 
     /** Removes movement and attack flags from all squares on the map: flags important to the movement system;
      * and sets all temporary store values to zero. */
     clearMovementMap() {
-        this.clearTileOverlay();
-        this.clearTileArrows();
+        this.clearMapValues({tempVals: true, colorFlags: true, arrowPaths: true});
     }
 
-    /** Generates a full attack/movement map for a given unit. The results should be culled according to the map's purpose. */
-    private generateUnitReachMap(unit: UnitObject) {
-        let sourcePoint = unit.boardLocation;
+    /** Returns true if, via the given unit, the point observed by inspector is an efficient
+     * and valid node from which to expand algorithmic search. */
+    private travelEvaluationFunction(unit: UnitObject, inspector: TileInspector) {
+        let notVoidTerrain = inspector.square.terrain.type != Terrain.Void;
+        let enoughMP = inspector.movePoints >= 0;
+        let traversable = inspector.square.traversable(unit);
+        let betterEfficiency = inspector.square.value < inspector.movePoints;
 
-        if (!this.validPoint(sourcePoint))
-            Debug.error(`Given unit is located at (${sourcePoint.x},${sourcePoint.y}), an invalid board location.`);
-        
-        // Blank any previous move and attack map decorations.
+        return (notVoidTerrain && enoughMP && traversable && betterEfficiency);
+    }
+
+    /**  */
+    // Rewrite the below algorithm with TileInspector and QueueSearch
+    private generateColorMap(unit: UnitObject) {
+        let inspector = new TileInspector(
+            this,
+            new Point(unit.boardLocation),
+            unit.movementPoints,
+            unit.moveType
+        );
+
+        Debug.assert(this.validPoint(inspector.point),
+            `Given unit is located at ${inspector.point.toString()}, an invalid board loation.`);
+
+        // Blank any previous map decorations (move and attack)
         this.clearTileOverlay();
 
-        //// Generate Movement Reach Map ////
+        // Setup a method for projecting a unit's attack-range-shape from a given point.
+        let projectAttackRange = (point: Point) => {
+            // TODO Update this to make use of AttackShape maps
 
-        // Set up a list of squares to examine, starting with the square inhabited by the moving unit.
-        type queuedSquare = {loc: Point, movePoints: number, last: Point};
-        let queue: queuedSquare[] = [{loc: new Point(sourcePoint), movePoints: unit.movementPoints, last: new Point(sourcePoint)}];
-
-        // Loop terminates after all queued squares have been shifted out
-        while (queue.length) {
-            // Parse the next queued square for details
-            let cur = queue.shift() as queuedSquare;
-            let square = this.squareAt(cur.loc);
-
-            let next: queuedSquare;
-            let nextSquare: Square;
-            let movementCost: number;
-
-            let dirs = [Point.Up, Point.Right, Point.Down, Point.Left];
-
-            // If this square is on the map edge, or if we've already been here and with more move points, skip.
-            if (square.terrain.type == Terrain.Void
-                || square.flag && cur.movePoints <= square.value)
-                continue;
-
-            // Indicate that we've been to this square at least once.
-            square.flag = true;
-
-            // If we are able to move to this square, mark it as such and add its neighbors to queue.
-            if (cur.movePoints >= 0 && square.traversable(unit)) {
-                square.moveFlag = true;
-                square.value = cur.movePoints;  // square.value cannot accept negative numbers
-
-                dirs.forEach( dirVector => {
-                    next = { loc: cur.loc.add(dirVector), movePoints: cur.movePoints, last: cur.loc };
-
-                    // Don't bother checking the direction we came from.
-                    if (next.loc.equal(cur.last))
-                        return;
-
-                    // Get accurate remaining movement points for next
-                    nextSquare = this.squareAt(next.loc);
-                    movementCost = nextSquare.terrain.getMovementCost(unit.moveType);
-                    next.movePoints -= movementCost;
-
-                    queue.push(next);
-                });
-            }
+            this.neighborsAt(point).orthogonals.forEach( square => {
+                if (!square.flag) {
+                    square.attackFlag = square.targetable(unit);
+                    square.flag = true;             // Mark this square as calculated.
+                }
+            });
         }
+        
+        //// ALGORITHM ////
+        // Color all tiles the given unit may move into.
+        new QueueSearch({
+            firstNode: inspector,
+            searchMode: QueueSearch.SearchMode.BreadthFirst,
+            nodeHandler: (node: TileInspector) => {
+                let tileEvaluation = this.travelEvaluationFunction(unit, node);
+                let result = null;
 
-        //// Generate Attack Reach Map ////
+                // If this square is algorithmically-travellable, add its neighbors to queue.
+                if (tileEvaluation) {
+                    let dirs = [CardinalDirection.North, CardinalDirection.West, CardinalDirection.South, CardinalDirection.East];
+                    result = dirs.map( dir => node.moveDir(dir) );
+                    result = result.filter( next => next.point.notEqual(node.point) );
 
-        let rect = this.unitSquareOfInfluence(unit);
+                    node.square.moveFlag = true;            // Record this tile as travellable.
+                    node.square.value = node.movePoints;    // Record the efficiency in reaching this tile.
 
-        // Iterate over each one
-        for (let y = 0; y < rect.height; y++)
-        for (let x = 0; x < rect.width; x++) {
-            let point = new Point(x + rect.x, y + rect.y);
-            let neighbors = this.neighborsAt(point);
-
-            // If this square could be moved to,
-            if (neighbors.center.moveFlag && neighbors.center.occupiable(unit)) {
-                neighbors.orthogonals.forEach( square => {
-                    // And this square hasn't been set before,
-                    if (!square.attackFlag)
-                        // It is 'attackable' if it is targetable.
-                        square.attackFlag = square.targetable(unit);
-                });
+                    if (node.square.occupiable(unit))
+                        projectAttackRange(node.point);
+                }
+                
+                return result;
             }
-        }
+        });
+
+        // Color all tiles the given unit may reach with an attack.
+            // get unit's attack-shape (object which manages boolean[][])
+            // get square of influence
+            // from each inhabitable, project the attack shape onto the map
+            //   (but if move-and-attack is false, only project the shape from the source point)
+            // use square.value to mark squares which have already been targetability-checked
+            //   (a minor optimization; a targetability check isn't intensive to begin with)
     }
 
     /** Returns a rectangle area by which a given unit may hypothetically interact. */
-    unitSquareOfInfluence(unit: UnitObject): PIXI.Rectangle {
+    squareOfInfluence(unit: UnitObject): PIXI.Rectangle {
         // Describe a square (2r + 1)^2, where r is movement range + max attack range.
         // Limit this square by the size of the board.
         let range = unit.movementPoints + 1; // TODO unit.maxAttackRange;
@@ -547,9 +549,9 @@ export class Map {
 
     /** Given a source point (a square to move from) and the unit whom is traveling, ....*/
     generateMovementMap(unit: UnitObject) {
-        this.generateUnitReachMap(unit);
+        this.generateColorMap(unit);
 
-        let rect = this.unitSquareOfInfluence(unit);
+        let rect = this.squareOfInfluence(unit);
         for (let y = 0; y < rect.height; y++)
         for (let x = 0; x < rect.width; x++) {
             let square = this.squareAt({x: x + rect.x, y: y + rect.y});
@@ -561,9 +563,9 @@ export class Map {
     /** Shows on the map which tiles a given unit is capable of reaching for attack. Generated map
      * is clearable with Map.clearMovementMap(). */
     generateAttackRangeMap(unit: UnitObject) {
-        this.generateUnitReachMap(unit);
+        this.generateColorMap(unit);
 
-        let rect = this.unitSquareOfInfluence(unit);
+        let rect = this.squareOfInfluence(unit);
         for (let y = 0; y < rect.height; y++)
         for (let x = 0; x < rect.width; x++) {
             let square = this.squareAt({x: x + rect.x, y: y + rect.y});

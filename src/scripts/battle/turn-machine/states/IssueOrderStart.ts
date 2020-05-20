@@ -3,7 +3,7 @@ import { MoveUnit } from "./MoveUnit";
 import { Point } from "../../../Common/Point";
 import { ShowUnitAttackRange } from "./ShowUnitAttackRange";
 import { MoveCamera } from "./MoveCamera";
-import { Terrain } from "../../Terrain";
+import { Terrain } from "../../map/Terrain";
 
 
 export class IssueOrderStart extends TurnState {

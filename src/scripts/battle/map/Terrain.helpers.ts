@@ -1,10 +1,10 @@
 import * as PIXI from "pixi.js";
 import * as PixiFilters from "pixi-filters";
-import { NeighborMatrix } from "../NeighborMatrix";
+import { NeighborMatrix } from "../../NeighborMatrix";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Terrain } from "./Terrain";
-import { Faction, FactionColors } from "./EnumTypes";
-import { Game } from "../..";
+import { Faction, FactionColors } from "../EnumTypes";
+import { Game } from "../../..";
 import { MapLayers } from "./MapLayers";
 
 export const TerrainMethods = {
@@ -292,12 +292,12 @@ export const TerrainMethods = {
         return new PIXI.Sprite(Terrain.sheet.textures[`plain-${variant}.png`]);
     },
 
-    createBuildingLayers(building: string, faction: Faction) {
+    createBuildingLayers(building: string) {
         // Plain
         let bottom: PIXI.Container = TerrainMethods.createPlainLayer();
 
         // Building
-        let top = TerrainMethods.getBuildingSprite(building, faction);
+        let top = TerrainMethods.getBuildingSprite(building);
 
         return {bottom: bottom, top: top};
     },

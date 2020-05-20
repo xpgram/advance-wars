@@ -42,7 +42,7 @@ export class Slider {
     }
 
     /** The output value of the slider as determined by its track-position input. */
-    get value() {
+    get output() {
         return this.applyGrain(this.outputFunction(this._track), this.outputPrecision);
     }
 

@@ -1,9 +1,9 @@
-import { Game } from "../..";
+import { Game } from "../../..";
 import { TerrainObject } from "./TerrainObject";
-import { UnitClass, Faction, MoveType } from "./EnumTypes";
-import { Common } from "../CommonUtils";
+import { UnitClass, Faction, MoveType } from "../EnumTypes";
+import { Common } from "../../CommonUtils";
 import { TerrainMethods } from "./Terrain.helpers";
-import { NeighborMatrix } from "../NeighborMatrix";
+import { NeighborMatrix } from "../../NeighborMatrix";
 
 /**
  * Auto-generated.

@@ -1,13 +1,13 @@
 import * as PIXI from "pixi.js";
 import * as PixiFilters from "pixi-filters";
-import { LowResTransform } from "../LowResTransform";
-import { UnitClass, MoveType, Faction } from "./EnumTypes";
-import { NeighborMatrix } from "../NeighborMatrix";
+import { LowResTransform } from "../../LowResTransform";
+import { UnitClass, MoveType, Faction } from "../EnumTypes";
+import { NeighborMatrix } from "../../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
-import { TransformableList } from "../TransformableList";
-import { Point3D } from "../CommonTypes";
+import { TransformableList } from "../../TransformableList";
+import { Point3D } from "../../CommonTypes";
 import { Terrain } from "./Terrain";
-import { Game } from "../..";
+import { Game } from "../../..";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {

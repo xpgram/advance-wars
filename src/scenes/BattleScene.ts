@@ -1,10 +1,10 @@
 import { Scene } from "./Scene";
-import { Map } from "../scripts/battle/Map";
+import { Map } from "../scripts/battle/map/Map";
 import { Game } from "..";
 import { Camera } from "../scripts/Camera";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
-import { MapCursor } from "../scripts/battle/MapCursor";
-import { MapLayers } from "../scripts/battle/MapLayers";
+import { MapCursor } from "../scripts/battle/map/MapCursor";
+import { MapLayers } from "../scripts/battle/map/MapLayers";
 import { InfoWindowSystem } from "../scripts/battle/ui-windows/InfoWindowSystem";
 import { Unit } from "../scripts/battle/Unit";
 import { UnitObject } from "../scripts/battle/UnitObject";

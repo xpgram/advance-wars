@@ -39,7 +39,7 @@ export class CameraZoom extends ControlScript {
         this.zoomSlider.increment();
 
         // Camera zoom is the widthsRatio (out) or 1 (in), transition-smoothed by zoomSlider.
-        this.camera.zoom = (widthsRatio) + ((1 - widthsRatio) * this.zoomSlider.value);
+        this.camera.zoom = (widthsRatio) + ((1 - widthsRatio) * this.zoomSlider.output);
     }
 
     protected disableScript(): void {

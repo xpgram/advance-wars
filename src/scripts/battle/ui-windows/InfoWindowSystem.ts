@@ -3,11 +3,11 @@ import { Game } from "../../..";
 import { UnitWindow } from "./UnitWindow";
 import { COWindow } from "./COWindow";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
-import { MapCursor } from "../MapCursor";
+import { MapCursor } from "../map/MapCursor";
 import { Camera } from "../../Camera";
-import { Square } from "../Square";
-import { Map } from "../Map";
-import { Terrain } from "../Terrain";
+import { Square } from "../map/Square";
+import { Map } from "../map/Map";
+import { Terrain } from "../map/Terrain";
 import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
 import { UnitClass } from "../EnumTypes";
@@ -129,9 +129,9 @@ export class InfoWindowSystem {
 
         // Increment CO Window slider (staggers their reveal)
         this.commandersSlider.track += (showCOwindows) ? 0.2 : -0.2;
-        this.commander2Info.show = (this.commandersSlider.value > 0);
-        this.commander3Info.show = (this.commandersSlider.value > 0.4);
-        this.commander4Info.show = (this.commandersSlider.value == 1);
+        this.commander2Info.show = (this.commandersSlider.output > 0);
+        this.commander3Info.show = (this.commandersSlider.output > 0.4);
+        this.commander4Info.show = (this.commandersSlider.output == 1);
     }
 
     /** Calls inspectTile on cursor position change. */

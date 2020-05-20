@@ -1,14 +1,13 @@
 import { Map } from "./Map";
-import { Game } from "../..";
-import { VirtualGamepad } from "../controls/VirtualGamepad";
-import { Common } from "../CommonUtils";
-import { LowResTransform } from "../LowResTransform";
+import { Game } from "../../..";
+import { VirtualGamepad } from "../../controls/VirtualGamepad";
+import { Common } from "../../CommonUtils";
+import { LowResTransform } from "../../LowResTransform";
 import { MapLayers } from "./MapLayers";
-import { Pulsar } from "../timer/Pulsar";
-import { Slider } from "../Common/Slider";
-import { PointPrimitive, Point } from "../Common/Point";
-import { triggerAsyncId } from "async_hooks";
-import { Observable } from "../Observable";
+import { Pulsar } from "../../timer/Pulsar";
+import { Slider } from "../../Common/Slider";
+import { PointPrimitive, Point } from "../../Common/Point";
+import { Observable } from "../../Observable";
 
 /**
  * @author Dei Valko
@@ -243,7 +242,7 @@ export class MapCursor extends Observable {
         if (this.pos.x == this.lastPos.x && this.pos.y == this.lastPos.y)
             return; // Skip, nothing to do here.
 
-        if (this.slideAnimSlider.value != this.slideAnimSlider.max)
+        if (this.slideAnimSlider.track != this.slideAnimSlider.max)
             this.slideAnimSlider.increment();
         else
             this.lastPos.set(this.pos); // Force skips in future calls.
@@ -255,8 +254,8 @@ export class MapCursor extends Observable {
         let y = this.lastPos.y * tileSize;
         let xDiff = (this.pos.x - this.lastPos.x) * tileSize;
         let yDiff = (this.pos.y - this.lastPos.y) * tileSize;
-        x += xDiff * this.slideAnimSlider.value;
-        y += yDiff * this.slideAnimSlider.value;
+        x += xDiff * this.slideAnimSlider.output;
+        y += yDiff * this.slideAnimSlider.output;
         let newPos = {x:x, y:y};
 
         // Assign

@@ -4,7 +4,7 @@ import { Slider } from "../Common/Slider";
 import { Game } from "../..";
 import { CardinalDirection, CardinalVector } from "../Common/CardinalDirection";
 import { Debug } from "../DebugUtils";
-import { MapLayers } from "./MapLayers";
+import { MapLayers } from "./map/MapLayers";
 import { Unit } from "./Unit";
 import { LowResTransform } from "../LowResTransform";
 
@@ -166,8 +166,8 @@ export class TrackCar {
 
     /** Update the on-screen sprite's world position. */
     private updateWorldPosition() {
-        this.transform.x = (this.curPoint.x + this.nextMove.x * this.moveSlider.value) * this.tileSize;
-        this.transform.y = (this.curPoint.y + this.nextMove.y * this.moveSlider.value) * this.tileSize;
+        this.transform.x = (this.curPoint.x + this.nextMove.x * this.moveSlider.output) * this.tileSize;
+        this.transform.y = (this.curPoint.y + this.nextMove.y * this.moveSlider.output) * this.tileSize;
     }
 
     /** Returns a 2D movement-vector representing the next instructional step, and changes the car's sprite facing accordingly. */

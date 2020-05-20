@@ -1,11 +1,11 @@
-import { MapCursor } from "../MapCursor";
-import { Map } from "../Map";
+import { MapCursor } from "../map/MapCursor";
+import { Map } from "../map/Map";
 import { Camera } from "../../Camera";
 import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
-import { MapLayers } from "../MapLayers";
+import { MapLayers } from "../map/MapLayers";
 import { Slider } from "../../Common/Slider";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";

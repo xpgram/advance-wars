@@ -4,10 +4,10 @@ import { Game } from "../..";
 import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
 import { fonts } from "./ui-windows/DisplayInfo";
-import { MapLayers } from "./MapLayers";
+import { MapLayers } from "./map/MapLayers";
 import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
-import { Map } from "./Map";
+import { Map } from "./map/Map";
 import { PointPrimitive } from "../Common/Point";
 
 /** An uninstantiated Unit class type. */
@@ -475,8 +475,8 @@ export abstract class UnitObject {
         let dir = (this.transparent) ? 1 : -1;
         this.transparencySlider.increment(dir);
 
-        this.sprite.alpha = 1 - this.transparencySlider.value;
-        this.uiBox.alpha = 1 - this.transparencySlider.value * 1.15;
+        this.sprite.alpha = 1 - this.transparencySlider.output;
+        this.uiBox.alpha = 1 - this.transparencySlider.output * 1.15;
     }
 
     /** Request the unit to make progress toward capturing the building they are located over. */

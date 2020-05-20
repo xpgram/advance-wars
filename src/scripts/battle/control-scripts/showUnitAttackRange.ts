@@ -1,7 +1,7 @@
 import { ControlScript } from "../../ControlScript";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
-import { Map } from "../Map";
-import { MapCursor } from "../MapCursor";
+import { Map } from "../map/Map";
+import { MapCursor } from "../map/MapCursor";
 
 /** Deprecated and in fact not used.
  * I leave this here as an example of how ControlScripts should look, though. */

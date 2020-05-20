@@ -1,6 +1,6 @@
 import { TerrainObject } from "./TerrainObject";
-import { Faction } from "./EnumTypes";
-import { Debug } from "../DebugUtils";
+import { Faction } from "../EnumTypes";
+import { Debug } from "../../DebugUtils";
 import { Terrain } from "./Terrain";
 import { TerrainMethods } from "./Terrain.helpers";
 
