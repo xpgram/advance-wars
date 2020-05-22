@@ -324,19 +324,9 @@ export class Map {
     neighborsAt(pos: PointPrimitive): NeighborMatrix<Square> {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
-        
-        let list = [], square, cursor;
-        pos = {x: (pos.x - 1), y: (pos.y - 1)};
 
-        // Collect neighboring tiles
-        for (let x = 0; x < 3; x++)
-        for (let y = 0; y < 3; y++) {
-            cursor = {x: (pos.x + x), y: (pos.y + y)};
-            square = this.squareAt(cursor);     // this.squareAt(-1,-1) → Terrain.Void
-            list.push(square);
-        }
-
-        return new NeighborMatrix(list);
+        let p = {x: pos.x + 1, y: pos.y + 1};   // Void tile border adjustment
+        return new NeighborMatrix(this.board, new Point(p));
     }
 
     /** Gathers the TerrainObjects nearest-neighboring the tile at pos and returns them as a NeighborMatrix object.
@@ -344,8 +334,7 @@ export class Map {
      */
     neighboringTerrainAt(pos: PointPrimitive): NeighborMatrix<TerrainObject> {
         let neighbors = this.neighborsAt(pos);
-        let list = neighbors.list.map( square => square.terrain );
-        return new NeighborMatrix<TerrainObject>(list);
+        return neighbors.map( square => square.terrain );
     }
 
     /**
@@ -521,14 +510,6 @@ export class Map {
                 return result;
             }
         });
-
-        // Color all tiles the given unit may reach with an attack.
-            // get unit's attack-shape (object which manages boolean[][])
-            // get square of influence
-            // from each inhabitable, project the attack shape onto the map
-            //   (but if move-and-attack is false, only project the shape from the source point)
-            // use square.value to mark squares which have already been targetability-checked
-            //   (a minor optimization; a targetability check isn't intensive to begin with)
     }
 
     /** Returns a rectangle area by which a given unit may hypothetically interact. */
