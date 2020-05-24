@@ -1,20 +1,21 @@
 import { NumericDictionary } from "./CommonTypes";
 import { Point } from "./Common/Point";
 import { Common } from "./CommonUtils";
-import { Debug } from "./DebugUtils";
 
 /**
  * A 3x3 matrix representing the neighboring elements surrounding a central element.
  * 
  * NeighborMatrix builds itself from a 2D-map of some type T and a point on that map.
- * That point must not be on nor beyond the source map's bounding indices. This naturally
- * means that p.x | p.y == 0 will never be accepted.
+ * That point is the origin of the neighbor matrix and——to prevent range errors——may not be located on an
+ * extreme edge of the source map, unless a default fill value is provided, in which case the source map
+ * is treated as an island in an infinite sea.
  * 
  * @param map The matrix from which to build the neighbors list.
- * @param point The point-location on 'map' that will be the center of this neighbor matrix.
+ * @param point The point-location on 'map' that will be the center of the new neighbor matrix.
+ * @param fill A value of type T that may be used to fill in lots which do not technically exist in 'map'. 
  * 
  * @author Dei Valko
- * @version 1.0.0
+ * @version 1.1.0
  */
 export class NeighborMatrix<T> {
     /** An iterable list of all neighboring elements, interpreted as a 3x3 matrix. */
@@ -24,7 +25,7 @@ export class NeighborMatrix<T> {
     //  1  4  7     as it is interpreted
     //  2  5  8     in two dimensions.
 
-    constructor(map: T[][] | NumericDictionary<NumericDictionary<T>>, point: Point) {
+    constructor(map: T[][] | NumericDictionary<NumericDictionary<T>>, point: Point, fill?: T) {
         let max = new Point(            // The source map's upper bounds.
             Object.keys(map).length,
             Object.keys(map[0]).length
@@ -32,10 +33,14 @@ export class NeighborMatrix<T> {
         let start = point.add(-1,-1);   // 3x3 top left
         let end = point.add(1,1);       // 3x3 bottom right
 
-        // Confirm the 3x3 rect fits inside the given map.
-        let valid = Common.validIndex;
-        if (!valid(start.x, max.x) || !valid(start.y, max.y))
-            console.error(`The limits of this 3x3 matrix [${start.toString()} to ${end.toString()}] exceed the limits of its source map [${Point.Origin.toString()} to ${max.toString()}].`);
+        // Returns true if a given point is located inside the source map.
+        let validPoint = (p: Point) => (Common.validIndex(p.x, max.x) && Common.validIndex(p.y, max.y));
+
+        // Assert that all points described by the 3x3 rect are valid indices of map, but only if no fill is provided.
+        if (fill == undefined) {
+            if (!validPoint(start) || !validPoint(end))
+                console.error(`The limits of this 3x3 matrix [${start.toString()},${end.toString()}] exceed the limits of its source map [${Point.Origin.toString()},${max.toString()}]; no fill was given to compensate.`);
+        }
 
         let n = null;
         //@ts-ignore
@@ -45,7 +50,8 @@ export class NeighborMatrix<T> {
         let i = 0;
         for (let x = start.x; x <= end.x; x++) 
         for (let y = start.y; y <= end.y; y++) {
-            this.grid[i] = map[x][y];
+            // Use the fill only if a fill was given and the point (x,y) is source-map invalid.
+            this.grid[i] = (fill != undefined && !validPoint(new Point(x,y))) ? fill : map[x][y];
             i++;
         }
     }
@@ -62,57 +68,52 @@ export class NeighborMatrix<T> {
     get right()     { return this.grid[7]; }
     get downright() { return this.grid[8]; }
 
-    /** For built neighbor lists, excludes all non-existing neighbor lots. */
-    private filterList(list: (T | undefined)[]): T[] {
-        return list.filter( e => e !== undefined ) as T[];
-    }
-
     /** A value-copy of the 3x3 matrix in list form. */
     get list() {
-        return this.filterList(this.grid);
+        return this.grid.slice();
     }
 
     /** All 8 surrounding objects of type T returned as an array. */
     get surrounding() {
         let g = this.grid;
-        return this.filterList( [g[0], g[1], g[2], g[3],   g[5], g[6], g[7], g[8]] );
+        return  [g[0], g[1], g[2], g[3],   g[5], g[6], g[7], g[8]];
         // Hardcoding this significantly outperforms other methods.
     }
 
     /** The four orthogonal direction-objects of type T returned as an array. */
     get orthogonals() {
         let g = this.grid;
-        return this.filterList( [g[1], g[3], g[5], g[7]] );
+        return  [g[1], g[3], g[5], g[7]];
     }
 
     /** The four diagonal direction-objects of type T returned as an array. */
     get diagonals() {
         let g = this.grid;
-        return this.filterList( [g[0], g[2], g[6], g[8]] );
+        return  [g[0], g[20], g[6], g[8]];
     }
 
     /** The three top-side direction-objects of type T returned as an array. */
     get topside() {
         let g = this.grid;
-        return this.filterList( [g[0], g[3], g[6]] );
+        return  [g[0], g[3], g[6]];
     }
 
     /** The three right-side direction-objects of type T returned as an array. */
     get rightside() {
         let g = this.grid;
-        return this.filterList( [g[6], g[7], g[8]] );
+        return  [g[6], g[7], g[8]];
     }
 
     /** The three bottom-side direction-objects of type T returned as an array. */
     get bottomside() {
         let g = this.grid;
-        return this.filterList( [g[2], g[6], g[8]] );
+        return  [g[2], g[6], g[8]];
     }
 
     /** The three left-side direction-objects of type T returned as an array. */
     get leftside() {
         let g = this.grid;
-        return this.filterList( [g[0], g[1], g[2]] );
+        return  [g[0], g[1], g[2]];
     }
 
     /** Calls a defined callback function on every (valid) element of the 3x3 matrix and returns it
@@ -125,13 +126,6 @@ export class NeighborMatrix<T> {
 
     /** Returns the sum of the elements in this 3x3 matrix for which the predicate is true. */
     sum(cb: (value: T) => boolean): number {
-        let count = 0;
-
-        this.grid.forEach( e => {
-            if (e !== undefined && cb(e))
-                count++;
-        });
-        
-        return count;
+        return this.grid.reduce( (acc, e) => acc + Number(cb(e)), 0 );
     }
 }
