@@ -26,14 +26,14 @@ function InvalidLocationError(point: PointPrimitive) {
  * For all purposes, this class is the 'board' that players play on.
  * 
  * @author Dei Valko
- * @version 0.2.1
+ * @version 0.2.2
  */
 export class Map {
     layers = MapLayers; // Reference to the dictionary of image layers
 
-    /** 2D Dictionary (speedy) representing the grid of tiles and map entities.
+    /** 2D array representing the grid of tiles and map entities.
      * Should never be used directly unless you intend to deal with the border of blank terrain objects. */
-    private board: NumericDictionary< NumericDictionary<Square> > = {};
+    private board: Square[][] = [];
 
     /** Returns a z-index number based on the board-coordinates given. */
     static calculateZIndex(point: PointPrimitive, layer?: 'glass-overlay' | 'unit') {
@@ -103,9 +103,9 @@ export class Map {
         width += 2;
         height += 2;
 
-        this.board = {};
+        this.board = [];
         for (let x = 0; x < width; x++) {
-            this.board[x] = {};
+            this.board[x] = [];
             for (let y = 0; y < height; y++) {
                 this.board[x][y] = new Square(this, x-1, y-1);    // Squares don't "know about" there being a void perimeter.
 
