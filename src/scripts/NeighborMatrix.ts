@@ -56,7 +56,7 @@ export class NeighborMatrix<T> {
         }
     }
 
-    //// Directional element accessors
+    //// Directional element accessors ////
 
     get upleft()    { return this.grid[0]; }
     get left()      { return this.grid[1]; }
