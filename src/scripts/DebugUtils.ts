@@ -32,24 +32,24 @@ export const Debug = {
 
     /** Prints a message to the console as a traceable warning. Useful when you want to know
      * if a particular block of code is being reached. */
-    ping: (msg?: string) => {
+    ping: (msg?: any, ...optionalParams: any[]) => {
         let str = msg || 'ping';
-        console.warn(str);
+        console.warn(str, ...optionalParams);
     },
 
     /** Prints a message to the console as a traceable warning. Useful when you want to report
      * the details of an operation by value. More-or-less an alias of Debug.ping(). */
-    print: (msg: string) => {
-        console.warn(msg);
+    print: (msg: any, ...optionalParams: any[]) => {
+        console.warn(msg, ...optionalParams);
     },
 
     /** Prints a traceable warning message to the console. */
-    warn: (msg: string) => {
-        console.warn(msg);
+    warn: (msg: any, ...optionalParams: any[]) => {
+        console.warn(msg, ...optionalParams);
     },
 
-    /** Given a list of objects or primitives, logs each one to the console underneath a traceable
-     * ping. Handy when you want to report on multiple objects at once. */
+    /** Given a list of objects or primitives, logs each one separately (list form) to the
+     * console underneath a traceable ping. */
     report: (...data: any[]) => {
         Debug.ping('Report:');
         data.forEach( obj => {
