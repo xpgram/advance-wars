@@ -1,11 +1,9 @@
 import { Map } from "./Map";
 import { Point } from "../../Common/Point";
-import { UnitObject } from "../UnitObject";
 import { Square } from "./Square";
 import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../../Common/CardinalDirection";
-import { Debug } from "../../DebugUtils";
-import { Terrain } from "./Terrain";
 import { MoveType } from "../EnumTypes";
+import { Debug } from "../../DebugUtils";
 
 /** Map's path-finding algorithm tool. Used to draw hypothetical travel lines across
  * the game-board while keeping track of travel metrics such as overall movement cost.
@@ -94,14 +92,14 @@ export class TileInspector {
         return (moved) ? inspector : this;
     }
 
-    /** Build a path from pre-existing links between Squares on the game-board,
-     * starting at the Square currently being observed. */
+    /** Returns a new inspector with a set of travel instructions built from pre-existing links
+     * between Squares on the game-board, starting at the Square currently being observed. */
     buildExistingTrack() {
         let buildTrack = true;
         let inspector = this.clone();
 
         while (buildTrack) {
-            buildTrack = inspector.relativeMoveDir(this.square.arrowTo);
+            buildTrack = inspector.relativeMoveDir(inspector.square.arrowTo);
         }
 
         return inspector;
@@ -112,7 +110,7 @@ export class TileInspector {
         return this._points.findIndex( point => point.equal(p) );
     }
 
-    /** Undoes n travel instructions. */
+    /** Returns a new inspector with n fewer travel instructions. */
     shortenPath(n: number) {
         let reduceTrack = true;         // This just prevents looping without doing any work
         let inspector = this.clone();
@@ -125,8 +123,8 @@ export class TileInspector {
         return inspector;
     }
 
-    /** Given an indice of the travel path, shortens the path such that it ends on
-     * that indice. Indices out-of-range are treated as min and max element. */
+    /** Returns a new inspector with a set of travel instructions shortened to the given
+     * indice. Indices out-of-range are treated as min and max element. */
     shortenToIndex(i: number) {
         let diff = this._points.length - 1 - i;
         return this.shortenPath(diff);
