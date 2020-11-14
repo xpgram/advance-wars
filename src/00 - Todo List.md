@@ -1,3 +1,8 @@
+- [ ] I have locked Pixi.js to version 5.2.1 because 5.3 removes some functionality
+I don't have a work around for yet, either that or the package update wasn't complete.
+Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
+    - [ ] For this reason, I have also locked Pixi Filters to whatever version it was.
+
 - [ ] Re-rip the plasma textures: some of them are clipped by 1px.
 - [ ] Sea looks nicer, I think, but my frame-animation skills are a teense lacking. Update it.
 - [ ] Setup unit 'exhibit' image spritesheet.
