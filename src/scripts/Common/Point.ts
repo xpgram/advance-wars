@@ -21,7 +21,7 @@ function convertArgsToPoint(x: number | ImmutablePointPrimitive, y?: number) {
     return new Point(x, y);     // Relies on method defined in constructor.
 }
 
-/** A point object representing one in 2-dimensional space, but with extra, useful methods. */
+/** A point in 2-dimensional space. */
 export class Point {
     x: number = 0;
     y: number = 0;

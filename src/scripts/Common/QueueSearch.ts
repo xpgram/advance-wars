@@ -24,7 +24,7 @@ export class QueueSearch<T> {
     static SearchMode = SearchMode;
 
     /** A 'deposit-box' containing the final result of the fully evaluated algorithm. */
-    resultNode: T | undefined;
+    resultNode: T | null = null;
 
     /** Algorithms are nameable for traceability reasons.
      * Generally only useful for staccatoed searches. */
