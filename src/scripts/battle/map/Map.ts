@@ -15,6 +15,7 @@ import { Common } from "../../CommonUtils";
 import { inspect } from "util";
 import { TileInspector } from "./TileInspector";
 import { QueueSearch } from "../../Common/QueueSearch";
+import { CommonRegionShapes, RegionMap } from "../unit-actions/RegionMap";
 
 // Common error messages
 function InvalidLocationError(point: PointPrimitive) {
@@ -66,6 +67,16 @@ export class Map {
         this.forceLegalTiles(); // Removes any illegal tiles left behind by the map generation process.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
+
+        // TODO Remove; Experimental.
+        // Converts the bottom MapLayer to a mesh, greatly reducing the number of renderables.
+        //////
+        // let ground = MapLayers['bottom'];
+        // let rtex = PIXI.RenderTexture.create({width: ground.width, height: ground.height});
+        // Game.app.renderer.render(ground, rtex);
+        // MapLayers['bottom'] = new PIXI.Sprite(rtex);
+        //////
+
         TerrainMethods.startPaletteAnimation();
     }
 
@@ -451,10 +462,10 @@ export class Map {
     private travelEvaluationFunction(unit: UnitObject, inspector: TileInspector) {
         let notVoidTerrain = inspector.square.terrain.type != Terrain.Void;
         let enoughMP = inspector.movePoints >= 0;
-        let traversable = inspector.square.traversable(unit);
+        let traversible = inspector.square.traversable(unit);
         let betterEfficiency = inspector.square.value < inspector.movePoints;
 
-        return (notVoidTerrain && enoughMP && traversable && betterEfficiency);
+        return (notVoidTerrain && enoughMP && traversible && betterEfficiency);
     }
 
     /**  */
@@ -473,19 +484,25 @@ export class Map {
         // Blank any previous map decorations (move and attack)
         this.clearTileOverlay();
 
-        // Setup a method for projecting a unit's attack-range-shape from a given point.
-        let projectAttackRange = (point: Point) => {
-            // TODO Update this to make use of AttackShape maps
-
-            this.neighborsAt(point).orthogonals.forEach( square => {
+        // Projects a unit's attack-range-shape from a given point.
+        const projectAttackRange = (origin: Point) => {
+            // const attackRange = unit.attackRangeMap;
+            const attackRange = CommonRegionShapes.Adjacent;
+            const affectedPoints = (
+                attackRange.points
+                .map( p => p.add(origin) )
+                .filter( p => this.validPoint(p) )
+            );
+            affectedPoints.forEach( p => {
+                let square = this.squareAt(p);
                 if (!square.flag) {
                     square.attackFlag = square.targetable(unit);
-                    square.flag = true;             // Mark this square as calculated.
+                    square.flag = true;
                 }
             });
         }
         
-        //// ALGORITHM ////
+        /// Algorithm ///
         // Color all tiles the given unit may move into.
         new QueueSearch({
             firstNode: inspector,
@@ -494,7 +511,7 @@ export class Map {
                 let tileEvaluation = this.travelEvaluationFunction(unit, node);
                 let result = null;
 
-                // If this square is algorithmically-travellable, add its neighbors to queue.
+                // If this square is algorithmically travellable, add its neighbors to queue.
                 if (tileEvaluation) {
                     let dirs = [CardinalDirection.North, CardinalDirection.West, CardinalDirection.South, CardinalDirection.East];
                     result = dirs.map( dir => node.moveDir(dir) );
@@ -503,8 +520,10 @@ export class Map {
                     node.square.moveFlag = true;            // Record this tile as travellable.
                     node.square.value = node.movePoints;    // Record the efficiency in reaching this tile.
 
-                    if (node.square.occupiable(unit))
+                    if (node.square.occupiable(unit)) {
+                        // if (unit.canMoveAndAttack || node.point.equal(new Point(unit.boardLocation)))
                         projectAttackRange(node.point);
+                    }
                 }
                 
                 return result;
@@ -554,216 +573,111 @@ export class Map {
         }
     }
 
-    /** Given a new board location, re-route the board's mapping of some unit's projected travel
-     * path to this new board location, if possible. */
-    recalculatePathToPoint(unit: UnitObject, destination: PointPrimitive) {
-        // If destination is not within movement range, don't bother — do not clear old path.
+    recalculatePathToPoint(unit: UnitObject, destination: PointPrimitive, rangeMap?: RegionMap) {
+        // TODO This is done.. ish. I feel I've left it a little messy, though. But it works.
+        // TODO Export some common RegionMaps in the RegionMap class file.
+        // Default rangeMap is the point-location: i.e. a range of 0.
+        let range = rangeMap || CommonRegionShapes.Self;
+        // TODO TurnState, I think, has to be the one to determine whether the cursor is on
+        // an enemy and needs to pass in Adjacents or not.
+        // If we assume I don't know what kind of attack unit is about to use, having
+        // TurnState pass this in makes sense, I suppose.
+
+        // If destination is not reachable (pre-calculated), then don't bother — do not clear old path.
         if (this.squareAt(destination).moveFlag == false)
             return;
 
-        // Closurable reference
-        let map = this;
-
-        // Algorithm flags/vars
-        let newPathFound = false;
-        let newPath: Point[] = [];  // Segment of path calculated by the algorithm from some point.
-
-        // The traveler's base location.
-        let sourcePoint = new Point(unit.boardLocation);
+        // TODO Standardize/fold-together these error messages.
+        Debug.assert(this.validPoint(unit.boardLocation),
+            `Given unit is located at ${new Point(unit.boardLocation).toString()}, an invalid board location.`);
+        Debug.assert(this.validPoint(destination),
+            `Given destination is located at ${new Point(destination).toString()}, an invalid board location.`);
         
-        // The inspector accesses the point/square being examined at any instant.
-        let inspector = {
-            point: sourcePoint.clone(),
-            movePoints: unit.movementPoints,
-            stepCounter: 0,
-            lastMove: CardinalDirection.None,
+        // Setup the inspector and any pre-existing track.
+        let inspector = new TileInspector(
+            this,
+            new Point(unit.boardLocation),
+            unit.movementPoints,
+            unit.moveType
+        );
+        inspector = inspector.buildExistingTrack();
+        
+        /** Returns true if destination is within the shape described by rangeMap relative to the inspector. */
+        let withinRange = (node: TileInspector) => {
+            let relative = new Point(destination).subtract(node.point);
+            return range.get(relative);
+        }
 
-            // Returns the square object located on the board at the point the inspector is watching.
-            get square() { return map.squareAt(inspector.point); },
+        // Map crawling algorithm
+        // Extends the first node out as far as its remaining travel points will allow,
+        // looking for a position from which the destination is visible through the range map.
+        let newPathfinder = (firstNode: TileInspector) => {
+            return new QueueSearch({
+                firstNode: firstNode,
+                searchMode: QueueSearch.SearchMode.BreadthFirst,
+                nodeHandler: (node: TileInspector) => {
+                    let tileEvaluation = this.travelEvaluationFunction(unit, node);
+                    let result = null
 
-            // Resets the inspector to some condition
-            reconfigure(point: Point, movePoints: number) {
-                this.point = point;
-                this.movePoints = movePoints;
-                this.stepCounter = 0;
-                this.lastMove = CardinalDirection.None;
-            },
-            // Move the inspector relative to its current position.
-            moveInspector(point: Point) {
-                this.point = this.point.add(point);
-                this.movePoints -= this.square.terrain.getMovementCost(unit.moveType);
-                this.stepCounter += 1;
-                this.lastMove = CardinalVectorToCardinal(point);
+                    // If this square is algorithmically travellable, add its neighbors to queue.
+                    if (tileEvaluation) {
+                        let dirs = [CardinalDirection.North, CardinalDirection.West, CardinalDirection.South, CardinalDirection.East];
+                        result = dirs.map( dir => node.moveDir(dir) );
+                        result = result.filter( next => next.point.notEqual(node.point) );
 
-                Debug.assert(this.stepCounter < 201,
-                    `Path leading from traveler may be looping: steps counted > 200`);
-            },
-            // Returns the inspector to its last position, if one is known.
-            // This is a convenience and not comprehensive. It only remembers single-space directions.
-            undoLastMove() {
-                if (this.lastMove) {
-                    this.stepCounter -= 1;
-                    this.movePoints += this.square.terrain.getMovementCost(unit.moveType);
-                    this.point = this.point.add( CardinalVector(this.lastMove).negative() );
-                    this.lastMove = CardinalDirection.None;
+                        node.square.moveFlag = true;            // Record this tile as travellable.
+                        node.square.value = node.movePoints;    // Record the efficiency in reaching this tile.
+
+                        if (node.point.equal(destination) || node.square.occupiable(unit))
+                            if (withinRange(node))
+                                return "break";
+                    }
+
+                    // Between this and generateColorMap, "if occupiable" are the only
+                    // different bits. I could write a map crawler that calls a function on
+                    // every square reached. If it's worth it.
+                    // TODO Map crawler?
+
+                    return result;
+                }
+            });
+        }
+
+        let lastIdx = inspector.path.length - 1;
+        let pathIndices = [lastIdx, (lastIdx - 1), 0];  // "Search from position" pattern: cur, prev, base
+
+        //@ts-ignore The search-result container.
+        let search: QueueSearch<TileInspector> = null;
+
+        // Step 1: If destination exists in path, shorten and return.
+        let destIdx = inspector.path.findIndex( p => p.equal(destination) );
+        if (destIdx != -1) inspector = inspector.shortenToIndex(destIdx);
+
+        // Step 2: If not, invoke the map crawler until a solution is found.
+        if (!withinRange(inspector)) {
+            for (let i of pathIndices) {
+                this.clearTemporaryValues();
+                inspector = inspector.shortenToIndex(i);
+                search = newPathfinder(inspector);
+                if (search.resultNode && withinRange(search.resultNode)) {
+                    inspector = (search.resultNode as TileInspector);
+                    break;
                 }
             }
-        }
-
-        // An object describing the up-to-date current path leading from the traveler's square.
-        let travelPath = {
-            // A list of –all– points describing the traveler's journey (meaning it includes the traveler's location)
-            points: (() => {
-                let l = [sourcePoint];
-                if (sourcePoint.equal(destination)) // As we check all other points below, so check this one here.
-                    return l;
-
-                // Compile any pre-existing travel path.
-                inspector.reconfigure(sourcePoint, unit.movementPoints);
-                while (inspector.square.arrowTo != 0) {
-                    inspector.moveInspector( CardinalVector(inspector.square.arrowTo) );
-                    l.push(inspector.point);
-
-                    // If the destination point is found in the pre-existing path, save us some work.
-                    if (inspector.point.equal(destination))
-                        break;
-                }
-
-                return l;
-            })(),
-
-            // Returns the traveled path — all tiles excluding the one the unit is already stationed on.
-            get path() {
-                return this.points.slice(1, this.points.length);
-            },
-
-            // Returns true if the travel path crosses over the destination point.
-            get containsDestination() {
-                return this.last.equal(destination);    // ←— I can't think of a reason this wouldn't be true.
-                return this.path.some( point => point.equal(destination) );
-            },
-            // Shortens the travel path by some number of travel steps. Cannot shorten to less than a travel distance of zero.
-            shorten(n: number) {
-                this.points.splice(this.points.length - n, n);
-                // Path —always— contains unit's location.
-                if (this.points.length == 0)
-                    this.points = [sourcePoint];
-            },
-            // Reduces the travel path to an effective distance of zero.
-            clear() {
-                this.points = [sourcePoint];
-            },
-            // Returns the end point of this path
-            get last() {
-                return this.points[this.points.length - 1];
-            },
-            // Sums the travel cost of moving into each point given by path's list of points
-            get travelCost() {
-                return this.path.reduce( (sum: number, point: Point) => {
-                    return sum + map.squareAt(point).terrain.getMovementCost(unit.moveType);
-                }, 0);
-            },
-            // Returns the remaining travel points after travel through the end of this path.
-            get remainingMovePoints() {
-                return unit.movementPoints - this.travelCost;
-            }
-        }
-
-        // Breadth-first search for the destination point.
-        // Returns a list of points leading from the given point (exclusive) to the destination point (inclusive).
-        function calculatePathFrom(point: Point, movePoints: number): Point[] {
-            // Iterable list of cardinal vectors
-            const directionVectors = [Point.Up, Point.Down, Point.Left, Point.Right];
-
-            let newPath: Point[] = [];
-            map.clearTemporaryValues();
-
-            // Package containing up-to-current path and remaining move points.
-            type queuedSquare = {path: Point[], movePoints: number};
-            let queue: queuedSquare[] = [{
-                path: [point],
-                movePoints: movePoints
-            }];
-
-            while (queue.length) {
-                let current = queue.shift() as queuedSquare;
-                inspector.reconfigure(current.path[current.path.length - 1], current.movePoints);
-
-                // Cancel-path checks
-                let selfLooping = current.path.some(p => p.equal(inspector.point) && p !== inspector.point);
-                let oldPathLooping = travelPath.path.some(p => p.equal(inspector.point) && p !== inspector.point);
-                let notTraversable = !inspector.square.traversable(unit);
-                let worseEfficiencyThanPrevious = current.movePoints <= inspector.square.value;
-                let notEnoughTravelPoints = current.movePoints < 0;
-
-                // Confirm this point is worth considering
-                if (selfLooping || oldPathLooping || notTraversable || worseEfficiencyThanPrevious || notEnoughTravelPoints)
-                    continue;
-
-                // Inform next occurrence of this point in the search that we've been here.
-                inspector.square.value = inspector.movePoints;
-
-                // Check if we've found a path to the board location we're looking for.
-                if (inspector.point.equal(destination)) {
-                    current.path.shift();               // Remove the search's source point
-                    newPath = current.path;             // Set our return result
-                    break;                              // End search loop
-                }
-
-                // Add each cardinal direction to the search queue.
-                directionVectors.forEach( dirVector => {
-                    inspector.moveInspector(dirVector);
-
-                    // Copy and extend current path
-                    let nextPath = current.path.slice();
-                    nextPath.push(inspector.point);
-
-                    // Queue this new path for consideration later.
-                    queue.push({
-                        path: nextPath,
-                        movePoints: inspector.movePoints
-                    });
-
-                    inspector.undoLastMove();
-                });
-            }
-
-            // Return resulting path — which may be empty
-            return newPath;
-        }
-
-        // Is destination contained in the old travelPath?
-        newPathFound = travelPath.containsDestination;
-
-        // Try calculating the new path from the n furthest travel points in the old path.
-        for (let i = 0; i < 2; i++) {
-            if (!newPathFound) {
-                newPath = calculatePathFrom(travelPath.last, travelPath.remainingMovePoints);
-                newPathFound = newPath.length > 0;
-
-                // Roll back the path if a solution still wasn't found.
-                if (!newPathFound)
-                    travelPath.shorten(1);
-            }
-        }
-
-        // Otherwise, completely recalculate a new path
-        if (!newPathFound) {
-            travelPath.clear();
-            newPath = calculatePathFrom(travelPath.last, unit.movementPoints);
-            newPathFound = newPath.length > 0;
         }
 
         // At this point, a new path ~must~ be found; if not, something went wrong.
-        Debug.assert(newPathFound,
-            `Could not find a path to the given destination.`);
+        Debug.assert(withinRange(inspector), `Could not find a path to the given destination.`);
 
-        // Scrub the map of the old path and draw the new one.
-        let path = travelPath.points.concat(newPath);
+        // Clear the existing path and bake-in the new one.
         this.clearTileArrows();
-        for (let i = 1; i < path.length; i++) {
-            let point2 = path[i];
-            let point1 = path[i-1];
+            // TODO Modify method to use squareOfInfluence()?
+            // Maybe not (unit) but (square). All clear...() methods should allow me to pass in
+            // an area they're to scrub. By default, the whole map.
+        
+        for (let i = 1; i < inspector.path.length; i++) {
+            let point2 = inspector.path[i];
+            let point1 = inspector.path[i-1];
             this.squareAt(point1).arrowTo = CardinalVectorToCardinal( point2.subtract(point1) );
             this.squareAt(point2).arrowFrom = CardinalVectorToCardinal( point1.subtract(point2) );
         }
