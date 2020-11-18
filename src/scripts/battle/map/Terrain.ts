@@ -15,7 +15,7 @@ export const Terrain = {
     tileset: 'NormalMapTilesheet',
     landImageset: 'NormalMapLandscapeSheet',
     get sheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.tileset ].spritesheet; },
-    get landscapeSheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.landImageset ].spritesheet; },
+    get infoPortraitSheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.landImageset ].spritesheet; },
 
     Void: class VoidTile extends TerrainObject {
         // Not for nothin', but these properties are all technically condensible into one 64-bit value.
@@ -55,11 +55,11 @@ export const Terrain = {
         get serial() { return 0; }
         get landscape(): PIXI.Sprite {
             if (this.variation == 1)
-                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-meteor-landscape.png'] );
+                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['plain-meteor-landscape.png'] );
             else if (this.variation == 2)
-                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-plasma-landscape.png'] );
+                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['plain-plasma-landscape.png'] );
             else
-                return new PIXI.Sprite( Terrain.landscapeSheet.textures['plain-landscape.png'] );
+                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['plain-landscape.png'] );
         }
         private variation = 0;
 
@@ -469,7 +469,7 @@ export const Terrain = {
         get type() { return RoughSeaTile; }
         get serial() { return 10; }
         get landscape(): PIXI.Sprite {
-            return new PIXI.Sprite( Terrain.landscapeSheet.textures['sea-landscape.png'] );
+            return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['sea-landscape.png'] );
         }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
@@ -525,7 +525,7 @@ export const Terrain = {
         get type() { return MistTile; }
         get serial() { return 11; }
         get landscape(): PIXI.Sprite {
-            return new PIXI.Sprite( Terrain.landscapeSheet.textures['sea-landscape.png'] );
+            return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['sea-landscape.png'] );
         }
         get landTile() { return false; }
 
@@ -617,7 +617,7 @@ export const Terrain = {
         get type() { return FireTile; }
         get serial() { return 13; }
         get landscape(): PIXI.AnimatedSprite {
-            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            let anim = new PIXI.AnimatedSprite( Terrain.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
             return anim;
@@ -661,7 +661,7 @@ export const Terrain = {
         get type() { return MeteorTile; }
         get serial() { return 14; }
         get landscape(): PIXI.AnimatedSprite {
-            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            let anim = new PIXI.AnimatedSprite( Terrain.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
             return anim;
@@ -724,7 +724,7 @@ export const Terrain = {
         get type() { return PlasmaTile; }
         get serial() { return 15; }
         get landscape(): PIXI.AnimatedSprite {
-            let anim = new PIXI.AnimatedSprite( Terrain.landscapeSheet.animations['default-landscape'] );
+            let anim = new PIXI.AnimatedSprite( Terrain.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
             return anim;
@@ -1028,9 +1028,9 @@ export const Terrain = {
         get serial() { return 22; }
         get landscape(): PIXI.Sprite {
             if (this.value == 1)
-                return new PIXI.Sprite( Terrain.landscapeSheet.textures['silo-unused-landscape.png'] );
+                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['silo-unused-landscape.png'] );
             else
-                return new PIXI.Sprite( Terrain.landscapeSheet.textures['silo-used-landscape.png'] );
+                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['silo-used-landscape.png'] );
         }
 
         get name() { return "Silo"; }

@@ -418,7 +418,7 @@ export class Square {
      */
     attackable(unit: UnitObject): boolean {
         if (this.unit)
-            return this.targetable(unit);
+            return unit.canTarget(this.unit);
         else
             return false;
     }

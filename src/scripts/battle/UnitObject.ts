@@ -8,7 +8,7 @@ import { MapLayers } from "./map/MapLayers";
 import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
-import { PointPrimitive } from "../Common/Point";
+import { PointPrimitive, Point } from "../Common/Point";
 
 /** An uninstantiated Unit class type. */
 export interface UnitType {
@@ -79,7 +79,7 @@ export abstract class UnitObject {
         granularity: .35     // About 3 frames between min and max.
     });
 
-    private team!: Army;
+    // TODO private team!: Army;
 
     /** A 64-bit number representing all of the Unit's volatile information. */
     private conditionInfo = 0;
@@ -109,9 +109,9 @@ export abstract class UnitObject {
 
     // TODO Rename this; 'exhibit' is stupid, I'm tired of reading it.
     /** A larger preview image of this unit type.  */
-    get exhibitImage(): PIXI.Sprite {
+    get infoPortrait(): PIXI.Sprite {
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
-        return new PIXI.Sprite(Unit.exhibitSheet.textures[`${name}-exhibit.png`]);
+        return new PIXI.Sprite(Unit.unitPortraitSheet.textures[`${name}-portrait.png`]);
     }
 
     /** An object containing the texture sets for the sprite's three movement facings (left must be reflected for right-facing.) */
@@ -167,6 +167,9 @@ export abstract class UnitObject {
     /** The distance this unit can see into fog of war conditions. */
     get vision() { return 2; }
 
+    /** Returns a NumericRange describing this unit's distance-of-attack limits. */
+    get range(): NumericRange { return {min: 1, max: 1}; }
+
     /** Whether this unit is a soldier-type. Soldier's have unique graphics depending on faction,
      * and have the unique ability to capture properties. */
     get soldierUnit() { return false; }
@@ -174,6 +177,10 @@ export abstract class UnitObject {
     /** Whether this unit has materials for building instead of ammunition for attacking.
      * Materials take over the ammunition stat when in effect. */
     get materialsInsteadOfAmmo() { return false; }
+
+    /** Whether this unit may move and attack as an action pair during its turn.
+     * This is, primarily, a distinction between direct and indirect units. */
+    get canMoveAndAttack(): boolean { return true; }
 
     /** The unit's class: either Groundforce, Airforce or Navy. */
     abstract get unitClass(): UnitClass;
@@ -184,21 +191,22 @@ export abstract class UnitObject {
     /** The unit's armor kind, which affects what may attack it. Generally, a marginal player convenience. */
     abstract get armorType(): ArmorType;
 
-    /** A 6x2 matrix of unit armor-types and booleans indicating attackable/non-attackable armors. */
+    /** A 6*2 matrix of unit armor-types and booleans indicating attackable/non-attackable armors. */
     protected abstract readonly armorTargetMatrix: number[][];
 
-    /** An Nx2 matrix of base damage numbers, where N is the number of unit types. */
+    /** An N*2 matrix of base damage numbers, where N is the number of unit types. */
     protected abstract baseDamageMatrix: number[][];
 
 
     /* Left blank so that units can be instantiated as reference material without building expensive graphic objects, etc. */
     constructor() { }
 
+    // TODO init(team: Army)
     /** Must be called before use. Builds unit graphics, configures important stats. */
-    init(team: Army) {
-        let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
+    init() {
+        let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
+        // TODO If spritesheet is undefined... what happens?
 
-        this.team = team;   // TODO Is this property necessary? When will Unit need to ask its team for something, outside of this method?
         this.faction = [Faction.Red, Faction.Black][ Math.floor(Math.random()*2) ];
 
         // Pick the right idle animation
@@ -307,6 +315,11 @@ export abstract class UnitObject {
         return (this.gas < this.maxMovementPoints) ? this.gas : this.maxMovementPoints;
     }
 
+    /** Returns true if this unit can attack distant targets. */
+    get isIndirect(): boolean {
+        return this.range.max > 1;
+    }
+
     /** The unit's progress toward capturing a building. */
     get capture(): number {
         return Common.readBits(this.conditionInfo, captureBits.length, captureBits.shift);
@@ -387,10 +400,10 @@ export abstract class UnitObject {
     }
 
     /** This unit's position on the game board. This is *not* the unit-graphic's position in the game-world, though it does affect that. */
-    get boardLocation(): PointPrimitive {
-        return {x: this.x, y: this.y};
+    get boardLocation(): Point {
+        return new Point(this.x, this.y);
     }
-    set boardLocation(point: PointPrimitive) {
+    set boardLocation(point: Point) {
         this.x = point.x;
         this.y = point.y;
 
@@ -525,6 +538,14 @@ export abstract class UnitObject {
         let attackable = (this.attackMethodFor(unit) != AttackMethod.None);
         let nonAllied = (this.faction != unit.faction);
         return (attackable && nonAllied);
+    }
+
+    /** Returns true if this unit is capable of counter-attacking aggressors. */
+    canCounterAttack(unit: UnitObject) {
+        let targetable = this.canTarget(unit);
+        let inRange = (this.range.min == 1);
+        let adjacent = new Point(this.boardLocation).manhattanDistance(unit.boardLocation);
+        return targetable && inRange && adjacent;
     }
 
     /** Returns true if this unit could attack the given armor type. */

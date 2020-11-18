@@ -46,7 +46,7 @@ export abstract class TerrainObject {
     /** Returns an 'establishing shot' image of this terrain type as a sprite. */
     get landscape(): PIXI.Sprite {
         let name = this.name.replace(' ', '').toLowerCase();
-        return new PIXI.Sprite( Terrain.landscapeSheet.textures[`${name}-landscape.png`] );
+        return new PIXI.Sprite( Terrain.infoPortraitSheet.textures[`${name}-landscape.png`] );
     }
 
     /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer

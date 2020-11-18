@@ -155,12 +155,13 @@ function rangeShapeAssembler(min: number, max: number) {
 }
 
 // Common maps for Advance Wars — Definitions
-const mapSelf       = rangeShapeAssembler(0,0);
-const mapAdjacents  = rangeShapeAssembler(1,1);
-const mapShortRange = rangeShapeAssembler(2,3);
+const mapNone       = new RegionMap([[]], new Point());     // TODO Remove
+const mapSelf       = rangeShapeAssembler(0,0);             // The reason it exists:
+const mapAdjacents  = rangeShapeAssembler(1,1);             // units don't hold references
+const mapShortRange = rangeShapeAssembler(2,3);             // to their range shapes.
 const mapLongRange  = rangeShapeAssembler(3,5);
+const mapSLongRange = rangeShapeAssembler(3,7); // Missiles
 const mapAntiTank   = rangeShapeAssembler(1,3);
-const mapBattleship = rangeShapeAssembler(2,5);
 const mapSilo       = rangeShapeAssembler(0,2);
 
 /** Common maps for Advance Wars. */
@@ -169,7 +170,28 @@ export const CommonRegionShapes = {
     get Adjacent() { return mapAdjacents; },
     get ShortRange() { return mapShortRange; },
     get LongRange() { return mapLongRange; },
+    get Missile() { return mapSLongRange; },
     get AntiTank() { return mapAntiTank; },
-    get Battleship() { return mapBattleship; },
     get Silo() { return mapSilo; }
+}
+
+/** Quick common-shape retrieval. Units are not given a shape on construction. */
+// TODO Give units a shape on construction?
+// Maybe use a sieve of requests here so that only one range:1-1 map need exist?
+export function CommonRangesRetriever(range: NumericRange) {
+    if (range.min == 0 && range.max == 0)
+        return mapNone;
+    if (range.min == 1 && range.max == 1)
+        return mapAdjacents;
+    if (range.min == 2 && range.max == 3)
+        return mapShortRange;
+    if (range.min == 3 && range.max == 5)
+        return mapLongRange;
+    if (range.min == 3 && range.max == 7)
+        return mapSLongRange;
+    if (range.min == 1 && range.max == 3)
+        return mapAntiTank;
+    if (range.min == 0 && range.max == 2)
+        return mapSilo;
+    return rangeShapeAssembler(range.min, range.max);
 }

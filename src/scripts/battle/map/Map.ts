@@ -15,7 +15,7 @@ import { Common } from "../../CommonUtils";
 import { inspect } from "util";
 import { TileInspector } from "./TileInspector";
 import { QueueSearch } from "../../Common/QueueSearch";
-import { CommonRegionShapes, RegionMap } from "../unit-actions/RegionMap";
+import { CommonRegionShapes, RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 
 // Common error messages
 function InvalidLocationError(point: PointPrimitive) {
@@ -352,7 +352,7 @@ export class Map {
      * @param unit Unit object to be placed on the grid.
      * @param pos The location on the map to place it.
      */
-    placeUnit(unit: UnitObject, pos: PointPrimitive) {
+    placeUnit(unit: UnitObject, pos: Point) {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         this.squareAt(pos).unit = unit;
@@ -378,7 +378,7 @@ export class Map {
      * @returns True if the operation was successful.
      * @throws If either src or dest are invalid locations.
      */
-    moveUnit(src: PointPrimitive, dest: PointPrimitive): boolean {
+    moveUnit(src: Point, dest: Point): boolean {
         if (!this.validPoint(src))
             throw new Error(InvalidLocationError(src));
         if (!this.validPoint(dest))
@@ -486,8 +486,8 @@ export class Map {
 
         // Projects a unit's attack-range-shape from a given point.
         const projectAttackRange = (origin: Point) => {
-            // const attackRange = unit.attackRangeMap;
-            const attackRange = CommonRegionShapes.Adjacent;
+            // TODO const attackRange = unit.attackRangeMap;
+            const attackRange = CommonRangesRetriever(unit.range);
             const affectedPoints = (
                 attackRange.points
                 .map( p => p.add(origin) )
@@ -496,7 +496,7 @@ export class Map {
             affectedPoints.forEach( p => {
                 let square = this.squareAt(p);
                 if (!square.flag) {
-                    square.attackFlag = square.targetable(unit);
+                    square.attackFlag = true;
                     square.flag = true;
                 }
             });
@@ -521,8 +521,8 @@ export class Map {
                     node.square.value = node.movePoints;    // Record the efficiency in reaching this tile.
 
                     if (node.square.occupiable(unit)) {
-                        // if (unit.canMoveAndAttack || node.point.equal(new Point(unit.boardLocation)))
-                        projectAttackRange(node.point);
+                        if (unit.canMoveAndAttack || node.point.equal(unit.boardLocation))
+                            projectAttackRange(node.point);
                     }
                 }
                 
@@ -535,7 +535,7 @@ export class Map {
     squareOfInfluence(unit: UnitObject): PIXI.Rectangle {
         // Describe a square (2r + 1)^2, where r is movement range + max attack range.
         // Limit this square by the size of the board.
-        let range = unit.movementPoints + 1; // TODO unit.maxAttackRange;
+        let range = unit.movementPoints + unit.range.max;
         let tl = {
             x: Common.confine(unit.boardLocation.x - range, 0, this.width - 1), // -1: this is considered an index value
             y: Common.confine(unit.boardLocation.y - range, 0, this.height - 1)

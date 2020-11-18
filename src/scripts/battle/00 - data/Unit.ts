@@ -249,6 +249,9 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get maxMovementPoints() { return 5; }
         get vision() { return 3; }
+        get range() { return {min: 2, max: 3}; }  
+        
+        get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
@@ -274,6 +277,9 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get maxMovementPoints() { return 4; }
         get vision() { return 2; }
+        get range() { return {min: 1, max: 3}; }  
+        
+        get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.TireB; }
@@ -299,6 +305,9 @@ export const Unit = {
         get maxAmmo() { return 5; }
         get maxMovementPoints() { return 5; }
         get vision() { return 3; }
+        get range() { return {min: 3, max: 5}; }  
+        
+        get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.TireA; }
@@ -324,6 +333,9 @@ export const Unit = {
         get maxAmmo() { return 5; }
         get maxMovementPoints() { return 5; }
         get vision() { return 6; }
+        get range() { return {min: 3, max: 7}; }  
+        
+        get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.TireA; }
@@ -349,8 +361,10 @@ export const Unit = {
         get maxAmmo() { return 1; }
         get maxMovementPoints() { return 6; }
         get vision() { return 1; }
+        get range() { return {min: 0, max: 0}; }  
         
         get materialInsteadOfAmmo() { return true; }  
+        get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
@@ -526,6 +540,9 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get maxMovementPoints() { return 6; }
         get vision() { return 2; }
+        get range() { return {min: 0, max: 0}; }  
+        
+        get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
@@ -551,6 +568,7 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get maxMovementPoints() { return 7; }
         get vision() { return 1; }
+        get range() { return {min: 0, max: 0}; }  
     
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
@@ -576,6 +594,7 @@ export const Unit = {
         get maxAmmo() { return 6; }
         get maxMovementPoints() { return 5; }
         get vision() { return 3; }
+        get range() { return {min: 3, max: 5}; }  
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }
@@ -678,6 +697,9 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get maxMovementPoints() { return 6; }
         get vision() { return 1; }
+        get range() { return {min: 0, max: 0}; }  
+        
+        get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Transport; }
@@ -697,7 +719,7 @@ export const Unit = {
         get serial() { return 27; }
         get name() { return "Gun Boat"; }
         get shortName() { return "G Boat"; }
-        get description() { return "A unit that can /carry 1/ foot soldier and atta ck other naval units."; }
+        get description() { return "A unit that can /carry 1/ foot soldier and attack other naval units."; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 1; }

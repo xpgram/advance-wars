@@ -172,7 +172,7 @@ export class BattleSceneControllers {
 
         for (let i = 0; i < unitsToSpawn; i++) {
             let unit = new unitTypes[ Math.floor(Math.random()*unitTypes.length) ]();
-            unit.init(null);            // This, I believe, adds graphics to scene. Unit would have to be destroyed on placement fail.
+            unit.init();            // This, I believe, adds graphics to scene. Unit would have to be destroyed on placement fail.
             this.unitsList.push(unit);
 
             // Easy dice roll function for stats.
