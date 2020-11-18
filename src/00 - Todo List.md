@@ -5,9 +5,9 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
 
 - [ ] Re-rip the plasma textures: some of them are clipped by 1px.
 - [ ] Sea looks nicer, I think, but my frame-animation skills are a teense lacking. Update it.
-- [ ] Setup unit 'exhibit' image spritesheet.
-    - [ ] Come up with a different name for them.
-        - Why not just "landPortrait" and "unitPortrait"?
+- [ ] Setup unit-portraits image spritesheet.
+    - [X] Unit.exhibit —→ Unit.infoPortrait
+    - [ ] Terrain.landscape —→ Terrain.infoPortrait (consistency)
 
 - [ ] Implement Team & CO classes
 - [ ] TurnState: Start→Move→Anim→Command→Cancel→Start loses the player-drawn path
@@ -17,19 +17,6 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
         - [ ] This will require adding TerrainInfo to Detailed's wipe-away mask.
 
 - [ ] After building the map, send all non-animated sprites to a mesh / paint them permenantly onto one big sprite, kind of like I do for the backdrop ocean. This should improve speed, kind of like it did for the backdrop ocean.
-
-Map.generateTravelMapBase sets every reachable tile as attackable since they technically are,
-but we need more sophistication.
-- [X] Boats which cannot attack land or air units should not list land tiles as attackable.
-- [X] genMap(), when it has reached the end of a path, should light up all tiles within unit range **if** unit can both move and attack.
-    - [ ] Else, light up all tiles with manhatten distance in-range. This will have to be a separate loop, probably. We only need to check a square of area (2x+1)^2, where x is max range, though.
-        - [X] In fact, use that formula to speed up genMap() culling in the other methods.
-
-- [ ] Update Unit.ts and UnitObject.ts to include:
-    - [ ] isIndirect: max range > 1
-    - [ ] canCounter: min range == 1
-    - [ ] canMoveAndAttack: default true, most indirects set to false
-    - [ ] min and max range *facepalm*: range.max returns a constant, 1 or 0, depending on ammo and secondary.
 
 - [ ] Reorganize BattleSystemManager to use or describe an 'Order' to a unit as a single object.
     - [ ] Acting Unit: Point
@@ -58,11 +45,6 @@ but we need more sophistication.
         - [ ] TurnState == DestroyUnits → ban icon / 'X' icon
     - [ ] Reset cursor switches to default cursor graphics
 
-- [ ] Refactor the map-sprites system to post tile graphics to a mesh instead of keeping all these sprite objects active. This should speed things up on lower-performing computers, just like how consolidating the ocean sprites did.
-    - [ ] Transparent and animated graphics must be kept alive and on a separate layer.
-        - [ ] In theory, they could be posted to their own layer and saved into their own mesh, kind of like the animated ocean graphic. Animated layers would simply be animated meshes with each frame of the source posted to a frame of the mesh.
-        This will require some work.
-
 - [ ] Add "Choose Attack Target" step to turn structure in two steps:
     - [ ] Active step:
         - [ ] Within the affective range, build a list of all targetable units in the order left-to-right, top-to-bottom.
@@ -80,7 +62,10 @@ but we need more sophistication.
                 - This does not allow smart navigation if the unit's range function is a map and not a set of distances. Concievably a simple change, though. But I may write for it now to future-proof. This means:
                     - [X] Finish implementation of RegionMap.
 
-- [ ] Update each unit-type to include an attack range. Make this displayable on the map.
+- [X] Update each unit-type to include an attack range. Make this displayable on the map.
+- [ ] Update it to make sense: Units do not hold a reference to their own range-shape.
+    - [ ] Further, when a unit has no ammo, their hold-B range map shouldn't display.
+        - Implement via: attackRange → RegionShape(empty) when (ammo == 0 && sub == null)
 
 - [ ] Refactor Square.traversable to .traversible; it's driving me crazy.
 - [X] Compare 25x15x3 sprites drawn individually (with transparency) vs the same in a mesh.
