@@ -9,9 +9,11 @@
     get maxAmmo() { return /*MaxAmmo*/; }
     get maxMovementPoints() { return /*MovePoints*/; }
     get vision() { return /*Vision*/; }
+    get range() { return {min: /*RangeMin*/, max: /*RangeMax*/}; }  /*Range*/
     /*NewBlockBreak*/
     get soldierUnit() { return true; }  /*SoldierUnit*/
     get materialInsteadOfAmmo() { return true; }  /*MaterialInstead*/
+    get canMoveAndAttack() { return false; }  /*MoveAndAttack*/
 
     get unitClass() { return UnitClass./*UnitClass*/; }
     get moveType() { return MoveType./*MoveType*/; }

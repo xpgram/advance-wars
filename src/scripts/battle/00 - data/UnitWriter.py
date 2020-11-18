@@ -23,6 +23,7 @@ class Unit:
         self.vision = 2
         self.maxGas = 99
         self.materialInstead = False
+        self.moveAndAttack = True
         self.ammoPoints = 0
         self.rangeMin = 1
         self.rangeMax = 1
@@ -82,8 +83,8 @@ with open(os.path.dirname(os.path.abspath(__file__)) + "\\damage_matrix.txt") as
             unit.maxGas = int(data[8])
             unit.materialInstead = (int(data[9]) == 1)
             unit.ammoPoints = int(data[10])
-            unit.rangeMin = data[11][0:1]
-            unit.rangeMax = data[11][2:3]
+            unit.rangeMin = int(data[11][0:1])
+            unit.rangeMax = int(data[11][2:3])
 
             # Converts '-' to 0, basically
             # A battle heuristic ranges from 0–2 and doubles as a can-attack/can't-attack signifier
@@ -126,8 +127,11 @@ with open(os.path.dirname(os.path.abspath(__file__)) + "\\damage_matrix.txt") as
             # Soldier/vehicle unit delineation.
             unit.soldierUnit = (int(data[26]) == 1)
 
+            # Unit attack-and-move paired turn action
+            unit.moveAndAttack = (int(data[27]) == 1)
+
             # Unit info-window description
-            unit.description = data[27]
+            unit.description = data[28]
 
             # Add to list
             unitTypes.append(unit)
@@ -217,8 +221,18 @@ with open(os.path.dirname(os.path.abspath(__file__)) + "\\Unit.source.ts", 'r') 
             cast = cast.replace(tag("MoveType"), unit.movementType)
             cast = cast.replace(tag("ArmorType"), unit.armorType)
 
+            # Keep range line only if different from default
+            if unit.rangeMin == 1 and unit.rangeMax == 1:
+                cast = eraseToken(cast, tag("Range"))
+            else:
+                cast = cast.replace(tag("Range"), '')
+                cast = cast.replace(tag("RangeMin"), str(unit.rangeMin))
+                cast = cast.replace(tag("RangeMax"), str(unit.rangeMax))
+
             # Keep whitespace only if there is a block to space-out (visual convenience only)
-            if unit.soldierUnit == False and unit.materialInstead == False:
+            if (unit.soldierUnit == False
+              and unit.materialInstead == False
+              and unit.moveAndAttack == True):
                 cast = eraseToken(cast, tag("NewBlockBreak"))
             else:
                 cast = cast.replace(tag("NewBlockBreak"), '')
@@ -234,6 +248,12 @@ with open(os.path.dirname(os.path.abspath(__file__)) + "\\Unit.source.ts", 'r') 
                 cast = eraseToken(cast, tag("MaterialInstead"))
             else:
                 cast = cast.replace(tag("MaterialInstead"), '')
+
+            # Keep MoveAndAttack line only if different from default
+            if unit.moveAndAttack:
+                cast = eraseToken(cast, tag("MoveAndAttack"))
+            else:
+                cast = cast.replace(tag("MoveAndAttack"), '')
 
             # Write the target matrix
             targMatrix = ""
