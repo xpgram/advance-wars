@@ -62,11 +62,6 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
                 - This does not allow smart navigation if the unit's range function is a map and not a set of distances. Concievably a simple change, though. But I may write for it now to future-proof. This means:
                     - [X] Finish implementation of RegionMap.
 
-- [X] Update each unit-type to include an attack range. Make this displayable on the map.
-- [ ] Update it to make sense: Units do not hold a reference to their own range-shape.
-    - [ ] Further, when a unit has no ammo, their hold-B range map shouldn't display.
-        - Implement via: attackRange → RegionShape(empty) when (ammo == 0 && sub == null)
-
 - [ ] Refactor Square.traversable to .traversible; it's driving me crazy.
 - [X] Compare 25x15x3 sprites drawn individually (with transparency) vs the same in a mesh.
     Predictably, yes, it is faster with meshes.

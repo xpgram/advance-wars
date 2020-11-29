@@ -10,20 +10,25 @@
     get maxMovementPoints() { return /*MovePoints*/; }
     get vision() { return /*Vision*/; }
     get range() { return {min: /*RangeMin*/, max: /*RangeMax*/}; }  /*Range*/
-    /*NewBlockBreak*/
+    /*UnitPropertiesBlockBreak*/
     get soldierUnit() { return true; }  /*SoldierUnit*/
-    get materialInsteadOfAmmo() { return true; }  /*MaterialInstead*/
+    get materialsInsteadOfAmmo() { return true; }  /*MaterialInstead*/
     get canMoveAndAttack() { return false; }  /*MoveAndAttack*/
 
     get unitClass() { return UnitClass./*UnitClass*/; }
     get moveType() { return MoveType./*MoveType*/; }
     get armorType() { return ArmorType./*ArmorType*/; }
-
-    protected readonly armorTargetMatrix = [
-        /*TargetMatrix*/
-    ];
-
-    protected readonly baseDamageMatrix = [
-        /*DamageMatrix*/
-    ];
+    
+    get weapon() { return {
+        primary: {
+            name: '/*PrimName*/',
+            targetMap: /*PrimTargetMap*/,
+            damageMap: /*PrimDamageMap*/
+        },
+        secondary: {
+            name: '/*SubName*/',
+            targetMap: /*SubTargetMap*/,
+            damageMap: /*SubDamageMap*/
+        }
+    }}
 },

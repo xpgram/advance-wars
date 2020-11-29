@@ -2,6 +2,7 @@ import { Point } from "../../Common/Point";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { Common } from "../../CommonUtils";
 import { Debug } from "../../DebugUtils";
+import { StringDictionary } from "../../CommonTypes";
 
 /** A boolean map projected onto an infinite euclidean plane.
  * 
@@ -139,6 +140,11 @@ export class RegionMap {
 
 /** Helper function used to build standard min-to-max range maps for Advance Wars units. */
 function rangeShapeAssembler(min: number, max: number) {
+    // Case for empty map
+    if (min < 0 || max < 0)
+        return new RegionMap([[]], new Point());
+
+    // Case for all other ranges
     let size = max*2 + 1;
     let center = Math.floor(size/2);
     let origin = new Point(center,center);
@@ -154,44 +160,19 @@ function rangeShapeAssembler(min: number, max: number) {
     return new RegionMap(booleanMap, origin);
 }
 
-// Common maps for Advance Wars — Definitions
-const mapNone       = new RegionMap([[]], new Point());     // TODO Remove
-const mapSelf       = rangeShapeAssembler(0,0);             // The reason it exists:
-const mapAdjacents  = rangeShapeAssembler(1,1);             // units don't hold references
-const mapShortRange = rangeShapeAssembler(2,3);             // to their range shapes.
-const mapLongRange  = rangeShapeAssembler(3,5);
-const mapSLongRange = rangeShapeAssembler(3,7); // Missiles
-const mapAntiTank   = rangeShapeAssembler(1,3);
-const mapSilo       = rangeShapeAssembler(0,2);
+/** With serial keys, maintains a list of all once-requested maps. */
+let regionMapSieve: StringDictionary<RegionMap> = {};
 
-/** Common maps for Advance Wars. */
-export const CommonRegionShapes = {
-    get Self() { return mapSelf; },
-    get Adjacent() { return mapAdjacents; },
-    get ShortRange() { return mapShortRange; },
-    get LongRange() { return mapLongRange; },
-    get Missile() { return mapSLongRange; },
-    get AntiTank() { return mapAntiTank; },
-    get Silo() { return mapSilo; }
-}
+/** Calculates range-maps on request, or retrieves pre-calculated maps from a sieve. */
+export function CommonRangesRetriever(range: NumericRange): RegionMap {
+    const r = {
+        min: Math.max(-1, range.min),
+        max: Math.max(-1, range.max)
+    };
+    const serial = `${r.min}-${r.max}`;
 
-/** Quick common-shape retrieval. Units are not given a shape on construction. */
-// TODO Give units a shape on construction?
-// Maybe use a sieve of requests here so that only one range:1-1 map need exist?
-export function CommonRangesRetriever(range: NumericRange) {
-    if (range.min == 0 && range.max == 0)
-        return mapNone;
-    if (range.min == 1 && range.max == 1)
-        return mapAdjacents;
-    if (range.min == 2 && range.max == 3)
-        return mapShortRange;
-    if (range.min == 3 && range.max == 5)
-        return mapLongRange;
-    if (range.min == 3 && range.max == 7)
-        return mapSLongRange;
-    if (range.min == 1 && range.max == 3)
-        return mapAntiTank;
-    if (range.min == 0 && range.max == 2)
-        return mapSilo;
-    return rangeShapeAssembler(range.min, range.max);
+    if (!regionMapSieve[serial])
+        regionMapSieve[serial] = rangeShapeAssembler(r.min, r.max);
+
+    return regionMapSieve[serial];
 }

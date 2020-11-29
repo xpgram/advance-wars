@@ -24,14 +24,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Infantry; }
         get armorType() { return ArmorType.Infantry; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[0,1],[0,0],[0,1],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,55],[0,45],[0,45],[0,12],[0,10],[0,3],[0,5],[0,5],[0,1],[0,10],[0,30],[0,20],[0,20],[0,14],[0,0],[0,0],[0,0],[0,0],[0,0],[0,8],[0,30],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,1]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,1,0,0],
+                damageMap: [55,45,45,12,10,3,5,5,1,10,30,20,20,14,0,0,0,0,0,8,30,0,0,0,0,0,0,0,1]
+            }
+        }}
     },
 
     Mech: class MechUnit extends UnitObject {
@@ -51,14 +56,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Mech; }
         get armorType() { return ArmorType.Infantry; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[2,1],[0,0],[0,1],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,65],[0,55],[0,55],[85,18],[80,15],[55,5],[55,8],[25,5],[15,1],[70,15],[55,35],[85,35],[85,35],[75,20],[0,0],[0,0],[0,0],[0,0],[0,0],[0,12],[0,35],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[15,2]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Bazooka',
+                targetMap: [0,2,0,0,0,0],
+                damageMap: [0,0,0,85,80,55,55,25,15,70,55,85,85,75,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,1,0,0],
+                damageMap: [65,55,55,18,15,5,8,5,1,15,35,35,35,20,0,0,0,0,0,12,35,0,0,0,0,0,0,0,2]
+            }
+        }}
     },
 
     Bike: class BikeUnit extends UnitObject {
@@ -78,14 +88,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.TireB; }
         get armorType() { return ArmorType.Infantry; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[0,1],[0,0],[0,1],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,65],[0,55],[0,55],[0,18],[0,15],[0,5],[0,8],[0,5],[0,1],[0,15],[0,35],[0,35],[0,35],[0,20],[0,0],[0,0],[0,0],[0,0],[0,0],[0,12],[0,35],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,2]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,1,0,0],
+                damageMap: [65,55,55,18,15,5,8,5,1,15,35,35,35,20,0,0,0,0,0,12,35,0,0,0,0,0,0,0,2]
+            }
+        }}
     },
 
     Recon: class ReconUnit extends UnitObject {
@@ -103,14 +118,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.TireA; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[0,1],[0,0],[0,1],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,75],[0,65],[0,65],[0,35],[0,30],[0,8],[0,8],[0,5],[0,1],[0,45],[0,25],[0,55],[0,55],[0,45],[0,0],[0,0],[0,0],[0,0],[0,0],[0,18],[0,35],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,3]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,1,0,0],
+                damageMap: [75,65,65,35,30,8,8,5,1,45,25,55,55,45,0,0,0,0,0,18,35,0,0,0,0,0,0,0,3]
+            }
+        }}
     },
 
     Flare: class FlareUnit extends UnitObject {
@@ -128,14 +148,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[0,1],[0,0],[0,1],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,80],[0,70],[0,70],[0,60],[0,50],[0,45],[0,10],[0,5],[0,1],[0,45],[0,25],[0,55],[0,55],[0,45],[0,0],[0,0],[0,0],[0,0],[0,0],[0,18],[0,35],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,5]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,1,0,0],
+                damageMap: [80,70,70,60,50,45,10,5,1,45,25,55,55,45,0,0,0,0,0,18,35,0,0,0,0,0,0,0,5]
+            }
+        }}
     },
 
     AntiAir: class AntiAirUnit extends UnitObject {
@@ -153,14 +178,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [2,0],[1,0],[2,0],[2,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [105,0],[105,0],[105,0],[60,0],[50,0],[45,0],[15,0],[10,0],[5,0],[50,0],[25,0],[55,0],[55,0],[50,0],[70,0],[70,0],[70,0],[75,0],[75,0],[105,0],[120,0],[120,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[10,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Vulcan Gun',
+                targetMap: [2,1,2,2,0,0],
+                damageMap: [105,105,105,60,50,45,15,10,5,50,25,55,55,50,70,70,70,75,75,105,120,120,0,0,0,0,0,0,10]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Tank: class TankUnit extends UnitObject {
@@ -178,20 +208,25 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[2,1],[0,0],[0,1],[1,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,75],[0,70],[0,70],[85,40],[80,35],[75,8],[55,8],[35,5],[20,1],[70,45],[30,5],[85,55],[85,55],[75,45],[0,0],[0,0],[0,0],[0,0],[0,0],[0,18],[0,40],[0,0],[8,0],[8,0],[9,0],[9,0],[18,0],[55,0],[20,5]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Tank Gun',
+                targetMap: [0,2,0,0,1,0],
+                damageMap: [0,0,0,85,80,75,55,35,20,70,30,85,85,75,0,0,0,0,0,0,0,0,8,8,9,9,18,55,20]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,1,0,0],
+                damageMap: [75,70,70,40,35,8,8,5,1,45,5,55,55,45,0,0,0,0,0,18,40,0,0,0,0,0,0,0,5]
+            }
+        }}
     },
 
-    MediumTank: class MediumTankUnit extends UnitObject {
-        get type() { return MediumTankUnit; }
+    MdTank: class MdTankUnit extends UnitObject {
+        get type() { return MdTankUnit; }
         get serial() { return 7; }
-        get name() { return "Medium Tank"; }
+        get name() { return "Md Tank"; }
         get shortName() { return "M Tank"; }
         get description() { return "A strong tank with better attack and defense than standard tanks."; }
     
@@ -203,14 +238,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[2,1],[0,0],[0,1],[1,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,90],[0,80],[0,80],[95,40],[90,35],[90,8],[70,8],[55,5],[35,1],[85,45],[35,5],[90,60],[90,60],[90,45],[0,0],[0,0],[0,0],[0,0],[0,0],[0,24],[0,40],[0,0],[10,0],[10,0],[12,0],[12,0],[22,0],[55,0],[35,5]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Hvy Tk Gun',
+                targetMap: [0,2,0,0,1,0],
+                damageMap: [0,0,0,95,90,90,70,55,35,85,35,90,90,90,0,0,0,0,0,0,0,0,10,10,12,12,22,55,35]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,1,0,0],
+                damageMap: [90,80,80,40,35,8,8,5,1,45,5,60,60,45,0,0,0,0,0,24,40,0,0,0,0,0,0,0,5]
+            }
+        }}
     },
 
     WarTank: class WarTankUnit extends UnitObject {
@@ -228,14 +268,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[2,1],[0,0],[0,1],[1,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,105],[0,95],[0,95],[105,45],[105,40],[105,10],[85,10],[75,10],[55,1],[105,45],[40,5],[105,65],[105,65],[105,45],[0,0],[0,0],[0,0],[0,0],[0,0],[0,35],[0,45],[0,0],[12,0],[12,0],[14,0],[14,0],[28,0],[65,0],[55,8]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Mega Gun',
+                targetMap: [0,2,0,0,1,0],
+                damageMap: [0,0,0,105,105,105,85,75,55,105,40,105,105,105,0,0,0,0,0,0,0,0,12,12,14,14,28,65,55]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,1,0,0],
+                damageMap: [105,95,95,45,40,10,10,10,1,45,5,65,65,45,0,0,0,0,0,35,45,0,0,0,0,0,0,0,8]
+            }
+        }}
     },
 
     Artillery: class ArtilleryUnit extends UnitObject {
@@ -256,14 +301,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [2,0],[2,0],[0,0],[0,0],[1,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [90,0],[85,0],[85,0],[80,0],[75,0],[65,0],[60,0],[45,0],[35,0],[75,0],[55,0],[80,0],[80,0],[70,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[45,0],[45,0],[55,0],[55,0],[65,0],[100,0],[45,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Cannon',
+                targetMap: [2,2,0,0,1,0],
+                damageMap: [90,85,85,80,75,65,60,45,35,75,55,80,80,70,0,0,0,0,0,0,0,0,45,45,55,55,65,100,45]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     AntiTank: class AntiTankUnit extends UnitObject {
@@ -284,14 +334,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.TireB; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [2,0],[2,0],[0,0],[1,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [75,0],[65,0],[65,0],[75,0],[75,0],[75,0],[75,0],[65,0],[55,0],[65,0],[55,0],[70,0],[70,0],[65,0],[0,0],[0,0],[0,0],[0,0],[0,0],[45,0],[55,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[55,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Cannon',
+                targetMap: [2,2,0,1,0,0],
+                damageMap: [75,65,65,75,75,75,75,65,55,65,55,70,70,65,0,0,0,0,0,45,55,0,0,0,0,0,0,0,55]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Rockets: class RocketsUnit extends UnitObject {
@@ -312,14 +367,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.TireA; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [2,0],[2,0],[0,0],[0,0],[2,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [95,0],[90,0],[90,0],[90,0],[85,0],[75,0],[70,0],[55,0],[45,0],[80,0],[65,0],[85,0],[85,0],[80,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[55,0],[55,0],[65,0],[65,0],[75,0],[105,0],[55,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Rocket',
+                targetMap: [2,2,0,0,2,0],
+                damageMap: [95,90,90,90,85,75,70,55,45,80,65,85,85,80,0,0,0,0,0,0,0,0,55,55,65,65,75,105,55]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Missiles: class MissilesUnit extends UnitObject {
@@ -340,14 +400,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.TireA; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[2,0],[2,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[100,0],[100,0],[100,0],[100,0],[100,0],[120,0],[120,0],[120,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Anti-Air Msl',
+                targetMap: [0,0,2,2,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,100,100,100,100,120,120,120,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Rig: class RigUnit extends UnitObject {
@@ -361,22 +426,27 @@ export const Unit = {
         get maxAmmo() { return 1; }
         get maxMovementPoints() { return 6; }
         get vision() { return 1; }
-        get range() { return {min: 0, max: 0}; }  
+        get range() { return {min: -1, max: -1}; }  
         
-        get materialInsteadOfAmmo() { return true; }  
+        get materialsInsteadOfAmmo() { return true; }  
         get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
         get armorType() { return ArmorType.Vehicle; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Fighter: class FighterUnit extends UnitObject {
@@ -394,14 +464,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Air; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[2,0],[2,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[55,0],[65,0],[65,0],[80,0],[65,0],[120,0],[120,0],[120,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Anti-Air Msl',
+                targetMap: [0,0,2,2,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,65,65,80,65,120,120,120,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Bomber: class BomberUnit extends UnitObject {
@@ -419,14 +494,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Air; }
-    
-        protected readonly armorTargetMatrix = [
-            [2,0],[2,0],[0,0],[0,0],[2,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [115,0],[110,0],[110,0],[105,0],[105,0],[85,0],[105,0],[95,0],[75,0],[105,0],[80,0],[105,0],[95,0],[105,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[85,0],[85,0],[95,0],[50,0],[95,0],[120,0],[90,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Bomb',
+                targetMap: [2,2,0,0,2,0],
+                damageMap: [115,110,110,105,105,85,105,95,75,105,80,105,95,105,0,0,0,0,0,0,0,0,85,85,95,50,95,120,90]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Stealth: class StealthUnit extends UnitObject {
@@ -444,14 +524,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Air; }
-    
-        protected readonly armorTargetMatrix = [
-            [2,0],[2,0],[2,0],[2,0],[2,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [95,0],[90,0],[90,0],[85,0],[80,0],[50,0],[75,0],[70,0],[55,0],[75,0],[55,0],[85,0],[75,0],[85,0],[45,0],[55,0],[55,0],[65,0],[55,0],[85,0],[95,0],[105,0],[45,0],[65,0],[55,0],[40,0],[85,0],[105,0],[70,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Omni-Msl',
+                targetMap: [2,2,2,2,2,0],
+                damageMap: [95,90,90,85,80,50,75,70,55,75,55,85,75,85,45,55,55,65,55,85,95,105,45,65,55,40,85,105,70]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Duster: class DusterUnit extends UnitObject {
@@ -469,14 +554,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Air; }
-    
-        protected readonly armorTargetMatrix = [
-            [1,0],[1,0],[1,0],[2,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [55,0],[45,0],[45,0],[18,0],[15,0],[5,0],[8,0],[5,0],[1,0],[15,0],[5,0],[20,0],[20,0],[15,0],[40,0],[45,0],[45,0],[55,0],[45,0],[75,0],[90,0],[95,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[5,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Machine Gun',
+                targetMap: [1,1,1,2,0,0],
+                damageMap: [55,45,45,18,15,5,8,5,1,15,5,20,20,15,40,45,45,55,45,75,90,95,0,0,0,0,0,0,5]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     SeaPlane: class SeaPlaneUnit extends UnitObject {
@@ -494,14 +584,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Air; }
-    
-        protected readonly armorTargetMatrix = [
-            [2,0],[2,0],[2,0],[2,0],[2,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [90,0],[85,0],[85,0],[80,0],[80,0],[45,0],[75,0],[65,0],[55,0],[70,0],[50,0],[80,0],[70,0],[75,0],[45,0],[55,0],[55,0],[65,0],[55,0],[85,0],[95,0],[95,0],[45,0],[65,0],[55,0],[40,0],[85,0],[105,0],[55,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Missiles',
+                targetMap: [2,2,2,2,2,0],
+                damageMap: [90,85,85,80,80,45,75,65,55,70,50,80,70,75,45,55,55,65,55,85,95,95,45,65,55,40,85,105,55]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     BCopter: class BCopterUnit extends UnitObject {
@@ -519,14 +614,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Heli; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,2],[2,1],[0,0],[0,2],[1,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,75],[0,65],[0,65],[75,30],[75,30],[10,1],[70,8],[45,8],[35,1],[65,25],[20,1],[75,35],[55,25],[70,20],[0,0],[0,0],[0,0],[0,0],[0,0],[0,65],[0,85],[0,0],[25,0],[25,0],[25,0],[5,0],[25,0],[85,0],[20,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Air-Gnd Msl',
+                targetMap: [0,2,0,0,1,0],
+                damageMap: [0,0,0,75,75,10,70,45,35,65,20,75,55,70,0,0,0,0,0,0,0,0,25,25,25,5,25,85,20]
+            },
+            secondary: {
+                name: 'Machine Gun',
+                targetMap: [2,1,0,2,0,0],
+                damageMap: [75,65,65,30,30,1,8,8,1,25,1,35,25,20,0,0,0,0,0,65,85,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     TCopter: class TCopterUnit extends UnitObject {
@@ -540,21 +640,26 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get maxMovementPoints() { return 6; }
         get vision() { return 2; }
-        get range() { return {min: 0, max: 0}; }  
+        get range() { return {min: -1, max: -1}; }  
         
         get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Heli; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     BlackBomb: class BlackBombUnit extends UnitObject {
@@ -573,14 +678,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Air; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Battleship: class BattleshipUnit extends UnitObject {
@@ -599,14 +709,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }
         get armorType() { return ArmorType.Ship; }
-    
-        protected readonly armorTargetMatrix = [
-            [2,0],[2,0],[0,0],[0,0],[2,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [75,0],[70,0],[70,0],[70,0],[70,0],[65,0],[65,0],[50,0],[40,0],[70,0],[55,0],[75,0],[75,0],[65,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[45,0],[50,0],[65,0],[65,0],[75,0],[95,0],[55,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Cannon',
+                targetMap: [2,2,0,0,2,0],
+                damageMap: [75,70,70,70,70,65,65,50,40,70,55,75,75,65,0,0,0,0,0,0,0,0,45,50,65,65,75,95,55]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Carrier: class CarrierUnit extends UnitObject {
@@ -621,19 +736,24 @@ export const Unit = {
         get maxMovementPoints() { return 5; }
         get vision() { return 4; }
         
-        get materialInsteadOfAmmo() { return true; }  
+        get materialsInsteadOfAmmo() { return true; }  
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }
         get armorType() { return ArmorType.Ship; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[0,1],[0,1],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,35],[0,35],[0,35],[0,40],[0,40],[0,45],[0,55],[0,55],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: 'AA Gun',
+                targetMap: [0,0,1,1,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,35,35,35,40,40,45,55,55,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Submarine: class SubmarineUnit extends UnitObject {
@@ -651,14 +771,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }
         get armorType() { return ArmorType.Sub; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[2,0],[2,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[80,0],[110,0],[55,0],[20,0],[85,0],[120,0],[55,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Torpedo',
+                targetMap: [0,0,0,0,2,2],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,80,110,55,20,85,120,55]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Cruiser: class CruiserUnit extends UnitObject {
@@ -676,14 +801,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }
         get armorType() { return ArmorType.Ship; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[0,2],[0,2],[1,0],[2,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,105],[0,105],[0,105],[0,105],[0,105],[0,120],[0,120],[0,120],[38,0],[38,0],[95,0],[28,0],[40,0],[85,0],[35,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Anti-Ship Msl',
+                targetMap: [0,0,0,0,1,2],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,38,38,95,28,40,85,35]
+            },
+            secondary: {
+                name: 'AA Gun',
+                targetMap: [0,0,2,2,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,105,105,105,105,105,120,120,120,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     Lander: class LanderUnit extends UnitObject {
@@ -697,21 +827,26 @@ export const Unit = {
         get maxAmmo() { return 0; }
         get maxMovementPoints() { return 6; }
         get vision() { return 1; }
-        get range() { return {min: 0, max: 0}; }  
+        get range() { return {min: -1, max: -1}; }  
         
         get canMoveAndAttack() { return false; }  
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Transport; }
         get armorType() { return ArmorType.Ship; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
 
     GunBoat: class GunBoatUnit extends UnitObject {
@@ -729,14 +864,19 @@ export const Unit = {
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Transport; }
         get armorType() { return ArmorType.Ship; }
-    
-        protected readonly armorTargetMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[1,0],[0,0]
-        ];
-    
-        protected readonly baseDamageMatrix = [
-            [0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[40,0],[40,0],[40,0],[40,0],[55,0],[75,0],[20,0]
-        ];
+        
+        get weapon() { return {
+            primary: {
+                name: 'Anti-Ship Msl',
+                targetMap: [0,0,0,0,1,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,40,40,40,55,75,20]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
     },
     //end
 }

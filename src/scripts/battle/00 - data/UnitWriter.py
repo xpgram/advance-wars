@@ -29,17 +29,22 @@ class Unit:
         self.rangeMax = 1
 
         self.primaryName = ""
-        self.primaryTargetMatrix = [0] * totalArmorTypes
-        self.primaryDamageMatrix = []
+        self.primaryTargetMap = [0] * totalArmorTypes
+        self.primaryDamageMap = []
 
         self.secondaryName = ""
-        self.secondaryTargetMatrix = [0] * totalArmorTypes
-        self.secondaryDamageMatrix = []
+        self.secondaryTargetMap = [0] * totalArmorTypes
+        self.secondaryDamageMap = []
 
         self.description = ""
 
 unitTypes = []
 
+# Converts '-' to 0, basically
+# A battle heuristic ranges from 0–2 and doubles as a can-attack/can't-attack signifier
+# 0 — Can't attack, 1 — Poor attack, 2 — Advantage attack 
+def interpretHeuristic(arg):
+    return 0 if arg == '-' else int(arg)
 
 # Read into memory the entire catalogue
 with open(os.path.dirname(os.path.abspath(__file__)) + "\\damage_matrix.txt") as dmgFile:
@@ -58,81 +63,71 @@ with open(os.path.dirname(os.path.abspath(__file__)) + "\\damage_matrix.txt") as
 
             # Separate the line by whitespace
             data = shlex.split(line)
-            dmgData = shlex.split(dmgLine)
+            dmgData = shlex.split(dmgLine)[1:]      # Splice skips the unit-type delineation.
+
+            # Name all data properties for easy interpretation
+            # TODO If I used shift() I could just preserve order and do without the numerics.
+            name            = data[0]
+            shortname       = data[1]
+            cost            = data[2]
+            armor_type      = data[3]
+            movement_type   = data[4]
+            unit_class      = data[5]
+            move_points     = data[6]
+            vision_range    = data[7]
+            gas_points      = data[8]
+            materials_flag  = data[9]
+            ammo_points     = data[10]
+            atk_min         = data[11][0:1]
+            atk_max         = data[11][2:3]
+            primary_name    = data[12]
+            primary_map     = [data[13], data[14], data[15], data[16], data[17], data[18]]
+            secondary_name  = data[19]
+            secondary_map   = [data[20], data[21], data[22], data[23], data[24], data[25]]
+            soldier_unit_flag    = data[26]
+            move_and_attack_flag = data[27]
+            description          = data[28]
+
+            #### Preparation complete: Begin Parsing ####
 
             # Create new unit
             unit = Unit()
 
             # Unit name and javascript data
-            unit.className = data[0].replace(' ','').replace('-','')
-            unit.name = data[0]
-            unit.shortName = data[1]
+            unit.className = name.replace(' ','').replace('-','')
+            unit.name = name
+            unit.shortName = shortname
             unit.serial = count
 
-            # Cost to buy
-            unit.cost = int(data[2])
+            unit.cost = int(cost)
 
-            # Unit properties
-            unit.armorType = data[3]
-            unit.movementType = data[4]
-            unit.unitClass = data[5]
+            unit.armorType = armor_type
+            unit.movementType = movement_type
+            unit.unitClass = unit_class
 
-            # Unit stats
-            unit.maxMovementPoints = int(data[6])
-            unit.vision = int(data[7])
-            unit.maxGas = int(data[8])
-            unit.materialInstead = (int(data[9]) == 1)
-            unit.ammoPoints = int(data[10])
-            unit.rangeMin = int(data[11][0:1])
-            unit.rangeMax = int(data[11][2:3])
+            unit.maxMovementPoints = int(move_points)
+            unit.vision = int(vision_range)
+            unit.maxGas = int(gas_points)
+            unit.materialInstead = (materials_flag == '1')
+            unit.ammoPoints = int(ammo_points)
+            unit.rangeMin = int(atk_min) if atk_min != 'n' else -1
+            unit.rangeMax = int(atk_max) if atk_max != 'n' else -1
 
-            # Converts '-' to 0, basically
-            # A battle heuristic ranges from 0–2 and doubles as a can-attack/can't-attack signifier
-            # 0 — Can't attack, 1 — Poor attack, 2 — Advantage attack 
-            def interpretHeuristic(arg):
-                if (arg == '-'):
-                    return 0
-                else:
-                    return int(arg)
+            unit.soldierUnit = (soldier_unit_flag == '1')
+            unit.moveAndAttack = (move_and_attack_flag == '1')
 
-            # Primary attack data
-            unit.primaryName = data[12]
-            unit.primaryTargetMatrix = [
-                interpretHeuristic(data[13]),
-                interpretHeuristic(data[14]),
-                interpretHeuristic(data[15]),
-                interpretHeuristic(data[16]),
-                interpretHeuristic(data[17]),
-                interpretHeuristic(data[18])
-                ]
+            unit.description = description
 
-            # Secondary attack data
-            unit.secondaryName = data[19]
-            unit.secondaryTargetMatrix = [
-                interpretHeuristic(data[20]),
-                interpretHeuristic(data[21]),
-                interpretHeuristic(data[22]),
-                interpretHeuristic(data[23]),
-                interpretHeuristic(data[24]),
-                interpretHeuristic(data[25])
-                ]
+            # Weapon data
+            unit.primaryName = primary_name
+            unit.primaryTargetMap = list( map(lambda d: interpretHeuristic(d), primary_map) )
+            unit.secondaryName = secondary_name
+            unit.secondaryTargetMap = list( map(lambda d: interpretHeuristic(d), secondary_map) )
 
-            # Compile base damage numbers
-            # Count by twos: first is primary, second is secondary for a particular unit type
-            dmgData = dmgData[1:len(dmgData)]       # Skip unit-type designation
-            for i in range(0, int(len(dmgData) / 2)):
-                unit.primaryDamageMatrix.append(dmgData[i*2])
-                unit.secondaryDamageMatrix.append(dmgData[i*2+1])
-
-            # Soldier/vehicle unit delineation.
-            unit.soldierUnit = (int(data[26]) == 1)
-
-            # Unit attack-and-move paired turn action
-            unit.moveAndAttack = (int(data[27]) == 1)
-
-            # Unit info-window description
-            unit.description = data[28]
-
+            # Base damage numbers —— count by twos: values are [primary, secondary] for a given unit type
+            unit.primaryDamageMap = dmgData[::2]
+            unit.secondaryDamageMap = dmgData[1::2]
+            
             # Add to list
             unitTypes.append(unit)
 
@@ -163,7 +158,7 @@ def eraseToken(string, substring):
 
     # If token substring wasn't found, quit
     if idx == -1:
-        return
+        return string
 
     # Get the starting search location: the end of the line containing the substring.
     endl = string.find('\n', idx)
@@ -233,9 +228,9 @@ with open(os.path.dirname(os.path.abspath(__file__)) + "\\Unit.source.ts", 'r') 
             if (unit.soldierUnit == False
               and unit.materialInstead == False
               and unit.moveAndAttack == True):
-                cast = eraseToken(cast, tag("NewBlockBreak"))
+                cast = eraseToken(cast, tag("UnitPropertiesBlockBreak"))
             else:
-                cast = cast.replace(tag("NewBlockBreak"), '')
+                cast = cast.replace(tag("UnitPropertiesBlockBreak"), '')
 
             # Keep soldierUnit line only if different from default
             if unit.soldierUnit == False:
@@ -255,23 +250,19 @@ with open(os.path.dirname(os.path.abspath(__file__)) + "\\Unit.source.ts", 'r') 
             else:
                 cast = cast.replace(tag("MoveAndAttack"), '')
 
-            # Write the target matrix
-            targMatrix = ""
-            for i in range(0, len(unit.primaryTargetMatrix)):
-                prim = unit.primaryTargetMatrix[i]
-                sec = unit.secondaryTargetMatrix[i]
-                targMatrix += "[%s,%s]," % (str(prim), str(sec))
-            targMatrix = targMatrix[0:len(targMatrix)-1]    # Remove trailing ','
-            cast = cast.replace(tag("TargetMatrix"), targMatrix)
+            # Primary Weapon
+            numToString = lambda n: str(n)
+            primTargMap = '[{}]'.format(','.join(map(numToString, unit.primaryTargetMap)))
+            primDmgMap  = '[{}]'.format(','.join(map(numToString, unit.primaryDamageMap)))
+            subTargMap  = '[{}]'.format(','.join(map(numToString, unit.secondaryTargetMap)))
+            subDmgMap   = '[{}]'.format(','.join(map(numToString, unit.secondaryDamageMap)))
 
-            # Write the damage matrix
-            dmgMatrix = ""
-            for i in range(0, len(unit.primaryDamageMatrix)):
-                prim = unit.primaryDamageMatrix[i]
-                sec = unit.secondaryDamageMatrix[i]
-                dmgMatrix += "[%s,%s]," % (str(prim), str(sec))
-            dmgMatrix = dmgMatrix[0:len(dmgMatrix)-1]       # Remove trailing ','
-            cast = cast.replace(tag("DamageMatrix"), dmgMatrix)
+            cast = cast.replace(tag("PrimName"), unit.primaryName)
+            cast = cast.replace(tag("PrimTargetMap"), primTargMap)
+            cast = cast.replace(tag("PrimDamageMap"), primDmgMap)
+            cast = cast.replace(tag("SubName"), unit.secondaryName)
+            cast = cast.replace(tag("SubTargetMap"), subTargMap)
+            cast = cast.replace(tag("SubDamageMap"), subDmgMap)
 
             # Post
             newfile.write(cast)

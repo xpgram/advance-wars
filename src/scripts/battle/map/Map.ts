@@ -15,7 +15,7 @@ import { Common } from "../../CommonUtils";
 import { inspect } from "util";
 import { TileInspector } from "./TileInspector";
 import { QueueSearch } from "../../Common/QueueSearch";
-import { CommonRegionShapes, RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
+import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 
 // Common error messages
 function InvalidLocationError(point: PointPrimitive) {
@@ -486,8 +486,7 @@ export class Map {
 
         // Projects a unit's attack-range-shape from a given point.
         const projectAttackRange = (origin: Point) => {
-            // TODO const attackRange = unit.attackRangeMap;
-            const attackRange = CommonRangesRetriever(unit.range);
+            const attackRange = unit.rangeMap;
             const affectedPoints = (
                 attackRange.points
                 .map( p => p.add(origin) )
@@ -577,7 +576,8 @@ export class Map {
         // TODO This is done.. ish. I feel I've left it a little messy, though. But it works.
         // TODO Export some common RegionMaps in the RegionMap class file.
         // Default rangeMap is the point-location: i.e. a range of 0.
-        let range = rangeMap || CommonRegionShapes.Self;
+        const rangeMapSelf = CommonRangesRetriever({min: 0, max: 0});
+        let range = rangeMap || rangeMapSelf;
         // TODO TurnState, I think, has to be the one to determine whether the cursor is on
         // an enemy and needs to pass in Adjacents or not.
         // If we assume I don't know what kind of attack unit is about to use, having

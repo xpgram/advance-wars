@@ -9,6 +9,7 @@ import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
 import { PointPrimitive, Point } from "../Common/Point";
+import { CommonRangesRetriever, RegionMap } from "./unit-actions/RegionMap";
 
 /** An uninstantiated Unit class type. */
 export interface UnitType {
@@ -170,6 +171,13 @@ export abstract class UnitObject {
     /** Returns a NumericRange describing this unit's distance-of-attack limits. */
     get range(): NumericRange { return {min: 1, max: 1}; }
 
+    /** Returns a boolean map of the shape of the unit's attack range. */
+    get rangeMap(): RegionMap {
+        if (this.ammo > 0 || this.weapon.secondary.name != '')
+            return CommonRangesRetriever(this.range);
+        return CommonRangesRetriever({min: -1, max: -1});
+    }
+
     /** Whether this unit is a soldier-type. Soldier's have unique graphics depending on faction,
      * and have the unique ability to capture properties. */
     get soldierUnit() { return false; }
@@ -191,11 +199,11 @@ export abstract class UnitObject {
     /** The unit's armor kind, which affects what may attack it. Generally, a marginal player convenience. */
     abstract get armorType(): ArmorType;
 
-    /** A 6*2 matrix of unit armor-types and booleans indicating attackable/non-attackable armors. */
-    protected abstract readonly armorTargetMatrix: number[][];
-
-    /** An N*2 matrix of base damage numbers, where N is the number of unit types. */
-    protected abstract baseDamageMatrix: number[][];
+    /**  */
+    abstract get weapon(): {
+        primary: AttackInfo,
+        secondary: AttackInfo
+    };
 
 
     /* Left blank so that units can be instantiated as reference material without building expensive graphic objects, etc. */
@@ -510,24 +518,35 @@ export abstract class UnitObject {
         this.ammo = this.maxAmmo;
     }
 
+    /** Retrieves the attack-effectiveness rating of an action from this unit via an attack against an armor-type. */
+    private getAttackHeuristic(attack: AttackInfo, armorType: ArmorType) {
+        try {
+            return attack.targetMap[armorType];
+        } catch (err) {
+            Debug.print(`UnitObject.getAttackHeuristic() → `, 'Armor Type: ', armorType, 'Attack: ', attack, err);
+            return 0;
+        }
+    }
+
+    /** Retrieves the base damage dealt from this unit via an attack to a unit-type designated by its serial. */
+    private getAttackBaseDamage(attack: AttackInfo, unitSerial: number) {
+        try {
+            return attack.damageMap[unitSerial];
+        } catch (err) {
+            Debug.print(`UnitObject.getAttackBaseDamage() → `, 'Attack: ', attack, 'Unit Serial: ', unitSerial, err);
+            return 0;
+        }
+    }
+
     /** Returns the AttackMethod-type if the given target is attackable via either this unit's
      * primary or secondary weapons; if it isn't, returns AttackMethod.None */
     attackMethodFor(target: UnitObject): AttackMethod {
-        let armorType = target.armorType;
-        let armorTypes = this.armorTargetMatrix.length;
+        const primaryRating = this.getAttackHeuristic(this.weapon.primary, target.armorType);
+        const secondaryRating = this.getAttackHeuristic(this.weapon.secondary, target.armorType);
 
-        // Confirm armorType is a legal index (there's no reason [besides incompetence] it shouldn't be)
-        Debug.assert(Common.validIndex(armorType, armorTypes),
-            `The target's armor type (#${armorType}) is outside the range of possible armor types (max index = ${armorTypes - 1})`);
-
-        // Gather primary/secondary attack-effectiveness ratings (0, 1 or 2)
-        let armorTuple = this.armorTargetMatrix[armorType];
-        let primary = armorTuple[0];    // Tuple values range 0–2
-        let secondary = armorTuple[1];  // If not 0, it is a useable attack
-
-        if (primary && this.ammo > 0)
+        if (primaryRating > 0 && this.ammo > 0)
             return AttackMethod.Primary;
-        else if (secondary)
+        else if (secondaryRating > 0)
             return AttackMethod.Secondary;
         else
             return AttackMethod.None;
@@ -550,34 +569,17 @@ export abstract class UnitObject {
 
     /** Returns true if this unit could attack the given armor type. */
     couldTarget(armorType: ArmorType) {
-
-        let armorTypes = this.armorTargetMatrix.length;
-        Debug.assert(Common.validIndex(armorType, armorTypes),
-            `Given armor type (#${armorType}) is outside the range of possible armor types (max index = ${armorTypes - 1})`);
-
-        let armorTuple = this.armorTargetMatrix[armorType];
-        let primary = armorTuple[0];
-        let secondary = armorTuple[1];
-
-        return ((primary && this.ammo > 0) || secondary);
+        const primaryRating = this.getAttackHeuristic(this.weapon.primary, armorType);
+        const secondaryRating = this.getAttackHeuristic(this.weapon.secondary, armorType);
+        return ((primaryRating > 0 && this.ammo > 0) || secondaryRating > 0);
     }
 
     /** Returns a number representing the base damage of an attack on the target.
      * Defaults to primary weapon when applicable.
      * Note: this method ~does not~ reduce the unit's ammunition. */
     baseDamage(target: UnitObject): number {
-        Debug.assert((target.serial < this.baseDamageMatrix.length && target.serial > 0),
-            `Unit type ${target.name} has a serial not found in unit type ${this.name}'s base-damage matrix.`);
-
-        let damageTuple = this.baseDamageMatrix[target.serial];
-        let attackType = this.attackMethodFor(target);
-        let damage = 0;
-
-        if (attackType == AttackMethod.Primary)
-            damage = damageTuple[0];
-        else if (attackType == AttackMethod.Secondary)
-            damage = damageTuple[1];
-        
-        return damage;
+        const primaryDmg = this.getAttackBaseDamage(this.weapon.primary, target.serial);
+        const secondaryDmg = this.getAttackBaseDamage(this.weapon.secondary, target.serial);
+        return (primaryDmg > 0 && this.ammo > 0) ? primaryDmg : secondaryDmg;
     }
 }
