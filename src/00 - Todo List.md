@@ -62,7 +62,7 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
                 - This does not allow smart navigation if the unit's range function is a map and not a set of distances. Concievably a simple change, though. But I may write for it now to future-proof. This means:
                     - [X] Finish implementation of RegionMap.
 
-- [ ] Refactor Square.traversable to .traversible; it's driving me crazy.
+- [ ] Traversable was right, I found out.
 - [X] Compare 25x15x3 sprites drawn individually (with transparency) vs the same in a mesh.
     Predictably, yes, it is faster with meshes.
     - [ ] Refactor the map building system to create a mesh instead of a sprite grid.

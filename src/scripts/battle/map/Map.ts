@@ -462,10 +462,10 @@ export class Map {
     private travelEvaluationFunction(unit: UnitObject, inspector: TileInspector) {
         let notVoidTerrain = inspector.square.terrain.type != Terrain.Void;
         let enoughMP = inspector.movePoints >= 0;
-        let traversible = inspector.square.traversable(unit);
+        let traversable = inspector.square.traversable(unit);
         let betterEfficiency = inspector.square.value < inspector.movePoints;
 
-        return (notVoidTerrain && enoughMP && traversible && betterEfficiency);
+        return (notVoidTerrain && enoughMP && traversable && betterEfficiency);
     }
 
     /**  */
