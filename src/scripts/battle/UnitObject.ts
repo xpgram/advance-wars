@@ -317,6 +317,15 @@ export abstract class UnitObject {
         return (this.ammo <= lowAmmoThreshold);
     }
 
+    /** Returns true if this unit has ammo in reserve for its primary attack or has a secondary.
+     * Ammo for primary is ignored if this unit has materials to build with. */
+    get attackReady() {
+        const primary = (this.weapon.primary.name != '');
+        const secondary = (this.weapon.secondary.name != '');
+        const reserve = (this.ammo > 0 && !this.materialsInsteadOfAmmo);
+        return (primary && reserve) || secondary;
+    }
+
     /** Returns the maximum number of movement points this unit currently has available for use.
      * This is either their move-points limit, or their remaining gas. */
     get movementPoints() {
