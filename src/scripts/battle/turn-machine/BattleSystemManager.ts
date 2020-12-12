@@ -3,9 +3,10 @@ import { Debug } from "../../DebugUtils";
 import { BattleSceneControllers } from "./BattleSceneControllers";
 import { Game } from "../../..";
 import { IssueOrderStart } from "./states/IssueOrderStart";
+import { NullTurnState } from "./NullTurnState";
 
 const STACK_TRACE_LIMIT = 20;
-const STACK_SIZE_LIMIT = 100;   // Unenforced, but allocated.
+const STACK_SIZE_LIMIT = 100;   // Unenforced
 
 export type NextState = {
     state: TurnStateConstructor,
@@ -15,7 +16,8 @@ export type NextState = {
 enum TransitionTo {
     None,
     Next,
-    Previous
+    Previous,
+    PreviousOnFail
 }
 
 /** This class is responsible for starting and operating a battle.
@@ -31,14 +33,16 @@ export class BattleSystemManager {
     private transitionIntent = TransitionTo.None;
     /** Container for the next state to transition to when advancing, should be empty otherwise. */
     private nextState!: NextState;
+    /** The default state of the manager. Empty. Does nothing. */
+    private readonly NULL_STATE = new NullTurnState(this);
 
     /** Container for battle-system assets and interactibles. */
     controllers: BattleSceneControllers;
 
     /** A list containing the battle-system's state history. */
-    private stack = new Array<TurnState>(STACK_SIZE_LIMIT);
+    private stack = new Array<TurnState>();
     /** A string list of all previously visited game states, kept for debugging purposes. */
-    private stackTrace = new Array<string>(STACK_TRACE_LIMIT);
+    private stackTrace = new Array<string>();
 
     // TODO Define scenarioOptions
     constructor(scenarioOptions: {}) {
@@ -71,10 +75,8 @@ export class BattleSystemManager {
 
     /** The currently active battle-system state. */
     get currentState(): TurnState {
-        let idx = this.stack.length - 1;
-        Debug.assert(idx >= 0, "Could not retrieve current turn-state: there was none.");
-
-        return this.stack[this.stack.length - 1];
+        const state = this.stack[this.stack.length - 1];
+        return (state) ? state : this.NULL_STATE;
     }
 
     /** Wrapper which runs the current state's update step. */
@@ -85,34 +87,32 @@ export class BattleSystemManager {
         // nextState->new handler
         while (this.transitionIntent == TransitionTo.Next) {
             this.transitionIntent = TransitionTo.None;
-            
-            // If a current-state exists in the stack, run its generic close procedure.
-            if (this.currentState)
-                this.currentState.close();
-            
-            let newStateConstructor = this.nextState.state;
-            let newStatePreFunc = this.nextState.pre;
 
-            let newState = new newStateConstructor(this);
+            this.currentState.close();
+            this.nextState.pre();       // Run any pre-setup passed in from current state
+
+            let newState = new this.nextState.state(this);
             this.stack.push(newState);  // Add new state to stack (implicitly changes current)
             this.log(newState.name);    // Log new state to trace history
-            newStatePreFunc();          // Run any pre-setup passed in from the last state
-            this.currentState.wake();   // Run new state's scene configurer
-            // If next state is transitionary, call advanceState() in configureScene()
+            newState.wake();            // Run new state's scene configurer
         }
         
         // nextState->previous handler
-        while (this.transitionIntent == TransitionTo.Previous) {
+        while (this.transitionIntent == TransitionTo.Previous
+            || this.transitionIntent == TransitionTo.PreviousOnFail) {
+
             let oldState = this.stack.pop();    // Implicitly changes current
-            if (oldState) {
-                oldState.close();      // Runs generic close procedure
-                oldState.prev();       // Ctrl+Z Undo for smooth backwards transition
-                oldState.destroy();    // Free up memory
+            if (this.transitionIntent == TransitionTo.Previous) {
+                oldState?.close();      // Runs generic close procedure
+                oldState?.prev();       // Ctrl+Z Undo for smooth backwards transition
+                oldState?.destroy();    // Free up memory
+            } else {
+                this.log(`${oldState?.name} (failed)`);
+                oldState?.destroy();
             }
 
-            // Log transition and wake the new current state, or continue moving backwards if current state is not 'stable.'
-            this.log(this.currentState.name);
-            if (this.currentState.skipOnUndo == false) {
+            this.log(this.currentState.name);               // Log new current state to trace history.
+            if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
                 this.transitionIntent = TransitionTo.None;
                 this.currentState.wake();
             }
@@ -133,6 +133,17 @@ export class BattleSystemManager {
             this.transitionIntent = TransitionTo.Previous;
     }
 
+    /** Signals the BattleSystemManager that it should abandon its most recent state advancement and continue regressing to the
+     * last stable state. Throws a fatal error if regression is impossible. */
+    failToPreviousState() {
+        if (this.stack.length > 1)
+            this.transitionIntent = TransitionTo.PreviousOnFail;
+        else {
+            Debug.ping(this.getStackTrace());
+            Debug.error('BattleSystemManager failed to advance state but has no stable state to regress to.');
+        }
+    }
+
     /** Logs a string——which should be the name of a game state——to the manager's game state history. */
     private log(msg: string) {
         this.stackTrace.push(msg);
@@ -140,15 +151,9 @@ export class BattleSystemManager {
             this.stackTrace.shift();
     }
 
-    /** Writes this battle-system's game state history to the console. */
-    printStateHistory() {
-        let str = "";
-        let c = 0;
-        this.stackTrace.forEach( item => {
-            str = `${c}: ${item}\n${str}`;
-            c++;
-        });
-        str = "Game State History:\n" + str;
-        Debug.ping(str);
+    /** Returns a string log of this battle-system's game state history. */
+    getStackTrace() {
+        const trace = this.stackTrace.map( (item, idx) => `${idx}: ${item}` ).reverse();
+        return `Game State History (last ${STACK_TRACE_LIMIT}):\n` + trace.join('\n');
     }
 }

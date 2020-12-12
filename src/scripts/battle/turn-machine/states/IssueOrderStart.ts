@@ -8,8 +8,8 @@ import { Terrain } from "../../map/Terrain";
 
 export class IssueOrderStart extends TurnState {
     get name() { return 'IssueOrderStart'; }
-    get revertible() { return true; }   // If each state is either auto-skipped on undo or must be explicitly cancelled via
-    get skipOnUndo() { return false; }  //   some control or button press, I wonder if this property is even necessary.
+    get revertible() { return true; }   // ← If each state is either auto-skipped on undo or must deliberately cancel
+    get skipOnUndo() { return false; }  //   itself via a function call, I wonder if this property is even necessary.
 
     protected assert() {
 
@@ -23,6 +23,18 @@ export class IssueOrderStart extends TurnState {
 
         this.assets.units.traveler == null;
     }
+
+    // TODO Rewrite this to look more like MoveUnit, the first refactored state.
+    // TODO Refactor BattleSceneControllers to be more organized.
+    //      Specifically, condense units and locations to one object: order
+    //          order.actor: Point
+    //          order.path: CardinalDirection[]
+    //          order.target: Point
+    //          order.action: number
+    // TODO assert() should not contain algorithms.
+    //      I mean, it can, but for the sake of readability it should be discouraged.
+    //      Confirm all states adhere this principle.
+
 
     update() {
         // Let button.A add a unit to unit swap
@@ -65,7 +77,7 @@ export class IssueOrderStart extends TurnState {
     }
 
     prev() {
-        // Undo when rolling back
+        
     }
 
     advanceStates = {

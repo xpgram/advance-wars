@@ -7,6 +7,13 @@ export type TurnStateConstructor = {
     new (manager: BattleSystemManager): TurnState;
 }
 
+export class StateTransitionError extends Error {
+    constructor(stateName: string, message: string) {
+        super(`${stateName} → ${message}`);
+        this.name = 'StateTransitionError';
+    }
+}
+
 /** A battle-system state which represents a 'moment' in a 'turn.'
  * When active, this class would setup its own scene configuration, and run its own
  * update scripts operating the turn-moment. */
@@ -39,23 +46,47 @@ export abstract class TurnState {
         this.battleSystemManager = null;
     }
 
-    /** State will assume control over the scene, asserting correct pre-state and configuring
+    /** State will assume control of the scene, asserting correct pre-state and configuring
      * its UI systems. This does not force the battle manager to use this state's update script. */
     wake() {
-        this.assert();
-        this.assets.hidePlayerSystems();  // Reset the scene configuration
-        this.configureScene();
+        try {
+            this.assert();
+            this.assets.hidePlayerSystems();  // Reset the scene configuration
+            this.configureScene();
+        } catch (err) {
+            Debug.print(`${err.name}: ${err.message}\n`, this.battleSystemManager.getStackTrace());
+            this.battleSystemManager.failToPreviousState();
+        }
     }
 
     /** Failing the pre-condition assertion, print the battle-system's state history and report
-     * the failing condition as the given message. */
+     * the failing condition as the given message.
+     * @deprecated Use failAssertion() */
     protected throwError(msg: string) {
-        this.battleSystemManager.printStateHistory();
-        Debug.error(msg);
+        Debug.warn('TurnState.throwError() is deprecated. Use .failTransition() instead.');
+        this.failTransition(msg);
     }
 
-    /** Throws an error if state dependencies aren't met, such as this state
-     * drawing a line between two points on the board but not knowing where they're located. */
+    /** Signal the state-manager that this state transition has failed and must be aborted.
+     * @param message A description of what went wrong. */
+    protected failTransition(message: string) {
+        throw new StateTransitionError(this.name, message);
+    }
+
+    /** Asserts that the given data is dataful and not empty. */
+    protected assertData<T>(data: T | null | undefined, msg?: string): T {
+        if (data == null || data == undefined)
+            this.failTransition(`Missing data: ${msg}`);
+        return data as T;
+    }
+
+    /** Used to confirm inter-state dependencies important to this scene's construction or
+     * execution. For example, that some previous state has chosen a combat-unit to issue
+     * instructions to. If any error is raised during this function call, it is posted to the
+     * console and the BattleSystemManager is signaled to reject this state advancement.
+     * 
+     * assert() should not be used to make changes to state-independent systems: they may
+     * be irrevertible and difficult to trace should the assertion fail. */
     protected abstract assert(): void;
 
     /** Explicitly enables control scripts relevant to the state (important to avoid conflicts.)
