@@ -146,21 +146,32 @@ export class MapCursor extends Observable {
 
     /** Hides the cursor's graphics and disables player controls. */
     hide(): void {
+        this.disable();
         this.spriteLayer.visible = false;
+    }
+
+    // TODO I should separate these, huh? Controls and visibility. The confusion will cause problems.
+    /** Reveals the cursor's graphics and enables player controls. */
+    show(): void {
+        this.enable();
+        this.spriteLayer.visible = true;
+    }
+
+    /** Whether this cursor is invisible and uninteractable. */
+    get hidden() {
+        return (!this.spriteLayer.visible);
+    }
+
+    /** Disables the player interactivity listener. */
+    disable() {
         this.controlsEnabled = false;
         this.movementPulsar.stop();
         this.movementPulsar.interval = MapCursor.movementSettings.moveTime_first;
     }
 
-    /** Reveals the cursor's graphics and enables player controls. */
-    show(): void {
-        this.spriteLayer.visible = true;
+    /** Enables the player interactivity listener. */
+    enable() {
         this.controlsEnabled = true;
-    }
-
-    /** Whether this cursor is invisible and uninteractable. */
-    get hidden() {
-        return (!this.controlsEnabled);
     }
 
     /** Triggers this object's animation to play once. */
