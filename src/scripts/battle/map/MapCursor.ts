@@ -91,7 +91,7 @@ export class MapCursor extends Observable {
         // TODO Get the controller from Game.player[0] or something.
 
         // Set up the cursor's imagery
-        let sheet = Game.app.loader.resources[ MapCursor.spritesheet ].spritesheet;
+        let sheet = Game.app.loader.resources[ MapCursor.spritesheet ].spritesheet as PIXI.Spritesheet;
 
         // Collect all cursor-variation textures
         this.cursorGraphics = {
