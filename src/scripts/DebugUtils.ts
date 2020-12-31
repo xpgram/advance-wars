@@ -33,7 +33,7 @@ export const Debug = {
     /** Prints a message to the console as a traceable warning. Useful when you want to know
      * if a particular block of code is being reached. */
     ping: (msg?: any, ...optionalParams: any[]) => {
-        let str = msg || 'ping';
+        let str = (msg === undefined) ? 'ping' : msg;
         console.warn(str, ...optionalParams);
     },
 
