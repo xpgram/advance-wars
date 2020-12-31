@@ -576,6 +576,7 @@ export abstract class UnitObject {
         return targetable && inRange && adjacent;
     }
 
+    // TODO couldTarget() → canTargetArmor() && canTarget() → canTargetUnit()
     /** Returns true if this unit could attack the given armor type. */
     couldTarget(armorType: ArmorType) {
         const primaryRating = this.getAttackHeuristic(this.weapon.primary, armorType);

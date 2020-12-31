@@ -21,18 +21,39 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
 - [ ] Reorganize BattleSystemManager to use or describe an 'Order' to a unit as a single object.
     - [ ] Acting Unit: Point
     - [ ] Travel Path: CardinalDirection[]
-    - [ ] Travel Destination: Point (to check against travel path, like a checksum)
-    - [ ] Attack Target: Point
-    - [ ] How do I simplify contextual actions? I'll list them:
-        - Capture Building
-        - Build Temporary Base
-        - Fire Flare
-        - Fire Silo
-        - Release held unit (transport units)
-        - Hide (subs and stealth planes)
-        - 
-        - Build Unit (the only one that doesn't explicitly fit here, but if this object is to be the game's standard internet packet, I may want to think about it); also
-        - Build Unit (carriers, though just Seaplanes)
+    - [ ] Action Type: Number
+    - [ ] Action Focal: Point
+    - Action type possible values:
+        - 0: Wait; Do Nothing
+        - 1: Attack
+        - 2: Contextual (capture/use-Silo, build (unit/T.base), cast flare, stealth)
+        - 3: Contextual 2 (release held unit, supply nearby units)
+
+- [ ] Include CommandMenu in the turn structure.
+    - [X] Implement Waiting
+    - [ ] Implement the decision branch
+        - Since I don't have a menu UI yet, do this:
+        - [ ] '1' issues 'Wait'
+        - [ ] '2' issues 'Attack'
+            - My virtual controller might limit me to 'c' and 'v' or whatever.
+    - Before the above:
+        - [X] Refactor the turn scripting system to be more... composed? Less slapped together.
+        - [ ] Refactor each turn script to follow the new principles——get rid of redlines.
+        - [ ] Refactor each turn script to make requests, not to evalutate algorithms.
+              Ie, Map.getDestinationFrom(point): Point is used to confirm a path leads to a known location; the algorithm is not contained in the script.
+        - [ ] Refactor BattleSceneControllers (I remember now I didn't know what to call it)
+            - [ ] order.source: Point               Typically the actor to carry out order.
+            - [ ] order.path: CardinalDirection[]   The movement path, if travelling.
+            - [ ] order.action: Number              Codified contextual action.
+            - [ ] order.focal: Point                Action's point of execution.
+            - [ ] order.which: Number               Action's variation.
+            - Action type possible values:
+                - 0: Wait; Do Nothing
+                - 1: Attack
+                - 2: Contextual (capture/use-Silo, build (unit/T.base), cast flare, stealth)
+                - 3: Contextual 2 (release held unit, supply nearby units)
+                - How does a carrier, which may Build, Attack and Release, indicate
+                  that it wants to release its second held unit and not the first?
 
 - [X] Reorder turn structure to MoveUnit → CommandMenu → AnimateTravel → Ratify
 - [ ] MoveUnit step: if square under cursor is an attackable target, change to target reticle.
@@ -55,14 +76,7 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
     - [ ] Passive step (during 'Move' step):
         - [ ] Use recalcPathToPoint() (whatever it's called) to adjust the unit's travel destination to the nearest position within range of the target.
             - The source game ignores this rule if the actionable unit is a battleship and only recalcs the path on formally choosing a target, prefering not a similar path to the one drawn but the shortest path to some point within range. I can't think of a technical reason for this; it is probably just a convenience assumed for the player.
-            - [ ] recalcPathToPoint() must be updated:
-                - New parameter: range
-                recalc accepts a position and travel path if it terminates in a position some distance from the target.
-                Current uses of the recalc method would submit a range value of 0.
-                - This does not allow smart navigation if the unit's range function is a map and not a set of distances. Concievably a simple change, though. But I may write for it now to future-proof. This means:
-                    - [X] Finish implementation of RegionMap.
 
-- [ ] Traversable was right, I found out.
 - [X] Compare 25x15x3 sprites drawn individually (with transparency) vs the same in a mesh.
     Predictably, yes, it is faster with meshes.
     - [ ] Refactor the map building system to create a mesh instead of a sprite grid.
