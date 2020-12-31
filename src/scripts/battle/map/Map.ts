@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime';
 import { Terrain } from "./Terrain";
 import { Square } from "./Square";
 import { NeighborMatrix } from "../../NeighborMatrix";
@@ -348,9 +349,66 @@ export class Map {
         return neighbors.map( square => square.terrain );
     }
 
-    /**
-     * @param unit Unit object to be placed on the grid.
-     * @param pos The location on the map to place it.
+    /** Returns an iterable of all squares along the traced travel path starting from pos.
+     * @param pos (Point) The path-start board location.
+     * @throws Error: Inferred path is looping indefinitely.
+     */
+    private pathIterableFrom(pos: Point): Iterable<Square> {
+        const map = this;
+        const maxSteps = 200;
+
+        return { *[Symbol.iterator]() {
+            let stepCount = 0;
+            let point = pos.clone();
+            let square = map.squareAt(point);
+            let dir = square.arrowTo;
+
+            while (dir) {
+                yield square;
+                point = point.add(CardinalVector(dir));
+                square = map.squareAt(point);
+                dir = square.arrowTo;
+                stepCount++;
+
+                if (stepCount > maxSteps)
+                    throw `Inferred path might be looping indefinitely; exceeded ${maxSteps} steps.`;
+            }
+        }}
+    }
+
+    // After a refactor, pathFrom is the only method to still use pathIterable, but... eh.
+
+    /** Returns a list of directions from the given point to some other as they have been
+     * drawn with the map's square-linking system.
+     * @param pos The path-start board location.
+     * @throws Error: Inferred path is looping indefinitely.
+     */
+    pathFrom(pos: Point): CardinalDirection[] {
+        const path: CardinalDirection[] = [];
+        for (const square of this.pathIterableFrom(pos)) {
+            path.push(square.arrowTo);
+        }
+        Debug.ping('path', path);
+        return path;
+    }
+
+    /** Returns the cumulative travel cost for the given unit as travelled along the path
+     * drawn with the map's square-linking system starting from its own position.
+     * @param unit Unit object to calculate travel cost for.
+     * @throws Error: Inferred travel path is looping indefinitely.
+     */
+    travelCostForPath(start: Point, path: CardinalDirection[], moveType: MoveType): number {
+        let inspector = new TileInspector(this, start, 0, moveType);
+        for (const dir of path)
+            inspector = inspector.moveDir(dir);
+        const travelCost = Math.abs(inspector.movePoints);
+        return travelCost;
+    }
+
+    /** Connects a unit to a location cell on this map. Useful for spawning.
+     * Do NOT use this method to move units on the board.
+     * @param unit Unit object to be placed on the board.
+     * @param pos The location on the map to modify.
      */
     placeUnit(unit: UnitObject, pos: Point) {
         if (!this.validPoint(pos))
@@ -434,25 +492,23 @@ export class Map {
         }
     }
 
-    /** Sets all temporary store values on the map to zero. Does not need to be called if any other clear-fields
-     * method was called. */
+    /** Sets all temporary store values on the map to zero.
+     * Note that this method is often invoked by other clear-fields methods. */
     clearTemporaryValues() {
         this.clearMapValues({tempVals: true});
     }
 
-    /**  */
-    // TODO Rename this to clearMapForPathfinding() or something? At present, it isn't technically accurate.
+    /** Sets all colored tile overlays to off and clears all temporary store values. */
     clearTileOverlay() {
         this.clearMapValues({tempVals: true, colorFlags: true});
     }
 
-    /**  */
+    /** Sets all arrow-path overlays to off. */
     clearTileArrows() {
         this.clearMapValues({arrowPaths: true});
     }
 
-    /** Removes movement and attack flags from all squares on the map: flags important to the movement system;
-     * and sets all temporary store values to zero. */
+    /** Sets all colored tile and arrow-path overlays to off and clears all temporary store values. */
     clearMovementMap() {
         this.clearMapValues({tempVals: true, colorFlags: true, arrowPaths: true});
     }
@@ -468,8 +524,8 @@ export class Map {
         return (notVoidTerrain && enoughMP && traversable && betterEfficiency);
     }
 
-    /**  */
-    // Rewrite the below algorithm with TileInspector and QueueSearch
+    /** Given a unit to project from, draws the unit's movement and attack reach onto the map
+     * via settable flags on each Square object. */
     private generateColorMap(unit: UnitObject) {
         let inspector = new TileInspector(
             this,
@@ -546,7 +602,7 @@ export class Map {
         return new PIXI.Rectangle(tl.x, tl.y, (br.x - tl.x), (br.y - tl.y));
     }
 
-    /** Given a source point (a square to move from) and the unit whom is traveling, ....*/
+    /** Given a unit, shows the nearby squares reachable by movement. */
     generateMovementMap(unit: UnitObject) {
         this.generateColorMap(unit);
 
@@ -559,8 +615,7 @@ export class Map {
         }
     }
 
-    /** Shows on the map which tiles a given unit is capable of reaching for attack. Generated map
-     * is clearable with Map.clearMovementMap(). */
+    /** Given a unit, shows the nearby squares attackable from some reachable position. */
     generateAttackRangeMap(unit: UnitObject) {
         this.generateColorMap(unit);
 
@@ -572,6 +627,15 @@ export class Map {
         }
     }
 
+    /** Recalculates the travel path from some unit to some location which can 'see' the
+     * destination point and draws it onto the map via the square-linking system. The
+     * recalculated path prefers similarity to the old path to a degree.
+     * @param unit The travelling unit.
+     * @param destination The board location to pathfind to.
+     * @param rangeMap A map which describes relationally which locations 'see' the destination.
+     * By default, this is the unit's point location post travel.
+     */
+    // TODO Left a little messy. Clean it up.
     recalculatePathToPoint(unit: UnitObject, destination: PointPrimitive, rangeMap?: RegionMap) {
         // TODO This is done.. ish. I feel I've left it a little messy, though. But it works.
         // TODO Export some common RegionMaps in the RegionMap class file.

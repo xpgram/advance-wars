@@ -8,15 +8,19 @@ export class CheckBoardState extends TurnState {
     get skipOnUndo(): boolean { return false; }
 
     protected advanceStates = {
-
+        startNewOrder: {state: IssueOrderStart, pre: () => {}}
     }
 
     protected assert(): void {
 
     }
+    
     protected configureScene(): void {
-        this.battleSystemManager.advanceToState({state: IssueOrderStart, pre: () => {}});
+        this.advanceToState(this.advanceStates.startNewOrder);
 
+        // The below simulates a turn change by reactivating all units.
+        // Instead of checking all squares on the board, this should check all
+        // units as members of a Team object, once such a class is implemented.
         let oneOrderableUnit = false;
         for (let y = 0; y < this.assets.map.height; y++)
         for (let x = 0; x < this.assets.map.width; x++) {

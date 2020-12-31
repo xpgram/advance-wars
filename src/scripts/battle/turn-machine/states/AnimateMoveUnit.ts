@@ -14,61 +14,32 @@ export class AnimateMoveUnit extends TurnState {
         ratifyIssuedOrder: {state: RatifyIssuedOrder, pre: () => {}}
     }
 
-    travellingUnit!: UnitObject;
-    travelDestination!: Point;
+    private traveller!: UnitObject;
+    private travelPath!: CardinalDirection[];
 
     assert() {
-        if (this.assets.units.traveler == null)
-            this.throwError("Missing UnitObject for unit movement animation step.")
-        if (this.assets.locations.travelDestination == null)
-            this.throwError("No board location provided for unit destination.");
+        const get = this.assertData;
+        const {instruction, map} = this.assets;
+
+        const place = get(instruction.place, 'Board location for Unit');
+        this.traveller = get(map.squareAt(place).unit, 'Unit');
+        this.travelPath = get(instruction.path, 'Travel path');
     }
 
     configureScene() {
-        this.travellingUnit = this.assets.units.traveler as UnitObject;
-        this.travelDestination = this.assets.locations.travelDestination as Point;
-
         // Reset track car's animation and show it
-        this.assets.trackCar.buildNewAnimation(this.travellingUnit);
+        this.assets.trackCar.buildNewAnimation(this.traveller);
+        this.assets.trackCar.directions = this.travelPath;
         this.assets.trackCar.show();
 
         // Set camera to follow the car
         this.assets.camera.followTarget = this.assets.trackCar;
 
-        // Build the track the TrackCar will follow
-        let trackPoint = new Point(this.travellingUnit.boardLocation);  // The point being looked at
-        let trackSquare = this.assets.map.squareAt(trackPoint);         // The square at trackPoint
-        let directions: CardinalDirection[] = [];                       // Cumulative list of cardinal directions.
-
-        // Follow the arrow path leading from the traveler, tallying the travel cost along the way
-        this.assets.travelCost = 0;
-        while (trackSquare.arrowTo) {
-            directions.push(trackSquare.arrowTo);                               // Add new direction
-            trackPoint = trackPoint.add(CardinalVector(trackSquare.arrowTo));   // Add directional vector
-            trackSquare = this.assets.map.squareAt(trackPoint);                 // Update focused square
-
-            // Keep track of calculated travel cost for gas expenditure later and for debugging.
-            this.assets.travelCost += trackSquare.terrain.getMovementCost(this.travellingUnit.moveType);
-
-            // Confirm by extreme case that the path leading from traveler does not loop.
-            // If it does, abort the travel operation.
-            if (this.assets.travelCost > 200) {
-                Debug.assert(false, "Board arrow-path from source to destination may be looping; 200+ steps.");
-                this.battleSystemManager.regressToPreviousState();
-                break;
-            }
-        }
-
-        // Confirm that travel destination and path end are the same board location.
-        Debug.assert((this.travelDestination.equal(trackSquare)),
-            `TrackCar's travel path does not end in its destination: ${this.travelDestination.toString()} → ${(new Point(trackSquare)).toString()}`);
-
-        // Give travel directions to TrackCar and rev those engines
-        this.assets.trackCar.directions = directions;
-        this.assets.trackCar.start();
-
         // Clear markings from the board
         this.assets.map.clearMovementMap();
+
+        // Animation start
+        this.assets.trackCar.start();
     }
 
     update() {
@@ -81,11 +52,10 @@ export class AnimateMoveUnit extends TurnState {
         
         // When finished, advance to next state
         if (this.assets.trackCar.finished)
-            this.battleSystemManager.advanceToState(this.advanceStates.ratifyIssuedOrder);
+            this.advanceToState(this.advanceStates.ratifyIssuedOrder);
     }
 
     prev() {
-        this.assets.travelCost = 0;
         this.assets.camera.followTarget = this.assets.mapCursor;
     }
 }

@@ -58,12 +58,12 @@ export class BattleSystemManager {
         //      Spawned enemies
         //      etc.
 
-        let firstState: NextState = {
+        const firstState: NextState = {
             state: IssueOrderStart,
             pre: () => {}
         }
 
-        this.advanceToState(firstState);
+        this.advanceToState(this.NULL_STATE, firstState);
         Game.scene.ticker.add(this.update, this);
     }
 
@@ -121,26 +121,30 @@ export class BattleSystemManager {
 
     /** Signals the BattleSystemManager that it should transition to nextState.state at the end of the current cycle,
      * and after calling nextState.pre(). */
-    advanceToState(nextState: NextState) {
-        this.transitionIntent = TransitionTo.Next;
-        this.nextState = nextState;
+    advanceToState(state: TurnState, nextState: NextState) {
+        if (this.currentState === state) {
+            this.transitionIntent = TransitionTo.Next;
+            this.nextState = nextState;
+        }
     }
 
     /** Signals the BattleSystemManager that it should transition to the last stable game state before this one at the end of
      * the current cycle. Fails if there is no previous state to roll back to or if the current turn state would not allow it. */
-    regressToPreviousState() {
-        if (this.stack.length > 1 && this.currentState.revertible)
-            this.transitionIntent = TransitionTo.Previous;
+    regressToPreviousState(state: TurnState) {
+        if (this.currentState === state) {
+            if (this.stack.length > 1 && this.currentState.revertible)
+                this.transitionIntent = TransitionTo.Previous;
+        }
     }
 
     /** Signals the BattleSystemManager that it should abandon its most recent state advancement and continue regressing to the
      * last stable state. Throws a fatal error if regression is impossible. */
-    failToPreviousState() {
-        if (this.stack.length > 1)
+    failToPreviousState(state: TurnState) {
+        if (this.stack.length > 1 && this.currentState === state)
             this.transitionIntent = TransitionTo.PreviousOnFail;
         else {
             Debug.ping(this.getStackTrace());
-            Debug.error('BattleSystemManager failed to advance state but has no stable state to regress to.');
+            Debug.error('BattleSystemManager failed to advance state but has no stable state to revert to.');
         }
     }
 

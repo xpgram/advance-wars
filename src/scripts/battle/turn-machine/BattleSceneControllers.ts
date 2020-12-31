@@ -13,6 +13,8 @@ import { Point } from "../../Common/Point";
 import { CameraZoom } from "../control-scripts/cameraZoom";
 import { StringDictionary } from "../../CommonTypes";
 import { ControlScript } from "../../ControlScript";
+import { CardinalDirection } from "../../Common/CardinalDirection";
+import { CommandInstruction } from "./CommandInstruction";
 
 
 type BattleSceneOptions = {
@@ -35,25 +37,36 @@ export class BattleSceneControllers {
     /** How much gas is expended during travel. */
     travelCost: number = 0;
 
-    /** A collection of references to notable unit objects. */
-    units: {
-        traveler: UnitObject | null,
-        target: UnitObject | null,
-        focus: UnitObject | null
-    } = {
-        traveler: null,
-        target: null,
-        focus: null
+    /** A container for an instruction to be given to some location on the game board. */
+    instruction: CommandInstruction = {
+        place: null,
+        path: null,
+        action: null,
+        which: null,
+        focal: null,
     }
 
-    /** A collection of notable point objects. */
-    locations: {
-        travelDestination: Point | null,
-        focus: Point | null
-    } = {
-        travelDestination: null,
-        focus: null
-    }
+    // TODO Remove
+    /** A collection of references to notable unit objects. */
+    // units: {
+    //     traveler: UnitObject | null,
+    //     target: UnitObject | null,
+    //     focus: UnitObject | null
+    // } = {
+    //     traveler: null,
+    //     target: null,
+    //     focus: null
+    // }
+
+    // // TODO Remove
+    // /** A collection of notable point objects. */
+    // locations: {
+    //     travelDestination: Point | null,
+    //     focus: Point | null
+    // } = {
+    //     travelDestination: null,
+    //     focus: null
+    // }
 
     /** A collection of scripts which, when enabled, control various systems of the battlefield. */
     scripts: {
@@ -149,6 +162,17 @@ export class BattleSceneControllers {
                 script.enable();
             else
                 script.disable();
+        }
+    }
+
+    /** Empties the command instruction container. */
+    resetCommandInstruction() {
+        this.instruction = {
+            place: null,
+            path: null,
+            action: null,
+            which: null,
+            focal: null
         }
     }
 

@@ -1,77 +1,53 @@
 import { TurnState } from "../TurnState";
-import { Debug } from "../../../DebugUtils";
 import { Point } from "../../../Common/Point";
 import { Game } from "../../../..";
+import { UnitObject } from "../../UnitObject";
+
+const EXIT_FRAME_DELAY = 2;
 
 export class ShowUnitAttackRange extends TurnState {
     get name(): string { return "ShowUnitAttackRange"; }
     get revertible(): boolean { return true; }
     get skipOnUndo(): boolean { return true; }
 
+    private location!: Point;
+    private unit!: UnitObject;
+
     protected assert(): void {
-        
+        this.location = this.assertData(this.assets.instruction.place, 'Unit Location');
+        this.unit = this.assertData(this.assets.map.squareAt(this.location).unit, `No unit at ${this.location.toString()}`);
     }
 
     protected configureScene(): void {
-        Debug.assert((this.assets.locations.focus != null),
-            "No location was provided.");
-
-        // Retrieve unit to reveal information for.
-        let loc = this.assets.locations.focus as Point;
-        let unit = this.assets.map.squareAt(loc).unit;
-
-        Debug.assert((unit != null),
-            `No unit was located at ${loc.toString()}`);
-
-        // If there is no unit to look at, just revert.
-        if (unit == null) {
-            this.battleSystemManager.regressToPreviousState();
-            return;
-        }
-
-        // Ask map to reveal the unit's attack range.
-        this.assets.map.generateAttackRangeMap(unit);
-
-        // Does anything light up red?
-        let someAttackableSquare = false;
-        for (let y = 0; y < this.assets.map.height; y++)
-        for (let x = 0; x < this.assets.map.width; x++) {
-            if (this.assets.map.squareAt({x:x,y:y}).attackFlag)
-                someAttackableSquare = true;
-        }
-
-        // If nothing lights up, cancel the action with short player-feedback delay
-        if (!someAttackableSquare) {
-            let frameCount = Game.frameCount + 2;
+        if (this.unit.attackReady) {
+            // Unit has an attack range, prepare to display it.
+            this.assets.map.generateAttackRangeMap(this.unit);
+            // TrackCar is a visual cue that this unit is being examined.
+            this.assets.trackCar.buildNewAnimation(this.unit);
+            this.assets.trackCar.show();
+            this.assets.map.squareAt(this.location).hideUnit = true;
+        } else {
+            // No attack range: on small delay, return to previous state.
+            const frameSchedule = Game.frameCount + EXIT_FRAME_DELAY;
             Game.workOrders.send( () => {
-                if (Game.frameCount == frameCount) {
-                    if (this.battleSystemManager)   // Protection against this state's closing before the timer.
-                        this.battleSystemManager.regressToPreviousState();
-                        // TODO regress should not function if the state calling it is not the current one.
-                        // That said, going backwards, this state being discarded seems to protect against that just fine.
-                        // Forwards would be a problem, though.
+                if (Game.frameCount == frameSchedule) {
+                    if (this.battleSystemManager)   // Protection against this state's closing before the timer ends.
+                        this.battleSystemManager.regressToPreviousState(this);
+                        // TODO regress() and advance() should do nothing unless currentState is this state.
                     return true;
                 }
             }, this);
         }
-
-        // Visual fun: inform the player whom they're looking at, beyond the unit being the center.
-        if (someAttackableSquare) {
-            this.assets.trackCar.buildNewAnimation(unit);
-            this.assets.trackCar.show();
-            this.assets.map.squareAt(loc).hideUnit = true;
-        }
     }
 
     update(): void {
-        // Return to previous state when the B button is released.
+        // On press B, return to previous state.
         if (this.assets.gamepad.button.B.up)
-            this.battleSystemManager.regressToPreviousState();
+            this.battleSystemManager.regressToPreviousState(this);
     }
     
     prev(): void {
-        this.assets.map.squareAt(this.assets.locations.focus as Point).hideUnit = false;
-        this.assets.locations.focus = null;
+        this.assets.map.squareAt(this.location).hideUnit = false;
         this.assets.map.clearMovementMap();
     }
 

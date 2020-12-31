@@ -16,62 +16,68 @@ export class IssueOrderStart extends TurnState {
     }
 
     protected configureScene() {
+        // Reveal UI systems
         this.assets.mapCursor.show();
         this.assets.uiSystem.show();
 
+        // Configure camera to follow cursor
         this.assets.camera.followTarget = this.assets.mapCursor;
 
-        this.assets.units.traveler == null;
+        // Reset issuable unit command to none.
+        this.assets.resetCommandInstruction();
+
+        // Configure map cursor to update pointer graphic over certain terrains
+        // const {map, mapCursor} = this.assets;
+        // mapCursor.onMove( () => {
+        //     const terrainType = map.squareAt(mapCursor.pos).terrain.type;
+        //     const buildTerrains = [Terrain.Factory, Terrain.Airport, Terrain.Port];
+
+        //     if (buildTerrains.some( terrain => terrain == terrainType ))
+        //         mapCursor.setMode.build();
+        //     else
+        //         mapCursor.setMode.point();
+        // });
+        // TODO When uncommenting this, make sure mapCursor.clearMovementCallbacks()
+        // is called in the UI reset function called between state changes.
     }
 
-    // TODO Rewrite this to look more like MoveUnit, the first refactored state.
-    // TODO Refactor BattleSceneControllers to be more organized.
-    //      Specifically, condense units and locations to one object: order
-    //          order.actor: Point
-    //          order.path: CardinalDirection[]
-    //          order.target: Point
-    //          order.action: number
-    // TODO assert() should not contain algorithms.
-    //      I mean, it can, but for the sake of readability it should be discouraged.
-    //      Confirm all states adhere this principle.
-
-
     update() {
-        // Let button.A add a unit to unit swap
-        if (this.assets.gamepad.button.A.pressed) {
-            let pos = this.assets.mapCursor.pos;
-            let square = this.assets.map.squareAt(pos);
+        const {map, mapCursor, instruction, gamepad} = this.assets;
+
+        // On press A, select an allied unit to give instruction to
+        if (gamepad.button.A.pressed) {
+            const pos = mapCursor.pos;
+            const square = map.squareAt(pos);
 
             // TODO This should check team affiliation
-            if (square.unit) {
-                if (square.unit.orderable) {
-                    this.assets.units.traveler = square.unit;
-                    this.battleSystemManager.advanceToState(this.advanceStates.pickMoveLocation);
-                }
+            if (square.unit && square.unit.orderable) {
+                instruction.place = square.unit.boardLocation;
+                this.advanceToState(this.advanceStates.pickMoveLocation);
             }
         }
-        // On B.press, show unit attack range or initiate move camera mode.
-        else if (this.assets.gamepad.button.B.pressed) {
-            let pos = this.assets.mapCursor.pos;
-            let square = this.assets.map.squareAt(pos);
+
+        // On press B, show unit attack range or initiate move camera mode.
+        else if (gamepad.button.B.pressed) {
+            const pos = mapCursor.pos;
+            const square = map.squareAt(pos);
 
             if (square.unit) {
-                this.assets.locations.focus = new Point(pos);
-                this.battleSystemManager.advanceToState(this.advanceStates.showUnitAttackRange);
-            }
-            else
-                this.battleSystemManager.advanceToState(this.advanceStates.moveCamera);
+                instruction.place = new Point(pos);
+                this.advanceToState(this.advanceStates.showUnitAttackRange);
+            } else
+                this.advanceToState(this.advanceStates.moveCamera);
         }
 
         // TODO Remove / Refactor
-        // Since MapCursor is a ~Map~Cursor anyway, it makes sense for it to figure this out itself.
-        // Then again, it should probably only happen under certain contexts.. like this one.. only..
-        let terrainType = this.assets.map.squareAt(this.assets.mapCursor.pos).terrain.type;
-        if (terrainType == Terrain.Factory || terrainType == Terrain.Airport || terrainType == Terrain.Port) {
+        const terrainType = map.squareAt(mapCursor.pos).terrain.type;
+        const buildTerrains = [Terrain.Factory, Terrain.Airport, Terrain.Port];
+        if (buildTerrains.some( terrain => terrain == terrainType )) {
+            //mapCursor.setMode.build();
             if (this.assets.mapCursor.pointerSprite.textures[0] !== this.assets.mapCursor.cursorGraphics.constructPointer[0])
                 this.assets.mapCursor.pointerSprite.textures = this.assets.mapCursor.cursorGraphics.constructPointer;
         }
         else
+            //mapCursor.setMode.point();
             if (this.assets.mapCursor.pointerSprite.textures[0] !== this.assets.mapCursor.cursorGraphics.arrowPointer[0])
                 this.assets.mapCursor.pointerSprite.textures = this.assets.mapCursor.cursorGraphics.arrowPointer;
     }

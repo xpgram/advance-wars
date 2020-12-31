@@ -55,7 +55,7 @@ export abstract class TurnState {
             this.configureScene();
         } catch (err) {
             Debug.print(`${err.name}: ${err.message}\n`, this.battleSystemManager.getStackTrace());
-            this.battleSystemManager.failToPreviousState();
+            this.battleSystemManager.failToPreviousState(this);
         }
     }
 
@@ -104,4 +104,14 @@ export abstract class TurnState {
     /** Any to-dos before regressing to previous state.
      * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
     abstract prev(): void;
+
+    /** Pushes a request to the battle system manager to advance state to the one given. */
+    advanceToState(state: NextState) {
+        this.battleSystemManager.advanceToState(this, state);
+    }
+
+    /** Pushes a request to the battle system manager to revert state to the one previous. */
+    regressToPreviousState() {
+        this.battleSystemManager.regressToPreviousState(this);
+    }
 }

@@ -4,14 +4,14 @@ import { PointPrimitive, Point } from "../../../Common/Point";
 import { Game } from "../../../..";
 import { Common } from "../../../CommonUtils";
 
+const CAMERA_SPEED = 7;     // How many tiles the camera travels per 60 frames.
+
 export class MoveCamera extends TurnState {
     get name(): string { return "MoveCamera"; }
     get revertible(): boolean { return true; }
     get skipOnUndo(): boolean { return true; }
 
     private followTargetSwap!: TransformContainer | PointPrimitive | null;
-
-    private cameraSpeed = 7;        // How many tiles the camera travels per 60 frames.
     private lastMoveDir = new Point();  // The last axis input to the camera driver.
 
     protected assert(): void {
@@ -31,9 +31,9 @@ export class MoveCamera extends TurnState {
     }
 
     update(): void {
-        // When B is released, revert to previous state.
+        // On release B, revert to previous state.
         if (this.assets.gamepad.button.B.up)
-            this.battleSystemManager.regressToPreviousState();
+            this.battleSystemManager.regressToPreviousState(this);
         // Otherwise, move the camera according to movement axis.
         else {
             // Get directional axis
@@ -50,8 +50,8 @@ export class MoveCamera extends TurnState {
             }
 
             // Adjust axis by intended camera speed
-            dirPoint.x *= this.cameraSpeed;
-            dirPoint.y *= this.cameraSpeed;
+            dirPoint.x *= CAMERA_SPEED;
+            dirPoint.y *= CAMERA_SPEED;
 
             // Move the camera
             this.assets.camera.x += dirPoint.x;

@@ -2,18 +2,20 @@ import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
 import { CommandMenu } from "./CommandMenu";
-import { CardinalDirection } from "../../../Common/CardinalDirection";
+import { TileInspector } from "../../map/TileInspector";
 
 export class MoveUnit extends TurnState {
     get name() { return 'MoveUnit'; }
     get revertible() { return true; }
     get skipOnUndo() { return false; }
 
+    private location!: Point;
     private travellingUnit!: UnitObject;
     private lastCursorPos = new Point(-1, -1);
 
     assert() {
-        this.travellingUnit = this.assertData(this.assets.units.traveler, 'unit to move');
+        this.location = this.assertData(this.assets.instruction.place, 'location of unit to move');
+        this.travellingUnit = this.assertData(this.assets.map.squareAt(this.location).unit, 'unit to move');
     }
 
     configureScene() {
@@ -21,7 +23,7 @@ export class MoveUnit extends TurnState {
         this.assets.uiSystem.show();
 
         // Hide unit's map sprite
-        let square = this.assets.map.squareAt(this.travellingUnit.boardLocation);
+        let square = this.assets.map.squareAt(this.location);
         square.hideUnit = true;
 
         // Show the unit's trackcar
@@ -33,31 +35,33 @@ export class MoveUnit extends TurnState {
     }
 
     update() {
+        const {map, mapCursor, gamepad, instruction} = this.assets;
+
         // Request a recalc of the travel path on cursor move
-        if (this.lastCursorPos.notEqual(this.assets.mapCursor.pos)) {
-            this.lastCursorPos = new Point(this.assets.mapCursor.pos);
-            this.assets.map.recalculatePathToPoint(this.travellingUnit, this.lastCursorPos);
+        if (this.lastCursorPos.notEqual(mapCursor.pos)) {
+            this.lastCursorPos = new Point(mapCursor.pos);
+            map.recalculatePathToPoint(this.travellingUnit, this.lastCursorPos);
         }
 
         // On press B, revert state
-        if (this.assets.gamepad.button.B.pressed)
-            this.battleSystemManager.regressToPreviousState();
+        if (gamepad.button.B.pressed)
+            this.regressToPreviousState();
         
         // On press A and viable location, advance state
-        else if (this.assets.gamepad.button.A.pressed
-            && this.assets.map.squareAt(this.lastCursorPos).moveFlag == true
-            && this.assets.map.squareAt(this.lastCursorPos).occupiable(this.assets.units.traveler as UnitObject)) {
+        else if (gamepad.button.A.pressed
+            && map.squareAt(this.lastCursorPos).moveFlag == true
+            && map.squareAt(this.lastCursorPos).occupiable(this.travellingUnit)) {
 
-            this.assets.locations.travelDestination = new Point(this.lastCursorPos);
-            this.battleSystemManager.advanceToState(this.advanceStates.commandMenu);
+            instruction.path = map.pathFrom(this.location);
+            this.advanceToState(this.advanceStates.commandMenu);
         }
     }
 
     prev() {
-        this.assets.map.squareAt(this.travellingUnit.boardLocation).hideUnit = false;
+        this.assets.map.squareAt(this.location).hideUnit = false;
         this.assets.trackCar.hide();
         this.assets.map.clearMovementMap();
-        this.assets.mapCursor.moveTo(this.travellingUnit.boardLocation);
+        this.assets.mapCursor.moveTo(this.location);
     }
 
     advanceStates = {
