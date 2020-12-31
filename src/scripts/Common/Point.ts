@@ -1,5 +1,6 @@
 
-/** A point in 2-dimensional space. */
+/** A point in 2-dimensional space.
+ * @deprecated ImmutablePointPrimitive is preffered. */
 export type PointPrimitive = {
     x: number,
     y: number
@@ -11,7 +12,7 @@ export type ImmutablePointPrimitive = {
     readonly y: number
 }
 
-/** Returns true if p is of the PointPrimitive type. */
+/** Returns true if p is of the ImmutablePointPrimitive type. */
 function isImmutablePointPrimitive(p: undefined | number | ImmutablePointPrimitive): p is ImmutablePointPrimitive {
     return (typeof p == 'object');  // ImmutablePointPrimitive is confirmed implicitly
 }
@@ -67,6 +68,13 @@ export class Point {
         let p = convertArgsToPoint(x, y);
         p.set(p.x + this.x, p.y + this.y);
         return p;
+    }
+
+    /** Sums all points given with this one and returns the final vector as a point. */
+    addAll(points: Point[]): Point {
+        let list = [this, ...points];
+        let final = list.reduce( (sum, vector) => sum.add(vector) );
+        return final;
     }
 
     /** Returns a new vector: the difference between this and the given vector or vector coords.
