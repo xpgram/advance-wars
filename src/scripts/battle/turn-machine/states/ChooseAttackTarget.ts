@@ -3,47 +3,55 @@ import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
 import { Slider } from "../../../Common/Slider";
 import { AnimateMoveUnit } from "./AnimateMoveUnit";
+import { SumCardinalVectorsToVector } from "../../../Common/CardinalDirection";
+import { Debug } from "../../../DebugUtils";
 
 export class ChooseAttackTarget extends TurnState {
     get name() { return 'ChooseAttackTarget'; }
     get revertible() { return true; }
     get skipOnUndo() { return false; }
 
+    private actor!: UnitObject;
+    private destination!: Point;
     private possibleTargets: UnitObject[] = [];
     private index!: Slider;
 
     assert() {
-        if (this.assets.units.traveler == null)
-            this.throwError("Missing UnitObject for choose attack target step.")
+        const get = this.assertData;
+        const {instruction, map} = this.assets;
+
+        const place = get(instruction.place, 'location of acting unit');
+        this.actor = get(map.squareAt(place).unit, `acting unit at location ${place.toString()}`);
+        const path = get(instruction.path, 'travel instructions for unit');
+        this.destination = SumCardinalVectorsToVector(path).add(place);
     }
 
     configureScene() {
-        this.assets.mapCursor.show();
-        this.assets.mapCursor.disable();
+        const {map, mapCursor} = this.assets;
+
+        mapCursor.show();
+        mapCursor.disable();
         this.assets.uiSystem.show();
         this.assets.trackCar.show();
 
         // Build the list of possible targets
-        const traveller = this.assets.units.traveler as UnitObject;
-        // This needs to be a collection of in-range locations *from the travel destination*.
-        // Especially because during this step no targets are still red anyway.
-        const boundary = this.assets.map.squareOfInfluence(traveller);
+        const boundary = map.squareOfInfluence(this.actor);
         for (let xi = 0; xi < boundary.width; xi++)
         for (let yi = 0; yi < boundary.height; yi++) {
             const x = xi + boundary.x;
             const y = yi + boundary.y;
-            const square = this.assets.map.squareAt(new Point(x,y));
+            const square = map.squareAt(new Point(x,y));
             if (square.unit && square.attackFlag)
                 this.possibleTargets.push(square.unit);
         }
 
         // If there are no targets, revert to last state; otherwise,
         if (this.possibleTargets.length == 0)
-            this.battleSystemManager.regressToPreviousState();
+            this.regressToPreviousState();
+        // ...setup the target-picker and move the cursor.
         else {
-            // setup the target-picker and move the cursor.
             this.index = new Slider({
-                max: this.possibleTargets.length - 1,
+                max: this.possibleTargets.length,
                 granularity: 1,
                 looping: true
             });
@@ -52,27 +60,29 @@ export class ChooseAttackTarget extends TurnState {
     }
 
     update() {
-        if (this.assets.gamepad.button.dpadUp.pressed
-          || this.assets.gamepad.button.dpadLeft.pressed) {
+        const {gamepad, mapCursor, instruction} = this.assets;
+
+        if (gamepad.button.dpadUp.pressed
+          || gamepad.button.dpadLeft.pressed) {
             this.index.decrement();
-            this.assets.mapCursor.teleport(this.possibleTargets[this.index.output].boardLocation);
+            mapCursor.teleport(this.possibleTargets[this.index.output].boardLocation);
         }
-        else if (this.assets.gamepad.button.dpadDown.pressed
-          || this.assets.gamepad.button.dpadRight.pressed) {
+        else if (gamepad.button.dpadDown.pressed
+          || gamepad.button.dpadRight.pressed) {
             this.index.increment();
-            this.assets.mapCursor.teleport(this.possibleTargets[this.index.output].boardLocation);
+            mapCursor.teleport(this.possibleTargets[this.index.output].boardLocation);
         }
-        else if (this.assets.gamepad.button.B.pressed)
-            this.battleSystemManager.regressToPreviousState();
-        else if (this.assets.gamepad.button.A.pressed) {
-            this.assets.units.target = this.possibleTargets[this.index.output];
-            this.battleSystemManager.advanceToState(this.advanceStates.animateMoveUnit);
+        else if (gamepad.button.B.pressed)
+            this.regressToPreviousState();
+        else if (gamepad.button.A.pressed) {
+            instruction.focal = this.possibleTargets[this.index.output].boardLocation;
+            this.advanceToState(this.advanceStates.animateMoveUnit);
         }
     }
 
     prev() {
-        this.assets.units.target = null;
-        this.assets.mapCursor.moveTo(this.assets.locations.travelDestination);
+        this.assets.instruction.focal = null;
+        this.assets.mapCursor.moveTo(this.destination);
     }
 
     advanceStates = {

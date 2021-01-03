@@ -55,8 +55,8 @@ export class RatifyIssuedOrder extends TurnState {
 
         // If an attack target was selected, compute damage and apply.
         // if (this.action == Action.Attack && this.focal.notEqual(Point.Origin)) {}
-        if (false) {
-            let damageApply = (attacker: UnitObject, defender: UnitObject) => {
+        if (instruction.action == 1) {
+            const damageApply = (attacker: UnitObject, defender: UnitObject) => {
                 //let dmg = DamageScript.calculateDamage(attacker, defender);
                 //defender.hp -= dmg;
 
@@ -72,17 +72,19 @@ export class RatifyIssuedOrder extends TurnState {
                 //     defender.damageAnim.trigger();
                 // else
                 //     defender.destroyedAnim.trigger();
+
+                attacker.ammo -= 1;
             }
 
             // Counter-attack check: is target adjacent to attacker?
-            let p1 = new Point(traveler.boardLocation);
-            let p2 = new Point(attackTarget.boardLocation);
-            let distance = p1.subtract(p2).manhattanDistance(Point.Origin);
+            const targetLoc = this.assertData(instruction.focal, 'location of attack target');
+            const target = this.assertData(map.squareAt(targetLoc).unit, 'target unit for attack');
+            const distance = this.destination.subtract(targetLoc).manhattanDistance(Point.Origin);
 
             // Apply the effects of battle.
-            damageApply(traveler, attackTarget);
-            if (distance == 1 && attackTarget.hp > 0)
-                damageApply(attackTarget, traveler);
+            damageApply(this.actor, target);
+            if (distance == 1 && target.hp > 0 && target.canTarget(this.actor))
+                    damageApply(target, this.actor);
         }
 
         // Update player controls.

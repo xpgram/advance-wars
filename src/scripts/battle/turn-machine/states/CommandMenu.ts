@@ -24,6 +24,8 @@ export class CommandMenu extends TurnState {
     private destination!: Point;
     private actor!: UnitObject;
     private path!: CardinalDirection[];
+    
+    private enemyInSight = false;
 
     protected assert(): void {
         const get = this.assertData;
@@ -54,10 +56,22 @@ export class CommandMenu extends TurnState {
         map.clearTileOverlay();
         map.squareAt(this.location).moveFlag = true;
         map.squareAt(this.destination).moveFlag = true;
+
+        // Retain attackable flags as well.
+        const range = this.actor.rangeMap;
+        const points = range.points.map( p => this.destination.add(p) );
+        for (const p of points) {
+            if (map.validPoint(p)) {
+                if (map.squareAt(p).attackable(this.actor)) {
+                    map.squareAt(p).attackFlag = true;
+                    this.enemyInSight = true;
+                }
+            }
+        }
     }
 
     update(): void {
-        const {gamepad} = this.assets;
+        const {map, gamepad, instruction} = this.assets;
 
         // If A, assume 'Wait' (until command menu is written)
         if (gamepad.button.A.pressed) {
@@ -66,19 +80,13 @@ export class CommandMenu extends TurnState {
 
         // If X, assume 'Attack' (until command menu is written), but only if capable
         if (gamepad.button.X.pressed) {
-            if (this.actor.attackReady)
+            if (this.actor.attackReady && this.enemyInSight) {
+                instruction.action = 1; // TODO Setup action enum
                 this.advanceToState(this.advanceStates.chooseAttackTarget);
-
-            // 'Attack' I believe doesn't show up unless an attackable unit is in range.
-
-            // I am *finally* in a position where I can start adding the attack stuff.
-            // I needed to cleanup/re-understand how the scripting system worked
-            // as well as refactor a couple things to make inter-state communication,
-            // like where the unit is moving to, easier to relate.
-            // I have not rewritten all TurnStates to conform to the new standard yet, though.
+            }
         }
 
-        // If B, cancel
+        // If B, cancel, revert state
         else if (gamepad.button.B.pressed) {
             this.regressToPreviousState();
         }

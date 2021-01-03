@@ -388,14 +388,13 @@ export class Map {
         for (const square of this.pathIterableFrom(pos)) {
             path.push(square.arrowTo);
         }
-        Debug.ping('path', path);
         return path;
     }
 
-    /** Returns the cumulative travel cost for the given unit as travelled along the path
-     * drawn with the map's square-linking system starting from its own position.
-     * @param unit Unit object to calculate travel cost for.
-     * @throws Error: Inferred travel path is looping indefinitely.
+    /** Returns the cumulative travel cost for the given path and movement type.
+     * @param start The path-start point location.
+     * @param path The list of directions.
+     * @param moveType The method of travel which infers the cost.
      */
     travelCostForPath(start: Point, path: CardinalDirection[], moveType: MoveType): number {
         let inspector = new TileInspector(this, start, 0, moveType);
