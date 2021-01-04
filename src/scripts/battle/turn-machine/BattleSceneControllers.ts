@@ -44,29 +44,8 @@ export class BattleSceneControllers {
         action: null,
         which: null,
         focal: null,
+        seed: null,
     }
-
-    // TODO Remove
-    /** A collection of references to notable unit objects. */
-    // units: {
-    //     traveler: UnitObject | null,
-    //     target: UnitObject | null,
-    //     focus: UnitObject | null
-    // } = {
-    //     traveler: null,
-    //     target: null,
-    //     focus: null
-    // }
-
-    // // TODO Remove
-    // /** A collection of notable point objects. */
-    // locations: {
-    //     travelDestination: Point | null,
-    //     focus: Point | null
-    // } = {
-    //     travelDestination: null,
-    //     focus: null
-    // }
 
     /** A collection of scripts which, when enabled, control various systems of the battlefield. */
     scripts: {

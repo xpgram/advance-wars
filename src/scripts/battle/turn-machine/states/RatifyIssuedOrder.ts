@@ -5,6 +5,8 @@ import { Point } from "../../../Common/Point";
 import { MapLayers } from "../../map/MapLayers";
 import { CardinalVector, SumCardinalVectorsToVector, CardinalDirection } from "../../../Common/CardinalDirection";
 import { Debug } from "../../../DebugUtils";
+import { DamageScript } from "../../DamageScript";
+import { AttackMethod } from "../../EnumTypes";
 
 
 export class RatifyIssuedOrder extends TurnState {
@@ -20,6 +22,7 @@ export class RatifyIssuedOrder extends TurnState {
     private location!: Point;
     private destination!: Point;
     private path!: CardinalDirection[];
+    private seed!: number;
 
     protected assert(): void {
         const {map, instruction} = this.assets;
@@ -32,6 +35,7 @@ export class RatifyIssuedOrder extends TurnState {
         // action
         // which
         // focal
+        this.seed = get(instruction.seed, 'seed for turn randomization');
     }
 
     protected configureScene(): void {
@@ -46,7 +50,7 @@ export class RatifyIssuedOrder extends TurnState {
         // Move traveling unit on the board.
         const moveSuccessful = this.assets.map.moveUnit(this.actor.boardLocation, this.destination);
         this.actor.gas -= map.travelCostForPath(this.location, this.path, this.actor.moveType);
-        
+
         if (moveSuccessful == false) {
             const p1 = this.actor.boardLocation;
             const p2 = this.destination;
@@ -56,39 +60,39 @@ export class RatifyIssuedOrder extends TurnState {
         // If an attack target was selected, compute damage and apply.
         // if (this.action == Action.Attack && this.focal.notEqual(Point.Origin)) {}
         if (instruction.action == 1) {
-            const damageApply = (attacker: UnitObject, defender: UnitObject) => {
-                //let dmg = DamageScript.calculateDamage(attacker, defender);
-                //defender.hp -= dmg;
+            const toRemove: UnitObject[] = [];
 
-                // TODO Put this in a damage script somewhere
-                //let CO = attacker.team.CO;
-                let dmg = attacker.baseDamage(defender);
-                dmg = Math.ceil(dmg * attacker.hp / 100);   // Always at least 1, unless base was <= 0
-                //dmg *= CO.damageModifier(attacker);
+            const damageApply = (attacker: UnitObject, defender: UnitObject, dmg: number) => {
+                if (dmg == 0)
+                    return;
+
                 defender.hp -= dmg;
+                
+                if (attacker.attackMethodFor(target) == AttackMethod.Primary)
+                    attacker.ammo -= 1;
 
-                // TODO
-                // if (defender.hp > 0)
-                //     defender.damageAnim.trigger();
-                // else
-                //     defender.destroyedAnim.trigger();
-
-                attacker.ammo -= 1;
+                if (defender.hp > 0) {
+                    // defender.damageAnim.trigger();
+                } else {
+                    toRemove.push(defender);
+                    // defender.destroyedAnim.trigger();
+                }
             }
 
-            // Counter-attack check: is target adjacent to attacker?
             const targetLoc = this.assertData(instruction.focal, 'location of attack target');
             const target = this.assertData(map.squareAt(targetLoc).unit, 'target unit for attack');
-            const distance = this.destination.subtract(targetLoc).manhattanDistance(Point.Origin);
 
-            // Apply the effects of battle.
-            damageApply(this.actor, target);
-            if (distance == 1 && target.hp > 0 && target.canTarget(this.actor))
-                    damageApply(target, this.actor);
+            const battleResults = DamageScript.NormalAttack(this.actor, target, this.seed);
+
+            damageApply(this.actor, target, battleResults.damage);
+            damageApply(target, this.actor, battleResults.counter);
+
+            for (const unit of toRemove)
+                map.destroyUnit(unit.boardLocation);
         }
 
         // Update player controls.
-        this.assets.mapCursor.teleport(this.actor.boardLocation);
+        this.assets.mapCursor.teleport(this.destination);
 
         // Cleanup assets used for issuing order.
         instruction.place = null;

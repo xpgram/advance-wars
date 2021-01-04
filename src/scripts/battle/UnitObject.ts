@@ -269,7 +269,9 @@ export abstract class UnitObject {
 
     /* TODO Not yet implemented. */
     destroy() { 
-
+        this.sprite.destroy({children: true});
+        this.uiBox.destroy({children: true});
+        Game.scene.ticker.remove(this.update, this);
     }
 
     /** The unit's team-assocation. */
@@ -568,11 +570,14 @@ export abstract class UnitObject {
         return (attackable && nonAllied);
     }
 
-    /** Returns true if this unit is capable of counter-attacking aggressors. */
+    /** Returns true if this unit is capable of counter-attacking aggressors.
+     * Counter-attacks are only valid against adjacent units; it is recommended to move
+     * the aggressor's board location before calling this method. */
     canCounterAttack(unit: UnitObject) {
-        let targetable = this.canTarget(unit);
-        let inRange = (this.range.min == 1);
-        let adjacent = new Point(this.boardLocation).manhattanDistance(unit.boardLocation);
+        const targetable = this.canTarget(unit);
+        const inRange = (this.range.min == 1);
+        const distance = new Point(this.boardLocation).manhattanDistance(unit.boardLocation);
+        const adjacent = (distance == 1);
         return targetable && inRange && adjacent;
     }
 

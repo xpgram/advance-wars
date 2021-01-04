@@ -416,7 +416,7 @@ export class Map {
         unit.boardLocation = pos;
     }
 
-    /** Removes and destroys a Unit object on the map.
+    /** Removes a Unit object on the map. Does not destroy it.
      * @param pos The location on the map to modify.
      */
     removeUnit(pos: PointPrimitive) {
@@ -424,7 +424,6 @@ export class Map {
             throw new Error(InvalidLocationError(pos));
         let square = this.squareAt(pos);
         if (square.unit) {
-            square.unit.destroy();
             square.unit = null;
         }
     }
@@ -454,6 +453,19 @@ export class Map {
         MapLayers['top'].sortChildren();
 
         return true;
+    }
+
+    /** Removes and destroys a Unit object on the map.
+     * @param pos The location on the map to modify.
+     */
+    destroyUnit(pos: PointPrimitive) {
+        if (!this.validPoint(pos))
+            throw new Error(InvalidLocationError(pos));
+        let square = this.squareAt(pos);
+        if (square.unit) {
+            square.unit.destroy();
+            square.unit = null;
+        }
     }
 
     /**

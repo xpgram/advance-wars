@@ -1,6 +1,15 @@
 import { Point } from "../../Common/Point";
 import { CardinalDirection } from "../../Common/CardinalDirection";
 
+// TODO Is this right?
+export enum InstructedAction {
+    Wait = 0,
+    Attack,
+    Build,
+    Special1,
+    Special2,
+}
+
 export type CommandInstruction = {
     /** The place with which to give the order; usually contains an actor. */
     place: Point | null,
@@ -18,4 +27,7 @@ export type CommandInstruction = {
 
     /** The action's point of execution. */
     focal: Point | null,
+
+    /** The seed for any random nummber generation. */
+    seed: number | null,
 }

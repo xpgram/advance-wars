@@ -26,6 +26,9 @@ export class IssueOrderStart extends TurnState {
         // Reset issuable unit command to none.
         this.assets.resetCommandInstruction();
 
+        // Assign a seed for instruction randomization
+        this.assets.instruction.seed = Math.random()*Number.MAX_SAFE_INTEGER;
+
         // Configure map cursor to update pointer graphic over certain terrains
         // const {map, mapCursor} = this.assets;
         // mapCursor.onMove( () => {
