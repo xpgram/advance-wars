@@ -112,7 +112,7 @@ export class Slider {
      * Decreases the track-value by 1 granules by default. You may set incrementFactor as a substitute to (or in addition
      * to) setting the times parameter. */
     decrement(times: number = 1) {
-        this.track += this.granularity * this.incrementFactor * times;
+        this.track -= this.granularity * this.incrementFactor * times;
     }
 
     /** Rounds the given number v to the nearest multiple of the number 'grain.'
