@@ -36,8 +36,8 @@ export class ChooseAttackTarget extends TurnState {
 
         // Build the list of possible targets
         const boundary = map.squareOfInfluence(this.actor);
-        for (let xi = 0; xi < boundary.width; xi++)
-        for (let yi = 0; yi < boundary.height; yi++) {
+        for (let yi = 0; yi < boundary.height; yi++)
+        for (let xi = 0; xi < boundary.width; xi++) {
             const x = xi + boundary.x;
             const y = yi + boundary.y;
             const square = map.squareAt(new Point(x,y));
