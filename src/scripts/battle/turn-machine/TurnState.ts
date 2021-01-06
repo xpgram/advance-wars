@@ -54,7 +54,11 @@ export abstract class TurnState {
             this.assets.hidePlayerSystems();  // Reset the scene configuration
             this.configureScene();
         } catch (err) {
-            Debug.print(`${err.name}: ${err.message}\n`, this.battleSystemManager.getStackTrace());
+            if (err instanceof StateTransitionError)
+                Debug.print(`${err.name}: ${err.message}`);
+            else
+                Debug.error(err);
+            Debug.print(this.battleSystemManager.getStackTrace());
             this.battleSystemManager.failToPreviousState(this);
         }
     }

@@ -12,11 +12,8 @@ export const Debug = {
 
     /** Throws a generic error and fails the program, or an error of the given error type
      * if one is provided. */
-    error: (msg: string, errorType?: ErrorType) => {
-        if (errorType)
-            throw new errorType(msg);
-        else
-            throw new Error(msg);
+    error: (msg?: any, ...optionalParams: any[]) => {
+        console.error(msg, ...optionalParams);
     },
 
     /** If the condition is false, throws an AssertionError with the given message, or an
