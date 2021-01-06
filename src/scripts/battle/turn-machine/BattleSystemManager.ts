@@ -119,10 +119,23 @@ export class BattleSystemManager {
         }
     }
 
+    /** Returns true if the given state object is the active state object. */
+    private isSelfsameState(state: TurnState) {
+        if (this.currentState !== state) {
+            Debug.log({
+                msg: `State '${state.name}' requested a state shift, but active state is '${this.currentState.name}'`,
+                priority: 3,
+                type: `TurnMachine`,
+            });
+            return false;
+        }
+        return true;
+    }
+
     /** Signals the BattleSystemManager that it should transition to nextState.state at the end of the current cycle,
      * and after calling nextState.pre(). */
     advanceToState(state: TurnState, nextState: NextState) {
-        if (this.currentState === state) {
+        if (this.isSelfsameState(state)) {
             this.transitionIntent = TransitionTo.Next;
             this.nextState = nextState;
         }
@@ -131,7 +144,7 @@ export class BattleSystemManager {
     /** Signals the BattleSystemManager that it should transition to the last stable game state before this one at the end of
      * the current cycle. Fails if there is no previous state to roll back to or if the current turn state would not allow it. */
     regressToPreviousState(state: TurnState) {
-        if (this.currentState === state) {
+        if (this.isSelfsameState(state)) {
             if (this.stack.length > 1 && this.currentState.revertible)
                 this.transitionIntent = TransitionTo.Previous;
         }
@@ -140,7 +153,10 @@ export class BattleSystemManager {
     /** Signals the BattleSystemManager that it should abandon its most recent state advancement and continue regressing to the
      * last stable state. Throws a fatal error if regression is impossible. */
     failToPreviousState(state: TurnState) {
-        if (this.stack.length > 1 && this.currentState === state)
+        if (this.isSelfsameState(state) == false)
+            return;
+
+        if (this.stack.length > 1)
             this.transitionIntent = TransitionTo.PreviousOnFail;
         else {
             Debug.ping(this.getStackTrace());
