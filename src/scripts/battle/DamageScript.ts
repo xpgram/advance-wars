@@ -54,7 +54,7 @@ export class DamageScript {
         const damageRaw = formula(attacker, defender, attackerHP);
         const damage = fuzz(damageRaw, fuzzAmount);
 
-        const defenderHP = Math.min(defender.hp - damage, 0);
+        const defenderHP = Math.max(defender.hp - damage, 0);
         const counterRaw = (defender.canCounterAttack(attacker)) ? formula(defender, attacker, defenderHP) : 0;
         const counter = fuzz(counterRaw, fuzzAmount);
 

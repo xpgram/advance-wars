@@ -68,7 +68,7 @@ export class RatifyIssuedOrder extends TurnState {
 
                 defender.hp -= dmg;
                 
-                if (attacker.attackMethodFor(target) == AttackMethod.Primary)
+                if (attacker.attackMethodFor(defender) == AttackMethod.Primary)
                     attacker.ammo -= 1;
 
                 if (defender.hp > 0) {
