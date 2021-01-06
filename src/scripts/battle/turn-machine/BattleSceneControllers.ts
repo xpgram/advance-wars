@@ -151,7 +151,8 @@ export class BattleSceneControllers {
             path: null,
             action: null,
             which: null,
-            focal: null
+            focal: null,
+            seed: null,
         }
     }
 
@@ -197,11 +198,12 @@ export class BattleSceneControllers {
             for (let i = 0; i < 10; i++) {
                 let x = Math.floor(Math.random()*this.map.width);
                 let y = Math.floor(Math.random()*this.map.height);
+                let p = new Point(x,y);
 
                 // If placement is good, do so and reveal the unit.
-                if (this.map.squareAt({x:x,y:y}).occupiable(unit) &&
-                    this.map.squareAt({x:x,y:y}).terrain.getMovementCost(unit.moveType) != 0) {
-                    this.map.placeUnit(unit, {x:x, y:y});
+                if (this.map.squareAt(p).occupiable(unit) &&
+                    this.map.squareAt(p).terrain.getMovementCost(unit.moveType) != 0) {
+                    this.map.placeUnit(unit, p);
                     unit.visible = true;
                     break;
                 }
