@@ -17,7 +17,7 @@ export class ChooseAttackTarget extends TurnState {
     private index!: Slider;
 
     assert() {
-        const get = this.assertData;
+        const get = this.assertData.bind(this);
         const {instruction, map} = this.assets;
 
         const place = get(instruction.place, 'location of acting unit');

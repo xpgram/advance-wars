@@ -1,9 +1,7 @@
 import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
-import { Point } from "../../../Common/Point";
-import { CardinalDirection, CardinalVector } from "../../../Common/CardinalDirection";
-import { Debug } from "../../../DebugUtils";
-import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
+import { CardinalDirection } from "../../../Common/CardinalDirection";
+import { AnimateBattle } from "./AnimateBattle";
 
 export class AnimateMoveUnit extends TurnState {
     get name() { return 'AnimateMoveUnit'; }
@@ -11,14 +9,14 @@ export class AnimateMoveUnit extends TurnState {
     get skipOnUndo() { return true; }
 
     advanceStates = {
-        ratifyIssuedOrder: {state: RatifyIssuedOrder, pre: () => {}}
+        animateBattle: {state: AnimateBattle, pre: () => {}}
     }
 
     private traveller!: UnitObject;
     private travelPath!: CardinalDirection[];
 
     assert() {
-        const get = this.assertData;
+        const get = this.assertData.bind(this);
         const {instruction, map} = this.assets;
 
         const place = get(instruction.place, 'Board location for Unit');
@@ -52,7 +50,7 @@ export class AnimateMoveUnit extends TurnState {
         
         // When finished, advance to next state
         if (this.assets.trackCar.finished)
-            this.advanceToState(this.advanceStates.ratifyIssuedOrder);
+            this.advanceToState(this.advanceStates.animateBattle);
     }
 
     prev() {

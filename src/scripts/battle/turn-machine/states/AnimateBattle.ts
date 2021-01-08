@@ -2,7 +2,7 @@ import { TurnState } from "../TurnState";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
 
-export class CheckBoardState extends TurnState {
+export class AnimateBattle extends TurnState {
     get name(): string { return "CheckBoardState"; }
     get revertible(): boolean { return true; }
     get skipOnUndo(): boolean { return true; }
@@ -45,6 +45,8 @@ export class CheckBoardState extends TurnState {
         // I should probably just add a damage or battle step.
         // If ratify is the one which affects the board, then the battle step just
         // calcs and records a number, probably in instruction.
+
+        this.advanceToState(this.advanceStates.ratifyIssuedOrder);
     }
 
     update(): void {

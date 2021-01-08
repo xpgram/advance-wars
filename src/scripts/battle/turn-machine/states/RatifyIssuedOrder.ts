@@ -25,8 +25,8 @@ export class RatifyIssuedOrder extends TurnState {
     private seed!: number;
 
     protected assert(): void {
+        const get = this.assertData.bind(this);
         const {map, instruction} = this.assets;
-        const get = this.assertData;
 
         this.location = get(instruction.place, 'location of actor');
         this.actor = get(map.squareAt(this.location).unit, 'unit at location');
@@ -54,7 +54,7 @@ export class RatifyIssuedOrder extends TurnState {
         if (moveSuccessful == false) {
             const p1 = this.actor.boardLocation;
             const p2 = this.destination;
-            this.throwError(`Move operation was unsuccessful: [Unit ${p1.toString()} '${map.squareAt(p1).unit}' → Unit ${p2.toString()} '${map.squareAt(p2).unit}'] failed.`);
+            this.failTransition(`Move operation was unsuccessful: [Unit ${p1.toString()} '${map.squareAt(p1).unit}' → Unit ${p2.toString()} '${map.squareAt(p2).unit}'] failed.`);
         }
 
         // If an attack target was selected, compute damage and apply.
@@ -71,18 +71,14 @@ export class RatifyIssuedOrder extends TurnState {
                 if (attacker.attackMethodFor(defender) == AttackMethod.Primary)
                     attacker.ammo -= 1;
 
-                if (defender.hp > 0) {
-                    // defender.damageAnim.trigger();
-                } else {
+                if (defender.hp == 0)
                     toRemove.push(defender);
-                    // defender.destroyedAnim.trigger();
-                }
             }
 
             const targetLoc = this.assertData(instruction.focal, 'location of attack target');
             const target = this.assertData(map.squareAt(targetLoc).unit, 'target unit for attack');
 
-            const battleResults = DamageScript.NormalAttack(this.actor, target, this.seed);
+            const battleResults = DamageScript.NormalAttack(map, this.actor, target, this.seed);
 
             damageApply(this.actor, target, battleResults.damage);
             damageApply(target, this.actor, battleResults.counter);

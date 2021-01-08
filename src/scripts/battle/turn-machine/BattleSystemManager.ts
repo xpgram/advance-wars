@@ -79,43 +79,49 @@ export class BattleSystemManager {
         return (state) ? state : this.NULL_STATE;
     }
 
-    /** Wrapper which runs the current state's update step. */
+    /** Turn Machine's update step which runs the current state's update step and handles
+     * transition requests. */
     private update() {
-        if (this.transitionIntent == TransitionTo.None)
-            this.currentState.update();
+        try {
+            if (this.transitionIntent == TransitionTo.None)
+                this.currentState.update();
 
-        // nextState->new handler
-        while (this.transitionIntent == TransitionTo.Next) {
-            this.transitionIntent = TransitionTo.None;
-
-            this.currentState.close();
-            this.nextState.pre();       // Run any pre-setup passed in from current state
-
-            let newState = new this.nextState.state(this);
-            this.stack.push(newState);  // Add new state to stack (implicitly changes current)
-            this.log(newState.name);    // Log new state to trace history
-            newState.wake();            // Run new state's scene configurer
-        }
-        
-        // nextState->previous handler
-        while (this.transitionIntent == TransitionTo.Previous
-            || this.transitionIntent == TransitionTo.PreviousOnFail) {
-
-            let oldState = this.stack.pop();    // Implicitly changes current
-            if (this.transitionIntent == TransitionTo.Previous) {
-                oldState?.close();      // Runs generic close procedure
-                oldState?.prev();       // Ctrl+Z Undo for smooth backwards transition
-                oldState?.destroy();    // Free up memory
-            } else {
-                this.log(`${oldState?.name} (failed)`);
-                oldState?.destroy();
-            }
-
-            this.log(this.currentState.name);               // Log new current state to trace history.
-            if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
+            // nextState->new handler
+            while (this.transitionIntent == TransitionTo.Next) {
                 this.transitionIntent = TransitionTo.None;
-                this.currentState.wake();
+
+                this.currentState.close();
+                this.nextState.pre();       // Run any pre-setup passed in from current state
+
+                let newState = new this.nextState.state(this);
+                this.stack.push(newState);  // Add new state to stack (implicitly changes current)
+                this.log(newState.name);    // Log new state to trace history
+                newState.wake();            // Run new state's scene configurer
             }
+            
+            // nextState->previous handler
+            while (this.transitionIntent == TransitionTo.Previous
+                || this.transitionIntent == TransitionTo.PreviousOnFail) {
+
+                let oldState = this.stack.pop();    // Implicitly changes current
+                if (this.transitionIntent == TransitionTo.Previous) {
+                    oldState?.close();      // Runs generic close procedure
+                    oldState?.prev();       // Ctrl+Z Undo for smooth backwards transition
+                    oldState?.destroy();    // Free up memory
+                } else {
+                    this.log(`${oldState?.name} (failed)`);
+                    oldState?.destroy();
+                }
+
+                this.log(this.currentState.name);               // Log new current state to trace history.
+                if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
+                    this.transitionIntent = TransitionTo.None;
+                    this.currentState.wake();
+                }
+            }
+        } catch(e) {
+            Debug.ping(this.getStackTrace());
+            throw e;
         }
     }
 

@@ -63,14 +63,6 @@ export abstract class TurnState {
         }
     }
 
-    /** Failing the pre-condition assertion, print the battle-system's state history and report
-     * the failing condition as the given message.
-     * @deprecated Use failAssertion() */
-    protected throwError(msg: string) {
-        Debug.warn('TurnState.throwError() is deprecated. Use .failTransition() instead.');
-        this.failTransition(msg);
-    }
-
     /** Signal the state-manager that this state transition has failed and must be aborted.
      * @param message A description of what went wrong. */
     protected failTransition(message: string) {

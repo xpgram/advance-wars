@@ -1,5 +1,7 @@
 import { UnitObject } from "./UnitObject";
 import { Debug } from "../DebugUtils";
+import { Map } from "./map/Map";
+import { Square } from "./map/Square";
 
 /**
  * 
@@ -24,40 +26,61 @@ export class DamageScript {
     }
 
     /**  */
-    private static ValueFuzzier(value: number, percentRange: number) {
-        const range = percentRange / 100;
-        const fuzz = DamageScript.Random();
-        return (1 - range)*value + 2*range*value*fuzz;
-    }
+    private static NormalAttackFormula(A: CombatState, B: CombatState, rand: number) {
+        const ceil = Math.ceil;
 
-    /**  */
-    private static NormalAttackFormula(attacker: UnitObject, defender: UnitObject, attackerHP: number) {
-        // const CO = attacker.team.CO;
+        // Unit Rank 0: 0/0, I: +5/0, II: +10/0, V: +20/+20
+        // Terrain Stars 0/+1 per star per 1 HP
+        // CO Zone +10/+10, and +10/0 and 0/+10 per attack and defense stars per unit type
+        // COM Towers +5/+5 per count
+        // Sandstorm -30/0
+        // Luck +LCK/0, where LCK is range 0 to ceil(attackerHP / 10)
 
-        let dmg: number;
-        dmg = attacker.baseDamage(defender);
-        dmg = Math.ceil(dmg * attackerHP / 100);   // Always at least 1, unless base or HP weren't
-        // dmg *= CO.damageModifier(attacker);
-        // dmg *= [terrain modifier];
+        const atkRankBoosts = [0,5,10,20];
+        const atkRank = atkRankBoosts[A.unit.rank];
+        const atkCOZone = (A.square.COAffectedFlag) ? 10 : 0;  // TODO Which CO? God damn it.
+        const luck = ceil(rand * ceil(A.HP / 10 + 1)) - 1;
 
-        return dmg;
+        const attackStat = 100 + atkRank + atkCOZone + luck;
+
+        const defRank = (B.unit.rank == 3) ? 20 : 0;
+        const defCOZone = (B.square.COAffectedFlag) ? 10 : 0;
+        const terrain = B.square.terrain.defenseRating * ceil(B.HP / 10);
+
+        const defenseStat = 100 + defRank + defCOZone + terrain;
+
+        return A.unit.baseDamage(B.unit) * ceil(A.HP / 10) / 10 * attackStat / defenseStat;
     }
     
     /**  */
-    static NormalAttack(attacker: UnitObject, defender: UnitObject, seed: number) {
+    static NormalAttack(map: Map, attacker: UnitObject, defender: UnitObject, seed: number) {
         DamageScript.SetSeed(seed);
         const formula = DamageScript.NormalAttackFormula;
-        const fuzz = DamageScript.ValueFuzzier;
-        const fuzzAmount = 5;
+        
+        const attackState = new CombatState(map, attacker);
+        const defenseState = new CombatState(map, defender);
 
-        const attackerHP = attacker.hp;
-        const damageRaw = formula(attacker, defender, attackerHP);
-        const damage = fuzz(damageRaw, fuzzAmount);
+        const LCK1 = DamageScript.Random();
+        const LCK2 = DamageScript.Random();
 
-        const defenderHP = Math.max(defender.hp - damage, 0);
-        const counterRaw = (defender.canCounterAttack(attacker)) ? formula(defender, attacker, defenderHP) : 0;
-        const counter = fuzz(counterRaw, fuzzAmount);
+        const damageEst = formula(attackState, defenseState, 0);
+        const damage = formula(attackState, defenseState, LCK1);
 
-        return {damage: damage, counter: counter, estimate: damageRaw};
+        defenseState.HP = Math.max(defenseState.HP - damage, 0);
+        const canCounter = defenseState.unit.canCounterAttack(attackState.unit);
+        const counter = formula(defenseState, attackState, LCK2) * Number(canCounter);
+
+        return {damage: damage, counter: counter, estimate: damageEst};
+    }
+}
+
+class CombatState {
+    unit: UnitObject;
+    square: Square;
+    HP: number;
+    constructor(map: Map, unit: UnitObject) {
+        this.unit = unit;
+        this.square = map.squareAt(unit.boardLocation);
+        this.HP = unit.hp;
     }
 }
