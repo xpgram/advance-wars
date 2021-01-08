@@ -28,7 +28,7 @@ export class CommandMenu extends TurnState {
     private enemyInSight = false;
 
     protected assert(): void {
-        const get = this.assertData;
+        const get = this.assertData.bind(this);
         const {map, instruction} = this.assets;
         
         this.location = get(instruction.place, 'location of unit');
