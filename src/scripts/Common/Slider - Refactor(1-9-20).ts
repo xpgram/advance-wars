@@ -5,6 +5,30 @@ import { Debug } from "../DebugUtils";
 // although it does a few other things.
 // This seems to break the game, however.
 
+// I think it is possible that the game was fine, actually, but that the sliders weren't
+// updating, thus nothing *appeared* to be working; SlidingWindow and MapCursor both use
+// Slider to animate.
+//
+// Not that this was the problem, but why not let track be whatever it is and only
+// conform its output (get track()) to granularity?
+// If I update it a tiny smidge, should it reflect that like LowResTransform does?
+// What is the right answer?
+//
+// In any case, I didn't think that the old implementation kept a secret ._track value,
+// so I *doubt* that's where the break is. But think along those terms and you'll
+// probably find it.
+
+// Some things I noticed when I tried to update the dependents:
+//  Some classes directly affect the incrementFactor option, opting to control it
+//    themselves; for instance, DetailWindow depending on whether Y is held down.
+//  incrementFactor was split into ._direction and .incrementValue
+//    Factor was multiplicative (of granularity), but Value is additive, this may
+//    have broken some expected behaviors.
+
+// Use
+//   dir -Recurse | Select-String -pattern "Slider\("
+// in /src to find all uses of Slider in the codebase
+
 /* export */ type SliderOptions = {
     /** The minimum value for the slider's track. By default, 0. */
     min?: number,
