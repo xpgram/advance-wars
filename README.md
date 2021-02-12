@@ -1,6 +1,7 @@
 # Advance Wars
 
-A clone of "Days of Ruin" (2008) written in Typescript with Pixi.js, and a sound API when I get around to it.
+A clone of "Days of Ruin" (2008) written in Typescript with Pixi.js, and a sound API when I get around to it.  
+You can play the current public build (here.)[https://xpgram.github.io/armed-revolt/game.html]
 
 Progress is slow only because I have responsibilities and I feel guilty working on this instead.
 
