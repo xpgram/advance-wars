@@ -24,6 +24,8 @@ import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { Game } from "../../..";
 import { fonts } from "./DisplayInfo";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
+import { Point } from "../../Common/Point";
+import { Pulsar } from "../../timer/Pulsar";
 
 // Menu component properties constants
 const MENU_BACKGROUND = new BoxContainerProperties({
@@ -42,12 +44,22 @@ export type MenuOption = {
     value: number
 }
 
+/**  */
 export class MenuWindow /* extends ??? */ {
+
+    static readonly cursorSettings = {
+        moveFrames: 3,              // How many frames to change selector states
+        inputRepeatFrames: 10,      // How frequently to impulse state changes.
+        inputRepeatDelay: 10,       // How long to delay the first impulse state change.
+    }
 
     readonly transform = new LowResTransform();
     private readonly graphics = new PIXI.Container();
     private readonly background = new PIXI.Container();
     private readonly optionsText = new PIXI.Container();
+
+    private _options: MenuOption[] = [];
+    private _enabled = true;
 
     // How do I determine/enforce an option is disabled/greyed-out?
     // I think optionsGraphics = Container() needs to be optionsGraphics = container[]
@@ -56,31 +68,37 @@ export class MenuWindow /* extends ??? */ {
     //  \- background
     //      \- option []
     //          \- box graphic
-    //          \- text
+    //              \- text
 
+    /** Reference to the gamepad controller. */
     private readonly gamepad: VirtualGamepad;
 
+    /** Represents the currently selected option. */
     private cursor = new Slider();
 
-    private _options: MenuOption[] = [];
-    private _enabled = true;
+    /** The timer which triggers animation movements.  */
+    private animPulsar: Pulsar;
+
+    /** Guides the option selector's position on-screen as it animates from one selectable to another. */
+    private stateChangeAnimSlider = new Slider({
+        granularity: 1 / MenuWindow.cursorSettings.moveFrames,
+    })
+
+    /** The timer which triggers repeatable movements. */
+    private movementPulsar: Pulsar;
 
     constructor(gp: VirtualGamepad, ui: PIXI.Container) {
-        // Needed references:
-        //   gamepad
-        //   PIXI.Container to append itself
-
         // Connect graphical peripheries
         this.transform.object = this.graphics;
         ui.addChild(this.graphics);
 
-        //
+        // Connect controller.
         this.gamepad = gp;
 
         // Invoke options configurer
         this.options = [];
 
-        //
+        // Add updater to global ticker.
         Game.scene.ticker.add( this.update, this );
     }
 
@@ -96,20 +114,33 @@ export class MenuWindow /* extends ??? */ {
         this.updateCursorPosition();
     }
 
+    /** Updates cursor state in accordance with gamepad input. */
     private updateCursor() {
-        if (this.enabled) {
-            if (this.gamepad.button.dpadUp.pressed)
-                this.cursor.decrement();
-            else if (this.gamepad.button.dpadDown.pressed)
-                this.cursor.increment();
+        if (!this.enabled)
+            return;
+        
+        // Input polling.
+        if (this.gamepad.button.dpadUp.pressed) {
+            this.cursor.decrement();
+            this.movementPulsar.start();    // TODO Build in a first pulse timer? Would simplify.
+        }
+        else if (this.gamepad.button.dpadDown.pressed) {
+            this.cursor.increment();
+            this.movementPulsar.start();
+        }
+
+        if (this.gamepad.axis.dpad.neutral) {
+            this.movementPulsar.stop();
+            this.movementPulsar.reset();    // TODO Does this stop?
         }
     }
 
+    /** Updates selector screen/world position depending on animation states. */
     private updateCursorPosition() {
-        
+        // TODO Calculate where selector should be.
     }
 
-    /**  */
+    /** Whether to draw the command menu to the screen. */
     get visible() {
         return this.graphics.visible;
     }
@@ -117,7 +148,7 @@ export class MenuWindow /* extends ??? */ {
         this.graphics.visible = b;
     }
 
-    /**  */
+    /** Whether to listen for gamepad inputs. */
     get enabled() {
         return this._enabled;
     }
@@ -125,7 +156,7 @@ export class MenuWindow /* extends ??? */ {
         this.enabled = b;
     }
 
-    /**  */
+    /** The list of selectables as text/value pairs. */
     get options() {
         return this._options.slice();
     }
@@ -158,7 +189,7 @@ export class MenuWindow /* extends ??? */ {
         });
     }
 
-    /**  */
+    /** Returns the text/value pair currently being selected over. */
     selectedOption() {
         return this._options[this.cursor.output];
     }
@@ -169,4 +200,39 @@ export class MenuWindow /* extends ??? */ {
         const sizes = this._options.map( o => {tmp.text = o.name; return tmp.textWidth;} );
         return sizes.reduce( (max, cur) => (max > cur) ? max : cur );
     }
+}
+
+// TODO What is this below? Why?
+
+/**  */
+function newOptionBoxGraphic(width: number, height: number, text: string, colors: {light: number, mid: number, dark: number}) {
+    const lineWidth = 1;
+    const lineAlpha = 0.2;
+    const lineAlignment = 1;
+
+    const b = new PIXI.Graphics();
+    b.beginFill(colors.mid);
+    b.drawRect(0, 0, width, height);
+    b.lineStyle(lineWidth, colors.light, lineAlpha, lineAlignment);
+    b.moveTo(0,height).lineTo(0,0).lineTo(width, 0);
+    b.lineStyle(lineWidth, colors.dark, lineAlpha, lineAlignment);
+    b.moveTo(width,0).lineTo(width,height).lineTo(0,height);
+
+    const t = new PIXI.BitmapText(text, fonts.menu);
+    t.x = Math.floor((width - t.width) * 0.5);
+    t.y = 2;
+
+    b.addChild(t);
+
+    return b;
+}
+
+/**  */
+function getOptionBox(width: number, height: number, text: string) {
+    return newOptionBoxGraphic(width, height, text, {light: 0xFFFFFF, mid: 0x495059, dark: 0x000000});
+}
+
+/**  */
+function getOptionBoxSelected(width: number, height: number, text: string) {
+    return newOptionBoxGraphic(width, height, text, {light: 0xFFFFFF, mid: 0x1A4740, dark: 0x000000});
 }
