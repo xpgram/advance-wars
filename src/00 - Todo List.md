@@ -89,3 +89,7 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
             The gist is that I'd save each frame for each entity to a different mesh. So, the plasma layer would have 3 different meshes it cycles between, the fire layer 5.
         - [ ] UI layer: ... I dunno yet.
         - Without a re-rendering strategy on change, cities may need to be on the animated layer. Note that this means cities would be unaffected by mountain shadows when right-adjacent, which is not source-game behaviour.
+
+- [ ] War Tanks can have 6 ammo?
+    - I have confirmed it is not a quirk of the demo unit spawner. It's possible
+    unit.maxAmmo is not being set properly in the unit's type configuration.
