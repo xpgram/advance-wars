@@ -19,6 +19,10 @@ import { CardinalDirection } from "../scripts/Common/CardinalDirection";
  */
 export class BattleScene extends Scene {
 
+    // Objectives:
+    // - Get all this setup into the scenario builder (asset/controller package)
+    // - Get BattleSystemController to control it via turn state scripts
+
     map!: Map;
     camera!: Camera;
     gamepad!: VirtualGamepad;        // TODO Link this up as a property of Game.

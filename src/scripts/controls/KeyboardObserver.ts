@@ -15,7 +15,7 @@ window.addEventListener('keydown', (event) => {
     let keyset = Math.floor(key / 64);
     let keyindex = key % 64;
     keys[keyset] = Common.writeBits(keys[keyset], 1, 1, keyindex);
-    event.preventDefault();
+    event.preventDefault();         // TODO Is this applied to the entire window? It should only occur when the game div is focused.
 });
 
 // On key up, write 'false' (0) to the keycode index of keys.
