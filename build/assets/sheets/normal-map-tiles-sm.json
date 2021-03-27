@@ -781,7 +781,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":11,"w":15,"h":21},
 	"sourceSize": {"w":16,"h":32},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0.5}
 },
 "comtower-blue.png":
 {
@@ -790,7 +790,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":11,"w":15,"h":21},
 	"sourceSize": {"w":16,"h":32},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0.5}
 },
 "comtower-red.png":
 {
@@ -799,7 +799,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":11,"w":15,"h":21},
 	"sourceSize": {"w":16,"h":32},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0.5}
 },
 "comtower-white.png":
 {
@@ -808,7 +808,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":11,"w":15,"h":21},
 	"sourceSize": {"w":16,"h":32},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0.5}
 },
 "comtower-yellow.png":
 {
@@ -817,7 +817,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":11,"w":15,"h":21},
 	"sourceSize": {"w":16,"h":32},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0.5}
 },
 "comtower.png":
 {
@@ -826,7 +826,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":11,"w":16,"h":21},
 	"sourceSize": {"w":16,"h":32},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0.5}
 },
 "factory-black.png":
 {

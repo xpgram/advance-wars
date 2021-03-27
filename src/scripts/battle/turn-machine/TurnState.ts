@@ -1,100 +1,113 @@
 import { Debug } from "../../DebugUtils";
 import { BattleSceneControllers } from "./BattleSceneControllers";
-import { BattleSystemManager } from "./BattleSystemManager";
+import { BattleSystemManager, NextState } from "./BattleSystemManager";
+import { StringDictionary } from "../../CommonTypes";
 
 export type TurnStateConstructor = {
-    new (): TurnState;
+    new (manager: BattleSystemManager): TurnState;
 }
 
+export class StateTransitionError extends Error {
+    constructor(stateName: string, message: string) {
+        super(`${stateName} → ${message}`);
+        this.name = 'StateTransitionError';
+    }
+}
+
+/** A battle-system state which represents a 'moment' in a 'turn.'
+ * When active, this class would setup its own scene configuration, and run its own
+ * update scripts operating the turn-moment. */
 export abstract class TurnState {
 
     abstract get name(): string;            // The formal name of this game state (for logging purposes).
     abstract get revertible(): boolean;     // Whether this state may revert to a previous one.
     abstract get skipOnUndo(): boolean;     // Whether this state is skipped when reached via reversion.
 
+    /** A collection of states and pre-transition functions this state would lead to. */
+    protected abstract advanceStates: StringDictionary<NextState>;
+
     /** A reference to the controlling battle system manager, the object which runs the
      * turn-state machine. */
-    battleSystemManager: BattleSystemManager;
+    protected battleSystemManager: BattleSystemManager;
 
     /** All battle-scene-relevant objects, script controllers, and assets.
      * Provides access to the MapCursor, the Map itself, the UI windows, etc. */
-    controllers: BattleSceneControllers;
+    protected assets: BattleSceneControllers;
 
-    constructor(manager: BattleSystemManager, controllers: BattleSceneControllers) {
+    constructor(manager: BattleSystemManager) {
         this.battleSystemManager = manager;
-        this.controllers = controllers;
+        this.assets = manager.controllers;
     }
 
     destroy() {
         //@ts-ignore
-        this.controllers = null;
+        this.assets = null;
         //@ts-ignore
         this.battleSystemManager = null;
     }
 
-    /** Throws an error if state dependencies aren't met, such as this state
-     * drawing a line between two points on the board but not knowing where they're located. */
-    abstract assert(): void;
-
-    /** Failing the pre-condition assertion, print the battle-system's state history and report
-     * the failing condition as the given message. */
-    protected throwError(msg: string) {
-        this.battleSystemManager.printStateHistory();
-        Debug.error(msg);
+    /** State will assume control of the scene, asserting correct pre-state and configuring
+     * its UI systems. This does not force the battle manager to use this state's update script. */
+    wake() {
+        try {
+            this.assert();
+            this.assets.hidePlayerSystems();  // Reset the scene configuration
+            this.configureScene();
+        } catch (err) {
+            if (err instanceof StateTransitionError)
+                Debug.print(`${err.name}: ${err.message}`);
+            else
+                Debug.error(err);
+            Debug.print(this.battleSystemManager.getStackTrace());
+            this.battleSystemManager.failToPreviousState(this);
+        }
     }
+
+    /** Signal the state-manager that this state transition has failed and must be aborted.
+     * @param message A description of what went wrong. */
+    protected failTransition(message: string) {
+        throw new StateTransitionError(this.name, message);
+    }
+
+    /** Asserts that the given data is dataful and not empty. */
+    protected assertData<T>(data: T | null | undefined, msg?: string): T {
+        if (data == null || data == undefined)
+            this.failTransition(`Missing data: ${msg}`);
+        return data as T;
+    }
+
+    /** Used to confirm inter-state dependencies important to this scene's construction or
+     * execution. For example, that some previous state has chosen a combat-unit to issue
+     * instructions to. If any error is raised during this function call, it is posted to the
+     * console and the BattleSystemManager is signaled to reject this state advancement.
+     * 
+     * assert() should not be used to make changes to state-independent systems: they may
+     * be irrevertible and difficult to trace should the assertion fail. */
+    protected abstract assert(): void;
 
     /** Explicitly enables control scripts relevant to the state (important to avoid conflicts.)
      * ControlScripts not enabled here are necessarily disabled. */
-    abstract configureScene(): void;
+    protected abstract configureScene(): void;
 
-    wake() {
-        this.assert();
-        this.controllers.disableAll();  // Reset the scene configuration
-        this.configureScene();
-    }
-
-    /** Probably won't need to do much, but still.
-     * Most control scripts will add themselves to the game.scene.ticker
-     * This can at least check for conditions for advancement to be met. */
+    /** Frame-by-frame processing step for turn-engine's game state.
+     * UI and UX player systems typically add themselves to the scene's ticker,
+     * so this is primarily used for state-observation and next-state triggering. */
     abstract update(): void;
+
+    /** Generic close procedure called during any state transition. */
+    close(): void {};
 
     /** Any to-dos before regressing to previous state.
      * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
     abstract prev(): void;
 
-    nextState: NextState | null = null;
-
-    // Move to 'real' implementations of TurnState
-    advanceStates = {
-        // Ex.
-        pickAttackTarget: {state: PickAttackTargetState, pre: () => {} },
-        finalizeState: {state: FinalizeOrderState, pre: () => {} }
-
-        // When picking an action, each action leads to a different scenario.
-        // pickAttackTarget would let you pick an adjacent unit to brutalize.
-        // Picking 'Wait' would end that unit's turn.
-        // I'm still working out the details, but I want a stack + multi-destination state system.
-        // .prev() undoes anything this state tried to before control is relinquished to the previous state in the stack.
-        // .next() runs a callback described by the given new state to do any pre-setup this state might need to.
-        // Often, it probably won't need to.
-        // I'm tired.
-
-        // pre(), speicifically, is probably not needed,
-        // but a way to send messages to new states will be.
-        // controller.assets is ~kind of~ that service, but I dunno.
-
-        // Basically, I need to decide if 'attack execution step' gets which
-        // attack is to be done from controller.assets or a special message from
-        // the previous state. Assets sounds easier, but I wonder.
+    /** Pushes a request to the battle system manager to advance state to the one given. */
+    advanceToState(state: NextState) {
+        this.battleSystemManager.advanceToState(this, state);
     }
-}
 
-type TurnStateConstructor = {
-    new (cont: TurnStateController): TurnState;
-}
-
-// I'm saving this as an idea in case I run into a scenario that might need it.
-type NextState = {
-    state: TurnStateConstructor,
-    pre: Function
+    /** Pushes a request to the battle system manager to revert state to the one previous. */
+    regressToPreviousState() {
+        this.battleSystemManager.regressToPreviousState(this);
+    }
 }

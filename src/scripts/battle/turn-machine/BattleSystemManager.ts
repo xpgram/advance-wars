@@ -2,14 +2,22 @@ import { TurnState, TurnStateConstructor } from "./TurnState";
 import { Debug } from "../../DebugUtils";
 import { BattleSceneControllers } from "./BattleSceneControllers";
 import { Game } from "../../..";
+import { IssueOrderStart } from "./states/IssueOrderStart";
+import { NullTurnState } from "./NullTurnState";
 
 const STACK_TRACE_LIMIT = 20;
-const STACK_SIZE_LIMIT = 100;   // Unenforced, but allocated.
+const STACK_SIZE_LIMIT = 100;   // Unenforced
 
-enum StateTransition {
+export type NextState = {
+    state: TurnStateConstructor,
+    pre: Function
+}
+
+enum TransitionTo {
     None,
     Next,
-    Previous
+    Previous,
+    PreviousOnFail
 }
 
 /** This class is responsible for starting and operating a battle.
@@ -22,104 +30,156 @@ enum StateTransition {
 export class BattleSystemManager {
 
     /** Enum flag indicating what the battle-system's state-machine intends to do on next cycle. */
-    private intent: StateTransition = StateTransition.None;
+    private transitionIntent = TransitionTo.None;
     /** Container for the next state to transition to when advancing, should be empty otherwise. */
-    private intentMaterial: {state: TurnStateConstructor, pre: () => void} | null = null;
+    private nextState!: NextState;
+    /** The default state of the manager. Empty. Does nothing. */
+    private readonly NULL_STATE = new NullTurnState(this);
 
     /** Container for battle-system assets and interactibles. */
     controllers: BattleSceneControllers;
 
     /** A list containing the battle-system's state history. */
-    private stack = new Array<TurnState>(STACK_SIZE_LIMIT);
+    private stack = new Array<TurnState>();
     /** A string list of all previously visited game states, kept for debugging purposes. */
-    private stackTrace = new Array<string>(STACK_TRACE_LIMIT);
+    private stackTrace = new Array<string>();
 
     // TODO Define scenarioOptions
     constructor(scenarioOptions: {}) {
-        this.controllers = new BattleSceneControllers();
+        this.controllers = new BattleSceneControllers({
+            mapData: {
+                width: 25,
+                height: 9
+            }
+        });
 
         // Configure controllers to the given scenario
         //      Map layout
         //      Spawned enemies
         //      etc.
 
-        this.advanceToState();
+        const firstState: NextState = {
+            state: IssueOrderStart,
+            pre: () => {}
+        }
+
+        this.advanceToState(this.NULL_STATE, firstState);
         Game.scene.ticker.add(this.update, this);
     }
 
     destroy() {
-        this.controllers.destroy();
+        //this.controllers.destroy();
         this.stack.forEach( state => {state.destroy();} );  // Break all references to self in state stack
         Game.scene.ticker.remove(this.update, this);
     }
 
     /** The currently active battle-system state. */
     get currentState(): TurnState {
-        return this.stack[this.stack.length - 1];
+        const state = this.stack[this.stack.length - 1];
+        return (state) ? state : this.NULL_STATE;
     }
 
-    /** Wrapper which runs the current state's update step. */
+    /** Turn Machine's update step which runs the current state's update step and handles
+     * transition requests. */
     private update() {
-        this.currentState.update();
+        try {
+            if (this.transitionIntent == TransitionTo.None)
+                this.currentState.update();
 
-        if (this.intent == StateTransition.Next) {
-            if (this.intentMaterial == null)
-                Debug.error("Missing game state to transition to.");
-            else {
-                this.intentMaterial.pre();                  // Pre-setup function given by previous state
-                let newState = new this.intentMaterial.state(this);
+            // nextState->new handler
+            while (this.transitionIntent == TransitionTo.Next) {
+                this.transitionIntent = TransitionTo.None;
 
-                this.stack.push(newState);          // Add new state to stack (implicitly changes current)
-                this.log(this.currentState.name);   // Log new state to trace history
-                this.currentState.assert();         // Assert state's preconditions
-                this.currentState.wake();           // Run new state's scene configurer
+                this.currentState.close();
+                this.nextState.pre();       // Run any pre-setup passed in from current state
+
+                let newState = new this.nextState.state(this);
+                this.stack.push(newState);  // Add new state to stack (implicitly changes current)
+                this.log(newState.name);    // Log new state to trace history
+                newState.wake();            // Run new state's scene configurer
             }
-        }
-        else if (this.intent == StateTransition.Previous) {
-            let state = this.stack.pop();
-            state?.destroy();
+            
+            // nextState->previous handler
+            while (this.transitionIntent == TransitionTo.Previous
+                || this.transitionIntent == TransitionTo.PreviousOnFail) {
 
-            this.log(this.currentState.name);
-            if (this.currentState.skipOnUndo == false) {
-                this.intent = StateTransition.None;
-                this.currentState.wake();
+                let oldState = this.stack.pop();    // Implicitly changes current
+                if (this.transitionIntent == TransitionTo.Previous) {
+                    oldState?.close();      // Runs generic close procedure
+                    oldState?.prev();       // Ctrl+Z Undo for smooth backwards transition
+                    oldState?.destroy();    // Free up memory
+                } else {
+                    this.log(`${oldState?.name} (failed)`);
+                    oldState?.destroy();
+                }
+
+                this.log(this.currentState.name);               // Log new current state to trace history.
+                if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
+                    this.transitionIntent = TransitionTo.None;
+                    this.currentState.wake();
+                }
             }
-            // else: keep {intent = previous} for one more cycle
+        } catch(e) {
+            Debug.ping(this.getStackTrace());
+            throw e;
         }
     }
 
-    /** Signals the BattleSystemManager that it should transition to the given state after running the preconfigure function
-     * at the end of the current cycle. */
-    advanceToState(state: TurnStateConstructor, preconfigure: () => void ) {
-        this.intentMaterial = {
-            state: state,
-            pre: preconfigure
+    /** Returns true if the given state object is the active state object. */
+    private isSelfsameState(state: TurnState) {
+        if (this.currentState !== state) {
+            Debug.log({
+                msg: `State '${state.name}' requested a state shift, but active state is '${this.currentState.name}'`,
+                priority: 3,
+                type: `TurnMachine`,
+            });
+            return false;
         }
-        this.intent = StateTransition.Next;
+        return true;
+    }
+
+    /** Signals the BattleSystemManager that it should transition to nextState.state at the end of the current cycle,
+     * and after calling nextState.pre(). */
+    advanceToState(state: TurnState, nextState: NextState) {
+        if (this.isSelfsameState(state)) {
+            this.transitionIntent = TransitionTo.Next;
+            this.nextState = nextState;
+        }
     }
 
     /** Signals the BattleSystemManager that it should transition to the last stable game state before this one at the end of
-     * the current cycle. */
-    regressToPreviousState() {
-        this.intent = StateTransition.Previous;
+     * the current cycle. Fails if there is no previous state to roll back to or if the current turn state would not allow it. */
+    regressToPreviousState(state: TurnState) {
+        if (this.isSelfsameState(state)) {
+            if (this.stack.length > 1 && this.currentState.revertible)
+                this.transitionIntent = TransitionTo.Previous;
+        }
+    }
+
+    /** Signals the BattleSystemManager that it should abandon its most recent state advancement and continue regressing to the
+     * last stable state. Throws a fatal error if regression is impossible. */
+    failToPreviousState(state: TurnState) {
+        if (this.isSelfsameState(state) == false)
+            return;
+
+        if (this.stack.length > 1)
+            this.transitionIntent = TransitionTo.PreviousOnFail;
+        else {
+            Debug.ping(this.getStackTrace());
+            Debug.error('BattleSystemManager failed to advance state but has no stable state to revert to.');
+        }
     }
 
     /** Logs a string——which should be the name of a game state——to the manager's game state history. */
     private log(msg: string) {
         this.stackTrace.push(msg);
         if (this.stackTrace.length > STACK_TRACE_LIMIT)
-            this.stackTrace.shift();    // Saves memory (I guess), but is it inefficient?
+            this.stackTrace.shift();
     }
 
-    /** Throws this battle-system's game state history as an error. */
-    printStateHistory() {
-        let str = "";
-        let c = 0;
-        this.stackTrace.forEach( item => {
-            str = `${c}: ${item}\n${str}`;
-            c++;
-        });
-        str = "Game State History:\n" + str;
-        Debug.ping(str);
+    /** Returns a string log of this battle-system's game state history. */
+    getStackTrace() {
+        const trace = this.stackTrace.map( (item, idx) => `${idx}: ${item}` ).reverse();
+        return `Game State History (last ${STACK_TRACE_LIMIT}):\n` + trace.join('\n');
     }
 }

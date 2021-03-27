@@ -1,10 +1,10 @@
 import { TerrainObject } from "./TerrainObject";
-import { Faction } from "./EnumTypes";
-import { Debug } from "../DebugUtils";
+import { Faction } from "../EnumTypes";
+import { Debug } from "../../DebugUtils";
 import { Terrain } from "./Terrain";
 import { TerrainMethods } from "./Terrain.helpers";
 
-/**  */
+/** // TODO Refactor this class name; this is a building-type terrain object class. */
 export abstract class TerrainBuildingObject extends TerrainObject {
     // Handle for the building sprite, allows easy color changing.
     protected buildingSprite: PIXI.AnimatedSprite | null = null;

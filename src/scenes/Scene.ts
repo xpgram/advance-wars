@@ -6,9 +6,9 @@ import { Game } from "..";
  * @version 1.0.0
  */
 export abstract class Scene {
-    private static UNBUILT = 0;
-    private static BUILDING = 1;
-    private static READY = 2;
+    private static readonly UNBUILT = 0;
+    private static readonly BUILDING = 1;
+    private static readonly READY = 2;
     private state: number;
 
     protected linker: {name: string, url: string}[] = [];

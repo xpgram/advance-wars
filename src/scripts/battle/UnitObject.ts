@@ -4,11 +4,12 @@ import { Game } from "../..";
 import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
 import { fonts } from "./ui-windows/DisplayInfo";
-import { MapLayers } from "./MapLayers";
+import { MapLayers } from "./map/MapLayers";
 import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
-import { Map } from "./Map";
-import { PointPrimitive } from "../Common/Point";
+import { Map } from "./map/Map";
+import { PointPrimitive, Point } from "../Common/Point";
+import { CommonRangesRetriever, RegionMap } from "./unit-actions/RegionMap";
 
 /** An uninstantiated Unit class type. */
 export interface UnitType {
@@ -79,7 +80,7 @@ export abstract class UnitObject {
         granularity: .35     // About 3 frames between min and max.
     });
 
-    private team!: Army;
+    // TODO private team!: Army;
 
     /** A 64-bit number representing all of the Unit's volatile information. */
     private conditionInfo = 0;
@@ -107,10 +108,11 @@ export abstract class UnitObject {
         return sprite;
     }
 
+    // TODO Rename this; 'exhibit' is stupid, I'm tired of reading it.
     /** A larger preview image of this unit type.  */
-    get exhibitImage(): PIXI.Sprite {
+    get infoPortrait(): PIXI.Sprite {
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
-        return new PIXI.Sprite(Unit.exhibitSheet.textures[`${name}-exhibit.png`]);
+        return new PIXI.Sprite(Unit.unitPortraitSheet.textures[`${name}-portrait.png`]);
     }
 
     /** An object containing the texture sets for the sprite's three movement facings (left must be reflected for right-facing.) */
@@ -140,38 +142,79 @@ export abstract class UnitObject {
 
         // Typically, this happens because new Unit() does not .init(), meaning faction is left blank or whatever. No bueno. I need to refactor a bit.
         // I think this method just needs to ensure it's only called on 'existing' units, not just constructed ones.
-        Debug.assert(Boolean(o.up) && Boolean(o.down) && Boolean(o.left), `Generated set of movement textures is not complete or does not exist. Was name, faction and country all provided?`);
+        Debug.assert(Boolean(o.up) && Boolean(o.down) && Boolean(o.left), `Generated set of movement textures is not complete or does not exist. [Up:${Boolean(o.up)}, Down:${Boolean(o.down)}, Left:${Boolean(o.left)}]`);
 
         return o;
     }
 
+    /** The unit's proper name. */
     abstract get name(): string;
+
+    /** The unit's shortened, space-conserving name. */
+    abstract get shortName(): string;
+
+    /** A short description of the unit's traits and purpose. */
     abstract get description(): string;
+
+    /** The unit's maximum gas: a stat depleted while moving. */
+    abstract get maxGas(): number;
+
+    /** The unit's maximum ammunition: a stat depleted by attacking. */
+    abstract get maxAmmo(): number;
+
+    /** The unit's maximum travel distance, or travel effort, depending on terrain travel efficiency. */
+    abstract get maxMovementPoints(): number;
+
+    /** The distance this unit can see into fog of war conditions. */
     get vision() { return 2; }
 
-    get maxGas() { return 99; }
-    get maxAmmo() { return 6; }
-    get soldierUnit() { return false; }             // Whether this unit is an Infantry, Mech or Bike
+    /** Returns a NumericRange describing this unit's distance-of-attack limits. */
+    get range(): NumericRange { return {min: 1, max: 1}; }
+
+    /** Returns a boolean map of the shape of the unit's attack range. */
+    get rangeMap(): RegionMap {
+        if (this.ammo > 0 || this.weapon.secondary.name != '')
+            return CommonRangesRetriever(this.range);
+        return CommonRangesRetriever({min: -1, max: -1});
+    }
+
+    /** Whether this unit is a soldier-type. Soldier's have unique graphics depending on faction,
+     * and have the unique ability to capture properties. */
+    get soldierUnit() { return false; }
+
+    /** Whether this unit has materials for building instead of ammunition for attacking.
+     * Materials take over the ammunition stat when in effect. */
     get materialsInsteadOfAmmo() { return false; }
-    get moveType() { return MoveType.Tread; }
-    get armorType() { return ArmorType.Vehicle; }
-    get repairType() { return UnitClass.Ground; }
-    // TODO Other constant stats go here
 
-    /** Returns true if the given target is attackable via the given attack method. */
-    abstract targetable(target: UnitObject, attackMethod: AttackMethod): boolean;
+    /** Whether this unit may move and attack as an action pair during its turn.
+     * This is, primarily, a distinction between direct and indirect units. */
+    get canMoveAndAttack(): boolean { return true; }
 
-    /** Returns a number representing the base damage of an attack on the target via the given attack method. */
-    abstract baseDamage(target: UnitObject, attackMethod: AttackMethod): number;
+    /** The unit's class: either Groundforce, Airforce or Navy. */
+    abstract get unitClass(): UnitClass;
+
+    /** The unit's method of movement, which affects its efficiency of travel over terrain. */
+    abstract get moveType(): MoveType;
+
+    /** The unit's armor kind, which affects what may attack it. Generally, a marginal player convenience. */
+    abstract get armorType(): ArmorType;
+
+    /**  */
+    abstract get weapon(): {
+        primary: AttackInfo,
+        secondary: AttackInfo
+    };
+
 
     /* Left blank so that units can be instantiated as reference material without building expensive graphic objects, etc. */
     constructor() { }
 
+    // TODO init(team: Army)
     /** Must be called before use. Builds unit graphics, configures important stats. */
-    init(team: Army) {
-        let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
+    init() {
+        let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
+        // TODO If spritesheet is undefined... what happens?
 
-        this.team = team;   // TODO Is this property necessary? When will Unit need to ask its team for something, outside of this method?
         this.faction = [Faction.Red, Faction.Black][ Math.floor(Math.random()*2) ];
 
         // Pick the right idle animation
@@ -209,7 +252,7 @@ export abstract class UnitObject {
         // TODO Use Army to fill in this unit object's faction, player orientation (player 2 always faces left), etc.
 
         // Configure basic stats.
-        Common.writeBits(this.stateInfo, this.serial, typeBits.length, typeBits.shift);
+        this.stateInfo = Common.writeBits(this.stateInfo, this.serial, typeBits.length, typeBits.shift);
         this.hp = 100;
         this.ammo = this.maxAmmo;
         this.gas = this.maxGas;
@@ -226,7 +269,9 @@ export abstract class UnitObject {
 
     /* TODO Not yet implemented. */
     destroy() { 
-
+        this.sprite.destroy({children: true});
+        this.uiBox.destroy({children: true});
+        Game.scene.ticker.remove(this.update, this);
     }
 
     /** The unit's team-assocation. */
@@ -272,6 +317,26 @@ export abstract class UnitObject {
             return false;
         let lowAmmoThreshold = this.maxAmmo * 0.5;
         return (this.ammo <= lowAmmoThreshold);
+    }
+
+    /** Returns true if this unit has ammo in reserve for its primary attack or has a secondary.
+     * Ammo for primary is ignored if this unit has materials to build with. */
+    get attackReady() {
+        const primary = (this.weapon.primary.name != '');
+        const secondary = (this.weapon.secondary.name != '');
+        const reserve = (this.ammo > 0 && !this.materialsInsteadOfAmmo);
+        return (primary && reserve) || secondary;
+    }
+
+    /** Returns the maximum number of movement points this unit currently has available for use.
+     * This is either their move-points limit, or their remaining gas. */
+    get movementPoints() {
+        return (this.gas < this.maxMovementPoints) ? this.gas : this.maxMovementPoints;
+    }
+
+    /** Returns true if this unit can attack distant targets. */
+    get isIndirect(): boolean {
+        return this.range.max > 1;
     }
 
     /** The unit's progress toward capturing a building. */
@@ -323,6 +388,11 @@ export abstract class UnitObject {
         this.conditionInfo = Common.writeBits(this.conditionInfo, n, orderableBits.length, orderableBits.shift);
         // Visually indicate un-orderable-ness.
         this.sprite.tint = (b) ? 0xFFFFFF : 0x888888;
+        // Visually ... the UI Box as well.
+        this.uiBox.children.forEach( child => {
+            if ((child as PIXI.Sprite).tint)
+                (child as PIXI.Sprite).tint = (b) ? 0xFFFFFF : 0x888888;
+        });
     }
 
     /** Whether this unit's sprite should show up on the board. */
@@ -349,10 +419,10 @@ export abstract class UnitObject {
     }
 
     /** This unit's position on the game board. This is *not* the unit-graphic's position in the game-world, though it does affect that. */
-    get boardLocation(): PointPrimitive {
-        return {x: this.x, y: this.y};
+    get boardLocation(): Point {
+        return new Point(this.x, this.y);
     }
-    set boardLocation(point: PointPrimitive) {
+    set boardLocation(point: Point) {
         this.x = point.x;
         this.y = point.y;
 
@@ -388,7 +458,7 @@ export abstract class UnitObject {
     private update() {
         this.setCurrentAnimationFrame();
         this.setCurrentStatusIcon();
-        this.setTransparency();
+        this.setTransparencySlider();
     }
 
     /** Chooses an animation frame based on the unit's animation speed and the the Game's elapsed frame count.
@@ -432,13 +502,13 @@ export abstract class UnitObject {
         }
     }
 
-    /**  */
-    private setTransparency() {
+    /** Increments the unit's transparency toward one of the slider's extremes, depending on the unit's transparency state. */
+    private setTransparencySlider() {
         let dir = (this.transparent) ? 1 : -1;
         this.transparencySlider.increment(dir);
 
-        this.sprite.alpha = 1 - this.transparencySlider.value;
-        this.uiBox.alpha = 1 - this.transparencySlider.value * 1.15;
+        this.sprite.alpha = 1 - this.transparencySlider.output;
+        this.uiBox.alpha = 1 - this.transparencySlider.output * 1.15;
     }
 
     /** Request the unit to make progress toward capturing the building they are located over. */
@@ -457,5 +527,74 @@ export abstract class UnitObject {
     resupply() {
         this.gas = this.maxGas;
         this.ammo = this.maxAmmo;
+    }
+
+    /** Retrieves the attack-effectiveness rating of an action from this unit via an attack against an armor-type. */
+    private getAttackHeuristic(attack: AttackInfo, armorType: ArmorType) {
+        try {
+            return attack.targetMap[armorType];
+        } catch (err) {
+            Debug.print(`UnitObject.getAttackHeuristic() → `, 'Armor Type: ', armorType, 'Attack: ', attack, err);
+            return 0;
+        }
+    }
+
+    /** Retrieves the base damage dealt from this unit via an attack to a unit-type designated by its serial. */
+    private getAttackBaseDamage(attack: AttackInfo, unitSerial: number) {
+        try {
+            return attack.damageMap[unitSerial];
+        } catch (err) {
+            Debug.print(`UnitObject.getAttackBaseDamage() → `, 'Attack: ', attack, 'Unit Serial: ', unitSerial, err);
+            return 0;
+        }
+    }
+
+    /** Returns the AttackMethod-type if the given target is attackable via either this unit's
+     * primary or secondary weapons; if it isn't, returns AttackMethod.None */
+    attackMethodFor(target: UnitObject): AttackMethod {
+        const primaryRating = this.getAttackHeuristic(this.weapon.primary, target.armorType);
+        const secondaryRating = this.getAttackHeuristic(this.weapon.secondary, target.armorType);
+
+        if (primaryRating > 0 && this.ammo > 0)
+            return AttackMethod.Primary;
+        else if (secondaryRating > 0)
+            return AttackMethod.Secondary;
+        else
+            return AttackMethod.None;
+    }
+
+    /** Returns true if this unit can launch an attack against the given unit. */
+    canTarget(unit: UnitObject) {
+        let attackable = (this.attackMethodFor(unit) != AttackMethod.None);
+        let nonAllied = (this.faction != unit.faction);
+        return (attackable && nonAllied);
+    }
+
+    /** Returns true if this unit is capable of counter-attacking aggressors.
+     * Counter-attacks are only valid against adjacent units; it is recommended to move
+     * the aggressor's board location before calling this method. */
+    canCounterAttack(unit: UnitObject) {
+        const targetable = this.canTarget(unit);
+        const inRange = (this.range.min == 1);
+        const distance = new Point(this.boardLocation).manhattanDistance(unit.boardLocation);
+        const adjacent = (distance == 1);
+        return targetable && inRange && adjacent;
+    }
+
+    // TODO couldTarget() → canTargetArmor() && canTarget() → canTargetUnit()
+    /** Returns true if this unit could attack the given armor type. */
+    couldTarget(armorType: ArmorType) {
+        const primaryRating = this.getAttackHeuristic(this.weapon.primary, armorType);
+        const secondaryRating = this.getAttackHeuristic(this.weapon.secondary, armorType);
+        return ((primaryRating > 0 && this.ammo > 0) || secondaryRating > 0);
+    }
+
+    /** Returns a number representing the base damage of an attack on the target.
+     * Defaults to primary weapon when applicable.
+     * Note: this method ~does not~ reduce the unit's ammunition. */
+    baseDamage(target: UnitObject): number {
+        const primaryDmg = this.getAttackBaseDamage(this.weapon.primary, target.serial);
+        const secondaryDmg = this.getAttackBaseDamage(this.weapon.secondary, target.serial);
+        return (primaryDmg > 0 && this.ammo > 0) ? primaryDmg : secondaryDmg;
     }
 }

@@ -24,6 +24,7 @@ export enum ArmorType {
 
 /** Used to describe a unit's method of attack: which of their two weapons they'll be using. */
 export enum AttackMethod {
+    None,
     Primary,
     Secondary
 }

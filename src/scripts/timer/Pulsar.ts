@@ -1,5 +1,7 @@
 import { Game } from "../..";
 
+// TODO Write this using Game.delta (system.time)
+
 /** 
  * Given a callable function and a frequency, recurringly calls the given function over a set interval.
  */

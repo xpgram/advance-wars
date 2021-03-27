@@ -8,31 +8,32 @@
     "type-check": "tsc",
     "production": "webpack --mode production --config webpack.config.prod.js",
     "build": "webpack --mode development --config webpack.config.dev.js",
-    "start": "webpack-dev-server --config webpack.config.dev.js"
+    "start": "webpack-dev-server --config webpack.config.dev.js",
+    "start-uglied": "webpack-dev-server --config webpack.config.prod.js"
   },
   "keywords": [],
   "author": "Dei Valko",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.6.4",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
-    "@babel/preset-env": "^7.6.3",
-    "@babel/preset-typescript": "^7.6.0",
-    "@types/node": "^12.12.14",
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-proposal-object-rest-spread": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-typescript": "^7.12.1",
+    "@types/node": "^12.19.4",
     "@types/pixi.js": "^4.8.9",
-    "babel-loader": "^8.0.6",
+    "babel-loader": "^8.2.1",
     "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^5.0.4",
+    "copy-webpack-plugin": "^5.1.2",
     "html-webpack-plugin": "^3.2.0",
-    "typescript": "^3.6.4",
+    "pixi.js": "5.2.1",
+    "typescript": "^3.9.7",
     "uglifyjs-webpack-plugin": "^2.2.0",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.8.2"
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "pixi-filters": "^3.0.3",
-    "pixi.js": "^5.1.5"
+    "pixi-filters": "3.1.1"
   }
 }

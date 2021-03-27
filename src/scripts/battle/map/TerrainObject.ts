@@ -1,13 +1,13 @@
 import * as PIXI from "pixi.js";
 import * as PixiFilters from "pixi-filters";
-import { LowResTransform } from "../LowResTransform";
-import { UnitClass, MoveType, Faction } from "./EnumTypes";
-import { NeighborMatrix } from "../NeighborMatrix";
+import { LowResTransform } from "../../LowResTransform";
+import { UnitClass, MoveType, Faction } from "../EnumTypes";
+import { NeighborMatrix } from "../../NeighborMatrix";
 import { MapLayers } from "./MapLayers";
-import { TransformableList } from "../TransformableList";
-import { Point3D } from "../CommonTypes";
+import { TransformableList } from "../../TransformableList";
+import { Point3D } from "../../CommonTypes";
 import { Terrain } from "./Terrain";
-import { Game } from "../..";
+import { Game } from "../../..";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -46,7 +46,7 @@ export abstract class TerrainObject {
     /** Returns an 'establishing shot' image of this terrain type as a sprite. */
     get landscape(): PIXI.Sprite {
         let name = this.name.replace(' ', '').toLowerCase();
-        return new PIXI.Sprite( Terrain.landscapeSheet.textures[`${name}-landscape.png`] );
+        return new PIXI.Sprite( Terrain.infoPortraitSheet.textures[`${name}-landscape.png`] );
     }
 
     /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer
@@ -174,18 +174,14 @@ export abstract class TerrainObject {
 
         // Any other shapes
         this.layers.forEach( layer => {
-            if (layer.maskShape) {
+            //if (layer.maskShape) {
                 layer.object.x = layer.object.y = tileSize;
                 container.addChild(layer.object);
-            }
+            //}
         });
 
         // White-out colors in shape sprites
-        let filter = new PixiFilters.AdjustmentFilter({
-            red: 10.0,
-            green: 10.0,
-            blue: 10.0
-        });
+        let filter = new PixiFilters.ColorReplaceFilter(0xFFFFFF, 0xFFFFFF, 10.0);
         container.filters = [filter];
 
         // Texture generation

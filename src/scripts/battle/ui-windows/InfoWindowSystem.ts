@@ -3,16 +3,18 @@ import { Game } from "../../..";
 import { UnitWindow } from "./UnitWindow";
 import { COWindow } from "./COWindow";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
-import { MapCursor } from "../MapCursor";
+import { MapCursor } from "../map/MapCursor";
 import { Camera } from "../../Camera";
-import { Point } from "../../CommonTypes";
-import { Square } from "../Square";
-import { Map } from "../Map";
-import { Terrain } from "../Terrain";
+import { Square } from "../map/Square";
+import { Map } from "../map/Map";
+import { Terrain } from "../map/Terrain";
 import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
 import { UnitClass } from "../EnumTypes";
+import { PointPrimitive } from "../../Common/Point";
+import { Debug } from "../../DebugUtils";
 
+/** // TODO finish writing this class; I only ever completed the working draft. */
 export class InfoWindowSystem {
 
     // TODO Remove
@@ -24,8 +26,6 @@ export class InfoWindowSystem {
     camera: Camera;
     //@ts-ignore
     map: Map;
-
-    lastTileInspected: Point = {x: -1, y: -1};
 
     commandersSlider = new Slider();
 
@@ -67,9 +67,34 @@ export class InfoWindowSystem {
         this.unitInfo.displayContainer.y = 142;
         this.terrainInfo.displayContainer.y = 167;
 
-
         // Add independent updater to ticker
         Game.scene.ticker.add(this.update, this);
+    }
+
+    /** Hides the window-system's graphics from the screen. */
+    hide(): void {
+        this.detailedInfo.displayContainer.visible = false;
+        this.commanderInfo.displayContainer.visible = false;
+        this.commander2Info.displayContainer.visible = false;
+        this.commander3Info.displayContainer.visible = false;
+        this.commander4Info.displayContainer.visible = false;
+        this.unitInfo.displayContainer.visible = false;
+        this.terrainInfo.displayContainer.visible = false;
+    }
+
+    /** Reveals the window-system's graphics on the screen. */
+    show(): void {
+        this.detailedInfo.displayContainer.visible = true;
+        this.commanderInfo.displayContainer.visible = true;
+        this.commander2Info.displayContainer.visible = true;
+        this.commander3Info.displayContainer.visible = true;
+        this.commander4Info.displayContainer.visible = true;
+        this.unitInfo.displayContainer.visible = Boolean(this.map.squareAt(this.cursor.pos).unit);
+        this.terrainInfo.displayContainer.visible = true;
+
+        // TODO I didn't even know I'd done that. UnitInfo should *not* be visible *every time* the
+        // ui system is shown.
+        // Geez, this class sucks...
     }
 
     update() {
@@ -104,18 +129,19 @@ export class InfoWindowSystem {
 
         // Increment CO Window slider (staggers their reveal)
         this.commandersSlider.track += (showCOwindows) ? 0.2 : -0.2;
-        this.commander2Info.show = (this.commandersSlider.value > 0);
-        this.commander3Info.show = (this.commandersSlider.value > 0.4);
-        this.commander4Info.show = (this.commandersSlider.value == 1);
+        this.commander2Info.show = (this.commandersSlider.output > 0);
+        this.commander3Info.show = (this.commandersSlider.output > 0.4);
+        this.commander4Info.show = (this.commandersSlider.output == 1);
+    }
 
-        // Update tile info unless already inspected.
-        if (this.terrainInfo.refreshable) {
-            if (this.cursor.pos.x != this.lastTileInspected.x
-                || this.cursor.pos.y != this.lastTileInspected.y) {
-                this.lastTileInspected = {x: this.cursor.pos.x, y: this.cursor.pos.y};
+    /** Calls inspectTile on cursor position change. */
+    inspectListenerCallback() {
+        Game.workOrders.send( () => {
+            if (this.terrainInfo.refreshable) {
                 this.inspectTile(this.map.squareAt(this.cursor.pos));
+                return true;
             }
-        }
+        }, this);
     }
 
     inspectTile(square: Square) {
