@@ -15,6 +15,7 @@ import { StringDictionary } from "../../CommonTypes";
 import { ControlScript } from "../../ControlScript";
 import { CardinalDirection } from "../../Common/CardinalDirection";
 import { CommandInstruction } from "./CommandInstruction";
+import { MenuWindow } from "../ui-windows/MenuWindow";
 
 
 type BattleSceneOptions = {
@@ -31,6 +32,7 @@ export class BattleSceneControllers {
     map: Map;
     mapCursor: MapCursor;
     uiSystem: InfoWindowSystem;
+    uiMenu: MenuWindow;
 
     trackCar: TrackCar;
 
@@ -88,6 +90,8 @@ export class BattleSceneControllers {
         // this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
         this.uiSystem.inspectListenerCallback();    // IWS should do this itself in its constructor
 
+        this.uiMenu = new MenuWindow(this.gamepad, MapLayers['ui']);
+
         // Setup static background image.
         let backdrop = new PIXI.Sprite( Game.scene.resources['background'].texture );
         Game.backdrop.addChild(backdrop);
@@ -132,6 +136,7 @@ export class BattleSceneControllers {
         this.mapCursor.hide();
         this.trackCar.hide();
         this.uiSystem.hide();
+        this.uiMenu.visible = false;
 
         // Reset all scripts
         let scripts = this.scripts as StringDictionary<ControlScript>;

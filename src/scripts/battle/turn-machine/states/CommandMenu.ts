@@ -48,6 +48,16 @@ export class CommandMenu extends TurnState {
             // etc.
 
         // set up command menu
+        this.assets.uiMenu.options = [
+            {name: "Attack", value: 0},
+            {name: "Supply", value: 1},
+            {name: "Wait", value: 2},
+        ]
+        const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
+        this.assets.uiMenu.transform.pos = location;
+        this.assets.uiMenu.visible = true;
+        // TODO uiMenu.show()
+
 
         // leave trackCar on
         this.assets.trackCar.show();

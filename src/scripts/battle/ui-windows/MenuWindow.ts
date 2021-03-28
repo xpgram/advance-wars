@@ -48,9 +48,9 @@ export type MenuOption = {
 export class MenuWindow /* extends ??? */ {
 
     static readonly cursorSettings = {
-        moveFrames: 3,              // How many frames to change selector states
-        inputRepeatFrames: 10,      // How frequently to impulse state changes.
-        inputRepeatDelay: 10,       // How long to delay the first impulse state change.
+        moveFrames: 3,          // How many frames to change selector states
+        pulseInterval: 10,      // How frequently to impulse state changes.
+        pulseDelay: 10,         // How long to delay the first impulse state change.
     }
 
     readonly transform = new LowResTransform();
@@ -100,6 +100,21 @@ export class MenuWindow /* extends ??? */ {
 
         // Add updater to global ticker.
         Game.scene.ticker.add( this.update, this );
+
+        // Initiate timers.
+        this.movementPulsar = new Pulsar(
+            MenuWindow.cursorSettings.pulseInterval,
+            this.moveCursor,
+            this
+        );
+
+        // TODO Remove; test
+        const g = new PIXI.Graphics();
+        g.beginFill(0x000000);
+        g.drawRect(0,0,56,56);
+        g.endFill();
+        this.graphics.addChild(g);
+        this.graphics.addChild(this.optionsText);
     }
 
     destroy() {
@@ -138,6 +153,12 @@ export class MenuWindow /* extends ??? */ {
     /** Updates selector screen/world position depending on animation states. */
     private updateCursorPosition() {
         // TODO Calculate where selector should be.
+    }
+
+    /**  */
+    private moveCursor() {
+        const dir = this.gamepad.axis.dpad.point.y;
+        this.cursor.increment(dir);
     }
 
     /** Whether to draw the command menu to the screen. */
@@ -183,7 +204,7 @@ export class MenuWindow /* extends ??? */ {
 
             const gtext = new PIXI.BitmapText(op.name, fonts.menu);
             const contentBox = MENU_OPTION.contentBox();
-            gtext.transform.position.set(contentBox.x, contentBox.y);
+            gtext.transform.position.set(contentBox.x, contentBox.y + contentBox.height*idx);
 
             this.optionsText.addChild(gtext);
         });
@@ -194,8 +215,11 @@ export class MenuWindow /* extends ??? */ {
         return this._options[this.cursor.output];
     }
 
-    /**  */
+    /** Returns the pixil-width of the longest option name in this menu's list of options. */
     private getNewContentWidth() {
+        if (this._options.length === 0)
+            return 0;
+
         const tmp = new PIXI.BitmapText('', fonts.menu);
         const sizes = this._options.map( o => {tmp.text = o.name; return tmp.textWidth;} );
         return sizes.reduce( (max, cur) => (max > cur) ? max : cur );
