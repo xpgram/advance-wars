@@ -58,6 +58,14 @@ export class CommandMenu extends TurnState {
         this.assets.uiMenu.visible = true;
         // TODO uiMenu.show()
 
+        // TODO unit.commands should be how the selectables are determined.
+        // Maybe commands returns a name/script pair? value = script.
+        // Then, the units themselves can codify how many options they have,
+        // when they present themselves, and what they do after selection.
+        //
+        // Units have a reference to map, don't they? They might not.
+        // I guess they will.
+
 
         // leave trackCar on
         this.assets.trackCar.show();
