@@ -49,14 +49,12 @@ export class CommandMenu extends TurnState {
 
         // set up command menu
         this.assets.uiMenu.options = [
-            {name: "Attack", value: 0},
-            {name: "Supply", value: 1},
-            {name: "Wait", value: 2},
+            {text: "Attack", value: 0},
+            {text: "Wait", value: 1},
         ]
         const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
         this.assets.uiMenu.transform.pos = location;
-        this.assets.uiMenu.visible = true;
-        // TODO uiMenu.show()
+        this.assets.uiMenu.show();
 
         // TODO unit.commands should be how the selectables are determined.
         // Maybe commands returns a name/script pair? value = script.
