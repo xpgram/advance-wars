@@ -57,6 +57,7 @@ export class MenuWindow /* extends ??? */ {
     private readonly graphics = new PIXI.Container();
     private readonly background = new PIXI.Container();
     private readonly optionsText = new PIXI.Container();
+    private readonly gCursor = new PIXI.Container();
 
     private _options: MenuOption[] = [];
     private _enabled = true;
@@ -114,6 +115,12 @@ export class MenuWindow /* extends ??? */ {
         g.drawRect(0,0,56,56);
         g.endFill();
         this.graphics.addChild(g);
+        const cursor = new PIXI.Graphics();
+        cursor.beginFill(0x00FF00);
+        cursor.drawRect(6,6,4,4);
+        cursor.endFill();
+        this.gCursor.addChild(cursor);
+        this.graphics.addChild(this.gCursor);
         this.graphics.addChild(this.optionsText);
     }
 
@@ -153,6 +160,7 @@ export class MenuWindow /* extends ??? */ {
     /** Updates selector screen/world position depending on animation states. */
     private updateCursorPosition() {
         // TODO Calculate where selector should be.
+        this.gCursor.position.set(-10, MENU_OPTION.contentBox().height * this.cursor.output);
     }
 
     /**  */
