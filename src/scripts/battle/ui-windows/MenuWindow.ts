@@ -110,6 +110,7 @@ export class MenuWindow {
         this.graphics.addChild(this.background);
         this.graphics.addChild(this.gCursor);
         this.graphics.addChild(this.optionsText);
+        this.transform.z = 110;
     }
 
     destroy() {
