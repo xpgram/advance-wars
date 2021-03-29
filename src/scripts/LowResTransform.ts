@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Transformable, Point3D } from "./CommonTypes";
-import { PointPrimitive } from "./Common/Point";
+import { Point, PointPrimitive } from "./Common/Point";
 
 /**
  * Represents the translational, rotational and proportional transform of a 2-dimensional
@@ -17,8 +17,8 @@ export class LowResTransform {
     private _rotation: number = 0;
     private _scale: PIXI.ObservablePoint = new PIXI.ObservablePoint(this.updateObjectScale, this, 1,1);
 
-    constructor(pos?: PointPrimitive, object?: Transformable) {
-        this.pos = pos || {x: 0, y: 0};
+    constructor(pos?: Point, object?: Transformable) {
+        this.pos = pos || Point.Origin;
         this.object = object || null;
     }
 
@@ -72,8 +72,8 @@ export class LowResTransform {
     }
 
     /** A point which represents the transform's position in 2D space. */
-    get pos(): PointPrimitive {
-        return this._pos;
+    get pos(): Point {
+        return new Point(this._pos);
     }
     set pos(point) {
         this._pos.set(point.x, point.y);
