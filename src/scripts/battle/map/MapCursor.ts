@@ -184,7 +184,10 @@ export class MapCursor extends Observable {
      * Also sets the next interval to a faster time. */
     private triggerMovement() {
         // Get held direction
-        let travelDir = new Point(this.controller.axis.dpad.point);
+        let travelDir = {
+            x: this.controller.axis.dpad.point.x,
+            y: this.controller.axis.dpad.point.y
+        }
         this.move(travelDir);
         this.movementPulsar.interval = MapCursor.movementSettings.moveTime_repeated;
     }
@@ -194,7 +197,7 @@ export class MapCursor extends Observable {
         if (!this.controlsEnabled)
             return;
 
-        let dirChangesThisFrame = Point.Origin;
+        let dirChangesThisFrame = {x:0,y:0};
 
         let resetInterval = () => {
             this.movementPulsar.reset();    // Resets the timer to avoid double-pressing.
@@ -312,10 +315,10 @@ export class MapCursor extends Observable {
 
     teleport(place: Point) {
         // Clamp new cursor position to some place on the board.
-        place.set(
-            Common.confine(place.x, 0, this.mapRef.width - 1),
-            Common.confine(place.y, 0, this.mapRef.height - 1)
-        );
+        place = {
+            x: Common.confine(place.x, 0, this.mapRef.width - 1),
+            y: Common.confine(place.y, 0, this.mapRef.height - 1)
+        };
         
         this.lastPos.set(-1,-1);            // System maintenance: set the last cursor position to something invalid.
         this.slideAnimSlider.setToMax();    // Set cursor sprite to new location

@@ -136,7 +136,7 @@ export class BattleSceneControllers {
         this.mapCursor.hide();
         this.trackCar.hide();
         this.uiSystem.hide();
-        this.uiMenu.hide();
+        this.uiMenu.visible = false;
 
         // Reset all scripts
         let scripts = this.scripts as StringDictionary<ControlScript>;

@@ -69,8 +69,7 @@ export class Pulsar {
         this.reset();
     }
 
-    /** Resets the clock, starts the counter over.
-     * Does not stop the clock's ticking. */
+    /** Resets the clock, starts the counter over. */
     reset() {
         this.clock = 0;
     }
