@@ -1,6 +1,9 @@
 import { Debug } from "./DebugUtils";
 
-
+/** Abstract class which introduces listener-object interaction to inheritors.
+ * Added functionality maintains a list of callbacks whose collective call may
+ * be manually triggered by the inheriting class.
+ */
 export abstract class Observable {
 
     private observers: {callback: () => void, context: undefined | object}[] = [];
