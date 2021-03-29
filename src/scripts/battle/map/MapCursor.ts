@@ -6,7 +6,7 @@ import { LowResTransform } from "../../LowResTransform";
 import { MapLayers } from "./MapLayers";
 import { Pulsar } from "../../timer/Pulsar";
 import { Slider } from "../../Common/Slider";
-import { PointPrimitive, Point } from "../../Common/Point";
+import { Point } from "../../Common/Point";
 import { Observable } from "../../Observable";
 
 /**
@@ -53,8 +53,7 @@ export class MapCursor extends Observable {
     private lastPos = new Point();
 
     /** Where this cursor exists graphically in the game world. */
-    transform = new LowResTransform(this.pos);
-    // TODO Major refactor: introduce ReadonlyTransform or ImmutableTransform type to protect this one.
+    transform = new LowResTransform(new Point(this.pos));
 
     /** A reference to the map object we are selecting over.
      * This is 'needed' so that this cursor knows where it can and can not be. */
@@ -267,21 +266,21 @@ export class MapCursor extends Observable {
         let yDiff = (this.pos.y - this.lastPos.y) * tileSize;
         x += xDiff * this.slideAnimSlider.output;
         y += yDiff * this.slideAnimSlider.output;
-        let newPos = {x:x, y:y};
+        let newPos = new Point(x,y);
 
         // Assign
         this.transform.pos = newPos;
     }
 
     /** Moves the cursor's actual position while updating any listeners about this change. */
-    private setCursorLocation(p: PointPrimitive) {
+    private setCursorLocation(p: Point) {
         this._pos.set(p);
         this.updateListeners();
     }
 
     /** Moves this cursor's position on the game map relative to its current position.
      * Invokes cursor animation when new location is close enough. */
-    move(dir: PointPrimitive) {
+    move(dir: Point) {
         // Get new position and clamp it to board width and height.
         let newPos = this._pos.add(dir);
         newPos.x = Common.confine(newPos.x, 0, this.mapRef.width - 1);
@@ -309,12 +308,12 @@ export class MapCursor extends Observable {
 
     /** Moves this cursor's position directly to some other position on the game map.
      * Invokes cursor animation when new location is close enough. */
-    moveTo(place: PointPrimitive) {
+    moveTo(place: Point) {
         let relativePos = new Point(place).subtract(this.pos);
         this.move(relativePos);
     }
 
-    teleport(place: PointPrimitive) {
+    teleport(place: Point) {
         // Clamp new cursor position to some place on the board.
         place = {
             x: Common.confine(place.x, 0, this.mapRef.width - 1),

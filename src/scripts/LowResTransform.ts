@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Transformable, Point3D } from "./CommonTypes";
-import { Point, PointPrimitive } from "./Common/Point";
+import { Point } from "./Common/Point";
 
 /**
  * Represents the translational, rotational and proportional transform of a 2-dimensional
