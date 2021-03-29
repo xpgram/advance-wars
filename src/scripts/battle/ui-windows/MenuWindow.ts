@@ -1,23 +1,3 @@
-
-/**
- * I don't know what the plan is——that's why I'm here, baby.
- * 
- * - I need a standardized rectangle drawing system.
- *   I think I have one, but it doesn't draw *the* AW:DoR menu boxes, you know?
- * - Font, which one?
- * - Appear/Disappear controls, and Enable/Disable controls
- * - Manages its own cursor, probs with a looping Slider
- * - A command-fill method which accepts a list of {name:, value:} objects
- *   The menu auto-configures its height, etc., instantly.
- * - A set-position method which moves the menu to some point
- * - A method which returns the value/name of the currently selected
- * 
- * I also want to think about standardizing this at least a bit.
- * The field menu will be mostly the same. In fact, might be exactly.
- * I should check before beginning any work.
- * This class may in fact just be "MenuWindow" or something.
- */
-
 import { Slider } from "../../Common/Slider";
 import { LowResTransform } from "../../LowResTransform";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
@@ -38,30 +18,36 @@ const MENU_OPTION = new BoxContainerProperties({
     padding: { left: 1, right: 1, },
 })
 
-/**  */
-export type MenuOption = {
-    name: string,
-    value: number
+/** Represents an individual selectable option of a MenuWindow. */
+export type MenuOption<T> = {
+    /** Descriptive string associated with the value; used to populate MenuWindow. */
+    text: string,
+    /** The value actually being selected over by the user. */
+    value: T
 }
 
-/**  */
-export class MenuWindow /* extends ??? */ {
+/** User-interactable UI element for seleting one of many options.
+ * MenuWindow should be provided a list of MenuOptions with which to populate
+ * itself and will return the value of the selected-over option upon request.
+ */
+export class MenuWindow {
 
     static readonly cursorSettings = {
         moveFrames: 3,          // How many frames to change selector states
-        pulseInterval: 10,      // How frequently to impulse state changes.
-        pulseDelay: 10,         // How long to delay the first impulse state change.
+        pulseInterval: 5,       // How long to wait between cursor changes (frames).
+        pulseIntervalFirst: 20, // How long to wait before the first cursor auto-change (frames).
     }
 
+    private readonly gamepad: VirtualGamepad;
+
     readonly transform = new LowResTransform();
+
     private readonly graphics = new PIXI.Container();
     private readonly background = new PIXI.Container();
     private readonly optionsText = new PIXI.Container();
     private readonly gCursor = new PIXI.Container();
 
-    private _options: MenuOption[] = [];
-    private _enabled = true;
-
+    // TODO Graphics structure
     // How do I determine/enforce an option is disabled/greyed-out?
     // I think optionsGraphics = Container() needs to be optionsGraphics = container[]
 
@@ -71,13 +57,13 @@ export class MenuWindow /* extends ??? */ {
     //          \- box graphic
     //              \- text
 
-    /** Reference to the gamepad controller. */
-    private readonly gamepad: VirtualGamepad;
+    private _options: MenuOption<number>[] = [];
+    private _enabled = true;
 
     /** Represents the currently selected option. */
     private cursor = new Slider();
 
-    /** The timer which triggers animation movements.  */
+    /** The timer which triggers animation pulses. */
     private animPulsar: Pulsar;
 
     /** Guides the option selector's position on-screen as it animates from one selectable to another. */
@@ -104,22 +90,24 @@ export class MenuWindow /* extends ??? */ {
 
         // Initiate timers.
         this.movementPulsar = new Pulsar(
-            MenuWindow.cursorSettings.pulseInterval,
-            this.moveCursor,
+            MenuWindow.cursorSettings.pulseIntervalFirst,
+            this.triggerCursorMovement,
             this
         );
 
         // TODO Remove; test
         const g = new PIXI.Graphics();
         g.beginFill(0x000000);
-        g.drawRect(0,0,56,56);
+        g.drawRect(0,0,1,1);
         g.endFill();
-        this.graphics.addChild(g);
+        this.background.addChild(g);
         const cursor = new PIXI.Graphics();
         cursor.beginFill(0x00FF00);
         cursor.drawRect(6,6,4,4);
         cursor.endFill();
         this.gCursor.addChild(cursor);
+
+        this.graphics.addChild(this.background);
         this.graphics.addChild(this.gCursor);
         this.graphics.addChild(this.optionsText);
     }
@@ -153,43 +141,62 @@ export class MenuWindow /* extends ??? */ {
 
         if (this.gamepad.axis.dpad.neutral) {
             this.movementPulsar.stop();
-            this.movementPulsar.reset();    // TODO Does this stop?
+            this.movementPulsar.interval = MenuWindow.cursorSettings.pulseIntervalFirst;
         }
     }
 
     /** Updates selector screen/world position depending on animation states. */
     private updateCursorPosition() {
-        // TODO Calculate where selector should be.
-        this.gCursor.position.set(-10, MENU_OPTION.contentBox().height * this.cursor.output);
+        const vert = MENU_OPTION.contentBox().height * this.cursor.output;
+        this.gCursor.position.set(-10, vert);
     }
 
-    /**  */
-    private moveCursor() {
+    /** Triggers a cursor change according the held player inputs. */
+    private triggerCursorMovement() {
         const dir = this.gamepad.axis.dpad.point.y;
         this.cursor.increment(dir);
+        this.movementPulsar.interval = MenuWindow.cursorSettings.pulseInterval;
     }
 
-    /** Whether to draw the command menu to the screen. */
-    get visible() {
-        return this.graphics.visible;
-    }
-    set visible(b: boolean) {
-        this.graphics.visible = b;
+    /** Reveals the menu's graphics and enables player controls. */
+    show() {
+        this.enable();
+        this.graphics.visible = true;
     }
 
-    /** Whether to listen for gamepad inputs. */
+    /** Hides the menu's graphics and disables player controls. */
+    hide() {
+        this.disable();
+        this.graphics.visible = false;
+    }
+
+    /** Whether this menu is invisible and uninteractable. */
+    get hidden() {
+        return (!this.graphics.visible);
+    }
+
+    /** Enables the player interactivity listener. */
+    enable() {
+        this._enabled = true;
+    }
+
+    /** Disables the player interactivity listener. */
+    disable() {
+        this._enabled = false;
+        this.movementPulsar.stop();
+        this.movementPulsar.interval = MenuWindow.cursorSettings.pulseIntervalFirst;
+    }
+
+    /** Whether this menu is interactable. */
     get enabled() {
         return this._enabled;
-    }
-    set enabled(b: boolean) {
-        this.enabled = b;
     }
 
     /** The list of selectables as text/value pairs. */
     get options() {
         return this._options.slice();
     }
-    set options(li: MenuOption[]) {
+    set options(li: MenuOption<number>[]) {
         this._options = li;
         // reconfigure box height/width
         
@@ -201,7 +208,12 @@ export class MenuWindow /* extends ??? */ {
             // mode: 'loop',
         });
 
+        // TODO Test implementation uses hardcoded numbers
         MENU_OPTION.width = this.getNewContentWidth();
+        this.background.scale.set(
+            MENU_OPTION.width + 8,
+            (MENU_OPTION.height + 1) * li.length
+        );
 
         // Build options text display object
         this.optionsText.removeChildren();          // Empty options-text graphics container
@@ -210,7 +222,7 @@ export class MenuWindow /* extends ??? */ {
 
             // const gborders = new PIXI.Line?;
 
-            const gtext = new PIXI.BitmapText(op.name, fonts.menu);
+            const gtext = new PIXI.BitmapText(op.text, fonts.menu);
             const contentBox = MENU_OPTION.contentBox();
             gtext.transform.position.set(contentBox.x, contentBox.y + contentBox.height*idx);
 
@@ -218,9 +230,9 @@ export class MenuWindow /* extends ??? */ {
         });
     }
 
-    /** Returns the text/value pair currently being selected over. */
-    selectedOption() {
-        return this._options[this.cursor.output];
+    /** Returns the value currently being selected over. */
+    get selectedValue() {
+        return this._options[this.cursor.output].value;
     }
 
     /** Returns the pixil-width of the longest option name in this menu's list of options. */
@@ -229,7 +241,7 @@ export class MenuWindow /* extends ??? */ {
             return 0;
 
         const tmp = new PIXI.BitmapText('', fonts.menu);
-        const sizes = this._options.map( o => {tmp.text = o.name; return tmp.textWidth;} );
+        const sizes = this._options.map( o => {tmp.text = o.text; return tmp.textWidth;} );
         return sizes.reduce( (max, cur) => (max > cur) ? max : cur );
     }
 }

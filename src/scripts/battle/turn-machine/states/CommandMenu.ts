@@ -40,31 +40,6 @@ export class CommandMenu extends TurnState {
     protected configureScene(): void {
         const {map} = this.assets;
 
-        // figure out menu options
-            // Wait
-            // Attack (if unit is attack ready and an attackable target is within range)
-            // Build  (if possible)
-            // Supply (if Rig and adjacent to allied units)
-            // etc.
-
-        // set up command menu
-        this.assets.uiMenu.options = [
-            {text: "Attack", value: 0},
-            {text: "Wait", value: 1},
-        ]
-        const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
-        this.assets.uiMenu.transform.pos = location;
-        this.assets.uiMenu.show();
-
-        // TODO unit.commands should be how the selectables are determined.
-        // Maybe commands returns a name/script pair? value = script.
-        // Then, the units themselves can codify how many options they have,
-        // when they present themselves, and what they do after selection.
-        //
-        // Units have a reference to map, don't they? They might not.
-        // I guess they will.
-
-
         // leave trackCar on
         this.assets.trackCar.show();
 
@@ -84,19 +59,54 @@ export class CommandMenu extends TurnState {
                 }
             }
         }
+
+        // figure out menu options
+            // Wait
+            // Attack (if unit is attack ready and an attackable target is within range)
+            // Build  (if possible)
+            // Supply (if Rig and adjacent to allied units)
+            // etc.
+
+        // set up command menu
+        // TODO Replace; terrible.
+        this.assets.uiMenu.options = [
+            {text: "Attack", value: 1},
+            {text: "Wait", value: 0},
+        ];
+        if (!this.actor.attackReady || !this.enemyInSight) {
+            this.assets.uiMenu.options = [
+                {text: "Wait", value: 0}
+            ]
+        }
+        const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
+        this.assets.uiMenu.transform.pos = location;
+        this.assets.uiMenu.show();
+
+        // TODO unit.commands should be how the selectables are determined.
+        // Maybe commands returns a name/script pair? value = script.
+        // Then, the units themselves can codify how many options they have,
+        // when they present themselves, and what they do after selection.
+        //
+        // Units have a reference to map, don't they? They might not.
+        // I guess they will.
+        //
+        // Problem: 'Supply' also triggers animations. Under the system just
+        // described, how would it? I could queue animations and play them
+        // during a generic animation state, but that's some work, yo.
+        // Not sure I wanna do that right now.
     }
 
     update(): void {
         const {map, gamepad, instruction} = this.assets;
 
-        // If A, assume 'Wait' (until command menu is written)
+        // If A, infer next action from uiMenu.
         if (gamepad.button.A.pressed) {
-            this.advanceToState(this.advanceStates.animateMoveUnit);
-        }
+            const commandValue = this.assets.uiMenu.selectedValue;
 
-        // If X, assume 'Attack' (until command menu is written), but only if capable
-        if (gamepad.button.X.pressed) {
-            if (this.actor.attackReady && this.enemyInSight) {
+            // TODO Terrible test implementation.
+            if (commandValue == 0)
+                this.advanceToState(this.advanceStates.animateMoveUnit);
+            else if (commandValue == 1) {
                 instruction.action = 1; // TODO Setup action enum
                 this.advanceToState(this.advanceStates.chooseAttackTarget);
             }
