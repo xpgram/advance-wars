@@ -7,6 +7,40 @@ import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { Point } from "../../Common/Point";
 import { Pulsar } from "../../timer/Pulsar";
 
+// Temp. Literally just here to describe the menu's palette; its presence
+// here is not prescriptive of where or how it should be implemented.
+const color = (h: number, s: number, v: number) => {return {hue: h, sat: s, val: v}};
+
+// Colors
+const palette = {
+    selector:   color(166, 100, 50),
+    background: color(196, 28, 23),
+    button: {
+        unselected: {
+            primary:  color(214, 18, 35),
+            light:    color(220, 16, 50),
+            lightest: color(195, 12, 60),
+            dark:     color(188, 11, 15),
+        },
+        selected: {
+            primary: color(170, 64, 28),
+            light:   color(165, 34, 60),
+            dark:    color(184, 35, 10),
+        },
+    },
+}
+// Dimensions (might already be defined below; just moving this from my notepad)
+const fieldMenu = {
+    margin: [3,1],
+    border: 1,
+    size: [88,12],
+}
+const commandMenu = {
+    margin: [3,1],
+    border: 1,
+    size: [40,12],
+}
+
 // Menu component properties constants
 const MENU_BACKGROUND = new BoxContainerProperties({
     padding: { left: 2, right: 2, top: 1.5, bottom: 1.5, },
@@ -23,7 +57,9 @@ export type MenuOption<T> = {
     /** Descriptive string associated with the value; used to populate MenuWindow. */
     text: string,
     /** The value actually being selected over by the user. */
-    value: T
+    value: T,
+    /** Whether this option isn't selectable. By default, false. */
+    disabled?: boolean,
 }
 
 /** User-interactable UI element for seleting one of many options.
