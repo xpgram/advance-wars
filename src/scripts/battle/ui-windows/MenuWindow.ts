@@ -29,6 +29,18 @@ const palette = {
         },
     },
 }
+const textbox = {
+    background: color(196, 28, 23),
+    textBackground: color(220, 16, 50),
+    textRule: color(214, 18, 35),
+    margin: [3,1],
+    border: 0,
+    padding: [3,2], // 3px including rule
+    
+    // text
+    paddingTop: 4,
+    size: [128,12],
+}
 // Dimensions (might already be defined below; just moving this from my notepad)
 const fieldMenu = {
     margin: [3,1],
