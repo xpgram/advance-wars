@@ -76,15 +76,20 @@ const commandMenu = {
 }
 
 // Menu component properties constants
-const MENU_BACKGROUND = new BoxContainerProperties({
-    padding: { left: 2, right: 2, top: 1.5, bottom: 1.5, },
-})
-const MENU_OPTION = new BoxContainerProperties({
-    height: fonts.menu.font.size,
+const OPTION_PROPS = new BoxContainerProperties({
+    minWidth: 40,
+    height: fonts.menu.font.size + 1,
     margin: { top: .5, bottom: .5, },
     border: { left: 1, right: 1, top: 1, bottom: 1, },
     padding: { left: 1, right: 1, },
-})
+});
+const MENU_PROPS = new BoxContainerProperties({
+    padding: { left: 2, right: 2, top: 1.5, bottom: 1.5, },
+    
+    children: [
+        OPTION_PROPS
+    ],
+});
 
 /** Represents an individual selectable option of a MenuWindow. */
 export type MenuOption<T> = {
@@ -206,14 +211,14 @@ export class MenuWindow {
             this.movementPulsar.start();    // TODO Build in a first pulse timer? Would simplify.
 
             this.background.removeChildren();
-            this.background.addChild( newMenuGraphic(MENU_OPTION.width, this._options, this.cursor.output) );
+            this.background.addChild( newMenuGraphic(this._options, this.cursor.output) );
         }
         else if (this.gamepad.button.dpadDown.pressed) {
             this.cursor.increment();
             this.movementPulsar.start();
 
             this.background.removeChildren();
-            this.background.addChild( newMenuGraphic(MENU_OPTION.width, this._options, this.cursor.output) );
+            this.background.addChild( newMenuGraphic(this._options, this.cursor.output) );
         }
 
         if (this.gamepad.axis.dpad.neutral) {
@@ -224,7 +229,7 @@ export class MenuWindow {
 
     /** Updates selector screen/world position depending on animation states. */
     private updateCursorPosition() {
-        const vert = MENU_OPTION.contentBox().height * this.cursor.output;
+        const vert = OPTION_PROPS.contentBox().height * this.cursor.output;
         this.gCursor.position.set(-10, vert);
     }
 
@@ -235,7 +240,7 @@ export class MenuWindow {
         this.movementPulsar.interval = MenuWindow.cursorSettings.pulseInterval;
 
         this.background.removeChildren();
-        this.background.addChild( newMenuGraphic(MENU_OPTION.width, this._options, this.cursor.output) );
+        this.background.addChild( newMenuGraphic(this._options, this.cursor.output) );
     }
 
     /** Reveals the menu's graphics and enables player controls. */
@@ -288,10 +293,11 @@ export class MenuWindow {
             // mode: 'loop',
         });
 
-        // TODO Test implementation uses hardcoded numbers
-        MENU_OPTION.width = this.getNewContentWidth();
+        OPTION_PROPS.width = this.getNewContentWidth();
+        MENU_PROPS.children = Array(li.length).fill(OPTION_PROPS);
+
         this.background.removeChildren();
-        this.background.addChild( newMenuGraphic(MENU_OPTION.width, this._options, this.cursor.output) );
+        this.background.addChild( newMenuGraphic(this._options, this.cursor.output) );
     }
 
     /** Returns the value currently being selected over. */
@@ -313,20 +319,22 @@ export class MenuWindow {
 // TODO The below, I'm just fuckin' around. I should really factor this out or something.
 
 /**  */
-function newMenuGraphic(width: number, options: MenuOption<number>[], sel: number) {
+function newMenuGraphic(options: MenuOption<number>[], sel: number) {
     
     const g = new PIXI.Graphics();
 
+    // Positional vars
+    const menuContentBox = MENU_PROPS.contentBox();
+
     // Background
     g.beginFill(palette.background);
-    g.drawRect(0, 0, width, options.length * 16 + 2);
+    g.drawRect(0, 0, MENU_PROPS.elementWidth, MENU_PROPS.elementHeight);
     g.endFill();
 
     // Children
     options.forEach( (option, idx) => {
         g.addChild( newOptionGraphic({
-            pos: new Point(2, 1 + 16*idx),
-            dim: new Point(width - 4, 16),
+            pos: new Point(menuContentBox.x, menuContentBox.y + OPTION_PROPS.elementHeight*idx),
             text: option.text,
             focus: (sel == idx),
         }) );
@@ -336,32 +344,37 @@ function newMenuGraphic(width: number, options: MenuOption<number>[], sel: numbe
 }
 
 /**  */
-function newOptionGraphic(options: {pos: Point, dim: Point, text: string, focus?: boolean}) {
-    const { pos, dim, text, focus } = options;
+function newOptionGraphic(options: {pos: Point, text: string, focus?: boolean}) {
+    const { pos, text, focus } = options;
     const colors = (focus) ? palette.button.selected : palette.button.unselected;
 
     const g = new PIXI.Graphics();
 
+    // Positional vars
+    const content = OPTION_PROPS.contentBox();
+    const background = OPTION_PROPS.borderInnerBox();
+    const border = OPTION_PROPS.borderOuterBox();
+
     // Background
     g.beginFill(colors.primary);
-    g.drawRect(0, 0, dim.x, dim.y);
+    g.drawRect(background.x, background.y, background.width, background.height);
     g.endFill();
 
     // Edge lighting
     g.beginFill(colors.light);
-    g.drawRect(0, 0, dim.x, 1);
-    g.drawRect(0, 1, 1, dim.y - 1);
+    g.drawRect(border.x, border.y, border.width, OPTION_PROPS.border.top);
+    g.drawRect(border.x, border.y, OPTION_PROPS.border.left, border.height);
     g.endFill();
 
     // Edge shadows
     g.beginFill(colors.dark);
-    g.drawRect(0, dim.y, dim.x, 1);
-    g.drawRect(dim.x, 0, 1, dim.y - 1);
+    g.drawRect(border.x, border.y + border.height, border.width, -OPTION_PROPS.border.bottom);
+    g.drawRect(border.x + border.width, border.y, -OPTION_PROPS.border.right, border.height);
     g.endFill();
 
     // Text
     const gt = new PIXI.BitmapText(text, fonts.menu);
-    gt.transform.position.set(1, 1);
+    gt.transform.position.set(content.x, content.y);
 
     // Combine and return
     g.addChild(gt);

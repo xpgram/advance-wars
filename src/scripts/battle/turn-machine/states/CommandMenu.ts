@@ -75,9 +75,7 @@ export class CommandMenu extends TurnState {
         ];
         if (!this.actor.attackReady || !this.enemyInSight) {
             this.assets.uiMenu.options = [
-                {text: "Wait", value: 0},
-                {text: "Wait2", value: 0},      // TODO Testing; remove these
-                {text: "Super Wait", value: 0},
+                {text: "Wait", value: 0}
             ]
         }
         const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
