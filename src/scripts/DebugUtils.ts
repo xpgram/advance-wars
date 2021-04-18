@@ -10,10 +10,16 @@ type ErrorType = {
  */
 export const Debug = {
 
-    /** Throws a generic error and fails the program, or an error of the given error type
-     * if one is provided. */
+    /** Throws a generic error and fails the program. */
     error: (msg?: any, ...optionalParams: any[]) => {
         console.error(msg, ...optionalParams);
+    },
+
+    /** If the condition resolves to true, throws an error using Debug.error(). */
+    errif: (condition: boolean, msg: any, ...optionalParams: any[]) => {
+        if (!condition)
+            return;
+        Debug.error(msg, optionalParams);
     },
 
     /** If the condition is false, throws an AssertionError with the given message, or an

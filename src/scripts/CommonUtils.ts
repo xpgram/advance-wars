@@ -1,3 +1,4 @@
+import { Debug } from "./DebugUtils";
 
 /**
  * Commonly useful functions.
@@ -95,5 +96,38 @@ export const Common = {
      */
     animationSpeedFromFrameInterval(interval: number) {
         return 1 / interval;
-    }
+    },
+}
+
+/** Color value functions. */
+export const Color = {
+
+    /** Converts an HSV color set to HEX. Formula adapted from wikipedia. */
+    HSV(hue: number, sat: number, val: number) {
+        const errif = Debug.errif;
+        const within = Common.within;
+        const { ceil, abs } = Math;
+
+        errif(!within(hue, 0, 360), `hue must be within 0 <= ${hue} <= 360`);
+        errif(!within(sat, 0, 100), `sat must be within 0 <= ${sat} <= 100`);
+        errif(!within(val, 0, 100), `val must be within 0 <= ${val} <= 100`);
+
+        const c = (val / 100) * (sat / 100);            // chroma
+        const x = c * (1 - abs(((hue / 60) % 2) - 1));  // linear function of chroma
+        const m = (val / 100) - c;                      // value adjustment
+
+        // which component set depends on which side of the rgb cube space we're using.
+        const rgbset = [
+            [0, x, c],
+            [0, c, x],
+            [x, c, 0],
+            [c, x, 0],
+            [c, 0, x],
+            [x, 0, c]
+        ][ceil(hue / 60) - 1];
+
+        const component = (i: number) => 0xFF*(rgbset[i] + m) << (0x8*i)
+        return component(2) + component(1) + component(0); // r+g+b
+    },
+
 }

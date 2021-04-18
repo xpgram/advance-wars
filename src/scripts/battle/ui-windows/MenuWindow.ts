@@ -6,6 +6,8 @@ import { fonts } from "./DisplayInfo";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { Point } from "../../Common/Point";
 import { Pulsar } from "../../timer/Pulsar";
+import { Debug } from "../../DebugUtils";
+import { Color, Common } from "../../CommonUtils";
 
 // TODO Option selection is updated via redrawing the entire menu
 // TODO Worse, this is triggered in 3 different places. Slider.onChange or something should be used instead.
@@ -15,72 +17,24 @@ import { Pulsar } from "../../timer/Pulsar";
 // TODO Previous test implementation of draw graphics in constructor is still there. I'm not even sure if it's doing anything.
 // TODO Further, I'm clearly not using all these PIXI.Containers I have defined. Use them or drop them.
 
-// Temp. Literally just here to describe the menu's palette; its presence
-// here is not prescriptive of where or how it should be implemented.
-const color = (h: number, s: number, v: number) => {
-    const { floor, abs } = Math;
-
-    const C = (v/100)*(s/100);
-    const X = C*(1 - abs(((h/60) % 2) - 1));
-    const m = (v/100) - C;
-
-    const switcher = [
-        [C, X, 0],
-        [X, C, 0],
-        [0, C, X],
-        [0, X, C],
-        [X, 0, C],
-        [C, 0, X]
-    ];
-    const which = floor(h / 60);
-
-    const r = (switcher[which][0] + m)*0xFF << 0x10;
-    const g = (switcher[which][1] + m)*0xFF << 0x8;
-    const b = (switcher[which][2] + m)*0xFF;
-
-    return r + g + b;
-};
-
 // Colors
+const HSV = Color.HSV;
 const palette = {
-    selector:   color(166, 100, 50),
-    background: color(196, 28, 23),
+    selector:   HSV(166, 100, 50),
+    background: HSV(196, 28, 23),
     button: {
         unselected: {
-            primary:  color(214, 18, 35),
-            light:    color(220, 16, 50),
-            lightest: color(195, 12, 60),
-            dark:     color(188, 11, 15),
+            primary:  HSV(214, 18, 35),
+            light:    HSV(220, 16, 50),
+            lightest: HSV(195, 12, 60),
+            dark:     HSV(188, 11, 15),
         },
         selected: {
-            primary: color(170, 64, 28),
-            light:   color(165, 34, 60),
-            dark:    color(184, 35, 10),
+            primary: HSV(170, 64, 28),
+            light:   HSV(165, 34, 60),
+            dark:    HSV(184, 35, 10),
         },
     },
-}
-const textbox = {
-    background: color(196, 28, 23),
-    textBackground: color(220, 16, 50),
-    textRule: color(214, 18, 35),
-    margin: [3,1],
-    border: 0,
-    padding: [3,2], // 3px including rule
-    
-    // text
-    paddingTop: 4,
-    size: [128,12],
-}
-// Dimensions (might already be defined below; just moving this from my notepad)
-const fieldMenu = {
-    margin: [3,1],
-    border: 1,
-    size: [88,12],
-}
-const commandMenu = {
-    margin: [3,1],
-    border: 1,
-    size: [40,12],
 }
 
 // Menu component properties constants
@@ -93,10 +47,6 @@ const OPTION_PROPS = new BoxContainerProperties({
 });
 const MENU_PROPS = new BoxContainerProperties({
     padding: { left: 2, right: 2, top: 1.5, bottom: 1.5, },
-    
-    children: [
-        OPTION_PROPS
-    ],
 });
 
 /** Represents an individual selectable option of a MenuWindow. */
