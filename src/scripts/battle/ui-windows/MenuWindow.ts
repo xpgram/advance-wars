@@ -7,6 +7,14 @@ import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { Point } from "../../Common/Point";
 import { Pulsar } from "../../timer/Pulsar";
 
+// TODO Option selection is updated via redrawing the entire menu
+// TODO Worse, this is triggered in 3 different places. Slider.onChange or something should be used instead.
+// TODO Color and palette stuff.. probs shouldn't be here? I dunno.
+// TODO Cursor isn't animated.
+// TODO Cursor color is wrong, and unanimated.(?)
+// TODO Previous test implementation of draw graphics in constructor is still there. I'm not even sure if it's doing anything.
+// TODO Further, I'm clearly not using all these PIXI.Containers I have defined. Use them or drop them.
+
 // Temp. Literally just here to describe the menu's palette; its presence
 // here is not prescriptive of where or how it should be implemented.
 const color = (h: number, s: number, v: number) => {
@@ -16,7 +24,7 @@ const color = (h: number, s: number, v: number) => {
     const X = C*(1 - abs(((h/60) % 2) - 1));
     const m = (v/100) - C;
 
-    const sw = [
+    const switcher = [
         [C, X, 0],
         [X, C, 0],
         [0, C, X],
@@ -26,9 +34,9 @@ const color = (h: number, s: number, v: number) => {
     ];
     const which = floor(h / 60);
 
-    const r = (sw[which][0] + m)*0xFF << 0x10;
-    const g = (sw[which][1] + m)*0xFF << 0x8;
-    const b = (sw[which][2] + m)*0xFF;
+    const r = (switcher[which][0] + m)*0xFF << 0x10;
+    const g = (switcher[which][1] + m)*0xFF << 0x8;
+    const b = (switcher[which][2] + m)*0xFF;
 
     return r + g + b;
 };
@@ -171,15 +179,7 @@ export class MenuWindow {
         );
 
         // TODO Remove; test
-        const g = new PIXI.Graphics();
-        g.beginFill(0x000000);
-        g.drawRect(0,0,1,1);
-        g.endFill();
-        this.background.addChild(g);
-        const cursor = new PIXI.Graphics();
-        cursor.beginFill(0x00FF00);
-        cursor.drawRect(6,6,4,4);
-        cursor.endFill();
+        const cursor = newSelectorGraphic(Point.Origin, 0);
         this.gCursor.addChild(cursor);
 
         this.graphics.addChild(this.background);
@@ -229,8 +229,8 @@ export class MenuWindow {
 
     /** Updates selector screen/world position depending on animation states. */
     private updateCursorPosition() {
-        const vert = OPTION_PROPS.contentBox().height * this.cursor.output;
-        this.gCursor.position.set(-10, vert);
+        const vert = OPTION_PROPS.containerBox().height * this.cursor.output + MENU_PROPS.padding.top;
+        this.gCursor.position.set(MENU_PROPS.padding.left, vert);
     }
 
     /** Triggers a cursor change according the held player inputs. */
@@ -379,5 +379,20 @@ function newOptionGraphic(options: {pos: Point, text: string, focus?: boolean}) 
     // Combine and return
     g.addChild(gt);
     g.transform.position.set(pos.x, pos.y);
+    return g;
+}
+
+function newSelectorGraphic(pos: Point, frame: number) {
+    const border = OPTION_PROPS.borderOuterBox();
+    const g = new PIXI.Graphics();
+
+    g.beginFill(palette.selector);
+    g.drawRect(border.x - 2, border.y - 2, border.width + 4, border.height + 4);
+    g.endFill();
+
+    g.beginHole();
+    g.drawRect(border.x - 1, border.y - 1, border.width + 2, border.height + 2);
+    g.endHole();
+
     return g;
 }
