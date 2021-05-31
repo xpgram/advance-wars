@@ -1,16 +1,16 @@
-import { TeamArmy } from "./TeamArmy";
 import { Slider } from "../Common/Slider";
+import { BoardPlayer } from "./BoardPlayer";
 
 /** Keeps track of the current turn-player and the turn-taking order. */
 export class TurnModerator {
 
-    readonly teams: TeamArmy[] = [];    // List of players
+    readonly teams: BoardPlayer[] = [];    // List of players
     currentIdx: Slider;                 // Turn-player index
 
     constructor() {
         this.teams = [
-            new TeamArmy(),     // TODO This is temporary.
-            new TeamArmy(),     // Should probably get details or at least player count passed in.
+            new BoardPlayer({}),     // TODO This is temporary.
+            new BoardPlayer({}),     // Should probably get details or at least player count passed in.
         ];                      // Also, what about pre-deploy?
         this.currentIdx = new Slider({
             max: this.teams.length,
