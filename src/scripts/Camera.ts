@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { LowResTransform } from "./LowResTransform";
 import { TransformContainer } from "./CommonTypes";
 import { Game } from "..";
-import { PointPrimitive, Point } from "./Common/Point";
+import { Point } from "./Common/Point";
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
@@ -59,7 +59,7 @@ export class Camera {
     }
 
     /** The object which the camera will try to keep in frame. If null, the camera does not follow. */
-    followTarget: TransformContainer | PointPrimitive | null = null;
+    followTarget: TransformContainer | Point | null = null;
 
     /** Called on every update; determines how the camera should move to keep the follow target in frame. */
     followAlgorithm: ((camera: Camera) => void) | null = null;
@@ -96,7 +96,7 @@ export class Camera {
     set y(num) { this.frameRect.y = num; }
 
     /** A point object representing the camera's position in 2D space, anchored in the top-left. */
-    get pos(): PointPrimitive { return {x: this.x, y: this.y} };
+    get pos(): Point { return new Point(this.x, this.y) };
     set pos(point) {
         this.x = point.x;
         this.y = point.y;
@@ -121,18 +121,12 @@ export class Camera {
 
     private _center = new Point();
     /** A point representing the camera's center-of-frame coordinates. */
-    get center(): PointPrimitive { return ((parent: Camera) => { return {
-        /** The camera-center's x-coordinate. */
-        get x() { return parent.x + parent._center.x; },
-        set x(num) { parent.x = num - parent._center.x; },
-        
-        /** The camera-center's y-coordinate. */
-        get y() { return parent.y + parent._center.y; },
-        set y(num) { parent.y = num - parent._center.y; },
-    }})(this)};
+    get center(): Point {
+        return new Point(this.x + this._center.x, this.y + this._center.y);
+    }
     set center(point) {
-        this.center.x = point.x;
-        this.center.y = point.y;
+        this.center.x = point.x - this._center.x;
+        this.center.y = point.y - this._center.y;
     }
  
     /** The camera's zoom level by magnification of lengths. */
@@ -167,7 +161,7 @@ export class Camera {
     getFocalPoint() {
         let focal;
 
-        let isPoint = (p: any): p is PointPrimitive => {
+        let isPoint = (p: any): p is Point => {
             return typeof p.x === 'number' && typeof p.y === 'number';
         }
 

@@ -1,6 +1,6 @@
 import { TurnState } from "../TurnState";
 import { TransformContainer } from "../../../CommonTypes";
-import { PointPrimitive, Point } from "../../../Common/Point";
+import { Point } from "../../../Common/Point";
 import { Game } from "../../../..";
 import { Common } from "../../../CommonUtils";
 
@@ -11,7 +11,7 @@ export class MoveCamera extends TurnState {
     get revertible(): boolean { return true; }
     get skipOnUndo(): boolean { return true; }
 
-    private followTargetSwap!: TransformContainer | PointPrimitive | null;
+    private followTargetSwap!: TransformContainer | Point | null;
     private lastMoveDir = new Point();  // The last axis input to the camera driver.
 
     protected assert(): void {
@@ -99,8 +99,10 @@ export class MoveCamera extends TurnState {
             if (this.lastMoveDir.y > 0) y = camera.y + camera.height - tileSize*3;
 
             // Pare down values to board coordinates
-            let place = {x: Math.floor(x / tileSize),
-                         y: Math.floor(y / tileSize)};
+            let place = new Point(
+                Math.floor(x / tileSize),
+                Math.floor(y / tileSize)
+            );
         
             // Final move order
             this.assets.mapCursor.teleport(place);

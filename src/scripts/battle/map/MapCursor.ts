@@ -54,6 +54,7 @@ export class MapCursor extends Observable {
 
     /** Where this cursor exists graphically in the game world. */
     transform = new LowResTransform(new Point(this.pos));
+    // TODO Major refactor: introduce ReadonlyTransform or ImmutableTransform type to protect this one.
 
     /** A reference to the map object we are selecting over.
      * This is 'needed' so that this cursor knows where it can and can not be. */
@@ -263,10 +264,9 @@ export class MapCursor extends Observable {
         let yDiff = (this.pos.y - this.lastPos.y) * tileSize;
         x += xDiff * this.slideAnimSlider.output;
         y += yDiff * this.slideAnimSlider.output;
-        let newPos = new Point(x,y);
 
         // Assign
-        this.transform.pos = newPos;
+        this.transform.pos = new Point(x,y);
     }
 
     /** Moves the cursor's actual position while updating any listeners about this change. */
