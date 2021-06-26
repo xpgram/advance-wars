@@ -85,7 +85,7 @@ export const TerrainMethods = {
     addSeaLayer: (width: number, height: number) => {
         let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['sea']);
         let tsprite = new PIXI.TilingSprite(anim.texture, width, height);
-        MapLayers['bottom'].addChild(tsprite);
+        MapLayers['sea'].addChild(tsprite);
 
         anim.onFrameChange = () => {
             tsprite.texture = anim.texture;

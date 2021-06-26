@@ -41,13 +41,6 @@ export class AnimateMoveUnit extends TurnState {
     }
 
     update() {
-        // Speed up animation on A.press or B.press
-        // if (this.assets.gamepad.button.A.down
-        //     || this.assets.gamepad.button.B.down)
-        //     this.assets.trackCar.speed = 11;
-        // else
-        //     this.assets.trackCar.speed = 7;
-        
         // When finished, advance to next state
         if (this.assets.trackCar.finished)
             this.advanceToState(this.advanceStates.animateBattle);

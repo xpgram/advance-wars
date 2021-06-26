@@ -1,3 +1,12 @@
+## Next Big Objectives:
+- [ ] Refactor board graphics to have fewer sprite entities.
+      Combine rows, probably. This should improve performance on slower machines.
+- [ ] Refactor to use reducers? Approximate the pattern, anyway.
+      I want: ratifyInstruction(boardState, action) => boardState
+      I don't know how feasible this would really be... I'd have to do a big, BIG refactor
+      of the Map class. Hm.
+
+
 - [ ] I have locked Pixi.js to version 5.2.1 because 5.3 removes some functionality
 I don't have a work around for yet, either that or the package update wasn't complete.
 Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.

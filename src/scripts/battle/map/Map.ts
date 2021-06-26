@@ -56,6 +56,8 @@ export class Map {
      * @param height The integer height of the board in tiles.
      */
     constructor(width: number, height: number) {
+        width = height = 50;
+
         this.layers.init();
         this.constructMap(width, height);
 
@@ -68,6 +70,7 @@ export class Map {
         this.forceLegalTiles(); // Removes any illegal tiles left behind by the map generation process.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
+        MapLayers.freezeInanimateLayers();
 
         // TODO Remove; Experimental.
         // Converts the bottom MapLayer to a mesh, greatly reducing the number of renderables.
