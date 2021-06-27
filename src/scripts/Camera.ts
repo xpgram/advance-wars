@@ -199,10 +199,15 @@ function borderedScreenPush(camera: Camera) {
     // TODO Softcode these somewhere, or at least meaningfully hardcode them.
     let border = 32;
     let tileSize = 16;
-    camera.borderRect.x = border + 8;
-    camera.borderRect.y = border;
-    camera.borderRect.width = camera.frame.width - border - 8;
-    camera.borderRect.height = camera.frame.height - border;
+
+    // TODO This is obviously broken implementation.
+    //@ts-ignore
+    const borderRect = camera.borderRect;
+
+    borderRect.x = border + 8;
+    borderRect.y = border;
+    borderRect.width = camera.frame.width - border - 8;
+    borderRect.height = camera.frame.height - border;
 
     let focal = camera.getFocalPoint();
 
