@@ -1,7 +1,7 @@
 import { TerrainObject } from "./TerrainObject";
 import { UnitObject } from "../UnitObject";
 import { Terrain } from "./Terrain";
-import { MapLayers } from "./MapLayers";
+import { MapLayer } from "./MapLayers";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { Map } from "./Map";
 import { Point, PointPrimitive } from "../../Common/Point";
@@ -114,8 +114,8 @@ export class Square {
 
         this.terrain = new Terrain.Void();
 
-        MapLayers['top'].addChild(this.overlayPanel);
-        MapLayers['ui'].addChild(this.overlayArrow);
+        MapLayer('top', 'glass-tile').addChild(this.overlayPanel);
+        MapLayer('ui').addChild(this.overlayArrow);
 
         // TODO Overlay prettifier dummy code
         Game.scene.ticker.add( () => {

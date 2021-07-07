@@ -4,7 +4,7 @@ import { Game } from "../..";
 import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
 import { fonts } from "./ui-windows/DisplayInfo";
-import { MapLayers } from "./map/MapLayers";
+import { MapLayer } from "./map/MapLayers";
 import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
@@ -112,6 +112,9 @@ export abstract class UnitObject {
     /** A larger preview image of this unit type.  */
     get infoPortrait(): PIXI.Sprite {
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
+        return new PIXI.Sprite();
+
+        //@ts-ignore    unitPortraitSheet doesn't exist yet or whatever; I'm tired of looking at it.
         return new PIXI.Sprite(Unit.unitPortraitSheet.textures[`${name}-portrait.png`]);
     }
 
@@ -231,7 +234,7 @@ export abstract class UnitObject {
         this.reverseFacing = (this.faction % 2 == 1);
         // TODO Make this more permenant. LowResT just erases it.
         
-        MapLayers['top'].addChild(this.sprite);
+        MapLayer('top', 'unit').addChild(this.sprite);
 
         // Build UI elements.
         this.uiBox = new PIXI.Container();
@@ -246,7 +249,7 @@ export abstract class UnitObject {
         this.statusIcons.y = 8;    // middle left of the unit box (texture anchor is top left)
         this.uiBox.addChild(this.statusIcons);
 
-        MapLayers['ui'].addChild(this.uiBox);
+        MapLayer('ui').addChild(this.uiBox);
         
         // TODO Create an Army class which keeps track of CO and a list of all allied units, represents a team/player, etc.
         // TODO Use Army to fill in this unit object's faction, player orientation (player 2 always faces left), etc.

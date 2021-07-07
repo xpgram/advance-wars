@@ -4,7 +4,7 @@ import { Slider } from "../Common/Slider";
 import { Game } from "../..";
 import { CardinalDirection, CardinalVector } from "../Common/CardinalDirection";
 import { Debug } from "../DebugUtils";
-import { MapLayers } from "./map/MapLayers";
+import { MapLayer } from "./map/MapLayers";
 import { Unit } from "./Unit";
 import { LowResTransform } from "../LowResTransform";
 
@@ -57,7 +57,7 @@ export class TrackCar {
         // Create the on-screen sprite and place it in-world.
         this.sprite = new PIXI.AnimatedSprite(tempImage);   // AnimSprites cannot have an empty texture list
         this.car.addChild(this.sprite);
-        MapLayers['ui'].addChild(this.car);
+        MapLayer('ui').addChild(this.car);
 
         // Set up transform
         this.transform.object = this.car;

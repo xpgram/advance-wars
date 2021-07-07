@@ -1,298 +1,247 @@
 import { Game } from "../../..";
-import { Common } from "../../CommonUtils";
 import { Debug } from "../../DebugUtils";
+import { StringDictionary } from "../../CommonTypes";
 
-/**
- * Globally accessible dictionary of layers for the map system's sprites.
- * Use: MapLayers['layer name'].doSomething();
- * Must be initialized before use.
- * 
- * Layers: 'bottom', 'top', 'cloud-shadow', 'ui'
+type MapLayerIndex = {
+    [key: string]: MapLayerContainer;
+}
+
+/** Global index of all graphics layers of the map system. */
+const layerIndex: MapLayerIndex = {};
+
+type MapLayerOptions = {
+    key: string,
+    partitionStyle?: 'none' | 'row',  // 'col'
+    freezable?: boolean,
+    children?: MapLayerOptions[],
+}
+
+/** This object defines the map layer structure. */
+const layers_config: MapLayerOptions[] = [
+    {key: 'sea'},
+    {key: 'bottom', freezable: true},
+    {key: 'top', partitionStyle: 'row', children: [
+        {key: 'static', freezable: true},
+        {key: 'animated'},
+        {key: 'glass-tile'},
+        {key: 'unit'},
+    ]},
+    {key: 'cloud-shadow'},
+    {key: 'ui'},
+];
+
+/** 
+ * Globally accessible method for retrieving graphics layers from the map system.
+ * Must be initialized before use. Use MapLayerFunctions.Init() to initialize.
  * 
  * @author Dei Valko
- * @version 0.1.3
+ * @version 1.0.0
  */
-export const MapLayers: any = {
+export function MapLayer(...layerName: string[]): MapLayerContainer {
+    const reference = layerName.join(',');
+    if (!layerIndex[reference])
+        throw new ReferenceError(`Layer '${layerName}' does not exist in MapLayer.`);
+    return layerIndex[reference];
+}
+
+/** 
+ * Functions for the management of the game-layers container.
+ * 
+ * @author Dei Valko
+ * @version 1.0.0
+ */
+ export const MapLayerFunctions = {
+
     destroyed: true,
-    layerNames: [
-        'sea',                      // Sea background animated layer.
-        'bottom',                   // Most terrain tiles
-        'top',                      // Over-hanging sprites: mountains, mist, etc. Units, meteors and plasma get +1 to z-index
 
-        'top:static',               // Over-hanging sprites; freezable.
-        'top:animated',             // Over-hanging, animated sprites.
-        'top:glass',                // Sprite masks.
-        'top:unit',                 // Unit sprites.
-        // TODO I need some way of breaking the above into rows.
-        // Separated neatly, I... think I could do this post-hoc.
-        // However, units need some way of accessing rows so they can change on move.
+    /** Initializes the MapLayers container for use. 
+     * Graphics containers will not be functional before calling this method. */
+    Init() {
+        if (!this.destroyed)
+            return;
 
-        'cloud-shadow',
-        'ui'                        // Map cursor, or any other 'in world' UI details.
-    ],
+        // This recursive function builds these structures:
+        // 'top': layer                 Game.stage.children = [ top ]
+        // 'top,static': layer          top.children = [ static, animated ]
+        // 'top,animated': layer        static.children = []
+        function buildFromConfig(config: MapLayerOptions[], parent: PIXI.Container, parentKey?: string): void {
+            config.forEach( settings => {
+                const layer = new MapLayerContainer(settings);
+                const key = [parentKey, settings.key].filter(s => s !== undefined).join(',');
+                parent.addChild(layer);
+                layerIndex[key] = layer;
 
-    /** Creates containers acting as layers and adds them to the global stage. */
-    init() {
-        if (this.destroyed) {
-            this.layerNames.forEach((layer: string) => {
-                this[layer] = new PIXI.Container();
-                Game.stage.addChild(this[layer]);
+                if (settings.children) {
+                    buildFromConfig(settings.children, layer, key);
+                    layer.prePartitionLayers = layer.children.slice() as MapLayerContainer[];
+                }
             });
-            this.destroyed = false;
         }
+
+        buildFromConfig(layers_config, Game.stage);
+        this.destroyed = false;
     },
 
-    freezeInanimateLayers() {
-        const layers = [
-            'bottom',
-        ];
+    /** Frees up the resources held by the MapLayers system.
+     * Do not reference graphics containers after calling this method before
+     * once again calling the Init() method. */
+    Destroy() {
+        if (this.destroyed)
+            return;
 
-        layers.forEach( layer => {
-            const width = this[layer].width;
-            const height = this[layer].height;
-            const tex = Game.app.renderer.generateTexture(this[layer], PIXI.SCALE_MODES.NEAREST, 1,
-                new PIXI.Rectangle(0,0,width,height));
-            const sprite = new PIXI.Sprite(tex);
-
-            this[layer].removeChildren();
-            this[layer].addChild(sprite);
-        });
-
-        return;
-
-        // TODO assemble 'top' into rows, freeze each one.
-        // TODO Break this apart into manageable pieces; below is prototype code.
-        // TODO zIndex (..?) sorting is broken. Glass layer (UI) invisible (or possibly can't exist), units never appear underneath mountains, etc.
-        ['top'].forEach( layer => {
-            const width = this[layer].width;
-            const height = this[layer].height;
-
-            const size = Game.display.standardLength;
-            const rows = height / size;
-            const rowSprites = [];
-
-            const container = this[layer] as PIXI.Container;
-
-            for (let i = 0; i < rows; i++) {
-                // TODO Assemble top layer into rows; reduce number of sprite objects.
-                // This will not be simple.
-                // The top layer consists of:
-                //  - Extra-tall (overlapping) land graphics
-                //  - Animated land graphics
-                //  - Glass-overlay tiles
-                //  - Unit graphics
-                // I think it's just those four.
-                // Anyway,
-                // this is all per-row.
-                // It's doable, naturally, but I'm not sure if I can post-hoc it from here.
-                //
-                // I need... TerrainClass? to add graphics to 'top:base:idx' or 'top:animated:idx'
-                // I need TerrainObject to add the tile mask to 'top:glass:idx'
-                // I need units to... they move. Wherever they readjust zIndex, they need to readjust
-                // 'top:unit:idx' instead.
-
-                // const sprites = container.children.filter( s => Common.within(s.position.y, i*size, (i+1)*size) );
-                // if (sprites.length == 0)
-                //     continue;
-                // sprites.forEach( s => s.position.y = 0);
-                // const rowLayer = new PIXI.Container();
-                // rowLayer.addChild(...sprites);
-                // const tex = Game.app.renderer.generateTexture(rowLayer, PIXI.SCALE_MODES.NEAREST, 1,
-                //     new PIXI.Rectangle(0,-size, rowLayer.width, rowLayer.height));
-                // const rowSprite = new PIXI.Sprite(tex);
-                // rowSprite.position.y = i*size;
-                // rowSprite.zIndex = sprites[0].zIndex * 100;
-                // rowSprites.push(rowSprite);
-            }
-
-            // this[layer].removeChildren();
-            // this[layer].addChild(...rowSprites);
-            // this[layer].sortChildren(); // TODO <- This does nothing.
-
-            Debug.ping('top layer', this[layer]);
-        });
+        Object.values(layerIndex).forEach( layer => layer.destroy() );
+        Object.keys(layerIndex).forEach( key => { delete layerIndex[key] });
+        this.destroyed = true;
     },
 
-    /** Destroys all layers and all their children. */
-    destroy() {
-        if (!this.destroyed) {
-            this.layerNames.forEach((layer: string) => {
-                Game.stage.removeChild(this[layer]);
-                this[layer].destroy({ children: true, textures: true });
-            });
-            this.destroyed = true;
-        }
+    /**  */
+    SortBatchLayerIntoPartitions() {
+        if (this.destroyed)
+            return;
+
+        Object.values(layerIndex).forEach( layer => layer.sortIntoPartitions() );
+    },
+
+    /** Signals all freezable graphics layers that they are done being built
+     * and should compile for draw efficiency. These layers should be treated
+     * as immutable until reinitializing with Destroy() and Init(). */
+    FreezeInanimateLayers() {
+        if (this.destroyed)
+            return;
+
+        Object.values(layerIndex).forEach( layer => layer.freeze() );
+    },
+
+    PostLayerIndexToConsole() {
+        const li = Object.values(layerIndex).map( layer => `${layer.zIndex} ${layer.key}` );
+        Debug.ping('Map Layers', li);
     }
 };
 
-// MapLayers - Accessor to layers
-
-// MapLayer - Handles .add() .remove() etc.
-// Properties:
-//   segmented:row / free
-//   freezable
-
-type LayerOptions = {
-    segmented?: 'row',  // 'col'
-    freezable?: boolean,
-}
-
-class Layer {
-    private segmented: 'row' | undefined; // 'col'
+/** An individual layer object to the MapLayers system.
+ * This class' purpose is to facilitate the optimization of optimizable static layers.
+ */
+class MapLayerContainer extends PIXI.Container {
+    private key: string;
+    private partitionStyle: 'none' | 'row'; // 'col'
     private freezable: boolean;
 
-    private container = new PIXI.Container();
+    prePartitionLayers: MapLayerContainer[] = [];
 
-    constructor(options?: LayerOptions) {
-        this.segmented = options?.segmented || undefined;
-        this.freezable = options?.freezable || false;
+    constructor(options: MapLayerOptions) {
+        super();
+        this.key = options.key;
+        this.partitionStyle = options.partitionStyle || 'none';
+        this.freezable = options.freezable || false;
     }
 
-    /** Must be called; layer will not appear in game otherwise. */
-    init() {
-        Game.stage.addChild(this.container);
+    // parentKey = this.key.split(',').pop().join(',')
+
+    // addChild override
+    // if parentKey is partitioned layer, assign to rowIdx?
+
+    // I *may* not want to override this. Think of a different naming scheme.
+
+    addChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
+        super.addChild(...child);
+        // MapLayerFunctions.SortBatchLayerIntoPartitions();
+        return child[0];
     }
 
-    /** Cleans up this layer's resources. Do not use after calling this method. */
-    destroy() {
-        Game.stage.removeChild(this.container);
-        this.container.destroy({children: true});
+    batchChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
+        return super.addChild(...child);
     }
 
-    /** Adds a Container object to this layer. PIXI's adherence to one parent per
-     * child means you can safely add an object multiple times to 'move' it, which
-     * is only necessary if the layer is segmented anyway. */
-    add(object: PIXI.Container): void {
-        if (!this.segmented) {
-            this.container.addChild(object);
+    // removeChild override
+    // if parentKey is partitioned layer, remove from all rowIdx?
+
+    private get parentKey() {
+        return this.key.split(',').slice(0, -1).join(',');
+    }
+
+    removeChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
+        const parent = (this.parentKey) ? MapLayer(this.parentKey) : undefined;
+
+        if (!parent || parent.partitionStyle === 'none')
+            super.removeChild(...child);
+        
+        else {
+            const parentLayers = parent.children as MapLayerContainer[];
+
+            child.forEach( toRemove => {
+                parentLayers.some( layer => {
+                    if (toRemove.parent === layer) {
+                        layer.removeChild(toRemove);
+                        return true;
+                    }
+                });
+            });
         }
 
-        else if (this.segmented === 'row') {
-            const size = Game.display.standardLength;
-            const row = Math.floor(object.position.y / size);
-
-            const start = this.container.children.length;
-            for (let i = start; i <= row; i++) {
-                const layer = new PIXI.Container();
-                layer.y = i * size;
-                this.container.addChild(layer);
-            }
-
-            const rowLayer = this.container.children[row] as PIXI.Container;
-            rowLayer.addChild(object);
-            rowLayer.sortChildren();
-        }
+        return child[0];
     }
 
-    /** Removes a Container object from the layer completely. */
-    remove(object: PIXI.Container): void {
-        const list = this.getSegments();
-        list.some( layer => {
-            const child = (layer as PIXI.Container).removeChild(object);
-            if (child)
-                return true;
-        });
-    }
-
-    /** Empties the layer, resetting anything done to it up to this point. */
-    removeAllChildren() {
-        this.container.removeChildren();
-    }
-
-    /** Returns true if the given Container object is contained by this layer. */
-    objectIncluded(object: PIXI.Container): boolean {
-        const list = this.getSegments();
-        return list.some( layer => layer === object.parent );
-    }
-
-    /** If this layer is freezable, constructs all child objects contained by this
-     * layer into one singular image to reduce PIXI draw calls. This process is
-     * irreversible. Should only be used on static layers. */
+    /** If this layer is freezable, constructs all children into one singular image
+     * to reduce draw calls. This process is irreversible and should only be used on
+     * static layers. */
     freeze() {
         if (!this.freezable)
             return;
 
-        const list: PIXI.Container[] = this.getSegments();
+        const size = Game.display.standardLength;
 
-        list.forEach( (o, idx) => {
-            const { x, y, width, height } = o.getBounds();
+        const { x, y } = {x: 0, y: 0 };
+        const { width, height } = this;
 
-            const tex = Game.app.renderer.generateTexture(
-                o,
-                PIXI.SCALE_MODES.NEAREST,
-                1,
-                new PIXI.Rectangle(x,y,width,height)
-            );
+        const tex = Game.app.renderer.generateTexture(
+            this,
+            PIXI.SCALE_MODES.NEAREST,
+            1,
+            new PIXI.Rectangle(x, y, width, height + size)
+        );
 
-            const sprite = new PIXI.Sprite(tex);
-            sprite.position.set(x, y);
+        const sprite = new PIXI.Sprite(tex);
 
-            list[idx] = sprite;
+        this.removeChildren();
+        this.addChild(sprite);
+    }
+
+    /** TODO Unfinished
+     * The goal here is to get children of the lobby layers, static and non-static,
+     * into a rowIdx layer of the same kind.
+     * The secondary goal, naturally, is to mark static rowIdx layers as such so
+     * FreezeInanimateLayers() can capture them.
+     */
+    sortIntoPartitions() {
+        if (this.partitionStyle !== 'row')
+            return;
+
+        const size = Game.display.standardLength;
+        const lobbyLayers = this.prePartitionLayers.length;
+        const toSort: StringDictionary<MapLayerContainer> = {};
+
+        this.prePartitionLayers.forEach( (layer, layerSlotNumber) => {
+            layer.children.forEach( child => {
+                const rowIdx = Math.floor(child.y / size);
+                const rowKey = `${layer.key}:${rowIdx}`;
+
+                if (!layerIndex[rowKey]) {
+                    const newLayer = new MapLayerContainer({
+                        key: rowKey,
+                        freezable: layer.freezable
+                    });
+                    newLayer.zIndex = rowIdx * lobbyLayers + layerSlotNumber;
+                    super.addChild(newLayer);
+                    layerIndex[rowKey] = newLayer;
+                }
+
+                const rowLayer = layerIndex[rowKey];
+                rowLayer.addChild(child);
+                toSort[rowLayer.key] = rowLayer;
+            });
         });
 
-        this.container.removeChildren();
-        this.container.addChild(...list);
+        Object.values(toSort).forEach( layer => layer.sortChildren() );
+        super.sortChildren();
     }
-
-    /** Returns a list of Containers representing this layer's segments. */
-    private getSegments(): PIXI.Container[] {
-        switch (this.segmented) {
-            case 'row':
-                return this.container.children.slice() as PIXI.Container[];
-            default:
-                return [this.container];
-        }
-    }
-}
-
-/**  */
-const MapLayers_new = {
-    destroyed: true,
-    layers: undefined as unknown as {
-        sea: Layer,
-        bottom: Layer,
-        top_static: Layer,
-        top_animated: Layer,
-        top_glass: Layer,
-        top_unit: Layer,
-        cloud_shadow: Layer,    // TODO Am I using this one? Remove it.
-        UI: Layer,
-    },
-
-    /**  */
-    init() {
-        if (!this.destroyed)
-            return;
-        
-        const l = this.layers;
-        l.sea = new Layer();
-        l.bottom = new Layer({freezable: true});
-        l.top_static = new Layer({freezable: true, segmented: 'row'});
-        l.top_animated = new Layer({segmented: 'row'});
-        l.top_glass = new Layer({segmented: 'row'});
-        l.top_unit = new Layer({segmented: 'row'});
-        l.cloud_shadow = new Layer();  // TODO Am I using this? Remove it.
-        l.UI = new Layer();
-
-        this.destroyed = false;
-    },
-
-    /**  */
-    destroy() {
-        if (this.destroyed)
-            return;
-
-        Object.values(this.layers).forEach( l => l.destroy() );
-        //@ts-ignore
-        this.layers = undefined;
-    },
-
-    /**  */
-    freezeInanimateLayers() {
-        if (this.destroyed)
-            return;
-
-        const layers = Object.values(this.layers);
-        layers.forEach( o => o.freeze() );
-    },
 }

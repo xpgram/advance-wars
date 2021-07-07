@@ -2,7 +2,7 @@ import 'regenerator-runtime/runtime';
 import { Terrain } from "./Terrain";
 import { Square } from "./Square";
 import { NeighborMatrix } from "../../NeighborMatrix";
-import { MapLayers } from "./MapLayers";
+import { MapLayer, MapLayerFunctions } from "./MapLayers";
 import { Game } from "../../..";
 import { NumericDictionary, StringDictionary } from "../../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
@@ -13,7 +13,6 @@ import { MoveType } from "../EnumTypes";
 import { Debug } from "../../DebugUtils";
 import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../../Common/CardinalDirection";
 import { Common } from "../../CommonUtils";
-import { inspect } from "util";
 import { TileInspector } from "./TileInspector";
 import { QueueSearch } from "../../Common/QueueSearch";
 import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
@@ -31,7 +30,6 @@ function InvalidLocationError(point: PointPrimitive) {
  * @version 0.2.2
  */
 export class Map {
-    layers = MapLayers; // Reference to the dictionary of image layers
 
     /** 2D array representing the grid of tiles and map entities.
      * Should never be used directly unless you intend to deal with the border of blank terrain objects. */
@@ -58,7 +56,7 @@ export class Map {
     constructor(width: number, height: number) {
         width = height = 50;
 
-        this.layers.init();
+        MapLayerFunctions.Init();
         this.constructMap(width, height);
 
         let screenWidth = width * Game.display.standardLength;
@@ -70,18 +68,11 @@ export class Map {
         this.forceLegalTiles(); // Removes any illegal tiles left behind by the map generation process.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
-        MapLayers.freezeInanimateLayers();
-
-        // TODO Remove; Experimental.
-        // Converts the bottom MapLayer to a mesh, greatly reducing the number of renderables.
-        //////
-        // let ground = MapLayers['bottom'];
-        // let rtex = PIXI.RenderTexture.create({width: ground.width, height: ground.height});
-        // Game.app.renderer.render(ground, rtex);
-        // MapLayers['bottom'] = new PIXI.Sprite(rtex);
-        //////
-
+        MapLayerFunctions.SortBatchLayerIntoPartitions();
+        MapLayerFunctions.FreezeInanimateLayers();
         TerrainMethods.startPaletteAnimation();
+
+        MapLayerFunctions.PostLayerIndexToConsole(); // TODO Remove
     }
 
     /**  */
@@ -103,7 +94,7 @@ export class Map {
         mapMask.drawRect(0, -tileSize, width, height + tileSize);
 
         // Set the mask and add it to the stage; the mask should move with its object.
-        MapLayers['top'].mask = mapMask;
+        MapLayer('top', 'static').mask = mapMask;
         Game.stage.addChild(mapMask);
     }
 
@@ -292,7 +283,7 @@ export class Map {
         }
 
         // Apply z-ordering. Bottom layer never overlaps——is fine.
-        this.layers['top'].sortChildren();
+        MapLayer('top', 'static').sortChildren();
     }
 
     /** Returns the horizontal size of the grid map, including the border columns. */
@@ -453,7 +444,7 @@ export class Map {
         this.removeUnit(src);
         this.placeUnit(traveler, dest);
 
-        MapLayers['top'].sortChildren();
+        MapLayer('top', 'static').sortChildren();
 
         return true;
     }

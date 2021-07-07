@@ -2,7 +2,7 @@ import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
 import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
-import { MapLayers } from "../../map/MapLayers";
+import { MapLayer } from "../../map/MapLayers";
 import { CardinalVector, SumCardinalVectorsToVector, CardinalDirection } from "../../../Common/CardinalDirection";
 import { Debug } from "../../../DebugUtils";
 import { DamageScript } from "../../DamageScript";

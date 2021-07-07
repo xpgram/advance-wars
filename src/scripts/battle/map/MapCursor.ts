@@ -3,7 +3,7 @@ import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { Common } from "../../CommonUtils";
 import { LowResTransform } from "../../LowResTransform";
-import { MapLayers } from "./MapLayers";
+import { MapLayer } from "./MapLayers";
 import { Pulsar } from "../../timer/Pulsar";
 import { Slider } from "../../Common/Slider";
 import { Point } from "../../Common/Point";
@@ -116,7 +116,7 @@ export class MapCursor extends Observable {
         // Add the created image layer to the relevant places
         this.transform.object = this.spriteLayer;
         this.transform.z = 100;     // TODO This needs to be somewhere much more accessible.
-        MapLayers['ui'].addChild(this.spriteLayer);
+        MapLayer('ui').addChild(this.spriteLayer);
 
         // Initiate pulsars controlling animation and movement input.
         this.animPulsar = new Pulsar( MapCursor.animSettings.pulseInterval, this.triggerAnimation, this );

@@ -5,7 +5,7 @@ import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Terrain } from "./Terrain";
 import { Faction, FactionColors } from "../EnumTypes";
 import { Game } from "../../..";
-import { MapLayers } from "./MapLayers";
+import { MapLayer } from "./MapLayers";
 
 export const TerrainMethods = {
 
@@ -67,13 +67,13 @@ export const TerrainMethods = {
         // Pixi defaults to low resolutions for filters, undo that.
         TerrainMethods.shorelineFilter.resolution = Game.app.renderer.resolution;
 
-        MapLayers['bottom'].filters = [TerrainMethods.shorelineFilter];
+        MapLayer('bottom').filters = [TerrainMethods.shorelineFilter];
         Game.app.ticker.add( TerrainMethods.animateShoreline );
     },
 
     /** Stops the shoreline animation ticker, and removes the color filter. */
     stopPaletteAnimation: () => {
-        MapLayers['bottom'].filters = null;
+        MapLayer('bottom').filters = [];
         Game.app.ticker.remove( TerrainMethods.animateShoreline );  // TODO Does this work?
     },
 
@@ -85,7 +85,7 @@ export const TerrainMethods = {
     addSeaLayer: (width: number, height: number) => {
         let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['sea']);
         let tsprite = new PIXI.TilingSprite(anim.texture, width, height);
-        MapLayers['sea'].addChild(tsprite);
+        MapLayer('sea').addChild(tsprite);
 
         anim.onFrameChange = () => {
             tsprite.texture = anim.texture;

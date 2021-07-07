@@ -3,7 +3,7 @@ import * as PixiFilters from "pixi-filters";
 import { LowResTransform } from "../../LowResTransform";
 import { UnitClass, MoveType, Faction } from "../EnumTypes";
 import { NeighborMatrix } from "../../NeighborMatrix";
-import { MapLayers } from "./MapLayers";
+import { MapLayer } from "./MapLayers";
 import { TransformableList } from "../../TransformableList";
 import { Point3D } from "../../CommonTypes";
 import { Terrain } from "./Terrain";
@@ -22,7 +22,7 @@ export interface TerrainType {
  */
 export abstract class TerrainObject {
     protected static transform: LowResTransform = new LowResTransform();
-    protected layers: {object: PIXI.Container, name: string, maskShape?: boolean}[] = [];
+    protected layers: {object: PIXI.Container, key: string[], maskShape?: boolean}[] = [];
 
     /** A reference to this terrain's constructing type. Useful for comparisons. */
     abstract get type(): TerrainType;
@@ -135,13 +135,14 @@ export abstract class TerrainObject {
         // Get this tile's white mask, apply it to both overlay panels
         this._whiteTexture = this.constructWhiteMask();
         this._whiteTexture.visible = false; // TODO This should be true. If it's a mask, anyway. I dunno.
-        this.layers.push({object: this._whiteTexture, name: 'top'});
+        this.layers.push({object: this._whiteTexture, key: ['top', 'glass-tile']});
 
         // Add populated layers to display and this.transform
         let graphicsObjects: TransformableList = new TransformableList();
         this.layers.forEach( layer => {
             graphicsObjects.push(layer.object);
-            MapLayers[layer.name].addChild(layer.object);
+            const mapLayer = MapLayer(...layer.key);
+            mapLayer.addChild(layer.object);
         });
 
         // Use TerrainObject's single-instance LowResTransform
@@ -155,7 +156,8 @@ export abstract class TerrainObject {
      * garbage collection. */
     destroy() {
         this.layers.forEach( layer => {
-            MapLayers[layer.name].removeChild(layer.object);
+            const mapLayer = MapLayer(...layer.key);
+            mapLayer.removeChild(layer.object);
             layer.object.destroy({children: true}); // .destroy({children: true, texture: true})
         });
     }

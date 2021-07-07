@@ -5,7 +5,7 @@ import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
-import { MapLayers } from "../map/MapLayers";
+import { MapLayer } from "../map/MapLayers";
 import { Slider } from "../../Common/Slider";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
@@ -77,8 +77,8 @@ export class BattleSceneControllers {
         this.camera = new Camera(Game.stage);
         
         let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
-        (MapLayers['top'] as PIXI.Container).filterArea = cameraView;
-        (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;    // TODO Is this doing anything? It was meant to cull processing on filters, I believe.
+        MapLayer('top').filterArea = cameraView;
+        MapLayer('bottom').filterArea = cameraView;    // TODO Is this doing anything? It was meant to cull processing on filters, I believe.
 
         // Setup UI Window System
         // TODO This was a rushed, demo implementation. Clean it up.
@@ -90,7 +90,7 @@ export class BattleSceneControllers {
         // this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
         this.uiSystem.inspectListenerCallback();    // IWS should do this itself in its constructor
 
-        this.uiMenu = new MenuWindow(this.gamepad, MapLayers['ui']);
+        this.uiMenu = new MenuWindow(this.gamepad, MapLayer('ui'));
 
         // Setup static background image.
         let backdrop = new PIXI.Sprite( Game.scene.resources['background'].texture );
@@ -111,8 +111,8 @@ export class BattleSceneControllers {
         this.trackCar = new TrackCar();
 
         // Apply z-sort correction to scene objects.
-        MapLayers['top'].sortChildren();
-        MapLayers['ui'].sortChildren();
+        MapLayer('top', 'static').sortChildren();
+        MapLayer('ui').sortChildren();
 
         // The objective here is to build a complete battle scene given scenario options.
         // Then it is to start the turn engine.

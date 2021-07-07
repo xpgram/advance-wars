@@ -4,7 +4,7 @@ import { Game } from "..";
 import { Camera } from "../scripts/Camera";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
 import { MapCursor } from "../scripts/battle/map/MapCursor";
-import { MapLayers } from "../scripts/battle/map/MapLayers";
+import { MapLayer } from "../scripts/battle/map/MapLayers";
 import { InfoWindowSystem } from "../scripts/battle/ui-windows/InfoWindowSystem";
 import { Unit } from "../scripts/battle/Unit";
 import { UnitObject } from "../scripts/battle/UnitObject";
@@ -89,12 +89,13 @@ export class BattleScene extends Scene {
 
         // TODO Move this to Camera.update(), a function which should add itself to the scene's ticker.
         // Window resize: camera-view rectangle fix.
-        if (Game.display.width != (MapLayers['top'] as PIXI.Container).filterArea.width
-            || Game.display.height != (MapLayers['top'] as PIXI.Container).filterArea.height) {
+
+        if (Game.display.width != MapLayer('top').filterArea.width
+            || Game.display.height != MapLayer('top').filterArea.height) {
 
             let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
-            (MapLayers['top'] as PIXI.Container).filterArea = cameraView;
-            (MapLayers['bottom'] as PIXI.Container).filterArea = cameraView;
+            MapLayer('top').filterArea = cameraView;
+            MapLayer('bottom').filterArea = cameraView;
         }
 
         // TODO Move this to... Camera.update()..?
