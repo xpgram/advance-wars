@@ -112,3 +112,16 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
     - I have confirmed it is not a quirk of the demo unit spawner. It's possible
     unit.maxAmmo is not being set properly in the unit's type configuration.
     - [update] I'd have to look into it again, but I could swear this was a result of unit ammo being randomly assigned with reckless abandon during spawn. Is this what I was referring to when I said it wasn't a quirk of the spawner?
+
+
+- [ ] Server and database setup
+  Tables:
+- users : userId login pass(hashed/salted) recovery(email, probs)
+- games : gameId mapId [settings . . . ] [results . . . ]
+- players : gameId userId player#
+- maps : mapId name [data . . . ]
+- turns : turnId gameId datetime actionJson
+- boardstate : boardId gameId datetime [data . . . ]
+Board states are determined internally.  
+TurnView returns accepted/rejected after input depending on whether the given
+action-Json a legal change of board state.
