@@ -4,6 +4,7 @@ import { DiagnosticLayer } from './scripts/DiagnosticLayer';
 import { BlankScene } from './scenes/BlankScene';
 import { Debug } from './scripts/DebugUtils';
 import { WorkOrderHandler } from './scripts/system/WorkOrderHandler';
+import { TextureLibrary } from './scripts/system/TextureLibrary';
 
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
@@ -45,6 +46,9 @@ class App {
 
     /** A repository for delayed function calls. */
     readonly workOrders = new WorkOrderHandler();
+
+    /** A repository for expensive but reusable textures. Emptied at the end of every frame. */
+    readonly textureLibrary = new TextureLibrary();
 
     /** The number of frames that have elapsed since the game started. Note that this will cap out at infinity if left on for 9.8 billion years. */
     get frameCount() { return this._frameCount; }
@@ -149,6 +153,7 @@ class App {
             this.scene.init();
         this.scene.update(delta);
         this.workOrders.close();
+        this.textureLibrary.flush();
         this._frameCount++;
     }
 
