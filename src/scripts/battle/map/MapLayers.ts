@@ -2,6 +2,21 @@ import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
 import { StringDictionary } from "../../CommonTypes";
 
+/** TODO Everything is Broken T_T
+ * The Freeze method uses renderer.generateTexture() to take a snapshot
+ * of the current container object. This causes a kind of doubling up effect for
+ * some reason. The original objects are likely, somehow, not being removed
+ * between different snapshot calls.
+ *
+ * This really shouldn't be happening, but the problem could possibly be
+ * circumvented entirely by using cacheAsBitmap instead; I wouldn't need to
+ * remove anything if built this way, but I would still eliminate the unnecessary
+ * object re-rendering.
+ *
+ * In any case, big rewrite. Maybe.
+ * I haven't looked at this code in a good, long while, so we'll see.
+ */
+
 type MapLayerIndex = {
     [key: string]: MapLayerContainer;
 }
