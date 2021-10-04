@@ -9,6 +9,29 @@ import { Point3D } from "../../CommonTypes";
 import { Terrain } from "./Terrain";
 import { Game } from "../../..";
 
+/** TODO Implement Efficient Tile Overlays
+ * Constructor: build static filters if they do not exist.
+ * Constructor: assign single or double-sized filter depending on terrain properties.
+ * Constructor: Register uniform update callback to Game ticker if not previously done.
+ * Rename whitemask sprite to overlay.
+ * Uniform Update Method:
+ *   If TextureLibrary does not have a texture:
+ *     Render current view to texture.                            \
+ *     Build sprite from texture.                                 | Could apply filters directly to current view, render to
+ *     Apply [whitemask, tileOverlay] filters to built sprite.    / texture, then unapply.
+ *     Render built sprite to new texture.
+ *     Register new texture with TextureLibrary.
+ *     Assign new texture to overlay sprite object.
+ *   Else
+ *     Get texture from TextureLibrary.
+ *     Assign texture to overlay sprite object.
+ *
+ * TextureLibraryID format:
+ *   '[name]:[orientation]:[tint]' => PIXI.Texture
+ *   Could we render a grayscale overlay and tint the resulting texture?
+ *   Pixi tints are nearly costless. They might also be within the shader, though.
+ */
+
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
     new (prevTile?: TerrainObject): TerrainObject;
