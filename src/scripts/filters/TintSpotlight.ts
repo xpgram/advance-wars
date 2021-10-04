@@ -17,6 +17,7 @@ export function TintSpotlight(baseRect: PIXI.Rectangle, lightRect: PIXI.Rectangl
   uniform float spotlightWidth;
   uniform vec2 dimensions;
   uniform vec2 offset;
+  uniform vec3 tint;
   uniform float time;
   
   float max_brightness = .7;    // Settings
@@ -32,8 +33,8 @@ export function TintSpotlight(baseRect: PIXI.Rectangle, lightRect: PIXI.Rectangl
   void main() {
     vec4 base = texture2D(uSampler, vTextureCoord);
   
-    vec4 c1 = vec4(0.0, 1.0, 0.0, base.a);  // Green; get from uniform.
-    vec4 c2 = vec4(0.7, 1.0, 0.7, base.a);  // White-Green
+    vec4 c1 = vec4(tint, base.a);           // Base color.
+    vec4 c2 = vec4(tint*.3 + .7, base.a);   // Spotlight color.
     
     vec2 pos = vTextureCoord * dimensions + offset;
     
@@ -59,6 +60,7 @@ export function TintSpotlight(baseRect: PIXI.Rectangle, lightRect: PIXI.Rectangl
     spotlightWidth: lightRect.width/2,
     dimensions: [baseRect.width, baseRect.height],
     offset: [baseRect.x, baseRect.y],
+    tint: [0,1,0],
     time: 0,
   }
 
