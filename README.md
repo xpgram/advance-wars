@@ -7,11 +7,12 @@ Progress is slow only because I have responsibilities and I feel guilty working 
 
 Currently features:
  - Random map generation.
- - Map tiles which auto-configure their sprites to match their surroundings, creating seemless, beautiful landscapes *(chefskiss)*.
- - Authentic cursor controls (whoopee.)
- - A turn engine which makes turn-state scripting simple. I just flip UI switches: this is on, that isn't on, etc.
+ - Map tiles which auto-configure their sprites to match their surroundings. Seemless, beautiful. *\*chefskiss\**
+ - Authentic cursor controls. (whoopee)
+ - A turn engine which makes turn-state scripting simple. I just flip UI switches: this is on, that isn't on. So easy.
  - Pathfinding for unit travel, and unit travel animation.
  - A working camera. It zooms!
- - Attacks, technically. You can't do it in the public build yet; I haven't finished designing the command menu.
+ - Basic play: Inter-unit attacking, but not among allies; an unfinished command menu with contextual actions.
  - Complete (or near complete, I forget) unit and terrain properties, assembled into discrete class-types via python code generation.
  - A scene-pattern style architecture I have yet to take advantage of. But see, I plan for the future. That's why I'm a special boy.
+ - Efficient sprite-draw management—I'm working on this, actually. Nearly there.
