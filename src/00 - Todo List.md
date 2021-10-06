@@ -23,48 +23,43 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
 - [ ] Clean up Window UI classes
 - [ ] Add "Unit Info" window switch-to-able with 'C' — all unit information is prepped now.
     - [ ] Let 'C' switch the stack-order of the blurb panels; bottom is whichever detailed describes.
-        - [ ] This will require adding TerrainInfo to Detailed's wipe-away mask.
+            I can't... quite remember why. I think this was to sync the blurb panel with the More Info
+            panel; only one can show while More Info is extended and they should probably match since
+            I don't think More Info is exhaustive.
+          - [ ] This will require adding TerrainInfo to Detailed's wipe-away mask.
 
 - [ ] After building the map, send all non-animated sprites to a mesh / paint them permenantly onto one big sprite, kind of like I do for the backdrop ocean. This should improve speed, kind of like it did for the backdrop ocean.
-
-- [ ] Reorganize BattleSystemManager to use or describe an 'Order' to a unit as a single object.
-    - [ ] Acting Unit: Point
-    - [ ] Travel Path: CardinalDirection[]
-    - [ ] Action Type: Number
-    - [ ] Action Focal: Point
-    - Action type possible values:
-        - 0: Wait; Do Nothing
-        - 1: Attack
-        - 2: Contextual (capture/use-Silo, build (unit/T.base), cast flare, stealth)
-        - 3: Contextual 2 (release held unit, supply nearby units)
+      - [X] Sea
+      - [X] Surface
+      - [ ] Overlapping
+            These have to be segmented into rows in order to preserve the dynamic layering of units.
+      We are no longer rendering to textures—or not manually, anyway. Segment layers into the fewest possible structures and use cacheAsBitmap to suspend re-rendering. When building terrain needs to change color: un-cache, render and re-cache. I will have to build this behavior into the row segmentation system.
+            - [ ] When a building changes color, send a message requesting a row update to MapLayers using its coordinates.
+                  MapLayers will determine the correct row and do a simple false→render→true caching operation.
 
 - [ ] Z-Ordering and UI Properties refactor
-
   Currently, each UI element defines these in their class scripts—in their constructors, actually. I can confirm MenuWindow and MapCursor do.
   This will be messy later on.
+    - Introduce one place to define z-ordering relationships between layers and layer elements, and extend that for other inter-UI properties as well, if such properties are useful.
 
-  - Introduce one place to define z-ordering relationships between layers and layer elements, and extend that for other inter-UI properties as well, if such properties are useful.
-    - The cursor behavior settings used by MapCursor and MenuWindow are defined separately and far away from each other, but behave similarly. This might be a good candidate for globalization.
+- [ ] The cursor behavior settings used by MapCursor and MenuWindow are defined separately and far away from each other, but behave similarly. This might be a good candidate for globalization.
 
 - [ ] Include CommandMenu in the turn structure.
     - [X] Implement Waiting
-    - [ ] Implement the decision branch
-    - Since I don't have a menu UI yet, do this:
-    - [ ] '1' issues 'Wait'
-    - [ ] '2' issues 'Attack'
-        - My virtual controller might limit me to 'c' and 'v' or whatever.
+    - [X] Implement the decision branch
     - Before the above:
     - [X] Refactor the turn scripting system to be more... composed? Less slapped together.
-    - [ ] Refactor each turn script to follow the new principles——get rid of redlines.
-    - [ ] Refactor each turn script to make requests, not to evalutate algorithms.
+    - [X] Refactor each turn script to follow the new principles——get rid of redlines.
+    - [X] Refactor each turn script to make requests, not to evalutate algorithms.
           Ie, Map.getDestinationFrom(point): Point is used to confirm a path leads to a known location; the algorithm is not contained in the script.
     - [ ] Refactor BattleSceneControllers (I remember now I didn't know what to call it)
-        - [ ] order.source: Point               Typically the actor to carry out order.
-        - [ ] order.path: CardinalDirection[]   The movement path, if travelling.
-        - [ ] order.action: Number              Codified contextual action.
-        - [ ] order.focal: Point                Action's point of execution.
-        - [ ] order.which: Number               Action's variation.
-        - Action type possible values:
+            Call it CommandOrder, BattleOrder or something.
+          - [ ] order.source: Point               Typically the actor to carry out order.
+          - [ ] order.path: CardinalDirection[]   The movement path, if travelling.
+          - [ ] order.action: Number              Codified contextual action.
+          - [ ] order.focal: Point                Action's point of execution.
+          - [ ] order.which: Number               Action's variation, such as which held unit to release.
+          - Action type possible values:
             - 0: Wait; Do Nothing
             - 1: Attack
             - 2: Contextual (capture/use-Silo, build (unit/T.base), cast flare, stealth)
@@ -85,28 +80,15 @@ Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.
     - [ ] Reset cursor switches to default cursor graphics
 
 - [ ] Add "Choose Attack Target" step to turn structure in two steps:
-    - [ ] Active step:
-    - [ ] Within the affective range, build a list of all targetable units in the order left-to-right, top-to-bottom.
-    - [ ] Controls: Up/Left ascends the list, Down/Right descends the list. List loops.
-        - Slider objects, I believe, have range-loop as a mode setting.
-    - [ ] MapCursor is shown, its controls are disabled.
-        - [ ] TurnState handles controls as it handles the list.
+    - [X] Active step:
+    - [X] Within the affective range, build a list of all targetable units in the order left-to-right, top-to-bottom.
+    - [X] Controls: Up/Left ascends the list, Down/Right descends the list. List loops.
+            - Slider objects, I believe, have range-loop as a mode setting.
+    - [X] MapCursor is shown, its controls are disabled.
+            - [X] TurnState handles controls as it handles the list.
     - [ ] Passive step (during 'Move' step):
     - [ ] Use recalcPathToPoint() (whatever it's called) to adjust the unit's travel destination to the nearest position within range of the target.
-        - The source game ignores this rule if the actionable unit is a battleship and only recalcs the path on formally choosing a target, prefering not a similar path to the one drawn but the shortest path to some point within range. I can't think of a technical reason for this; it is probably just a convenience assumed for the player.
-
-- [x] Compare 25x15x3 sprites drawn individually (with transparency) vs the same in a mesh.
-    Predictably, yes, it is faster with meshes.
-    - [ ] Refactor the map building system to create a mesh instead of a sprite grid.
-    - [X] Sea layer: Rendered to one animated texture.
-        - [ ] Refactor its placement into its own layer; I think its currently in bottom.
-    - [ ] Ground layer: All rendered to one texture.
-    - [ ] Overlap layer: Each row rendered to one texture.
-    - [ ] Animated layer: All animated tiles (fire and plasma) are their own entity.
-        - This is fixable, but requires more work.
-        The gist is that I'd save each frame for each entity to a different mesh. So, the plasma layer would have 3 different meshes it cycles between, the fire layer 5.
-    - [ ] UI layer: ... I dunno yet.
-    - Without a re-rendering strategy on change, cities may need to be on the animated layer. Note that this means cities would be unaffected by mountain shadows when right-adjacent, which is not source-game behaviour.
+            - The source game ignores this rule if the actionable unit is a battleship and only recalcs the path on formally choosing a target, prefering not a similar path to the one drawn but the shortest path to some point within range. I can't think of a technical reason for this; it is probably just a convenience assumed for the player.
 
 - [ ] War Tanks can have 6 ammo?
     - I have confirmed it is not a quirk of the demo unit spawner. It's possible
