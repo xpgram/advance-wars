@@ -1,72 +1,15 @@
 import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
 import { StringDictionary } from "../../CommonTypes";
+import { Common } from "../../CommonUtils";
 
 /*
-So, I haven't learned much.
-I've learned a little.
-
-I may want to rethink this system.
-Row layer should be integral to every interaction.
-This should be opt-out.
-Or... sigh, I dunno.
-
-In any case. Things are sorting correctly. But they aren't.
-I need a way to *see* into the memory structure.
-Currently, I can see the indexing system, but this does not tell me layering order.
-I need to *see* [bottom, static:1, animated:1, glass:1, static:2, animated:2, glass:2, ...].
-Anything else, we have a problem.
-
-Also, the unit layer does not split.
-Don't know why. Perhaps I never configured that because top was so broken.
-But it doesn't. All units are (should be?) in the unit:lobby layer.
-Sometimes they still sort under top layer things; don't know what that's about.
-Sometimes they sort under top layer things in all circumstances, maybe that's
-always what was happening. Who knows, not I.
-
-[7/30]
-All right. I broke it.
-I do believe this is the correct route, though.
-Really, it was broken from the beginning.
-
-I was working on fitting all indexed layers to globalLayer for sorting.
-This broke UI sorting, though, for some reason.
-Maybe just a z issue.
-
-[7/31]
-Actually, I think we're closer than I thought.
-
-Issues:
-Mountain shadows are too thick.
-Glass tiles are incorrect or missing from top layer items.
-  Their layers appear to be sorting correctly though.. so I dunno.
-MapCursor also appears underneath top layer; why? Shouldn't that be the same as player HUD?
-Unit layer is not split yet, so they absolutely do not sort correctly.
-  I need to finish updating addChild to sort automatically without breaking anything.
-I think I still need to tell top:static to freeze? I can't remember.
-  [!] Just tried it, setting top:static to freeze breaks everything.
-RoughSea (in Terrain.js) is animated and can't be pushed to bottom anymore.
-  But this breaks the shallow sea overlay color-adjustment, so it looks worse.
-Board cutoff masking is broken. Likely because it isn't applied to globalLayer.
-  Easy fix, I just gotta remember whhich part of the code sets that up.
-  I should make MapLayers do it. Just use 'bottom' or 'sea' dimensions plus a little top-side overhead.
-
-Otherwise, it's actually working exactly as intended, I think. No biggie.
-
-[8/1]
-So, layer effects should be fine, I don't need to refactor.
-The problem is that layers are doubling up for some reason.
-Mountain shadows are too dark beause there are more than one per mountain.
-Same for Rough Seas.
-Why?
-I thought it was because of accidental refreezing, but preventing multiple freeze calls did nothing.
-Mountain shadows darken every time SortIntoPartitions is called. No idea why.
-
-[8/8]
-Can I set 'unit' to auto configure?
-It could add a listener to every object position and re-sort it whenever it moves.
 
 */
+
+const Z_RANGE = Math.pow(2,7);  // 8, but 7 because treated as signed.
+const SEGMENT_Z = Math.pow(2,8);
+const LAYER_Z = Math.pow(2,16);
 
 const log: StringDictionary<PIXI.DisplayObject> = {};
 
@@ -84,8 +27,9 @@ type MapLayerOptions = {
     key: string,
     partitionStyle?: 'none' | 'row',  // 'col'
     freezable?: boolean,
-    movingEntities?: boolean,
     children?: MapLayerOptions[],
+
+    layerIdx?: number,
 }
 
 /** This object defines the map layer structure. */
@@ -96,7 +40,7 @@ const layers_config: MapLayerOptions[] = [
         {key: 'static', freezable: false},
         {key: 'animated'},
         {key: 'glass-tile'},
-        {key: 'unit', movingEntities: false},
+        {key: 'unit'},
     ]},
     {key: 'cloud-shadow'},
     {key: 'ui'},
@@ -199,41 +143,38 @@ export function MapLayer(...layerName: string[]): MapLayerContainer {
 /** An individual layer object to the MapLayers system.
  * This class' purpose is to facilitate the optimization of optimizable static layers.
  */
-class MapLayerContainer extends PIXI.Container {
+class MapLayerContainer {
     private key: string;
     private partitionStyle: 'none' | 'row'; // 'col'
     private freezable: boolean;
+    private zIndex: number;
 
+    private children: PIXI.DisplayObject[] = [];
     private frozen = false;
 
-    prePartitionLayers: MapLayerContainer[] = [];
-
     constructor(options: MapLayerOptions) {
-        super();
         this.key = options.key;
         this.partitionStyle = options.partitionStyle || 'none';
         this.freezable = options.freezable || false;
+        this.zIndex = (options.layerIdx || 0)*LAYER_Z;
     }
-
-    // parentKey = this.key.split(',').pop().join(',')
-
-    // addChild override
-    // if parentKey is partitioned layer, assign to rowIdx?
-
-    // I *may* not want to override this. Think of a different naming scheme.
 
     addChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
-        super.addChild(...child);
-        // MapLayerFunctions.SortBatchLayerIntoPartitions();
+        if (this.frozen) {
+            Debug.assert(this.frozen, 'Tried to add an object to a map-layer which is already locked.');
+            return child[0];
+        }
+
+        this.children.push(...child);
+        child.forEach( c => {
+            const z_row = Math.floor(c.position.y / Game.display.standardLength);
+            c.zIndex = Common.confine(c.zIndex, -Z_RANGE, Z_RANGE);
+            c.zIndex += Z_RANGE + this.zIndex + (z_row * Number(this.partitionStyle === 'row'));
+        })
+        globalLayer.addChild(...child);
+        globalLayer.sortChildren();
         return child[0];
     }
-
-    batchChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
-        return super.addChild(...child);
-    }
-
-    // removeChild override
-    // if parentKey is partitioned layer, remove from all rowIdx?
 
     private get parentKey() {
         return this.key.split(',').slice(0, -1).join(',');
@@ -241,34 +182,17 @@ class MapLayerContainer extends PIXI.Container {
 
     removeChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
         const parent = (this.parentKey) ? MapLayer(this.parentKey) : undefined;
+        // TODO I don't think I need these keys anymore.
 
+        this.children = this.children.filter( c => !child.includes(c) );
         return globalLayer.removeChild(...child);
-
-        // TODO What is going on below?
-        if (!parent || parent.partitionStyle === 'none')
-            super.removeChild(...child);
-        
-        else {
-            const parentLayers = parent.children as MapLayerContainer[];
-
-            child.forEach( toRemove => {
-                parentLayers.some( layer => {
-                    if (toRemove.parent === layer) {
-                        layer.removeChild(toRemove);
-                        return true;
-                    }
-                });
-            });
-        }
-
-        return child[0];
     }
 
     /** If this layer is freezable, constructs all children into one singular image
      * to reduce draw calls. This process is irreversible and should only be used on
      * static layers. */
     freeze() {
-        if (!this.freezable || this.frozen)
+        if (!this.freezable)
             return;
 
         const size = Game.display.standardLength;
@@ -284,12 +208,9 @@ class MapLayerContainer extends PIXI.Container {
         );
 
         const sprite = new PIXI.Sprite(tex);
-        Debug.ping(tex);
 
         this.removeChildren();
         this.addChild(sprite);
-
-        this.frozen = true;
     }
 
     /** TODO Unfinished

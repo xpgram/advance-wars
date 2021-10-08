@@ -54,8 +54,6 @@ export class Map {
      * @param height The integer height of the board in tiles.
      */
     constructor(width: number, height: number) {
-        width = height = 50;
-
         MapLayerFunctions.Init();
         this.constructMap(width, height);
 

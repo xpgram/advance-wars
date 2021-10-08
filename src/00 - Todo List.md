@@ -1,10 +1,37 @@
 ## Next Big Objectives:
 - [ ] Refactor board graphics to have fewer sprite entities.
       Combine rows, probably. This should improve performance on slower machines.
+- [ ] Game DB and Online Multiplayer
+    - [ ] Game State DB System
+          Where did I put that DB outline? I thought I committed them.
+    - [ ] TurnState Send Interception
+          → Confirm Order
+          → Authenticate
+            → (online) Status 200 from server?
+            → (offline) pass
+          → (authenticated) pass
+          → (refused) revert
+            → Send message to UI EventMessageSystem
+            → Revert to Confirm Order
+          → Reify
+          → IssueOrderStart
+- [ ] UI Event-Messaging System
+      When online functions fail to authenticate, or whatever, a message should pop in
+      from above to let the player know what's up.
+
 - [ ] Refactor to use reducers? Approximate the pattern, anyway.
       I want: ratifyInstruction(boardState, action) => boardState
       I don't know how feasible this would really be... I'd have to do a big, BIG refactor
       of the Map class. Hm.
+      [9/19] This functional style would be good for board resyncing.
+      The DB would prefer to have initial or periodic board states and a series of state-
+      change orders and the functional style simplifies the applification process.
+      State changes would look like:
+        (3,7) rm
+        (3,10) u inf,8,87,0,0
+      These two instructions indicate an infantry unit moving from one location to another.
+      The details of what the unit can and cannot do are left up to the client, I guess,
+      but the board state is very simply implemented.
 
 
 - [ ] I have locked Pixi.js to version 5.2.1 because 5.3 removes some functionality

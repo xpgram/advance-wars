@@ -4,7 +4,7 @@ import { Game } from "../..";
 import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
 import { fonts } from "./ui-windows/DisplayInfo";
-import { MapLayer } from "./map/MapLayers";
+import { MapLayer, MapLayerFunctions } from "./map/MapLayers";
 import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
@@ -444,7 +444,10 @@ export abstract class UnitObject {
         UnitObject.transform.object = null;
 
         // Recalculate z-index
-        this.sprite.zIndex = Map.calculateZIndex(point, 'unit');
+        // if (has y position changed?)
+        //   MapLayer('top', 'unit').addChild(this.sprite);
+        //   MapLayerFunctions.SortBatchLayerIntoPartitions();
+        // this.sprite.zIndex = Map.calculateZIndex(point, 'unit');
         this.uiBox.zIndex = -1; // Below the cursor, menus etc.
     }
 
