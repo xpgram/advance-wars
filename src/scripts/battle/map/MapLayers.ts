@@ -2,114 +2,126 @@ import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
 import { StringDictionary } from "../../CommonTypes";
 
-/*
-So, I haven't learned much.
-I've learned a little.
+// TODO Refactor to use cacheAsBitmap
+// TODO Refactor to be less complicated
 
-I may want to rethink this system.
-Row layer should be integral to every interaction.
-This should be opt-out.
-Or... sigh, I dunno.
-
-In any case. Things are sorting correctly. But they aren't.
-I need a way to *see* into the memory structure.
-Currently, I can see the indexing system, but this does not tell me layering order.
-I need to *see* [bottom, static:1, animated:1, glass:1, static:2, animated:2, glass:2, ...].
-Anything else, we have a problem.
-
-Also, the unit layer does not split.
-Don't know why. Perhaps I never configured that because top was so broken.
-But it doesn't. All units are (should be?) in the unit:lobby layer.
-Sometimes they still sort under top layer things; don't know what that's about.
-Sometimes they sort under top layer things in all circumstances, maybe that's
-always what was happening. Who knows, not I.
-
-[7/30]
-All right. I broke it.
-I do believe this is the correct route, though.
-Really, it was broken from the beginning.
-
-I was working on fitting all indexed layers to globalLayer for sorting.
-This broke UI sorting, though, for some reason.
-Maybe just a z issue.
-
-[7/31]
-Actually, I think we're closer than I thought.
-
-Issues:
-Mountain shadows are too thick.
-Glass tiles are incorrect or missing from top layer items.
-  Their layers appear to be sorting correctly though.. so I dunno.
-MapCursor also appears underneath top layer; why? Shouldn't that be the same as player HUD?
-Unit layer is not split yet, so they absolutely do not sort correctly.
-  I need to finish updating addChild to sort automatically without breaking anything.
-I think I still need to tell top:static to freeze? I can't remember.
-  [!] Just tried it, setting top:static to freeze breaks everything.
-RoughSea (in Terrain.js) is animated and can't be pushed to bottom anymore.
-  But this breaks the shallow sea overlay color-adjustment, so it looks worse.
-Board cutoff masking is broken. Likely because it isn't applied to globalLayer.
-  Easy fix, I just gotta remember whhich part of the code sets that up.
-  I should make MapLayers do it. Just use 'bottom' or 'sea' dimensions plus a little top-side overhead.
-
-Otherwise, it's actually working exactly as intended, I think. No biggie.
-
-[8/1]
-So, layer effects should be fine, I don't need to refactor.
-The problem is that layers are doubling up for some reason.
-Mountain shadows are too dark beause there are more than one per mountain.
-Same for Rough Seas.
-Why?
-I thought it was because of accidental refreezing, but preventing multiple freeze calls did nothing.
-Mountain shadows darken every time SortIntoPartitions is called. No idea why.
-
-[8/8]
-Can I set 'unit' to auto configure?
-It could add a listener to every object position and re-sort it whenever it moves.
-
-*/
-
-const log: StringDictionary<PIXI.DisplayObject> = {};
-
-type MapLayerIndex = {
-    [key: string]: MapLayerContainer;
+type LayerProperties = {
+    key: string,
+    rowSegmented?: boolean,
+    freezable?: boolean,
+    movingEntities?: boolean,       // TODO Is this necessary? Current design spec doesn't include it.
+    children?: MapLayerOptions[],
 }
 
+type Layer = {
+    container: PIXI.Container,
+    properties: LayerProperties,
+}
+
+type LayerIndex = Array<LayerIndex | Layer>;
+
 /** Global index of all graphics layers of the map system. */
-const layerIndex: MapLayerIndex = {};
+const layerIndex: LayerIndex = [];
 
 /** Global container which exists between map-layers and the Game.stage */
 let globalLayer: PIXI.Container;
 
-type MapLayerOptions = {
-    key: string,
-    partitionStyle?: 'none' | 'row',  // 'col'
-    freezable?: boolean,
-    movingEntities?: boolean,
-    children?: MapLayerOptions[],
-}
-
 /** This object defines the map layer structure. */
-const layers_config: MapLayerOptions[] = [
+const layers_config: LayerProperties[] = [
     {key: 'sea'},
     {key: 'bottom', freezable: true},
-    {key: 'top', partitionStyle: 'row', children: [
-        {key: 'static', freezable: false},
+    {key: 'top', rowSegmented: true, children: [
+        {key: 'static', freezable: true},
         {key: 'animated'},
         {key: 'glass-tile'},
-        {key: 'unit', movingEntities: false},
+        {key: 'unit', movingEntities: true},
     ]},
     {key: 'cloud-shadow'},
     {key: 'ui'},
 ];
+
+/** Layer which contains all others. */
+const rootLayer = {
+    container: globalLayer,
+    properties: {
+        key: 'root',
+        children: layers_config,
+    }
+}
 
 /** 
  * Globally accessible method for retrieving graphics layers from the map system.
  * Must be initialized before use. Use MapLayerFunctions.Init() to initialize.
  * 
  * @author Dei Valko
- * @version 1.0.0
+ * @version 2.0.0
  */
-export function MapLayer(...layerName: string[]): MapLayerContainer {
+export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
+    // TODO Refactor
+
+    let currentLayer = rootLayer;
+    let result = layerIndex;                // Reduces to specific layer object.
+    let path = [rootLayer.properties.key];
+
+    function lazyBuildIndex(node: LayerIndex, toPosition: number, propertiesSet: LayerProperties[]): void {
+        // TODO Verify this function
+        // a layer index it assigns children
+        // a parent container to add children to
+        // a starting idx to work from; do not rebuild already built layers
+        // a terminating idx to build to; build layers such that index[idx] returns something.
+        // correct properties are mapped to the correct pixi.container
+        //   what properties should row segments have?
+        // pixi.containers are linked and LayerIndex children are linked
+        //   why not squash the LayerIndex construct into Layer and Layer.container.children?
+
+        for (let i = node.length; i <= toPosition; i++) {
+            const propertiesIdx = i % propertiesSet.length;
+            node.push({
+                container: new PIXI.Container(),
+                properties: propertiesSet[propertiesIdx],
+            });
+        }
+    }
+
+    terms.forEach( term => {
+        let idx: undefined | number;
+
+        // Check that current node can be reduced further.
+        if (!Array.isArray(result))
+            throw new Error(`End of index depth reached; cannot reduce index by [${terms}]`);
+        
+        // String index
+        if (typeof key === 'string') {
+            if (currentLayer.properties.rowSegmented)
+                throw new Error(`Layer '${term}' does not exist on path [${path}]`);
+
+            lazyBuildIndex(result, currentLayer.children.length - 1, currentLayer.children);
+            idx = result.findIndex( layer => layer.properties.key === key );
+            currentLayer = result[idx];
+            result = currentLayer.children;
+        }
+
+        // TODO Verify numeric index function is building the following:
+        // root    bottom
+        //         top     0   static
+        //                     animated
+        //                 1   static
+        //                     animated
+        //         ui
+        // Each term is its own layer with the right-linked as its children.
+
+        // Numeric index
+        if (typeof key === 'number') {
+            if (!currentLayer.properties.rowSegmented)
+                throw new Error(`Layer '${term}' does not exist on path [${path}]'`);
+            lazyBuildIndex(result, key, [{container: new PIXI.Container(), properties: {key: `${term}`}}]);
+            idx = key;
+
+        }
+    });
+
+
+
     const reference = layerName.join(',');
     if (!layerIndex[reference])
         throw new ReferenceError(`Layer '${layerName}' does not exist in MapLayer.`);
