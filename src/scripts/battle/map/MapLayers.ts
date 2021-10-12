@@ -34,7 +34,6 @@ class Layer {
     children: Layer[];
   
     constructor(properties: LayerProperties, parent?: Layer) {
-        //@ts-ignore  // TODO Remove
         this.container = new PIXI.Container();
         this.properties = properties;
         this.children = [];
@@ -47,7 +46,13 @@ class Layer {
     get path() {
         return this._path.join('/');
     }
+
+    /**  */
+    buildChildren(toIndex: number) {
+        
+    }
   
+    /**  */
     getChild(key: string | number) {
         if (!this.properties.children)
             throw new Error(`Can't parse path ${this.path} by '${key}'; no children.`);
@@ -79,11 +84,13 @@ class Layer {
         return this.children[idx];
     }
   
+    /**  */
     freeze() {
         this.children.forEach( child => child.freeze() );
         this.container.cacheAsBitmap = this.properties.freezable;
     }
-  
+    
+    /**  */
     update() {
         // this.children.forEach( child => child.update() );
         this.container.cacheAsBitmap = false;
