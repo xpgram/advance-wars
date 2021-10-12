@@ -59,6 +59,31 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
 
     // TODO Function is untested. Uh, do that.
 
+    // TODO I am pretty sure my conflation of Layer and LayerIndex is broken.
+    // What is the data structure of LayerIndex? Isn't it this: [{}, {}, [{}, {}], {}]
+    // So, in that case, how do we get to [{}, {}]?
+    //
+    // I need to refactor again...
+    // This data structure:
+    //   Layer = {
+    //     container: PIXI.Container,
+    //     properties: LayerProperties {
+    //       key: string,
+    //       children?: LayerProperties[],
+    //     },
+    //     children: Layer[],
+    //   }
+    // rootLayer is the beginning of the index, or the tree.
+    // rootLayer.container is the root pixi display object.
+    //   all descendants of this layer should also have their containers be descendants of this container.
+    // rootLayer.children are the Layers held underneath root; all pixi.containers found here
+    //   should be descendants of this Layer.
+    // rootLayer.properties are the build instructions for new layers.
+    // rootLayer.properties.children are the build instructions for this layer's children.
+    // 
+    // Maybe I'll just write this as a class.
+    // Layer.freeze() could first call freeze() on all its children, then finally do the freeze op on itself.
+
     let currentLayer = rootLayer;
     let result = layerIndex;                // Reduces to specific layer object.
     let path = [rootLayer.properties.key];
@@ -126,8 +151,8 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
 
     destroyed: true,
 
-    /** Initializes the MapLayers container for use. 
-     * Graphics containers will not be functional before calling this method. */
+    /** Initializes the MapLayer system for use. 
+     * MapLayer system will not be functional before calling this method. */
     Init() {
         if (!this.destroyed)
             return;
@@ -144,28 +169,29 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
         if (this.destroyed)
             return;
 
-        globalLayer.destroy({children: true});
-        Object.keys(layerIndex).forEach( key => { delete layerIndex[key] });
+        rootLayer.container.destroy({children: true});
+        layerIndex = [];
         this.destroyed = true;
     },
 
-    /**  */
-    SortBatchLayerIntoPartitions() {
-        if (this.destroyed)
-            return;
-
-        Object.values(layerIndex).forEach( layer => layer.sortIntoPartitions() );
-        globalLayer.sortChildren();
-    },
-
     /** Signals all freezable graphics layers that they are done being built
-     * and should compile for draw efficiency. These layers should be treated
-     * as immutable until reinitializing with Destroy() and Init(). */
+     * and should compile for draw efficiency. These layers are functionally
+     * treated as immutable unless specifically signalled for update. */
     FreezeInanimateLayers() {
         if (this.destroyed)
             return;
 
-        Object.values(layerIndex).forEach( layer => layer.freeze() );
+        function freeze(index: LayerIndex) {
+            index.forEach( layer => {
+                if (layer.properties.children) {
+                    const idx = index.findIdx
+                }
+            });
+        }
+
+        layerIndex.forEach( layer => {
+            layer.
+        });
     },
 
     PostLayerIndexToConsole() {
