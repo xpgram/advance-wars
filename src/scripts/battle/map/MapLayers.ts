@@ -9,19 +9,8 @@ type LayerProperties = {
     key: string,
     rowSegmented?: boolean,
     freezable?: boolean,
-    movingEntities?: boolean,       // TODO Is this necessary? Current design spec doesn't include it.
     children?: MapLayerOptions[],
 }
-
-type Layer = {
-    container: PIXI.Container,
-    properties: LayerProperties,
-}
-
-type LayerIndex = Array<LayerIndex | Layer>;
-
-/** Global index of all graphics layers of the map system. */
-const layerIndex: LayerIndex = [];
 
 /** This object defines the map layer structure. */
 const layers_config: LayerProperties[] = [
@@ -37,14 +26,73 @@ const layers_config: LayerProperties[] = [
     {key: 'ui'},
 ];
 
-/** Layer which contains all others. */
-const rootLayer = {
-    container: undefined as PIXI.Container,
-    properties: {
-        key: 'root',
-        children: layers_config,
+/** stub */
+class Layer {
+    private _path: string[];
+    container: Container;
+    properties: LayerProperties;
+    children: Layer[];
+  
+    constructor(properties: LayerProperties, parent?: Layer) {
+        //@ts-ignore  // TODO Remove
+        this.container = new PIXI.Container();
+        this.properties = properties;
+        this.children = [];
+  
+        this._path = (parent)
+            ? [...parent._path, properties.key]
+            : [properties.key];
+    }
+  
+    get path() {
+        return this._path.join('/');
+    }
+  
+    getChild(key: string | number) {
+        if (!this.properties.children)
+            throw new Error(`Can't parse path ${this.path} by '${key}'; no children.`);
+      
+        let idx: undefined | number;
+  
+        // String indexing
+        if (typeof key === 'string') {
+            if (this.properties.rowSegmented)
+            throw new Error(`Can't parse path ${this.path} by '${key}'; row indexed.`);
+    
+            // TODO Lazy build children
+            idx = this.children.findIndex( child => child.properties.key === key );
+            
+            if (idx === -1)
+            throw new Error(`Can't parse path ${this.path} by '${key}'; key does not exist.`);
+        }
+    
+        // Numeric indexing
+        else if (typeof key === 'number') {
+            if (!this.properties.rowSegmented)
+            throw new Error(`Can't parse path ${this.path} by '${key}'; string indexed.`);
+            
+            // TODO Lazy build children
+            idx = key;
+        }
+    
+        // Return child (cannot get here with idx == undefined)
+        return this.children[idx];
+    }
+  
+    freeze() {
+        this.children.forEach( child => child.freeze() );
+        this.container.cacheAsBitmap = this.properties.freezable;
+    }
+  
+    update() {
+        // this.children.forEach( child => child.update() );
+        this.container.cacheAsBitmap = false;
+        this.container.cacheAsBitmap = this.properties.freezable;
     }
 }
+
+/** Layer which contains all others. */
+const rootLayer: Layer;
 
 /** 
  * Globally accessible method for retrieving graphics layers from the map system.
@@ -56,90 +104,10 @@ const rootLayer = {
 export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
     if (MapLayerFunctions.destroyed)
         throw new Error(`Attempting to access MapLayer system before construction; run MapLayerFunctions.Init() first.`);
-
-    // TODO Function is untested. Uh, do that.
-
-    // TODO I am pretty sure my conflation of Layer and LayerIndex is broken.
-    // What is the data structure of LayerIndex? Isn't it this: [{}, {}, [{}, {}], {}]
-    // So, in that case, how do we get to [{}, {}]?
-    //
-    // I need to refactor again...
-    // This data structure:
-    //   Layer = {
-    //     container: PIXI.Container,
-    //     properties: LayerProperties {
-    //       key: string,
-    //       children?: LayerProperties[],
-    //     },
-    //     children: Layer[],
-    //   }
-    // rootLayer is the beginning of the index, or the tree.
-    // rootLayer.container is the root pixi display object.
-    //   all descendants of this layer should also have their containers be descendants of this container.
-    // rootLayer.children are the Layers held underneath root; all pixi.containers found here
-    //   should be descendants of this Layer.
-    // rootLayer.properties are the build instructions for new layers.
-    // rootLayer.properties.children are the build instructions for this layer's children.
-    // 
-    // Maybe I'll just write this as a class.
-    // Layer.freeze() could first call freeze() on all its children, then finally do the freeze op on itself.
-
-    let currentLayer = rootLayer;
-    let result = layerIndex;                // Reduces to specific layer object.
-    let path = [rootLayer.properties.key];
-
-    function lazyBuildIndex(node: Layer, list: LayerIndex, toPosition: number): void {
-        for (let i = list.length; i <= toPosition; i++) {
-            const container = new PIXI.Container();         // New pixi container
-            node.container.addChild(container);             // Add unique pixi container to scene graph
-
-            const propertiesSet = node.properties.children || [];
-
-            let properties = (node.properties.rowSegmented) // Builds intermediary row Layer
-                ? properties = { key: `row ${i}`, children: node.properties.children }
-                : propertiesSet[i % propertiesSet.length];  // Or uses an explicit child config
-
-            list.push({
-                container,
-                properties,
-            });
-        }
-    }
-
-    terms.forEach( term => {
-        let idx: undefined | number;
-
-        // Check that current node can be reduced further.
-        if (!Array.isArray(result))
-            throw new Error(`End of index depth reached; cannot reduce index by [${terms}]`);
-        
-        // String index
-        if (typeof key === 'string' && !currentLayer.properties.rowSegmented) {
-            lazyBuildIndex(currentLayer, result, currentLayer.properties.children.length - 1);
-            idx = result.findIndex( layer => layer.properties.key === key );
-        }
-
-        // Numeric index
-        else if (typeof key === 'number' && currentLayer.properties.rowSegmented) {
-            lazyBuildIndex(currentLayer, result, key);
-            idx = key;
-        }
-
-        // Could not parse index
-        else {
-            throw new Error(`Layer '${term}' does not exist on path [${path}]`);
-        }
-
-        // Increment path for logging
-        path.push(currentLayer.properties.key);
-
-        // Increment node down the MapLayer tree.
-        currentLayer = result[idx];
-        result = currentLayer.children;
-    });
-
-    return result;
+    // TODO Retrieve
 }
+
+// TODO Refactor access functions vv
 
 /** 
  * Functions for the management of the game-layers container.
@@ -157,7 +125,10 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
         if (!this.destroyed)
             return;
 
-        rootLayer.container = new PIXI.Container();
+        rootLayer = new Layer({
+            key: 'root',
+            children: layers_config,
+        })
         Game.stage.addChild(rootLayer.container);
         this.destroyed = false;
     },
@@ -201,162 +172,3 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
         Debug.ping('Sorting Log', log);
     }
 };
-
-/** An individual layer object to the MapLayers system.
- * This class' purpose is to facilitate the optimization of optimizable static layers.
- */
-class MapLayerContainer extends PIXI.Container {
-    private key: string;
-    private partitionStyle: 'none' | 'row'; // 'col'
-    private freezable: boolean;
-
-    private frozen = false;
-
-    prePartitionLayers: MapLayerContainer[] = [];
-
-    constructor(options: MapLayerOptions) {
-        super();
-        this.key = options.key;
-        this.partitionStyle = options.partitionStyle || 'none';
-        this.freezable = options.freezable || false;
-    }
-
-    // parentKey = this.key.split(',').pop().join(',')
-
-    // addChild override
-    // if parentKey is partitioned layer, assign to rowIdx?
-
-    // I *may* not want to override this. Think of a different naming scheme.
-
-    addChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
-        super.addChild(...child);
-        // MapLayerFunctions.SortBatchLayerIntoPartitions();
-        return child[0];
-    }
-
-    batchChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
-        return super.addChild(...child);
-    }
-
-    // removeChild override
-    // if parentKey is partitioned layer, remove from all rowIdx?
-
-    private get parentKey() {
-        return this.key.split(',').slice(0, -1).join(',');
-    }
-
-    removeChild<TChildren extends PIXI.DisplayObject[]>(...child: TChildren): TChildren[0] {
-        const parent = (this.parentKey) ? MapLayer(this.parentKey) : undefined;
-
-        return globalLayer.removeChild(...child);
-
-        // TODO What is going on below?
-        if (!parent || parent.partitionStyle === 'none')
-            super.removeChild(...child);
-        
-        else {
-            const parentLayers = parent.children as MapLayerContainer[];
-
-            child.forEach( toRemove => {
-                parentLayers.some( layer => {
-                    if (toRemove.parent === layer) {
-                        layer.removeChild(toRemove);
-                        return true;
-                    }
-                });
-            });
-        }
-
-        return child[0];
-    }
-
-    /** If this layer is freezable, constructs all children into one singular image
-     * to reduce draw calls. This process is irreversible and should only be used on
-     * static layers. */
-    freeze() {
-        if (!this.freezable || this.frozen)
-            return;
-
-        const size = Game.display.standardLength;
-
-        const { x, y } = {x: 0, y: 0 };
-        const { width, height } = this;
-
-        const tex = Game.app.renderer.generateTexture(
-            this,
-            PIXI.SCALE_MODES.NEAREST,
-            1,
-            new PIXI.Rectangle(x, y, width, height + size)
-        );
-
-        const sprite = new PIXI.Sprite(tex);
-        Debug.ping(tex);
-
-        this.removeChildren();
-        this.addChild(sprite);
-
-        this.frozen = true;
-    }
-
-    /** TODO Unfinished
-     * The goal here is to get children of the lobby layers, static and non-static,
-     * into a rowIdx layer of the same kind.
-     * The secondary goal, naturally, is to mark static rowIdx layers as such so
-     * FreezeInanimateLayers() can capture them.
-     */
-    sortIntoPartitions() {
-        if (this.partitionStyle !== 'row')
-            return;
-
-        const size = Game.display.standardLength;
-        const lobbyLayers = this.prePartitionLayers.length;
-        const toSort: StringDictionary<MapLayerContainer> = {};
-
-        this.prePartitionLayers.forEach( (layer, layerSlotNumber) => {
-            layer.children.forEach( child => {
-                const rowIdx = Math.floor(child.y / size);
-                const rowKey = `${layer.key}:${rowIdx}`;
-
-                if (!layerIndex[rowKey]) {
-                    const newLayer = new MapLayerContainer({
-                        key: rowKey,
-                        freezable: layer.freezable
-                    });
-                    newLayer.zIndex = rowIdx * lobbyLayers + layerSlotNumber;
-                    globalLayer.addChild(newLayer);
-                    layerIndex[rowKey] = newLayer;
-                }
-
-                const rowLayer = layerIndex[rowKey];
-                rowLayer.addChild(child);
-                toSort[rowLayer.key] = rowLayer;
-
-                // Content mapping for debugging purposes
-                const [posx, posy, posz] = [child.x/16, child.y/16, rowLayer.zIndex];
-                log[`(${posx},${posy}):z${posz} —— ${rowKey}`] = child;
-            });
-        });
-
-        Object.values(toSort).forEach( layer => layer.sortChildren() );
-        super.sortChildren();
-
-        // TODO sortChildren() doesn't return a new list, does it?
-        // Disabled, the map looks exactly(?) the same. Is this really the problem?
-
-        /*
-        You know what.. just occurred to me?
-        What does this method do?
-        It sorts top:static into top:static:1, top:static:2, ..., top:static:n.
-        Where is top:animated:1?
-
-        */
-    }
-}
-
-// TODO Create debug UI system.
-// Either use the console, or display over the in-game sprites.
-// I want to know: position, name, z-index, etc. for every tile position and every layer
-// within that tile position.
-// I think this should be built as the map is conceived.
-// It would be easier and probably more complete.
-// That said, I would like to know *exactly* what MapLayers is doing too.
