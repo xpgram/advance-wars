@@ -57,28 +57,26 @@ const rootLayer = {
  * @version 2.0.0
  */
 export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
-    // TODO Refactor
+    // TODO Function is untested. Uh, do that.
 
     let currentLayer = rootLayer;
     let result = layerIndex;                // Reduces to specific layer object.
     let path = [rootLayer.properties.key];
 
-    function lazyBuildIndex(node: LayerIndex, toPosition: number, propertiesSet: LayerProperties[]): void {
-        // TODO Verify this function
-        // a layer index it assigns children
-        // a parent container to add children to
-        // a starting idx to work from; do not rebuild already built layers
-        // a terminating idx to build to; build layers such that index[idx] returns something.
-        // correct properties are mapped to the correct pixi.container
-        //   what properties should row segments have?
-        // pixi.containers are linked and LayerIndex children are linked
-        //   why not squash the LayerIndex construct into Layer and Layer.container.children?
+    function lazyBuildIndex(node: Layer, list: LayerIndex, toPosition: number): void {
+        for (let i = list.length; i <= toPosition; i++) {
+            const container = new PIXI.Container();         // New pixi container
+            node.container.addChild(container);             // Add unique pixi container to scene graph
 
-        for (let i = node.length; i <= toPosition; i++) {
-            const propertiesIdx = i % propertiesSet.length;
-            node.push({
-                container: new PIXI.Container(),
-                properties: propertiesSet[propertiesIdx],
+            const propertiesSet = node.properties.children || [];
+
+            let properties = (node.properties.rowSegmented) // Builds intermediary row Layer
+                ? properties = { key: `row ${i}`, children: node.properties.children }
+                : propertiesSet[i % propertiesSet.length];  // Or uses an explicit child config
+
+            list.push({
+                container,
+                properties,
             });
         }
     }
@@ -91,41 +89,31 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
             throw new Error(`End of index depth reached; cannot reduce index by [${terms}]`);
         
         // String index
-        if (typeof key === 'string') {
-            if (currentLayer.properties.rowSegmented)
-                throw new Error(`Layer '${term}' does not exist on path [${path}]`);
-
-            lazyBuildIndex(result, currentLayer.children.length - 1, currentLayer.children);
+        if (typeof key === 'string' && !currentLayer.properties.rowSegmented) {
+            lazyBuildIndex(currentLayer, result, currentLayer.properties.children.length - 1);
             idx = result.findIndex( layer => layer.properties.key === key );
-            currentLayer = result[idx];
-            result = currentLayer.children;
         }
-
-        // TODO Verify numeric index function is building the following:
-        // root    bottom
-        //         top     0   static
-        //                     animated
-        //                 1   static
-        //                     animated
-        //         ui
-        // Each term is its own layer with the right-linked as its children.
 
         // Numeric index
-        if (typeof key === 'number') {
-            if (!currentLayer.properties.rowSegmented)
-                throw new Error(`Layer '${term}' does not exist on path [${path}]'`);
-            lazyBuildIndex(result, key, [{container: new PIXI.Container(), properties: {key: `${term}`}}]);
+        else if (typeof key === 'number' && currentLayer.properties.rowSegmented) {
+            lazyBuildIndex(currentLayer, result, key);
             idx = key;
-
         }
+
+        // Could not parse index
+        else {
+            throw new Error(`Layer '${term}' does not exist on path [${path}]`);
+        }
+
+        // Increment path for logging
+        path.push(currentLayer.properties.key);
+
+        // Increment node down the MapLayer tree.
+        currentLayer = result[idx];
+        result = currentLayer.children;
     });
 
-
-
-    const reference = layerName.join(',');
-    if (!layerIndex[reference])
-        throw new ReferenceError(`Layer '${layerName}' does not exist in MapLayer.`);
-    return layerIndex[reference];
+    return result;
 }
 
 /** 
