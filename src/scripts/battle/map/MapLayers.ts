@@ -23,9 +23,6 @@ type LayerIndex = Array<LayerIndex | Layer>;
 /** Global index of all graphics layers of the map system. */
 const layerIndex: LayerIndex = [];
 
-/** Global container which exists between map-layers and the Game.stage */
-let globalLayer: PIXI.Container;
-
 /** This object defines the map layer structure. */
 const layers_config: LayerProperties[] = [
     {key: 'sea'},
@@ -42,7 +39,7 @@ const layers_config: LayerProperties[] = [
 
 /** Layer which contains all others. */
 const rootLayer = {
-    container: globalLayer,
+    container: undefined as PIXI.Container,
     properties: {
         key: 'root',
         children: layers_config,
@@ -57,6 +54,9 @@ const rootLayer = {
  * @version 2.0.0
  */
 export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
+    if (MapLayerFunctions.destroyed)
+        throw new Error(`Attempting to access MapLayer system before construction; run MapLayerFunctions.Init() first.`);
+
     // TODO Function is untested. Uh, do that.
 
     let currentLayer = rootLayer;
@@ -132,28 +132,8 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
         if (!this.destroyed)
             return;
 
-        // This recursive function builds these structures:
-        // 'top': layer                 Game.stage.children = [ top ]
-        // 'top,static': layer          top.children = [ static, animated ]
-        // 'top,animated': layer        static.children = []
-        function buildFromConfig(config: MapLayerOptions[], parent: PIXI.Container, parentKey?: string): void {
-            config.forEach( settings => {
-                const layer = new MapLayerContainer(settings);
-                const key = [parentKey, settings.key].filter(s => s !== undefined).join(',');
-                parent.addChild(layer);
-                layerIndex[key] = layer;
-
-                if (settings.children) {
-                    buildFromConfig(settings.children, layer, key);
-                    layer.prePartitionLayers = layer.children.slice() as MapLayerContainer[];
-                }
-            });
-        }
-
-        globalLayer = new PIXI.Container();
-        Game.stage.addChild(globalLayer);
-
-        buildFromConfig(layers_config, globalLayer);
+        rootLayer.container = new PIXI.Container();
+        Game.stage.addChild(rootLayer.container);
         this.destroyed = false;
     },
 
