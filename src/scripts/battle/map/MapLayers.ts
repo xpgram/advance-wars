@@ -1,9 +1,5 @@
 import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
-import { StringDictionary } from "../../CommonTypes";
-
-// TODO If Cities are on the static layer, how do they know which row layer to update?
-// TODO Add yReal to rowIdx conversion method.
 
 /** The build instructions for a MapLayer. */
 type LayerProperties = {
@@ -183,6 +179,12 @@ export const MapLayerFunctions = {
     
     rootLayer.container.destroy({children: true});
     this.destroyed = true;
+  },
+
+  /** Converts an object's world position to a row layer.
+   * This is MapLayer's solution to z-ordering. */
+  RowLayerFromWorldPosition(position: {x: number, y: number}) {
+    return Math.floor(position.y / Game.display.standardLength);
   },
   
   /** Signals all freezable graphics layers that they are done being built
