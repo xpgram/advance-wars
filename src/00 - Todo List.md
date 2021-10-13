@@ -54,10 +54,9 @@
     - [X] Sea
     - [X] Surface
     - [ ] Overlapping  
-        These have to be segmented into rows in order to preserve the dynamic layering of units.  
-        We are no longer rendering to textures—or not manually, anyway. Segment layers into the fewest possible structures and use cacheAsBitmap to suspend re-rendering. When building terrain needs to change color: un-cache, render and re-cache. I will have to build this behavior into the row segmentation system.
-        - [ ] When a building changes color, send a message requesting a row update to MapLayers using its coordinates.  
-            MapLayers will determine the correct row and do a simple false→render→true caching operation.
+        - [X] Implemented
+        - [ ] Refactored files which depend on MapLayer
+        - [ ] Tested
 
 - [ ] Z-Ordering and UI Properties refactor  
     Currently, each UI element defines these in their class scripts—in their constructors, actually. I can confirm MenuWindow and MapCursor do. This will be messy later on.
