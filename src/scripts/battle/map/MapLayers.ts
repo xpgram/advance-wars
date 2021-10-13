@@ -99,7 +99,7 @@ class Layer {
 }
 
 /** Layer which contains all others. */
-const rootLayer: Layer;
+let rootLayer: Layer;
 
 /** 
 * Globally accessible method for retrieving graphics layers from the map system.
@@ -114,13 +114,11 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
   // TODO Retrieve
 }
 
-// TODO Refactor access functions vv
-
 /** 
-* Functions for the management of the game-layers container.
+* Extra, helpful methods for handling the MapLayer system.
 * 
 * @author Dei Valko
-* @version 1.0.0
+* @version 2.0.0
 */
 export const MapLayerFunctions = {
   
@@ -148,20 +146,20 @@ export const MapLayerFunctions = {
       return;
     
     rootLayer.container.destroy({children: true});
-    layerIndex = [];
     this.destroyed = true;
   },
   
   /** Signals all freezable graphics layers that they are done being built
   * and should compile for draw efficiency. These layers are functionally
-  * treated as immutable unless specifically signalled for update. */
+  * treated as immutable unless specifically signalled to update. */
   FreezeStaticLayers() {
     if (this.destroyed)
       return;
     rootLayer.freeze();
   },
   
-  /**  */
+  /** Compiles the layer structure into a single string report which is
+   * then posted to the console. */
   Report() {
     function getString(layer: Layer) {
       let lines = [layer.path];
@@ -171,6 +169,6 @@ export const MapLayerFunctions = {
       return lines.join('\n');
     }
 
-    Debug.ping('MapLayer paths', getString(rootLayer));
+    Debug.ping('MapLayer Paths', getString(rootLayer));
   }
 };
