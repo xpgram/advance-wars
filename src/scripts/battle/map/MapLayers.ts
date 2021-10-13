@@ -2,6 +2,9 @@ import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
 import { StringDictionary } from "../../CommonTypes";
 
+// TODO If Cities are on the static layer, how do they know which row layer to update?
+// TODO Add yReal to rowIdx conversion method.
+
 /** The build instructions for a MapLayer. */
 type LayerProperties = {
   key: string,
@@ -60,7 +63,7 @@ class Layer {
         this.container.addChild(layer.container);
       }
     }
-    
+
     // String indexed
     else {
       for (let i = this.children.length; i < this.properties.children.length; i++) {
