@@ -2,9 +2,7 @@ import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
 import { StringDictionary } from "../../CommonTypes";
 
-// TODO Refactor to use cacheAsBitmap
-// TODO Refactor to be less complicated
-
+/** The build instructions for a MapLayer. */
 type LayerProperties = {
   key: string,
   rowSegmented?: boolean,
@@ -26,7 +24,8 @@ const layers_config: LayerProperties[] = [
   {key: 'ui'},
 ];
 
-/** stub */
+/** A container which pairs a MapLayer's scene graph container, build instructions
+ * and descendants. */
 class Layer {
   private _path: string[];
   container: Container;
@@ -43,40 +42,47 @@ class Layer {
       : [properties.key];
   }
   
+  /** The string serial of this layer's location within the MapLayer system. */
   get path() {
     return this._path.join('/');
   }
   
-  /**  */
-  buildChildren(toIndex: number) {
+  /** Builds children layers to the given index (inclusive) assuming that
+   * this index will be used to retrieve a layer in the immediate future. */
+  private lazyBuildChildren(toIndex: number) {
     
   }
   
-  /**  */
+  /** Returns the Layer object indicated by the given key.
+   * Throws an error if the key could not be linked to any children. */
   getChild(key: string | number) {
+    function throwError(msg: string) {
+      throw new ReferenceError(`Can't parse path ${this.path} by '${key}'; ${msg}`);
+    }
+
     if (!this.properties.children)
-      throw new Error(`Can't parse path ${this.path} by '${key}'; no children.`);
-    
+      throwError('no children.');
+
     let idx: undefined | number;
     
     // String indexing
     if (typeof key === 'string') {
       if (this.properties.rowSegmented)
-        throw new Error(`Can't parse path ${this.path} by '${key}'; row indexed.`);
+        throwError('layer is row indexed.');
       
-      // TODO Lazy build children
+      this.lazyBuildChildren(this.properties.children.length - 1);
       idx = this.children.findIndex( child => child.properties.key === key );
       
       if (idx === -1)
-        throw new Error(`Can't parse path ${this.path} by '${key}'; key does not exist.`);
+        throwError('key does not exist');
     }
     
     // Numeric indexing
     else if (typeof key === 'number') {
       if (!this.properties.rowSegmented)
-        throw new Error(`Can't parse path ${this.path} by '${key}'; string indexed.`);
+        throwError('layer is string indexed');
       
-      // TODO Lazy build children
+      this.lazyBuildChildren(key);
       idx = key;
     }
     
@@ -84,17 +90,20 @@ class Layer {
     return this.children[idx];
   }
   
-  /**  */
+  /** Signals this layer and all its children that they should compile
+   * and cache the resulting texture. */
   freeze() {
     this.children.forEach( child => child.freeze() );
     this.container.cacheAsBitmap = this.properties.freezable;
   }
   
-  /**  */
+  /** Signals this layer that it should re-render.
+   * Does nothing if this layer is not designated as freezable. */
   update() {
     // this.children.forEach( child => child.update() );
+    let prev = this.container.cachAsBitmap;
     this.container.cacheAsBitmap = false;
-    this.container.cacheAsBitmap = this.properties.freezable;
+    this.container.cacheAsBitmap = prev;
   }
 }
 
@@ -111,7 +120,14 @@ let rootLayer: Layer;
 export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
   if (MapLayerFunctions.destroyed)
     throw new Error(`Attempting to access MapLayer system before construction; run MapLayerFunctions.Init() first.`);
-  // TODO Retrieve
+  
+  let result = rootLayer;
+
+  terms.forEach( term => {
+    result = rootLayer.getChild(term);
+  });
+
+  return result;
 }
 
 /** 
