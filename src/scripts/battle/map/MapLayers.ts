@@ -50,7 +50,24 @@ class Layer {
   /** Builds children layers to the given index (inclusive) assuming that
    * this index will be used to retrieve a layer in the immediate future. */
   private lazyBuildChildren(toIndex: number) {
+    // Numeric indexed
+    if (this.properties.rowSegmented) {
+      for (let i = this.children.length; i <= toIndex; i++) {
+        const layer = new Layer({
+          key: String(i),
+          children: this.properties.children,
+        });
+        this.container.addChild(layer.container);
+      }
+    }
     
+    // String indexed
+    else {
+      for (let i = this.children.length; i < this.properties.children.length; i++) {
+        const layer = new Layer(this.properties.children[i]);
+        this.container.addChild(layer.container);
+      }
+    }
   }
   
   /** Returns the Layer object indicated by the given key.
