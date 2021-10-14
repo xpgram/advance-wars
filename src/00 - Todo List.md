@@ -55,8 +55,8 @@
     - [X] Surface
     - [ ] Overlapping  
         - [X] Implemented
-        - [ ] Refactored files which depend on MapLayer
         - [ ] Tested
+    - [ ] Refactored files which depend on MapLayer
 
 - [ ] Z-Ordering and UI Properties refactor  
     Currently, each UI element defines these in their class scripts—in their constructors, actually. I can confirm MenuWindow and MapCursor do. This will be messy later on.
