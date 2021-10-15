@@ -189,6 +189,30 @@ export abstract class TerrainObject {
     private constructWhiteMask(): PIXI.Sprite {
         let container = new PIXI.Container();
 
+        // TODO Update dis, boi
+        // import the whitemask and spotlight filters
+        // whitemask this sprite container (temporarily)
+        // render that to a new texture, create new sprite
+        // 
+        // spotlight goes on the whitemask_tex
+        // I need... um. Hm.
+        // whitemask needs to update deliberately.
+        // Maybe the whitemask should be saved in the texture library.
+        // I ~could~ render it every frame, it wouldn't really tax the system.
+        // But we don't ~need~ to do that, do we?
+        // I should expand the texture library to allow for different volumes.
+        // Or better, I should check that it isn't exclusively a singleton.
+        // I forget, but I'm pretty sure I could just use a static library
+        // instance here which is separate from the flushed-every-frame library
+        // in Game.
+        //
+        // Anyway,
+        // Get whitemask_tex gets saved to whitemaskLibrary
+        // getTexture(key), where key is the serial for this tile shape
+        // to pull the whitemask_tex and applies spotlight to it, which
+        // is then saved to Game's textureLibrary to spare us from future
+        // renders.
+
         // Square base
         let tileSize = Game.display.standardLength;
         let base = new PIXI.Graphics();
