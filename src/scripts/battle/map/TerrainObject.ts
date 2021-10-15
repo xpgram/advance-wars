@@ -190,28 +190,30 @@ export abstract class TerrainObject {
         let container = new PIXI.Container();
 
         // TODO Update dis, boi
-        // import the whitemask and spotlight filters
-        // whitemask this sprite container (temporarily)
-        // render that to a new texture, create new sprite
+        // > import the whitemask and spotlight filters
+        // > whitemask this sprite container (temporarily)
+        // > render that to a new texture
+        // > save texture in TerrainObject.whitemasks, a TextureLibrary.
         // 
-        // spotlight goes on the whitemask_tex
-        // I need... um. Hm.
-        // whitemask needs to update deliberately.
-        // Maybe the whitemask should be saved in the texture library.
-        // I ~could~ render it every frame, it wouldn't really tax the system.
-        // But we don't ~need~ to do that, do we?
-        // I should expand the texture library to allow for different volumes.
-        // Or better, I should check that it isn't exclusively a singleton.
-        // I forget, but I'm pretty sure I could just use a static library
-        // instance here which is separate from the flushed-every-frame library
-        // in Game.
+        // > on frame update:
+        // > this asks TerrainObject.getTexture(key), where key is the
+        //   serial for this tile's shape, for a spotlight texture.
+        // > getTexture() first checks the key against Game's texture
+        //   library and returns that if possible.
+        //   > Otherwise, getTexture() pulls the whitemask from
+        //     TerrainObject.whitemasks,
+        //   > then builds a temp sprite to render with,
+        //   > does the stuff,
+        //   > saves that tex to the given key,
+        //   > and then finally returns it.
+        // > The recieved texture is given to this._whitemask
         //
-        // Anyway,
-        // Get whitemask_tex gets saved to whitemaskLibrary
-        // getTexture(key), where key is the serial for this tile shape
-        // to pull the whitemask_tex and applies spotlight to it, which
-        // is then saved to Game's textureLibrary to spare us from future
-        // renders.
+        // this._whitemask .tint and .visible are set elsewhere,
+        // probably on request.
+        //
+        // this._whitemask may need to be refactored to reflect it's new
+        // role; it just exists on top of the regular sprite container as
+        // an additional layer.
 
         // Square base
         let tileSize = Game.display.standardLength;
