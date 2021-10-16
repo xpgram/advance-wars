@@ -6,7 +6,7 @@ type LayerProperties = {
   key: string,
   rowSegmented?: boolean,
   freezable?: boolean,
-  children?: MapLayerOptions[],
+  children?: LayerProperties[],
 }
 
 /** This object defines the map layer structure. */
@@ -17,7 +17,7 @@ const layers_config: LayerProperties[] = [
     {key: 'static', freezable: true},
     {key: 'animated'},
     {key: 'glass-tile'},
-    {key: 'unit', movingEntities: true},
+    {key: 'unit'},
   ]},
   {key: 'cloud-shadow'},
   {key: 'ui'},
@@ -27,7 +27,7 @@ const layers_config: LayerProperties[] = [
  * and descendants. */
 class Layer {
   private _path: string[];
-  container: Container;
+  container: PIXI.Container;
   properties: LayerProperties;
   children: Layer[];
   
@@ -62,8 +62,10 @@ class Layer {
 
     // String indexed
     else {
-      for (let i = this.children.length; i < this.properties.children.length; i++) {
-        const layer = new Layer(this.properties.children[i]);
+      const children = this.properties.children || [];
+      const start = this.children.length;
+      for (let i = start; i < children.length; i++) {
+        const layer = new Layer(children[i]);
         this.container.addChild(layer.container);
       }
     }
@@ -72,21 +74,23 @@ class Layer {
   /** Returns the Layer object indicated by the given key.
    * Throws an error if the key could not be linked to any children. */
   getChild(key: string | number) {
+    const path = this.path;
+
     function throwError(msg: string) {
-      throw new ReferenceError(`Can't parse path ${this.path} by '${key}'; ${msg}`);
+      throw new ReferenceError(`Can't parse path ${path} by '${key}'; ${msg}`);
     }
 
     if (!this.properties.children)
       throwError('no children.');
 
-    let idx: undefined | number;
+    let idx: number = -1;
     
     // String indexing
     if (typeof key === 'string') {
       if (this.properties.rowSegmented)
         throwError('layer is row indexed.');
       
-      this.lazyBuildChildren(this.properties.children.length - 1);
+      this.lazyBuildChildren(-1);   // TODO This argument serves no purpose but is still necessary.
       idx = this.children.findIndex( child => child.properties.key === key );
       
       if (idx === -1)
@@ -110,14 +114,14 @@ class Layer {
    * and cache the resulting texture. */
   freeze() {
     this.children.forEach( child => child.freeze() );
-    this.container.cacheAsBitmap = this.properties.freezable;
+    this.container.cacheAsBitmap = this.properties.freezable || false;
   }
   
   /** Signals this layer that it should re-render.
    * Does nothing if this layer is not designated as freezable. */
   update() {
     // this.children.forEach( child => child.update() );
-    let prev = this.container.cachAsBitmap;
+    let prev = this.container.cacheAsBitmap;
     this.container.cacheAsBitmap = false;
     this.container.cacheAsBitmap = prev;
   }
@@ -133,7 +137,7 @@ let rootLayer: Layer;
 * @author Dei Valko
 * @version 2.0.0
 */
-export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
+export function MapLayer(...terms: (string | number)[]): PIXI.Container {
   if (MapLayerFunctions.destroyed)
     throw new Error(`Attempting to access MapLayer system before construction; run MapLayerFunctions.Init() first.`);
   
@@ -143,7 +147,7 @@ export function MapLayer(...terms: (string | number)[]): MapLayerContainer {
     result = rootLayer.getChild(term);
   });
 
-  return result;
+  return result.container;
 }
 
 /** 
