@@ -718,7 +718,7 @@ export const Terrain = {
             anim.animationSpeed = 0.2;
             if (variant != "0000")
                 anim.play();
-            this.layers.push({object: anim, key: ['top', 'row', 'static'], maskShape: true});
+            this.layers.push({object: anim, key: ['top', 'row', 'animated'], maskShape: true});
         }
     },
 
