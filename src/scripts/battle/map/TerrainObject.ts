@@ -8,6 +8,7 @@ import { TransformableList } from "../../TransformableList";
 import { Point3D } from "../../CommonTypes";
 import { Terrain } from "./Terrain";
 import { Game } from "../../..";
+import { whitemask } from "../../filters/Whitemask";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.
@@ -228,15 +229,12 @@ export abstract class TerrainObject {
 
         // Any other shapes
         this.layers.forEach( layer => {
-            //if (layer.maskShape) {
-                layer.object.x = layer.object.y = tileSize;
-                container.addChild(layer.object);
-            //}
+            layer.object.x = layer.object.y = tileSize;
+            container.addChild(layer.object);
         });
 
         // White-out colors in shape sprites
-        let filter = new PixiFilters.ColorReplaceFilter(0xFFFFFF, 0xFFFFFF, 10.0);
-        container.filters = [filter];
+        container.filters = [whitemask];
 
         // Texture generation
         let tex = Game.app.renderer.generateTexture(container, PIXI.SCALE_MODES.NEAREST, 1,

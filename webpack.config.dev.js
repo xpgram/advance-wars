@@ -6,11 +6,17 @@ module.exports = {
     entry: './src/index.ts',
     mode: 'development',
     module: {
-        rules: [{
-            test: /\.(ts|js)x?$/,
-            use: 'babel-loader',
-            exclude: /node_modules/,
-        }]
+        rules: [
+            {
+                test: /\.(glsl|vs|fs)$/,
+                use: 'ts-shader-loader',
+            },
+            {
+                test: /\.(ts|js)x?$/,
+                use: 'babel-loader',
+                exclude: /node_modules/,
+            },
+        ]
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.json'],
