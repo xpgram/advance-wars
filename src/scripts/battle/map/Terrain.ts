@@ -87,7 +87,7 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain
             let sprite = TerrainMethods.createPlainLayer();
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
 
             // if neighbors.center == Meteor: assume crater
             // if neighbors.center == Plasma: assume razed grass
@@ -122,14 +122,14 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain
             let sprite = TerrainMethods.createPlainLayer();
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Road
             let variant = TerrainMethods.fourDirectionalVariant(neighbors,  // The rest are tiles we want to connect to.
                 Terrain.Road, Terrain.Bridge, Terrain.HQ, Terrain.City, Terrain.Factory, Terrain.Airport,
                 Terrain.Port, Terrain.Radar, Terrain.ComTower, Terrain.Silo, Terrain.TempAirpt, Terrain.TempPort);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`road-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
@@ -161,12 +161,12 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain
             let sprite = TerrainMethods.createPlainLayer();
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Wood
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Wood);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`wood-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
@@ -197,7 +197,7 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain
             let sprite = TerrainMethods.createPlainLayer();
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Mountain
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Mountain);
@@ -239,7 +239,7 @@ export const Terrain = {
             // Wasteland
             let variant = TerrainMethods.randomTileVariant(6);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`wasteland-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
@@ -271,12 +271,12 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain
             let sprite = TerrainMethods.createPlainLayer();
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
 
             // Ruins
             let variant = TerrainMethods.randomTileVariant(3);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`ruins-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
@@ -319,17 +319,17 @@ export const Terrain = {
                 // River
                 let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
                 let sprite = new PIXI.Sprite(Terrain.sheet.textures[`river-${variant}.png`]);
-                this.layers.push({object: sprite, key: ['bottom']});
+                this.layers.push({object: sprite, key: ['bottom', 'static']});
             } else {
                 // Sea
                 let container = TerrainMethods.createSeaLayer(neighbors);
-                this.layers.push({object: container, key: ['bottom']});
+                this.layers.push({object: container, key: ['bottom', 'static']});
             }
 
             // Bridge
             let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Bridge, Terrain.Port, Terrain.TempPort);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`bridge-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>): boolean {
@@ -367,7 +367,7 @@ export const Terrain = {
             // River TODO They don't connect to each other
             let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`river-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
@@ -400,7 +400,7 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let container = TerrainMethods.createSeaLayer(neighbors);
-            this.layers.push({object: container, key: ['bottom']});
+            this.layers.push({object: container, key: ['bottom', 'static']});
         }
     },
 
@@ -431,11 +431,11 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
-            this.layers.push({object: container, key: ['bottom']});
+            this.layers.push({object: container, key: ['bottom', 'static']});
 
             let variant = TerrainMethods.beachVariant(neighbors);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`beach-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
@@ -499,15 +499,17 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Sea
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
-            Debug.ping(container);  // TODO Why are they so bright?
+            this.layers.push({object: container, key: ['bottom', 'static']});
 
             // Rough Sea
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['roughsea']);
             anim.animationSpeed = 0.125;
             anim.play();
-            container.addChildAt(anim, 0);  // Insert underneath shallow-sea overlay (and cliff if I allow that)
+            anim.alpha = .225;
+            anim.blendMode = PIXI.BLEND_MODES.ADD;
+            // container.addChildAt(anim, 0);  // Insert underneath shallow-sea overlay (and cliff if I allow that)
 
-            this.layers.push({object: container, key: ['top', 'row', 'static']});
+            this.layers.push({object: anim, key: ['top', 'row', 'animated']});
         }
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
@@ -555,7 +557,7 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Sea
             let container = TerrainMethods.createSeaLayer(neighbors);
-            this.layers.push({object: container, key: ['bottom']});
+            this.layers.push({object: container, key: ['bottom', 'static']});
 
             // Mist
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, MistTile);
@@ -594,12 +596,12 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Sea
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
-            this.layers.push({object: container, key: ['bottom']});
+            this.layers.push({object: container, key: ['bottom', 'static']});
             
             // Reef
             let variant = TerrainMethods.randomTileVariant(4);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`reef-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
@@ -649,7 +651,7 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain - Cragged
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-crag.png`]);
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
 
             // Fire
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`fire`]);
@@ -701,14 +703,14 @@ export const Terrain = {
             if (this.landTile) {
                 // Plain
                 let sprite = TerrainMethods.createPlainLayer();
-                this.layers.push({object: sprite, key: ['bottom']});
+                this.layers.push({object: sprite, key: ['bottom', 'static']});
 
                 // Not until the meteor is destroyed; looks weird with it.
                 // let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-7.png`]);
             } else {
                 // Sea
                 let container = TerrainMethods.createSeaLayer(neighbors);
-                this.layers.push({object: container, key: ['bottom']});
+                this.layers.push({object: container, key: ['bottom', 'static']});
             }
             
             // Meteor
@@ -762,7 +764,7 @@ export const Terrain = {
             if (this.landTile) {
                 // Plain
                 let sprite = TerrainMethods.createPlainLayer();
-                this.layers.push({object: sprite, key: ['bottom']});
+                this.layers.push({object: sprite, key: ['bottom', 'static']});
 
                 // Not until plasma is destroyed; otherwise, plasma has a brown halo and it looks weird.
                 // let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
@@ -770,7 +772,7 @@ export const Terrain = {
             } else {
                 // Sea
                 let container = TerrainMethods.createSeaLayer(neighbors);
-                this.layers.push({object: container, key: ['bottom']});
+                this.layers.push({object: container, key: ['bottom', 'static']});
             }
 
             // Plasma
@@ -899,7 +901,7 @@ export const Terrain = {
             let layers = TerrainMethods.createBuildingLayers('hq');
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'static'], maskShape: true});
 
             // Temp - Chooses a random color
@@ -939,7 +941,7 @@ export const Terrain = {
             let layers = TerrainMethods.createBuildingLayers('city');
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
@@ -978,7 +980,7 @@ export const Terrain = {
             let layers = TerrainMethods.createBuildingLayers('comtower');
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
@@ -1017,7 +1019,7 @@ export const Terrain = {
             let layers = TerrainMethods.createBuildingLayers('radar');
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
@@ -1063,7 +1065,7 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain
             let sprite = TerrainMethods.createPlainLayer();
-            this.layers.push({object: sprite, key: ['bottom']});
+            this.layers.push({object: sprite, key: ['bottom', 'static']});
 
             // Silo
             let which = (this.value == 1) ? 1 : 2;  // Unused : Used
@@ -1104,7 +1106,7 @@ export const Terrain = {
             let layers = TerrainMethods.createBuildingLayers('factory');
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
@@ -1144,7 +1146,7 @@ export const Terrain = {
             let layers = TerrainMethods.createBuildingLayers('airport');
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
@@ -1186,7 +1188,7 @@ export const Terrain = {
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
@@ -1225,7 +1227,7 @@ export const Terrain = {
             let layers = TerrainMethods.createBuildingLayers('tempairpt');
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
@@ -1266,7 +1268,7 @@ export const Terrain = {
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.buildingSprite = layers.top;
 
-            this.layers.push({object: layers.bottom, key: ['bottom']});
+            this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // TODO Remove: Chooses a random color

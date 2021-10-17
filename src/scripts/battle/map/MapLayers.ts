@@ -12,7 +12,9 @@ type LayerProperties = {
 /** This object defines the map layer structure. */
 const layers_config: LayerProperties[] = [
   {key: 'sea'},
-  {key: 'bottom', freezable: true},
+  {key: 'bottom', children: [
+    {key: 'static', freezable: true}
+  ]},
   {key: 'top', rowSegmented: true, children: [
     {key: 'static', freezable: true},
     {key: 'animated'},
