@@ -8,7 +8,7 @@ import { NumericDictionary, StringDictionary } from "../../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { UnitObject } from "../UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
-import { PointPrimitive, Point } from "../../Common/Point";
+import { Point, ImmutablePointPrimitive } from "../../Common/Point";
 import { MoveType } from "../EnumTypes";
 import { Debug } from "../../DebugUtils";
 import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../../Common/CardinalDirection";
@@ -18,7 +18,7 @@ import { QueueSearch } from "../../Common/QueueSearch";
 import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 
 // Common error messages
-function InvalidLocationError(point: PointPrimitive) {
+function InvalidLocationError(point: ImmutablePointPrimitive) {
     return `Attempting to access invalid grid location: (${point.x}, ${point.y})`;
 }
 
@@ -36,17 +36,8 @@ export class Map {
     private board: Square[][] = [];
 
     /** Returns a z-index number based on the board-coordinates given. */
-    static calculateZIndex(point: PointPrimitive, layer?: 'glass-overlay' | 'unit') {
-        let layerDict: StringDictionary<number> = {
-            'glass-overlay': 2,     // This is put above mountain shadows from left-adjacent.
-            'unit': 3
-        }
-
-        let z = point.y*10 - point.x;
-        if (layer)
-            z += layerDict[layer];
-        
-        return z;
+    static calculateZIndex(point: ImmutablePointPrimitive) {
+        return -point.x;
     }
 
     /** 
@@ -66,11 +57,8 @@ export class Map {
         this.forceLegalTiles(); // Removes any illegal tiles left behind by the map generation process.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
-        MapLayerFunctions.SortBatchLayerIntoPartitions();
-        MapLayerFunctions.FreezeInanimateLayers();
+        MapLayerFunctions.FreezeStaticLayers();
         TerrainMethods.startPaletteAnimation();
-
-        MapLayerFunctions.PostLayerIndexToConsole(); // TODO Remove
     }
 
     /**  */
@@ -92,7 +80,7 @@ export class Map {
         mapMask.drawRect(0, -tileSize, width, height + tileSize);
 
         // Set the mask and add it to the stage; the mask should move with its object.
-        MapLayer('top', 'static').mask = mapMask;
+        MapLayer('top').mask = mapMask;
         Game.stage.addChild(mapMask);
     }
 
@@ -111,7 +99,7 @@ export class Map {
         for (let x = 0; x < width; x++) {
             this.board[x] = [];
             for (let y = 0; y < height; y++) {
-                this.board[x][y] = new Square(this, x-1, y-1);    // Squares don't "know about" there being a void perimeter.
+                this.board[x][y] = new Square(x-1, y-1);    // Squares don't "know about" there being a void perimeter.
 
                 // Add null-object border
                 if (x == 0 || x == (width - 1) || y == 0 || y == (height - 1))
@@ -176,7 +164,7 @@ export class Map {
      */
     private generateTile(type: TerrainType, chanceMatrix: number[], existingLandmarkRate: number, diagonalRate: number) {
         // Generate a list of indices to access the board
-        let points: PointPrimitive[] = [];
+        let points: ImmutablePointPrimitive[] = [];
         for (let x = 0; x < this.width; x++) {
         for (let y = 0; y < this.height; y++) {
             points.push({x:x,y:y});
@@ -281,7 +269,7 @@ export class Map {
         }
 
         // Apply z-ordering. Bottom layer never overlaps——is fine.
-        MapLayer('top', 'static').sortChildren();
+        MapLayerFunctions.SortLayer('top');
     }
 
     /** Returns the horizontal size of the grid map, including the border columns. */
@@ -313,7 +301,7 @@ export class Map {
      * these locations.
      * @param pos The location on the map to retrieve.
      */
-    squareAt(pos: PointPrimitive): Square {
+    squareAt(pos: ImmutablePointPrimitive): Square {
         // (-1,-1) and (width,height) refer to the border objects. They are secret.
         if (pos.x < -1 || pos.y < -1 || pos.x >= this.trueWidth || pos.y >= this.trueHeight)
             throw new Error(InvalidLocationError(pos));
@@ -325,7 +313,7 @@ export class Map {
     /** Gathers the nearest-neighboring tiles adjacent to the tile at pos and returns them as a NeighborMatrix object.
      * @param pos The location on the map to inspect.
      */
-    neighborsAt(pos: PointPrimitive): NeighborMatrix<Square> {
+    neighborsAt(pos: ImmutablePointPrimitive): NeighborMatrix<Square> {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
 
@@ -336,7 +324,7 @@ export class Map {
     /** Gathers the TerrainObjects nearest-neighboring the tile at pos and returns them as a NeighborMatrix object.
      * @param pos The location on the map to inspect.
      */
-    neighboringTerrainAt(pos: PointPrimitive): NeighborMatrix<TerrainObject> {
+    neighboringTerrainAt(pos: ImmutablePointPrimitive): NeighborMatrix<TerrainObject> {
         let neighbors = this.neighborsAt(pos);
         return neighbors.map( square => square.terrain );
     }
@@ -411,7 +399,7 @@ export class Map {
     /** Removes a Unit object on the map. Does not destroy it.
      * @param pos The location on the map to modify.
      */
-    removeUnit(pos: PointPrimitive) {
+    removeUnit(pos: ImmutablePointPrimitive) {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         let square = this.squareAt(pos);
@@ -442,15 +430,13 @@ export class Map {
         this.removeUnit(src);
         this.placeUnit(traveler, dest);
 
-        MapLayer('top', 'static').sortChildren();
-
         return true;
     }
 
     /** Removes and destroys a Unit object on the map.
      * @param pos The location on the map to modify.
      */
-    destroyUnit(pos: PointPrimitive) {
+    destroyUnit(pos: ImmutablePointPrimitive) {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         let square = this.squareAt(pos);
@@ -464,7 +450,7 @@ export class Map {
      * @param p A grid location to check the existence of.
      * @return True if point lies within the map's boundaries.
      */
-    validPoint(p: PointPrimitive): boolean {
+    validPoint(p: ImmutablePointPrimitive): boolean {
         return p.x >= 0 && p.x < this.width &&
                p.y >= 0 && p.y < this.height;
     }
@@ -639,7 +625,7 @@ export class Map {
      * By default, this is the unit's point location post travel.
      */
     // TODO Left a little messy. Clean it up.
-    recalculatePathToPoint(unit: UnitObject, destination: PointPrimitive, rangeMap?: RegionMap) {
+    recalculatePathToPoint(unit: UnitObject, destination: ImmutablePointPrimitive, rangeMap?: RegionMap) {
         // TODO This is done.. ish. I feel I've left it a little messy, though. But it works.
         // TODO Export some common RegionMaps in the RegionMap class file.
         // Default rangeMap is the point-location: i.e. a range of 0.

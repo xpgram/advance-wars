@@ -1,7 +1,7 @@
 import { TerrainObject } from "./TerrainObject";
 import { UnitObject } from "../UnitObject";
 import { Terrain } from "./Terrain";
-import { MapLayer } from "./MapLayers";
+import { MapLayer, MapLayerFunctions } from "./MapLayers";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { Map } from "./Map";
 import { Point, PointPrimitive } from "../../Common/Point";
@@ -23,8 +23,6 @@ import { ArmorType, MoveType } from "../EnumTypes";
  * @version 0.1.0
  */
 export class Square {
-    private board: Map;
-
     private _terrain!: TerrainObject;
     /**  */
     get terrain() { return this._terrain; }
@@ -36,13 +34,22 @@ export class Square {
     /**  */
     get unit() { return this._unit; }
     set unit(unitObj: UnitObject | null) {
+        const oldUnit = this._unit;
         this._unit = unitObj;
+
+        if (this._unit)
+            MapLayer('top', this.y, 'unit').addChild(this._unit.sprite);
+        if (oldUnit) {
+            const container = MapLayer('top', this.y, 'unit');
+            container.removeChild(oldUnit.sprite);
+        }
+
         // TODO Conform unit's display properties to this tile's.
         // You know, like hidden being hidden.
     }
 
     /** The tinted-glass tile highlight that informs the player what actions or information is available for this square. */
-    private overlayPanel = new PIXI.Sprite();
+    private overlayPanel: PIXI.Sprite;
 
     private tileReflectionBox = new PIXI.Container();
 
@@ -108,14 +115,10 @@ export class Square {
         return texture;
     });
 
-    constructor(board: Map, x = 0, y = 0) {
+    constructor(x = 0, y = 0) {
         this.setCoords(x,y);
-        this.board = board;
 
         this.terrain = new Terrain.Void();
-
-        MapLayer('top', 'glass-tile').addChild(this.overlayPanel);
-        MapLayer('ui').addChild(this.overlayArrow);
 
         // TODO Overlay prettifier dummy code
         Game.scene.ticker.add( () => {
@@ -125,10 +128,10 @@ export class Square {
             }
         }, this);
 
-        this.tileReflection.x = this.tileReflection.y = 16;
         this.tileReflection.blendMode = PIXI.BLEND_MODES.ADD;
         this.tileReflection.alpha = 0.20;
-        this.overlayPanel.addChild(this.tileReflection);
+
+        MapLayer('ui').addChild(this.overlayArrow);
     }
 
     /** Destroys this object and its children. */
@@ -154,10 +157,8 @@ export class Square {
         this.terrain.init(neighbors, worldPos);
 
         // Tinted-Glass Panel Layer
-        this.overlayPanel.x = this.x * tileSize - tileSize; // Generated textures (32x32) do not have
-        this.overlayPanel.y = this.y * tileSize - tileSize; // preset origins, so adjust position by tileSize
-        this.overlayPanel.zIndex = Map.calculateZIndex({x:this.x, y:this.y}, 'glass-overlay');
-        this.overlayPanel.texture = this.terrain.whiteTexture.texture;
+        this.overlayPanel = this.terrain.whiteTexture;
+        this.overlayPanel.addChild(this.tileReflection);        
 
         // Arrow Layer
         this.overlayArrow.x = this.x * tileSize;
@@ -282,6 +283,9 @@ export class Square {
 
     /** Updates the tile overlay to reflect whatever UI state the tile is in. */
     private updateHighlight(): void {
+        if (!this.overlayPanel)     // TODO Why is this necessary?
+            return;
+
         // 2-second sawtooth wave, range 0–1
         //let wave = Math.abs((Game.frameCount % 120) - 120) / 60;
 

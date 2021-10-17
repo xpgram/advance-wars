@@ -5,7 +5,7 @@ import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
-import { MapLayer } from "../map/MapLayers";
+import { MapLayer, MapLayerFunctions } from "../map/MapLayers";
 import { Slider } from "../../Common/Slider";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
@@ -111,7 +111,7 @@ export class BattleSceneControllers {
         this.trackCar = new TrackCar();
 
         // Apply z-sort correction to scene objects.
-        MapLayer('top', 'static').sortChildren();
+        MapLayerFunctions.SortLayer('top');
         MapLayer('ui').sortChildren();
 
         // The objective here is to build a complete battle scene given scenario options.

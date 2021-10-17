@@ -27,6 +27,7 @@ const layers_config: LayerProperties[] = [
  * and descendants. */
 class Layer {
   private _path: string[];
+  private _name: string;
   container: PIXI.Container;
   properties: LayerProperties;
   children: Layer[];
@@ -36,6 +37,7 @@ class Layer {
     this.properties = properties;
     this.children = [];
     
+    this._name = properties.key;
     this._path = (parent)
       ? [...parent._path, properties.key]
       : [properties.key];
@@ -44,6 +46,11 @@ class Layer {
   /** The string serial of this layer's location within the MapLayer system. */
   get path() {
     return this._path.join('/');
+  }
+
+  /** The string name for this layer. */
+  get name() {
+    return this._name;
   }
   
   /** Builds children layers to the given index (inclusive) assuming that
@@ -55,18 +62,20 @@ class Layer {
         const layer = new Layer({
           key: String(i),
           children: this.properties.children,
-        });
+        }, this);
         this.container.addChild(layer.container);
+        this.children.push(layer);
       }
     }
 
     // String indexed
     else {
-      const children = this.properties.children || [];
+      const propChildren = this.properties.children || [];
       const start = this.children.length;
-      for (let i = start; i < children.length; i++) {
-        const layer = new Layer(children[i]);
+      for (let i = start; i < propChildren.length; i++) {
+        const layer = new Layer(propChildren[i], this);
         this.container.addChild(layer.container);
+        this.children.push(layer);
       }
     }
   }
@@ -144,7 +153,7 @@ export function MapLayer(...terms: (string | number)[]): PIXI.Container {
   let result = rootLayer;
 
   terms.forEach( term => {
-    result = rootLayer.getChild(term);
+    result = result.getChild(term);
   });
 
   return result.container;
@@ -198,6 +207,16 @@ export const MapLayerFunctions = {
     if (this.destroyed)
       return;
     rootLayer.freeze();
+  },
+
+  /** Signals a layer to sort its children, and for all its children to sort their children. */
+  SortLayer(...terms: (string | number)[]) {
+    // TODO Is this function necessary? Does Pixi not watch z for changes and retrigger sort automatically?
+    function sort(container: PIXI.Container) {
+      container.children.forEach( child => sort(child as PIXI.Container) );
+      container.sortChildren();
+    }
+    sort( MapLayer(...terms) );
   },
   
   /** Compiles the layer structure into a single string report which is

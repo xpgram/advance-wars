@@ -3,7 +3,7 @@ import * as PixiFilters from "pixi-filters";
 import { LowResTransform } from "../../LowResTransform";
 import { UnitClass, MoveType, Faction } from "../EnumTypes";
 import { NeighborMatrix } from "../../NeighborMatrix";
-import { MapLayer } from "./MapLayers";
+import { MapLayer, MapLayerFunctions } from "./MapLayers";
 import { TransformableList } from "../../TransformableList";
 import { Point3D } from "../../CommonTypes";
 import { Terrain } from "./Terrain";
@@ -155,16 +155,19 @@ export abstract class TerrainObject {
         this.layers = [];
         this.orient(neighbors); // Allows subclasses to populate the layers list.
 
+        const mapLayerRow = MapLayerFunctions.RowLayerFromWorldPosition(pos);   // For MapLayer
+
         // Get this tile's white mask, apply it to both overlay panels
         this._whiteTexture = this.constructWhiteMask();
-        this._whiteTexture.visible = false; // TODO This should be true. If it's a mask, anyway. I dunno.
-        this.layers.push({object: this._whiteTexture, key: ['top', 'glass-tile']});
+        this._whiteTexture.visible = false;
+        this.layers.push({object: this._whiteTexture, key: ['top', 'row', 'glass-tile']});
 
         // Add populated layers to display and this.transform
         let graphicsObjects: TransformableList = new TransformableList();
         this.layers.forEach( layer => {
             graphicsObjects.push(layer.object);
-            const mapLayer = MapLayer(...layer.key);
+            const terms = layer.key.map( key => (key === 'row') ? mapLayerRow : key );
+            const mapLayer = MapLayer(...terms);
             mapLayer.addChild(layer.object);
         });
 

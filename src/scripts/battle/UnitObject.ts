@@ -68,7 +68,7 @@ const rankLimit = 3;
  */
 export abstract class UnitObject {
     private static transform: LowResTransform = new LowResTransform();
-    private sprite!: PIXI.AnimatedSprite;
+    private _sprite!: PIXI.AnimatedSprite;
     private uiBox!: PIXI.Container;
     private hpMeter!: PIXI.BitmapText;
     private statusIcons!: PIXI.Sprite;
@@ -91,6 +91,11 @@ export abstract class UnitObject {
 
     /** Numerical index of unit types. Used for saving/loading, primarily. */
     abstract get serial(): number;
+
+    /** The sprite container for this unit. */
+    get sprite(): PIXI.Sprite {
+        return this._sprite;
+    }
 
     /** A 16x16 thumbnail image for this unit type. */
     get preview(): PIXI.Sprite {
@@ -227,14 +232,16 @@ export abstract class UnitObject {
         let country = ['rubinelle','lazurian'][this.faction  % 2];
 
         if (this.type == Unit.Infantry || this.type == Unit.Mech || this.type == Unit.Bike)
-            this.sprite = new PIXI.AnimatedSprite(sheet.animations[`${name}/${country}/${color}/idle`]);
+            this._sprite = new PIXI.AnimatedSprite(sheet.animations[`${name}/${country}/${color}/idle`]);
         else
-            this.sprite = new PIXI.AnimatedSprite(sheet.animations[`${name}/${color}/idle`]);
+            this._sprite = new PIXI.AnimatedSprite(sheet.animations[`${name}/${color}/idle`]);
         //this.sprite.scale.x = (team.playerNumber % 2 == 0) ? 1 : -1;
         this.reverseFacing = (this.faction % 2 == 1);
         // TODO Make this more permenant. LowResT just erases it.
         
-        MapLayer('top', 'unit').addChild(this.sprite);
+        // TODO Square.placeUnit() already does this. Is this step necessary?
+        const row = MapLayerFunctions.RowLayerFromWorldPosition(this.boardLocation);
+        MapLayer('top', row, 'unit').addChild(this.sprite);
 
         // Build UI elements.
         this.uiBox = new PIXI.Container();

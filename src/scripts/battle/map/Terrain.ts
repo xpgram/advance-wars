@@ -202,12 +202,12 @@ export const Terrain = {
             // Mountain
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Mountain);
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`mountain-${variant}.png`]);
-            this.layers.push({object: sprite, key: ['top', 'static'], maskShape: true});
+            this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
 
             // Mountain Shadow
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`shadow.png`]);
             sprite.alpha = 0.25;
-            this.layers.push({object: sprite, key: ['top', 'static']});
+            this.layers.push({object: sprite, key: ['top', 'row', 'static']});
         }
     },
 
@@ -499,7 +499,7 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Sea
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
-            Debug.ping(container);
+            Debug.ping(container);  // TODO Why are they so bright?
 
             // Rough Sea
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['roughsea']);
@@ -507,7 +507,7 @@ export const Terrain = {
             anim.play();
             container.addChildAt(anim, 0);  // Insert underneath shallow-sea overlay (and cliff if I allow that)
 
-            this.layers.push({object: container, key: ['top', 'animated']});
+            this.layers.push({object: container, key: ['top', 'row', 'static']});
         }
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
@@ -561,7 +561,7 @@ export const Terrain = {
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, MistTile);
             let sprite = new PIXI.Sprite(Terrain.sheet.textures[`mist-${variant}.png`]);
             sprite.alpha = 0.75;
-            this.layers.push({object: sprite, key: ['top', 'static'], maskShape: true});
+            this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
         }
     },
 
@@ -655,7 +655,7 @@ export const Terrain = {
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`fire`]);
             anim.animationSpeed = 0.25;
             anim.play();
-            this.layers.push({object: anim, key: ['top', 'animated']});
+            this.layers.push({object: anim, key: ['top', 'row', 'animated']});
         }
     },
 
@@ -718,7 +718,7 @@ export const Terrain = {
             anim.animationSpeed = 0.2;
             if (variant != "0000")
                 anim.play();
-            this.layers.push({object: anim, key: ['top', 'static'], maskShape: true});
+            this.layers.push({object: anim, key: ['top', 'row', 'static'], maskShape: true});
         }
     },
 
@@ -778,7 +778,7 @@ export const Terrain = {
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`plasma-${variant}`]);
             anim.animationSpeed = 0.25;
             anim.play();
-            this.layers.push({object: anim, key: ['top', 'animated']});
+            this.layers.push({object: anim, key: ['top', 'row', 'animated']});
         }
     },
 
@@ -900,7 +900,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'static'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'static'], maskShape: true});
 
             // Temp - Chooses a random color
             this.faction = Math.floor(Math.random()*4) + 2;
@@ -940,7 +940,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
             this.faction = Math.floor(Math.random()*5) + 1;
@@ -979,7 +979,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
             this.faction = Math.floor(Math.random()*5) + 1;
@@ -1018,7 +1018,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
             this.faction = Math.floor(Math.random()*5) + 1;
@@ -1068,7 +1068,7 @@ export const Terrain = {
             // Silo
             let which = (this.value == 1) ? 1 : 2;  // Unused : Used
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`silo-${which}.png`]);
-            this.layers.push({object: sprite, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: sprite, key: ['top', 'row', 'animated'], maskShape: true});
         }
     },
 
@@ -1105,7 +1105,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
             this.faction = Math.floor(Math.random()*5) + 1;
@@ -1145,7 +1145,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
             this.faction = Math.floor(Math.random()*5) + 1;
@@ -1187,7 +1187,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
             this.faction = Math.floor(Math.random()*5) + 1;
@@ -1226,7 +1226,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // Temp - Chooses a random color
             this.faction = Math.floor(Math.random()*5) + 1;
@@ -1267,7 +1267,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom']});
-            this.layers.push({object: layers.top, key: ['top', 'animated'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
 
             // TODO Remove: Chooses a random color
             this.faction = Math.floor(Math.random()*5) + 1;
