@@ -1,6 +1,5 @@
 # Next Big Objectives
 
-- [ ] Why are RoughSea tiles so bright? I didn't even do anything!
 - [X] Refactor board graphics to have fewer sprite entities.  
   Combine rows, probably. This should improve performance on slower machines.
 - [ ] Game DB and Online Multiplayer
@@ -50,14 +49,6 @@
   - [ ] Let 'C' switch the stack-order of the blurb panels; bottom is whichever detailed describes.  
     I can't... quite remember why. I think this was to sync the blurb panel with the More Info panel; only one can show while More Info is extended and they should probably match since I don't think More Info is exhaustive.
     - [ ] This will require adding TerrainInfo to Detailed's wipe-away mask.
-
-- [X] After building the map, send all non-animated sprites to a mesh / paint them permenantly onto one big sprite, kind of like I do for the backdrop ocean. This should improve speed, kind of like it did for the backdrop ocean.
-  - [X] Sea
-  - [X] Surface
-  - [X] Overlapping  
-    - [X] Implemented
-    - [X] Tested
-  - [X] Refactored files which depend on MapLayer
 
 - [ ] Z-Ordering and UI Properties refactor  
   Currently, each UI element defines these in their class scripts—in their constructors, actually. I can confirm MenuWindow and MapCursor do. This will be messy later on.

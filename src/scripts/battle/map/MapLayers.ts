@@ -13,7 +13,8 @@ type LayerProperties = {
 const layers_config: LayerProperties[] = [
   {key: 'sea'},
   {key: 'bottom', children: [
-    {key: 'static', freezable: true}
+    {key: 'static', freezable: true},
+    {key: 'animated'},
   ]},
   {key: 'top', rowSegmented: true, children: [
     {key: 'static', freezable: true},

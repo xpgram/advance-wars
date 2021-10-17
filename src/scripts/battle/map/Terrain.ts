@@ -499,17 +499,15 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Sea
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
-            this.layers.push({object: container, key: ['bottom', 'static']});
 
             // Rough Sea
             let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['roughsea']);
             anim.animationSpeed = 0.125;
             anim.play();
-            anim.alpha = .225;
-            anim.blendMode = PIXI.BLEND_MODES.ADD;
-            // container.addChildAt(anim, 0);  // Insert underneath shallow-sea overlay (and cliff if I allow that)
 
-            this.layers.push({object: anim, key: ['top', 'row', 'animated']});
+            container.addChildAt(anim, 0);
+            this.layers.push({object: container, key: ['bottom', 'animated']}); // NOTE
+            // This container must be in 'bottom' somewhere; 'top' breaks the blendmode somehow.
         }
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
