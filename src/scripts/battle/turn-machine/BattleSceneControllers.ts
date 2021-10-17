@@ -65,7 +65,7 @@ export class BattleSceneControllers {
         this.gamepad = new VirtualGamepad();
 
         // Setup Map
-        this.map = new Map(25,9);
+        this.map = new Map(25,14);
         this.mapCursor = new MapCursor(this.map, this.gamepad); // TODO A gamepad proxy for whichever is current-player
 
         // TODO Since MapLayers are dependent on map being initialized, why aren't they properties of it?
