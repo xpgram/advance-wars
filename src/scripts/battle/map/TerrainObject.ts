@@ -62,7 +62,7 @@ export abstract class TerrainObject {
 
     /** The list of Pixi containers which make up this Terrain's graphical representation and metadata
      * about where they're placed and how they're referenced. */
-    protected layers: {object: PIXI.Container, shapeSerial: string, mapLayerKeys: string[], maskShape?: boolean}[] = [];
+    protected layers: {object: PIXI.Container, mapLayerKeys: string[], maskShape?: boolean}[] = [];
 
     /** A reference to this terrain's constructing type. Useful for comparisons. */
     abstract get type(): TerrainType;
@@ -275,7 +275,6 @@ export abstract class TerrainObject {
         // Save
         TerrainObject.whitemasks.register({id: serial, texture: tex});
 
-        // TODO Update Terrain.ts to use the layers type. Or, have it pass in the shapeId some other way and update it here.
         // TODO Update Square.ts to build its own overlayPanel (again) and grab the tex using the public-access tex serial.
     }
 
