@@ -70,11 +70,16 @@ export abstract class TerrainObject {
     /** This terrain's numerical serialization. */
     abstract get serial(): number;
 
-    /** The identifier-key for this terrain's silhouette shape. */
+    /** The serial number for this terrain's silhouette shape. */
     get shapeSerial() {
         return this._shapeSerial;
     }
     private _shapeSerial = '0';
+
+    /** The identifier-key for this terrain's silhoette shape. */
+    get shapeId() {
+        return `${this.serial}:${this.shapeSerial}`;
+    }
 
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
     get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
@@ -233,8 +238,7 @@ export abstract class TerrainObject {
         // role; it just exists on top of the regular sprite container as
         // an additional layer.
 
-        // TODO There should be a getter for this exact string to standardize the key publically.
-        const serial = `${this.serial}:${this.shapeSerial}`;
+        const serial = this.shapeId;
 
         // Check for work already done
         if (TerrainObject.whitemasks.hasId(serial))
@@ -272,8 +276,6 @@ export abstract class TerrainObject {
         TerrainObject.whitemasks.register({id: serial, texture: tex});
 
         // TODO Update Terrain.ts to use the layers type. Or, have it pass in the shapeId some other way and update it here.
-        // TODO Implement a public access to this Terrain's whitemask serial.
-            // Done. See MoutainTile for pattern. All tiles have serial=0 by default.
         // TODO Update Square.ts to build its own overlayPanel (again) and grab the tex using the public-access tex serial.
     }
 
