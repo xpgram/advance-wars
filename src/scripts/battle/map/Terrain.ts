@@ -558,8 +558,8 @@ export const Terrain = {
             this.layers.push({object: container, key: ['bottom', 'static']});
 
             // Mist
-            let variant = TerrainMethods.lineDirectionalVariant(neighbors, MistTile);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`mist-${variant}.png`]);
+            this._shapeSerial = TerrainMethods.lineDirectionalVariant(neighbors, MistTile);
+            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`mist-${this._shapeSerial}.png`]);
             sprite.alpha = 0.75;
             this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
         }
@@ -712,11 +712,11 @@ export const Terrain = {
             }
             
             // Meteor
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
-            variant = '0' + variant.slice(1);   // Up is always 'false' graphically
-            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`meteor-${variant}`]);
+            this._shapeSerial = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
+            this._shapeSerial = '0' + this._shapeSerial.slice(1);   // Up is always 'false' graphically
+            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`meteor-${this._shapeSerial}`]);
             anim.animationSpeed = 0.2;
-            if (variant != "0000")
+            if (this._shapeSerial != "0000")
                 anim.play();
             this.layers.push({object: anim, key: ['top', 'row', 'animated'], maskShape: true});
         }
@@ -774,8 +774,8 @@ export const Terrain = {
             }
 
             // Plasma
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma, Terrain.Meteor);
-            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`plasma-${variant}`]);
+            this._shapeSerial = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma, Terrain.Meteor);
+            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`plasma-${this._shapeSerial}`]);
             anim.animationSpeed = 0.25;
             anim.play();
             this.layers.push({object: anim, key: ['top', 'row', 'animated']});
