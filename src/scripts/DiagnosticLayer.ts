@@ -33,7 +33,7 @@ import { Debug } from "./DebugUtils";
         this._container.addChild(this.fpsBackground);
 
         // FPS Measure
-        this.fpsText = new PIXI.BitmapText("", { font: {name: 'TecTacRegular', size: 8}, align: 'left'});
+        this.fpsText = new PIXI.BitmapText("", { fontName: 'TecTacRegular', fontSize: 8, align: 'left'});
         this.fpsText.x = 2;
         this.fpsText.y = Game.display.renderHeight - 9;
         this._container.addChild(this.fpsText);

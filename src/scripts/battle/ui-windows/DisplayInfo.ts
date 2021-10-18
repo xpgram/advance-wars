@@ -1,10 +1,10 @@
 
 export const fonts = {
-    title: {font: {name: 'font-title', size: 10}},
-    scriptOutlined: {font: {name: 'font-map-ui', size: 14}},
-    smallScriptOutlined: {font: {name: 'font-small-ui', size: 12}},
-    script: {font: {name: 'font-script', size: 10}},
-    list: {font: {name: 'font-table-header', size: 6}},
-    menu: {font: {name: 'font-menu', size: 12}},        // I don't know the correct size for this one
-    tectac: {font: {name: 'TecTacRegular', size: 8}}
+    title: {fontName: 'font-title', fontSize: 10},
+    scriptOutlined: {fontName: 'font-map-ui', fontSize: 14},
+    smallScriptOutlined: {fontName: 'font-small-ui', fontSize: 12},
+    script: {fontName: 'font-script', fontSize: 10},
+    list: {fontName: 'font-table-header', fontSize: 6},
+    menu: {fontName: 'font-menu', fontSize: 12},            // I don't know the correct fontSize for this one
+    tectac: {fontName: 'TecTacRegular', fontSize: 8}
 }

@@ -40,7 +40,7 @@ const palette = {
 // Menu component properties constants
 const OPTION_PROPS = new BoxContainerProperties({
     minWidth: 40,
-    height: fonts.menu.font.size + 1,
+    height: fonts.menu.fontSize + 1,
     margin: { top: .5, bottom: .5, },
     border: { left: 1, right: 1, top: 1, bottom: 1, },
     padding: { left: 1, right: 1, },

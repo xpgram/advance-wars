@@ -64,7 +64,7 @@ export abstract class Scene {
      * with a provided callback to setup() on completion. */
     private load() {
         Game.app.loader.reset();                // Empty contents.
-        Game.app.loader.removeAllListeners();   // Let go of any callbacks we may have added.
+        Game.app.loader.reset();                // Let go of any callbacks we may have added.
         this.loadStep();                        // Collects resource URLs into this.linker[]
         this.linker.forEach(link => {
             Game.app.loader.add(link.name, link.url);
