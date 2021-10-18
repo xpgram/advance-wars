@@ -9,6 +9,7 @@ import { Point3D } from "../../CommonTypes";
 import { Terrain } from "./Terrain";
 import { Game } from "../../..";
 import { whitemask } from "../../filters/Whitemask";
+import { TextureLibrary } from "../../system/TextureLibrary";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.
@@ -45,20 +46,29 @@ export interface TerrainType {
  * overriding them only when they differ.
  */
 export abstract class TerrainObject {
+
+    /** Used to move graphical elements into position without actually holding that
+     * information in memory forever; it's only used on initialize so there'd be no point. */
     protected static transform: LowResTransform = new LowResTransform();
-    protected layers: {object: PIXI.Container, key: string[], maskShape?: boolean}[] = [];
+
+    /** Textures for each tile whitemask. Note that this resource is never flushed because
+     * the battle scene is 90% of this game and I don't really need to worry about memory. */
+    protected static whitemasks: TextureLibrary = new TextureLibrary();
+
+    /** Retrieves a whitemask texture for a given key. */
+    static getWhitemask(key: string) {
+        return TerrainObjecvt.whitemasks.get(key);
+    }
+
+    /** The list of Pixi containers which make up this Terrain's graphical representation and metadata
+     * about where they're placed and how they're referenced. */
+    protected layers: {object: PIXI.Container, shapeSerial: string, mapLayerKeys: string[], maskShape?: boolean}[] = [];
 
     /** A reference to this terrain's constructing type. Useful for comparisons. */
     abstract get type(): TerrainType;
 
     /** This terrain's numerical serialization. */
     abstract get serial(): number;
-
-    private _whiteTexture: PIXI.Sprite = new PIXI.Sprite();    // Blank by default
-    /** Returns a Sprite white-copy of this terrain's shape. */
-    get whiteTexture(): PIXI.Sprite {
-        return this._whiteTexture;
-    }
 
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
     get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
@@ -190,9 +200,7 @@ export abstract class TerrainObject {
     }
 
     /** Generates a white-mask from the graphical objects in this.layers. */
-    private constructWhiteMask(): PIXI.Sprite {
-        let container = new PIXI.Container();
-
+    private constructWhiteMask(): void {
         // TODO Update dis, boi
         // > import the whitemask and spotlight filters
         // > whitemask this sprite container (temporarily)
@@ -219,17 +227,29 @@ export abstract class TerrainObject {
         // role; it just exists on top of the regular sprite container as
         // an additional layer.
 
-        // Square base
-        let tileSize = Game.display.standardLength;
-        let base = new PIXI.Graphics();
+        // Build serial for this whitemask 
+        // TODO Can the shapeSerial be passed in without reduction? There's really only one relevant number.
+        const shapeId = this.layers.reduce( (prev,cur) => `${prev}${cur}` );
+        const serial = `${this.serial}:${shapeId}`;
+
+        // Check for work already done
+        if (TerrainObject.whitemasks.hasId(serial))
+            return;
+
+        // Container we'll be taking a quick lil picture of.
+        const container = new PIXI.Container();
+
+        // Square base - this step is necessary for sea tiles; they have no sea graphic.
+        const tileSize = Game.display.standardLength;
+        const base = new PIXI.Graphics();
         base.beginFill(0xFFFFFF);
-        base.drawRect(tileSize,tileSize,tileSize,tileSize); // Draw 16x16 at (16,16)
+        base.drawRect(0,tileSize,tileSize,tileSize); // Draw 16x16 at (0,16)
         base.endFill();
         container.addChild(base);
 
         // Any other shapes
         this.layers.forEach( layer => {
-            layer.object.x = layer.object.y = tileSize;
+            layer.object.y = tileSize;
             container.addChild(layer.object);
         });
 
@@ -237,12 +257,19 @@ export abstract class TerrainObject {
         container.filters = [whitemask];
 
         // Texture generation
-        let tex = Game.app.renderer.generateTexture(container, PIXI.SCALE_MODES.NEAREST, 1,
-            new PIXI.Rectangle(0,0,32,32)); // Area and anchor here are to correct for silliness
-        let spr = new PIXI.Sprite(tex);
-        spr.anchor.x = spr.anchor.y = 0.5;  // when 16x32 sprites are in use.
+        const tex = Game.app.renderer.generateTexture(
+            container, 
+            PIXI.SCALE_MODES.NEAREST, 
+            1,
+            new PIXI.Rectangle(0,0,16,32)
+        );
 
-        return spr;
+        // Save
+        TerrainObject.whitemasks.register({id: serial, texture: tex});
+
+        // TODO Update Terrain.ts to use the layers type. Or, have it pass in the shapeId some other way and update it here.
+        // TODO Implement a public access to this Terrain's whitemask serial.
+        // TODO Update Square.ts to build its own overlayPanel (again) and grab the tex using the public-access tex serial.
     }
 
     /** Returns a 0–4 index for a building color frame, given a faction type. */
