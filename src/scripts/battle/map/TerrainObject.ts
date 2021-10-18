@@ -270,6 +270,8 @@ export abstract class TerrainObject {
         // TODO Update Terrain.ts to use the layers type. Or, have it pass in the shapeId some other way and update it here.
         // TODO Implement a public access to this Terrain's whitemask serial.
         // TODO Update Square.ts to build its own overlayPanel (again) and grab the tex using the public-access tex serial.
+
+        // TODO Refactor TileSpotlight.glsl (rename, also) to work only for a 1:2 x:y ratio; all whitemasks are apparently this size.
     }
 
     /** Returns a 0–4 index for a building color frame, given a faction type. */
