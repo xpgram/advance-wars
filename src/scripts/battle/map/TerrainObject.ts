@@ -212,31 +212,15 @@ export abstract class TerrainObject {
 
     /** Generates a white-mask from the graphical objects in this.layers. */
     private constructWhiteMask(): void {
-        // TODO Update dis, boi
-        // > import the whitemask and spotlight filters
-        // > whitemask this sprite container (temporarily)
-        // > render that to a new texture
-        // > save texture in TerrainObject.whitemasks, a TextureLibrary.
-        // 
-        // > on frame update:
-        // > this asks TerrainObject.getTexture(key), where key is the
-        //   serial for this tile's shape, for a spotlight texture.
-        // > getTexture() first checks the key against Game's texture
-        //   library and returns that if possible.
-        //   > Otherwise, getTexture() pulls the whitemask from
-        //     TerrainObject.whitemasks,
-        //   > then builds a temp sprite to render with,
-        //   > does the stuff,
-        //   > saves that tex to the given key,
-        //   > and then finally returns it.
-        // > The recieved texture is given to this._whitemask
-        //
-        // this._whitemask .tint and .visible are set elsewhere,
-        // probably on request.
-        //
-        // this._whitemask may need to be refactored to reflect it's new
-        // role; it just exists on top of the regular sprite container as
-        // an additional layer.
+        //  TODO Add overlay panel texture request method.
+        // > Check Game.textureLibrary for an entry with this.shapeId, if so, return that
+        // > If not, get shape tex from TerrainObject.whitemasks using this.shapeId
+        // > Build a temp sprite object with tex and the spotlight filter.
+        // > Renders this to a new texture.
+        // > Register this texture with Game.textureLibrary under this.shapeId
+        // > Return the new tex
+
+        // TODO Update Square.ts to work with this shit.
 
         const serial = this.shapeId;
 
@@ -274,8 +258,6 @@ export abstract class TerrainObject {
 
         // Save
         TerrainObject.whitemasks.register({id: serial, texture: tex});
-
-        // TODO Update Square.ts to build its own overlayPanel (again) and grab the tex using the public-access tex serial.
     }
 
     /** Returns a 0–4 index for a building color frame, given a faction type. */
