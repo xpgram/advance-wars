@@ -1,4 +1,4 @@
-import fragment from "./TintSpotlight.glsl";
+import fragment from "./TileSpotlight.glsl";
 
 // TODO Ensure the frag is imported as a string or whatever.
 // I heard it mentioned I might need ts-shader-loader?

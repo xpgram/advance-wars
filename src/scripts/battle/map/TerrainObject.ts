@@ -70,6 +70,12 @@ export abstract class TerrainObject {
     /** This terrain's numerical serialization. */
     abstract get serial(): number;
 
+    /** The identifier-key for this terrain's silhouette shape. */
+    get shapeSerial() {
+        return this._shapeSerial;
+    }
+    private _shapeSerial = '0';
+
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
     get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
         let name = this.name.replace(' ', '').toLowerCase();
@@ -227,10 +233,8 @@ export abstract class TerrainObject {
         // role; it just exists on top of the regular sprite container as
         // an additional layer.
 
-        // Build serial for this whitemask 
-        // TODO Can the shapeSerial be passed in without reduction? There's really only one relevant number.
-        const shapeId = this.layers.reduce( (prev,cur) => `${prev}${cur}` );
-        const serial = `${this.serial}:${shapeId}`;
+        // TODO There should be a getter for this exact string to standardize the key publically.
+        const serial = `${this.serial}:${this.shapeSerial}`;
 
         // Check for work already done
         if (TerrainObject.whitemasks.hasId(serial))
@@ -269,9 +273,8 @@ export abstract class TerrainObject {
 
         // TODO Update Terrain.ts to use the layers type. Or, have it pass in the shapeId some other way and update it here.
         // TODO Implement a public access to this Terrain's whitemask serial.
+            // Done. See MoutainTile for pattern. All tiles have serial=0 by default.
         // TODO Update Square.ts to build its own overlayPanel (again) and grab the tex using the public-access tex serial.
-
-        // TODO Refactor TileSpotlight.glsl (rename, also) to work only for a 1:2 x:y ratio; all whitemasks are apparently this size.
     }
 
     /** Returns a 0–4 index for a building color frame, given a faction type. */

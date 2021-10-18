@@ -200,8 +200,8 @@ export const Terrain = {
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Mountain
-            let variant = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Mountain);
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`mountain-${variant}.png`]);
+            this._shapeSerial = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Mountain);
+            sprite = new PIXI.Sprite(Terrain.sheet.textures[`mountain-${this._shapeSerial}.png`]);
             this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
 
             // Mountain Shadow
