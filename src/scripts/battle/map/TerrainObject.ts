@@ -10,6 +10,7 @@ import { Terrain } from "./Terrain";
 import { Game } from "../../..";
 import { whitemask } from "../../filters/Whitemask";
 import { TextureLibrary } from "../../system/TextureLibrary";
+import { tileSpotlight } from "../../filters/TileSpotlight";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.
@@ -57,7 +58,7 @@ export abstract class TerrainObject {
 
     /** Retrieves a whitemask texture for a given key. */
     static getWhitemask(key: string) {
-        return TerrainObjecvt.whitemasks.get(key);
+        return TerrainObject.whitemasks.get(key);
     }
 
     /** The list of Pixi containers which make up this Terrain's graphical representation and metadata
@@ -212,15 +213,6 @@ export abstract class TerrainObject {
 
     /** Generates a white-mask from the graphical objects in this.layers. */
     private constructWhiteMask(): void {
-        //  TODO Add overlay panel texture request method.
-        // > Check Game.textureLibrary for an entry with this.shapeId, if so, return that
-        // > If not, get shape tex from TerrainObject.whitemasks using this.shapeId
-        // > Build a temp sprite object with tex and the spotlight filter.
-        // > Renders this to a new texture.
-        // > Register this texture with Game.textureLibrary under this.shapeId
-        // > Return the new tex
-
-        // TODO Update Square.ts to work with this shit.
 
         const serial = this.shapeId;
 
@@ -260,6 +252,27 @@ export abstract class TerrainObject {
         TerrainObject.whitemasks.register({id: serial, texture: tex});
     }
 
+    /** Returns a PIXI.Texture for this terrain's overlay panel. */
+    getOverlayTexture(key: string) {
+        if (Game.textureLibrary.has(this.shapeId))
+            return Game.textureLibrary.get(this.shapeId);
+
+        const sprite = new PIXI.Sprite();
+        sprite.texture = this.whitemasks.get(key);
+        sprite.filters = [tileSpotlight];
+
+        const tex = Game.app.renderer.generateTexture(  // TODO Use render texture? I guess that was always a workaround.
+            sprite, 
+            PIXI.SCALE_MODES.NEAREST, 
+            1,
+            sprite.getBounds()  // new PIXI.Rectangle(0,0,16,32)
+        );
+
+        Game.textureLibrary.register({id: this.shapeId, texture: tex});
+
+        return tex;
+    }
+
     /** Returns a 0–4 index for a building color frame, given a faction type. */
     protected buildingColorFrameIndex(faction: Faction) {
         if (faction == Faction.Red)
@@ -272,8 +285,6 @@ export abstract class TerrainObject {
             return 4;
         return 0;
     }
-
-
 
     /** Builds the tile's graphical object based on its surrounding set of neighbors. */
     abstract orient(neighbors: NeighborMatrix<TerrainObject>): void;

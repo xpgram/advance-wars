@@ -83,55 +83,13 @@ export class Square {
 
     static readonly Max_Coords = Math.pow(2, Square.coordinateLength);
 
-    // TODO Overlay prettifier dummy code
-    static readonly tileTex = (() => {
-        let fc = Game.frameCount;
-        let f = (n: number) => {
-            n = n % 160;
-            n = Math.abs(n - 80);
-            n = Common.confine(n, 20, 60);
-            n -= 20;
-            n /= 40;
-            return n;
-        }
-        let frame = {
-            x: f(fc)*16,
-            y: f(fc + 40)*16
-        };
-
-        let sheet = Game.scene.resources['NormalMapTilesheet'].spritesheet as PIXI.Spritesheet;
-
-        let sheetTex = sheet.baseTexture;
-        let region = sheet.data['frames']['tile-reflection.png'] as {
-            "frame": {"x": number, "y": number, "w": number, "h": number}
-        }
-        
-        var texture = new PIXI.Texture(sheetTex, new PIXI.Rectangle(
-            region.frame.x + frame.x,
-            region.frame.y + frame.y,
-            16, 16)
-        );
-
-        return texture;
-    });
-
     constructor(x = 0, y = 0) {
         this.setCoords(x,y);
-
         this.terrain = new Terrain.Void();
-
-        // TODO Overlay prettifier dummy code
-        Game.scene.ticker.add( () => {
-            if (this.moveFlag || this.attackFlag) {
-                this.tileReflection.texture = Square.tileTex();
-                this.tileReflection.alpha = 0.25 + Math.sin(Game.frameCount / 14)*0.05;
-            }
-        }, this);
-
-        this.tileReflection.blendMode = PIXI.BLEND_MODES.ADD;
-        this.tileReflection.alpha = 0.20;
-
+        MapLayer('top', y, 'glass-tile').addChild(this.overlayPanel);
         MapLayer('ui').addChild(this.overlayArrow);
+
+        this.overlayPanel.visible = false;
     }
 
     /** Destroys this object and its children. */
@@ -156,13 +114,15 @@ export class Square {
         };
         this.terrain.init(neighbors, worldPos);
 
-        // Tinted-Glass Panel Layer
-        this.overlayPanel = this.terrain.whiteTexture;
-        this.overlayPanel.addChild(this.tileReflection);        
+        // TODO Why are these here, container positioning, and not in the constructor?
+
+        // Overlay Panel
+        this.overlayPanel.x = worldPos.x;
+        this.overlayPanel.y = worldPos.y;
 
         // Arrow Layer
-        this.overlayArrow.x = this.x * tileSize;
-        this.overlayArrow.y = this.y * tileSize;
+        this.overlayArrow.x = worldPos.x;
+        this.overlayArrow.y = worldPox.y;
         this.overlayArrow.zIndex = 10;  // Puts arrows above unit info. // TODO Put this in a function somewhere? Like Map.calculateZIndex()?
 
         this.updateHighlight();
@@ -283,12 +243,9 @@ export class Square {
 
     /** Updates the tile overlay to reflect whatever UI state the tile is in. */
     private updateHighlight(): void {
-        if (!this.overlayPanel)     // TODO Why is this necessary?
-            return;
 
-        // 2-second sawtooth wave, range 0–1
-        //let wave = Math.abs((Game.frameCount % 120) - 120) / 60;
-
+        this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
+        
         // Define glassy-overlay presets.
         let colors = {
             natural:{color: 0xFFFFFF, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL},      // Deprecated. Was for sprite tints.
