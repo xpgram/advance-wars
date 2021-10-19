@@ -1,8 +1,5 @@
 import fragment from "./TileSpotlight.glsl";
 
-// TODO Ensure the frag is imported as a string or whatever.
-// I heard it mentioned I might need ts-shader-loader?
-
 /** TintSpotlight shader settings.
  * Be sure to update uniforms.time by frame delta to animate. */
 export const uniforms = {
@@ -15,4 +12,16 @@ export const uniforms = {
 };
 
 /** Colored tint and rotating bright spot that travels squarely around drawspace boundaries. */
-export const tintSpotlight = new PIXI.Filter('', fragment, uniforms);
+export const tileSpotlight = new PIXI.Filter('', fragment, uniforms);
+
+/** Update-step function for the filter's uniforms. */
+export function updateUniforms(dt: number) {
+  uniforms.time += dt * .02;
+}
+
+/** Unified object-package containing references to each object of this filter's function. */
+export const TileSpotlight = {
+  uniforms,
+  filter: tileSpotlight,
+  updateStep: updateUniforms,
+}

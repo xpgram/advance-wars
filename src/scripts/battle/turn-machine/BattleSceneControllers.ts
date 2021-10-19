@@ -6,14 +6,12 @@ import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
 import { MapLayer, MapLayerFunctions } from "../map/MapLayers";
-import { Slider } from "../../Common/Slider";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { Point } from "../../Common/Point";
 import { CameraZoom } from "../control-scripts/cameraZoom";
 import { StringDictionary } from "../../CommonTypes";
 import { ControlScript } from "../../ControlScript";
-import { CardinalDirection } from "../../Common/CardinalDirection";
 import { CommandInstruction } from "./CommandInstruction";
 import { MenuWindow } from "../ui-windows/MenuWindow";
 

@@ -14,6 +14,7 @@ import { TrackCar } from "../scripts/battle/TrackCar";
 import { CardinalDirection } from "../scripts/Common/CardinalDirection";
 import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSceneControllers";
 import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystemManager";
+import { updateUniforms } from "../scripts/filters/TileSpotlight";
 
 /**
  * @author Dei Valko
@@ -49,7 +50,12 @@ export class BattleScene extends Scene {
         });
         
         this.controllers = this.battleSystem.controllers;
+
+        // Start scene-relevant shader tickers
+        this.ticker.add(updateUniforms);
         
+        // TODO Do something with the below notes:
+
         // Testing unit sprites
         // let unitName = 'seeker/red/idle';
         // let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
