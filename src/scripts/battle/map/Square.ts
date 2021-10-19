@@ -122,7 +122,7 @@ export class Square {
             if (!this.overlayPanel.visible)
                 return;
 
-            const rate = 15;
+            const rate = 5;
             if (Game.frameCount % rate === 0) {
                 this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
             }
