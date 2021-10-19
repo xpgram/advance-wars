@@ -4,8 +4,8 @@
   - [x] Add texture re-use mechanism.
   - [x] Refactor terrain systems to make use of this re-use mechanism.
   - [ ] Confirm that it actually works.
-    - [ ] Spotlight shader is not working.
-    - [ ] System is not 'fast' (on my laptop2); not sure what the bottleneck is.
+    - [ ] Spotlight shader is not working. Well, it is technically, but it isn't spotlighting for some reason.
+    - [ ] System is not 'fast' (on my laptop2); not sure what the bottleneck is. Could just be ~28 shaders per semi-frame.
     - [ ] Texture Reuse system is broken on HQ (different building shapes).
 
 - [ ] Server and database setup  
@@ -100,8 +100,6 @@
         - 3: Contextual 2 (release held unit, supply nearby units)
         - How does a carrier, which may Build, Attack and Release, indicate  
           that it wants to release its second held unit and not the first?
-
-- [x] Reorder turn structure to MoveUnit → CommandMenu → AnimateTravel → Ratify
 
 - [ ] MoveUnit step: if square under cursor is an attackable target, change to target reticle.
   - [X] Cursor graphic switching infrastructure
