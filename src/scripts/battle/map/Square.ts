@@ -122,6 +122,9 @@ export class Square {
 
         // Overlay panel continuous texture update step
         Game.scene.ticker.add( (dt) => {
+            if (this.overlayPanel.visible === false)
+                return;
+
             let limit = 15;
             this.cumulativeTime += dt;
             if (this.cumulativeTime > limit) {
