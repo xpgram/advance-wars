@@ -11,6 +11,7 @@ import { Game } from "../../..";
 import { whitemask } from "../../filters/Whitemask";
 import { TextureLibrary } from "../../system/TextureLibrary";
 import { tileSpotlight } from "../../filters/TileSpotlight";
+import { Debug } from "../../DebugUtils";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.

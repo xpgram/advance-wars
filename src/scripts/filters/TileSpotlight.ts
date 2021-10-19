@@ -7,7 +7,7 @@ export const uniforms = {
   spotlightWidth: .5,
   dimensions: [1,1],
   offset: [0,1],
-  tint: [.6,.6,.6],
+  tint: [.6,.6,.6],   // TODO Setting this to blue seems to achieve nothing. Is spotlight even being applied?
   time: 0,
 };
 

@@ -41,8 +41,8 @@ export class TextureLibrary {
     if (options?.destroy) {
       Object.keys(this.library).forEach( key => {
         this.library[key].destroy();
+        delete this.library[key];
       });
     }
-    this.library = {};
   }
 }

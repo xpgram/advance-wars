@@ -48,6 +48,9 @@ export class Square {
         // You know, like hidden being hidden.
     }
 
+    /** Used to limit texture updates. */
+    private cumulativeTime = 0;
+
     /** The tinted-glass tile highlight that informs the player what actions or information is available for this square. */
     private overlayPanel = new PIXI.Sprite();
 
@@ -114,7 +117,18 @@ export class Square {
         MapLayer('top', this.y, 'glass-tile').addChild(this.overlayPanel);
         this.overlayPanel.x = worldPos.x;
         this.overlayPanel.y = worldPos.y;
+        this.overlayPanel.anchor.set(0,.5);
         this.overlayPanel.visible = false;
+
+        // Overlay panel continuous texture update step
+        Game.scene.ticker.add( (dt) => {
+            let limit = 15;
+            this.cumulativeTime += dt;
+            if (this.cumulativeTime > limit) {
+                this.cumulativeTime -= limit;
+                this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
+            }
+        });
 
         // Arrow Layer
         MapLayer('ui').addChild(this.overlayArrow);
@@ -242,8 +256,6 @@ export class Square {
     private updateHighlight(): void {
         if (!this.terrain)
             return;
-
-        this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
         
         // Define glassy-overlay presets.
         let colors = {
