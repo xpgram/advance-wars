@@ -106,12 +106,6 @@
   - I have confirmed it is not a quirk of the demo unit spawner. It's possible unit.maxAmmo is not being set properly in the unit's type configuration.
   - [update] I'd have to look into it again, but I could swear this was a result of unit ammo being randomly assigned with reckless abandon during spawn. Is this what I was referring to when I said it wasn't a quirk of the spawner?
 
-- [ ] Setting a DisplayObject as a child to some Container does not unset any child relationship that object already had.
-  This must be true otherwise my implementation of Terrain whitemasks wouldn't work. So, be wary of that?
-  Nothing actually needs to happen right now, I just feel this misunderstanding has the potential for memory leaks or
-  other deleterious behavior. But, you know, none have been observed yet.
-  - [ ] Verify absolutely that this is true.
-
 - [ ] Server and database setup  
   Tables:  
   - users : userId / login / pass(hashed/salted) / recovery(email, probs)
