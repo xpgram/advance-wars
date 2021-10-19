@@ -1,7 +1,10 @@
 # Next Big Objectives
 
-- [X] Refactor board graphics to have fewer sprite entities.  
-  Combine rows, probably. This should improve performance on slower machines.
+- [ ] Refactor the tile overlay visual system.
+  - [x] Add texture re-use mechanism.
+  - [x] Refactor terrain systems to make use of this re-use mechanism.
+  - [ ] Confirm that it actually works.
+
 - [ ] Game DB and Online Multiplayer
   - [ ] Game State DB System
     - [ ] TurnState Send Interception
@@ -32,9 +35,6 @@
   These two instructions indicate an infantry unit moving from one location to another.
   The details of what the unit can and cannot do are left up to the client, I guess,
   but the board state is very simply implemented.
-
-- [ ] I have locked Pixi.js to version 5.2.1 because 5.3 removes some functionality I don't have a work around for yet, either that or the package update wasn't complete. Point is, 5.3.3 breaks the game. Don't use it until you're prepared to refactor.  
-  For this reason, I have also locked Pixi Filters to whatever version it was.
 
 - [ ] Re-rip the plasma textures: some of them are clipped by 1px.
 - [ ] Sea looks nicer, I think, but my frame-animation skills are a teense lacking. Update it.
@@ -110,6 +110,7 @@
   This must be true otherwise my implementation of Terrain whitemasks wouldn't work. So, be wary of that?
   Nothing actually needs to happen right now, I just feel this misunderstanding has the potential for memory leaks or
   other deleterious behavior. But, you know, none have been observed yet.
+  - [ ] Verify absolutely that this is true.
 
 - [ ] Server and database setup  
   Tables:  
