@@ -49,7 +49,7 @@ export class Square {
     }
 
     /** The tinted-glass tile highlight that informs the player what actions or information is available for this square. */
-    private overlayPanel: PIXI.Sprite;
+    private overlayPanel = new PIXI.Sprite();
 
     private tileReflectionBox = new PIXI.Container();
 
@@ -86,10 +86,6 @@ export class Square {
     constructor(x = 0, y = 0) {
         this.setCoords(x,y);
         this.terrain = new Terrain.Void();
-        MapLayer('top', y, 'glass-tile').addChild(this.overlayPanel);
-        MapLayer('ui').addChild(this.overlayArrow);
-
-        this.overlayPanel.visible = false;
     }
 
     /** Destroys this object and its children. */
@@ -114,15 +110,16 @@ export class Square {
         };
         this.terrain.init(neighbors, worldPos);
 
-        // TODO Why are these here, container positioning, and not in the constructor?
-
         // Overlay Panel
+        MapLayer('top', this.y, 'glass-tile').addChild(this.overlayPanel);
         this.overlayPanel.x = worldPos.x;
         this.overlayPanel.y = worldPos.y;
+        this.overlayPanel.visible = false;
 
         // Arrow Layer
+        MapLayer('ui').addChild(this.overlayArrow);
         this.overlayArrow.x = worldPos.x;
-        this.overlayArrow.y = worldPox.y;
+        this.overlayArrow.y = worldPos.y;
         this.overlayArrow.zIndex = 10;  // Puts arrows above unit info. // TODO Put this in a function somewhere? Like Map.calculateZIndex()?
 
         this.updateHighlight();
@@ -243,6 +240,8 @@ export class Square {
 
     /** Updates the tile overlay to reflect whatever UI state the tile is in. */
     private updateHighlight(): void {
+        if (!this.terrain)
+            return;
 
         this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
         

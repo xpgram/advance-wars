@@ -63,7 +63,7 @@ export abstract class TerrainObject {
 
     /** The list of Pixi containers which make up this Terrain's graphical representation and metadata
      * about where they're placed and how they're referenced. */
-    protected layers: {object: PIXI.Container, mapLayerKeys: string[], maskShape?: boolean}[] = [];
+    protected layers: {object: PIXI.Container, key: string[], maskShape?: boolean}[] = [];
 
     /** A reference to this terrain's constructing type. Useful for comparisons. */
     abstract get type(): TerrainType;
@@ -75,7 +75,7 @@ export abstract class TerrainObject {
     get shapeSerial() {
         return this._shapeSerial;
     }
-    private _shapeSerial = '0';
+    protected _shapeSerial = '0';
 
     /** The identifier-key for this terrain's silhoette shape. */
     get shapeId() {
@@ -180,10 +180,8 @@ export abstract class TerrainObject {
 
         const mapLayerRow = MapLayerFunctions.RowLayerFromWorldPosition(pos);   // For MapLayer
 
-        // Get this tile's white mask, apply it to both overlay panels
-        this._whiteTexture = this.constructWhiteMask();
-        this._whiteTexture.visible = false;
-        this.layers.push({object: this._whiteTexture, key: ['top', 'row', 'glass-tile']});
+        // Build whitemask texture; save to whitemasks library
+        this.constructWhiteMask();
 
         // Add populated layers to display and this.transform
         let graphicsObjects: TransformableList = new TransformableList();
@@ -254,11 +252,11 @@ export abstract class TerrainObject {
 
     /** Returns a PIXI.Texture for this terrain's overlay panel. */
     getOverlayTexture(key: string) {
-        if (Game.textureLibrary.has(this.shapeId))
+        if (Game.textureLibrary.hasId(this.shapeId))
             return Game.textureLibrary.get(this.shapeId);
 
         const sprite = new PIXI.Sprite();
-        sprite.texture = this.whitemasks.get(key);
+        sprite.texture = TerrainObject.whitemasks.get(key);
         sprite.filters = [tileSpotlight];
 
         const tex = Game.app.renderer.generateTexture(  // TODO Use render texture? I guess that was always a workaround.
