@@ -4,6 +4,8 @@
   - [x] Add texture re-use mechanism.
   - [x] Refactor terrain systems to make use of this re-use mechanism.
   - [ ] Confirm that it actually works.
+    - [ ] Spotlight shader is not working.
+    - [ ] System is not 'fast' (on my laptop2); not sure what the bottleneck is.
 
 - [ ] Server and database setup  
   Tables:  
