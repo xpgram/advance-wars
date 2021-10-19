@@ -6,6 +6,7 @@
   - [ ] Confirm that it actually works.
     - [ ] Spotlight shader is not working.
     - [ ] System is not 'fast' (on my laptop2); not sure what the bottleneck is.
+    - [ ] Texture Reuse system is broken on HQ (different building shapes).
 
 - [ ] Server and database setup  
   Tables:  
