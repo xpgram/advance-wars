@@ -5,6 +5,23 @@
   - [x] Refactor terrain systems to make use of this re-use mechanism.
   - [ ] Confirm that it actually works.
 
+- [ ] Server and database setup  
+  Tables:  
+  - users : userId / login / pass(hashed/salted) / recovery(email, probs)
+    User accounts data.
+  - games : gameId / mapId / [settings . . . ] / [results . . . ]  
+    Global game instances and settings.
+  - players : gameId / userId / player#  
+    Maps users to player-slots in game instances.
+  - maps : mapId / name / [data . . . ]  
+    Map data which may be downloaded by any clients which need it, I guess.
+  - events : eventId / gameId / datetime / actionJson  
+    Catalog of unit instructions or whatever else counts.
+  - boardstate : boardId / gameId / datetime / [data . . . ]  
+    Game-instance landmarking system. Events extend the initial board state through a kind of 'redo' application and the system occasionally updates this anchor point with a new, time-stamped snapshot contained here.
+  EventsView returns accepted/rejected after input depending on whether the given action-Json a legal change of board state.  
+  'Legal' here doesn't mean all that much; I'm not going to implement server-side distance, terrain and fuel checking because oh_ my_ god_ that would take forever.
+
 - [ ] Game DB and Online Multiplayer
   - [ ] Game State DB System
     - [ ] TurnState Send Interception
@@ -21,6 +38,8 @@
 - [ ] UI Event-Messaging System
   When online functions fail to authenticate, or whatever, a message should pop in
   from above to let the player know what's up.
+
+
 
 - [ ] Refactor to use reducers? Approximate the pattern, anyway.
   I want: ratifyInstruction(boardState, action) => boardState
@@ -105,20 +124,3 @@
 - [ ] War Tanks can have 6 ammo?
   - I have confirmed it is not a quirk of the demo unit spawner. It's possible unit.maxAmmo is not being set properly in the unit's type configuration.
   - [update] I'd have to look into it again, but I could swear this was a result of unit ammo being randomly assigned with reckless abandon during spawn. Is this what I was referring to when I said it wasn't a quirk of the spawner?
-
-- [ ] Server and database setup  
-  Tables:  
-  - users : userId / login / pass(hashed/salted) / recovery(email, probs)
-    User accounts data.
-  - games : gameId / mapId / [settings . . . ] / [results . . . ]  
-    Global game instances and settings.
-  - players : gameId / userId / player#  
-    Maps users to player-slots in game instances.
-  - maps : mapId / name / [data . . . ]  
-    Map data which may be downloaded by any clients which need it, I guess.
-  - events : eventId / gameId / datetime / actionJson  
-    Catalog of unit instructions or whatever else counts.
-  - boardstate : boardId / gameId / datetime / [data . . . ]  
-    Game-instance landmarking system. Events extend the initial board state through a kind of 'redo' application and the system occasionally updates this anchor point with a new, time-stamped snapshot contained here.
-  EventsView returns accepted/rejected after input depending on whether the given action-Json a legal change of board state.  
-  'Legal' here doesn't mean all that much; I'm not going to implement server-side distance, terrain and fuel checking because oh_ my_ god_ that would take forever.
