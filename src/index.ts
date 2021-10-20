@@ -19,6 +19,9 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling 
  * @version 1.1.0
  */
 class App {
+    /** The page element assumed as the game's canvas. */
+    readonly contextElement!: any;
+
     /** A graphics-container for solid-panel images adding character to blank scenes. */
     readonly backdrop = new PIXI.Container();
     /** A graphics-container acting as the game world. */
@@ -106,9 +109,12 @@ class App {
 
     /** Game initializer. Adds canvas to given DOM element, and sets up the game loop. */
     init() {
-        let divElement = document.querySelector('#gameframe');
-        if (divElement)
-            divElement.appendChild(this.app.view);
+        //@ts-ignore : Property is readonly but not set initially.
+        this.contextElement = document.querySelector('#gameframe');    // TODO Allow init() to accept different frame ID's?
+        if (this.contextElement) {
+            this.contextElement.appendChild(this.app.view);
+            this.contextElement.tabIndex = '0';
+        } // TODO What if it can't find the context element?
         
         // First screen resize + add a listener to update on window resize.
         this.display.resize(this.app);

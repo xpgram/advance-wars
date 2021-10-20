@@ -1,11 +1,17 @@
 # Next Big Objectives
 
+- [ ] Dev controller system (Keyboard) which consumes input not consumed by the Virtual Controller.
+  This would allow me to set up temporary or permanent dev controls for adjusting sliders and such
+  without restarting the app.
+  - [ ] Set up production builds to automatically disable the dev controller.
+
 - [ ] Refactor the tile overlay visual system.
   - [x] Add texture re-use mechanism.
   - [x] Refactor terrain systems to make use of this re-use mechanism.
-  - [ ] Confirm that it actually works.
-    - [ ] Spotlight shader is not working. Well, it is technically, but it isn't spotlighting for some reason.
+  - [x] Confirm that it actually works.
+    - [x] Spotlight shader is not working. Well, it is technically, but it isn't spotlighting for some reason.
     - [ ] System is not 'fast' (on my laptop2); not sure what the bottleneck is. Could just be ~28 shaders per semi-frame.
+      - [ ] Add a display setting for low-performance machines.
     - [ ] Texture Reuse system is broken on HQ (different building shapes).
 
 - [ ] Server and database setup  

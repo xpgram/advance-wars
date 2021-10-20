@@ -1,5 +1,6 @@
 import { Common } from "../CommonUtils";
 import { NumericDictionary, StringDictionary } from "../CommonTypes";
+import { Game } from "../..";
 
 // Keeps track of all keycode pressed/unpressed boolean states in four 64-bit numbers.
 // Keycodes are not different, this script is a convenient proxy between the browser and the game.
@@ -10,17 +11,29 @@ const keypressMatrix: NumericDictionary<number> = {
     3: 0    // 161 to 255
 }
 
+function refuseListen(event: KeyboardEvent): boolean {
+    const notFocused = (document.activeElement !== Game.contextElement);
+    const specialKey = (event.keyCode === Keys.Tab);    // Tab is important for non-mouse context switching.
+    return notFocused || specialKey;
+}
+
 // On key down, write 'true' (1) to the keycode index of keys.
 window.addEventListener('keydown', (event) => {
+    if (refuseListen(event))
+        return;
+
     let key = event.keyCode;
     let keyset = Math.floor(key / 64);
     let keyindex = key % 64;
     keypressMatrix[keyset] = Common.writeBits(keypressMatrix[keyset], 1, 1, keyindex);
-    event.preventDefault();             // TODO Is this applied to the entire window? It should only occur when the game div is focused.
+    event.preventDefault();
 });
 
 // On key up, write 'false' (0) to the keycode index of keys.
 window.addEventListener('keyup', (event) => {
+    if (refuseListen(event))
+        return;
+
     let key = event.keyCode;
     let keyset = Math.floor(key / 64);
     let keyindex = key % 64;
