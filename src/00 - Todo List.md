@@ -3,6 +3,7 @@
 - [ ] Dev controller system (Keyboard) which consumes input not consumed by the Virtual Controller.
   This would allow me to set up temporary or permanent dev controls for adjusting sliders and such
   without restarting the app.
+  - [x] Prevent game from consuming literally all input on the page. (kind of a side thing; been meaning to do it for ages.)
   - [ ] Set up production builds to automatically disable the dev controller.
 
 - [ ] Refactor the tile overlay visual system.
