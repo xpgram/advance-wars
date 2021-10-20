@@ -80,7 +80,9 @@ export abstract class TerrainObject {
 
     /** The identifier-key for this terrain's silhoette shape. */
     get shapeId() {
-        return `${this.serial}:${this.shapeSerial}`;
+        return (this.shapeSerial !== '0' || this.building)
+            ? `${this.serial}:${this.shapeSerial}`
+            : 'std';
     }
 
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */

@@ -17,6 +17,11 @@
       - [ ] Add a display setting for low-performance machines.
         - How? I don't have a settings screen or a pause menu yet.
     - [ ] Texture Reuse system is broken on HQ (different building shapes).
+    - [x] Also broken on FireTiles, I think because the default shapeId is tileSerial + shapeSerial.
+      In other words, we have way more 'standard' tiles than we need, which is one.
+      - [ ] The solution I have (in TerrainObject.ts) doesn't have any protections against FireTile being the first 'std' tile considered.
+      - [ ] FireTiles probably shouldn't show an overlay at all. 'std' looks weird on 'em.
+      - [x] The solution also doesn't consider Buildings, which are assumed to be 'std'; this is because I forgot about them.
 
 - [ ] Server and database setup  
   Tables:  
