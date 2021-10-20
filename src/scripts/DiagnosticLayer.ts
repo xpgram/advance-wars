@@ -1,4 +1,5 @@
 import { Game } from "..";
+import { Keys } from "./controls/KeyboardObserver";
 import { Debug } from "./DebugUtils";
 
 /**
@@ -10,7 +11,7 @@ import { Debug } from "./DebugUtils";
  */
  export class DiagnosticLayer {
     
-    static readonly suppressDiagnostics = false; // If true, force hide all diagnostics (production setting).
+    static readonly suppressDiagnostics = true; // If true, force hide all diagnostics (production setting).
                                                  // Why am I forcing myself to set it manually, though?
 
     private _container: PIXI.Container;
@@ -22,8 +23,11 @@ import { Debug } from "./DebugUtils";
     private fpsBackground: PIXI.Graphics;
     private fpsText: PIXI.BitmapText;
 
-    constructor() {
+    constructor(options?: {enable?: boolean}) {
         this._container = new PIXI.Container();
+
+        //@ts-ignore : Property is readonly. // TODO Should I conform this to DevController or conform DevController to this?
+        DiagnosticLayer.suppressDiagnostics = !(options?.enable || false);
 
         // FPS Background
         this.fpsBackground = new PIXI.Graphics(); //(0, 160-10, 12, 8);
@@ -43,16 +47,6 @@ import { Debug } from "./DebugUtils";
 
         // Hide visual layer if suppressed.
         this._container.visible = !DiagnosticLayer.suppressDiagnostics;
-
-        // Add keyboard listener for show/hide functionality.
-        document.addEventListener('keydown', event => {
-            if (!DiagnosticLayer.suppressDiagnostics) {
-                if (event.keyCode == 192 && event.shiftKey) {   // shift+backquote
-                    event.preventDefault();
-                    this._container.visible = !this._container.visible;
-                }
-            }
-        });
     }
 
     private update(delta: number) {
@@ -60,6 +54,14 @@ import { Debug } from "./DebugUtils";
         if (this.clock > 10) {
             this.clock -= 8;
             this.fpsText.text = `${Math.floor(Game.app.ticker.FPS)}`
+        }
+
+        // Toggle DevUI control
+        if (!DiagnosticLayer.suppressDiagnostics) {
+            const contr = Game.devController;
+            if (contr.get(Keys.Shift).down && contr.get(Keys.GraveAccent).pressed) {
+                this._container.visible = !this._container.visible;
+            }
         }
     }
  }

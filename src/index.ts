@@ -133,11 +133,12 @@ class App {
         this.app.stage.addChild(this.backdrop);
         this.app.stage.addChild(this.stage);
         this.app.stage.addChild(this.hud);
+        this.app.stage.addChild(this.debugHud);
         
         // Preload game-wide resources, start the game on completion.
         this.preload( () => {
-            // Add the debugger/diagnostics UI to the global scene.
-            this.app.stage.addChild(new DiagnosticLayer().container);
+            // Add the debugger/diagnostics UI to the global scene.     // TODO Disable on production builds.
+            this.debugHud.addChild(new DiagnosticLayer({enable: true}).container);
             
             // Add the main loop to PIXI's ticker.
             this.app.ticker.add( (delta: number) => {this.loop(delta)} );
