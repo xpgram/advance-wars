@@ -11,6 +11,7 @@ const keypressMatrix: NumericDictionary<number> = {
     3: 0    // 161 to 255
 }
 
+// Returns true if the keyboard event should be ignored.
 function refuseListen(event: KeyboardEvent): boolean {
     const notFocused = (document.activeElement !== Game.contextElement);
     const specialKey = (event.keyCode === Keys.Tab);    // Tab is important for non-mouse context switching.
