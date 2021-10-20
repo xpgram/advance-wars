@@ -877,6 +877,10 @@ export const Terrain = {
         get conceals() { return true; }
         get vision() { return 2; }
 
+        get shapeId() {
+            return `${this.serial}:${this.faction}`;
+        }
+
         // Nullify color-whiting when hidden
         set hidden(b: boolean) { }
 
@@ -1068,6 +1072,7 @@ export const Terrain = {
             // Silo
             let which = (this.value == 1) ? 1 : 2;  // Unused : Used
             sprite = new PIXI.Sprite(Terrain.sheet.textures[`silo-${which}.png`]);
+            this._shapeSerial = `${which}`;
             this.layers.push({object: sprite, key: ['top', 'row', 'animated'], maskShape: true});
         }
     },
