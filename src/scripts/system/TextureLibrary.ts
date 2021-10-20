@@ -37,12 +37,10 @@ export class TextureLibrary {
   }
 
   /** Forgets all textures help up to this moment. */
-  flush(options?: {destroy?: boolean}): void {
-    if (options?.destroy) {
-      Object.keys(this.library).forEach( key => {
-        this.library[key].destroy();
-        delete this.library[key];
-      });
-    }
+  flush(): void {
+    Object.keys(this.library).forEach( key => {
+      delete this.library[key];   // TODO Is this doing anything the GC isn't?
+    });                           // My work laptop has problems, I assumed this fixed them.
+    this.library = {};
   }
 }
