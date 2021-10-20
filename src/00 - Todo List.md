@@ -15,6 +15,7 @@
     - [x] Spotlight shader is not working. Well, it is technically, but it isn't spotlighting for some reason.
     - [ ] System is not 'fast' (on my laptop2); not sure what the bottleneck is. Could just be ~28 shaders per semi-frame.
       - [ ] Add a display setting for low-performance machines.
+        - How? I don't have a settings screen or a pause menu yet.
     - [ ] Texture Reuse system is broken on HQ (different building shapes).
 
 - [ ] Server and database setup  
