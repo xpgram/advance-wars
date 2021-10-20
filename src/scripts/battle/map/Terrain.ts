@@ -877,10 +877,6 @@ export const Terrain = {
         get conceals() { return true; }
         get vision() { return 2; }
 
-        get shapeId() {
-            return `${this.serial}:${this.faction}`;
-        }
-
         // Nullify color-whiting when hidden
         set hidden(b: boolean) { }
 
