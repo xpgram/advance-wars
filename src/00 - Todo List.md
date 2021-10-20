@@ -5,6 +5,7 @@
   without restarting the app.
   - [x] Does not consume, but this is fine.
   - [x] Prevent game from consuming literally all input on the page. (kind of a side thing; been meaning to do it for ages.)
+    - [ ] This only applies to keyboard input, I think. Probably still consumes all gamepad input.
   - [ ] Set up production builds to automatically disable the dev controller.
 
 - [ ] Refactor the tile overlay visual system.
