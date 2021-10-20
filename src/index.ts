@@ -5,6 +5,7 @@ import { BlankScene } from './scenes/BlankScene';
 import { Debug } from './scripts/DebugUtils';
 import { WorkOrderHandler } from './scripts/system/WorkOrderHandler';
 import { TextureLibrary } from './scripts/system/TextureLibrary';
+import { DevController } from './scripts/controls/DevController';
 
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
@@ -21,6 +22,11 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling 
 class App {
     /** The page element assumed as the game's canvas. */
     readonly contextElement!: any;
+
+    // TODO Disable on production builds.
+    /** A keyboard controller for debug controls.
+     * Be careful not to overlap controls with any others set. */
+    readonly devController = new DevController({enable: true});
 
     /** A graphics-container for solid-panel images adding character to blank scenes. */
     readonly backdrop = new PIXI.Container();
@@ -157,6 +163,7 @@ class App {
         this.updateDelta();
         if (this.scene.mustInitialize)
             this.scene.init();
+        this.devController.update();
         this.scene.update(delta);
         this.workOrders.close();
         this.textureLibrary.flush();
