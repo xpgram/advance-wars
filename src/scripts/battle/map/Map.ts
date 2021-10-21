@@ -9,7 +9,7 @@ import { TerrainObject, TerrainType } from "./TerrainObject";
 import { UnitObject } from "../UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
 import { Point, ImmutablePointPrimitive } from "../../Common/Point";
-import { MoveType } from "../EnumTypes";
+import { Faction, MoveType } from "../EnumTypes";
 import { Debug } from "../../DebugUtils";
 import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../../Common/CardinalDirection";
 import { Common } from "../../CommonUtils";
@@ -70,8 +70,8 @@ export class Map {
 
         this.setupBoardMask(screenWidth, screenHeight);
         TerrainMethods.addSeaLayer(screenWidth, screenHeight);
-        // this.buildMapContents(importMapData);
-        this.generateMap();     // Randomly generates a pleasant-looking map.
+        this.buildMapContents(importMapData);
+        // this.generateMap();     // Randomly generates a pleasant-looking map.
         this.forceLegalTiles(); // Removes any illegal tiles which may have gotten in there somehow.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
@@ -185,7 +185,7 @@ export class Map {
         });
 
         // Assert player HQs
-        const HQserial = new Terrain.HQ().serial;
+        const HQserial = Terrain.HQ.serial;
         // stub
 
         // assert players metadata matches with the assigned players in owners and predeploy
@@ -200,25 +200,34 @@ export class Map {
 
     /** Fills in the built map canvas with the contents described by data. */
     private buildMapContents(data: MapData) {
-        for (let x = 0; x < this.width; x++)
-        for (let y = 0; y < this.height; y++) {
-            const terrainSerial = data.map[x][y];
+        // Create map objects.
+        for (let y = 0; y < this.height; y++)
+        for (let x = 0; x < this.width; x++) {
+            const terrainSerial = data.map[y][x];
             const point = new Point(x,y);
-            const terrainType = Object.values(Terrain).find( type => type.serial() === terrainSerial );
+            const terrainType = Object.values(Terrain).find( type => type.serial === terrainSerial );
             if (!terrainType)
                 throw new Error(`Terrain serial '${terrainSerial}' does not exist.`);
             this.squareAt(point).terrain = new terrainType();
         }
 
-        // TODO Terrain classes need a static serial property, which is returned also by
-        // the object.serial getter method.
-
-        // Assign serial-associated Terrain.Types
         // Change building terrain factions
-        // Spawn Units
+        data.owners.forEach( owner => {
+            const { x, y, player } = owner;
+            const terrain = this.squareAt({x,y}).terrain;
+            if (!terrain.building)
+                throw new Error(`Cannot set ownership of non-capturable terrain: ${terrain.name} at (${x},${y}) by map '${data.name}'`);
 
-        // I need a player-to-faction translation service.
-        // I guess that might not be important ~now~.
+            // TODO Extract and expand this, maybe to the Faction file. Also, define Player as another enum?
+            function playerToFaction(player: number) {
+                return [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][player - 1];
+            }
+
+            terrain.faction = playerToFaction(player);
+        });
+
+        // Spawn Units
+        
     }
 
     /** Auto-generates the given terrain type into the map based on the chance modifiers given.

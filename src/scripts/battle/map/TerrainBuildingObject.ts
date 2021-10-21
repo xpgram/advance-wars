@@ -3,9 +3,12 @@ import { Faction } from "../EnumTypes";
 import { Debug } from "../../DebugUtils";
 import { TerrainProperties } from "./Terrain";
 import { TerrainMethods } from "./Terrain.helpers";
+import { NeighborMatrix } from "../../NeighborMatrix";
+import { Point3D } from "../../CommonTypes";
 
 /** // TODO Refactor this class name; this is a building-type terrain object class. */
 export abstract class TerrainBuildingObject extends TerrainObject {
+
     // Handle for the building sprite, allows easy color changing.
     protected buildingSprite: PIXI.AnimatedSprite | null = null;
 
@@ -30,6 +33,9 @@ export abstract class TerrainBuildingObject extends TerrainObject {
     get faction() { return this._faction; }
     set faction(faction: Faction) {
         this._faction = faction;
+
+        if (!this.built)    // Prevents breakage when setting faction/ownership before init()
+            return;
         
         Debug.assert(Boolean(this.buildingSprite), `Terrain Object ${this.name} was missing a building sprite to affect on color change.`);
 
@@ -55,5 +61,10 @@ export abstract class TerrainBuildingObject extends TerrainObject {
 
     constructor() {
         super();
+    }
+
+    init(neighbors: NeighborMatrix<TerrainObject>, worldPos: Point3D) {
+        super.init(neighbors, worldPos);
+        this.faction = this._faction;   // Trigger a sprite change.
     }
 }

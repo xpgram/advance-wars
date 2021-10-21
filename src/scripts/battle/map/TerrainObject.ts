@@ -62,12 +62,18 @@ export abstract class TerrainObject {
         return TerrainObject.whitemasks.get(key);
     }
 
+    /** True if this object has finished building, i.e. whether init() has been called. */
+    protected built = false;
+
     /** The list of Pixi containers which make up this Terrain's graphical representation and metadata
      * about where they're placed and how they're referenced. */
     protected layers: {object: PIXI.Container, key: string[], maskShape?: boolean}[] = [];
 
     /** A reference to this terrain's constructing type. Useful for comparisons. */
     abstract get type(): TerrainType;
+
+    /** This terrain type's serial number. */
+    static readonly serial: number = -1;
 
     /** This terrain's numerical serialization. */
     abstract get serial(): number;
@@ -200,6 +206,8 @@ export abstract class TerrainObject {
         TerrainObject.transform.pos3D = pos;
         TerrainObject.transform.object = graphicsObjects;
         TerrainObject.transform.object = null;
+
+        this.built = true;
     }
 
     /** Instructs the object to disassociate all materials, readying itself for
