@@ -169,6 +169,18 @@ export class BattleSceneControllers {
 
     /** For demo purposes. Deprecate this. */
     spawnRandomUnits() {
+        // Since this method is still called, but I've broken the
+        // unitsList, we're just gonna gather it from the map here.
+
+        for (let x = 0; x < this.map.width; x++)
+        for (let y = 0; y < this.map.height; y++) {
+            const square = this.map.squareAt({x,y});
+            if (square.unit)
+                this.unitsList.push(square.unit);
+        }
+
+        return;
+
         // Spawn units
         let unitTypes = [Unit.Infantry, Unit.Mech, Unit.Bike, Unit.Tank, Unit.MdTank, Unit.WarTank,
             Unit.Recon, Unit.Rig, Unit.AntiAir, Unit.Flare, Unit.Artillery, Unit.AntiTank, Unit.Rockets,

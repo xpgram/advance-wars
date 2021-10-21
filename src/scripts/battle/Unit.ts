@@ -9,6 +9,7 @@ export const Unit = {
     //start
     Infantry: class InfantryUnit extends UnitObject {
         get type() { return InfantryUnit; }
+        static readonly serial = 0;
         get serial() { return 0; }
         get name() { return "Infantry"; }
         get shortName() { return "Inftry"; }
@@ -41,6 +42,7 @@ export const Unit = {
 
     Mech: class MechUnit extends UnitObject {
         get type() { return MechUnit; }
+        static readonly serial = 1;
         get serial() { return 1; }
         get name() { return "Mech"; }
         get shortName() { return "Mech"; }
@@ -73,6 +75,7 @@ export const Unit = {
 
     Bike: class BikeUnit extends UnitObject {
         get type() { return BikeUnit; }
+        static readonly serial = 2;
         get serial() { return 2; }
         get name() { return "Bike"; }
         get shortName() { return "Bike"; }
@@ -105,6 +108,7 @@ export const Unit = {
 
     Recon: class ReconUnit extends UnitObject {
         get type() { return ReconUnit; }
+        static readonly serial = 3;
         get serial() { return 3; }
         get name() { return "Recon"; }
         get shortName() { return "Recon"; }
@@ -135,6 +139,7 @@ export const Unit = {
 
     Flare: class FlareUnit extends UnitObject {
         get type() { return FlareUnit; }
+        static readonly serial = 4;
         get serial() { return 4; }
         get name() { return "Flare"; }
         get shortName() { return "Flare"; }
@@ -165,6 +170,7 @@ export const Unit = {
 
     AntiAir: class AntiAirUnit extends UnitObject {
         get type() { return AntiAirUnit; }
+        static readonly serial = 5;
         get serial() { return 5; }
         get name() { return "Anti-Air"; }
         get shortName() { return "Anti-Air"; }
@@ -195,6 +201,7 @@ export const Unit = {
 
     Tank: class TankUnit extends UnitObject {
         get type() { return TankUnit; }
+        static readonly serial = 6;
         get serial() { return 6; }
         get name() { return "Tank"; }
         get shortName() { return "Tank"; }
@@ -225,6 +232,7 @@ export const Unit = {
 
     MdTank: class MdTankUnit extends UnitObject {
         get type() { return MdTankUnit; }
+        static readonly serial = 7;
         get serial() { return 7; }
         get name() { return "Md Tank"; }
         get shortName() { return "M Tank"; }
@@ -255,6 +263,7 @@ export const Unit = {
 
     WarTank: class WarTankUnit extends UnitObject {
         get type() { return WarTankUnit; }
+        static readonly serial = 8;
         get serial() { return 8; }
         get name() { return "War Tank"; }
         get shortName() { return "W Tank"; }
@@ -285,6 +294,7 @@ export const Unit = {
 
     Artillery: class ArtilleryUnit extends UnitObject {
         get type() { return ArtilleryUnit; }
+        static readonly serial = 9;
         get serial() { return 9; }
         get name() { return "Artillery"; }
         get shortName() { return "Artlry"; }
@@ -318,6 +328,7 @@ export const Unit = {
 
     AntiTank: class AntiTankUnit extends UnitObject {
         get type() { return AntiTankUnit; }
+        static readonly serial = 10;
         get serial() { return 10; }
         get name() { return "Anti-Tank"; }
         get shortName() { return "Anti-Tk"; }
@@ -351,6 +362,7 @@ export const Unit = {
 
     Rockets: class RocketsUnit extends UnitObject {
         get type() { return RocketsUnit; }
+        static readonly serial = 11;
         get serial() { return 11; }
         get name() { return "Rockets"; }
         get shortName() { return "Rocket"; }
@@ -384,6 +396,7 @@ export const Unit = {
 
     Missiles: class MissilesUnit extends UnitObject {
         get type() { return MissilesUnit; }
+        static readonly serial = 12;
         get serial() { return 12; }
         get name() { return "Missiles"; }
         get shortName() { return "Missile"; }
@@ -417,6 +430,7 @@ export const Unit = {
 
     Rig: class RigUnit extends UnitObject {
         get type() { return RigUnit; }
+        static readonly serial = 13;
         get serial() { return 13; }
         get name() { return "Rig"; }
         get shortName() { return "Rig"; }
@@ -451,6 +465,7 @@ export const Unit = {
 
     Fighter: class FighterUnit extends UnitObject {
         get type() { return FighterUnit; }
+        static readonly serial = 14;
         get serial() { return 14; }
         get name() { return "Fighter"; }
         get shortName() { return "Fighter"; }
@@ -481,6 +496,7 @@ export const Unit = {
 
     Bomber: class BomberUnit extends UnitObject {
         get type() { return BomberUnit; }
+        static readonly serial = 15;
         get serial() { return 15; }
         get name() { return "Bomber"; }
         get shortName() { return "Bomber"; }
@@ -511,6 +527,7 @@ export const Unit = {
 
     Stealth: class StealthUnit extends UnitObject {
         get type() { return StealthUnit; }
+        static readonly serial = 16;
         get serial() { return 16; }
         get name() { return "Stealth"; }
         get shortName() { return "Stealth"; }
@@ -541,6 +558,7 @@ export const Unit = {
 
     Duster: class DusterUnit extends UnitObject {
         get type() { return DusterUnit; }
+        static readonly serial = 17;
         get serial() { return 17; }
         get name() { return "Duster"; }
         get shortName() { return "Duster"; }
@@ -571,6 +589,7 @@ export const Unit = {
 
     SeaPlane: class SeaPlaneUnit extends UnitObject {
         get type() { return SeaPlaneUnit; }
+        static readonly serial = 18;
         get serial() { return 18; }
         get name() { return "Sea Plane"; }
         get shortName() { return "Seapl"; }
@@ -601,6 +620,7 @@ export const Unit = {
 
     BCopter: class BCopterUnit extends UnitObject {
         get type() { return BCopterUnit; }
+        static readonly serial = 19;
         get serial() { return 19; }
         get name() { return "B Copter"; }
         get shortName() { return "B Cptr"; }
@@ -631,6 +651,7 @@ export const Unit = {
 
     TCopter: class TCopterUnit extends UnitObject {
         get type() { return TCopterUnit; }
+        static readonly serial = 20;
         get serial() { return 20; }
         get name() { return "T Copter"; }
         get shortName() { return "T Cptr"; }
@@ -664,6 +685,7 @@ export const Unit = {
 
     BlackBomb: class BlackBombUnit extends UnitObject {
         get type() { return BlackBombUnit; }
+        static readonly serial = 21;
         get serial() { return 21; }
         get name() { return "Black Bomb"; }
         get shortName() { return "B Bomb"; }
@@ -695,6 +717,7 @@ export const Unit = {
 
     Battleship: class BattleshipUnit extends UnitObject {
         get type() { return BattleshipUnit; }
+        static readonly serial = 22;
         get serial() { return 22; }
         get name() { return "Battleship"; }
         get shortName() { return "B Ship"; }
@@ -726,6 +749,7 @@ export const Unit = {
 
     Carrier: class CarrierUnit extends UnitObject {
         get type() { return CarrierUnit; }
+        static readonly serial = 23;
         get serial() { return 23; }
         get name() { return "Carrier"; }
         get shortName() { return "Carrier"; }
@@ -758,6 +782,7 @@ export const Unit = {
 
     Submarine: class SubmarineUnit extends UnitObject {
         get type() { return SubmarineUnit; }
+        static readonly serial = 24;
         get serial() { return 24; }
         get name() { return "Submarine"; }
         get shortName() { return "Sub"; }
@@ -788,6 +813,7 @@ export const Unit = {
 
     Cruiser: class CruiserUnit extends UnitObject {
         get type() { return CruiserUnit; }
+        static readonly serial = 25;
         get serial() { return 25; }
         get name() { return "Cruiser"; }
         get shortName() { return "Cruiser"; }
@@ -818,6 +844,7 @@ export const Unit = {
 
     Lander: class LanderUnit extends UnitObject {
         get type() { return LanderUnit; }
+        static readonly serial = 26;
         get serial() { return 26; }
         get name() { return "Lander"; }
         get shortName() { return "Lander"; }
@@ -851,6 +878,7 @@ export const Unit = {
 
     GunBoat: class GunBoatUnit extends UnitObject {
         get type() { return GunBoatUnit; }
+        static readonly serial = 27;
         get serial() { return 27; }
         get name() { return "Gun Boat"; }
         get shortName() { return "G Boat"; }

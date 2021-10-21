@@ -16,6 +16,7 @@ import { Common } from "../../CommonUtils";
 import { TileInspector } from "./TileInspector";
 import { QueueSearch } from "../../Common/QueueSearch";
 import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
+import { Unit } from '../Unit';
 
 // TODO Temporary map data for map loading.
 import { data as importMapData, MapData } from "../../../battle-maps/bean-island";
@@ -194,6 +195,7 @@ export class Map {
         // assert all owner and predeploy points are within 0 <= x|y < width|height
         // assert owners points point to buildings or capturables
         // assert predeploy units are legally placed (this is minor and possibly expensive)
+        // assert owner points and predeployment points (separately) don't overlap.
 
         return sizeMetadataMatchesData;
     }
@@ -211,23 +213,31 @@ export class Map {
             this.squareAt(point).terrain = new terrainType();
         }
 
+        // TODO Extract and expand this, maybe to the Faction file. Also, define Player as another enum?
+        function playerToFaction(player: number) {
+            return [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][player - 1];
+        }
+
         // Change building terrain factions
         data.owners.forEach( owner => {
             const { x, y, player } = owner;
             const terrain = this.squareAt({x,y}).terrain;
             if (!terrain.building)
                 throw new Error(`Cannot set ownership of non-capturable terrain: ${terrain.name} at (${x},${y}) by map '${data.name}'`);
-
-            // TODO Extract and expand this, maybe to the Faction file. Also, define Player as another enum?
-            function playerToFaction(player: number) {
-                return [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][player - 1];
-            }
-
             terrain.faction = playerToFaction(player);
         });
 
         // Spawn Units
-        
+        data.predeploy.forEach( deployment => {
+            const { x, y, serial, player } = deployment;
+            const unitType = Object.values(Unit).find( type => type.serial === serial );
+            if (!unitType)
+                throw new Error(`Unit serial '${serial}' does not exist.`);
+            const unit = new unitType();
+            unit.init({faction: playerToFaction(player)});
+            unit.orderable = true;      // TODO Remove this so it may be set by the turn manager.
+            this.placeUnit(unit, new Point(x,y));
+        });
     }
 
     /** Auto-generates the given terrain type into the map based on the chance modifiers given.

@@ -57,8 +57,8 @@ export const data = {
     {"x": 4, "y": 9, "serial": 6, "player": 1},
     {"x": 2, "y":10, "serial": 0, "player": 1},
     {"x": 2, "y": 7, "serial": 2, "player": 1},
-    {"x":11, "y": 8, "serial": 7, "player": 2},
-    {"x":10, "y": 9, "serial": 6, "player": 2},
+    {"x":12, "y": 8, "serial": 7, "player": 2},
+    {"x":11, "y": 9, "serial": 6, "player": 2},
     {"x":14, "y": 7, "serial":11, "player": 2}
   ]
 }

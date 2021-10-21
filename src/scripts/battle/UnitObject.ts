@@ -89,6 +89,9 @@ export abstract class UnitObject {
     /** A reference to this object's unit-kind. Used for retrieving constants about the unit. */
     abstract get type(): UnitType;
 
+    /** This unit type's serial number. */
+    static readonly serial: number = -1;
+
     /** Numerical index of unit types. Used for saving/loading, primarily. */
     abstract get serial(): number;
 
@@ -219,11 +222,12 @@ export abstract class UnitObject {
 
     // TODO init(team: Army)
     /** Must be called before use. Builds unit graphics, configures important stats. */
-    init() {
+    init(options: {faction: Faction}) {
         let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
         // TODO If spritesheet is undefined... what happens?
 
-        this.faction = [Faction.Red, Faction.Black][ Math.floor(Math.random()*2) ];
+        // TODO Faction.None and Faction.Neutral will break shit.
+        this.faction = options.faction;
 
         // Pick the right idle animation
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
