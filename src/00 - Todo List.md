@@ -3,15 +3,6 @@
 - [ ] Maps should be able to read from a serial string or probably a json object.
   This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on. 
 
-- [x] Dev controller system (Keyboard) which consumes input not consumed by the Virtual Controller.
-  This would allow me to set up temporary or permanent dev controls for adjusting sliders and such
-  without restarting the app.
-  - [x] Does not consume, but this is fine.
-  - [x] Prevent game from consuming literally all input on the page. (kind of a side thing; been meaning to do it for ages.)
-    - [x] This only applies to keyboard input, I think. Probably still consumes all gamepad input.
-  - [ ] Set up production builds to automatically disable the dev controller.
-  - [x] Set up devController event callbacks to relieve Game.scene.ticker of responsibility.
-
 - [ ] Refactor the tile overlay visual system.
   - [x] Add texture re-use mechanism.
   - [x] Refactor terrain systems to make use of this re-use mechanism.

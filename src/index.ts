@@ -23,10 +23,12 @@ class App {
     /** The page element assumed as the game's canvas. */
     readonly contextElement!: any;
 
-    // TODO Disable on production builds.
+    /** True if this app is being run in a development environment. */
+    private debugMode = process.env.NODE_ENV === 'development';
+
     /** A keyboard controller for debug controls.
      * Be careful not to overlap controls with any others set. */
-    readonly devController = new DevController({enable: true});
+    readonly devController = new DevController({enable: this.debugMode});
 
     /** A graphics-container for solid-panel images adding character to blank scenes. */
     readonly backdrop = new PIXI.Container();
@@ -137,8 +139,8 @@ class App {
         
         // Preload game-wide resources, start the game on completion.
         this.preload( () => {
-            // Add the debugger/diagnostics UI to the global scene.     // TODO Disable on production builds.
-            this.debugHud.addChild(new DiagnosticLayer({enable: true}).container);
+            // Add the debugger/diagnostics UI to the global scene.
+            this.debugHud.addChild(new DiagnosticLayer({enable: this.debugMode}).container);
             
             // Add the main loop to PIXI's ticker.
             this.app.ticker.add( (delta: number) => {this.loop(delta)} );
