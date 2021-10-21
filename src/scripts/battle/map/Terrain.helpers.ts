@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import * as PixiFilters from "pixi-filters";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { TerrainObject, TerrainType } from "./TerrainObject";
-import { Terrain } from "./Terrain";
+import { Terrain, TerrainProperties } from "./Terrain";
 import { Faction, FactionColors } from "../EnumTypes";
 import { Game } from "../../..";
 import { MapLayer } from "./MapLayers";
@@ -83,7 +83,7 @@ export const TerrainMethods = {
      * @param height In pixels, the vertical size of the sea background layer.
      */
     addSeaLayer: (width: number, height: number) => {
-        let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['sea']);
+        let anim = new PIXI.AnimatedSprite(TerrainProperties.sheet.animations['sea']);
         let tsprite = new PIXI.TilingSprite(anim.texture, width, height);
         MapLayer('sea').addChild(tsprite);
 
@@ -265,7 +265,7 @@ export const TerrainMethods = {
 
                 // If determined orientation isn't 'none'
                 if (variant != "0000") {
-                    let shallow = new PIXI.Sprite(Terrain.sheet.textures[`sea-shallow-${variant}.png`]);
+                    let shallow = new PIXI.Sprite(TerrainProperties.sheet.textures[`sea-shallow-${variant}.png`]);
                     shallow.blendMode = PIXI.BLEND_MODES.ADD;
                     shallow.alpha = 0.1;
                     container.addChild(shallow);
@@ -279,7 +279,7 @@ export const TerrainMethods = {
 
             // Only if orientation isn't 'none'
             if (variant != "0000") {
-                let cliffs = new PIXI.Sprite(Terrain.sheet.textures[`sea-cliff-${variant}.png`]);
+                let cliffs = new PIXI.Sprite(TerrainProperties.sheet.textures[`sea-cliff-${variant}.png`]);
                 container.addChild(cliffs);
             }
         }
@@ -289,7 +289,7 @@ export const TerrainMethods = {
 
     createPlainLayer() {
         let variant = TerrainMethods.randomPlainTile();
-        return new PIXI.Sprite(Terrain.sheet.textures[`plain-${variant}.png`]);
+        return new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-${variant}.png`]);
     },
 
     createBuildingLayers(building: string) {
@@ -314,7 +314,7 @@ export const TerrainMethods = {
         // Build an animated sprite with all building colors as frames.
         let textures = [];
         for (let color of colors) {
-            textures.push(Terrain.sheet.textures[`${building}-${color}.png`]);  // TODO Fix this in TexturePacker too.
+            textures.push(TerrainProperties.sheet.textures[`${building}-${color}.png`]);  // TODO Fix this in TexturePacker too.
         }
         let sprite = new PIXI.AnimatedSprite(textures);
         return sprite;

@@ -9,18 +9,25 @@ import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { Debug } from "../../DebugUtils";
 
 /**
+ * Global terrain properties container.
+ */
+export const TerrainProperties = {
+    tileset: 'NormalMapTilesheet',
+    landImageset: 'NormalMapLandscapeSheet',
+    get sheet(): PIXI.Spritesheet { return Game.app.loader.resources[ TerrainProperties.tileset ].spritesheet; },
+    get infoPortraitSheet(): PIXI.Spritesheet { return Game.app.loader.resources[ TerrainProperties.landImageset ].spritesheet; },
+}
+
+/**
  * Auto-generated.
  * A list of all terrain or map-tile classes.
  */
 export const Terrain = {
-    tileset: 'NormalMapTilesheet',
-    landImageset: 'NormalMapLandscapeSheet',
-    get sheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.tileset ].spritesheet; },
-    get infoPortraitSheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.landImageset ].spritesheet; },
 
     Void: class VoidTile extends TerrainObject {
         // Not for nothin', but these properties are all technically condensible into one 64-bit value.
         get type() { return VoidTile; }
+        static serial() { return -1; }
         get serial() { return -1; }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
@@ -53,14 +60,15 @@ export const Terrain = {
     //start
     Plain: class PlainTile extends TerrainObject {
         get type() { return PlainTile; }
+        static serial() { return 0; }
         get serial() { return 0; }
         get landscape(): PIXI.Sprite {
             if (this.variation == 1)
-                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['plain-meteor-landscape.png'] );
+                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-meteor-landscape.png'] );
             else if (this.variation == 2)
-                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['plain-plasma-landscape.png'] );
+                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-plasma-landscape.png'] );
             else
-                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['plain-landscape.png'] );
+                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-landscape.png'] );
         }
         private variation = 0;
 
@@ -97,6 +105,7 @@ export const Terrain = {
 
     Road: class RoadTile extends TerrainObject {
         get type() { return RoadTile; }
+        static serial() { return 1; }
         get serial() { return 1; }
 
         get name() { return "Road"; }
@@ -128,13 +137,14 @@ export const Terrain = {
             let variant = TerrainMethods.fourDirectionalVariant(neighbors,  // The rest are tiles we want to connect to.
                 Terrain.Road, Terrain.Bridge, Terrain.HQ, Terrain.City, Terrain.Factory, Terrain.Airport,
                 Terrain.Port, Terrain.Radar, Terrain.ComTower, Terrain.Silo, Terrain.TempAirpt, Terrain.TempPort);
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`road-${variant}.png`]);
+            sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`road-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
     Wood: class WoodTile extends TerrainObject {
         get type() { return WoodTile; }
+        static serial() { return 2; }
         get serial() { return 2; }
 
         get name() { return "Wood"; }
@@ -165,13 +175,14 @@ export const Terrain = {
         
             // Wood
             let variant = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Wood);
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`wood-${variant}.png`]);
+            sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`wood-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
     Mountain: class MountainTile extends TerrainObject {
         get type() { return MountainTile; }
+        static serial() { return 3; }
         get serial() { return 3; }
 
         get name() { return "Mountain"; }
@@ -201,11 +212,11 @@ export const Terrain = {
         
             // Mountain
             this._shapeSerial = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Mountain);
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`mountain-${this._shapeSerial}.png`]);
+            sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`mountain-${this._shapeSerial}.png`]);
             this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
 
             // Mountain Shadow
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`shadow.png`]);
+            sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`shadow.png`]);
             sprite.alpha = 0.25;
             this.layers.push({object: sprite, key: ['top', 'row', 'static']});
         }
@@ -213,6 +224,7 @@ export const Terrain = {
 
     Wasteland: class WastelandTile extends TerrainObject {
         get type() { return WastelandTile; }
+        static serial() { return 4; }
         get serial() { return 4; }
 
         get name() { return "Wasteland"; }
@@ -238,13 +250,14 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Wasteland
             let variant = TerrainMethods.randomTileVariant(6);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`wasteland-${variant}.png`]);
+            let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`wasteland-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
     Ruins: class RuinsTile extends TerrainObject {
         get type() { return RuinsTile; }
+        static serial() { return 5; }
         get serial() { return 5; }
 
         get name() { return "Ruins"; }
@@ -275,13 +288,14 @@ export const Terrain = {
 
             // Ruins
             let variant = TerrainMethods.randomTileVariant(3);
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`ruins-${variant}.png`]);
+            sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`ruins-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
     Bridge: class BridgeTile extends TerrainObject {
         get type() { return BridgeTile; }
+        static serial() { return 6; }
         get serial() { return 6; }
         readonly landTile: boolean;
         get shallowWaterSourceTile() { return false; }
@@ -318,7 +332,7 @@ export const Terrain = {
             if (this.landTile) {
                 // River
                 let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
-                let sprite = new PIXI.Sprite(Terrain.sheet.textures[`river-${variant}.png`]);
+                let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`river-${variant}.png`]);
                 this.layers.push({object: sprite, key: ['bottom', 'static']});
             } else {
                 // Sea
@@ -328,7 +342,7 @@ export const Terrain = {
 
             // Bridge
             let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Bridge, Terrain.Port, Terrain.TempPort);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`bridge-${variant}.png`]);
+            let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`bridge-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
 
@@ -341,6 +355,7 @@ export const Terrain = {
 
     River: class RiverTile extends TerrainObject {
         get type() { return RiverTile; }
+        static serial() { return 7; }
         get serial() { return 7; }
 
         get name() { return "River"; }
@@ -366,13 +381,14 @@ export const Terrain = {
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // River TODO They don't connect to each other
             let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`river-${variant}.png`]);
+            let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`river-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
     },
 
     Sea: class SeaTile extends TerrainObject {
         get type() { return SeaTile; }
+        static serial() { return 8; }
         get serial() { return 8; }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
@@ -406,6 +422,7 @@ export const Terrain = {
 
     Beach: class BeachTile extends TerrainObject {
         get type() { return BeachTile; }
+        static serial() { return 9; }
         get serial() { return 9; }
         get landTile() { return false; }
 
@@ -434,7 +451,7 @@ export const Terrain = {
             this.layers.push({object: container, key: ['bottom', 'static']});
 
             let variant = TerrainMethods.beachVariant(neighbors);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`beach-${variant}.png`]);
+            let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`beach-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
 
@@ -468,9 +485,10 @@ export const Terrain = {
 
     RoughSea: class RoughSeaTile extends TerrainObject {
         get type() { return RoughSeaTile; }
+        static serial() { return 10; }
         get serial() { return 10; }
         get landscape(): PIXI.Sprite {
-            return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['sea-landscape.png'] );
+            return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
         }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
@@ -501,7 +519,7 @@ export const Terrain = {
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
 
             // Rough Sea
-            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations['roughsea']);
+            let anim = new PIXI.AnimatedSprite(TerrainProperties.sheet.animations['roughsea']);
             anim.animationSpeed = 0.125;
             anim.play();
 
@@ -525,9 +543,10 @@ export const Terrain = {
 
     Mist: class MistTile extends TerrainObject {
         get type() { return MistTile; }
+        static serial() { return 11; }
         get serial() { return 11; }
         get landscape(): PIXI.Sprite {
-            return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['sea-landscape.png'] );
+            return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
         }
         get landTile() { return false; }
 
@@ -559,7 +578,7 @@ export const Terrain = {
 
             // Mist
             this._shapeSerial = TerrainMethods.lineDirectionalVariant(neighbors, MistTile);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`mist-${this._shapeSerial}.png`]);
+            let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`mist-${this._shapeSerial}.png`]);
             sprite.alpha = 0.75;
             this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
         }
@@ -567,6 +586,7 @@ export const Terrain = {
 
     Reef: class ReefTile extends TerrainObject {
         get type() { return ReefTile; }
+        static serial() { return 12; }
         get serial() { return 12; }
         get landTile() { return false; }
 
@@ -598,7 +618,7 @@ export const Terrain = {
             
             // Reef
             let variant = TerrainMethods.randomTileVariant(4);
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`reef-${variant}.png`]);
+            let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`reef-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
 
@@ -617,9 +637,10 @@ export const Terrain = {
 
     Fire: class FireTile extends TerrainObject {
         get type() { return FireTile; }
+        static serial() { return 13; }
         get serial() { return 13; }
         get landscape(): PIXI.AnimatedSprite {
-            let anim = new PIXI.AnimatedSprite( Terrain.infoPortraitSheet.animations['default-landscape'] );
+            let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
             return anim;
@@ -648,11 +669,11 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
             // Plain - Cragged
-            let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-crag.png`]);
+            let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-crag.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
 
             // Fire
-            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`fire`]);
+            let anim = new PIXI.AnimatedSprite(TerrainProperties.sheet.animations[`fire`]);
             anim.animationSpeed = 0.25;
             anim.play();
             this.layers.push({object: anim, key: ['top', 'row', 'animated']});
@@ -661,9 +682,10 @@ export const Terrain = {
 
     Meteor: class MeteorTile extends TerrainObject {
         get type() { return MeteorTile; }
+        static serial() { return 14; }
         get serial() { return 14; }
         get landscape(): PIXI.AnimatedSprite {
-            let anim = new PIXI.AnimatedSprite( Terrain.infoPortraitSheet.animations['default-landscape'] );
+            let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
             return anim;
@@ -704,7 +726,7 @@ export const Terrain = {
                 this.layers.push({object: sprite, key: ['bottom', 'static']});
 
                 // Not until the meteor is destroyed; looks weird with it.
-                // let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-7.png`]);
+                // let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-7.png`]);
             } else {
                 // Sea
                 let container = TerrainMethods.createSeaLayer(neighbors);
@@ -714,7 +736,7 @@ export const Terrain = {
             // Meteor
             this._shapeSerial = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
             this._shapeSerial = '0' + this._shapeSerial.slice(1);   // Up is always 'false' graphically
-            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`meteor-${this._shapeSerial}`]);
+            let anim = new PIXI.AnimatedSprite(TerrainProperties.sheet.animations[`meteor-${this._shapeSerial}`]);
             anim.animationSpeed = 0.2;
             if (this._shapeSerial != "0000")
                 anim.play();
@@ -724,9 +746,10 @@ export const Terrain = {
 
     Plasma: class PlasmaTile extends TerrainObject {
         get type() { return PlasmaTile; }
+        static serial() { return 15; }
         get serial() { return 15; }
         get landscape(): PIXI.AnimatedSprite {
-            let anim = new PIXI.AnimatedSprite( Terrain.infoPortraitSheet.animations['default-landscape'] );
+            let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
             return anim;
@@ -766,7 +789,7 @@ export const Terrain = {
 
                 // Not until plasma is destroyed; otherwise, plasma has a brown halo and it looks weird.
                 // let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
-                // let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-${variant}.png`]);
+                // let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-${variant}.png`]);
             } else {
                 // Sea
                 let container = TerrainMethods.createSeaLayer(neighbors);
@@ -775,7 +798,7 @@ export const Terrain = {
 
             // Plasma
             this._shapeSerial = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma, Terrain.Meteor);
-            let anim = new PIXI.AnimatedSprite(Terrain.sheet.animations[`plasma-${this._shapeSerial}`]);
+            let anim = new PIXI.AnimatedSprite(TerrainProperties.sheet.animations[`plasma-${this._shapeSerial}`]);
             anim.animationSpeed = 0.25;
             anim.play();
             this.layers.push({object: anim, key: ['top', 'row', 'animated']});
@@ -784,6 +807,7 @@ export const Terrain = {
 
     Pipeline: class PipelineTile extends TerrainObject {
         get type() { return PipelineTile; }
+        static serial() { return 16; }
         get serial() { return 16; }
 
         get name() { return "Pipeline"; }
@@ -827,6 +851,7 @@ export const Terrain = {
 
     PipeSeam: class PipeSeamTile extends TerrainObject {
         get type() { return PipeSeamTile; }
+        static serial() { return 17; }
         get serial() { return 17; }
 
         get name() { return "Pipe Seam"; }
@@ -866,6 +891,7 @@ export const Terrain = {
 
     HQ: class HQTile extends TerrainBuildingObject {
         get type() { return HQTile; }
+        static serial() { return 18; }
         get serial() { return 18; }
 
         get name() { return "HQ"; }
@@ -909,6 +935,7 @@ export const Terrain = {
 
     City: class CityTile extends TerrainBuildingObject {
         get type() { return CityTile; }
+        static serial() { return 19; }
         get serial() { return 19; }
 
         get name() { return "City"; }
@@ -949,6 +976,7 @@ export const Terrain = {
 
     ComTower: class ComTowerTile extends TerrainBuildingObject {
         get type() { return ComTowerTile; }
+        static serial() { return 20; }
         get serial() { return 20; }
 
         get name() { return "Com Tower"; }
@@ -988,6 +1016,7 @@ export const Terrain = {
 
     Radar: class RadarTile extends TerrainBuildingObject {
         get type() { return RadarTile; }
+        static serial() { return 21; }
         get serial() { return 21; }
 
         get name() { return "Radar"; }
@@ -1027,12 +1056,13 @@ export const Terrain = {
 
     Silo: class SiloTile extends TerrainObject {
         get type() { return SiloTile; }
+        static serial() { return 22; }
         get serial() { return 22; }
         get landscape(): PIXI.Sprite {
             if (this.value == 1)
-                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['silo-unused-landscape.png'] );
+                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['silo-unused-landscape.png'] );
             else
-                return new PIXI.Sprite( Terrain.infoPortraitSheet.textures['silo-used-landscape.png'] );
+                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['silo-used-landscape.png'] );
         }
 
         get name() { return "Silo"; }
@@ -1067,7 +1097,7 @@ export const Terrain = {
 
             // Silo
             let which = (this.value == 1) ? 1 : 2;  // Unused : Used
-            sprite = new PIXI.Sprite(Terrain.sheet.textures[`silo-${which}.png`]);
+            sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`silo-${which}.png`]);
             this._shapeSerial = `${which}`;
             this.layers.push({object: sprite, key: ['top', 'row', 'animated'], maskShape: true});
         }
@@ -1075,6 +1105,7 @@ export const Terrain = {
 
     Factory: class FactoryTile extends TerrainBuildingObject {
         get type() { return FactoryTile; }
+        static serial() { return 23; }
         get serial() { return 23; }
 
         get name() { return "Factory"; }
@@ -1115,6 +1146,7 @@ export const Terrain = {
 
     Airport: class AirportTile extends TerrainBuildingObject {
         get type() { return AirportTile; }
+        static serial() { return 24; }
         get serial() { return 24; }
 
         get name() { return "Airport"; }
@@ -1155,6 +1187,7 @@ export const Terrain = {
 
     Port: class PortTile extends TerrainBuildingObject {
         get type() { return PortTile; }
+        static serial() { return 25; }
         get serial() { return 25; }
         get landTile() { return false; }
 
@@ -1197,6 +1230,7 @@ export const Terrain = {
 
     TempAirpt: class TempAirptTile extends TerrainBuildingObject {
         get type() { return TempAirptTile; }
+        static serial() { return 26; }
         get serial() { return 26; }
 
         get name() { return "Temp Airpt"; }
@@ -1236,6 +1270,7 @@ export const Terrain = {
 
     TempPort: class TempPortTile extends TerrainBuildingObject {
         get type() { return TempPortTile; }
+        static serial() { return 27; }
         get serial() { return 27; }
         get landTile() { return false; }
 

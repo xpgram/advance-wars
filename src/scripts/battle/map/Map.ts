@@ -176,18 +176,43 @@ export class Map {
 
     /** Returns true if the given map data is determined legal and useable. */
     private validateMapData(data: MapData): boolean {
-        // assert size dimensions match the map data
+        
+        // Assert size dimensions match the map data
+        let sizeMetadataMatchesData = data.map.length === data.size.height;
+        data.map.forEach( row => {
+            if (row.length !== data.size.width)
+                sizeMetadataMatchesData = false;
+        });
+
+        // Assert player HQs
+        const HQserial = new Terrain.HQ().serial;
+        // stub
+
         // assert players metadata matches with the assigned players in owners and predeploy
         // assert each player has ~one~ HQ
         // assert each player has at least one predeploy or factory/airport/port
         // assert all owner and predeploy points are within 0 <= x|y < width|height
         // assert owners points point to buildings or capturables
         // assert predeploy units are legally placed (this is minor and possibly expensive)
-        return true;
+
+        return sizeMetadataMatchesData;
     }
 
     /** Fills in the built map canvas with the contents described by data. */
     private buildMapContents(data: MapData) {
+        for (let x = 0; x < this.width; x++)
+        for (let y = 0; y < this.height; y++) {
+            const terrainSerial = data.map[x][y];
+            const point = new Point(x,y);
+            const terrainType = Object.values(Terrain).find( type => type.serial() === terrainSerial );
+            if (!terrainType)
+                throw new Error(`Terrain serial '${terrainSerial}' does not exist.`);
+            this.squareAt(point).terrain = new terrainType();
+        }
+
+        // TODO Terrain classes need a static serial property, which is returned also by
+        // the object.serial getter method.
+
         // Assign serial-associated Terrain.Types
         // Change building terrain factions
         // Spawn Units

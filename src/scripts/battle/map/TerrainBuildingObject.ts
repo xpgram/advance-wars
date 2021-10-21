@@ -1,7 +1,7 @@
 import { TerrainObject } from "./TerrainObject";
 import { Faction } from "../EnumTypes";
 import { Debug } from "../../DebugUtils";
-import { Terrain } from "./Terrain";
+import { TerrainProperties } from "./Terrain";
 import { TerrainMethods } from "./Terrain.helpers";
 
 /** // TODO Refactor this class name; this is a building-type terrain object class. */
@@ -11,7 +11,7 @@ export abstract class TerrainBuildingObject extends TerrainObject {
 
     // Override preview-getting method——match the color currently shown by the tile on the field.
     get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
-        let sprite = new PIXI.Sprite(Terrain.sheet.textures[`plain-0.png`]);
+        let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-0.png`]);
 
         let name = this.name.replace(' ', '').toLowerCase();
         let building = TerrainMethods.getBuildingSprite(name);

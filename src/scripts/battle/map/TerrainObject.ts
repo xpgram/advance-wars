@@ -6,7 +6,7 @@ import { NeighborMatrix } from "../../NeighborMatrix";
 import { MapLayer, MapLayerFunctions } from "./MapLayers";
 import { TransformableList } from "../../TransformableList";
 import { Point3D } from "../../CommonTypes";
-import { Terrain } from "./Terrain";
+import { Terrain, TerrainProperties } from "./Terrain";
 import { Game } from "../../..";
 import { whitemask } from "../../filters/Whitemask";
 import { TextureLibrary } from "../../system/TextureLibrary";
@@ -88,14 +88,14 @@ export abstract class TerrainObject {
     /** Returns a preview image of this terrain type. Meant for the Info Window class. */
     get preview(): PIXI.Sprite | PIXI.AnimatedSprite {
         let name = this.name.replace(' ', '').toLowerCase();
-        let sprite = new PIXI.Sprite(Terrain.sheet.textures[`${name}.png`]);
+        let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`${name}.png`]);
         return sprite;
     }
 
     /** Returns an 'establishing shot' image of this terrain type as a sprite. */
     get landscape(): PIXI.Sprite {
         let name = this.name.replace(' ', '').toLowerCase();
-        return new PIXI.Sprite( Terrain.infoPortraitSheet.textures[`${name}-landscape.png`] );
+        return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures[`${name}-landscape.png`] );
     }
 
     /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer
