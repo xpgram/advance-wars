@@ -51,12 +51,11 @@ export class Square {
     /** The tinted-glass tile highlight that informs the player what actions or information is available for this square. */
     private overlayPanel = new PIXI.Sprite();
 
-    private tileReflectionBox = new PIXI.Container();
-
-    private tileReflection = new PIXI.Sprite();
-
     /** The arrow-path layer which, by segment, informs the player what path a travelling unit would intend to take. */
     private overlayArrow = new PIXI.Sprite();
+
+    /** Whether to show the spotlight effect over this tile's overlay panel. */
+    private showSpotlight = false;
 
     /** A 32-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
@@ -95,6 +94,14 @@ export class Square {
             this.unit.destroy();
     }
 
+    /** Retrieves the next frame for this tile's overlay panel. */
+    private updateOverlayPanelTexture() {
+        if (this.showSpotlight)
+            this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
+        else
+            this.overlayPanel.texture = TerrainObject.getWhitemask(this.terrain.shapeId);
+    }
+
     /** This method sets up terrain graphics, grabs its white texture, etc.
      * I'm trying to figure out, between this class and Map, which *should*
      * hold responsibility over what, though.
@@ -121,10 +128,9 @@ export class Square {
         Game.scene.ticker.add( () => {
             if (!this.overlayPanel.visible)
                 return;
-
             const rate = 3;
             if (Game.frameCount % rate === 0) {
-                this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
+                this.updateOverlayPanelTexture();
             }
         });
 
@@ -254,28 +260,25 @@ export class Square {
     private updateHighlight(): void {
         if (!this.terrain)
             return;
-
-        // First frame texture gather.  // TODO This should be a method.
-        this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
         
         // Define glassy-overlay presets.
         let colors = {
-            natural:{color: 0xFFFFFF, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL},      // Deprecated. Was for sprite tints.
-            //blue: {color: 0x88FFFF, alpha: 0.80, mode: PIXI.BLEND_MODES.MULTIPLY},
-            blue:   {color: 0x44CCAA, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL},
-            red:    {color: 0xFF6666, alpha: 0.55, mode: PIXI.BLEND_MODES.NORMAL},
-            maroon: {color: 0x883388, alpha: 0.45, mode: PIXI.BLEND_MODES.NORMAL},
-            grey:   {color: 0x222222, alpha: 0.25, mode: PIXI.BLEND_MODES.MULTIPLY},    // CO Affected, // TODO Animate shades
-            darkgrey: {color: 0x000000, alpha: 0.4, mode: PIXI.BLEND_MODES.MULTIPLY},
-            shape:  {color: 0xFFFFFF, alpha: 1.0, mode: PIXI.BLEND_MODES.NORMAL}        // Show white mask sprite
+            natural:{color: 0xFFFFFF, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL, spotlight: false},
+            blue:   {color: 0x44CCAA, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL, spotlight: true},
+            red:    {color: 0xFF6666, alpha: 0.55, mode: PIXI.BLEND_MODES.NORMAL, spotlight: true},
+            maroon: {color: 0xFF77FF, alpha: 0.50, mode: PIXI.BLEND_MODES.NORMAL, spotlight: true},
+            grey:   {color: 0x222222, alpha: 0.25, mode: PIXI.BLEND_MODES.MULTIPLY, spotlight: false},    // CO Affected, // TODO Animate shades
+            darkgrey: {color: 0x000000, alpha: 0.4, mode: PIXI.BLEND_MODES.MULTIPLY, spotlight: false},
+            shape:  {color: 0xFFFFFF, alpha: 1.0, mode: PIXI.BLEND_MODES.NORMAL, spotlight: false}        // Show white mask sprite
         }
 
         // Adjusts the look of the glassy overlay to some preset.
-        let setColor = (options: {color:number, alpha:number, mode:number}) => {
+        let setColor = (options: {color:number, alpha:number, mode:number, spotlight: boolean}) => {
             this.overlayPanel.tint = options.color;
             this.overlayPanel.alpha = options.alpha;
             this.overlayPanel.blendMode = options.mode;
             this.overlayPanel.visible = true;
+            this.showSpotlight = options.spotlight;
         }
 
         // Hidden by default
@@ -292,6 +295,9 @@ export class Square {
             setColor(colors.darkgrey);
         else if (this.COAffectedFlag)
             setColor(colors.grey);
+
+        // First frame texture gather.
+        this.updateOverlayPanelTexture();
 
         // Hidden tiles in Fog of War — Hide units and building details
         if (this.terrain instanceof TerrainBuildingObject)
