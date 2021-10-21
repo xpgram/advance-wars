@@ -17,6 +17,9 @@ import { TileInspector } from "./TileInspector";
 import { QueueSearch } from "../../Common/QueueSearch";
 import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 
+// TODO Temporary map data for map loading.
+import { data as importMapData, MapData } from "../../../battle-maps/bean-island";
+
 // Common error messages
 function InvalidLocationError(point: ImmutablePointPrimitive) {
     return `Attempting to access invalid grid location: (${point.x}, ${point.y})`;
@@ -44,17 +47,22 @@ export class Map {
      * @param width The integer width of the board in tiles.
      * @param height The integer height of the board in tiles.
      */
-    constructor(width: number, height: number) {
+    constructor(widthIgnore: number, heightIgnore: number) {
+        // TODO This constructor is deprecated; we movin' on yo.
+
         MapLayerFunctions.Init();
+
+        const { width, height } = importMapData.size;
         this.constructMap(width, height);
 
         let screenWidth = width * Game.display.standardLength;
-        let screenHeight = height * Game.display.standardLength
+        let screenHeight = height * Game.display.standardLength;
 
         this.setupBoardMask(screenWidth, screenHeight);
         TerrainMethods.addSeaLayer(screenWidth, screenHeight);
-        this.generateMap();     // Randomly generates a pleasant-looking map.
-        this.forceLegalTiles(); // Removes any illegal tiles left behind by the map generation process.
+        // this.generateMap();     // Randomly generates a pleasant-looking map.
+        this.buildMapContents(importMapData);
+        this.forceLegalTiles(); // Removes any illegal tiles which may have gotten in there somehow.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
         MapLayerFunctions.FreezeStaticLayers();
@@ -154,6 +162,15 @@ export class Map {
         this.generateTile(Terrain.Reef,     [.20,.20,.20,.05,.05,.05,.05,.05,.05],.3, 1);
         this.generateTile(Terrain.Meteor,   [.01,.01,.01,.01,.01,.01,.01,.01,.01],.3, 1);
         this.generateTile(Terrain.Plasma,   [.02,.80,.60,.02,.02,.02,.02,.02,.02],.3, .30);
+    }
+
+    /** Fills in the built map canvas with the contents described by data. */
+    private buildMapContents(data: MapData) {
+        // Assign serial-associated Terrain.Types
+        // Change building terrain factions
+        // Spawn Units
+
+        // I need a player-to-faction translator. I guess that might not be important ~now~.
     }
 
     /** Auto-generates the given terrain type into the map based on the chance modifiers given.
