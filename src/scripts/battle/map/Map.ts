@@ -20,6 +20,11 @@ import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 // TODO Temporary map data for map loading.
 import { data as importMapData, MapData } from "../../../battle-maps/bean-island";
 
+/** Error for map data could not validate. */
+export class MapValidationError extends Error {
+    name = 'MapValidationError';
+}
+
 // Common error messages
 function InvalidLocationError(point: ImmutablePointPrimitive) {
     return `Attempting to access invalid grid location: (${point.x}, ${point.y})`;
@@ -52,6 +57,11 @@ export class Map {
 
         MapLayerFunctions.Init();
 
+        // Pre-build check.
+        if (!this.validateMapData(importMapData))
+            throw new MapValidationError(`map '${importMapData.name}' did not validate.`);
+            // TODO This could simply fail and revert in the future.
+
         const { width, height } = importMapData.size;
         this.constructMap(width, height);
 
@@ -60,8 +70,8 @@ export class Map {
 
         this.setupBoardMask(screenWidth, screenHeight);
         TerrainMethods.addSeaLayer(screenWidth, screenHeight);
-        // this.generateMap();     // Randomly generates a pleasant-looking map.
-        this.buildMapContents(importMapData);
+        // this.buildMapContents(importMapData);
+        this.generateMap();     // Randomly generates a pleasant-looking map.
         this.forceLegalTiles(); // Removes any illegal tiles which may have gotten in there somehow.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
@@ -164,13 +174,26 @@ export class Map {
         this.generateTile(Terrain.Plasma,   [.02,.80,.60,.02,.02,.02,.02,.02,.02],.3, .30);
     }
 
+    /** Returns true if the given map data is determined legal and useable. */
+    private validateMapData(data: MapData): boolean {
+        // assert size dimensions match the map data
+        // assert players metadata matches with the assigned players in owners and predeploy
+        // assert each player has ~one~ HQ
+        // assert each player has at least one predeploy or factory/airport/port
+        // assert all owner and predeploy points are within 0 <= x|y < width|height
+        // assert owners points point to buildings or capturables
+        // assert predeploy units are legally placed (this is minor and possibly expensive)
+        return true;
+    }
+
     /** Fills in the built map canvas with the contents described by data. */
     private buildMapContents(data: MapData) {
         // Assign serial-associated Terrain.Types
         // Change building terrain factions
         // Spawn Units
 
-        // I need a player-to-faction translator. I guess that might not be important ~now~.
+        // I need a player-to-faction translation service.
+        // I guess that might not be important ~now~.
     }
 
     /** Auto-generates the given terrain type into the map based on the chance modifiers given.
