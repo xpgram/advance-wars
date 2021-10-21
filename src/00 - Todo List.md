@@ -1,5 +1,8 @@
 # Next Big Objectives
 
+- [ ] Maps should be able to read from a serial string or probably a json object.
+  This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on.
+
 - [x] Dev controller system (Keyboard) which consumes input not consumed by the Virtual Controller.
   This would allow me to set up temporary or permanent dev controls for adjusting sliders and such
   without restarting the app.
