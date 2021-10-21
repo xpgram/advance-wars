@@ -6,10 +6,10 @@ const Ttypes = [ Plain, Sea, Wood, Mountain, Road, City, Factory, Port, Beach, R
 const Tserials = Ttypes.map( t => t.serial );
 const [ pln, sea, wd, mtn, rd, cty, fct, prt, bch, rgh, ref, hq ] = Tserials;
 
-const { Infantry, Mech, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine } = Unit;
-const Utypes = [ Infantry, Mech, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine ];
+const { Infantry, Mech, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine } = Unit;
+const Utypes = [ Infantry, Mech, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine ];
 const Userials = Utypes.map( u => u.serial );
-const [ inf, mch, rig, tnk, mdt, aai, art, rck, gnb, lnd, car, cru, btl, sub ] = Userials;
+const [ inf, mch, rig, tnk, mdt, aai, art, rck, msl, gnb, lnd, car, cru, btl, sub ] = Userials;
 
 
 export const data = {
@@ -62,16 +62,28 @@ export const data = {
     {"x": 8, "y": 0, "serial": inf, "player": 2},
     {"x":12, "y": 1, "serial": tnk, "player": 2},
     {"x":17, "y": 0, "serial": mdt, "player": 2},
-    {"x":19, "y": 0, "serial": rck, "player": 2},
+    {"x":19, "y": 0, "serial": msl, "player": 2},
     {"x": 7, "y": 2, "serial": btl, "player": 2},
     {"x":19, "y": 2, "serial": aai, "player": 2},
     {"x": 7, "y": 3, "serial": mch, "player": 2},
     {"x":10, "y": 3, "serial": art, "player": 2},
     {"x":14, "y": 3, "serial": gnb, "player": 2},
-    {"x":18, "y": 4, "serial": rck, "player": 2},
+    {"x":18, "y": 4, "serial": msl, "player": 2},
     {"x": 3, "y":11, "serial": btl, "player": 2},
 
     {"x":18, "y":13, "serial": rig, "player": 1},
-    {"x": 1, "y": 1, "serial": , "player": 1},
+    {"x":16, "y":13, "serial": inf, "player": 1},
+    {"x":14, "y":13, "serial": gnb, "player": 1},
+    {"x":15, "y":12, "serial": lnd, "player": 1},
+    {"x":17, "y":12, "serial": inf, "player": 1},
+    {"x":15, "y":11, "serial": car, "player": 1},
+    {"x":17, "y":10, "serial": gnb, "player": 1},
+    {"x":16, "y": 9, "serial": cru, "player": 1},
+    {"x":18, "y": 9, "serial": btl, "player": 1},
+    {"x":17, "y": 8, "serial": sub, "player": 1},
+
+    {"x": 4, "y": 8, "serial": gnb, "player": 3},
+    {"x": 6, "y":10, "serial": gnb, "player": 3},
+    {"x":12, "y": 6, "serial": rig, "player": 3},
   ]
 }
