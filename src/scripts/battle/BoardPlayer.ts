@@ -7,18 +7,32 @@ import { Faction, FactionColors } from "./EnumTypes";
 import { Terrain } from "./map/Terrain";
 import { CommandingOfficerObject } from "./CommandingOfficerObject";
 
+/**  */
+export type UnitSpawnSettings = {
+  location: Point,
+  serial: number,
+  hp?: number,
+  ammo?: number,
+  gas?: number,
+  capture?: number,
+  spent?: boolean,  // For multiplayer disconnect and reconnect
+    // TODO Any other mid-turn settings?
+}
+
 /** There was a problem building a new BoardPlayer. */
 export class BoardPlayerConstructionError extends Error {
   name = "BoardPlayerConstructionError";
 }
 
-// How many funds each city earns you at the start of each turn.
-// This value is temporary and should be configurable per match; should probably
-// be in some match settings class.
-const FUNDS_PER_CITY = 1000;
+/** There was a problem spawning a new unit. */
+export class SpawnUnitError extends Error {
+  name = "SpawnUnitError";
+}
 
-// This is a conventional limit; should also probably be in
-// configuration settings somewhere.
+// TODO These should be in some MatchSettings object configurable before the match starts.
+/** How many funds each city earns you at the start of each turn. */
+const FUNDS_PER_CITY = 1000;
+/** The maximum number of deployed units this player may own at once. */
 const MAX_UNITS = 50;
 
 type BoardPlayerOptions = {
@@ -36,11 +50,13 @@ type BoardPlayerOptions = {
   capturePoints: Point[],
 
   /** Board location and status information for all pre-deploy units. */
-  unitSpawns?: {location: Point, serial: number}[];
+  unitSpawns?: UnitSpawnSettings[];
 
-  // Pre-deploy configurables.
-  powerMeter?: number,        // Default 0
-  funds?: number,             // Default 0
+  /** Max is 128. Default 0. */
+  powerMeter?: number,
+
+  /** Default is 0. */
+  funds?: number,
 };
 
 /** The player-data object for a participant in a game. */
@@ -86,31 +102,8 @@ export class BoardPlayer {
     });
 
     // Validate and spawn units.
-    if (options.unitSpawns) {
-      options.unitSpawns.forEach( spawnSettings => {
-        const { location, serial } = spawnSettings;
-        const square = this.map.squareAt(location);
-        const unitType = Object.values(Unit).find( u => u.serial === serial );
-
-        if (!unitType)
-          throw new BoardPlayerConstructionError(`Could not spawn predeploy: Unit serial ${serial} not found.`);
-
-        const unit = new unitType();
-        unit.init({
-          faction: this.faction,
-          playerObject: this,     // TODO Unimplemented in UnitObject
-        });
-
-        if (!square.unit == null)
-          throw new BoardPlayerConstructionError(`Could not spawn predeploy: location ${location.toString()} already occupied.`);
-        if (!square.occupiable(unit))
-          throw new BoardPlayerConstructionError(`Could not spawn predeploy: location ${location.toString()} not occupiable.`);
-
-        this.map.placeUnit(unit, location);
-
-        // TODO HP, Ammo, Gas, etc.
-      });
-    }
+    if (options.unitSpawns)
+      options.unitSpawns.forEach( settings => this.spawnUnit(settings) );
     this.armyDeployed = (this.units.length > 0);
   }
 
@@ -119,7 +112,7 @@ export class BoardPlayer {
     //@ts-ignore
     this.map = undefined;
     //@ts-ignore
-    this.units.forEach( u => u.boardPlayer = undefined );
+    this.units = undefined;
   }
 
   /** Returns a list of map Squares corresponding to this player's HQ locations. */
@@ -164,6 +157,53 @@ export class BoardPlayer {
     this.units.forEach((unit) => {
       unit.orderable = false;
     });
+  }
+
+  /** Spawns a unit according to the given settings. */
+  spawnUnit(settings: UnitSpawnSettings) {
+    const { location, serial } = settings;
+
+    const square = this.map.squareAt(location);
+    const unitType = Object.values(Unit).find( u => u.serial === serial );
+
+    if (!unitType)
+      throw new SpawnUnitError(`Could not spawn predeploy: Unit serial ${serial} not found.`);
+
+    const unit = new unitType();
+    unit.init({
+      faction: this.faction,
+      boardPlayer: this,     // TODO Unimplemented in UnitObject
+    });
+
+    if (!square.unit == null)
+      throw new SpawnUnitError(`Could not spawn predeploy: location ${location.toString()} already occupied.`);
+    if (!square.occupiable(unit))
+      throw new SpawnUnitError(`Could not spawn predeploy: location ${location.toString()} not occupiable.`);
+
+    this.map.placeUnit(unit, location);
+    this.units.push(unit);
+
+    // Other spawn settings.
+    // unit.hp = settings.hp || unit.hp;
+    // TODO This
+  }
+
+  /** Performs clerical work after a unit has been 'killed'. */
+  unspawnUnit(unit: UnitObject) {
+    this.units = this.units.filter( u => u !== unit );
+    this.map.removeUnit(unit.boardLocation);
+    unit.destroy();
+  }
+
+  /** Updates this BoardPlayer's list of captured properties by scanning
+   * the map for properties with a matching faction. */
+  scanCapturedProperties() {
+    this.capturePoints = [];
+    for (let x = 0; x < this.map.width; x++)
+    for (let y = 0; y < this.map.height; y++) {
+      if (this.map.squareAt({x,y}).terrain.faction === this.faction)
+        this.capturePoints.push(new Point(x,y));
+    }
   }
 
   /** Raises this player's available funds by an amount multiplied by the

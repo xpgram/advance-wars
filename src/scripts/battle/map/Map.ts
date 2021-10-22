@@ -215,6 +215,9 @@ export class Map {
             this.squareAt(point).terrain = new terrainType();
         }
 
+        // TODO BoardPlayer should assume responsibility for capturing territories and spawning units.
+        // Pre-work is done, I just need to wire things up.
+
         // TODO Extract and expand this, maybe to the Faction file. Also, define Player as another enum?
         function playerToFaction(player: number) {
             return [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][player - 1];
