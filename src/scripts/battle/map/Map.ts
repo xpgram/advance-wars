@@ -218,6 +218,11 @@ export class Map {
         // TODO BoardPlayer should assume responsibility for capturing territories and spawning units.
         // Pre-work is done, I just need to wire things up.
 
+        // TODO What passes the map data in to Map?
+        // There has to be a controller.
+        // Actually, what creates the Map anyway?
+        // That would be a good place to start.
+
         // TODO Extract and expand this, maybe to the Faction file. Also, define Player as another enum?
         function playerToFaction(player: number) {
             return [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][player - 1];
