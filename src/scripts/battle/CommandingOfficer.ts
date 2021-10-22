@@ -1,5 +1,5 @@
 
 
-export abstract class Commander {
+export abstract class CommandingOfficer {
     
 }

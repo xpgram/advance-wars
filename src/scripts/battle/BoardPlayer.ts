@@ -2,86 +2,109 @@ import { UnitObject } from "./UnitObject";
 import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
 import { Point } from "../Common/Point";
+import { CommandingOfficer } from "./CommandingOfficer";
+import { Faction } from "./EnumTypes";
 
-const FUNDS_PER_CITY = 1000;        // How many funds each city earns you at the start of each turn.
-    // This value is temporary and should be configurable per match; should probably
-    // be in some match settings class.
+// How many funds each city earns you at the start of each turn.
+// This value is temporary and should be configurable per match; should probably
+// be in some match settings class.
+const FUNDS_PER_CITY = 1000;
 
+// This is a conventional limit; should also probably be in
+// configuration settings somewhere.
 const MAX_UNITS = 50;
 
 type BoardPlayerOptions = {
-    /** The team color. */
-    color: number, // TODO What is the enum for this?
-    /** The officer being played as. */
-    officer: CommandingOfficerObject,
-    /** Reference to the board being played on. */
-    map: Map,
-    /** Board location of player headquarters. */
-    hqLocation: Point,
+  /** Which controller slot this player belongs to. */
+  playerNumber: number,
+  /** The team color. */
+  faction: Faction,
+  /** The serial number for the commanding officer being played as. */
+  officerSerial: number,
+  /** Reference to the board being played on. */
+  map: Map,
+  /** Board location of player headquarters.
+   * Every point must be the location of an HQ tile unassumed by any other players. */
+  hqLocation: Point[],
 
-    // Pre-deploy configurables.
-    powerMeter?: number,        // Default 0
-    funds?: number,             // Default 0
-    units?: UnitObject[],       // Default []; Constructor must convert to *this* team.
+  // Pre-deploy configurables.
+  powerMeter?: number,        // Default 0
+  funds?: number,             // Default 0
+  units?: UnitObject[],       // Default []; Constructor must convert to *this* team.
 };
 
+/** The player-data object for a participant in a game. */
 export class BoardPlayer {
-    map: Map;
-    faction: 'red' | 'blue' | 'yellow' | 'black'; // TODO What is the enum for this?
-    officer: OfficerObject;     // Reference to CO class, like Unit.??? or Terrain.???
-    powerMeter: Slider;         // How much power meter is charged.
-    funds: number;              // Funds available for spending.
-    occupiedCityCount: number;  // The count of fund-giving cities owned; probs obtained from Map.
-    units: UnitObject[] = [];   // List of units under control.
+  map: Map;
+  playerNumber: number;       // Which real player (slot) this player-object belongs to.
+  faction: Faction;           // The army-color owned by this player, more or less.
+  officer: CommandingOfficer; // Reference to CO class, like Unit.??? or Terrain.???
+  powerMeter: Slider;         // How much power meter is charged.
+  funds: number;              // Funds available for spending.
+  occupiedCityCount: number;  // The count of fund-giving cities owned; probs obtained from Map.
+  units: UnitObject[] = [];   // List of units under control.
 
-    constructor(options: BoardPlayerOptions) {
+  constructor(options: BoardPlayerOptions) {
+    this.map = options.map;
+    this.playerNumber = options.playerNumber;
+    this.faction = options.faction;
+    this.powerMeter = new Slider({max: 128}); // TODO COWindow uses 0-12, so convert or refactor.
+    this.funds = 0;
 
+    this.occupiedCityCount = 0; // TODO Gather from map iter.
 
-        // Use reference to map to count, or ask map to count.
-        this.occupiedCityCount = 0;
+    this.units = options.units || [];
 
-    }
+    this.officer = options.officerSerial; // TODO Convert to a new officer object.
+  }
 
-    private get HQ() {
-        return this.map.squareAt(this.headquartersLocation).terrain;
-    }
+  /**  */
+  destroy() {
+    // stub
+    // TODO unbind references to map and units and blah blah blah.
+    // Units will have a reference to this, probably, so this will be important.
+  }
 
-    /** Returns true if this player has lost this game. */
-    get defeated() {
-        const headquartersLost = (this.HQ.faction !== this.faction);
-        const armyDefeated = (this.armyDeployed && this.units.length === 0);
-        return headquartersLost || armyDefeated;
-    }
+  private get HQ() {
+    return this.map.squareAt(this.headquartersLocation).terrain;
+  }
 
-    /** Sets all owned units to orderable. */
-    activateAllUnits() {
-        this.units.forEach( (unit) => {
-            unit.orderable = true;
-        });
-    }
+  /** Returns true if this player has lost this game. */
+  get defeated() {
+    const headquartersLost = (this.HQ.faction !== this.faction);
+    const armyDefeated = (this.armyDeployed && this.units.length === 0);
+    return headquartersLost || armyDefeated;
+  }
 
-    /** Sets all owned units to unorderable. */
-    // TODO orderable=false and deactivated (not my turn) are different qualities.
-    deactivateAllUnits() {
-        this.units.forEach( (unit) => {
-            unit.orderable = false;
-        });
-    }
+  /** Sets all owned units to orderable. */
+  activateAllUnits() {
+    this.units.forEach((unit) => {
+      unit.orderable = true;
+    });
+  }
 
-    /** Raises this player's available funds by an amount multiplied by the
-     * number of owned cities. */
-    collectFunds() {
-        this.funds += this.occupiedCityCount * FUNDS_PER_CITY;
-    }
+  /** Sets all owned units to unorderable. */
+  // TODO orderable=false and deactivated (not my turn) are different qualities.
+  deactivateAllUnits() {
+    this.units.forEach((unit) => {
+      unit.orderable = false;
+    });
+  }
 
-    /** Subtracts funds from this player's bank. */
-    expendFunds(amt: number) {
-        this.funds -= amt;
-        this.funds = Math.max(this.funds, 0);
-    }
+  /** Raises this player's available funds by an amount multiplied by the
+   * number of owned cities. */
+  collectFunds() {
+    this.funds += this.occupiedCityCount * FUNDS_PER_CITY;
+  }
 
-    /**  */
-    increasePowerMeter(amt: number) {
-        // TODO Formula?
-    }
+  /** Subtracts funds from this player's bank. */
+  expendFunds(amt: number) {
+    this.funds -= amt;
+    this.funds = Math.max(this.funds, 0);
+  }
+
+  /**  */
+  increasePowerMeter(amt: number) {
+    // TODO Formula?
+  }
 }
