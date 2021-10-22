@@ -219,6 +219,14 @@ export const TerrainMethods = {
             l = (!neighbors.left.landTile && neighbors.left.type != Terrain.Beach)   ? 1 : l;
         }
 
+        // Patch fix for roads: Prefer fewer extensions for wrap-around roads
+        if (neighbors.center.type == Terrain.Road) {
+            l = (neighbors.downleft.type == Terrain.Road && neighbors.down.type == Terrain.Road) ? 0 : l;
+            l = (neighbors.upleft.type == Terrain.Road && neighbors.up.type == Terrain.Road) ? 0 : l;
+            r = (neighbors.downright.type == Terrain.Road && neighbors.down.type == Terrain.Road) ? 0 : r;
+            r = (neighbors.upright.type == Terrain.Road && neighbors.up.type == Terrain.Road) ? 0 : r;
+        }
+
         // Never extend to a void tile on purpose
         u = (neighbors.up.type == Terrain.Void) ? 0 : u;
         r = (neighbors.right.type == Terrain.Void) ? 0 : r;
