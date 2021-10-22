@@ -1,7 +1,7 @@
 import { UnitObject } from "./UnitObject";
 import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
-import { Point } from "../Common/Point";
+import { ImmutablePointPrimitive, Point } from "../Common/Point";
 import { CommandingOfficer } from "./CommandingOfficer";
 import { Faction, FactionColors } from "./EnumTypes";
 import { Terrain } from "./map/Terrain";
@@ -9,7 +9,7 @@ import { CommandingOfficerObject } from "./CommandingOfficerObject";
 
 /**  */
 export type UnitSpawnSettings = {
-  location: Point,
+  location: ImmutablePointPrimitive,
   serial: number,
   hp?: number,
   ammo?: number,

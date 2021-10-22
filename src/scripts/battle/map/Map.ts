@@ -17,11 +17,11 @@ import { TileInspector } from "./TileInspector";
 import { QueueSearch } from "../../Common/QueueSearch";
 import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 import { Unit } from '../Unit';
+import { MapData } from '../../../battle-maps/MapData';
 
 // TODO Temporary map data for map loading.
-import { data as o1_importMapData, MapData } from "../../../battle-maps/bean-island";
-import { data as o2_importMapData } from "../../../battle-maps/greyfield-strikes";
-import { data as importMapData } from "../../../battle-maps/lands-end";
+import { data as o1_mapData } from "../../../battle-maps/bean-island";
+import { data as o2_mapData } from "../../../battle-maps/greyfield-strikes";
 
 /** Error for map data could not validate. */
 export class MapValidationError extends Error {
@@ -52,20 +52,21 @@ export class Map {
     }
 
     /** 
-     * @param width The integer width of the board in tiles.
-     * @param height The integer height of the board in tiles.
+     * @param mapData The data object to construct the map from.
+     * @throws MapValidationError
      */
-    constructor(widthIgnore: number, heightIgnore: number) {
-        // TODO This constructor is deprecated; we movin' on yo.
+    constructor(mapData: MapData) {
+        // TODO Whenever I reimplement random map generation,
+        // some of these methods, like forceLegalTiles(), will
+        // need to be extracted.
 
         MapLayerFunctions.Init();
 
         // Pre-build check.
-        if (!this.validateMapData(importMapData))
-            throw new MapValidationError(`map '${importMapData.name}' did not validate.`);
-            // TODO This could simply fail and revert in the future.
+        if (!this.validateMapData(mapData))
+            throw new MapValidationError(`map '${mapData.name}' did not validate.`);
 
-        const { width, height } = importMapData.size;
+        const { width, height } = mapData.size;
         this.constructMap(width, height);
 
         let screenWidth = width * Game.display.standardLength;
@@ -73,8 +74,7 @@ export class Map {
 
         this.setupBoardMask(screenWidth, screenHeight);
         TerrainMethods.addSeaLayer(screenWidth, screenHeight);
-        this.buildMapContents(importMapData);
-        // this.generateMap();     // Randomly generates a pleasant-looking map.
+        this.buildMapContents(mapData);
         this.forceLegalTiles(); // Removes any illegal tiles which may have gotten in there somehow.
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
@@ -130,7 +130,8 @@ export class Map {
     }
 
     /** Generates a random map of terrain types (not objects).
-     * Implementation is a testing ground, don't get too hung up over the silliness of it. */
+     * Implementation is a testing ground, don't get too hung up over the silliness of it.
+     * // TODO Extract to some map generation service. */
     private generateMap() {
         // Build a map of tiles based on chance-percentage spawns.
         for (let x = 0; x < this.width; x++)
@@ -230,23 +231,23 @@ export class Map {
 
         // Change building terrain factions
         data.owners.forEach( owner => {
-            const { x, y, player } = owner;
-            const terrain = this.squareAt({x,y}).terrain;
+            const { location, player } = owner;
+            const terrain = this.squareAt(location).terrain;
             if (!terrain.building)
-                throw new Error(`Cannot set ownership of non-capturable terrain: ${terrain.name} at (${x},${y}) by map '${data.name}'`);
+                throw new Error(`Cannot set ownership of non-capturable terrain: ${terrain.name} at (${location.x},${location.y}) by map '${data.name}'`);
             terrain.faction = playerToFaction(player);
         });
 
         // Spawn Units
         data.predeploy.forEach( deployment => {
-            const { x, y, serial, player } = deployment;
+            const { location, serial, player } = deployment;
             const unitType = Object.values(Unit).find( type => type.serial === serial );
             if (!unitType)
                 throw new Error(`Unit serial '${serial}' does not exist.`);
             const unit = new unitType();
             unit.init({faction: playerToFaction(player)});
             unit.orderable = true;      // TODO Remove this so it may be set by the turn manager.
-            this.placeUnit(unit, new Point(x,y));
+            this.placeUnit(unit, new Point(location));
         });
     }
 

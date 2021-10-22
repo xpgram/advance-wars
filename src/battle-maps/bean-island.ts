@@ -1,11 +1,3 @@
-export type MapData = {
-  name: string,
-  players: number,
-  size: {width: number, height: number},
-  map: Array<Array<number>>,
-  owners: {x: number, y: number, player: number}[],
-  predeploy: {x: number, y: number, serial: number, player: number}[]
-}
 
 export const data = {
   "name": "Bean Island",

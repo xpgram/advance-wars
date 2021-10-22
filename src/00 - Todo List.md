@@ -1,5 +1,12 @@
 # Next Big Objectives
 
+- [ ] BattleSceneController - Comprehensive refactor, baby!
+  - [ ] Recieve map data (import for now)
+  - [ ] Create a new Map with map data.
+  - [ ] Setup Team objects with capture and spawn map data.
+  - [ ] Remove useless unit spawner, etc.
+  - [ ] Generally clean up around here; Mom says I have to pick up my toys.
+
 - [ ] Implement Team & CO classes
   This is related to map-from-json spawning. We're finally doing it, boys.
   - [x] Implement a team object.
@@ -11,12 +18,12 @@
   - [x] Read map data from some kind of object.
   - [ ] Read map data specifically from a json object (downloadable).
 
-- [ ] Refactor the tile overlay visual system.
+- [x] Refactor the tile overlay visual system.
   - [x] Add texture re-use mechanism.
   - [x] Refactor terrain systems to make use of this re-use mechanism.
   - [x] Confirm that it actually works.
     - [x] Spotlight shader is not working. Well, it is technically, but it isn't spotlighting for some reason.
-    - [x] System is not 'fast' (on my laptop2); not sure what the bottleneck is. Could just be ~28 shaders per semi-frame.
+    - [x] System is not 'fast' (on my laptop2); not sure what the bottleneck is. Could just be ~28 shaders per semi-frame. [oct-21-2021] Issue is Firefox specific, no idea why.
       - [x] Add a display setting for low-performance machines.
         - How? I don't have a settings screen or a pause menu yet.
     - [x] Texture Reuse system is broken on HQ (different building shapes).

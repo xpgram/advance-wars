@@ -15,6 +15,10 @@ import { ControlScript } from "../../ControlScript";
 import { CommandInstruction } from "./CommandInstruction";
 import { MenuWindow } from "../ui-windows/MenuWindow";
 
+import { data as mapData } from '../../../battle-maps/lands-end';
+import { BoardPlayer } from "../BoardPlayer";
+import { Faction } from "../EnumTypes";
+
 
 type BattleSceneOptions = {
     mapData: {
@@ -33,6 +37,11 @@ export class BattleSceneControllers {
     uiMenu: MenuWindow;
 
     trackCar: TrackCar;
+
+    turnstateCarryover = {
+        /** How much gas is expended during travel. */
+        travelCost: 0,      // TODO Assuming this value is being used, this should be how; refactor dependent systems.
+    }
 
     /** How much gas is expended during travel. */
     travelCost: number = 0;
@@ -53,33 +62,51 @@ export class BattleSceneControllers {
         //...
     }
 
-    // Brought from Battle Scene — Please refactor
-    unitsList: UnitObject[] = [];
+    /** List of players participating in this game. */
+    playerEntities: BoardPlayer[] = [];
 
     constructor(options: BattleSceneOptions) {
-        
-        // Instantiate
+        // The objective here is to build a complete battle scene given scenario options.
+        // Then it is to start the turn engine.
+
+        /* Instantiate */
         
         this.gamepad = new VirtualGamepad();
+        // TODO A gamepad proxy for whicher is current-player. Could it extend VirtualGamepad and simply change its
+        // state to whicher one it's currently listening to?
 
         // Setup Map
-        this.map = new Map(25,14);
-        this.mapCursor = new MapCursor(this.map, this.gamepad); // TODO A gamepad proxy for whichever is current-player
+        this.map = new Map(mapData);
+        this.mapCursor = new MapCursor(this.map, this.gamepad);
 
-        // TODO Since MapLayers are dependent on map being initialized, why aren't they properties of it?
-        // I think because MapLayers is globally accessible, but that probably isn't necessary; I can link
-        // it to units here, which I think are the only 'external' things that need it.
-        // Terrain objects need it, but they're in the map, it should be trivial to fix.
+        // Setup Players
+        for (let i = 0; i < mapData.players; i++) {
+            const boardPlayer = new BoardPlayer({
+                playerNumber: i,
+                faction: [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][i-1],
+                officerSerial: -2,
+                map: this.map,
+                capturePoints: mapData.owners
+                    .filter( captures => captures.player === i )
+                    .map( captures => new Point(captures.location) ),
+                unitSpawns: mapData.predeploy
+                    .filter( spawns => spawns.player === i ),
+                // powerMeter: gameSettings.startingPowerMeter  // when would I use this? Mid-turn reload, probably.
+                // funds: gameSettings.startingFunds,
+            });
+            this.playerEntities.push(boardPlayer);
+        }
 
         // Setup Camera
         this.camera = new Camera(Game.stage);
         
         let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
         MapLayer('top').filterArea = cameraView;
-        MapLayer('bottom').filterArea = cameraView;    // TODO Is this doing anything? It was meant to cull processing on filters, I believe.
+        MapLayer('bottom').filterArea = cameraView;
+        // TODO Is filterArea doing anything? It was meant to cull processing on filters, I believe.
+        // But, is it ever updated? Does it need to be? I don't know anything.
 
         // Setup UI Window System
-        // TODO This was a rushed, demo implementation. Clean it up.
         this.uiSystem = new InfoWindowSystem();
         this.uiSystem.gp = this.gamepad;
         this.uiSystem.map = this.map;
@@ -87,6 +114,7 @@ export class BattleSceneControllers {
         this.uiSystem.camera = this.camera;
         // this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
         this.uiSystem.inspectListenerCallback();    // IWS should do this itself in its constructor
+        // TODO This was a rushed, demo implementation. Clean it up.
 
         this.uiMenu = new MenuWindow(this.gamepad, MapLayer('ui'));
 
@@ -94,8 +122,7 @@ export class BattleSceneControllers {
         let backdrop = new PIXI.Sprite( Game.scene.resources['background'].texture );
         Game.backdrop.addChild(backdrop);
 
-        // Units demo
-        this.spawnRandomUnits();
+        // TODO Units collection method. The only real purpose, I think, is to check if they're all spent/destroyed/etc.
 
         // TODO This needs to be more formal, or maybe moved into InfoWindowSystem
         let updateUI = () => {
@@ -105,23 +132,19 @@ export class BattleSceneControllers {
         this.mapCursor.addListener(updateUI);
         // TODO InfoWindowSystem desperately needs a refactor
 
-        // trackCar demo
+        // TrackCar for faking inter-tile unit movement.
         this.trackCar = new TrackCar();
 
         // Apply z-sort correction to scene objects.
         MapLayerFunctions.SortLayer('top');
         MapLayer('ui').sortChildren();
 
-        // The objective here is to build a complete battle scene given scenario options.
-        // Then it is to start the turn engine.
-
-        // This has to be done here, btw: the initializer runs before the constructor,
-        // meaning this.gamepad only means something here.
+        // Setup control scripts
         this.scripts = {
             cameraZoom: new CameraZoom(this.gamepad, this.camera),
         }
 
-        // Add the script iterator to the ticker.
+        // Add the control script iterator to the ticker.
         Game.scene.ticker.add(this.updateControlScripts, this);
     }
 
@@ -167,17 +190,18 @@ export class BattleSceneControllers {
         }
     }
 
+    /** Returns a list of all UnitObjects on the board from all players. */
+    get allInPlayUnits(): UnitObject[] {
+        const unitLists = this.playerEntities.map( ple => ple.units);
+        if (unitLists)
+            return unitLists[0].concat(...unitLists.slice(1));
+        return [];
+    }
+
     /** For demo purposes. Deprecate this. */
     spawnRandomUnits() {
         // Since this method is still called, but I've broken the
         // unitsList, we're just gonna gather it from the map here.
-
-        for (let x = 0; x < this.map.width; x++)
-        for (let y = 0; y < this.map.height; y++) {
-            const square = this.map.squareAt({x,y});
-            if (square.unit)
-                this.unitsList.push(square.unit);
-        }
 
         return;
 
