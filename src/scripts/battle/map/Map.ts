@@ -215,40 +215,6 @@ export class Map {
                 throw new Error(`Terrain serial '${terrainSerial}' does not exist.`);
             this.squareAt(point).terrain = new terrainType();
         }
-
-        // TODO BoardPlayer should assume responsibility for capturing territories and spawning units.
-        // Pre-work is done, I just need to wire things up.
-
-        // TODO What passes the map data in to Map?
-        // There has to be a controller.
-        // Actually, what creates the Map anyway?
-        // That would be a good place to start.
-
-        // TODO Extract and expand this, maybe to the Faction file. Also, define Player as another enum?
-        function playerToFaction(player: number) {
-            return [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][player - 1];
-        }
-
-        // Change building terrain factions
-        data.owners.forEach( owner => {
-            const { location, player } = owner;
-            const terrain = this.squareAt(location).terrain;
-            if (!terrain.building)
-                throw new Error(`Cannot set ownership of non-capturable terrain: ${terrain.name} at (${location.x},${location.y}) by map '${data.name}'`);
-            terrain.faction = playerToFaction(player);
-        });
-
-        // Spawn Units
-        data.predeploy.forEach( deployment => {
-            const { location, serial, player } = deployment;
-            const unitType = Object.values(Unit).find( type => type.serial === serial );
-            if (!unitType)
-                throw new Error(`Unit serial '${serial}' does not exist.`);
-            const unit = new unitType();
-            unit.init({faction: playerToFaction(player)});
-            unit.orderable = true;      // TODO Remove this so it may be set by the turn manager.
-            this.placeUnit(unit, new Point(location));
-        });
     }
 
     /** Auto-generates the given terrain type into the map based on the chance modifiers given.
