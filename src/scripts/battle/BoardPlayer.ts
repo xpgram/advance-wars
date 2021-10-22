@@ -3,7 +3,14 @@ import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
 import { Point } from "../Common/Point";
 import { CommandingOfficer } from "./CommandingOfficer";
-import { Faction } from "./EnumTypes";
+import { Faction, FactionColors } from "./EnumTypes";
+import { Terrain } from "./map/Terrain";
+import { CommandingOfficerObject } from "./CommandingOfficerObject";
+
+/** There was a problem building a new BoardPlayer. */
+export class BoardPlayerConstructionError extends Error {
+  name = "BoardPlayerConstructionError";
+}
 
 // How many funds each city earns you at the start of each turn.
 // This value is temporary and should be configurable per match; should probably
@@ -23,63 +30,124 @@ type BoardPlayerOptions = {
   officerSerial: number,
   /** Reference to the board being played on. */
   map: Map,
-  /** Board location of player headquarters.
-   * Every point must be the location of an HQ tile unassumed by any other players. */
-  hqLocations: Point[],
+
+  /** Board location of all player-owned properties. Must include at least one HQ.
+   * All points listed must be neutral, cannot be owned by other players. */
+  capturePoints: Point[],
+
+  /** Board location and status information for all pre-deploy units. */
+  unitSpawns?: {location: Point, serial: number}[];
 
   // Pre-deploy configurables.
   powerMeter?: number,        // Default 0
   funds?: number,             // Default 0
-  units?: UnitObject[],       // Default []; Constructor must convert to *this* team.
 };
 
 /** The player-data object for a participant in a game. */
 export class BoardPlayer {
   map: Map;
-  playerNumber: number;       // Which real player (slot) this player-object belongs to.
-  faction: Faction;           // The army-color owned by this player, more or less.
-  officer: CommandingOfficer; // Reference to CO class, like Unit.??? or Terrain.???
-  hqLocations: Point[];       // Where this player's HQs are located.
-  powerMeter: Slider;         // How much power meter is charged.
-  funds: number;              // Funds available for spending.
-  occupiedCityCount: number;  // The count of fund-giving cities owned; probs obtained from Map.
-  units: UnitObject[] = [];   // List of units under control.
+  playerNumber: number;             // Which real player (slot) this player-object belongs to.
+  faction: Faction;                 // The army-color owned by this player, more or less.
+  officer: CommandingOfficerObject; // Reference to CO class, like Unit.??? or Terrain.???
+  capturePoints: Point[] = [];      // Where this player's properties are located.
+  powerMeter: Slider;               // How much power meter is charged.
+  funds: number;                    // Funds available for spending.
+  armyDeployed: boolean;            // Whether this player has had an army yet. Prevents match loss before unit purchase.
+  units: UnitObject[] = [];         // List of units under control.
 
   constructor(options: BoardPlayerOptions) {
     this.map = options.map;
     this.playerNumber = options.playerNumber;
     this.faction = options.faction;
     this.powerMeter = new Slider({max: 128}); // TODO COWindow uses 0-12, so convert or refactor.
-    this.funds = 0;
+    this.funds = options.funds || 0;
 
-    this.occupiedCityCount = 0; // TODO Gather from map iter.
+    // Validate player number.
+    if (false) // TODO stub
+      throw new BoardPlayerConstructionError(`Cannot set player number to ${this.playerNumber}: invalid link number.`);
 
-    this.units = options.units || [];
+    // Validate faction setting.
+    const validFactions = [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black];
+    if (!validFactions.includes(this.faction))
+      throw new BoardPlayerConstructionError(`Cannot set player-object faction to ${this.faction}: not a Faction color.`);
 
-    this.officer = options.officerSerial; // TODO Convert to a new officer object.
+    // Validate and set commanding officer object.
+    const COType = Object.values(CommandingOfficer).find( CO => CO.serial === options.officerSerial );
+    if (!COType)
+      throw new BoardPlayerConstructionError(`Cannot set commanding officer: CO serial ${options.officerSerial} not found.`);
+    this.officer = new COType();
 
-    this.hqLocations = options.hqLocations; // TODO Validate and set ownership.
+    // Validate and set ownership of property locations.
+    options.capturePoints.forEach( point => {
+      const terrain = this.map.squareAt(point).terrain;
+      if (terrain.faction !== Faction.None)
+        throw new BoardPlayerConstructionError(`Cannot set ownership of property already owned.\n${FactionColors[this.faction]} taking ownership of ${point.toString()} ${terrain.name} Tile owned by ${FactionColors[terrain.faction]}`);
+      terrain.faction = this.faction;
+    });
 
-    // TODO Convert buildings to this faction given a list of points. Map doesn't need to sully itself.
+    // Validate and spawn units.
+    if (options.unitSpawns) {
+      options.unitSpawns.forEach( spawnSettings => {
+        const { location, serial } = spawnSettings;
+        const square = this.map.squareAt(location);
+        const unitType = Object.values(Unit).find( u => u.serial === serial );
 
-    // TODO Spawn units given a list of points and states. Map doesn't need to sully itself.
+        if (!unitType)
+          throw new BoardPlayerConstructionError(`Could not spawn predeploy: Unit serial ${serial} not found.`);
+
+        const unit = new unitType();
+        unit.init({
+          faction: this.faction,
+          playerObject: this,     // TODO Unimplemented in UnitObject
+        });
+
+        if (!square.unit == null)
+          throw new BoardPlayerConstructionError(`Could not spawn predeploy: location ${location.toString()} already occupied.`);
+        if (!square.occupiable(unit))
+          throw new BoardPlayerConstructionError(`Could not spawn predeploy: location ${location.toString()} not occupiable.`);
+
+        this.map.placeUnit(unit, location);
+
+        // TODO HP, Ammo, Gas, etc.
+      });
+    }
+    this.armyDeployed = (this.units.length > 0);
   }
 
-  /**  */
+  /** Unbind references which may be circular. */
   destroy() {
-    // stub
-    // TODO unbind references to map and units and blah blah blah.
-    // Units will have a reference to this, probably, so this will be important.
+    //@ts-ignore
+    this.map = undefined;
+    //@ts-ignore
+    this.units.forEach( u => u.boardPlayer = undefined );
   }
 
-  private get HQ() {
-    return this.map.squareAt(this.headquartersLocation).terrain;
+  /** Returns a list of map Squares corresponding to this player's HQ locations. */
+  private get HQs() {
+    return this.capturePoints
+      .map( p => this.map.squareAt(p) )
+      .filter( s => s.terrain.type === Terrain.HQ );
+  }
+
+  /** The number of properties captured by this player. */
+  get propertyCount(): number {
+    return this.capturePoints.length;
+  }
+
+  /** The number of properties which generate income captured by this player. */
+  get fungiblePropertyCount(): number {
+    return this.capturePoints.filter( p => this.map.squareAt(p).terrain.generatesIncome ).length;
+  }
+
+  /** The number of deployed units owned by this player. */
+  get deployCount(): number {
+    return this.units.length;
   }
 
   /** Returns true if this player has lost this game. */
   get defeated() {
-    const headquartersLost = (this.HQ.faction !== this.faction);
-    const armyDefeated = (this.armyDeployed && this.units.length === 0);
+    const headquartersLost = (this.HQs.length === 0);
+    const armyDefeated = (this.armyDeployed && this.deployCount === 0);
     return headquartersLost || armyDefeated;
   }
 
@@ -101,7 +169,12 @@ export class BoardPlayer {
   /** Raises this player's available funds by an amount multiplied by the
    * number of owned cities. */
   collectFunds() {
-    this.funds += this.occupiedCityCount * FUNDS_PER_CITY;
+    this.funds += this.fungiblePropertyCount * FUNDS_PER_CITY;
+  }
+
+  /** Returns true if this player can afford the given cost. */
+  canAfford(cost: number) {
+    return (this.funds >= cost);
   }
 
   /** Subtracts funds from this player's bank. */
