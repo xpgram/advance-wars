@@ -19,8 +19,9 @@ import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 import { Unit } from '../Unit';
 
 // TODO Temporary map data for map loading.
-import { data as old_importMapData, MapData } from "../../../battle-maps/bean-island";
-import { data as importMapData } from "../../../battle-maps/greyfield-strikes";
+import { data as o1_importMapData, MapData } from "../../../battle-maps/bean-island";
+import { data as o2_importMapData } from "../../../battle-maps/greyfield-strikes";
+import { data as importMapData } from "../../../battle-maps/lands-end";
 
 /** Error for map data could not validate. */
 export class MapValidationError extends Error {

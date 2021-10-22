@@ -1,21 +1,22 @@
 # Next Big Objectives
 
 - [ ] Maps should be able to read from a serial string or probably a json object.
-  This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on. 
+  This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on.
 
 - [ ] Refactor the tile overlay visual system.
   - [x] Add texture re-use mechanism.
   - [x] Refactor terrain systems to make use of this re-use mechanism.
   - [x] Confirm that it actually works.
     - [x] Spotlight shader is not working. Well, it is technically, but it isn't spotlighting for some reason.
-    - [ ] System is not 'fast' (on my laptop2); not sure what the bottleneck is. Could just be ~28 shaders per semi-frame.
-      - [ ] Add a display setting for low-performance machines.
+    - [x] System is not 'fast' (on my laptop2); not sure what the bottleneck is. Could just be ~28 shaders per semi-frame.
+      - [x] Add a display setting for low-performance machines.
         - How? I don't have a settings screen or a pause menu yet.
     - [x] Texture Reuse system is broken on HQ (different building shapes).
       HQs, which I think are the only buildings like this, can override shapeId to give 'serial:shape:faction'
     - [x] Also broken on FireTiles, I think because the default shapeId is tileSerial + shapeSerial.
       In other words, we have way more 'standard' tiles than we need, which is one.
       - [ ] The solution I have (in TerrainObject.ts) doesn't have any protections against FireTile being the first 'std' tile considered.
+        - [ ] 'std' should probably be a special-built case.
       - [ ] FireTiles probably shouldn't show an overlay at all. 'std' looks weird on 'em. What is the source game's behavior? I'm pretty sure it displays red tiles over Plasma.
       - [x] The solution also doesn't consider Buildings, which are assumed to be 'std'; this is because I forgot about them.
       - [ ] Silos will need a new whitemask once they're used. Might be a while; I haven't implemented using Silos at all yet.
@@ -36,6 +37,9 @@
     Game-instance landmarking system. Events extend the initial board state through a kind of 'redo' application and the system occasionally updates this anchor point with a new, time-stamped snapshot contained here.
   EventsView returns accepted/rejected after input depending on whether the given action-Json a legal change of board state.  
   'Legal' here doesn't mean all that much; I'm not going to implement server-side distance, terrain and fuel checking because oh_ my_ god_ that would take forever.
+
+- [ ] The performance issues on my wlaptop have something to do with Firefox. Vivaldi (chrome based) runs it perfectly~; I'm quite proud, actually.
+- [ ] My wlaptop has strange tile displacement and overlay misalignment issues, as well as general blurriness issues among (most noticably) roads and bridges and such. I assume this has something to do with the laptop's resolution.
 
 - [ ] Game DB and Online Multiplayer
   - [ ] Game State DB System
