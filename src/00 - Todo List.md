@@ -1,7 +1,15 @@
 # Next Big Objectives
 
+- [ ] Implement Team & CO classes
+  This is related to map-from-json spawning. We're finally doing it, boys.
+  - [x] Implement a team object.
+  - [ ] Refactor systems to spawn and use this team object.
+  - [ ] Units should hold a reference to their team.
+
 - [ ] Maps should be able to read from a serial string or probably a json object.
   This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on.
+  - [x] Read map data from some kind of object.
+  - [ ] Read map data specifically from a json object (downloadable).
 
 - [ ] Refactor the tile overlay visual system.
   - [x] Add texture re-use mechanism.
@@ -80,7 +88,6 @@
   - [X] Unit.exhibit → Unit.infoPortrait
   - [ ] Terrain.landscape → Terrain.infoPortrait (consistency)
 
-- [ ] Implement Team & CO classes
 - [ ] TurnState: Start→Move→Anim→Command→Cancel→Start loses the player-drawn path
 - [ ] Clean up Window UI classes
 - [ ] Add "Unit Info" window switch-to-able with 'C' — all unit information is prepped now.
