@@ -25,7 +25,7 @@ type BoardPlayerOptions = {
   map: Map,
   /** Board location of player headquarters.
    * Every point must be the location of an HQ tile unassumed by any other players. */
-  hqLocation: Point[],
+  hqLocations: Point[],
 
   // Pre-deploy configurables.
   powerMeter?: number,        // Default 0
@@ -39,6 +39,7 @@ export class BoardPlayer {
   playerNumber: number;       // Which real player (slot) this player-object belongs to.
   faction: Faction;           // The army-color owned by this player, more or less.
   officer: CommandingOfficer; // Reference to CO class, like Unit.??? or Terrain.???
+  hqLocations: Point[];       // Where this player's HQs are located.
   powerMeter: Slider;         // How much power meter is charged.
   funds: number;              // Funds available for spending.
   occupiedCityCount: number;  // The count of fund-giving cities owned; probs obtained from Map.
@@ -56,6 +57,12 @@ export class BoardPlayer {
     this.units = options.units || [];
 
     this.officer = options.officerSerial; // TODO Convert to a new officer object.
+
+    this.hqLocations = options.hqLocations; // TODO Validate and set ownership.
+
+    // TODO Convert buildings to this faction given a list of points. Map doesn't need to sully itself.
+
+    // TODO Spawn units given a list of points and states. Map doesn't need to sully itself.
   }
 
   /**  */
