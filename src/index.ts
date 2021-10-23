@@ -80,10 +80,10 @@ class App {
         get standardLength(): number { return 16; },
 
         /** The width of the game's screen internally. */
-        get renderWidth(): number { return 320; },
+        get renderWidth(): number { return this.standardLength * 20; },
 
         /** The height of the game's screen internally. */
-        get renderHeight(): number { return 192; },
+        get renderHeight(): number { return this.standardLength * 12; },
 
         /** The real width of the game window in pixels. */
         get width(): number { return this.renderWidth * this.scale; },
