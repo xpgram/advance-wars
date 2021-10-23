@@ -7,6 +7,7 @@
   position: relative;
   overflow: hidden;
   width: 100%;    /* On Firefox, the game canvas doesn't take up the full width of the element? */
+  /* // TODO Max Height (window), forced aspect ratio */
   transition: box-shadow .3s ease;
 }
 
