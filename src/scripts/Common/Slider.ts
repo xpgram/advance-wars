@@ -11,6 +11,7 @@ export class Slider {
     readonly outputPrecision: number;               // The level of detail exhibited by the slider's output. By default, off, but otherwise used to round values to the nearest multiple.
     incrementFactor: number;        // How far and in which direction the slider should increment by default.
     looping: boolean;               // Whether incrementing past an end clamps or loops around to the other end.
+    maxInclusive: boolean;          // Whether loops should allow track==max or not.
     bouncing: boolean;              // Whether incrementing past an end should change the auto-increment direction.
 
     constructor( options: {
@@ -22,7 +23,8 @@ export class Slider {
                 outputPrecision?: number,
                 incrementFactor?: number,
                 looping?: boolean,
-                bouncing?: boolean
+                maxInclusive?: boolean,
+                bouncing?: boolean,
             } = {} ) {
 
         this.min = options.min || 0;
@@ -36,6 +38,7 @@ export class Slider {
         this.outputPrecision = Math.abs(options.outputPrecision || 0);  // By default, 0 off.
         this.incrementFactor = options.incrementFactor || 1;        // By default, single.
         this.looping = options.looping || false;
+        this.maxInclusive = options.maxInclusive || false;
         this.bouncing = options.bouncing || false;
 
         Debug.assert(this.min < this.max, `Slider was given conflicting min/max values: min=${this.min}, max=${this.max}`);
@@ -73,7 +76,7 @@ export class Slider {
 
         // Looping value block——do this before applying grain since min/max are not subject to it. (Shouldn't they be?)
         if (this.looping) {
-            let quotient = this._track / this.range;
+            let quotient = this.decimal();
             this._track = this.min + this.range * (quotient - Math.floor(quotient));
         }
         // Bouncing value block——bounce only off of hard limits; looping removes these hard limits.
@@ -86,6 +89,15 @@ export class Slider {
         this._track = Common.confine(this._track, this.min, this.max);// Limit range to slider min/max.
     }
 
+    /** The value of the slider's tracked position as a decimal normalized between 0 and 1. */
+    decimal() { return (this._track - this.min) / this.range; }
+
+    /** Set the track position via projection from a normalized value between 0 and 1. */
+    setDecimal(n: number) {
+        n = n * this.range + this.min;
+        this.track = n;
+    }
+
     /** Sets this slider's tracked position to its minimum value. */
     setToMin() {
         this._track = this.min;
@@ -96,7 +108,8 @@ export class Slider {
         this._track = this.max;
     }
 
-    /** Sets the track position to some ratio of its range within its boundaries. */
+    /** Sets the track position to some ratio of its range within its boundaries.
+     * @deprecated by setDecimal(), I think. */
     setByProportion(n: number) {
         this.track = n * this.range + this.min;
     }
