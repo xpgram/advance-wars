@@ -57,7 +57,7 @@ export class BattleSystemManager {
         //      etc.
 
         const firstState: NextState = {
-            state: CheckBoardState,
+            state: CheckBoardState,         // TODO This should be TurnStart or some other proper entry point.
             pre: () => {}
         }
 
