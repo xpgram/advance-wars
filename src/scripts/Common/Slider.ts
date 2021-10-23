@@ -76,8 +76,13 @@ export class Slider {
 
         // Looping value block——do this before applying grain since min/max are not subject to it. (Shouldn't they be?)
         if (this.looping) {
-            let quotient = this.decimal();
-            this._track = this.min + this.range * (quotient - Math.floor(quotient));
+            const quotient = this.decimal();
+            const loopRange = (this.maxInclusive) ? this.range + this.granularity : this.range;
+            this._track = this.min + loopRange * (quotient - Math.floor(quotient));
+
+            // TODO Inclusive max does not work and the whole thing is mega broken because I can't math.
+            // loopRange... *might* work. I was doing the same thing to this.range before, which is probably what fucked everything up.
+            // In any case, uugggghhhhh gooooood I have a headache.
         }
         // Bouncing value block——bounce only off of hard limits; looping removes these hard limits.
         else if (this.bouncing) {
