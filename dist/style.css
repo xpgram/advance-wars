@@ -6,8 +6,7 @@
 #gameframe { /* Specifically for any Pixi.js renderings */
   position: relative;
   overflow: hidden;
-  width: 90vw;        /* On Firefox, the game canvas doesn't take up the full width of the element? */
-  max-height: 90vh;   /* Or rather, the element isn't 'fit-content'? */
+  width: 100%;    /* On Firefox, the game canvas doesn't take up the full width of the element? */
   transition: box-shadow .3s ease;
 }
 

@@ -117,7 +117,7 @@ export class MoveCamera extends TurnState {
 
     /** Sets all units' transparency flag to the given value. */
     private setUnitTransparency(val: boolean) {
-        this.assets.unitsList.forEach( unit => {
+        this.assets.allInPlayUnits.forEach( unit => {
             unit.transparent = val;
         });
     }

@@ -21,10 +21,7 @@ import { Faction } from "../EnumTypes";
 
 
 type BattleSceneOptions = {
-    mapData: {
-        width: number,
-        height: number
-    }
+    // TODO scenario stuff
 }
 
 export class BattleSceneControllers {
@@ -83,7 +80,7 @@ export class BattleSceneControllers {
         for (let i = 0; i < mapData.players; i++) {
             const boardPlayer = new BoardPlayer({
                 playerNumber: i,
-                faction: [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][i-1],
+                faction: [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][i],
                 officerSerial: -2,
                 map: this.map,
                 capturePoints: mapData.owners

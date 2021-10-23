@@ -450,11 +450,11 @@ export class Map {
      * @param unit Unit object to be placed on the board.
      * @param pos The location on the map to modify.
      */
-    placeUnit(unit: UnitObject, pos: Point) {
+    placeUnit(unit: UnitObject, pos: ImmutablePointPrimitive) {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
         this.squareAt(pos).unit = unit;
-        unit.boardLocation = pos;
+        unit.boardLocation = new Point(pos);
     }
 
     /** Removes a Unit object on the map. Does not destroy it.

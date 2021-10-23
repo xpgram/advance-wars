@@ -31,7 +31,7 @@ export class CheckBoardState extends TurnState {
         }
 
         if (!oneOrderableUnit) {
-            this.assets.unitsList.forEach( unit => {
+            this.assets.allInPlayUnits.forEach( unit => {
                 unit.orderable = true;
             });
         }

@@ -6,6 +6,7 @@ import { CommandingOfficer } from "./CommandingOfficer";
 import { Faction, FactionColors } from "./EnumTypes";
 import { Terrain } from "./map/Terrain";
 import { CommandingOfficerObject } from "./CommandingOfficerObject";
+import { Unit } from "./Unit";
 
 /**  */
 export type UnitSpawnSettings = {
@@ -96,7 +97,7 @@ export class BoardPlayer {
     // Validate and set ownership of property locations.
     options.capturePoints.forEach( point => {
       const terrain = this.map.squareAt(point).terrain;
-      if (terrain.faction !== Faction.None)
+      if (terrain.faction !== Faction.None && terrain.faction !== Faction.Neutral)
         throw new BoardPlayerConstructionError(`Cannot set ownership of property already owned.\n${FactionColors[this.faction]} taking ownership of ${point.toString()} ${terrain.name} Tile owned by ${FactionColors[terrain.faction]}`);
       terrain.faction = this.faction;
     });
