@@ -251,10 +251,12 @@ export abstract class TerrainObject {
 
         // Texture generation
         const tex = Game.app.renderer.generateTexture(
-            container, 
-            PIXI.SCALE_MODES.NEAREST, 
-            1,
-            new PIXI.Rectangle(0,0,16,32)
+            container,
+            {
+                scaleMode: PIXI.SCALE_MODES.NEAREST,
+                // resolution: 1,
+                region: new PIXI.Rectangle(0,0,16,32),
+            }
         );
 
         // Save
