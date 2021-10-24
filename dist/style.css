@@ -6,8 +6,16 @@
 #gameframe { /* Specifically for any Pixi.js renderings */
   position: relative;
   overflow: hidden;
-  width: 100%;    /* On Firefox, the game canvas doesn't take up the full width of the element? */
-  /* // TODO Max Height (window), forced aspect ratio */
+  /* width: fit-content; */
+  /* TODO This div and the drawn Pixi stuff are _separate_ elements, or they behave as such.
+   * The behavior I want is to resize Pixi to something less than width or height, whichever is smaller.
+   * But, as much as possible *up to* that limit.
+   * The #gameframe, its width, should be as small as possible; it fits the content.
+   * This would allow for div centering or whatever else 100%-width divs can't do.
+   * These are contradictory behaviors. And that's why I'm having so much trouble figuring this out.
+   *
+   * In the mean time, Game's resize function was modified to set a height limit less than the window
+   * size, which is at least *better*. */
   transition: box-shadow .3s ease;
 }
 

@@ -98,10 +98,10 @@ export class BattleSceneControllers {
         this.camera = new Camera(Game.stage);
         
         let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
-        MapLayer('top').filterArea = cameraView;
         MapLayer('bottom').filterArea = cameraView;
-        // TODO Is filterArea doing anything? It was meant to cull processing on filters, I believe.
-        // But, is it ever updated? Does it need to be? I don't know anything.
+        // filterArea is limiting the range of the shoreline filter applied to bottom.
+        // It's also updated after window resize in BattleScene.update()
+        // filterArea is not a culling method; all of 'bottom' is drawn before the filter is applied.
 
         // Setup UI Window System
         this.uiSystem = new InfoWindowSystem();

@@ -6,6 +6,7 @@ import { Debug } from './scripts/DebugUtils';
 import { WorkOrderHandler } from './scripts/system/WorkOrderHandler';
 import { TextureLibrary } from './scripts/system/TextureLibrary';
 import { DevController } from './scripts/controls/DevController';
+import { Keys } from './scripts/controls/KeyboardObserver';
 
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
@@ -24,11 +25,29 @@ class App {
     readonly contextElement!: any;
 
     /** True if this app is being run in a development environment. */
-    private debugMode = process.env.NODE_ENV === 'development';
+    private readonly debugMode = process.env.NODE_ENV === 'development';
 
     /** A keyboard controller for debug controls.
      * Be careful not to overlap controls with any others set. */
     readonly devController = new DevController({enable: this.debugMode});
+
+    /** Scripts which  */
+    private readonly devControls = [
+        function toggleStageScaling() {
+            const dc = Game.devController;
+            if (dc.get(Keys.Shift).down && dc.get(Keys.iRow1).pressed) {
+                Game.devSettings.limitStageScaling = !Game.devSettings.limitStageScaling;
+                Game.display.resize(Game.app);
+            }
+        },
+    ];
+
+    /** Runs debug scripts when in debug mode. */
+    private developmentScripts() {
+        if (!this.debugMode)
+            return;
+        this.devControls.forEach( script => script() );
+    }
 
     /** A graphics-container for solid-panel images adding character to blank scenes. */
     readonly backdrop = new PIXI.Container();
@@ -74,6 +93,12 @@ class App {
     /** type {GameState} Reference to the game's current scene. */
     scene: Scene = this.gameScenes.blankScene;
 
+    /** Development settings container which affects various Game systems. */
+    readonly devSettings = {
+        /** Set to true to scale the view and stage separately, allowing you to see beyond the intended viewport. */
+        limitStageScaling: false,
+    }
+
     /** Object containing various display constants. */
     readonly display = {
         /** The standard measure of distance in pixels internally. */
@@ -97,11 +122,18 @@ class App {
         /** Callback function which resizes the canvas to the containing div element on window resize. */
         resize: function(app: PIXI.Application) {
             let parentNode = app.view.parentNode;
-            if (parentNode instanceof HTMLDivElement)                   // This is silly, but I get it.
-                this.scale = parentNode.clientWidth / this.renderWidth; // This works fine without the check, but TypeScript is whiny.
-            
+            if (parentNode instanceof HTMLDivElement) {
+                const wRatio = parentNode.offsetWidth / this.renderWidth;
+                // TODO This fixes the too-tall problem, but .9 shouldn't be ~here~.
+                const hRatio = window.innerHeight * .9 / this.renderHeight;
+                this.scale = Math.min(wRatio, hRatio);
+            }
+
+            // Scaling the stage less than the view allows the user to see beyond the render viewport.
+            const stageScaling = (Game.devSettings.limitStageScaling) ? this.scale * .65 : this.scale;
+
             app.renderer.resize(this.width, this.height);
-            app.stage.scale.x = app.stage.scale.y = this.scale;
+            app.stage.scale.x = app.stage.scale.y = stageScaling;
         }
     };
 
@@ -110,9 +142,9 @@ class App {
         width: this.display.width,
         height: this.display.height,
         backgroundColor: 0x1099bb,
-        resolution: window.devicePixelRatio || 1,   // Useful for mobile; measures screen pixel density.
-        //@ts-ignore
-        autoResize: true,                           // Allows resizing of the game window.
+        autoDensity: true,
+        // resolution: window.devicePixelRatio || 1,   // Useful for mobile; measures screen pixel density.
+        // resizeTo: document.querySelector('#gameframe'),
     });
 
     /** Game initializer. Adds canvas to given DOM element, and sets up the game loop. */
@@ -167,6 +199,7 @@ class App {
         if (this.scene.mustInitialize)
             this.scene.init();
         this.devController.update();
+        this.developmentScripts();
         this.scene.update(delta);
         this.workOrders.close();
         this.textureLibrary.flush();

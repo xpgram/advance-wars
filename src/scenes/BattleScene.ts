@@ -96,11 +96,10 @@ export class BattleScene extends Scene {
         // TODO Move this to Camera.update(), a function which should add itself to the scene's ticker.
         // Window resize: camera-view rectangle fix.
 
-        if (Game.display.width != MapLayer('top').filterArea.width
-            || Game.display.height != MapLayer('top').filterArea.height) {
+        if (Game.display.width != MapLayer('bottom').filterArea.width
+            || Game.display.height != MapLayer('bottom').filterArea.height) {
 
             let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
-            MapLayer('top').filterArea = cameraView;
             MapLayer('bottom').filterArea = cameraView;
         }
 
