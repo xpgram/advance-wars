@@ -22,29 +22,29 @@ import { Faction, TerrainTileSet, Weather, AIPlayStyle } from "../EnumTypes";
 
 export type BattleSceneOptions = {
     /** Whether tiles will be hidden unless inside the vision range of an allied unit. @default False */
-    fogOfWar: boolean,
+    fogOfWar?: boolean,
     /** Which weather conditions the battle will rage in. Weather has deleterious effects on units. @default Clear */
-    weather: Weather,
+    weather?: Weather,
     /** Which graphics set to use. I need Snow for Olaf, but otherwise I don't actually care about this one. @default Normal */
-    terrainGraphics: TerrainTileSet,
+    terrainGraphics?: TerrainTileSet,
     /** How many days (turns) the battle will go on for before it is decided by player
      * standing. Set to < 1 for infinite. @default -1 */
-    dayLimit: number,
+    dayLimit?: number,
     /** Funds granted to each player on their first turn. @default 0 */
-    startingFunds: number,
+    startingFunds?: number,
     /** Funds granted per fungible captured property on turn start. @default 1000 */
-    incomePerFungible: number,
+    incomePerFungible?: number,
     /** AI play style: aggressive, defensive, balanced, etc. @default Balanced */
     // aiPlaystyle: AIPlayStyle,
     /** Whether units get more powerful/experienced after defeating another unit. @default True */
-    rankUp: boolean,
+    rankUp?: boolean,
 
     /** Whether an HQ tile remains an HQ on capture or becomes a City tile. @default False */
-    acquireHqOnCapture: boolean,
+    acquireHqOnCapture?: boolean,
     /** The maximum number of deployed units a player may have on the board. @default 50 */
-    unitLimit: number,
+    unitLimit?: number,
     /** How much HP a unit will restore when starting a turn on a repairing tile. @default 20 */
-    repairHp: number,
+    repairHp?: number,
 }
 
 export class BattleSceneControllers {
