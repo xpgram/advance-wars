@@ -58,14 +58,6 @@ export class BattleSceneControllers {
 
     trackCar: TrackCar;
 
-    turnstateCarryover = {
-        /** How much gas is expended during travel. */
-        travelCost: 0,      // TODO Assuming this value is being used, this should be how; refactor dependent systems.
-    }
-
-    /** How much gas is expended during travel. */
-    travelCost: number = 0;
-
     /** A container for an instruction to be given to some location on the game board. */
     instruction: CommandInstruction = {
         place: null,
