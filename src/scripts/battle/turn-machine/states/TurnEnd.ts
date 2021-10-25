@@ -16,7 +16,7 @@ export class TurnEnd extends TurnState {
 
     configureScene() {
         console.log(`TurnEnd: resetting all team units.`);
-        this.assets.turnPlayer.units.forEach( u => {
+        this.assets.players.current.units.forEach( u => {
             u.spent = false;
             u.orderable = false;
         });

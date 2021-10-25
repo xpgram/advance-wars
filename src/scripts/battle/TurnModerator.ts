@@ -1,29 +1,27 @@
 import { Slider } from "../Common/Slider";
 import { BoardPlayer } from "./BoardPlayer";
 
-/** Keeps track of the current turn-player and the turn-taking order. */
+/** Keeps track of the current turn-player and the turn-taking order.
+ * Useful as a current-player proxy for scripts and objects which need to know. * */
 export class TurnModerator {
 
-    readonly teams: BoardPlayer[] = [];    // List of players
-    currentIdx: Slider;                 // Turn-player index
+    private readonly players: BoardPlayer[];
+    private currentIdx: Slider;
 
-    constructor() {
-        this.teams = [
-            new BoardPlayer({}),     // TODO This is temporary.
-            new BoardPlayer({}),     // Should probably get details or at least player count passed in.
-        ];                      // Also, what about pre-deploy?
+    constructor(players: BoardPlayer[]) {
+        this.players = players;
         this.currentIdx = new Slider({
-            max: this.teams.length,
+            max: this.players.length,
             granularity: 1,
             looping: true,
         });
     }
 
-    get currentTeam() {
-        return this.teams[this.currentIdx.output];
+    get current() {
+        return this.players[this.currentIdx.output];
     }
 
-    changeToNext() {
+    increment() {
         this.currentIdx.increment();
     }
 }

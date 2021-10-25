@@ -20,6 +20,8 @@ import { MapData } from "../../../battle-maps/MapData";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
 import { Slider } from "../../Common/Slider";
+import { NextOrderableUnit } from "../control-scripts/nextOrderableUnit";
+import { TurnModerator } from "../TurnModerator";
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -106,26 +108,14 @@ export class BattleSceneControllers {
     /** A collection of scripts which, when enabled, control various systems of the battlefield. */
     scripts: {
         cameraZoom: CameraZoom,
+        nextOrderableUnit: NextOrderableUnit,
         //...
     }
 
     // TODO I think I want to extract turn management to a class object.
 
-    /** List of players participating in this game. */
-    playerEntities: BoardPlayer[] = [];
-
-    /** The index of the current turn player. */
-    private turnPlayerIndexSlider: Slider;
-
-    /** Returns the BoardPlayer object corrosponding to whose turn it is. */
-    get turnPlayer(): BoardPlayer {
-        return this.playerEntities[this.turnPlayerIndexSlider.output];
-    }
-
-    /** Changes the turn player to the next in turn sequence. */
-    incrementTurnPlayer(): void {
-        this.turnPlayerIndexSlider.increment();
-    }
+    /** Keeps track of players, turn order and current turn player. */
+    players: TurnModerator;
 
     constructor(mapdata: MapData, options?: ScenarioOptions) {
         // The objective here is to build a complete battle scene given scenario options.
@@ -144,6 +134,7 @@ export class BattleSceneControllers {
         this.mapCursor = new MapCursor(this.map, this.gamepad);
 
         // Setup Players
+        const playerObjects = [];
         for (let i = 0; i < mapLandsEnd.players; i++) {
             const boardPlayer = new BoardPlayer({
                 playerNumber: i,
@@ -158,14 +149,9 @@ export class BattleSceneControllers {
                 // powerMeter: gameSettings.startingPowerMeter  // when would I use this? Mid-turn reload, probably.
                 // funds: gameSettings.startingFunds,
             });
-            this.playerEntities.push(boardPlayer);
+            playerObjects.push(boardPlayer);
         }
-
-        this.turnPlayerIndexSlider = new Slider({
-            max: this.playerEntities.length,
-            granularity: 1,
-            looping: true,
-        });
+        this.players = new TurnModerator(playerObjects);
 
         // Setup Camera
         this.camera = new Camera(Game.stage);
@@ -212,6 +198,7 @@ export class BattleSceneControllers {
         // Setup control scripts
         this.scripts = {
             cameraZoom: new CameraZoom(this.gamepad, this.camera),
+            nextOrderableUnit: new NextOrderableUnit(this.gamepad, this.map, this.mapCursor, this.turnModerator),
         }
 
         // Add the control script iterator to the ticker.

@@ -1,7 +1,14 @@
 # Next Big Objectives
 
-- [ ] Add a new control script: L to next orderable unit
+- [ ] Refactor controls to
+  - Left/Right Bumper: Prev/Next available unit
+  - Left/Right Trigger: Info/Player UI Panel
+
+- [x] Add a new control script: L to next orderable unit
   For my own personal convenience.
+  - [ ] Confirm that it works; pretty sure it's broken right now.
+    - Check turn states for references to assets.players
+    - There is some initialization issue between CheckBoard and OrderStart.
 
 - [x] Keys has some issue where Ctrl literally *is* iRow1 and Shift literally *is* iRow0; has to be a bit-flagging issue. I made the wrong assumptions about JS numbers once, that honestly could be it. 64-bit vs 32-bit I think it was.
 

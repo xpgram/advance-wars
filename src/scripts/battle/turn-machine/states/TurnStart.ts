@@ -15,7 +15,7 @@ export class TurnStart extends TurnState {
     }
 
     configureScene() {
-        this.assets.turnPlayer.units.forEach( u => u.orderable = true );
+        this.assets.players.current.units.forEach( u => u.orderable = true );
         this.advanceToState(this.advanceStates.checkBoardState);
     }
 
