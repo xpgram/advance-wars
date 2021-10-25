@@ -189,11 +189,12 @@ export class BoardPlayer {
     // TODO This
   }
 
-  /** Performs clerical work after a unit has been 'killed'. */
-  unspawnUnit(unit: UnitObject) {
+  /** Performs clerical work after a unit has been 'killed'.
+   * Note: This method *does not* destroy() the called unit. */
+  unspawnUnit(unit: UnitObject): UnitObject {
     this.units = this.units.filter( u => u !== unit );
     this.map.removeUnit(unit.boardLocation);
-    unit.destroy();
+    return unit;
   }
 
   /** Updates this BoardPlayer's list of captured properties by scanning

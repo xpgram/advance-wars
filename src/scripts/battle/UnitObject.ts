@@ -86,7 +86,7 @@ export abstract class UnitObject {
     });
 
     /** Reference to the team object this unit is a member of. */
-    private boardPlayer: BoardPlayer | null = null;
+    private boardPlayer!: BoardPlayer;
 
     /** A 32-bit number representing all of the Unit's volatile information. */
     private conditionInfo = 0;
@@ -227,12 +227,12 @@ export abstract class UnitObject {
     constructor() { }
 
     /** Must be called before use. Builds unit graphics, configures important stats. */
-    init(options: {boardPlayer?: BoardPlayer, faction: Faction}) {
+    init(options: {boardPlayer: BoardPlayer, faction: Faction}) {
         let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
         // TODO If spritesheet is undefined... what happens?
 
         // Team Object
-        this.boardPlayer = options.boardPlayer || null;
+        this.boardPlayer = options.boardPlayer;
 
         // Allied Faction
         if ([Faction.None, Faction.Neutral].includes(options.faction))
@@ -293,6 +293,7 @@ export abstract class UnitObject {
 
     /* TODO Not yet implemented. */
     destroy() { 
+        this.boardPlayer.unspawnUnit(this);
         //@ts-expect-error
         this.boardPlayer = undefined;
         this.sprite.destroy({children: true});
