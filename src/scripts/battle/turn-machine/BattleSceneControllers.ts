@@ -14,13 +14,14 @@ import { StringDictionary } from "../../CommonTypes";
 import { ControlScript } from "../../ControlScript";
 import { CommandInstruction } from "./CommandInstruction";
 import { MenuWindow } from "../ui-windows/MenuWindow";
-
-import { data as mapData } from '../../../battle-maps/lands-end';
 import { BoardPlayer } from "../BoardPlayer";
 import { Faction, TerrainTileSet, Weather, AIPlayStyle } from "../EnumTypes";
+import { MapData } from "../../../battle-maps/MapData";
 
+import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
 
-export type BattleSceneOptions = {
+/** Scenario options for constructing the battle scene. */
+export type ScenarioOptions = {
     /** Whether tiles will be hidden unless inside the vision range of an allied unit. @default False */
     fogOfWar?: boolean,
     /** Which weather conditions the battle will rage in. Weather has deleterious effects on units. @default Clear */
@@ -35,7 +36,7 @@ export type BattleSceneOptions = {
     /** Funds granted per fungible captured property on turn start. @default 1000 */
     incomePerFungible?: number,
     /** AI play style: aggressive, defensive, balanced, etc. @default Balanced */
-    // aiPlaystyle: AIPlayStyle,
+    // aiPlaystyle?: AIPlayStyle,
     /** Whether units get more powerful/experienced after defeating another unit. @default True */
     rankUp?: boolean,
 
@@ -47,7 +48,40 @@ export type BattleSceneOptions = {
     repairHp?: number,
 }
 
+/** Settings for the game. */
+export type Scenario = {
+    fogOfWar: boolean,
+    weather: Weather,
+    terrainGraphics: TerrainTileSet,
+    dayLimit: number,
+    startingFunds: number,
+    incomePerFungible: number,
+    // aiPlaystyle: AIPlayStyle,
+    rankUp: boolean,
+
+    acquireHqOnCapture: boolean,
+    unitLimit: number,
+    repairHp: number,
+}
+
+const Default_Scenario: Scenario = {
+    fogOfWar: false,
+    weather: Weather.Clear,
+    terrainGraphics: TerrainTileSet.Normal,
+    dayLimit: -1,
+    startingFunds: 0,
+    incomePerFungible: 1000,
+    // aiPlaystyle: AIPlayStyle.Balanced,
+    rankUp: true,
+
+    acquireHqOnCapture: false,
+    unitLimit: 50,
+    repairHp: 20,
+}
+
 export class BattleSceneControllers {
+
+    scenario: Scenario;
 
     gamepad: VirtualGamepad;
     camera: Camera;
@@ -77,10 +111,12 @@ export class BattleSceneControllers {
     /** List of players participating in this game. */
     playerEntities: BoardPlayer[] = [];
 
-    constructor(options: BattleSceneOptions) {
+    constructor(mapdata: MapData, options: ScenarioOptions) {
         // The objective here is to build a complete battle scene given scenario options.
         // Then it is to start the turn engine.
 
+        this.scenario = {...Default_Scenario, ...options};
+        
         /* Instantiate */
         
         this.gamepad = new VirtualGamepad();
@@ -88,20 +124,20 @@ export class BattleSceneControllers {
         // state to whicher one it's currently listening to?
 
         // Setup Map
-        this.map = new Map(mapData);
+        this.map = new Map(mapLandsEnd);
         this.mapCursor = new MapCursor(this.map, this.gamepad);
 
         // Setup Players
-        for (let i = 0; i < mapData.players; i++) {
+        for (let i = 0; i < mapLandsEnd.players; i++) {
             const boardPlayer = new BoardPlayer({
                 playerNumber: i,
                 faction: [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][i],
                 officerSerial: -2,
                 map: this.map,
-                capturePoints: mapData.owners
+                capturePoints: mapLandsEnd.owners
                     .filter( captures => captures.player === i )
                     .map( captures => new Point(captures.location) ),
-                unitSpawns: mapData.predeploy
+                unitSpawns: mapLandsEnd.predeploy
                     .filter( spawns => spawns.player === i ),
                 // powerMeter: gameSettings.startingPowerMeter  // when would I use this? Mid-turn reload, probably.
                 // funds: gameSettings.startingFunds,
