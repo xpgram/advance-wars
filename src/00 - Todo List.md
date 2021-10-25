@@ -9,11 +9,11 @@
   - [x] Remove useless unit spawner, etc.
   - [ ] Generally clean up around here; Mom says I have to pick up my toys.
 
-- [ ] Implement Team & CO classes
+- [x] Implement Team & CO classes
   This is related to map-from-json spawning. We're finally doing it, boys.
   - [x] Implement a team object.
   - [x] Refactor systems to spawn and use this team object.
-  - [ ] Units should hold a reference to their team.
+  - [x] Units should hold a reference to their team.
 
 - [ ] Maps should be able to read from a serial string or probably a json object.
   This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on.
