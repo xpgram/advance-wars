@@ -10,6 +10,11 @@ import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
 import { PointPrimitive, Point } from "../Common/Point";
 import { CommonRangesRetriever, RegionMap } from "./unit-actions/RegionMap";
+import { BoardPlayer } from "./BoardPlayer";
+
+export class UnitConstructionError extends Error {
+    name = "UnitConstructionError";
+}
 
 /** An uninstantiated Unit class type. */
 export interface UnitType {
@@ -50,7 +55,7 @@ const rankLimit = 3;
  * Unit simply asks its UnitType what the number should be and passes it along.
  * 
  * For fun, and because Advance Wars itself does this, I have packed all or most of its
- * vital information into one 64-bit value to save memory. This actually saves a lot of space.
+ * vital information into one 32-bit value to save memory. This actually saves a lot of space.
  * 
  * This class holds most of the gameplay methods,
  * extenders add constants and sprite info.
@@ -80,9 +85,10 @@ export abstract class UnitObject {
         granularity: .35     // About 3 frames between min and max.
     });
 
-    // TODO private team!: Army;
+    /** Reference to the team object this unit is a member of. */
+    private boardPlayer: BoardPlayer;
 
-    /** A 64-bit number representing all of the Unit's volatile information. */
+    /** A 32-bit number representing all of the Unit's volatile information. */
     private conditionInfo = 0;
     private stateInfo = 0;      // TODO Come up with good names for these
 
@@ -226,7 +232,8 @@ export abstract class UnitObject {
         let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
         // TODO If spritesheet is undefined... what happens?
 
-        // TODO Faction.None and Faction.Neutral will break shit.
+        if ([Faction.None, Faction.Neutral].includes(options.faction))
+            throw new UnitConstructionError(`Cannot ally deployed unit with faction ${FactionColors[options.faction]}`);
         this.faction = options.faction;
 
         // Pick the right idle animation
@@ -275,7 +282,7 @@ export abstract class UnitObject {
         Game.scene.ticker.add(this.update, this);
     }
 
-    /** Loads unit info (a 64-bit number) into this unit object. */
+    /** Loads unit info (a 32-bit number) into this unit object. */
     load(stateInfo: number, conditionInfo: number) {
         this.stateInfo = stateInfo;
         this.conditionInfo = conditionInfo;
@@ -283,6 +290,8 @@ export abstract class UnitObject {
 
     /* TODO Not yet implemented. */
     destroy() { 
+        //@ts-expect-error
+        this.boardPlayer = undefined;
         this.sprite.destroy({children: true});
         this.uiBox.destroy({children: true});
         Game.scene.ticker.remove(this.update, this);
