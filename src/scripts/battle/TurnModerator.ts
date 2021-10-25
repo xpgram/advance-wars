@@ -17,6 +17,10 @@ export class TurnModerator {
         });
     }
 
+    get all() {
+        return this.players;
+    }
+
     get current() {
         return this.players[this.currentIdx.output];
     }

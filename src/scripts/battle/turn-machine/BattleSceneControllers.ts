@@ -198,7 +198,7 @@ export class BattleSceneControllers {
         // Setup control scripts
         this.scripts = {
             cameraZoom: new CameraZoom(this.gamepad, this.camera),
-            nextOrderableUnit: new NextOrderableUnit(this.gamepad, this.map, this.mapCursor, this.turnModerator),
+            nextOrderableUnit: new NextOrderableUnit(this.gamepad, this.map, this.mapCursor, this.players),
         }
 
         // Add the control script iterator to the ticker.
@@ -249,7 +249,7 @@ export class BattleSceneControllers {
 
     /** Returns a list of all UnitObjects on the board from all players. */
     get allInPlayUnits(): UnitObject[] {
-        const unitLists = this.playerEntities.map( ple => ple.units);
+        const unitLists = this.players.all.map( ple => ple.units);
         if (unitLists)
             return unitLists[0].concat(...unitLists.slice(1));
         return [];
