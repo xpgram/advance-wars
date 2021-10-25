@@ -293,7 +293,9 @@ export abstract class UnitObject {
 
     /* TODO Not yet implemented. */
     destroy() { 
+        this.boardPlayer.map.removeUnit(this.boardLocation);
         this.boardPlayer.unspawnUnit(this);
+        
         //@ts-expect-error
         this.boardPlayer = undefined;
         this.sprite.destroy({children: true});
