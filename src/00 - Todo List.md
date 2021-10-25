@@ -1,5 +1,7 @@
 # Next Big Objectives
 
+- [ ] Keys has some issue where Ctrl literally *is* iRow1 and Shift literally *is* iRow0; has to be a bit-flagging issue. I made the wrong assumptions about JS numbers once, that honestly could be it. 64-bit vs 32-bit I think it was.
+
 - [ ] BattleSceneController - Comprehensive refactor, baby!
   - [ ] Recieve map data (import for now)
   - [ ] Create a new Map with map data.
