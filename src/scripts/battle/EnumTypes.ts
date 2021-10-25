@@ -8,7 +8,7 @@ export enum MoveType {
     Tread,
     Air,
     Ship,
-    Transport
+    Transport,
 }
 
 /** The various armor classes 'worn' by units and attackable by others.
@@ -19,14 +19,14 @@ export enum ArmorType {
     Air,
     Heli,
     Ship,
-    Sub
+    Sub,
 }
 
 /** Used to describe a unit's method of attack: which of their two weapons they'll be using. */
 export enum AttackMethod {
     None,
     Primary,
-    Secondary
+    Secondary,
 }
 
 /** The various kinds of units one might be. Useful for targeting broad unit-types, like which kind cities will repair. */
@@ -34,7 +34,7 @@ export enum UnitClass {
     None,
     Ground,
     Naval,
-    Air
+    Air,
 }
 
 /** The various team factions a unit or building might belong to. */
@@ -44,15 +44,38 @@ export enum Faction {
     Red,    // 12th Battalion
     Blue,   // Lazurian Army
     Yellow, // New Rubinelle Army / NRA
-    Black   // Intelligence Defense Systems / IDS
+    Black,  // Intelligence Defense Systems / IDS
 }
 
 /** The various team factions a unit or building might belong to (as a string.) */
-export var FactionColors = [
+export const FactionColors = [
     'white',
     'white',
     'red',
     'blue',
     'yellow',
-    'black'
-];
+    'black',
+]
+
+/** The terrain tileset to use for visually constructing maps. */
+export enum TerrainTileSet {
+    Normal,
+    Snow,
+    Ruin,
+    Desert,
+}
+
+/** The weather conditions a battle might be subjected to. */
+export enum Weather {
+    Clear,
+    Snow,
+    Sandstorm,
+    FogOfWar,
+}
+
+/** Indicates which global priority set an AI will exhibit. */
+export enum AIPlayStyle {
+    Balanced,
+    Aggressive,
+    Defensive,
+}
