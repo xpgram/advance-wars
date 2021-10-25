@@ -111,12 +111,12 @@ export class BattleSceneControllers {
     /** List of players participating in this game. */
     playerEntities: BoardPlayer[] = [];
 
-    constructor(mapdata: MapData, options: ScenarioOptions) {
+    constructor(mapdata: MapData, options?: ScenarioOptions) {
         // The objective here is to build a complete battle scene given scenario options.
         // Then it is to start the turn engine.
 
         this.scenario = {...Default_Scenario, ...options};
-        
+
         /* Instantiate */
         
         this.gamepad = new VirtualGamepad();
