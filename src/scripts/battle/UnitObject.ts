@@ -86,7 +86,7 @@ export abstract class UnitObject {
     });
 
     /** Reference to the team object this unit is a member of. */
-    private boardPlayer: BoardPlayer;
+    private boardPlayer: BoardPlayer | null = null;
 
     /** A 32-bit number representing all of the Unit's volatile information. */
     private conditionInfo = 0;
@@ -226,12 +226,15 @@ export abstract class UnitObject {
     /* Left blank so that units can be instantiated as reference material without building expensive graphic objects, etc. */
     constructor() { }
 
-    // TODO init(team: Army)
     /** Must be called before use. Builds unit graphics, configures important stats. */
-    init(options: {faction: Faction}) {
+    init(options: {boardPlayer?: BoardPlayer, faction: Faction}) {
         let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
         // TODO If spritesheet is undefined... what happens?
 
+        // Team Object
+        this.boardPlayer = options.boardPlayer || null;
+
+        // Allied Faction
         if ([Faction.None, Faction.Neutral].includes(options.faction))
             throw new UnitConstructionError(`Cannot ally deployed unit with faction ${FactionColors[options.faction]}`);
         this.faction = options.faction;
