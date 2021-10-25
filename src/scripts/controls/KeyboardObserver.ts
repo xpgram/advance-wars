@@ -2,14 +2,16 @@ import { Common } from "../CommonUtils";
 import { NumericDictionary, StringDictionary } from "../CommonTypes";
 import { Game } from "../..";
 
-// Keeps track of all keycode pressed/unpressed boolean states in four 64-bit numbers.
+const JS_NUMBER_BITS = 32;
+const KEYCODE_BIT_FLAGS = 256;
+
+// Keeps track of all keycode pressed/unpressed boolean states in so many 32-bit numbers.
 // Keycodes are not different, this script is a convenient proxy between the browser and the game.
-const keypressMatrix: NumericDictionary<number> = {
-    0: 0,   // 0 to 63
-    1: 0,   // 64 to 127
-    2: 0,   // 128 to 191
-    3: 0    // 161 to 255
+const keypressMatrix: NumericDictionary<number> = {};
+for (let i = 0; (i*JS_NUMBER_BITS) < KEYCODE_BIT_FLAGS; i++) {
+    keypressMatrix[i] = 0;
 }
+
 
 // Returns true if the keyboard event should be ignored.
 function refuseListen(event: KeyboardEvent): boolean {
@@ -24,8 +26,8 @@ window.addEventListener('keydown', (event) => {
         return;
 
     let key = event.keyCode;
-    let keyset = Math.floor(key / 64);
-    let keyindex = key % 64;
+    let keyset = Math.floor(key / JS_NUMBER_BITS);
+    let keyindex = key % JS_NUMBER_BITS;
     keypressMatrix[keyset] = Common.writeBits(keypressMatrix[keyset], 1, 1, keyindex);
     event.preventDefault();
 });
@@ -36,8 +38,8 @@ window.addEventListener('keyup', (event) => {
         return;
 
     let key = event.keyCode;
-    let keyset = Math.floor(key / 64);
-    let keyindex = key % 64;
+    let keyset = Math.floor(key / JS_NUMBER_BITS);
+    let keyindex = key % JS_NUMBER_BITS;
     keypressMatrix[keyset] = Common.writeBits(keypressMatrix[keyset], 0, 1, keyindex);
     event.preventDefault();
 });
@@ -46,8 +48,8 @@ window.addEventListener('keyup', (event) => {
 export const KeyboardObserver = {
     /** Given a keycode, returns true if that key is down. */
     keyDown: (keycode: number): boolean => {
-        let keyset = Math.floor(keycode / 64);
-        let keyindex = keycode % 64;
+        let keyset = Math.floor(keycode / JS_NUMBER_BITS);
+        let keyindex = keycode % JS_NUMBER_BITS;
         let n = Common.readBits(keypressMatrix[keyset], 1, keyindex);
         return (n == 1);
     },
