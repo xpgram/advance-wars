@@ -1,18 +1,18 @@
 # Next Big Objectives
 
-- [ ] Keys has some issue where Ctrl literally *is* iRow1 and Shift literally *is* iRow0; has to be a bit-flagging issue. I made the wrong assumptions about JS numbers once, that honestly could be it. 64-bit vs 32-bit I think it was.
+- [x] Keys has some issue where Ctrl literally *is* iRow1 and Shift literally *is* iRow0; has to be a bit-flagging issue. I made the wrong assumptions about JS numbers once, that honestly could be it. 64-bit vs 32-bit I think it was.
 
 - [ ] BattleSceneController - Comprehensive refactor, baby!
-  - [ ] Recieve map data (import for now)
-  - [ ] Create a new Map with map data.
-  - [ ] Setup Team objects with capture and spawn map data.
-  - [ ] Remove useless unit spawner, etc.
+  - [x] Recieve map data (import for now)
+  - [x] Create a new Map with map data.
+  - [x] Setup Team objects with capture and spawn map data.
+  - [x] Remove useless unit spawner, etc.
   - [ ] Generally clean up around here; Mom says I have to pick up my toys.
 
 - [ ] Implement Team & CO classes
   This is related to map-from-json spawning. We're finally doing it, boys.
   - [x] Implement a team object.
-  - [ ] Refactor systems to spawn and use this team object.
+  - [x] Refactor systems to spawn and use this team object.
   - [ ] Units should hold a reference to their team.
 
 - [ ] Maps should be able to read from a serial string or probably a json object.
