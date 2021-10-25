@@ -15,8 +15,11 @@ export class TurnEnd extends TurnState {
     }
 
     configureScene() {
-        this.assets.turnPlayer.units.forEach( u => u.orderable = false );
-        // TODO Unset color? Orderable and spent are different things.
+        console.log(`TurnEnd: resetting all team units.`);
+        this.assets.turnPlayer.units.forEach( u => {
+            u.spent = false;
+            u.orderable = false;
+        });
         this.advanceToState(this.advanceStates.turnChange);
     }
 

@@ -19,18 +19,8 @@ export class CheckBoardState extends TurnState {
     }
     
     protected configureScene(): void {
-        // The below simulates a turn change by reactivating all units.
-        // Instead of checking all squares on the board, this should check all
-        // units as members of a Team object, once such a class is implemented.
-        let oneOrderableUnit = false;
-        for (let y = 0; y < this.assets.map.height; y++)
-        for (let x = 0; x < this.assets.map.width; x++) {
-            let square = this.assets.map.squareAt({x:x,y:y});
-            if (square.unit)
-                if (square.unit.orderable)
-                    oneOrderableUnit = true;
-        }
-
+        let oneOrderableUnit = this.assets.turnPlayer.units.some( u => u.orderable );
+        console.log(`CheckBoardState: one orderable unit = ${oneOrderableUnit}`);
         // Next state
         this.advanceToState( (oneOrderableUnit)
             ? this.advanceStates.startNewOrder

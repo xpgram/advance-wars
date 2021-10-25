@@ -45,7 +45,7 @@ export class RatifyIssuedOrder extends TurnState {
         map.squareAt(this.actor.boardLocation).hideUnit = false;
 
         // Set traveling unit as 'spent' for this turn.
-        this.actor.orderable = false;
+        this.actor.spent = true;
 
         // Move traveling unit on the board.
         const moveSuccessful = this.assets.map.moveUnit(this.actor.boardLocation, this.destination);

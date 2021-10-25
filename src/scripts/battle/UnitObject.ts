@@ -73,6 +73,7 @@ const rankLimit = 3;
  */
 export abstract class UnitObject {
     private static transform: LowResTransform = new LowResTransform();
+    private static TintShade = 0x888888;
     private _sprite!: PIXI.AnimatedSprite;
     private uiBox!: PIXI.Container;
     private hpMeter!: PIXI.BitmapText;
@@ -415,13 +416,22 @@ export abstract class UnitObject {
     set orderable(b: boolean) {
         let n = Number(b);
         this.conditionInfo = Common.writeBits(this.conditionInfo, n, orderableBits.length, orderableBits.shift);
+    }
+
+    /** Whether this unit has carried out its order. */
+    get spent(): boolean {
+        let n = Common.readBits(this.conditionInfo, orderableBits.length, orderableBits.shift);
+        return (n !== 1 && this.sprite.tint === UnitObject.TintShade);
+    }
+    set spent(b: boolean) {
         // Visually indicate un-orderable-ness.
-        this.sprite.tint = (b) ? 0xFFFFFF : 0x888888;
-        // Visually ... the UI Box as well.
+        this.sprite.tint = (!b) ? 0xFFFFFF : UnitObject.TintShade;
         this.uiBox.children.forEach( child => {
             if ((child as PIXI.Sprite).tint)
-                (child as PIXI.Sprite).tint = (b) ? 0xFFFFFF : 0x888888;
+                (child as PIXI.Sprite).tint = (!b) ? 0xFFFFFF : UnitObject.TintShade;
         });
+        // Units *must* be set orderable deliberately, but spent units are always unorderable.
+        if (b) this.orderable = false;
     }
 
     /** Whether this unit's sprite should show up on the board. */
