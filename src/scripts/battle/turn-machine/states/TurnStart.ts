@@ -1,12 +1,13 @@
 import { TurnState } from "../TurnState";
+import { CheckBoardState } from "./CheckBoardState";
 
-export class Template extends TurnState {
+export class TurnStart extends TurnState {
     get name() { return ''; }
-    get revertible() { return true; }
+    get revertible() { return false; }
     get skipOnUndo() { return false; }
 
     advanceStates = {
-        stateName: {state: Template, pre: () => {}}
+        checkBoardState: {state: CheckBoardState, pre: () => {}}
     }
 
     assert() {
@@ -14,7 +15,8 @@ export class Template extends TurnState {
     }
 
     configureScene() {
-        // Setup the scene
+        this.assets.turnPlayer.units.forEach( u => u.orderable = true );
+        this.advanceToState(this.advanceStates.checkBoardState);
     }
 
     update() {

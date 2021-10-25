@@ -1,5 +1,6 @@
 import { TurnState } from "../TurnState";
 import { IssueOrderStart } from "./IssueOrderStart";
+import { TurnEnd } from "./TurnEnd";
 
 
 export class CheckBoardState extends TurnState {
@@ -8,7 +9,9 @@ export class CheckBoardState extends TurnState {
     get skipOnUndo(): boolean { return false; }
 
     protected advanceStates = {
-        startNewOrder: {state: IssueOrderStart, pre: () => {}}
+        startNewOrder: {state: IssueOrderStart, pre: () => {}},
+        turnEnd: {state: TurnEnd, pre: () => {}},
+        // teamLoss: {state: ??, pre: () => {}},
     }
 
     protected assert(): void {
@@ -16,8 +19,6 @@ export class CheckBoardState extends TurnState {
     }
     
     protected configureScene(): void {
-        this.advanceToState(this.advanceStates.startNewOrder);
-
         // The below simulates a turn change by reactivating all units.
         // Instead of checking all squares on the board, this should check all
         // units as members of a Team object, once such a class is implemented.
@@ -30,11 +31,10 @@ export class CheckBoardState extends TurnState {
                     oneOrderableUnit = true;
         }
 
-        if (!oneOrderableUnit) {
-            this.assets.allInPlayUnits.forEach( unit => {
-                unit.orderable = true;
-            });
-        }
+        // Next state
+        this.advanceToState( (oneOrderableUnit)
+            ? this.advanceStates.startNewOrder
+            : this.advanceStates.turnEnd );
     }
 
     update(): void {

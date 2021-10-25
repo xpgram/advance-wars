@@ -19,6 +19,7 @@ import { Faction, TerrainTileSet, Weather, AIPlayStyle } from "../EnumTypes";
 import { MapData } from "../../../battle-maps/MapData";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
+import { Slider } from "../../Common/Slider";
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -108,8 +109,23 @@ export class BattleSceneControllers {
         //...
     }
 
+    // TODO I think I want to extract turn management to a class object.
+
     /** List of players participating in this game. */
     playerEntities: BoardPlayer[] = [];
+
+    /** The index of the current turn player. */
+    private turnPlayerIndexSlider: Slider;
+
+    /** Returns the BoardPlayer object corrosponding to whose turn it is. */
+    get turnPlayer(): BoardPlayer {
+        return this.playerEntities[this.turnPlayerIndexSlider.output];
+    }
+
+    /** Changes the turn player to the next in turn sequence. */
+    incrementTurnPlayer(): void {
+        this.turnPlayerIndexSlider.increment();
+    }
 
     constructor(mapdata: MapData, options?: ScenarioOptions) {
         // The objective here is to build a complete battle scene given scenario options.
@@ -144,6 +160,12 @@ export class BattleSceneControllers {
             });
             this.playerEntities.push(boardPlayer);
         }
+
+        this.turnPlayerIndexSlider = new Slider({
+            max: this.playerEntities.length,
+            granularity: 1,
+            looping: true,
+        });
 
         // Setup Camera
         this.camera = new Camera(Game.stage);
