@@ -503,7 +503,6 @@ export class Map {
         let square = this.squareAt(pos);
         if (square.unit) {
             square.unit.destroy();
-            square.unit = null;
         }
     }
 
