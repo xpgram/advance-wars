@@ -2,9 +2,8 @@ import { TurnState, TurnStateConstructor } from "./TurnState";
 import { Debug } from "../../DebugUtils";
 import { BattleSceneControllers } from "./BattleSceneControllers";
 import { Game } from "../../..";
-import { IssueOrderStart } from "./states/IssueOrderStart";
 import { NullTurnState } from "./NullTurnState";
-import { CheckBoardState } from "./states/CheckBoardState";
+import { GameStart } from "./states/GameStart";
 
 const STACK_TRACE_LIMIT = 20;
 const STACK_SIZE_LIMIT = 100;   // Unenforced
@@ -57,7 +56,7 @@ export class BattleSystemManager {
         //      etc.
 
         const firstState: NextState = {
-            state: CheckBoardState,         // TODO This should be TurnStart or some other proper entry point.
+            state: GameStart,
             pre: () => {}
         }
 
