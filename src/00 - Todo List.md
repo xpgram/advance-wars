@@ -5,6 +5,8 @@
   - Left/Right Trigger: Info/Player UI Panel
   - [ ] Move bumpers to Caps/A? Or A/S?
 
+- [ ] NextOrderableUnit: use a Pulsar for held button presses.
+
 - [ ] Camera needs a lag follow method that's used when the cursor teleports.
   The zero-frame jumps are really jarring. I get vertigo.
 
