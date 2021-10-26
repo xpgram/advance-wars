@@ -3,50 +3,27 @@
 - [ ] Refactor controls to
   - Left/Right Bumper: Prev/Next available unit
   - Left/Right Trigger: Info/Player UI Panel
+  - [ ] Move bumpers to Caps/A? Or A/S?
 
-- [x] Add a new control script: L to next orderable unit
-  For my own personal convenience.
-  - [ ] Confirm that it works; pretty sure it's broken right now.
-    - Check turn states for references to assets.players
-    - There is some initialization issue between CheckBoard and OrderStart.
+- [ ] Camera needs a lag follow method that's used when the cursor teleports.
+  The zero-frame jumps are really jarring. I get vertigo.
 
-- [x] Keys has some issue where Ctrl literally *is* iRow1 and Shift literally *is* iRow0; has to be a bit-flagging issue. I made the wrong assumptions about JS numbers once, that honestly could be it. 64-bit vs 32-bit I think it was.
+- [ ] Connect the turn player to the player window UI. Active, funds, etc.
+  This can instant switch because eventually there will be a transition animation where it won't even be visible.
 
 - [ ] BattleSceneController - Comprehensive refactor, baby!
-  - [x] Recieve map data (import for now)
-  - [x] Create a new Map with map data.
-  - [x] Setup Team objects with capture and spawn map data.
-  - [x] Remove useless unit spawner, etc.
   - [ ] Generally clean up around here; Mom says I have to pick up my toys.
-
-- [x] Implement Team & CO classes
-  This is related to map-from-json spawning. We're finally doing it, boys.
-  - [x] Implement a team object.
-  - [x] Refactor systems to spawn and use this team object.
-  - [x] Units should hold a reference to their team.
 
 - [ ] Maps should be able to read from a serial string or probably a json object.
   This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on.
   - [x] Read map data from some kind of object.
   - [ ] Read map data specifically from a json object (downloadable).
 
-- [x] Refactor the tile overlay visual system.
-  - [x] Add texture re-use mechanism.
-  - [x] Refactor terrain systems to make use of this re-use mechanism.
-  - [x] Confirm that it actually works.
-    - [x] Spotlight shader is not working. Well, it is technically, but it isn't spotlighting for some reason.
-    - [x] System is not 'fast' (on my laptop2); not sure what the bottleneck is. Could just be ~28 shaders per semi-frame. [oct-21-2021] Issue is Firefox specific, no idea why.
-      - [x] Add a display setting for low-performance machines.
-        - How? I don't have a settings screen or a pause menu yet.
-    - [x] Texture Reuse system is broken on HQ (different building shapes).
-      HQs, which I think are the only buildings like this, can override shapeId to give 'serial:shape:faction'
-    - [x] Also broken on FireTiles, I think because the default shapeId is tileSerial + shapeSerial.
-      In other words, we have way more 'standard' tiles than we need, which is one.
-      - [ ] The solution I have (in TerrainObject.ts) doesn't have any protections against FireTile being the first 'std' tile considered.
-        - [ ] 'std' should probably be a special-built case.
-      - [ ] FireTiles probably shouldn't show an overlay at all. 'std' looks weird on 'em. What is the source game's behavior? I'm pretty sure it displays red tiles over Plasma.
-      - [x] The solution also doesn't consider Buildings, which are assumed to be 'std'; this is because I forgot about them.
-      - [ ] Silos will need a new whitemask once they're used. Might be a while; I haven't implemented using Silos at all yet.
+- [ ] Additions to the tile overlay system.
+  - [ ] The solution I have (in TerrainObject.ts) doesn't have any protections against FireTile being the first 'std' tile considered.
+    - [ ] 'std' should probably be a special-built case.
+  - [ ] FireTiles probably shouldn't show an overlay at all. 'std' looks weird on 'em. What is the source game's behavior?
+  - [ ] Silos will need a new whitemask once they're used. Might be a while; I haven't implemented using Silos at all yet.
 
 - [ ] Server and database setup  
   Tables:  
