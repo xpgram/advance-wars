@@ -25,7 +25,7 @@ export class NextOrderableUnit extends ControlScript {
     () => {
       if (this.gamepad.button.rightBumper.down)
         this.selectIdx.increment();
-      if (this.gamepad.button.leftBumper.down)
+      if (this.gamepad.button.rightTrigger.down)
         this.selectIdx.decrement();
       this.cursor.teleport(this.units[this.selectIdx.output].boardLocation);
     },
@@ -63,7 +63,7 @@ export class NextOrderableUnit extends ControlScript {
       this.cursor.teleport(this.units[this.selectIdx.output].boardLocation);
       this.holdPulsar.start();
     }
-    if (this.gamepad.button.rightBumper.released || this.gamepad.button.leftBumper.released)
+    if (this.gamepad.button.rightBumper.released || this.gamepad.button.rightTrigger.released)
       this.holdPulsar.stop();
   }
 
