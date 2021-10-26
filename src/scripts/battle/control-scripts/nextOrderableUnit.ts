@@ -1,6 +1,7 @@
 import { Slider } from "../../Common/Slider";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ControlScript } from "../../ControlScript";
+import { Pulsar } from "../../timer/Pulsar";
 import { Map } from "../map/Map";
 import { MapCursor } from "../map/MapCursor";
 import { TurnModerator } from "../TurnModerator";
@@ -16,6 +17,20 @@ export class NextOrderableUnit extends ControlScript {
   players: TurnModerator;
   units!: UnitObject[];
   selectIdx!: Slider;
+
+  holdPulsar = new Pulsar({
+    interval: 6,
+    firstInterval: 20,
+    },
+    () => {
+      if (this.gamepad.button.rightBumper.down)
+        this.selectIdx.increment();
+      if (this.gamepad.button.leftBumper.down)
+        this.selectIdx.decrement();
+      this.cursor.teleport(this.units[this.selectIdx.output].boardLocation);
+    },
+    this
+  );
 
   constructor(gp: VirtualGamepad, map: Map, cursor: MapCursor, turnModerator: TurnModerator) {
     super();
@@ -41,11 +56,15 @@ export class NextOrderableUnit extends ControlScript {
     if (this.gamepad.button.rightBumper.pressed) {
       this.selectIdx.increment();
       this.cursor.teleport(this.units[this.selectIdx.output].boardLocation);
+      this.holdPulsar.start();
     }
     if (this.gamepad.button.rightTrigger.pressed) {
       this.selectIdx.decrement();
       this.cursor.teleport(this.units[this.selectIdx.output].boardLocation);
+      this.holdPulsar.start();
     }
+    if (this.gamepad.button.rightBumper.released || this.gamepad.button.leftBumper.released)
+      this.holdPulsar.stop();
   }
 
   protected disableScript(): void {

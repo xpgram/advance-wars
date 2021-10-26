@@ -1,17 +1,20 @@
 # Next Big Objectives
 
+- [ ] Refactor Pulsar to allow for optional settings (firstInterval).
+
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
   - Left/Right Trigger: Info/Player UI Panel
   - [ ] Move bumpers to Caps/A? Or A/S?
 
-- [ ] NextOrderableUnit: use a Pulsar for held button presses.
+- [x] NextOrderableUnit: use a Pulsar for held button presses.
 
 - [ ] Camera needs a lag follow method that's used when the cursor teleports.
   The zero-frame jumps are really jarring. I get vertigo.
 
-- [ ] Connect the turn player to the player window UI. Active, funds, etc.
+- [x] Connect the turn player to the player window UI. Active, funds, etc.
   This can instant switch because eventually there will be a transition animation where it won't even be visible.
+- [ ] Connect turn order and active player as well.
 
 - [ ] BattleSceneController - Comprehensive refactor, baby!
   - [ ] Generally clean up around here; Mom says I have to pick up my toys.
