@@ -1,6 +1,6 @@
 # Next Big Objectives
 
-- [ ] Refactor Pulsar to allow for optional settings (firstInterval).
+- [x] Refactor Pulsar to allow for optional settings (firstInterval).
 
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
