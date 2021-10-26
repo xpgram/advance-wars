@@ -8,6 +8,8 @@ import { BoardPlayer, BoardPlayerConstructionError } from "../BoardPlayer";
 
 export class COWindow extends SlidingWindow {
 
+    player: BoardPlayer;
+
     // Objects
     private commanderImage = new PIXI.Sprite();
     private powerMeter1 = new PIXI.Sprite( this.sheet.textures['power-meter.png'] );
@@ -24,6 +26,8 @@ export class COWindow extends SlidingWindow {
     constructor(options: SlidingWindowOptions, player: BoardPlayer, faction: Faction) {
         super(options);
         
+        this.player = player;
+
         // TODO Remove: faction is still player number by implementation elsewhere.
         faction += 2;
 
@@ -75,12 +79,11 @@ export class COWindow extends SlidingWindow {
         // Insignia
         this.insignia.x = 4; this.insignia.y = 1;
         this.insignia.tint = palettes[faction].whiteTint;
-        // TODO Pick Insignia
+        // TODO Pick Insignia via player.CO
 
         // City Icon
         this.cityIcon.x = 4; this.cityIcon.y = 16;
         this.cityIcon.tint = palettes[faction].whiteTint;
-        // TODO Pick or properly tint city icon
 
         // Funds
         this.funds.x = 22; this.funds.y = 21;
@@ -104,15 +107,17 @@ export class COWindow extends SlidingWindow {
     }
 
     setPowerMeterValue(value: number) {
-        let valueToWidth = (v: number) => {
+        const uiValue = Math.floor(value / this.player.powerMeter.max) * 12;
+
+        const valueToWidth = (v: number) => {
             v *= 3;     // Convert to pixels
             v += 2;     // Accomodate borders
             v *= -1;    // Fill extends leftward
             return v;
         }
 
-        let v1 = Common.confine(value, 0, 6);
-        let v2 = Common.confine(value - 6, 0, 6);
+        const v1 = Common.confine(uiValue, 0, 6);
+        const v2 = Common.confine(uiValue - 6, 0, 6);
         
         this.powerMeter2Fill.width = valueToWidth(v1);
         this.powerMeter1Fill.width = valueToWidth(v2);
@@ -128,5 +133,13 @@ export class COWindow extends SlidingWindow {
 
     setCityCountValue(value: number) {
         this.cityCountText.text = value.toString().slice(-2);
+    }
+
+    inspectKnownPlayer() {
+        // using known BoardPlayer, get stuff
+        this.setPowerMeterValue(this.player.powerMeter.output);
+        this.setFundsValue(this.player.funds);
+        this.setArmyCountValue(this.player.units.length);
+        this.setCityCountValue(this.player.propertyCount);
     }
 }

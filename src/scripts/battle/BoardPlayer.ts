@@ -106,6 +106,9 @@ export class BoardPlayer {
     if (options.unitSpawns)
       options.unitSpawns.forEach( settings => this.spawnUnit(settings) );
     this.armyDeployed = (this.units.length > 0);
+
+    // Collect property count
+    this.scanCapturedProperties();
   }
 
   /** Unbind references which may be circular. */

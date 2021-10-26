@@ -163,14 +163,13 @@ export class BattleSceneControllers {
         // filterArea is not a culling method; all of 'bottom' is drawn before the filter is applied.
 
         // Setup UI Window System
-        this.uiSystem = new InfoWindowSystem();
-        this.uiSystem.gp = this.gamepad;
-        this.uiSystem.map = this.map;
-        this.uiSystem.cursor = this.mapCursor;
-        this.uiSystem.camera = this.camera;
-        // this.infoWindow = new InfoWindow(this.map, this.camera, this.gamepad);
-        this.uiSystem.inspectListenerCallback();    // IWS should do this itself in its constructor
-        // TODO This was a rushed, demo implementation. Clean it up.
+        this.uiSystem = new InfoWindowSystem({
+            gamepad: this.gamepad,
+            cursor: this.mapCursor,
+            camera: this.camera,
+            map: this.map,
+            players: this.players.all,
+        });
 
         this.uiMenu = new MenuWindow(this.gamepad, MapLayer('ui'));
 
