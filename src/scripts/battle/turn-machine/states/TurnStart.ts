@@ -30,7 +30,7 @@ export class TurnStart extends TurnState {
             const terrain = square.terrain;
             if (terrain.building && terrain.faction === unit.faction)
                 if (terrain.repairType === unit.unitClass)
-                    unit.hp += 20;
+                    unit.hp += this.assets.scenario.repairHp;
                     // this.assets.players.current.expendFunds(unit.cost * .2);
 
             unit.orderable = true
