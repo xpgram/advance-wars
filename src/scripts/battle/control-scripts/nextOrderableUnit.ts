@@ -19,7 +19,7 @@ export class NextOrderableUnit extends ControlScript {
   selectIdx!: Slider;
 
   holdPulsar = new Pulsar({
-    interval: 6,
+    interval: 8,
     firstInterval: 20,
     },
     () => {
