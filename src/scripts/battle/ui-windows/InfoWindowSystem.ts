@@ -232,5 +232,11 @@ export class InfoWindowSystem {
   updatePlayerStates(players: BoardPlayer[]) {
     // Reorganize the player window list so colors match turn order.
     // Update details like CO power meter, num cities, etc.
+
+    // TODO Get active player from players.all.findIndex(this.players.current);
+    // TODO Arrange order as list = players.slice(aIdx).concat(players.slice(0,aIdx));
+    // TODO Update windows positions
+    // TODO Update 0th to show and the rest to hide
+    // TODO Update details like CO power meter, num cities, etc.
   }
 }
