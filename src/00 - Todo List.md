@@ -1,6 +1,8 @@
 # Next Big Objectives
 
-- [x] Refactor Pulsar to allow for optional settings (firstInterval).
+- [ ] Refactor InfoWindowSystem
+
+- [ ] Instant move InfoWindowSystem on turn change.
 
 - [ ] When releasing the B button on the move camera script, instant move the info windows.
 
@@ -9,14 +11,8 @@
   - Left/Right Trigger: Info/Player UI Panel
   - [ ] Move bumpers to Caps/A? Or A/S?
 
-- [x] NextOrderableUnit: use a Pulsar for held button presses.
-
 - [ ] Camera needs a lag follow method that's used when the cursor teleports.
   The zero-frame jumps are really jarring. I get vertigo.
-
-- [x] Connect the turn player to the player window UI. Active, funds, etc.
-  This can instant switch because eventually there will be a transition animation where it won't even be visible.
-- [ ] Connect turn order and active player as well.
 
 - [ ] BattleSceneController - Comprehensive refactor, baby!
   - [ ] Generally clean up around here; Mom says I have to pick up my toys.
