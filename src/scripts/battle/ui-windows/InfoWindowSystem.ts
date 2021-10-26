@@ -37,6 +37,13 @@ export class InfoWindowSystem {
       show: false,
       visualBoundaryWidth: Game.display.renderWidth,
     },
+    DrawerHide: {
+      width: 88,
+      height: 24,
+      show: false,
+      stickOutDistance: 2,  // Kind of distracting, actually. I may wwant to just leave a button tab beneath the first one.
+      visualBoundaryWidth: Game.display.renderWidth,
+    }
   }
 
   gamepad: VirtualGamepad;
@@ -58,7 +65,7 @@ export class InfoWindowSystem {
     this.camera = settings.camera;
     this.map = settings.map;
     settings.players.forEach( (player, idx) => {
-      const windowSettings = (idx === 0) ? this.WindowSettings.AlwaysShow : this.WindowSettings.DefaultHide;
+      const windowSettings = (idx === 0) ? this.WindowSettings.AlwaysShow : this.WindowSettings.DrawerHide;
       const window = new COWindow(windowSettings, player, idx);
       this.commanderWindows.push(window);
     });

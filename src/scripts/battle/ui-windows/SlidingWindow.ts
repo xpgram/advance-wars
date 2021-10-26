@@ -57,6 +57,9 @@ export class SlidingWindow {
     /** The horizontal distance the window slides between min and max position. */
     private slideDistance: number;
 
+    /** The horizontal distance from the hidden position the window will stop at when hiding. */
+    private stickOutDistance: number;
+
     /** The window, graphically. The background and all sub-elements should be added here. */
     readonly displayContainer = new PIXI.Container();
     /** The mask which may reveal or hide other UI elements if they're properly linked up. */
@@ -69,6 +72,7 @@ export class SlidingWindow {
         this.width = options.width;
         this.height = options.height;
         this.slideDistance = this.width;
+        this.stickOutDistance = options.stickOutDistance || 0;
         this.visualBoundaryWidth = options.visualBoundaryWidth;
 
         this.show = (options.show != false);
@@ -88,16 +92,19 @@ export class SlidingWindow {
         if (options.skip)
             this.skipSlideAnimation();
 
+        // TODO This is messy and hard to read; clean it up.
+
         // Calculate each slider's effect on the window's x-position (from its flagged ideal position)
-        let sideChangeDisplace = -this.slideDistance * this.sideChangeSlider.output;
-        let holdToOpenDisplace = this.slideDistance - (this.slideDistance * this.holdToOpenSlider.output);
+        const effectiveSlideDistance = this.slideDistance - this.stickOutDistance;
+        let sideChangeDisplace = -effectiveSlideDistance * this.sideChangeSlider.output;
+        let holdToOpenDisplace = effectiveSlideDistance - (effectiveSlideDistance * this.holdToOpenSlider.output);
         if (this.onLeftSide)
             holdToOpenDisplace = -holdToOpenDisplace;   // Should always point off-screen
         if (this.mask)
             this.mask.x = (this.onLeftSide) ? this.width : -this.width; // Should always point on-screen
 
         // Pick the relevant off-screen x-position for our side and apply our calculated displaces.
-        let x = (this.onLeftSide) ? -this.slideDistance : this.visualBoundaryWidth;
+        let x = (this.onLeftSide) ? -effectiveSlideDistance : this.visualBoundaryWidth - this.stickOutDistance;
         x += sideChangeDisplace;
         x += holdToOpenDisplace;
         
