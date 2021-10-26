@@ -2,6 +2,8 @@
 
 - [x] Refactor Pulsar to allow for optional settings (firstInterval).
 
+- [ ] When releasing the B button on the move camera script, instant move the info windows.
+
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
   - Left/Right Trigger: Info/Player UI Panel
