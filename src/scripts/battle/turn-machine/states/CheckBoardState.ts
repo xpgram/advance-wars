@@ -20,8 +20,7 @@ export class CheckBoardState extends TurnState {
     
     protected configureScene(): void {
         let oneOrderableUnit = this.assets.players.current.units.some( u => u.orderable );
-        console.log(`CheckBoardState: one orderable unit = ${oneOrderableUnit}`);
-        // Next state
+        
         this.advanceToState( (oneOrderableUnit)
             ? this.advanceStates.startNewOrder
             : this.advanceStates.turnEnd );

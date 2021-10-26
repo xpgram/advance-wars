@@ -15,7 +15,26 @@ export class TurnStart extends TurnState {
     }
 
     configureScene() {
-        this.assets.players.current.units.forEach( u => u.orderable = true );
+        const units = this.assets.players.current.units;
+
+        // Move Cursor
+        if (units.length)
+            this.assets.mapCursor.teleport(units[0].boardLocation);
+            // TODO The camera should lag-follow on all cursor teleports.
+
+        // Per Unit effects
+        units.forEach( unit => {
+            // TODO Repair HP — This needs to be extracted into an animation step.
+            // Also, funds and other jazz.
+            const square = this.assets.map.squareAt(unit.boardLocation);
+            const terrain = square.terrain;
+            if (terrain.building && terrain.faction === unit.faction)
+                if (terrain.repairType === unit.unitClass)
+                    unit.hp += 20;
+                    // this.assets.players.current.expendFunds(unit.cost * .2);
+
+            unit.orderable = true
+        });
         this.advanceToState(this.advanceStates.checkBoardState);
     }
 
