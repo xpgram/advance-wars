@@ -43,12 +43,21 @@ export class InfoWindowSystem {
     }
 
     detailedInfo = new TerrainDetailWindow(this.notAlwaysOnOptions);
+    unitInfo = new UnitWindow(this.alwaysOnOptions);
+    terrainInfo = new TerrainWindow(this.alwaysOnOptions);
+
+    // TODO Refactor these into a list
     commanderInfo = new COWindow(this.alwaysOnOptions, 0);
     commander2Info = new COWindow(this.notAlwaysOnOptions, 1);
     commander3Info = new COWindow(this.notAlwaysOnOptions, 2);
     commander4Info = new COWindow(this.notAlwaysOnOptions, 3);
-    unitInfo = new UnitWindow(this.alwaysOnOptions);
-    terrainInfo = new TerrainWindow(this.alwaysOnOptions);
+
+    commanderWindows = [    // Build in the constructor so # depends on participants
+     new COWindow(this.alwaysOnOptions, 0),
+     new COWindow(this.notAlwaysOnOptions, 1),
+     new COWindow(this.notAlwaysOnOptions, 2),
+     new COWindow(this.notAlwaysOnOptions, 3),
+    ];
 
     constructor() {
         // Apply mask to screen-wipeable ui elements
