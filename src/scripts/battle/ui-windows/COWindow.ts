@@ -3,6 +3,8 @@ import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
 import { fonts } from "./DisplayInfo";
 import { Common } from "../../CommonUtils";
+import { Faction, FactionColors } from "../EnumTypes";
+import { BoardPlayer, BoardPlayerConstructionError } from "../BoardPlayer";
 
 export class COWindow extends SlidingWindow {
 
@@ -19,17 +21,34 @@ export class COWindow extends SlidingWindow {
     private armyCountText = new PIXI.BitmapText('', fonts.scriptOutlined);
     private cityCountText = new PIXI.BitmapText('', fonts.scriptOutlined);
 
-    constructor(options: SlidingWindowOptions, player: number) {
+    constructor(options: SlidingWindowOptions, player: BoardPlayer, faction: Faction) {
         super(options);
-        console.assert((player >= 0 && player < 4), `CO Window: Given player number was not valid: ${player}`);
+        
+        // TODO Remove: faction is still player number by implementation elsewhere.
+        faction += 2;
 
-        let colors = [0x943142, 0x294a9c, 0x736321, 0x4a424a];  // Red, Blue, Yellow, Black tints
-        let tints = [0xFFCCCC, 0xCCCCFF, 0xEEDDAA, 0xCCCCCC];
-        let color = colors[player];
+        // Validate faction
+        if ([Faction.None, Faction.Neutral].includes(faction))
+            throw new RangeError(`CO Window ${player.playerNumber}: Cannot set faction to ${FactionColors[faction]}`);
+
+        // Returns a color-set object
+        function colorPalette(primary: number, whiteTint: number) {
+            return {primary, whiteTint};
+        }
+
+        const palettes = [
+            colorPalette(0xBAB2BA, 0x8A828A),
+            colorPalette(0xBAB2BA, 0x8A828A),
+            colorPalette(0x943142, 0xFFCCCC),
+            colorPalette(0x294A9C, 0xCCCCFF),
+            colorPalette(0x736321, 0xEEDDAA),
+            colorPalette(0x4A424A, 0xCCCCCC),
+        ]
+
         let background = RectBuilder({
             width: 88,
             height: 31,
-            color: color,
+            color: palettes[faction].primary,
             alpha: 1,
             border: {
                 color: 0x29424a,
@@ -55,12 +74,12 @@ export class COWindow extends SlidingWindow {
 
         // Insignia
         this.insignia.x = 4; this.insignia.y = 1;
-        this.insignia.tint = tints[player];
+        this.insignia.tint = palettes[faction].whiteTint;
         // TODO Pick Insignia
 
         // City Icon
         this.cityIcon.x = 4; this.cityIcon.y = 16;
-        this.cityIcon.tint = tints[player];
+        this.cityIcon.tint = palettes[faction].whiteTint;
         // TODO Pick or properly tint city icon
 
         // Funds

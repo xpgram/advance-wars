@@ -47,16 +47,16 @@ export class InfoWindowSystem {
     terrainInfo = new TerrainWindow(this.alwaysOnOptions);
 
     // TODO Refactor these into a list
-    commanderInfo = new COWindow(this.alwaysOnOptions, 0);
-    commander2Info = new COWindow(this.notAlwaysOnOptions, 1);
-    commander3Info = new COWindow(this.notAlwaysOnOptions, 2);
-    commander4Info = new COWindow(this.notAlwaysOnOptions, 3);
+    commanderInfo = new COWindow(this.alwaysOnOptions, null, 0);
+    commander2Info = new COWindow(this.notAlwaysOnOptions, null, 1);
+    commander3Info = new COWindow(this.notAlwaysOnOptions, null, 2);
+    commander4Info = new COWindow(this.notAlwaysOnOptions, null, 3);
 
     commanderWindows = [    // Build in the constructor so # depends on participants
-     new COWindow(this.alwaysOnOptions, 0),
-     new COWindow(this.notAlwaysOnOptions, 1),
-     new COWindow(this.notAlwaysOnOptions, 2),
-     new COWindow(this.notAlwaysOnOptions, 3),
+     new COWindow(this.alwaysOnOptions, null, 0),
+     new COWindow(this.notAlwaysOnOptions, null, 1),
+     new COWindow(this.notAlwaysOnOptions, null, 2),
+     new COWindow(this.notAlwaysOnOptions, null, 3),
     ];
 
     constructor() {
