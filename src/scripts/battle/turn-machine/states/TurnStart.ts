@@ -15,15 +15,18 @@ export class TurnStart extends TurnState {
     }
 
     configureScene() {
-        const units = this.assets.players.current.units;
+        const player = this.assets.players.current;
+
+        // Update player stuff
+        player.collectFunds();
 
         // Move Cursor
-        if (units.length)
-            this.assets.mapCursor.teleport(units[0].boardLocation);
+        if (player.units.length)
+            this.assets.mapCursor.teleport(player.units[0].boardLocation);
             // TODO The camera should lag-follow on all cursor teleports.
 
         // Per Unit effects
-        units.forEach( unit => {
+        player.units.forEach( unit => {
             // TODO Repair HP — This needs to be extracted into an animation step.
             // Also, funds and other jazz.
             const square = this.assets.map.squareAt(unit.boardLocation);
