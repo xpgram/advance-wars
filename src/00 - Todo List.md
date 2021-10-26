@@ -1,6 +1,6 @@
 # Next Big Objectives
 
-- [ ] Refactor controls to
+- [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
   - Left/Right Trigger: Info/Player UI Panel
   - [ ] Move bumpers to Caps/A? Or A/S?
