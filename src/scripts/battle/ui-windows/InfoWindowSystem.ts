@@ -11,8 +11,8 @@ import { Terrain } from "../map/Terrain";
 import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
 import { UnitClass } from "../EnumTypes";
-import { PointPrimitive } from "../../Common/Point";
 import { Debug } from "../../DebugUtils";
+import { BoardPlayer } from "../BoardPlayer";
 
 /** // TODO finish writing this class; I only ever completed the working draft. */
 export class InfoWindowSystem {
@@ -220,5 +220,10 @@ export class InfoWindowSystem {
         this.detailedInfo.setShipMoveCost( square.terrain.movementCost.ship );
         this.detailedInfo.setTransportMoveCost( square.terrain.movementCost.transport );
         // TODO Why not define MoveCostMatrix as a type and pass that into the window? Let the f*in' window do this.
+    }
+
+    updatePlayerStates(players: BoardPlayer[]) {
+        // Reorganize the player window list so colors match turn order.
+        // Update details like CO power meter, num cities, etc.
     }
 }
