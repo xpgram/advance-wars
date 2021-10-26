@@ -17,6 +17,7 @@ export class TurnChange extends TurnState {
     configureScene() {
         // TODO Rebind controller? BoardPlayer probably should know which input its listening from.
         this.assets.players.increment();
+        this.assets.uiSystem.updatePlayerWindowOrder();
         this.advanceToState(this.advanceStates.turnStart);
     }
 

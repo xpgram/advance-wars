@@ -21,6 +21,9 @@ export class IssueOrderStart extends TurnState {
         this.assets.mapCursor.show();
         this.assets.uiSystem.show();
 
+        // Update player window metrics
+        this.assets.uiSystem.inspectPlayers();
+
         // Configure camera to follow cursor
         this.assets.camera.followTarget = this.assets.mapCursor;
 

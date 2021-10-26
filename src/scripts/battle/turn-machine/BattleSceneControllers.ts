@@ -168,7 +168,7 @@ export class BattleSceneControllers {
             cursor: this.mapCursor,
             camera: this.camera,
             map: this.map,
-            players: this.players.all,
+            players: this.players,
         });
 
         this.uiMenu = new MenuWindow(this.gamepad, MapLayer('ui'));

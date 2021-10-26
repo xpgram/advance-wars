@@ -11,15 +11,15 @@ import { Terrain } from "../map/Terrain";
 import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
 import { UnitClass } from "../EnumTypes";
-import { BoardPlayer } from "../BoardPlayer";
 import { StringDictionary } from "../../CommonTypes";
+import { TurnModerator } from "../TurnModerator";
 
 type InfoWindowSystemSettings = {
   gamepad: VirtualGamepad,
   cursor: MapCursor,
   camera: Camera,
   map: Map,
-  players: BoardPlayer[]
+  players: TurnModerator,
 }
 
 /** // TODO finish writing this class; I only ever completed the working draft. */
@@ -50,6 +50,7 @@ export class InfoWindowSystem {
   cursor: MapCursor;
   camera: Camera;
   map: Map;
+  players: TurnModerator;
 
   commandersSlider = new Slider();
 
@@ -57,6 +58,7 @@ export class InfoWindowSystem {
   unitInfo = new UnitWindow(this.WindowSettings.AlwaysShow);
   terrainInfo = new TerrainWindow(this.WindowSettings.AlwaysShow);
 
+  commanderWindowsNatural: COWindow[] = [];
   commanderWindows: COWindow[] = [];
 
   constructor(settings: InfoWindowSystemSettings) {
@@ -64,12 +66,12 @@ export class InfoWindowSystem {
     this.cursor = settings.cursor;
     this.camera = settings.camera;
     this.map = settings.map;
-    settings.players.forEach( (player, idx) => {
-      const windowSettings = (idx === 0) ? this.WindowSettings.AlwaysShow : this.WindowSettings.DrawerHide;
-      const window = new COWindow(windowSettings, player, idx);
-      this.commanderWindows.push(window);
+    this.players = settings.players;
+    this.players.all.forEach( (player, idx) => {
+      const window = new COWindow(this.WindowSettings.DrawerHide, player, idx);
+      this.commanderWindowsNatural.push(window);
     });
-
+    this.commanderWindows = this.commanderWindowsNatural;
 
     // Apply mask to screen-wipeable ui elements
     this.unitInfo.displayContainer.mask = this.detailedInfo.mask;
@@ -79,14 +81,9 @@ export class InfoWindowSystem {
 
     // TODO Position windows (thaaat's right, I didn't use verticalDistance in the options...!)
     this.detailedInfo.displayContainer.y = 1;
-    this.commanderWindows.forEach((commanderInfo, idx) => {
-      if (idx === 0)
-        commanderInfo.displayContainer.y = 1;
-      else
-        commanderInfo.displayContainer.y = 33 + 30 * (idx - 1);
-    });
     this.unitInfo.displayContainer.y = 142;
     this.terrainInfo.displayContainer.y = 167;
+    this.updatePlayerWindowOrder();
 
     // Add independent updater to ticker
     Game.scene.ticker.add(this.update, this);
@@ -151,8 +148,8 @@ export class InfoWindowSystem {
 
     // Increment CO Window slider (staggers their reveal)
     this.commandersSlider.track += (showCOwindows) ? 0.2 : -0.2;
-    this.commanderWindows.slice(1).forEach((commanderInfo, idx) => {
-      const triggerValues = [0.10, 0.45, 1.0];
+    this.commanderWindows.forEach((commanderInfo, idx) => {
+      const triggerValues = [0.00, 0.10, 0.45, 1.0];
       commanderInfo.show = (this.commandersSlider.output >= triggerValues[idx])
     })
   }
@@ -202,11 +199,6 @@ export class InfoWindowSystem {
       this.unitInfo.displayContainer.visible = false;
     }
 
-    // CO Window
-    this.commanderWindows.forEach(commanderInfo => {
-      commanderInfo.inspectKnownPlayer();
-    });
-
     // Detailed Terrain Window
     this.detailedInfo.setHeaderText(square.terrain.name);
     this.detailedInfo.setIllustration(square.terrain.landscape);
@@ -229,16 +221,26 @@ export class InfoWindowSystem {
     // TODO Why not define MoveCostMatrix as a type and pass that into the window? Let the f*in' window do this.
   }
 
-  updatePlayerStates(players: BoardPlayer[]) {
-    // Reorganize the player window list so colors match turn order.
-    // Update details like CO power meter, num cities, etc.
+  /** Updates player info window metrics. */
+  inspectPlayers() {
+    this.commanderWindows.forEach(commanderInfo => {
+      commanderInfo.inspectKnownPlayer();
+    });
+  }
 
-    // TODO Get active player from players.all.findIndex(this.players.current);
-    // TODO Arrange order as list = players.slice(aIdx).concat(players.slice(0,aIdx));
-    // TODO Update windows positions
-    // TODO Update 0th to show and the rest to hide
-    // TODO Update details like CO power meter, num cities, etc.
+  /** Updates player info window order. */
+  updatePlayerWindowOrder() {
+    // Reorder player windows.
+    const curIdx = this.players.all.findIndex( player => player === this.players.current );
+    this.commanderWindows = [
+      ...this.commanderWindowsNatural.slice(curIdx),
+      ...this.commanderWindowsNatural.slice(0, curIdx),
+    ];
 
-    // I think I need to do the big refactor first, though, because... geez, the weeds here.
+    // Set window positions
+    this.commanderWindows.forEach( (window, idx) => {
+      const yPos = (idx === 0) ? 1 : 33 + 30*(idx - 1);
+      window.displayContainer.y = yPos;
+    });
   }
 }
