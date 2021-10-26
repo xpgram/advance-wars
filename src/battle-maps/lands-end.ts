@@ -14,11 +14,11 @@ const [ inf, mch, rig, tnk, mdt, aai, art, rck, msl, gnb, lnd, car, cru, btl, su
 
 export const data = {
   "name": "Land's End",
-  "players": 4,
+  "players": 2,
   "size": {"width": 32, "height": 27},
   "map": [
-    [ hq,wod,wod,wod,rod,wod,mtn,mtn,wod,wod,pln,pln,pln,wod,wod,mtn,mtn,mtn,mtn,mtn,mtn,mtn,pln,pln,wod,pln,pln,pln,pln,pln,pln,pln],
-    [ hq,pln,pln,wod,rod,pln,wod,mtn,mtn,wod,pln,cty,pln,fct,pln,wod,mtn,mtn,mtn,mtn,pln,pln,cty,cty,pln,wod,pln,pln,wod,wod,wod,pln],
+    [pln,wod,wod,wod,rod,wod,mtn,mtn,wod,wod,pln,pln,pln,wod,wod,mtn,mtn,mtn,mtn,mtn,mtn,mtn,pln,pln,wod,pln,pln,pln,pln,pln,pln,pln],
+    [pln,pln,pln,wod,rod,pln,wod,mtn,mtn,wod,pln,cty,pln,fct,pln,wod,mtn,mtn,mtn,mtn,pln,pln,cty,cty,pln,wod,pln,pln,wod,wod,wod,pln],
     [pln,pln,pln,pln,rod,pln,wod,mtn,mtn,mtn,rod,rod,rod,rod,rod,rod,rod,rod,rod,rod,rod,rod,rod,rod,rod,rod,rod,cty,pln,pln,wod,wod],
     [pln,pln,pln,pln,rod,cty,pln,wod,mtn,mtn,rod,pln,pln,pln,pln,pln,mtn,mtn,fct,pln,pln,pln,pln,cty,pln,pln,rod,pln,pln,pln,pln,wod],
     [pln,wod,pln,cty,rod,pln,pln,pln,pln,pln,rod,pln,pln,sea,sea,sea,mtn,mtn,pln,pln,pln,pln,pln,pln,cty,pln,fct,pln,pln,cty,pln,wod],
@@ -71,9 +71,6 @@ export const data = {
     {"location": {"x":20, "y":15}, "player": 0},
     {"location": {"x":19, "y":16}, "player": 0},
     {"location": {"x":26, "y":18}, "player": 0},
-
-    {"location": {"x": 0, "y": 0}, "player": 2},
-    {"location": {"x": 0, "y": 1}, "player": 3},
   ],
   "predeploy": [
     {"location": {"x":18, "y": 3}, "serial": rck, "player": 1},
