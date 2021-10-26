@@ -238,5 +238,7 @@ export class InfoWindowSystem {
     // TODO Update windows positions
     // TODO Update 0th to show and the rest to hide
     // TODO Update details like CO power meter, num cities, etc.
+
+    // I think I need to do the big refactor first, though, because... geez, the weeds here.
   }
 }
