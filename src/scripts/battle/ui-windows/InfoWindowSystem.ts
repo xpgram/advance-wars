@@ -55,12 +55,16 @@ export class InfoWindowSystem {
 
   commandersSlider = new Slider();
 
-  detailedInfo = new TerrainDetailWindow(WindowSettings.DefaultHide);
-  unitInfo = new UnitWindow(WindowSettings.AlwaysShow);
-  terrainInfo = new TerrainWindow(WindowSettings.AlwaysShow);
+  playerInfo: {idealOrder: COWindow[], windows: COWindow[]} = {
+    idealOrder: [],
+    windows: [],
+  }
 
-  commanderWindowsNatural: COWindow[] = [];
-  commanderWindows: COWindow[] = [];
+  windows = {
+    detailedInfo: new TerrainDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
+    unitInfo: new UnitWindow({...WindowSettings.AlwaysShow, verticalDistance: 142}),
+    terrainInfo: new TerrainWindow({...WindowSettings.AlwaysShow, verticalDistance: 167}),
+  }
 
   constructor(settings: InfoWindowSystemSettings) {
     this.gamepad = settings.gamepad;
@@ -70,82 +74,67 @@ export class InfoWindowSystem {
     this.players = settings.players;
     this.players.all.forEach( (player, idx) => {
       const window = new COWindow(WindowSettings.DrawerHide, player, idx);
-      this.commanderWindowsNatural.push(window);
+      this.playerInfo.idealOrder.push(window);
     });
-    this.commanderWindows = this.commanderWindowsNatural;
+    this.playerInfo.windows = this.playerInfo.idealOrder;
+    this.updatePlayerWindowOrder(); // This sets y position
 
     // Apply mask to screen-wipeable ui elements
-    this.unitInfo.displayContainer.mask = this.detailedInfo.mask;
-    this.commanderWindows.forEach(commanderInfo => {
-      commanderInfo.displayContainer.mask = this.detailedInfo.mask;
-    });
+    const mask = this.windows.detailedInfo.mask;
 
-    // TODO Position windows (thaaat's right, I didn't use verticalDistance in the options...!)
-    this.detailedInfo.displayContainer.y = 1;
-    this.unitInfo.displayContainer.y = 142;
-    this.terrainInfo.displayContainer.y = 167;
-    this.updatePlayerWindowOrder();
+    this.windows.unitInfo.displayContainer.mask = mask;
+    this.playerInfo.windows.forEach( window => window.displayContainer.mask = mask );  
 
     // Add independent updater to ticker
     Game.scene.ticker.add(this.update, this);
 
+    // First update window text elements
     this.inspectListenerCallback();
   }
 
-  // TODO hide() and show() are the same function but one word.
+  /** Helper which sets all window visibility to the given boolean. */
+  private setWindowVisibility(b: boolean) {
+    Object.values(this.windows).forEach( window => {
+      window.displayContainer.visible = b;
+    });
+    this.playerInfo.windows.forEach( window => {
+      window.displayContainer.visible = b;
+    });
+  }
 
   /** Hides the window-system's graphics from the screen. */
   hide(): void {
-    this.detailedInfo.displayContainer.visible = false;
-    this.commanderWindows.forEach(commanderInfo => {
-      commanderInfo.displayContainer.visible = false;
-    });
-    this.unitInfo.displayContainer.visible = false;
-    this.terrainInfo.displayContainer.visible = false;
+    this.setWindowVisibility(false);
   }
 
   /** Reveals the window-system's graphics on the screen. */
   show(): void {
-    this.detailedInfo.displayContainer.visible = true;
-    this.commanderWindows.forEach(commanderInfo => {
-      commanderInfo.displayContainer.visible = true;
-    });
-    this.unitInfo.displayContainer.visible = Boolean(this.map.squareAt(this.cursor.pos).unit);
-    this.terrainInfo.displayContainer.visible = true;
-
-    // TODO I didn't even know I'd done that. UnitInfo should *not* be visible *every time* the
-    // ui system is shown.
-    // Geez, this class sucks...
+    this.setWindowVisibility(true);
   }
 
   update() {
-    let showDetailWindow = false;
-    let showCOwindows = false;
-    let showWindowsOnLeft = true;
-
-    // Set flags
-    if (this.gamepad.button.leftTrigger.down)
-      showDetailWindow = true;
-    if (this.gamepad.button.leftBumper.down)
-      showCOwindows = true;
-
     // Set the window side flag — This block displaces the
     // trigger lines depending on which side the windows are already on.
-    let tileSize = Game.display.standardLength;
-    let triggerLine = Math.floor(this.camera.center.x / tileSize);
-    triggerLine += (this.terrainInfo.showOnLeftSide) ? -3 : 2;
-    showWindowsOnLeft = (this.cursor.pos.x > triggerLine);
+    const tileSize = Game.display.standardLength;
+    const offsetFromCenter = (this.windows.terrainInfo.showOnLeftSide) ? -3 : 2;
+    const triggerLine = Math.floor(this.camera.center.x / tileSize) + offsetFromCenter;
 
+    // Set show flags
+    const showDetailWindow = (this.gamepad.button.leftTrigger.down);
+    const showCOwindows = (this.gamepad.button.leftBumper.down);
+    const showWindowsOnLeft = (this.cursor.pos.x > triggerLine);
+    
     // Tell each window which side to be on.
-    this.terrainInfo.showOnLeftSide = showWindowsOnLeft;
-    this.unitInfo.showOnLeftSide = showWindowsOnLeft;
-    this.commanderWindows.forEach(commanderInfo => {
-      commanderInfo.showOnLeftSide = showWindowsOnLeft;
+    // It isn't possible to set this to one window the rest are children of, is it?
+    Object.values(this.windows).forEach( window => {
+      window.showOnLeftSide = showWindowsOnLeft;
     });
-    this.detailedInfo.showOnLeftSide = showWindowsOnLeft;
+    this.playerInfo.windows.forEach( window => {
+      window.showOnLeftSide = showWindowsOnLeft;
+    });
 
     // Show the detail window
-    this.detailedInfo.show = showDetailWindow;
+    this.windows.detailedInfo.show = showDetailWindow;
 
     // Increment CO Window slider (staggers their reveal)
     this.commandersSlider.track += (showCOwindows) ? 0.2 : -0.2;
