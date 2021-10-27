@@ -1,10 +1,17 @@
 # Next Big Objectives
 
-- [ ] Refactor InfoWindowSystem
-- [ ] Instant move InfoWindowSystem on turn change.
-- [ ] Instant move InfoWindowSystem on return from MoveCamera state.
+- [ ] CommandMenuOptionObject
+  - title
+  - value
+  - trigger(square) // may need map reference
+    - trigger(point, map)
+    - trigger(square, assets)
+    Trigger returns true if the conditions for this option to appear are right.
+    For instance, 'Attack' only appears when it detects a targetable unit nearby. 'Supply' only appears when it detects the unit is a Rig and is adjacent to allies.
 
-- [ ] When releasing the B button on the move camera script, instant move the info windows.
+- [ ] Refactor InfoWindowSystem
+- [x] Instant move InfoWindowSystem on turn change.
+- [x] Instant move InfoWindowSystem on return from MoveCamera state.
 
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
