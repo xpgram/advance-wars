@@ -25,6 +25,9 @@ export class TurnStart extends TurnState {
             this.assets.mapCursor.teleport(player.units[0].boardLocation);
             // TODO The camera should lag-follow on all cursor teleports.
 
+        // Move UI Windows
+        this.assets.uiSystem.skipAnimations();
+
         // Per Unit effects
         player.units.forEach( unit => {
             // TODO Repair HP — This needs to be extracted into an animation step.

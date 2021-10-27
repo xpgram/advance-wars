@@ -189,6 +189,8 @@ export class InfoWindowSystem {
 
   /** Positions the window UI where it moving to instantly. */
   skipAnimations() {
+    Object.values(this.windows).forEach( window => window.positionWindow({skip: true}) );
     this.playerInfo.windows.forEach( window => window.positionWindow({skip: true}) );
+    //commanderSlider
   }
 }
