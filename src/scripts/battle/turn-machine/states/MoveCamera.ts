@@ -112,7 +112,7 @@ export class MoveCamera extends TurnState {
         this.assets.camera.followTarget = this.followTargetSwap;
 
         // Fix UI after cursor movement.
-        // TODO this.assets.uiSystem.skipAnimation();
+        this.assets.uiSystem.skipAnimations();
     }
 
     /** Sets all units' transparency flag to the given value. */

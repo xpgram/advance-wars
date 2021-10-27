@@ -102,6 +102,11 @@ export class InfoWindowSystem {
     this.playerInfo.windows.forEach( window => {
       window.displayContainer.visible = b;
     });
+
+    // TODO Patch fix for unit info appearing (flashing) at times it shouldn't.
+    // Setting all window visibilities directly is probably irresponsible.
+    const unitPresent = (this.map.squareAt(this.cursor.pos).unit !== null);
+    this.windows.unitInfo.displayContainer.visible = unitPresent;
   }
 
   /** Hides the window-system's graphics from the screen. */
@@ -158,10 +163,8 @@ export class InfoWindowSystem {
 
   inspectTile(square: Square) {
     this.windows.terrainInfo.inspectTerrain(square.terrain);
-    this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
-
-    this.windows.unitInfo.displayContainer.visible = Boolean(square.unit);
     this.windows.unitInfo.inspectUnit(square.unit);
+    this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
   }
 
   /** Updates player info window metrics. */
@@ -189,8 +192,9 @@ export class InfoWindowSystem {
 
   /** Positions the window UI where it moving to instantly. */
   skipAnimations() {
+    this.update();  // Get new positions, etc.
+    this.inspectTile(this.map.squareAt(this.cursor.pos));
     Object.values(this.windows).forEach( window => window.positionWindow({skip: true}) );
     this.playerInfo.windows.forEach( window => window.positionWindow({skip: true}) );
-    //commanderSlider
   }
 }
