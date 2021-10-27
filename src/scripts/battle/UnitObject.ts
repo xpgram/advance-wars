@@ -87,7 +87,7 @@ export abstract class UnitObject {
     });
 
     /** Reference to the team object this unit is a member of. */
-    private boardPlayer!: BoardPlayer;
+    readonly boardPlayer!: BoardPlayer;
 
     /** A 32-bit number representing all of the Unit's volatile information. */
     private conditionInfo = 0;
@@ -174,6 +174,9 @@ export abstract class UnitObject {
     /** A short description of the unit's traits and purpose. */
     abstract get description(): string;
 
+    /** The unit's price to build. */
+    abstract get cost(): number;
+
     /** The unit's maximum gas: a stat depleted while moving. */
     abstract get maxGas(): number;
 
@@ -232,7 +235,7 @@ export abstract class UnitObject {
         let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
         // TODO If spritesheet is undefined... what happens?
 
-        // Team Object
+        //@ts-expect-error // Team Object
         this.boardPlayer = options.boardPlayer;
 
         // Allied Faction

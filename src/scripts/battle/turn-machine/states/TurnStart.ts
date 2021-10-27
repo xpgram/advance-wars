@@ -35,9 +35,11 @@ export class TurnStart extends TurnState {
             const square = this.assets.map.squareAt(unit.boardLocation);
             const terrain = square.terrain;
             if (terrain.building && terrain.faction === unit.faction)
-                if (terrain.repairType === unit.unitClass)
+                if (terrain.repairType === unit.unitClass) {
                     unit.hp += this.assets.scenario.repairHp;
-                    // this.assets.players.current.expendFunds(unit.cost * .2);
+                    unit.boardPlayer.expendFunds(unit.cost * this.assets.scenario.repairHp / 100);
+                    unit.resupply();
+                }
 
             unit.orderable = true
         });
