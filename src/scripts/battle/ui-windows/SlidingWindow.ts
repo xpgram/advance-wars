@@ -87,6 +87,16 @@ export class SlidingWindow {
         this.displayContainer.destroy({children: true});
     }
 
+    /** Sets this display UI to visible. */
+    setVisible() {
+        this.displayContainer.visible = true;
+    }
+
+    /** Sets this display UI to not visible. */
+    setInvisible() {
+        this.displayContainer.visible = false;
+    }
+
     /** Positions the window on-screen according to its sliders. */
     positionWindow(options = {skip: false}) {
         if (options.skip)

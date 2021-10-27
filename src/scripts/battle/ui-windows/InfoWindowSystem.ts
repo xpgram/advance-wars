@@ -94,19 +94,16 @@ export class InfoWindowSystem {
     this.inspectListenerCallback();
   }
 
+  /** Returns a list of all known SlidingWindows from all window categories. */
+  private get allWindows() {
+    return [...Object.values(this.windows), ...this.playerInfo.windows];
+  }
+
   /** Helper which sets all window visibility to the given boolean. */
   private setWindowVisibility(b: boolean) {
-    Object.values(this.windows).forEach( window => {
-      window.displayContainer.visible = b;
+    this.allWindows.forEach( window => {
+      b ? window.setVisible() : window.setInvisible();
     });
-    this.playerInfo.windows.forEach( window => {
-      window.displayContainer.visible = b;
-    });
-
-    // TODO Patch fix for unit info appearing (flashing) at times it shouldn't.
-    // Setting all window visibilities directly is probably irresponsible.
-    const unitPresent = b && (this.map.squareAt(this.cursor.pos).unit !== null);
-    this.windows.unitInfo.displayContainer.visible = unitPresent;
   }
 
   /** Hides the window-system's graphics from the screen. */
@@ -133,10 +130,7 @@ export class InfoWindowSystem {
     
     // Tell each window which side to be on.
     // It isn't possible to set this to one window the rest are children of, is it?
-    Object.values(this.windows).forEach( window => {
-      window.showOnLeftSide = showWindowsOnLeft;
-    });
-    this.playerInfo.windows.forEach( window => {
+    this.allWindows.forEach( window => {
       window.showOnLeftSide = showWindowsOnLeft;
     });
 
@@ -194,7 +188,6 @@ export class InfoWindowSystem {
   skipAnimations() {
     this.update();  // Get new positions, etc.
     this.inspectTile(this.map.squareAt(this.cursor.pos));
-    Object.values(this.windows).forEach( window => window.positionWindow({skip: true}) );
-    this.playerInfo.windows.forEach( window => window.positionWindow({skip: true}) );
+    this.allWindows.forEach( window => window.positionWindow({skip: true}) );
   }
 }

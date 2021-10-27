@@ -6,6 +6,9 @@ import { UnitObject } from "../UnitObject";
 
 export class UnitWindow extends SlidingWindow {
 
+  /** Whether this window has a unit to describe. */
+  private unitToDisplay = false;
+
   // Textures
   private ammoIcon = this.sheet.textures['icon-ammo.png'];
   private materialsIcon = this.sheet.textures['icon-material.png'];
@@ -83,6 +86,11 @@ export class UnitWindow extends SlidingWindow {
     this.displayContainer.addChild(this.firstLoad, this.secondLoad);
   }
 
+  /** Sets this UI window to visible only if a unit is present to describe. */
+  setVisible() {
+    this.displayContainer.visible = this.unitToDisplay;
+  }
+
   positionWindow(options = { skip: false }) {
     super.positionWindow(options);
 
@@ -139,7 +147,8 @@ export class UnitWindow extends SlidingWindow {
 
   /** Updates window UI elements with details from the given unit object. */
   inspectUnit(unit: UnitObject | null) {
-    this.displayContainer.visible = (unit !== null);
+    this.unitToDisplay = (unit !== null);
+    this.displayContainer.visible = this.unitToDisplay;
 
     if (!unit)
       return;
