@@ -157,6 +157,11 @@ export class InfoWindowSystem {
   }
 
   inspectTile(square: Square) {
+    // TODO terrainInfo.inspectTerrain(terrain)
+    // TODO unitInfo.inspectUnit(unit)
+    // etc.
+    // This class should not be responsible for all this shit.
+
     // Terrain Window
     this.terrainInfo.setName(square.terrain.name);
     this.terrainInfo.setThumbnail(square.terrain.preview);
