@@ -1,8 +1,8 @@
 # Next Big Objectives
 
 - [ ] Refactor InfoWindowSystem
-
 - [ ] Instant move InfoWindowSystem on turn change.
+- [ ] Instant move InfoWindowSystem on return from MoveCamera state.
 
 - [ ] When releasing the B button on the move camera script, instant move the info windows.
 
@@ -44,9 +44,6 @@
     Game-instance landmarking system. Events extend the initial board state through a kind of 'redo' application and the system occasionally updates this anchor point with a new, time-stamped snapshot contained here.
   EventsView returns accepted/rejected after input depending on whether the given action-Json a legal change of board state.  
   'Legal' here doesn't mean all that much; I'm not going to implement server-side distance, terrain and fuel checking because oh_ my_ god_ that would take forever.
-
-- [ ] The performance issues on my wlaptop have something to do with Firefox. Vivaldi (chrome based) runs it perfectly~; I'm quite proud, actually.
-- [ ] My wlaptop has strange tile displacement and overlay misalignment issues, as well as general blurriness issues among (most noticably) roads and bridges and such. I assume this has something to do with the laptop's resolution.
 
 - [ ] Game DB and Online Multiplayer
   - [ ] Game State DB System
