@@ -105,7 +105,7 @@ export class InfoWindowSystem {
 
     // TODO Patch fix for unit info appearing (flashing) at times it shouldn't.
     // Setting all window visibilities directly is probably irresponsible.
-    const unitPresent = (this.map.squareAt(this.cursor.pos).unit !== null);
+    const unitPresent = b && (this.map.squareAt(this.cursor.pos).unit !== null);
     this.windows.unitInfo.displayContainer.visible = unitPresent;
   }
 
