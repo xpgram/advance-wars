@@ -53,7 +53,9 @@ export class InfoWindowSystem {
   map: Map;
   players: TurnModerator;
 
-  commandersSlider = new Slider();
+  commandersSlider = new Slider({
+    granularity: 0.2,
+  });
 
   playerInfo: {idealOrder: COWindow[], windows: COWindow[]} = {
     idealOrder: [],
@@ -137,17 +139,17 @@ export class InfoWindowSystem {
     this.windows.detailedInfo.show = showDetailWindow;
 
     // Increment CO Window slider (staggers their reveal)
-    this.commandersSlider.track += (showCOwindows) ? 0.2 : -0.2;
-    this.commanderWindows.forEach((commanderInfo, idx) => {
+    this.commandersSlider.increment((showCOwindows) ? 1 : -1);
+    this.playerInfo.windows.forEach( (window, idx) => {
       const triggerValues = [0.00, 0.10, 0.45, 1.0];
-      commanderInfo.show = (this.commandersSlider.output >= triggerValues[idx])
-    })
+      window.show = (this.commandersSlider.output >= triggerValues[idx])
+    });
   }
 
   /** Calls inspectTile on cursor position change. */
   inspectListenerCallback() {
     Game.workOrders.send(() => {
-      if (this.terrainInfo.refreshable) {
+      if (this.windows.terrainInfo.refreshable) {
         this.inspectTile(this.map.squareAt(this.cursor.pos));
         return true;
       }
@@ -213,8 +215,8 @@ export class InfoWindowSystem {
 
   /** Updates player info window metrics. */
   inspectPlayers() {
-    this.commanderWindows.forEach(commanderInfo => {
-      commanderInfo.inspectKnownPlayer();
+    this.playerInfo.windows.forEach( window => {
+      window.inspectKnownPlayer();
     });
   }
 
@@ -222,24 +224,20 @@ export class InfoWindowSystem {
   updatePlayerWindowOrder() {
     // Reorder player windows.
     const curIdx = this.players.all.findIndex( player => player === this.players.current );
-    this.commanderWindows = [
-      ...this.commanderWindowsNatural.slice(curIdx),
-      ...this.commanderWindowsNatural.slice(0, curIdx),
+    this.playerInfo.windows = [
+      ...this.playerInfo.idealOrder.slice(curIdx),
+      ...this.playerInfo.idealOrder.slice(0, curIdx),
     ];
 
     // Set window positions
-    this.commanderWindows.forEach( (window, idx) => {
+    this.playerInfo.windows.forEach( (window, idx) => {
       const yPos = (idx === 0) ? 1 : 33 + 30*(idx - 1);
       window.displayContainer.y = yPos;
     });
   }
 
-  /**  */
+  /** Positions the window UI where it moving to instantly. */
   skipAnimations() {
-    // TODO This format
-    // this.windows.forEach( window => window.skipSlideAnimation() );
-
-    // Actually, the above is so *mwah* that, like, I don't even want to
-    // bother writing this write now.
+    this.playerInfo.windows.forEach( window => window.positionWindow({skip: true}) );
   }
 }
