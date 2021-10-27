@@ -243,4 +243,13 @@ export class InfoWindowSystem {
       window.displayContainer.y = yPos;
     });
   }
+
+  /**  */
+  skipAnimations() {
+    // TODO This format
+    // this.windows.forEach( window => window.skipSlideAnimation() );
+
+    // Actually, the above is so *mwah* that, like, I don't even want to
+    // bother writing this write now.
+  }
 }
