@@ -73,7 +73,7 @@ export class SlidingWindow {
         this.height = options.height;
         this.slideDistance = this.width;
         this.stickOutDistance = options.stickOutDistance || 0;
-        this.visualBoundaryWidth = options.visualBoundaryWidth;
+        this.visualBoundaryWidth = options.visualBoundaryWidth || Game.display.renderWidth;
 
         this.show = (options.show != false);
         this.showOnLeftSide = false;

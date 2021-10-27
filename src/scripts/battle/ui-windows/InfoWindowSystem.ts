@@ -22,29 +22,30 @@ type InfoWindowSystemSettings = {
   players: TurnModerator,
 }
 
-/** // TODO finish writing this class; I only ever completed the working draft. */
-export class InfoWindowSystem {
-
-  private readonly WindowSettings: StringDictionary<SlidingWindowOptions> = {
+/** Container for common info-window settings. */
+const WindowSettings = function() {
+  const width = 88, height = 24;
+  return {
     AlwaysShow: {
-      width: 88,
-      height: 24,
-      visualBoundaryWidth: Game.display.renderWidth,
+      width,
+      height,
     },
     DefaultHide: {
-      width: 88,
-      height: 24,
+      width,
+      height,
       show: false,
-      visualBoundaryWidth: Game.display.renderWidth,
     },
     DrawerHide: {
-      width: 88,
-      height: 24,
+      width,
+      height,
       show: false,
       stickOutDistance: 2,  // Kind of distracting, actually. I may wwant to just leave a button tab beneath the first one.
-      visualBoundaryWidth: Game.display.renderWidth,
     }
   }
+}();
+
+/** // TODO finish writing this class; I only ever completed the working draft. */
+export class InfoWindowSystem {
 
   gamepad: VirtualGamepad;
   cursor: MapCursor;
@@ -54,9 +55,9 @@ export class InfoWindowSystem {
 
   commandersSlider = new Slider();
 
-  detailedInfo = new TerrainDetailWindow(this.WindowSettings.DefaultHide);
-  unitInfo = new UnitWindow(this.WindowSettings.AlwaysShow);
-  terrainInfo = new TerrainWindow(this.WindowSettings.AlwaysShow);
+  detailedInfo = new TerrainDetailWindow(WindowSettings.DefaultHide);
+  unitInfo = new UnitWindow(WindowSettings.AlwaysShow);
+  terrainInfo = new TerrainWindow(WindowSettings.AlwaysShow);
 
   commanderWindowsNatural: COWindow[] = [];
   commanderWindows: COWindow[] = [];
@@ -68,7 +69,7 @@ export class InfoWindowSystem {
     this.map = settings.map;
     this.players = settings.players;
     this.players.all.forEach( (player, idx) => {
-      const window = new COWindow(this.WindowSettings.DrawerHide, player, idx);
+      const window = new COWindow(WindowSettings.DrawerHide, player, idx);
       this.commanderWindowsNatural.push(window);
     });
     this.commanderWindows = this.commanderWindowsNatural;

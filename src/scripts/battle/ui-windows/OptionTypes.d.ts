@@ -4,6 +4,6 @@ type SlidingWindowOptions = {
     height: number,
     stickOutDistance?: number,
     verticalDistance?: number,
-    visualBoundaryWidth: number,
+    visualBoundaryWidth?: number,
     show?: boolean
 }
