@@ -14,7 +14,7 @@ export const Unit = {
         get name() { return "Infantry"; }
         get shortName() { return "Inftry"; }
         get description() { return "The cheapest unit. They can /capture/ bases. /+3 to vision when/ on mountains."; }
-        get cost() { return 0; }
+        get cost() { return 1500; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 0; }
@@ -48,7 +48,7 @@ export const Unit = {
         get name() { return "Mech"; }
         get shortName() { return "Mech"; }
         get description() { return "High attack power. They can /capture/ bases. /+3 to vision when/ on mountains."; }
-        get cost() { return 0; }
+        get cost() { return 2500; }
     
         get maxGas() { return 70; }
         get maxAmmo() { return 3; }
@@ -82,7 +82,7 @@ export const Unit = {
         get name() { return "Bike"; }
         get shortName() { return "Bike"; }
         get description() { return "An infantry unit with high mobility. They can /capture/ bases."; }
-        get cost() { return 0; }
+        get cost() { return 2500; }
     
         get maxGas() { return 70; }
         get maxAmmo() { return 0; }
@@ -116,7 +116,7 @@ export const Unit = {
         get name() { return "Recon"; }
         get shortName() { return "Recon"; }
         get description() { return "Good movement and vision. They are strong against infantry."; }
-        get cost() { return 0; }
+        get cost() { return 4000; }
     
         get maxGas() { return 80; }
         get maxAmmo() { return 0; }
@@ -148,7 +148,7 @@ export const Unit = {
         get name() { return "Flare"; }
         get shortName() { return "Flare"; }
         get description() { return "Flares fire bright /rockets/ that reveal a /13-square area/ in Fog of War."; }
-        get cost() { return 0; }
+        get cost() { return 5000; }
     
         get maxGas() { return 60; }
         get maxAmmo() { return 0; }
@@ -180,7 +180,7 @@ export const Unit = {
         get name() { return "Anti-Air"; }
         get shortName() { return "Anti-Air"; }
         get description() { return "A specialized anti-air unit that can also attack ground forces."; }
-        get cost() { return 0; }
+        get cost() { return 7000; }
     
         get maxGas() { return 60; }
         get maxAmmo() { return 9; }
@@ -212,7 +212,7 @@ export const Unit = {
         get name() { return "Tank"; }
         get shortName() { return "Tank"; }
         get description() { return "High movement and a low production cost make these units quite useful."; }
-        get cost() { return 0; }
+        get cost() { return 7000; }
     
         get maxGas() { return 70; }
         get maxAmmo() { return 6; }
@@ -244,7 +244,7 @@ export const Unit = {
         get name() { return "Md Tank"; }
         get shortName() { return "M Tank"; }
         get description() { return "A strong tank with better attack and defense than standard tanks."; }
-        get cost() { return 0; }
+        get cost() { return 12000; }
     
         get maxGas() { return 50; }
         get maxAmmo() { return 5; }
@@ -276,7 +276,7 @@ export const Unit = {
         get name() { return "War Tank"; }
         get shortName() { return "W Tank"; }
         get description() { return "The strongest tank in terms of both attack and defense."; }
-        get cost() { return 0; }
+        get cost() { return 16000; }
     
         get maxGas() { return 50; }
         get maxAmmo() { return 5; }
@@ -308,7 +308,7 @@ export const Unit = {
         get name() { return "Artillery"; }
         get shortName() { return "Artlry"; }
         get description() { return "An indirect attacker. This unit can move or attack during a turn, but not both."; }
-        get cost() { return 0; }
+        get cost() { return 6000; }
     
         get maxGas() { return 50; }
         get maxAmmo() { return 6; }
@@ -343,7 +343,7 @@ export const Unit = {
         get name() { return "Anti-Tank"; }
         get shortName() { return "Anti-Tk"; }
         get description() { return "An indirect attacker that can /counter-attack/ when under direct fire."; }
-        get cost() { return 0; }
+        get cost() { return 11000; }
     
         get maxGas() { return 50; }
         get maxAmmo() { return 6; }
@@ -378,7 +378,7 @@ export const Unit = {
         get name() { return "Rockets"; }
         get shortName() { return "Rocket"; }
         get description() { return "A powerful indirect attacker with a wide range."; }
-        get cost() { return 0; }
+        get cost() { return 15000; }
     
         get maxGas() { return 50; }
         get maxAmmo() { return 5; }
@@ -413,7 +413,7 @@ export const Unit = {
         get name() { return "Missiles"; }
         get shortName() { return "Missile"; }
         get description() { return "An indirect attacker that can only strike airborne targets."; }
-        get cost() { return 0; }
+        get cost() { return 12000; }
     
         get maxGas() { return 50; }
         get maxAmmo() { return 5; }
@@ -448,7 +448,7 @@ export const Unit = {
         get name() { return "Rig"; }
         get shortName() { return "Rig"; }
         get description() { return "/Carries 1/ infantry or mech unit. Can also /supply/ units and /build/ temp airports//ports."; }
-        get cost() { return 0; }
+        get cost() { return 5000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 1; }
@@ -484,7 +484,7 @@ export const Unit = {
         get name() { return "Fighter"; }
         get shortName() { return "Fighter"; }
         get description() { return "A mobile aircraft that can attack other airborne units."; }
-        get cost() { return 0; }
+        get cost() { return 20000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 6; }
@@ -516,7 +516,7 @@ export const Unit = {
         get name() { return "Bomber"; }
         get shortName() { return "Bomber"; }
         get description() { return "A massively powerful plane that can attack both ground and naval units."; }
-        get cost() { return 0; }
+        get cost() { return 20000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 6; }
@@ -548,7 +548,7 @@ export const Unit = {
         get name() { return "Stealth"; }
         get shortName() { return "Stealth"; }
         get description() { return "A powerful air unit that can /cloak/ and remain hidden until found by adjacent enemy units."; }
-        get cost() { return 0; }
+        get cost() { return 22000; }
     
         get maxGas() { return 60; }
         get maxAmmo() { return 6; }
@@ -580,7 +580,7 @@ export const Unit = {
         get name() { return "Duster"; }
         get shortName() { return "Duster"; }
         get description() { return "A somewhat powerful plane that can attack both ground and air units."; }
-        get cost() { return 0; }
+        get cost() { return 13000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 9; }
@@ -612,7 +612,7 @@ export const Unit = {
         get name() { return "Sea Plane"; }
         get shortName() { return "Seapl"; }
         get description() { return "A plane produced at sea by carriers. It can attack any unit."; }
-        get cost() { return 0; }
+        get cost() { return 15000; }
     
         get maxGas() { return 40; }
         get maxAmmo() { return 3; }
@@ -644,7 +644,7 @@ export const Unit = {
         get name() { return "B Copter"; }
         get shortName() { return "B Cptr"; }
         get description() { return "An air unit that can attack ground and naval units, as well as other helicopters."; }
-        get cost() { return 0; }
+        get cost() { return 9000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 6; }
@@ -676,7 +676,7 @@ export const Unit = {
         get name() { return "T Copter"; }
         get shortName() { return "T Cptr"; }
         get description() { return "An air unit that can /carry 1/ infantry or mech unit, but has no attack capabilities."; }
-        get cost() { return 0; }
+        get cost() { return 5000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 0; }
@@ -711,7 +711,7 @@ export const Unit = {
         get name() { return "Black Bomb"; }
         get shortName() { return "B Bomb"; }
         get description() { return "An unmanned aerial unit. This unit can /explode/ at will, damaging all units within 3 spaces."; }
-        get cost() { return 0; }
+        get cost() { return 25000; }
     
         get maxGas() { return 45; }
         get maxAmmo() { return 0; }
@@ -744,7 +744,7 @@ export const Unit = {
         get name() { return "Battleship"; }
         get shortName() { return "B Ship"; }
         get description() { return "An extremely strong naval unit that can /launch indirect attacks after moving/."; }
-        get cost() { return 0; }
+        get cost() { return 25000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 6; }
@@ -777,7 +777,7 @@ export const Unit = {
         get name() { return "Carrier"; }
         get shortName() { return "Carrier"; }
         get description() { return "A naval unit that can /carry 2/ air units and /produce/ seaplanes."; }
-        get cost() { return 0; }
+        get cost() { return 28000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 4; }
@@ -811,7 +811,7 @@ export const Unit = {
         get name() { return "Submarine"; }
         get shortName() { return "Sub"; }
         get description() { return "After /diving/, they remain hidden unless found by adjacent enemy units."; }
-        get cost() { return 0; }
+        get cost() { return 20000; }
     
         get maxGas() { return 70; }
         get maxAmmo() { return 6; }
@@ -843,7 +843,7 @@ export const Unit = {
         get name() { return "Cruiser"; }
         get shortName() { return "Cruiser"; }
         get description() { return "Cruisers are strong against subs and air units, and can /carry 2 copter units/."; }
-        get cost() { return 0; }
+        get cost() { return 16000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 9; }
@@ -875,7 +875,7 @@ export const Unit = {
         get name() { return "Lander"; }
         get shortName() { return "Lander"; }
         get description() { return "Landers can /carry 2 ground units/. If the lander sinks, the units vanish."; }
-        get cost() { return 0; }
+        get cost() { return 10000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 0; }
@@ -910,7 +910,7 @@ export const Unit = {
         get name() { return "Gun Boat"; }
         get shortName() { return "G Boat"; }
         get description() { return "A unit that can /carry 1/ foot soldier and attack other naval units."; }
-        get cost() { return 0; }
+        get cost() { return 6000; }
     
         get maxGas() { return 99; }
         get maxAmmo() { return 1; }
