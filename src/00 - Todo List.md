@@ -1,5 +1,7 @@
 # Next Big Objectives
 
+- [ ] Can ListMenu extend observer or whatever? I think I have something like that. If not, whatever; I just thought a list of callbacks would be nice, but I didn't actually want to implement them.
+
 - [ ] Little gameplay stuffs
   - [ ] Add infantry capturing
   - [ ] Add indirects can't move and attack
