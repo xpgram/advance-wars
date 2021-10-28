@@ -20,6 +20,7 @@ export class ListMenu<X, Y> {
   private _listItems!: ListMenuOption<X, Y>[];
   private _displayedListItems!: ListMenuOption<X, Y>[];
   private _inputEnabled = true;
+  private cursorMovementCallback: () => void;
 
   /** Represents the currently selected option. */
   private cursor!: Slider;
@@ -30,6 +31,7 @@ export class ListMenu<X, Y> {
   constructor(gp: VirtualGamepad, options?: {
     listItems?: ListMenuOption<X, Y>[],
     cursorSettings?: CursorSettings,
+    onMoveCursor?: () => void,
   }) {
     // Setup option defaults
     const _options = {
@@ -38,11 +40,13 @@ export class ListMenu<X, Y> {
         firstFrameInterval: 20,
         frameInterval: 6,
       },
+      onMoveCursor: () => { return; },
       ...options,
     }
 
     // Configure
     this.gamepad = gp;
+    this.cursorMovementCallback = _options.onMoveCursor;
     this.setListItems(_options.listItems);
 
     // Add updater to global ticker.
@@ -87,6 +91,7 @@ export class ListMenu<X, Y> {
   private triggerCursorMovement() {
     const dir = this.gamepad.axis.dpad.point.y;
     this.cursor.increment(dir);
+    this.cursorMovementCallback();
   }
 
   /** Enables the player interactivity listener. */
