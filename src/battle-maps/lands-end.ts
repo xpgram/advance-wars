@@ -6,10 +6,10 @@ const Ttypes = [ Plain, Sea, Wood, Mountain, Road, City, Factory, Airport, Port,
 const Tserials = Ttypes.map( t => t.serial );
 const [ pln, sea, wod, mtn, rod, cty, fct, apt, prt, bch, rgh, ref, hq ] = Tserials;
 
-const { Infantry, Mech, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine } = Unit;
-const Utypes = [ Infantry, Mech, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine ];
+const { Infantry, Mech, Bike, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine } = Unit;
+const Utypes = [ Infantry, Mech, Bike, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine ];
 const Userials = Utypes.map( u => u.serial );
-const [ inf, mch, rig, tnk, mdt, aai, art, rck, msl, gnb, lnd, car, cru, btl, sub ] = Userials;
+const [ inf, mch, bik, rig, tnk, mdt, aai, art, rck, msl, gnb, lnd, car, cru, btl, sub ] = Userials;
 
 
 export const data = {
@@ -77,6 +77,8 @@ export const data = {
     {"location": {"x":19, "y": 4}, "serial": mdt, "player": 1},
 
     {"location": {"x":19, "y":15}, "serial": msl, "player": 0},
+    {"location": {"x":14, "y":12}, "serial": bik, "player": 0},
     {"location": {"x":15, "y":13}, "serial": tnk, "player": 0},
+    {"location": {"x":16, "y":13}, "serial": rig, "player": 0},
   ]
 }

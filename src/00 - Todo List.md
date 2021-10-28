@@ -1,5 +1,20 @@
 # Next Big Objectives
 
+- [ ] Little gameplay stuffs
+  - [ ] Add infantry capturing
+  - [ ] Add indirects can't move and attack
+  - [ ] Add Rigs can resupply
+    - [ ] By command
+    - [x] On turn start
+  - [x] Add unit costs
+  - [ ] Add basic unit shop menu
+    - [ ] Implement MenuOption class
+      - Title
+      - Value
+      - TriggerFunction
+      - ActionFunction? We can declare, but implementation would require a refactor.
+  - [ ] Add unit spawning / manufacturing
+
 - [ ] CommandMenuOptionObject
   - title
   - value
@@ -12,6 +27,8 @@
 - [ ] Refactor InfoWindowSystem
 - [x] Instant move InfoWindowSystem on turn change.
 - [x] Instant move InfoWindowSystem on return from MoveCamera state.
+
+- [ ] NextOrderableUnit should go in left-right/top-down order, not sequential order of creation; the camera will jump around less. I think this is source game behavior.
 
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
