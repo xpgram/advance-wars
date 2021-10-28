@@ -17,7 +17,8 @@ import { Color, Common } from "../../CommonUtils";
 // TODO Previous test implementation of draw graphics in constructor is still there. I'm not even sure if it's doing anything.
 // TODO Further, I'm clearly not using all these PIXI.Containers I have defined. Use them or drop them.
 
-// TODO Generic menu structure object > this class, a graphical 
+// TODO Generic menu structure object > this class, a GUI
+// Rewrite, baby... yea... I'm excited, I'm just tired.
 
 // Colors
 const HSV = Color.HSV;

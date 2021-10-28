@@ -7,6 +7,8 @@
     - [ ] By command
     - [x] On turn start
   - [x] Add unit costs
+  - [ ] Refactor Command menu to use new generic class
+  - [ ] Add more commands using the easy-as new generic menu structure.
   - [ ] Add basic unit shop menu
     - [ ] Implement MenuOption class
       - Title
