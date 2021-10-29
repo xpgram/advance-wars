@@ -68,7 +68,7 @@ export class NextOrderableUnit extends ControlScript {
   }
 
   protected disableScript(): void {
-    
+    this.holdPulsar.stop();
   }
 
 }
