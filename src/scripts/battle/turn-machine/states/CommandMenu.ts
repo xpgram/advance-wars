@@ -78,7 +78,7 @@ export class CommandMenu extends TurnState {
             options.push({text: "Attack", value: 1});
         if (this.actor.soldierUnit && map.squareAt(this.destination).terrain.building)
             options.push({text: "Capture", value: 2});
-        if (this.actor.type === Unit.Rig && map.neighborsAt(this.destination).orthogonals.some( square => square.unit?.faction === this.actor.faction ))
+        if (this.actor.type === Unit.Rig && map.neighborsAt(this.destination).orthogonals.some( square => square.unit?.faction === this.actor.faction && square.unit !== this.actor ))
             options.push({text: "Supply", value: 3});
         options.push({text: "Wait", value: 0});
         
