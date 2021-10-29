@@ -88,7 +88,9 @@ export class CommandMenu extends TurnState {
       }),
       new ListMenuOption("Capture", 2, {
         triggerInclude: () => {
-          return this.actor.soldierUnit && square.terrain.building;
+          const readyToCapture = (this.actor.soldierUnit && square.terrain.building);
+          const notAllied = (this.actor.faction !== square.terrain.faction);
+          return readyToCapture && notAllied;
         }
       }),
       new ListMenuOption("Supply", 3, {
