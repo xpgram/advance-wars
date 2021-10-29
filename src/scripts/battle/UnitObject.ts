@@ -467,7 +467,7 @@ export abstract class UnitObject {
     set boardLocation(point: Point) {
         if (point.notEqual(this.boardLocation))
             this.stopCapturing();
-            
+
         this.x = point.x;
         this.y = point.y;
 
@@ -579,7 +579,8 @@ export abstract class UnitObject {
     /** Resupplies this unit with operational resources. */
     resupply() {
         this.gas = this.maxGas;
-        this.ammo = this.maxAmmo;
+        if (!this.materialsInsteadOfAmmo)
+            this.ammo = this.maxAmmo;
     }
 
     /** Retrieves the attack-effectiveness rating of an action from this unit via an attack against an armor-type. */
