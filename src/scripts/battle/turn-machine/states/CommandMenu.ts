@@ -7,6 +7,7 @@ import { Point } from "../../../Common/Point";
 import { CardinalVector, CardinalDirection, SumCardinalVectorsToVector } from "../../../Common/CardinalDirection";
 import { Debug } from "../../../DebugUtils";
 import { Unit } from "../../Unit";
+import { ListMenuOption } from "../../../system/ListMenuOption";
 
 export class CommandMenu extends TurnState {
     get name(): string { return "CommandMenu"; }
@@ -77,18 +78,20 @@ export class CommandMenu extends TurnState {
         // set up command menu  // TODO Refactor this with ListMenuOptions
         const options = [];
         if (this.actor.attackReady && this.enemyInSight && (!this.actor.isIndirect || this.destination.equal(this.location)))
-            options.push({text: "Attack", value: 1});
+            options.push(new ListMenuOption("Attack", 1));
         if (this.actor.soldierUnit && square.terrain.building)
-            options.push({text: "Capture", value: 2});
+            options.push(new ListMenuOption("Capture", 2));
         if (neighbors.orthogonals.some( square => square.unit && square.unit.resuppliable(this.actor) ))
-            options.push({text: "Supply", value: 3});
-        options.push({text: "Wait", value: 0});
+            options.push(new ListMenuOption("Supply", 3));
+        options.push(new ListMenuOption("Wiat", 0));
         
-        this.assets.uiMenu.options = options;
+        // TODO Oi.. this a refactor..
+        this.assets.uiMenu.menu.setListItems(options);
+        this.assets.uiMenu.buildGraphics();
 
 
         const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
-        this.assets.uiMenu.transform.pos = location;
+        this.assets.uiMenu.gui.position.set(location.x, location.y);
         this.assets.uiMenu.show();
 
         // TODO unit.commands should be how the selectables are determined.
@@ -110,7 +113,7 @@ export class CommandMenu extends TurnState {
 
         // If A, infer next action from uiMenu.
         if (gamepad.button.A.pressed) {
-            const commandValue = this.assets.uiMenu.selectedValue;
+            const commandValue = this.assets.uiMenu.menu.selectedValue;
             instruction.action = commandValue;
 
             if (commandValue == 1)

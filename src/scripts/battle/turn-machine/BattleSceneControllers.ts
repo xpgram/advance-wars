@@ -22,6 +22,8 @@ import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
 import { Slider } from "../../Common/Slider";
 import { NextOrderableUnit } from "../control-scripts/nextOrderableUnit";
 import { TurnModerator } from "../TurnModerator";
+import { ListMenu } from "../../system/ListMenu";
+import { ListMenuGUI } from "../../system/ListMenuGUI";
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -97,7 +99,7 @@ export class BattleSceneControllers {
     map: Map;
     mapCursor: MapCursor;
     uiSystem: InfoWindowSystem;
-    uiMenu: MenuWindow;
+    uiMenu: ListMenuGUI<string, number>;
 
     trackCar: TrackCar;
 
@@ -177,7 +179,9 @@ export class BattleSceneControllers {
             players: this.players,
         });
 
-        this.uiMenu = new MenuWindow(this.gamepad, MapLayer('ui'));
+        // this.uiMenu = new MenuWindow(this.gamepad, MapLayer('ui'));
+        const menu = new ListMenu<string, number>(this.gamepad);
+        this.uiMenu = new ListMenuGUI(menu, MapLayer('ui'));
 
         // Setup static background image.
         let backdrop = new PIXI.Sprite( Game.scene.resources['background'].texture );
