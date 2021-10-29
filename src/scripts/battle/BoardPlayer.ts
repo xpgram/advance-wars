@@ -179,7 +179,7 @@ export class BoardPlayer {
       boardPlayer: this,     // TODO Unimplemented in UnitObject
     });
 
-    if (!square.unit == null)
+    if (square.unit)
       throw new SpawnUnitError(`Could not spawn predeploy: location ${location.toString()} already occupied.`);
     if (!square.occupiable(unit))
       throw new SpawnUnitError(`Could not spawn predeploy: location ${location.toString()} not occupiable.`);

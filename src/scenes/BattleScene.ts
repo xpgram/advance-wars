@@ -25,7 +25,7 @@ export class BattleScene extends Scene {
     battleSystem!: BattleSystemManager;
     controllers!: BattleSceneControllers;
 
-    unitSwap: UnitObject | null = null;
+    unitSwap?: UnitObject;
 
     loadStep(): void {
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});

@@ -93,7 +93,7 @@ export class TerrainWindow extends SlidingWindow {
   }
 
   /** Updates window UI elements with given terrain object details. */
-  inspectTerrain(terrain: TerrainObject, unit: UnitObject | null) {
+  inspectTerrain(terrain: TerrainObject, unit?: UnitObject) {
     this.setName(terrain.name);
     this.setThumbnail(terrain.preview);
     this.setDefenseMeter(terrain.defenseRating);

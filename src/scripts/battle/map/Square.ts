@@ -344,7 +344,7 @@ export class Square {
     /** Returns true if the given unit may legally inhabit this square. */
     occupiable(unit: UnitObject): boolean {
         let traversable = this.traversable(unit);
-        let empty = (this.unit == null || this.unit === unit);  // Do not return 'inoccupiable' if the unit is already located there.
+        let empty = (!this.unit || this.unit === unit);  // Do not return 'inoccupiable' if the unit is already located there.
         return traversable && empty;
     }
 
@@ -352,7 +352,7 @@ export class Square {
      * only if this square presents an obstruction to the travelling unit. */
     traversable(unit: UnitObject): boolean {
         let legalMovement = (this.terrain.getMovementCost(unit.moveType) > 0);              // Ships ≠ Land, Any ≠ Void Tiles
-        let unitAlliedOrEmpty = (this.unit == null || this.unit.faction == unit.faction);   // Team ≠ not-Team
+        let unitAlliedOrEmpty = (!this.unit || this.unit.faction == unit.faction);   // Team ≠ not-Team
         return legalMovement && unitAlliedOrEmpty;
     }
 
@@ -374,7 +374,7 @@ export class Square {
 
         // Check if this _square_ is targetable. If uninhabited, use hypotheticals.
         // (As a visual convenience, treat ally-unit squares as empty)
-        if (this.unit == null || this.unit.faction == unit.faction) {
+        if (!this.unit || this.unit.faction == unit.faction) {
             // Unit can attack land units + this square allows land units
             if (unit.couldTarget(ArmorType.Infantry) || unit.couldTarget(ArmorType.Vehicle))
                 targetable = (sumMovementCosts([MoveType.Infantry, MoveType.Mech, MoveType.Tread, MoveType.TireA, MoveType.TireB]) > 0);
