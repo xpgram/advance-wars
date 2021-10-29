@@ -5,6 +5,9 @@ import { ShowUnitAttackRange } from "./ShowUnitAttackRange";
 import { MoveCamera } from "./MoveCamera";
 import { Terrain } from "../../map/Terrain";
 import { MapLayerFunctions } from "../../map/MapLayers";
+import { Game } from "../../../..";
+import { Keys } from "../../../controls/KeyboardObserver";
+import { TurnEnd } from "./TurnEnd";
 
 
 export class IssueOrderStart extends TurnState {
@@ -81,6 +84,10 @@ export class IssueOrderStart extends TurnState {
                 this.advanceToState(this.advanceStates.moveCamera);
         }
 
+        // Dev shortcut to end turn
+        else if (Game.devController.get(Keys.Shift).down && Game.devController.get(Keys.E).pressed)
+            this.advanceToState(this.advanceStates.endTurn);
+
         // TODO Remove / Refactor
         const terrainType = map.squareAt(mapCursor.pos).terrain.type;
         const buildTerrains = [Terrain.Factory, Terrain.Airport, Terrain.Port];
@@ -102,6 +109,8 @@ export class IssueOrderStart extends TurnState {
     advanceStates = {
         pickMoveLocation: {state: MoveUnit, pre: () => {}},
         showUnitAttackRange: {state: ShowUnitAttackRange, pre: () => {}},
-        moveCamera: {state: MoveCamera, pre: () => {}}
+        moveCamera: {state: MoveCamera, pre: () => {}},
+
+        endTurn: {state: TurnEnd, pre: () => {}},   // TODO For dev purposes. Move to FieldMenu state.
     }
 }
