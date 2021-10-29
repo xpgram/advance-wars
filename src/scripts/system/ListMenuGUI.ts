@@ -184,6 +184,7 @@ export class ListMenuGUI<X, Y> {
       // TODO If keys are not strings and have no toString() method?
       // TODO This is messy
       // TODO More than two strings *is* messy. Visually. Maybe I should limit this specific GUI menu to two max? Force strings?
+      // TODO Wait... also, this text is supposed to be centered. Oh god. So many problems.
       const { key } = this.menu.selectedOption;
       const textIter = (Array.isArray(key)) ? key : [key];
       const text = textIter.slice(0,-1).join(', ');
