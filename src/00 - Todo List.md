@@ -19,9 +19,6 @@
       - ActionFunction? We can declare, but implementation would require a refactor.
   - [ ] Add unit spawning / manufacturing
 
-- [ ] Rigs worry so much about resupplying others, yet they cannot resupply themselves. How ironic.
-  - Give Rigs infinite gas?
-
 - [ ] CommandMenuOptionObject
   - title
   - value

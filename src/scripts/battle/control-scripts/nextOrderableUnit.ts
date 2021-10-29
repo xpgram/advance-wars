@@ -1,3 +1,4 @@
+import { ImmutablePointPrimitive } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ControlScript } from "../../ControlScript";
@@ -41,8 +42,16 @@ export class NextOrderableUnit extends ControlScript {
   }
 
   protected enableScript(): void {
+    // Linearly orders units such that they're right-to-left, top-to-bottom, with the y-axis taking priority.
+    function unitOrder(a: UnitObject, b: UnitObject): number {
+      const x = b.boardLocation.x - a.boardLocation.x;
+      const y = b.boardLocation.y - a.boardLocation.y;
+      return (y === 0) ? x : y;
+    }
+
     const player = this.players.current;
     this.units = player.units.filter( u => u.orderable );
+    this.units = this.units.sort(unitOrder);
     this.selectIdx = new Slider({
       max: this.units.length,
       granularity: 1,
