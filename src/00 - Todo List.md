@@ -2,12 +2,15 @@
 
 - [ ] Can ListMenu extend observer or whatever? I think I have something like that. If not, whatever; I just thought a list of callbacks would be nice, but I didn't actually want to implement them.
 
+- [ ] Dev button for grid: top and left edges, over bottom layer
+
 - [ ] Little gameplay stuffs
   - [x] Add infantry capturing
   - [x] Add indirects can't move and attack
   - [x] Add Rigs can resupply
     - [x] By command
     - [x] On turn start
+    - [ ] Only when next to an ally _with less than max resources_
   - [x] Add unit costs
   - [ ] Refactor Command menu to use new generic class
   - [ ] Add more commands using the easy-as new generic menu structure.
@@ -19,7 +22,9 @@
       - ActionFunction? We can declare, but implementation would require a refactor.
   - [ ] Add unit spawning / manufacturing
 
-- [ ] CommandMenuOptionObject
+- [ ] Alternate road preference for vertical or horizontal based on oddness of tile position. Sounds fun. I like complicated roads. The function which figures this out, though, only knows what *types* its neighbors are, not their location.
+
+- [x] CommandMenuOptionObject
   - title
   - value
   - trigger(square) // may need map reference
@@ -32,7 +37,11 @@
 - [x] Instant move InfoWindowSystem on turn change.
 - [x] Instant move InfoWindowSystem on return from MoveCamera state.
 
-- [ ] NextOrderableUnit should go in left-right/top-down order, not sequential order of creation; the camera will jump around less. I think this is source game behavior.
+- [x] NextOrderableUnit should go in left-right/top-down order, not sequential order of creation; the camera will jump around less. I think this is source game behavior.
+  - Source game behavior is to go in order of spawn, actually.
+  - [ ] Source game has no hold behavior, and won't let you click to next again until the camera has found the cursor (which I think is also hidden, giving the player clear indication when they're allowed to move it).
+  - My camera can be fast, that's fine. The player should at least know where the new position is in relation to where the cursor was, though. That's the main problem.
+  - I'm gonna need to think about auto-camera-move anyway because watching your opponent on their turn will use it a lot. It needs to be a turn step.
 
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
