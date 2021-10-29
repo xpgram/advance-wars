@@ -136,9 +136,14 @@ export class ListMenu<X, Y> {
     this.retriggerListItems();
   }
 
+  /** Returns the number index of the ListMenuOption currently being selected over. */
+  get selectedIndex() {
+    return this.cursor.output;
+  }
+
   /** Returns the ListMenuOption currently being selected over. */
   get selectedOption() {
-    return this._listItems[this.cursor.output];
+    return this._listItems[this.selectedIndex];
   }
 
   /** Returns the value currently being selected over. */
