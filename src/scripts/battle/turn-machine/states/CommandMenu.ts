@@ -49,14 +49,18 @@ export class CommandMenu extends TurnState {
         map.squareAt(this.location).moveFlag = true;
         map.squareAt(this.destination).moveFlag = true;
 
+        const notIndirectOrNotMoved = (!this.actor.isIndirect || this.destination.equal(this.location));
+
         // Retain attackable flags as well.
         const range = this.actor.rangeMap;
         const points = range.points.map( p => this.destination.add(p) );
-        for (const p of points) {
-            if (map.validPoint(p)) {
-                if (map.squareAt(p).attackable(this.actor)) {
-                    map.squareAt(p).attackFlag = true;
-                    this.enemyInSight = true;
+        if (notIndirectOrNotMoved) {
+            for (const p of points) {
+                if (map.validPoint(p)) {
+                    if (map.squareAt(p).attackable(this.actor)) {
+                        map.squareAt(p).attackFlag = true;
+                        this.enemyInSight = true;
+                    }
                 }
             }
         }
@@ -70,7 +74,7 @@ export class CommandMenu extends TurnState {
 
         // set up command menu  // TODO Refactor this with ListMenuOptions
         const options = [];
-        if (this.actor.attackReady && this.enemyInSight)
+        if (this.actor.attackReady && this.enemyInSight && (!this.actor.isIndirect || this.destination.equal(this.location)))
             options.push({text: "Attack", value: 1});
         if (this.actor.soldierUnit && map.squareAt(this.destination).terrain.building)
             options.push({text: "Capture", value: 2});
