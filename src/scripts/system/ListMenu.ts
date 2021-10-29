@@ -71,7 +71,7 @@ export class ListMenu<X, Y> {
     this.updateCursor();
   }
 
-  /** Updates cursor state in accordance with gamepad input. */
+  /** Update cursor state with gamepad input. */
   private updateCursor() {
     if (!this.inputEnabled)
       return;
