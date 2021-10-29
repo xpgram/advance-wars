@@ -94,7 +94,19 @@ export class BoxContainerProperties {
       ...thisPropsLiteral,  // I'm pretty sure this isn't deep.
       ...newPropsLiteral,   // margin defaults will be missed.
     }
-    
+    mergePropsLiteral.margin = {
+      ...thisPropsLiteral.margin,
+      ...newPropsLiteral.margin,
+    }
+    mergePropsLiteral.border = {
+      ...thisPropsLiteral.border,
+      ...newPropsLiteral.border,
+    }
+    mergePropsLiteral.padding = {
+      ...thisPropsLiteral.padding,
+      ...newPropsLiteral.padding,
+    }
+
     return new BoxContainerProperties(mergePropsLiteral);
   }
 

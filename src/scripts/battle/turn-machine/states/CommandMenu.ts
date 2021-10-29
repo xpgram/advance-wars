@@ -83,7 +83,7 @@ export class CommandMenu extends TurnState {
             options.push(new ListMenuOption("Capture", 2));
         if (neighbors.orthogonals.some( square => square.unit && square.unit.resuppliable(this.actor) ))
             options.push(new ListMenuOption("Supply", 3));
-        options.push(new ListMenuOption("Wiat", 0));
+        options.push(new ListMenuOption("Wait", 0));
         
         // TODO Oi.. this a refactor..
         this.assets.uiMenu.menu.setListItems(options);

@@ -35,6 +35,9 @@ const LIST_ITEM_PROPS = new BoxContainerProperties({
 });
 const MENU_PROPS = new BoxContainerProperties({
   padding: { left: 2, right: 2, top: 1.5, bottom: 1.5, },
+  children: [
+    LIST_ITEM_PROPS,
+  ],
 });
 
 /** A generic GUI represention for a ListMenu.
@@ -75,9 +78,15 @@ export class ListMenuGUI<X, Y> {
 
   constructor(menu: ListMenu<X, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties, menuProps?: BoxContainerProperties}) {
     this.configuration = {
-      listItemProps: LIST_ITEM_PROPS.merge(options?.listItemProps),
-      menuProps: MENU_PROPS.merge(options?.menuProps),
+      listItemProps: LIST_ITEM_PROPS,
+      menuProps: MENU_PROPS,
     }
+
+    // Well. It's nominally correct now.
+    
+    // TODO BoxProperties assumes a value of 0 or all properties undeclared in
+    // its options object, which breaks merge() entirely; every single property
+    // is 'defined' so every single property get overwritten. With 0.
 
     this.menu = menu;
     this.menu.cursorMovementCallback = () => {
@@ -132,6 +141,10 @@ export class ListMenuGUI<X, Y> {
   /** Builds a graphical representation of this  */
   buildGraphics() {
     this.configuration.listItemProps.width = this.getContentWidth();
+    this.configuration.menuProps.children =
+      new Array(this.menu.listItems.length)
+      .fill(this.configuration.listItemProps);
+
     this.gui.removeChildren();
     
     /* Menu */
@@ -181,20 +194,13 @@ export class ListMenuGUI<X, Y> {
       g.endFill();
 
       // Text   // TODO Make this overridable
-      // TODO If keys are not strings and have no toString() method?
-      // TODO This is messy
-      // TODO More than two strings *is* messy. Visually. Maybe I should limit this specific GUI menu to two max? Force strings?
-      // TODO Wait... also, this text is supposed to be centered. Oh god. So many problems.
-      const { key } = this.menu.selectedOption;
-      const textIter = (Array.isArray(key)) ? key : [key];
-      const text = textIter.slice(0,-1).join(', ');
-      const gText = new PIXI.BitmapText(text, fonts.menu);
-      gText.position.set(content.x, content.y);
-      const gTextLast = new PIXI.BitmapText(textIter.at(-1), fonts.menu);
-      gTextLast.position.set(content.x + this.configuration.listItemProps.contentBox().width - gTextLast.textWidth, content.y);
+      const { key } = this.menu.listItems[idx];
+      const gText = new PIXI.BitmapText(key, fonts.menu);
+      gText.position.set(content.x + content.width*.5, content.y);
+      gText.anchor.set(.5, 0);
 
       // Combine
-      g.addChild(gText, gTextLast);
+      g.addChild(gText);
       menu.addChild(g);
     });
 
@@ -211,6 +217,11 @@ export class ListMenuGUI<X, Y> {
     cursor.beginHole();
     cursor.drawRect(border.x - size, border.y - size, border.width + 2*size, border.height + 2*size);
     cursor.endHole();
+
+    cursor.position.set(
+      menuContentBox.x,
+      menuContentBox.y + listItemProps.elementHeight * this.menu.selectedIndex
+    );
 
     menu.addChild(cursor);
 
