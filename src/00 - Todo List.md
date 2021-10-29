@@ -1,5 +1,14 @@
 # Next Big Objectives
 
+- Source Game observations:
+  - BoardPlayers save their cursor position on turn end. *This* is where focus is returned to on their next turn start.
+  - If they have no units, the cursor is set to their HQ location. In my case, their zeroth.
+  - Holding B over a unit reveals their attack range. Pressing A over one reveals their movement range, and any attackable units as red. It basically starts the normal PickMoveLocation turn step but disallows any action (arrows, select location, etc) since the actor's faction doesn't match the current player's.
+  - Turns don't auto end when you're out of units, of course. This leaves the shops open. I need a formal way to end turns first, though. I'm working on it.
+  - The game shows you every standby phase event in sequential order. You probably won't have 100 resupplies to see, but if you did...
+
+- [ ] The camera needs to emit and event when it stops moving. Or maybe it just has a getter that responds true whenever its target is in focus. This is less sophisticated, but I think it would suffice.
+
 - [ ] Can ListMenu extend observer or whatever? I think I have something like that. If not, whatever; I just thought a list of callbacks would be nice, but I didn't actually want to implement them.
 
 - [ ] Dev button for grid: top and left edges, over bottom layer
