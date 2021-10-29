@@ -251,6 +251,9 @@ export class MenuWindow {
 
         this.background.removeChildren();
         this.background.addChild( newMenuGraphic(this._options, this.cursor.output) );
+        
+        this.gCursor.removeChildren();
+        this.gCursor.addChild( newSelectorGraphic(Point.Origin, 0) );
     }
 
     /** Returns the value currently being selected over. */
