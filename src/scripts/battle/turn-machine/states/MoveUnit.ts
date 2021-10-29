@@ -37,15 +37,19 @@ export class MoveUnit extends TurnState {
     update() {
         const {map, mapCursor, gamepad, instruction} = this.assets;
 
+        // On press B, revert state
+        if (gamepad.button.B.pressed)
+            this.regressToPreviousState();
+
+        // If the unit is not owned by current player, do nothing else
+        if (this.assets.players.current.faction !== this.travellingUnit.faction)
+            return;
+
         // Request a recalc of the travel path on cursor move
         if (this.lastCursorPos.notEqual(mapCursor.pos)) {
             this.lastCursorPos = new Point(mapCursor.pos);
             map.recalculatePathToPoint(this.travellingUnit, this.lastCursorPos);
         }
-
-        // On press B, revert state
-        if (gamepad.button.B.pressed)
-            this.regressToPreviousState();
         
         // On press A and viable location, advance state
         else if (gamepad.button.A.pressed

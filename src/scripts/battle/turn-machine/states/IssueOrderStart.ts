@@ -64,10 +64,14 @@ export class IssueOrderStart extends TurnState {
         if (gamepad.button.A.pressed) {
             const pos = mapCursor.pos;
             const square = map.squareAt(pos);
+            const unit = square.unit;
+            const player = this.assets.players.current;
 
             // TODO This should check team affiliation
-            if (square.unit && square.unit.orderable) {
-                instruction.place = square.unit.boardLocation;
+            const orderableAlly = (unit?.orderable && unit?.faction === player.faction);
+            const examinableEnemy = (unit?.faction !== player.faction);
+            if (unit && (orderableAlly || examinableEnemy)) {
+                instruction.place = unit.boardLocation;
                 this.advanceToState(this.advanceStates.pickMoveLocation);
             }
         }
