@@ -37,7 +37,10 @@ const MENU_PROPS = new BoxContainerProperties({
   padding: { left: 2, right: 2, top: 1.5, bottom: 1.5, },
 });
 
-/**  */
+/** A generic GUI represention for a ListMenu.
+ * Basic menu component. Can or should be overridden to 
+ * implement new visual styles.
+ * */
 export class ListMenuGUI<X, Y> {
 
   static readonly CursorSettings = {
@@ -57,14 +60,15 @@ export class ListMenuGUI<X, Y> {
   /** The top-level graphical object for this GUI menu. */
   private readonly gui = new PIXI.Container();
 
-  /**  */
+  /** Pulsar which triggers cursor animation. */
   private animPulsar = new Pulsar(
     ListMenuGUI.CursorSettings.interval,
     () => {},
     this
   );
 
-  /**  */
+  /** Slider which determines cursor position when traveling
+   * between menu options. */
   private cursorMovementSlider = new Slider({
     granularity: 1 / ListMenuGUI.CursorSettings.animFrames,
   });
@@ -76,6 +80,9 @@ export class ListMenuGUI<X, Y> {
     }
 
     this.menu = menu;
+    this.menu.cursorMovementCallback = () => {
+      this.buildGraphics();
+    }
 
     this.buildGraphics();
     container.addChild(this.gui);
@@ -87,6 +94,7 @@ export class ListMenuGUI<X, Y> {
   destroy() {
     this.gui.destroy({children: true});
     this.animPulsar.destroy();
+    this.menu.cursorMovementCallback = function() {};
   }
 
   /** Reveals this menu's graphics and enables player input. */

@@ -20,7 +20,7 @@ export class ListMenu<X, Y> {
   private _listItems!: ListMenuOption<X, Y>[];
   private _displayedListItems!: ListMenuOption<X, Y>[];
   private _inputEnabled = true;
-  private cursorMovementCallback: () => void;
+  cursorMovementCallback: () => void;
 
   /** Represents the currently selected option. */
   private cursor!: Slider;
