@@ -106,11 +106,11 @@ export class CommandMenu extends TurnState {
 
 
         let location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
-        // if (this.assets.camera.getFocalPoint().x < location.x)
-        //     location = new Point(this.assets.mapCursor.pos).add(new Point(
-        //         -20 - this.assets.uiMenu.gui.width,
-        //         4        
-        //     ));
+        if (this.assets.camera.center.x < location.x)
+            location.x = this.assets.mapCursor.transform.pos.x - 4 - this.assets.uiMenu.gui.width;
+        if (location.y + this.assets.uiMenu.gui.height + 4 > this.assets.camera.y + this.assets.camera.height)
+            location.y -= location.y + this.assets.uiMenu.gui.height + 4 - this.assets.camera.y - this.assets.camera.height;
+        console.log(location);
         this.assets.uiMenu.gui.position.set(location.x, location.y);
         this.assets.uiMenu.gui.zIndex = 1000;
         MapLayer('ui').sortChildren();
