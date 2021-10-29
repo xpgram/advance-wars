@@ -6,6 +6,7 @@ import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
 import { CardinalVector, CardinalDirection, SumCardinalVectorsToVector } from "../../../Common/CardinalDirection";
 import { Debug } from "../../../DebugUtils";
+import { Unit } from "../../Unit";
 
 export class CommandMenu extends TurnState {
     get name(): string { return "CommandMenu"; }
@@ -67,17 +68,19 @@ export class CommandMenu extends TurnState {
             // Supply (if Rig and adjacent to allied units)
             // etc.
 
-        // set up command menu
-        // TODO Replace; terrible.
-        this.assets.uiMenu.options = [
-            {text: "Attack", value: 1},
-            {text: "Wait", value: 0},
-        ];
-        if (!this.actor.attackReady || !this.enemyInSight) {
-            this.assets.uiMenu.options = [
-                {text: "Wait", value: 0}
-            ]
-        }
+        // set up command menu  // TODO Refactor this with ListMenuOptions
+        const options = [];
+        if (this.actor.attackReady && this.enemyInSight)
+            options.push({text: "Attack", value: 1});
+        if (this.actor.soldierUnit && map.squareAt(this.destination).terrain.building)
+            options.push({text: "Capture", value: 2});
+        if (this.actor.type === Unit.Rig && map.neighborsAt(this.destination).orthogonals.some( square => square.unit?.faction === this.actor.faction ))
+            options.push({text: "Supply", value: 3});
+        options.push({text: "Wait", value: 0});
+        
+        this.assets.uiMenu.options = options;
+
+
         const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
         this.assets.uiMenu.transform.pos = location;
         this.assets.uiMenu.show();
@@ -102,14 +105,12 @@ export class CommandMenu extends TurnState {
         // If A, infer next action from uiMenu.
         if (gamepad.button.A.pressed) {
             const commandValue = this.assets.uiMenu.selectedValue;
+            instruction.action = commandValue;
 
-            // TODO Terrible test implementation.
-            if (commandValue == 0)
-                this.advanceToState(this.advanceStates.animateMoveUnit);
-            else if (commandValue == 1) {
-                instruction.action = 1; // TODO Setup action enum
+            if (commandValue == 1)
                 this.advanceToState(this.advanceStates.chooseAttackTarget);
-            }
+            else
+                this.advanceToState(this.advanceStates.animateMoveUnit);
         }
 
         // If B, cancel, revert state

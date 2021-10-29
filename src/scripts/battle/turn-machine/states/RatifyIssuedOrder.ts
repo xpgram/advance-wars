@@ -87,6 +87,23 @@ export class RatifyIssuedOrder extends TurnState {
                 map.destroyUnit(unit.boardLocation);
         }
 
+        // Capture Action
+        if (instruction.action === 2) {
+            this.actor.captureBuilding();
+            if (this.actor.buildingCaptured()) {
+                this.actor.stopCapturing();
+                map.squareAt(this.actor.boardLocation).terrain.faction = this.actor.faction;
+            }
+        }
+
+        // Supply Action
+        if (instruction.action === 3) {
+            map.neighborsAt(this.actor.boardLocation).orthogonals.forEach( square => {
+                if (square.unit && square.unit.faction === this.actor.faction)
+                    square.unit.resupply();
+            });
+        }
+
         // Update player controls.
         this.assets.mapCursor.teleport(this.destination);
 

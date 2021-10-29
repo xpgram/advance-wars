@@ -568,6 +568,11 @@ export abstract class UnitObject {
         return this.capture == captureLimit;
     }
 
+    /** Resets the unit's capture meter. */
+    stopCapturing() {
+        this.capture = 0;
+    }
+
     /** Resupplies this unit with operational resources. */
     resupply() {
         this.gas = this.maxGas;
