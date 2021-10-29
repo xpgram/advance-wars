@@ -62,9 +62,11 @@ export type Scenario = {
     // aiPlaystyle: AIPlayStyle,
     rankUp: boolean,
 
-    unitLimit: number,
+    unitLimit: number,      // TODO Why are there defaults if these aren't optional?
     repairHp: number,
     acquireHqOnCapture: boolean,
+    CoUnits: boolean,
+    CoPowers: boolean,
     rigsInfiniteGas: boolean,
 }
 
@@ -81,6 +83,8 @@ const Default_Scenario: Scenario = {
     unitLimit: 50,
     repairHp: 20,
     acquireHqOnCapture: false,
+    CoUnits: true,
+    CoPowers: true,
     rigsInfiniteGas: true,
 }
 
