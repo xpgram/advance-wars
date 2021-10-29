@@ -4,7 +4,7 @@
 
 - [ ] Little gameplay stuffs
   - [x] Add infantry capturing
-  - [ ] Add indirects can't move and attack
+  - [x] Add indirects can't move and attack
   - [x] Add Rigs can resupply
     - [x] By command
     - [x] On turn start
