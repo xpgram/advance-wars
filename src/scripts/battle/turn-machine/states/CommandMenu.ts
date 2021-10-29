@@ -77,21 +77,40 @@ export class CommandMenu extends TurnState {
             // etc.
 
         // set up command menu  // TODO Refactor this with ListMenuOptions
-        const options = [];
-        if (this.actor.attackReady && this.enemyInSight && (!this.actor.isIndirect || this.destination.equal(this.location)))
-            options.push(new ListMenuOption("Attack", 1));
-        if (this.actor.soldierUnit && square.terrain.building)
-            options.push(new ListMenuOption("Capture", 2));
-        if (neighbors.orthogonals.some( square => square.unit && square.unit.resuppliable(this.actor) ))
-            options.push(new ListMenuOption("Supply", 3));
-        options.push(new ListMenuOption("Wait", 0));
+        const options = [
+            new ListMenuOption("Attack", 1, {
+                triggerInclude: () => {
+                    const targetableInRange = (this.actor.attackReady && this.enemyInSight);
+                    const notIndirect = (!this.actor.isIndirect);
+                    const hasNotMoved = (this.destination.equal(this.location));
+                    return targetableInRange && (notIndirect || hasNotMoved);
+                }
+            }),
+            new ListMenuOption("Capture", 2, {
+                triggerInclude: () => {
+                    return this.actor.soldierUnit && square.terrain.building;
+                }
+            }),
+            new ListMenuOption("Supply", 3, {
+                triggerInclude: () => {
+                    return neighbors.orthogonals
+                        .some( square => square.unit && square.unit.resuppliable(this.actor) );
+                }
+            }),
+            new ListMenuOption("Wait", 0),
+        ];
         
         // TODO Oi.. this a refactor..
         this.assets.uiMenu.menu.setListItems(options);
         this.assets.uiMenu.buildGraphics();
 
 
-        const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
+        let location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
+        // if (this.assets.camera.getFocalPoint().x < location.x)
+        //     location = new Point(this.assets.mapCursor.pos).add(new Point(
+        //         -20 - this.assets.uiMenu.gui.width,
+        //         4        
+        //     ));
         this.assets.uiMenu.gui.position.set(location.x, location.y);
         this.assets.uiMenu.gui.zIndex = 1000;
         MapLayer('ui').sortChildren();
@@ -121,10 +140,13 @@ export class CommandMenu extends TurnState {
             const commandValue = this.assets.uiMenu.menu.selectedValue;
             instruction.action = commandValue;
 
+            console.log(commandValue);
+
             if (commandValue == 1)
                 this.advanceToState(this.advanceStates.chooseAttackTarget);
-            else
+            else {
                 this.advanceToState(this.advanceStates.animateMoveUnit);
+            }
         }
 
         // If B, cancel, revert state

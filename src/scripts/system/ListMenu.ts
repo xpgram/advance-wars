@@ -143,7 +143,7 @@ export class ListMenu<X, Y> {
 
   /** Returns the ListMenuOption currently being selected over. */
   get selectedOption() {
-    return this._listItems[this.selectedIndex];
+    return this._displayedListItems[this.selectedIndex];
   }
 
   /** Returns the value currently being selected over. */
