@@ -183,6 +183,7 @@ export class ListMenuGUI<X, Y> {
       // Text   // TODO Make this overridable
       // TODO If keys are not strings and have no toString() method?
       // TODO This is messy
+      // TODO More than two strings *is* messy. Visually. Maybe I should limit this specific GUI menu to two max? Force strings?
       const { key } = this.menu.selectedOption;
       const textIter = (Array.isArray(key)) ? key : [key];
       const text = textIter.slice(0,-1).join(', ');
