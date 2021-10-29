@@ -19,7 +19,7 @@
   - [x] Add Rigs can resupply
     - [x] By command
     - [x] On turn start
-    - [ ] Only when next to an ally _with less than max resources_
+    - [x] Only when next to an ally _with less than max resources_
   - [x] Add unit costs
   - [ ] Refactor Command menu to use new generic class
   - [ ] Add more commands using the easy-as new generic menu structure.
