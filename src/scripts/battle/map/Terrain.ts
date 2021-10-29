@@ -926,7 +926,7 @@ export const Terrain = {
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
-            this.layers.push({object: layers.top, key: ['top', 'row', 'static'], maskShape: true});
+            this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
     },
 
