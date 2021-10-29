@@ -24,7 +24,7 @@ export class TurnStart extends TurnState {
 
     // Move Cursor
     if (player.units.length)
-      this.assets.mapCursor.teleport(player.units[0].boardLocation);
+      this.assets.mapCursor.teleport(player.lastCursorPosition);
     // TODO The camera should lag-follow on all cursor teleports.
 
     // Move UI Windows

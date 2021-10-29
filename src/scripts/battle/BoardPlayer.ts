@@ -71,6 +71,7 @@ export class BoardPlayer {
   funds: number;                    // Funds available for spending.
   armyDeployed: boolean;            // Whether this player has had an army yet. Prevents match loss before unit purchase.
   units: UnitObject[] = [];         // List of units under control.
+  lastCursorPosition: Point;
 
   constructor(options: BoardPlayerOptions) {
     this.map = options.map;
@@ -109,6 +110,9 @@ export class BoardPlayer {
 
     // Collect property count
     this.scanCapturedProperties();
+
+    // Set default cursor position
+    this.lastCursorPosition = new Point(this.HQs[0].pos);
   }
 
   /** Unbind references which may be circular. */
