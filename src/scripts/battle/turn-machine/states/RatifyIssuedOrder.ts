@@ -7,6 +7,7 @@ import { CardinalVector, SumCardinalVectorsToVector, CardinalDirection } from ".
 import { Debug } from "../../../DebugUtils";
 import { DamageScript } from "../../DamageScript";
 import { AttackMethod } from "../../EnumTypes";
+import { Unit } from "../../Unit";
 
 
 export class RatifyIssuedOrder extends TurnState {
@@ -49,7 +50,8 @@ export class RatifyIssuedOrder extends TurnState {
 
         // Move traveling unit on the board.
         const moveSuccessful = this.assets.map.moveUnit(this.actor.boardLocation, this.destination);
-        this.actor.gas -= map.travelCostForPath(this.location, this.path, this.actor.moveType);
+        if (this.assets.scenario.rigsInfiniteGas && this.actor.type !== Unit.Rig)
+            this.actor.gas -= map.travelCostForPath(this.location, this.path, this.actor.moveType);
 
         if (moveSuccessful == false) {
             const p1 = this.actor.boardLocation;

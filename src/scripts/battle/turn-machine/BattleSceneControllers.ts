@@ -62,9 +62,10 @@ export type Scenario = {
     // aiPlaystyle: AIPlayStyle,
     rankUp: boolean,
 
-    acquireHqOnCapture: boolean,
     unitLimit: number,
     repairHp: number,
+    acquireHqOnCapture: boolean,
+    rigsInfiniteGas: boolean,
 }
 
 const Default_Scenario: Scenario = {
@@ -77,9 +78,10 @@ const Default_Scenario: Scenario = {
     // aiPlaystyle: AIPlayStyle.Balanced,
     rankUp: true,
 
-    acquireHqOnCapture: false,
     unitLimit: 50,
     repairHp: 20,
+    acquireHqOnCapture: false,
+    rigsInfiniteGas: true,
 }
 
 export class BattleSceneControllers {
