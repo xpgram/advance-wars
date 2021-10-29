@@ -576,6 +576,16 @@ export abstract class UnitObject {
         this.capture = 0;
     }
 
+    /** Returns true if this unit has resources that need resupplying. */
+    resuppliable(unit?: UnitObject): boolean {
+        const lowGas = (this.gas < this.maxGas);
+        const lowAmmo = (this.ammo < this.maxAmmo && !this.materialsInsteadOfAmmo);
+        const supplierUnit = (unit?.type === Unit.Rig);
+        const alliedSupplier = (unit?.faction === this.faction);
+        const notSelf = (unit !== this);
+        return (lowGas || lowAmmo) && (!unit || supplierUnit && alliedSupplier && notSelf);
+    }
+
     /** Resupplies this unit with operational resources. */
     resupply() {
         this.gas = this.maxGas;

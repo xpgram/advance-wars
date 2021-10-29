@@ -30,10 +30,10 @@ export class Square {
         this._terrain = terr;
     }
 
-    private _unit: UnitObject | null = null;
+    private _unit?: UnitObject;
     /**  */
     get unit() { return this._unit; }
-    set unit(unitObj: UnitObject | null) {
+    set unit(unitObj: UnitObject | undefined) {
         const oldUnit = this._unit;
         this._unit = unitObj;
 

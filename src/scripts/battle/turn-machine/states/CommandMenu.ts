@@ -40,6 +40,8 @@ export class CommandMenu extends TurnState {
 
     protected configureScene(): void {
         const {map} = this.assets;
+        const square = map.squareAt(this.destination);
+        const neighbors = map.neighborsAt(this.destination);
 
         // leave trackCar on
         this.assets.trackCar.show();
@@ -76,9 +78,9 @@ export class CommandMenu extends TurnState {
         const options = [];
         if (this.actor.attackReady && this.enemyInSight && (!this.actor.isIndirect || this.destination.equal(this.location)))
             options.push({text: "Attack", value: 1});
-        if (this.actor.soldierUnit && map.squareAt(this.destination).terrain.building)
+        if (this.actor.soldierUnit && square.terrain.building)
             options.push({text: "Capture", value: 2});
-        if (this.actor.type === Unit.Rig && map.neighborsAt(this.destination).orthogonals.some( square => square.unit?.faction === this.actor.faction && square.unit !== this.actor ))
+        if (neighbors.orthogonals.some( square => square.unit && square.unit.resuppliable(this.actor) ))
             options.push({text: "Supply", value: 3});
         options.push({text: "Wait", value: 0});
         

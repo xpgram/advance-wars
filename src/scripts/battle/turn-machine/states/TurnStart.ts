@@ -31,7 +31,7 @@ export class TurnStart extends TurnState {
     this.assets.uiSystem.skipAnimations();
 
     // Per Unit effects
-    player.units.forEach(unit => {
+    player.units.forEach( unit => {
       const neighbors = this.assets.map.neighborsAt(unit.boardLocation);
       const square = neighbors.center;
       const terrain = square.terrain;
@@ -49,12 +49,14 @@ export class TurnStart extends TurnState {
             unit.boardPlayer.expendFunds(costToRepair);
           }
 
-          unit.resupply();
+          // TODO This should be an event that gets handled by the resupply animation step.
+          if (unit.resuppliable())
+            unit.resupply();
         }
       }
 
       // Resupply from Rig/APC
-      if (neighbors.orthogonals.some(square => square.unit?.type === Unit.Rig))
+      if (neighbors.orthogonals.some( square => unit.resuppliable(square.unit) ))
         unit.resupply();
 
       // Let the players play.
