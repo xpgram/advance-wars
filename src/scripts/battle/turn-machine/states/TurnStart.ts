@@ -56,7 +56,7 @@ export class TurnStart extends TurnState {
       }
 
       // Resupply from Rig/APC
-      if (neighbors.orthogonals.some( square => unit.resuppliable(square.unit) ))
+      if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit) ))
         unit.resupply();
 
       // Let the players play.
