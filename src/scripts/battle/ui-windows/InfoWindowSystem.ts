@@ -156,7 +156,7 @@ export class InfoWindowSystem {
   }
 
   inspectTile(square: Square) {
-    this.windows.terrainInfo.inspectTerrain(square.terrain);
+    this.windows.terrainInfo.inspectTerrain(square.terrain, square.unit);
     this.windows.unitInfo.inspectUnit(square.unit);
     this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
   }

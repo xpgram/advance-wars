@@ -21,6 +21,9 @@ export class IssueOrderStart extends TurnState {
         this.assets.mapCursor.show();
         this.assets.uiSystem.show();
 
+        // Update player metrics
+        this.assets.players.all.forEach( player => player.scanCapturedProperties() );
+
         // Update player window metrics
         this.assets.uiSystem.inspectPlayers();
 

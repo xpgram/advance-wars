@@ -465,6 +465,9 @@ export abstract class UnitObject {
         return new Point(this.x, this.y);
     }
     set boardLocation(point: Point) {
+        if (point.notEqual(this.boardLocation))
+            this.stopCapturing();
+            
         this.x = point.x;
         this.y = point.y;
 

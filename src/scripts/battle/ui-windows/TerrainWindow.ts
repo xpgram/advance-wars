@@ -5,6 +5,7 @@ import { Common } from "../../CommonUtils";
 import { RectBuilder } from "./RectBuilder";
 import { TerrainObject } from "../map/TerrainObject";
 import { Terrain } from "../map/Terrain";
+import { UnitObject } from "../UnitObject";
 
 export class TerrainWindow extends SlidingWindow {
   // Constants
@@ -92,12 +93,15 @@ export class TerrainWindow extends SlidingWindow {
   }
 
   /** Updates window UI elements with given terrain object details. */
-  inspectTerrain(terrain: TerrainObject) {
+  inspectTerrain(terrain: TerrainObject, unit: UnitObject | null) {
     this.setName(terrain.name);
     this.setThumbnail(terrain.preview);
     this.setDefenseMeter(terrain.defenseRating);
     if (terrain.building)
-      this.setCaptureMeter(20);
+      if (unit)
+        this.setCaptureMeter(20 - unit.capture);  // TODO Don't hardcode capture limit
+      else
+        this.setCaptureMeter(20);
     else if (terrain.type == Terrain.Meteor)
       this.setHPMeter(99);
     else
