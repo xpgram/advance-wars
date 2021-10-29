@@ -8,6 +8,7 @@ import { CardinalVector, CardinalDirection, SumCardinalVectorsToVector } from ".
 import { Debug } from "../../../DebugUtils";
 import { Unit } from "../../Unit";
 import { ListMenuOption } from "../../../system/ListMenuOption";
+import { MapLayer } from "../../map/MapLayers";
 
 export class CommandMenu extends TurnState {
     get name(): string { return "CommandMenu"; }
@@ -92,7 +93,11 @@ export class CommandMenu extends TurnState {
 
         const location = (new Point(this.assets.mapCursor.transform.pos)).add(new Point(20,4));
         this.assets.uiMenu.gui.position.set(location.x, location.y);
+        this.assets.uiMenu.gui.zIndex = 1000;
+        MapLayer('ui').sortChildren();
         this.assets.uiMenu.show();
+
+        // TODO .sortChildren() should not be here.
 
         // TODO unit.commands should be how the selectables are determined.
         // Maybe commands returns a name/script pair? value = script.
