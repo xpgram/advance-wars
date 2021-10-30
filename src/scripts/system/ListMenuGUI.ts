@@ -196,6 +196,8 @@ export class ListMenuGUI<X, Y> {
       // Text   // TODO Make this overridable
       const { key } = this.menu.listItems[idx];
       const gText = new PIXI.BitmapText(key, fonts.menu);
+      if (item.disabled)
+        gText.tint = 0x888888;
       gText.position.set(content.x + content.width*.5, content.y);
       gText.anchor.set(.5, 0);
 
