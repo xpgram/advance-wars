@@ -21,32 +21,25 @@
     - [x] On turn start
     - [x] Only when next to an ally _with less than max resources_
   - [x] Add unit costs
-  - [ ] Refactor Command menu to use new generic class
-  - [ ] Add more commands using the easy-as new generic menu structure.
+  - [x] Refactor Command menu to use new generic class
+    - [ ] Yes, but refactor it *more.*
+  - [x] Add more commands using the easy-as new generic menu structure.
   - [ ] Add basic unit shop menu
-    - [ ] Implement MenuOption class
+    - [x] Implement MenuOption class
       - Title
       - Value
       - TriggerFunction
       - ActionFunction? We can declare, but implementation would require a refactor.
-  - [ ] Add unit spawning / manufacturing
+  - [ ] Add FieldMenu so boys can finally end their turn.
+    - [ ] Stop auto-ending turn on last unit spend.
 
 - [ ] Alternate road preference for vertical or horizontal based on oddness of tile position. Sounds fun. I like complicated roads. The function which figures this out, though, only knows what *types* its neighbors are, not their location.
-
-- [x] CommandMenuOptionObject
-  - title
-  - value
-  - trigger(square) // may need map reference
-    - trigger(point, map)
-    - trigger(square, assets)
-    Trigger returns true if the conditions for this option to appear are right.
-    For instance, 'Attack' only appears when it detects a targetable unit nearby. 'Supply' only appears when it detects the unit is a Rig and is adjacent to allies.
 
 - [ ] Refactor InfoWindowSystem
 - [x] Instant move InfoWindowSystem on turn change.
 - [x] Instant move InfoWindowSystem on return from MoveCamera state.
 
-- [x] NextOrderableUnit should go in left-right/top-down order, not sequential order of creation; the camera will jump around less. I think this is source game behavior.
+- [x] NextOrderableUnit
   - Source game behavior is to go in order of spawn, actually.
   - [ ] Source game has no hold behavior, and won't let you click to next again until the camera has found the cursor (which I think is also hidden, giving the player clear indication when they're allowed to move it).
   - My camera can be fast, that's fine. The player should at least know where the new position is in relation to where the cursor was, though. That's the main problem.
