@@ -52,6 +52,10 @@ export class NextOrderableUnit extends ControlScript {
   }
 
   protected updateScript(): void {
+    // TODO Pick an open base?
+    if (this.units.length === 0)
+      return;
+
     // TODO This should be left and right bumper,
     // info and player UI can be left and right trigger.
     if (this.gamepad.button.rightBumper.pressed) {
