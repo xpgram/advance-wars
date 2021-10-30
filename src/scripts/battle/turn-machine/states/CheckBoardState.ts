@@ -10,7 +10,6 @@ export class CheckBoardState extends TurnState {
 
     protected advanceStates = {
         startNewOrder: {state: IssueOrderStart, pre: () => {}},
-        turnEnd: {state: TurnEnd, pre: () => {}},
         // teamLoss: {state: ??, pre: () => {}},
     }
 
@@ -19,11 +18,9 @@ export class CheckBoardState extends TurnState {
     }
     
     protected configureScene(): void {
-        let oneOrderableUnit = this.assets.players.current.units.some( u => u.orderable );
+        // TODO Check players for win conditions, etc.
         
-        this.advanceToState( (oneOrderableUnit)
-            ? this.advanceStates.startNewOrder
-            : this.advanceStates.turnEnd );
+        this.advanceToState(this.advanceStates.startNewOrder);
     }
 
     update(): void {
