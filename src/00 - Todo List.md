@@ -38,6 +38,7 @@
 - [ ] Refactor InfoWindowSystem
 - [x] Instant move InfoWindowSystem on turn change.
 - [x] Instant move InfoWindowSystem on return from MoveCamera state.
+FIXME eat me
 
 - [x] NextOrderableUnit
   - Source game behavior is to go in order of spawn, actually.
@@ -102,7 +103,6 @@
   from above to let the player know what's up.
 
 
-
 - [ ] Refactor to use reducers? Approximate the pattern, anyway.
   I want: ratifyInstruction(boardState, action) => boardState
   I don't know how feasible this would really be... I'd have to do a big, BIG refactor
@@ -120,7 +120,7 @@
 - [ ] Re-rip the plasma textures: some of them are clipped by 1px.
 - [ ] Sea looks nicer, I think, but my frame-animation skills are a teense lacking. Update it.
 - [ ] Setup unit-portraits image spritesheet.
-  - [X] Unit.exhibit → Unit.infoPortrait
+  - [x] Unit.exhibit → Unit.infoPortrait
   - [ ] Terrain.landscape → Terrain.infoPortrait (consistency)
 
 - [ ] TurnState: Start→Move→Anim→Command→Cancel→Start loses the player-drawn path
@@ -137,12 +137,12 @@
 - [ ] The cursor behavior settings used by MapCursor and MenuWindow are defined separately and far away from each other, but behave similarly. This might be a good candidate for globalization.
 
 - [ ] Include CommandMenu in the turn structure.
-  - [X] Implement Waiting
-  - [X] Implement the decision branch
+  - [x] Implement Waiting
+  - [x] Implement the decision branch
   - Before the above:
-    - [X] Refactor the turn scripting system to be more... composed? Less slapped together.
-    - [X] Refactor each turn script to follow the new principles——get rid of redlines.
-    - [X] Refactor each turn script to make requests, not to evalutate algorithms.  
+    - [x] Refactor the turn scripting system to be more... composed? Less slapped together.
+    - [x] Refactor each turn script to follow the new principles——get rid of redlines.
+    - [x] Refactor each turn script to make requests, not to evalutate algorithms.  
       Ie, Map.getDestinationFrom(point): Point is used to confirm a path leads to a known location; the algorithm is not contained in the script.
     - [ ] Refactor BattleSceneControllers (I remember now I didn't know what to call it)  
       Call it CommandOrder, BattleOrder or something.
@@ -160,7 +160,7 @@
           that it wants to release its second held unit and not the first?
 
 - [ ] MoveUnit step: if square under cursor is an attackable target, change to target reticle.
-  - [X] Cursor graphic switching infrastructure
+  - [x] Cursor graphic switching infrastructure
   - [ ] Alternate cursor graphics in spritesheet
   - [ ] Cursor graphics change logic in relevant turn-states
   - [ ] Graphics change logic is written in MapCursor.ts, enable switches are given to turn states to configure behaviour.
@@ -170,12 +170,12 @@
   - [ ] Reset cursor switches to default cursor graphics
 
 - [ ] Add "Choose Attack Target" step to turn structure in two steps:
-  - [X] Active step:
-  - [X] Within the affective range, build a list of all targetable units in the order left-to-right, top-to-bottom.
-  - [X] Controls: Up/Left ascends the list, Down/Right descends the list. List loops.
+  - [x] Active step:
+  - [x] Within the affective range, build a list of all targetable units in the order left-to-right, top-to-bottom.
+  - [x] Controls: Up/Left ascends the list, Down/Right descends the list. List loops.
     - Slider objects, I believe, have range-loop as a mode setting.
-  - [X] MapCursor is shown, its controls are disabled.
-    - [X] TurnState handles controls as it handles the list.
+  - [x] MapCursor is shown, its controls are disabled.
+    - [x] TurnState handles controls as it handles the list.
   - [ ] Passive step (during 'Move' step):
   - [ ] Use recalcPathToPoint() (whatever it's called) to adjust the unit's travel destination to the nearest position within range of the target.
     - The source game ignores this rule if the actionable unit is a battleship and only recalcs the path on formally choosing a target, prefering not a similar path to the one drawn but the shortest path to some point within range. I can't think of a technical reason for this; it is probably just a convenience assumed for the player.

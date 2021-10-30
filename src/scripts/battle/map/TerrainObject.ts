@@ -1,17 +1,16 @@
 import * as PIXI from "pixi.js";
-import * as PixiFilters from "pixi-filters";
 import { LowResTransform } from "../../LowResTransform";
 import { UnitClass, MoveType, Faction } from "../EnumTypes";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { MapLayer, MapLayerFunctions } from "./MapLayers";
 import { TransformableList } from "../../TransformableList";
 import { Point3D } from "../../CommonTypes";
-import { Terrain, TerrainProperties } from "./Terrain";
+import { TerrainProperties } from "./Terrain";
 import { Game } from "../../..";
 import { whitemask } from "../../filters/Whitemask";
 import { TextureLibrary } from "../../system/TextureLibrary";
 import { tileSpotlight } from "../../filters/TileSpotlight";
-import { Debug } from "../../DebugUtils";
+import { UnitType } from "../UnitObject";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.
@@ -39,6 +38,10 @@ import { Debug } from "../../DebugUtils";
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
     new (prevTile?: TerrainObject): TerrainObject;
+    serial: number;
+
+    // TODO Serial I understand, but this is annoying.
+    getWhitemask(key: string): PIXI.Texture;
 }
 
 /**

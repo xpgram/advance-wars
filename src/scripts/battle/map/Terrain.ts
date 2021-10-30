@@ -7,6 +7,7 @@ import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { Debug } from "../../DebugUtils";
+import { Unit } from "../Unit";
 
 /**
  * Global terrain properties container.

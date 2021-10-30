@@ -4,7 +4,7 @@ import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
 
 export class TurnStart extends TurnState {
-  get name() { return ''; }
+  get name() { return 'TurnStart'; }
   get revertible() { return false; }
   get skipOnUndo() { return false; }
 

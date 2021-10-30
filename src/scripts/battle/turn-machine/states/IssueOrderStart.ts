@@ -8,12 +8,24 @@ import { MapLayerFunctions } from "../../map/MapLayers";
 import { Game } from "../../../..";
 import { Keys } from "../../../controls/KeyboardObserver";
 import { TurnEnd } from "./TurnEnd";
+import { defaultUnitSpawnMap } from "../../UnitSpawnMap";
+import { FieldMenu } from "./FieldMenu";
+import { FactoryMenu } from "./FactoryMenu";
 
 
 export class IssueOrderStart extends TurnState {
     get name() { return 'IssueOrderStart'; }
     get revertible() { return true; }   // ← If each state is either auto-skipped on undo or must deliberately cancel
     get skipOnUndo() { return false; }  //   itself via a function call, I wonder if this property is even necessary.
+
+    advanceStates = {
+        pickMoveLocation: {state: MoveUnit, pre: () => {}},
+        showUnitAttackRange: {state: ShowUnitAttackRange, pre: () => {}},
+        moveCamera: {state: MoveCamera, pre: () => {}},
+
+        fieldMenu: {state: FieldMenu, pre: () => {}},
+        factoryMenu: {state: FactoryMenu, pre: () => {}},
+    }
 
     protected assert() {
 
@@ -74,6 +86,16 @@ export class IssueOrderStart extends TurnState {
                 instruction.place = unit.boardLocation;
                 this.advanceToState(this.advanceStates.pickMoveLocation);
             }
+
+            // The tile is empty and the terrain is a factory type.
+            else if (!unit && this.assets.scenario.spawnMap.some( dict => dict.type === square.terrain.type )) {
+                this.advanceToState(this.advanceStates.factoryMenu);
+            }
+
+            // The tile has no particular function — open the Field Menu.
+            else {
+                this.advanceToState(this.advanceStates.fieldMenu);
+            }
         }
 
         // On press B, show unit attack range or initiate move camera mode.
@@ -88,9 +110,11 @@ export class IssueOrderStart extends TurnState {
                 this.advanceToState(this.advanceStates.moveCamera);
         }
 
-        // Dev shortcut to end turn
-        else if (Game.devController.get(Keys.Shift).down && Game.devController.get(Keys.E).pressed)
-            this.advanceToState(this.advanceStates.endTurn);
+        // On press Start, open the Field Menu.
+        else if (gamepad.button.start.pressed) {
+            this.advanceToState(this.advanceStates.fieldMenu);
+        }
+
 
         // TODO Remove / Refactor
         const terrainType = map.squareAt(mapCursor.pos).terrain.type;
@@ -108,13 +132,5 @@ export class IssueOrderStart extends TurnState {
 
     prev() {
         
-    }
-
-    advanceStates = {
-        pickMoveLocation: {state: MoveUnit, pre: () => {}},
-        showUnitAttackRange: {state: ShowUnitAttackRange, pre: () => {}},
-        moveCamera: {state: MoveCamera, pre: () => {}},
-
-        endTurn: {state: TurnEnd, pre: () => {}},   // TODO For dev purposes. Move to FieldMenu state.
     }
 }

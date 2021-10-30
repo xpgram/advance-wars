@@ -191,9 +191,10 @@ export class BoardPlayer {
     this.map.placeUnit(unit, location);
     this.units.push(unit);
 
-    // Other spawn settings.
-    // unit.hp = settings.hp || unit.hp;
-    // TODO This
+    // Other spawn settings // TODO Complete unit spawn settings
+    (unit as UnitObject).spent = settings.spent || false;
+
+    return unit;
   }
 
   /** Performs clerical work after a unit has been 'killed'.

@@ -24,6 +24,7 @@ import { NextOrderableUnit } from "../control-scripts/nextOrderableUnit";
 import { TurnModerator } from "../TurnModerator";
 import { ListMenu } from "../../system/ListMenu";
 import { ListMenuGUI } from "../../system/ListMenuGUI";
+import { defaultUnitSpawnMap, UnitSpawnMap } from "../UnitSpawnMap";
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -70,6 +71,8 @@ export type Scenario = {
     CoUnits: boolean,
     CoPowers: boolean,
     rigsInfiniteGas: boolean,
+
+    spawnMap: UnitSpawnMap[],
 }
 
 const Default_Scenario: Scenario = {
@@ -88,6 +91,8 @@ const Default_Scenario: Scenario = {
     CoUnits: true,
     CoPowers: true,
     rigsInfiniteGas: true,
+
+    spawnMap: defaultUnitSpawnMap,
 }
 
 export class BattleSceneControllers {

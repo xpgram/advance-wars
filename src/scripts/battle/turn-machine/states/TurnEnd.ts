@@ -3,7 +3,7 @@ import { TurnState } from "../TurnState";
 import { TurnChange } from "./TurnChange";
 
 export class TurnEnd extends TurnState {
-    get name() { return ''; }
+    get name() { return 'TurnEnd'; }
     get revertible() { return false; }
     get skipOnUndo() { return false; }
 
