@@ -70,7 +70,8 @@ export class IssueOrderStart extends TurnState {
     }
 
     update() {
-        const {map, mapCursor, instruction, gamepad} = this.assets;
+        const { players, map, mapCursor, instruction, gamepad } = this.assets;
+        const player = players.current;
 
         // On press A, select an allied unit to give instruction to
         if (gamepad.button.A.pressed) {
@@ -89,7 +90,8 @@ export class IssueOrderStart extends TurnState {
 
             // The tile is empty and the terrain is a factory type.
             else if (!unit && this.assets.scenario.spawnMap.some( dict => dict.type === square.terrain.type )) {
-                this.advanceToState(this.advanceStates.factoryMenu);
+                if (player.faction === square.terrain.faction)
+                    this.advanceToState(this.advanceStates.factoryMenu);
             }
 
             // The tile has no particular function — open the Field Menu.
