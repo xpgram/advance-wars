@@ -161,7 +161,7 @@ export class ListMenuGUI<X, Y> {
     const menuContentBox = menuProps.contentBox();
 
     this.menu.listItems.forEach( (item, idx) => {
-      const palette = (idx === this.menu.selectedIndex)
+      const palette = (idx === this.menu.selectedIndex && !item.disabled)
         ? PALETTE.button.selected
         : PALETTE.button.unselected;
 
