@@ -4,6 +4,7 @@ import { Slider } from "../Common/Slider";
 import { Color } from "../CommonUtils";
 import { Pulsar } from "../timer/Pulsar";
 import { ListMenu } from "./ListMenu";
+import { ListMenuOption } from "./ListMenuOption";
 
 // Color palette definition
 const { HSV } = Color;
@@ -89,9 +90,9 @@ export class ListMenuGUI<X, Y> {
     // is 'defined' so every single property get overwritten. With 0.
 
     this.menu = menu;
-    this.menu.cursorMovementCallback = () => {
+    this.menu.on('move-cursor', () => {
       this.buildGraphics();
-    }
+    });
 
     this.buildGraphics();
     container.addChild(this.gui);
@@ -103,7 +104,7 @@ export class ListMenuGUI<X, Y> {
   destroy() {
     this.gui.destroy({children: true});
     this.animPulsar.destroy();
-    this.menu.cursorMovementCallback = function() {};
+    this.menu.destroy();
   }
 
   /** Reveals this menu's graphics and enables player input. */
@@ -121,6 +122,12 @@ export class ListMenuGUI<X, Y> {
   /** Whether this menu is invisible and uninteractable. */
   get hidden() {
     return (!this.gui.visible);
+  }
+
+  /** Sets a new list of menu options, and rebuilds the GUI's graphics. */
+  setListItems(li: ListMenuOption<X,Y>[]) {
+    this.menu.setListItems(li);
+    this.buildGraphics();
   }
 
   /** Returns the longest pixel-width needed by this menu's displayed list items. */
