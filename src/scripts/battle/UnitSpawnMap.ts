@@ -34,6 +34,7 @@ export const defaultUnitSpawnMap = [
     Unit.AntiAir,
     Unit.Flare,
     Unit.Artillery,
+    Unit.AntiTank,
     Unit.Rockets,
     Unit.Missiles,
     Unit.Rig,
