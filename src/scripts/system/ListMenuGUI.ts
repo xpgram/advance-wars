@@ -8,7 +8,7 @@ import { ListMenu } from "./ListMenu";
 // Color palette definition
 const { HSV } = Color;
 const PALETTE = {
-  selector:   HSV(166, 100, 50),
+  selector:   HSV(166, 100, 80),
     background: HSV(196, 28, 23),
     button: {
         unselected: {
