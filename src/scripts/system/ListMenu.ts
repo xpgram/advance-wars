@@ -1,6 +1,7 @@
 import { Game } from "../..";
 import { Slider } from "../Common/Slider";
 import { VirtualGamepad } from "../controls/VirtualGamepad";
+import { Observable } from "../Observable";
 import { Pulsar } from "../timer/Pulsar";
 import { ListMenuOption } from "./ListMenuOption";
 
@@ -13,14 +14,13 @@ type CursorSettings = {
  * MenuWindow should be provided a list of MenuOptions with which to populate
  * itself and will return the value of the selected-over option upon request.
  */
-export class ListMenu<X, Y> {
+export class ListMenu<X, Y> extends Observable {
 
   private readonly gamepad: VirtualGamepad;
 
   private _listItems!: ListMenuOption<X, Y>[];
   private _displayedListItems!: ListMenuOption<X, Y>[];
   private _inputEnabled = true;
-  cursorMovementCallback: () => void;
 
   /** Represents the currently selected option. */
   private cursor!: Slider;
@@ -31,8 +31,9 @@ export class ListMenu<X, Y> {
   constructor(gp: VirtualGamepad, options?: {
     listItems?: ListMenuOption<X, Y>[],
     cursorSettings?: CursorSettings,
-    onMoveCursor?: () => void,
   }) {
+    super();
+
     // Setup option defaults
     const _options = {
       listItems: [],
@@ -40,13 +41,11 @@ export class ListMenu<X, Y> {
         firstFrameInterval: 20,
         frameInterval: 6,
       },
-      onMoveCursor: () => { return; },
       ...options,
     }
 
     // Configure
     this.gamepad = gp;
-    this.cursorMovementCallback = _options.onMoveCursor;
     this.setListItems(_options.listItems);
 
     // Add updater to global ticker.
@@ -64,6 +63,7 @@ export class ListMenu<X, Y> {
 
   /** Unlinks circular connections. */
   destroy() {
+    this.clearListeners();
     Game.scene.ticker.remove(this.update, this);
   }
 
@@ -91,7 +91,7 @@ export class ListMenu<X, Y> {
   private triggerCursorMovement() {
     const dir = this.gamepad.axis.dpad.point.y;
     this.cursor.increment(dir);
-    this.cursorMovementCallback();
+    this.updateListeners('move-cursor');
   }
 
   /** Enables the player interactivity listener. */
