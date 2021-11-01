@@ -212,7 +212,7 @@ export class BattleSceneControllers {
         // Setup control scripts
         this.scripts = {
             cameraZoom: new CameraZoom(this.gamepad, this.camera),
-            nextOrderableUnit: new NextOrderableUnit(this.gamepad, this.map, this.mapCursor, this.players),
+            nextOrderableUnit: new NextOrderableUnit(this.gamepad, this.map, this.mapCursor, this.players, this.scenario.spawnMap),
         }
 
         // Add the control script iterator to the ticker.

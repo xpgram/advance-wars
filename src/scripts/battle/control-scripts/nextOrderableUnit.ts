@@ -1,4 +1,4 @@
-import { ImmutablePointPrimitive } from "../../Common/Point";
+import { ImmutablePointPrimitive, Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ControlScript } from "../../ControlScript";
@@ -7,16 +7,21 @@ import { Map } from "../map/Map";
 import { MapCursor } from "../map/MapCursor";
 import { TurnModerator } from "../TurnModerator";
 import { UnitObject } from "../UnitObject";
+import { defaultUnitSpawnMap, UnitSpawnMap } from "../UnitSpawnMap";
+import { Button } from "../../controls/Button";
 
 
 export class NextOrderableUnit extends ControlScript {
   defaultEnabled(): boolean { return false; }
 
-  gamepad: VirtualGamepad;
+  private incrementButton: Button;
+
+  //gamepad: VirtualGamepad;  // Replace with gamepad proxy or whatever
   map: Map;
   cursor: MapCursor;
   players: TurnModerator;
-  units!: UnitObject[];
+  spawnMap: UnitSpawnMap[];
+  locations!: Point[];
   selectIdx!: Slider;
 
   holdPulsar = new Pulsar({
@@ -24,51 +29,56 @@ export class NextOrderableUnit extends ControlScript {
     firstInterval: 20,
     },
     () => {
-      if (this.gamepad.button.rightBumper.down)
+      if (this.incrementButton.down)
         this.selectIdx.increment();
-      if (this.gamepad.button.rightTrigger.down)
-        this.selectIdx.decrement();
-      this.cursor.teleport(this.units[this.selectIdx.output].boardLocation);
+      this.cursor.teleport(this.locations[this.selectIdx.output]);
     },
     this
   );
 
-  constructor(gp: VirtualGamepad, map: Map, cursor: MapCursor, turnModerator: TurnModerator) {
+  constructor(gp: VirtualGamepad, map: Map, cursor: MapCursor, turnModerator: TurnModerator, spawnMap: UnitSpawnMap[]) {
     super();
-    this.gamepad = gp;
+    this.incrementButton = gp.button.leftBumper;
+    
     this.map = map;
     this.cursor = cursor;
     this.players = turnModerator;
+    this.spawnMap = spawnMap;
   }
 
   protected enableScript(): void {
     const player = this.players.current;
-    this.units = player.units.filter( u => u.orderable );
+    const spawnTypes = Object.values(this.spawnMap).map( spawnMap => spawnMap.type );
+
+    // Gets a list of point objects for captured, unoccupied bases.
+    const bases = player.capturePoints
+      .filter( p =>
+        spawnTypes.includes(this.map.squareAt(p).terrain.type)
+        && !this.map.squareAt(p).unit );
+    // Gets a list of point objects for remaining orderable units + bases.
+    this.locations = player.units
+      .filter( u => u.orderable )
+      .map( u => u.boardLocation )
+      .concat( bases );
+    // Setup list incrementer
     this.selectIdx = new Slider({
-      max: this.units.length,
+      max: this.locations.length,
+      track: this.selectIdx?.track || 0,
       granularity: 1,
       looping: true,
     });
   }
 
   protected updateScript(): void {
-    // TODO Pick an open base?
-    if (this.units.length === 0)
+    if (this.locations.length === 0)
       return;
 
-    // TODO This should be left and right bumper,
-    // info and player UI can be left and right trigger.
-    if (this.gamepad.button.rightBumper.pressed) {
+    if (this.incrementButton.pressed) {
       this.selectIdx.increment();
-      this.cursor.teleport(this.units[this.selectIdx.output].boardLocation);
+      this.cursor.teleport(this.locations[this.selectIdx.output]);
       this.holdPulsar.start();
     }
-    if (this.gamepad.button.rightTrigger.pressed) {
-      this.selectIdx.decrement();
-      this.cursor.teleport(this.units[this.selectIdx.output].boardLocation);
-      this.holdPulsar.start();
-    }
-    if (this.gamepad.button.rightBumper.released || this.gamepad.button.rightTrigger.released)
+    if (this.incrementButton.released)
       this.holdPulsar.stop();
   }
 
