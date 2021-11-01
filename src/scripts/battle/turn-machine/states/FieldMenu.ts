@@ -15,6 +15,7 @@ export class FieldMenu extends TurnState {
     assert() { }
 
     configureScene() {
+      // TODO Instead of an enum, value could easily be the state to advance to.
       this.assets.uiMenu.menu.setListItems([
         new ListMenuOption('Commanders', 1, {
           triggerDisable: () => true,
@@ -23,8 +24,9 @@ export class FieldMenu extends TurnState {
           triggerDisable: () => true,
         }),
         new ListMenuOption('End Turn', 9),
-        new ListMenuOption('Close', 0),
       ]);
+
+      // TODO This should be a different ui menu held in the global UI layer, not map ui.
       this.assets.uiMenu.buildGraphics();
       this.assets.uiMenu.show();
       this.assets.uiMenu.gui.position.set(
@@ -47,8 +49,8 @@ export class FieldMenu extends TurnState {
           this.regressToPreviousState();
       }
 
-      // On press B, revert to field cursor.
-      else if (gamepad.button.B.pressed) {
+      // On press B or press Start, revert to field cursor.
+      else if (gamepad.button.B.pressed || gamepad.button.start.pressed) {
         this.regressToPreviousState();
       }
     }
