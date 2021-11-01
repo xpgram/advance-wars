@@ -1,5 +1,7 @@
 # Next Big Objectives
 
+- [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.
+
 - Source Game observations:
   - BoardPlayers save their cursor position on turn end. *This* is where focus is returned to on their next turn start.
   - If they have no units, the cursor is set to their HQ location. In my case, their zeroth.
@@ -13,13 +15,13 @@
 - [ ] Add Field and Shop menus to global UI layer instead of map ui.
 - [ ] Add multi-column to ListMenu.
 
-- [ ] The camera needs to emit and event when it stops moving. Or maybe it just has a getter that responds true whenever its target is in focus. This is less sophisticated, but I think it would suffice.
+- [ ] The camera needs to emit an event when it stops moving. Or maybe it just has a getter that responds true whenever its target is in focus. This is less sophisticated, but I think it would suffice.
 
-- [ ] Can ListMenu extend observer or whatever? I think I have something like that. If not, whatever; I just thought a list of callbacks would be nice, but I didn't actually want to implement them.
+- [x] Can ListMenu extend observer or whatever? I think I have something like that. If not, whatever; I just thought a list of callbacks would be nice, but I didn't actually want to implement them.
 
 - [ ] Dev button for grid: top and left edges, over bottom layer
 
-- [ ] Little gameplay stuffs
+- [x] Little gameplay stuffs
   - [x] Add infantry capturing
   - [x] Add indirects can't move and attack
   - [x] Add Rigs can resupply
@@ -30,21 +32,20 @@
   - [x] Refactor Command menu to use new generic class
     - [ ] Yes, but refactor it *more.*
   - [x] Add more commands using the easy-as new generic menu structure.
-  - [ ] Add basic unit shop menu
+  - [x] Add basic unit shop menu
     - [x] Implement MenuOption class
       - Title
       - Value
       - TriggerFunction
       - ActionFunction? We can declare, but implementation would require a refactor.
-  - [ ] Add FieldMenu so boys can finally end their turn.
-    - [ ] Stop auto-ending turn on last unit spend.
+  - [x] Add FieldMenu so boys can finally end their turn.
+    - [x] Stop auto-ending turn on last unit spend.
 
 - [ ] Alternate road preference for vertical or horizontal based on oddness of tile position. Sounds fun. I like complicated roads. The function which figures this out, though, only knows what *types* its neighbors are, not their location.
 
 - [ ] Refactor InfoWindowSystem
 - [x] Instant move InfoWindowSystem on turn change.
 - [x] Instant move InfoWindowSystem on return from MoveCamera state.
-FIXME eat me
 
 - [x] NextOrderableUnit
   - Source game behavior is to go in order of spawn, actually.
