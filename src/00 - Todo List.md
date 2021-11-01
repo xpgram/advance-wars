@@ -10,7 +10,7 @@
   - Turns don't auto end when you're out of units, of course. This leaves the shops open. I need a formal way to end turns first, though. I'm working on it.
   - The game shows you every standby phase event in sequential order. You probably won't have 100 resupplies to see, but if you did...
 
-- [ ] Move menu event handling to Ratify
+- [x] Move menu event handling to Ratify
 - [ ] Add dummy IssueOrderConfirm step, which would get approval from the server.
 - [ ] ListMenuGUI: 'key' → 'display' : a generic type. Set to {icon, title, cost}, of which some are ignored based on purpose.
 - [ ] Add Field and Shop menus to global UI layer instead of map ui.

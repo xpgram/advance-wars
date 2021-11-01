@@ -100,7 +100,22 @@ export class CommandMenu extends TurnState {
             .some(square => square.unit && square.unit.resuppliable(this.actor));
         }
       }),
-      new ListMenuOption("Wait", Instruction.Wait),
+      new ListMenuOption("Join", Instruction.Join, {
+        triggerInclude: () => {
+          const other = map.squareAt(this.destination).unit;
+          const sameType = Boolean(other && other.type === this.actor.type);
+          const sameFaction = Boolean(other && other.faction === this.actor.faction);
+          const repairable = (other && other.hp < UnitObject.MaxHp || this.actor.hp < UnitObject.MaxHp);
+          // TODO repairable = (other.repairable || this.actor.repairable) ?
+          return sameType && sameFaction && repairable;
+        }
+      }),
+      new ListMenuOption("Wait", Instruction.Wait, {
+        triggerInclude: () => {
+          const occupiable = map.squareAt(this.destination).occupiable(this.actor);
+          return occupiable;
+        }
+      }),
     ];
 
     // TODO Oi.. this a refactor..

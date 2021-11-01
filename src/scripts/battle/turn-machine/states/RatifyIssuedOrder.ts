@@ -51,7 +51,8 @@ export class RatifyIssuedOrder extends TurnState {
       actor.spent = true;
 
       // Move traveling unit on the board.
-      const moveSuccessful = this.assets.map.moveUnit(actor.boardLocation, destination);
+      const moveSuccessful = this.assets.map.moveUnit(actor.boardLocation, destination)
+        || instruction.action === Instruction.Join;
       if (this.assets.scenario.rigsInfiniteGas && actor.type !== Unit.Rig)
         actor.gas -= map.travelCostForPath(location, path, actor.moveType);
 
@@ -63,7 +64,9 @@ export class RatifyIssuedOrder extends TurnState {
 
       // Requires target point
       if (![Instruction.Wait].includes(action)) {
-        const focal = get(instruction.focal, `point of focus for action`);
+        const focal = (instruction.action === Instruction.Join)
+          ? new Point()   // Bandaid. This whole thing needs a huge refactor. It has waaay too much responsibility.
+          : get(instruction.focal, `point of focus for action`);
 
         // Attack Action
         if (instruction.action == Instruction.Attack) {

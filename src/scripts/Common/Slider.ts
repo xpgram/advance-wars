@@ -80,8 +80,6 @@ export class Slider {
             ? this.min
             : n;
 
-        console.log(n, this._track);
-
         // Looping value block——do this before applying grain since min/max are not subject to it. (Shouldn't they be?)
         if (this.looping) {
             const quotient = this.decimal();

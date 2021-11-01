@@ -43,11 +43,6 @@ const xCoordBits = genBitmask(8);
 const yCoordBits = genBitmask(8);
 const reverseFacingBits = genBitmask(1);
 
-// Other constants
-const hpLimit = 100;
-const captureLimit = 20;
-const rankLimit = 3;
-
 /**
  * This class is a container for unit variable-stat information.
  * Things like its HP, its remaining Gas, etc.
@@ -72,6 +67,10 @@ const rankLimit = 3;
  * @version 0.1.0
  */
 export abstract class UnitObject {
+    static readonly MaxHp = 100;
+    static readonly MaxCapture = 20;
+    static readonly MaxRank = 3;
+
     private static transform: LowResTransform = new LowResTransform();
     private static TintShade = 0x888888;
     private _sprite!: PIXI.AnimatedSprite;
@@ -320,7 +319,7 @@ export abstract class UnitObject {
         return Common.readBits(this.conditionInfo, hpBits.length, hpBits.shift);
     }
     set hp(num) {
-        num = Common.confine(num, 0, hpLimit);
+        num = Common.confine(num, 0, UnitObject.MaxHp);
         this.conditionInfo = Common.writeBits(this.conditionInfo, num, hpBits.length, hpBits.shift);
         
         // Update unit's UI layer
@@ -406,7 +405,7 @@ export abstract class UnitObject {
         return Common.readBits(this.conditionInfo, rankBits.length, rankBits.shift);
     }
     set rank(num) {
-        num = Common.confine(num, 0, rankLimit);
+        num = Common.confine(num, 0, UnitObject.MaxRank);
         this.conditionInfo = Common.writeBits(this.conditionInfo, num, rankBits.length, rankBits.shift);
         this.rebuildStatusIcons();
     }
@@ -563,12 +562,12 @@ export abstract class UnitObject {
     captureBuilding() {
         let captureAmt = Math.ceil(this.hp*0.1);    // A single digit, always at least 1 (unless the unit has been deadened.)
         this.capture += captureAmt;
-        this.capture = Common.confine(this.capture, 0, captureLimit);
+        this.capture = Common.confine(this.capture, 0, UnitObject.MaxCapture);
     }
 
     /** Returns true if this unit has successfully captured the building they are located over. */
     buildingCaptured() {
-        return this.capture == captureLimit;
+        return this.capture == UnitObject.MaxCapture;
     }
 
     /** Resets the unit's capture meter. */
