@@ -29,7 +29,7 @@ export class Slider {
 
         this.min = options.min || 0;
         this.max = options.max || 1;
-        this._track = (options.track === 'max') ? this.max : this.min;
+        this._track = this.min;
         
         this.granularity = Math.abs(options.granularity || 0.1);        // By default, tenths.
         this.outputFunction = options.shape || ((v) => { return v; });  // By default, linear.
@@ -40,8 +40,7 @@ export class Slider {
         this.bouncing = options.bouncing || false;
 
         // If using the this.track() setter, which depends on a lot, this must be last.
-        if (typeof options.track === 'number')
-            this.track = options.track;
+        this.track = options.track || this.min;
 
         Debug.assert(this.min < this.max, `Slider was given conflicting min/max values: min=${this.min}, max=${this.max}`);
     }
@@ -74,8 +73,14 @@ export class Slider {
 
     /** The value of the slider's tracked position. Between slider.min and .max by definition. */
     get track() { return this._track; }
-    set track(n: number) {
-        this._track = n;
+    set track(n: 'max' | 'min' | number) {
+        this._track = (n === 'max')
+            ? this.max
+            : (n === 'min')
+            ? this.min
+            : n;
+
+        console.log(n, this._track);
 
         // Looping value block——do this before applying grain since min/max are not subject to it. (Shouldn't they be?)
         if (this.looping) {
