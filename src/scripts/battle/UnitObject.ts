@@ -339,6 +339,7 @@ export abstract class UnitObject {
         return Common.readBits(this.conditionInfo, ammoBits.length, ammoBits.shift);
     }
     set ammo(num) {
+        num = Common.confine(num, 0, this.maxAmmo);
         this.conditionInfo = Common.writeBits(this.conditionInfo, num, ammoBits.length, ammoBits.shift);
         this.rebuildStatusIcons();
     }
@@ -376,6 +377,7 @@ export abstract class UnitObject {
         return Common.readBits(this.conditionInfo, captureBits.length, captureBits.shift);
     }
     set capture(num) {
+        num = Common.confine(num, 0, UnitObject.MaxCapture);
         this.conditionInfo = Common.writeBits(this.conditionInfo, num, captureBits.length, captureBits.shift);
         this.rebuildStatusIcons();
     }
@@ -390,6 +392,7 @@ export abstract class UnitObject {
         return Common.readBits(this.conditionInfo, gasBits.length, gasBits.shift);
     }
     set gas(num) {
+        num = Common.confine(num, 0, this.maxGas);
         this.conditionInfo = Common.writeBits(this.conditionInfo, num, gasBits.length, gasBits.shift);
         this.rebuildStatusIcons();
     }
