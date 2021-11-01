@@ -1,5 +1,7 @@
+import { Game } from "../..";
 import { fonts } from "../battle/ui-windows/DisplayInfo";
 import { BoxContainerProperties } from "../Common/BoxContainerProperties";
+import { Point } from "../Common/Point";
 import { Slider } from "../Common/Slider";
 import { Color } from "../CommonUtils";
 import { Pulsar } from "../timer/Pulsar";
@@ -9,36 +11,36 @@ import { ListMenuOption } from "./ListMenuOption";
 // Color palette definition
 const { HSV } = Color;
 const PALETTE = {
-  selector:   HSV(166, 100, 80),
-    background: HSV(196, 28, 23),
-    button: {
-        unselected: {
-            primary:  HSV(214, 18, 35),
-            light:    HSV(220, 16, 50),
-            lightest: HSV(195, 12, 60),
-            dark:     HSV(188, 11, 15),
-        },
-        selected: {
-            primary: HSV(170, 64, 28),
-            light:   HSV(165, 34, 60),
-            dark:    HSV(184, 35, 10),
-        },
+  selector:     HSV(166, 100, 80),
+  button: {
+    unselected: {
+      background: HSV(200, 30, 30),
+      primary:    HSV(215, 25, 35),
+      light:      HSV(220, 15,100),
+      dark:       HSV(190, 10,  0),
     },
+    selected: {
+      background: HSV(200, 30, 30),
+      primary:    HSV(170, 65, 40),
+      light:      HSV(185, 35,  0),
+      dark:       HSV(170, 35,100),
+    },
+    disabled: {
+      background: HSV(200, 0, 20),
+      primary:    HSV(215, 0, 30),
+      light:      HSV(190, 0,  0),
+      dark:       HSV(220, 0, 80),
+    },
+  },
 }
 
 // Menu element property defaults
 const LIST_ITEM_PROPS = new BoxContainerProperties({
   minWidth: 40,
-  height: fonts.menu.fontSize + 1,
-  margin: { top: .5, bottom: .5, },
+  height: fonts.menu.fontSize + 2,
+  margin: { left: 3, right: 3, top: 1, bottom: 1 },
   border: { left: 1, right: 1, top: 1, bottom: 1, },
-  padding: { left: 1, right: 1, },
-});
-const MENU_PROPS = new BoxContainerProperties({
-  padding: { left: 2, right: 2, top: 1.5, bottom: 1.5, },
-  children: [
-    LIST_ITEM_PROPS,
-  ],
+  padding: { left: 2, right: 2 },
 });
 
 /** A generic GUI represention for a ListMenu.
@@ -56,10 +58,7 @@ export class ListMenuGUI<X, Y> {
   readonly menu: ListMenu<X, Y>;
 
   /** Reference to this menu's pseudo-css properties. */
-  private configuration: {
-    listItemProps: BoxContainerProperties,
-    menuProps: BoxContainerProperties,
-  };
+  private listItemProps: BoxContainerProperties;
 
   /** The top-level graphical object for this GUI menu. */
   private readonly gui = new PIXI.Container();
@@ -77,11 +76,8 @@ export class ListMenuGUI<X, Y> {
     granularity: 1 / ListMenuGUI.CursorSettings.animFrames,
   });
 
-  constructor(menu: ListMenu<X, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties, menuProps?: BoxContainerProperties}) {
-    this.configuration = {
-      listItemProps: LIST_ITEM_PROPS,
-      menuProps: MENU_PROPS,
-    }
+  constructor(menu: ListMenu<X, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties}) {
+    this.listItemProps = LIST_ITEM_PROPS;
 
     // Well. It's nominally correct now.
     
@@ -96,6 +92,9 @@ export class ListMenuGUI<X, Y> {
 
     this.buildGraphics();
     container.addChild(this.gui);
+
+    // TODO Remove
+    Game.scene.ticker.add(() => { this.buildGraphics() });
 
     this.animPulsar.start();
   }
@@ -134,7 +133,7 @@ export class ListMenuGUI<X, Y> {
   getContentWidth(): number {
     const { listItems } = this.menu;
     if (listItems.length === 0)
-      return this.configuration.menuProps.minWidth;
+      return this.listItemProps.minWidth;
 
     const text = new PIXI.BitmapText('', fonts.menu);
     const sizes = listItems.map( i => {
@@ -147,57 +146,59 @@ export class ListMenuGUI<X, Y> {
 
   /** Builds a graphical representation of this  */
   buildGraphics() {
-    this.configuration.listItemProps.width = this.getContentWidth();
-    this.configuration.menuProps.children =
-      new Array(this.menu.listItems.length)
-      .fill(this.configuration.listItemProps);
+    this.listItemProps.width = this.getContentWidth();
 
     this.gui.removeChildren();
     
     /* Menu */
 
     const menu = new PIXI.Graphics();
-    const { menuProps, listItemProps } = this.configuration;
-
-    menu.beginFill(PALETTE.background);
-    menu.drawRect(0, 0, menuProps.elementWidth, menuProps.elementHeight);
-    menu.endFill();
+    const props = this.listItemProps;
 
     /* List Items */
 
-    const menuContentBox = menuProps.contentBox();
+    const worldPosition = new Point(menu);
 
     this.menu.listItems.forEach( (item, idx) => {
-      const palette = (idx === this.menu.selectedIndex && !item.disabled)
+      const palette = (item.disabled)
+        ? PALETTE.button.disabled
+        : (idx === this.menu.selectedIndex)
         ? PALETTE.button.selected
         : PALETTE.button.unselected;
 
       const g = new PIXI.Graphics();
-      const content = listItemProps.contentBox();
-      const background = listItemProps.borderInnerBox();
-      const border = listItemProps.borderOuterBox();
+      const content = props.contentBox();
+      const fill = props.borderInnerBox();
+      const border = props.borderOuterBox();
+      const element = props.containerBox();
 
       // Position
       g.position.set(
-        menuContentBox.x,
-        menuContentBox.y + listItemProps.elementHeight*idx
+        worldPosition.x,
+        worldPosition.y + props.elementHeight*idx
       );
 
       // Background
-      g.beginFill(palette.primary);
-      g.drawRect(background.x, background.y, background.width, background.height);
+      g.beginFill(palette.background);
+      g.drawRect(element.x, element.y, element.width, element.height);
       g.endFill();
 
-      // Lit Border
-      g.beginFill(palette.light);
-      g.drawRect(border.x, border.y, border.width, listItemProps.border.top);
-      g.drawRect(border.x, border.y, listItemProps.border.left, border.height);
+      // Button Fill
+      g.beginFill(palette.primary);
+      g.drawRect(fill.x, fill.y, fill.width, fill.height);
       g.endFill();
 
       // Shadowed Border
-      g.beginFill(palette.dark);
-      g.drawRect(border.x, border.y + border.height, border.width, -listItemProps.border.bottom);
-      g.drawRect(border.x + border.width, border.y, -listItemProps.border.right, border.height);
+      g.beginFill(palette.dark, .50);
+      g.drawRect(border.x, border.y + border.height, border.width, -props.border.bottom);
+      g.drawRect(border.x + border.width, border.y, -props.border.right, border.height);
+      g.endFill();
+
+      // Lit Border
+      g.beginFill(palette.light, .25);
+      g.drawRect(border.x, border.y, props.border.left, border.height);
+      g.beginFill(palette.light, .50);
+      g.drawRect(border.x, border.y, border.width, props.border.top);
       g.endFill();
 
       // Text   // TODO Make this overridable
@@ -205,7 +206,7 @@ export class ListMenuGUI<X, Y> {
       const gText = new PIXI.BitmapText(key, fonts.menu);
       if (item.disabled)
         gText.tint = 0x888888;
-      gText.position.set(content.x + content.width*.5, content.y);
+      gText.position.set(content.x + content.width*.5, content.y + 1);
       gText.anchor.set(.5, 0);
 
       // Combine
@@ -215,21 +216,28 @@ export class ListMenuGUI<X, Y> {
 
     /* Cursor */
 
-    const border = listItemProps.borderOuterBox();
+    // TODO Extract this to a thing. Just build all frames at once. Set play speed, etc.
+
+    const time = (Game.frameCount % 45);
+    const shrink = (time < 3) ? 1 : (time < 6) ? 2 : (time < 9) ? 1 : 0;
+
+    const border = props.borderOuterBox();
     const cursor = new PIXI.Graphics();
-    const size = 1;
+    const wpad = 3 - shrink;
+    const hpad = 1 - shrink;
+    const size = 2;
 
     cursor.beginFill(PALETTE.selector);
-    cursor.drawRect(border.x - 2*size, border.y - 2*size, border.width + 4*size, border.height + 4*size);
+    cursor.drawRect(border.x - wpad - size, border.y - hpad - size, border.width + 2*wpad + 2*size, border.height + 2*hpad + 2*size);
     cursor.endFill();
 
     cursor.beginHole();
-    cursor.drawRect(border.x - size, border.y - size, border.width + 2*size, border.height + 2*size);
+    cursor.drawRect(border.x - wpad, border.y - hpad, border.width + 2*wpad, border.height + 2*hpad);
     cursor.endHole();
 
     cursor.position.set(
-      menuContentBox.x,
-      menuContentBox.y + listItemProps.elementHeight * this.menu.selectedIndex
+      worldPosition.x,
+      worldPosition.y + props.elementHeight * this.menu.selectedIndex
     );
 
     menu.addChild(cursor);
