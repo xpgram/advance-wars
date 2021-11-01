@@ -74,8 +74,8 @@ export class NextOrderableUnit extends ControlScript {
       return;
 
     if (this.incrementButton.pressed) {
-      this.selectIdx.increment();
       this.cursor.teleport(this.locations[this.selectIdx.output]);
+      this.selectIdx.increment();
       this.holdPulsar.start();
     }
     if (this.incrementButton.released)
