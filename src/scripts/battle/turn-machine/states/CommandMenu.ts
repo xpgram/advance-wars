@@ -9,6 +9,7 @@ import { Debug } from "../../../DebugUtils";
 import { Unit } from "../../Unit";
 import { ListMenuOption } from "../../../system/ListMenuOption";
 import { MapLayer } from "../../map/MapLayers";
+import { Instruction } from "../../EnumTypes";
 
 export class CommandMenu extends TurnState {
   get name(): string { return "CommandMenu"; }
@@ -78,7 +79,7 @@ export class CommandMenu extends TurnState {
 
     // set up command menu  // TODO Refactor this with ListMenuOptions
     const options = [
-      new ListMenuOption("Attack", 1, {
+      new ListMenuOption("Attack", Instruction.Attack, {
         triggerInclude: () => {
           const targetableInRange = (this.actor.attackReady && this.enemyInSight);
           const notIndirect = (!this.actor.isIndirect);
@@ -86,20 +87,20 @@ export class CommandMenu extends TurnState {
           return targetableInRange && (notIndirect || hasNotMoved);
         }
       }),
-      new ListMenuOption("Capture", 2, {
+      new ListMenuOption("Capture", Instruction.Capture, {
         triggerInclude: () => {
           const readyToCapture = (this.actor.soldierUnit && square.terrain.building);
           const notAllied = (this.actor.faction !== square.terrain.faction);
           return readyToCapture && notAllied;
         }
       }),
-      new ListMenuOption("Supply", 3, {
+      new ListMenuOption("Supply", Instruction.Supply, {
         triggerInclude: () => {
           return neighbors.orthogonals
             .some(square => square.unit && square.unit.resuppliable(this.actor));
         }
       }),
-      new ListMenuOption("Wait", 0),
+      new ListMenuOption("Wait", Instruction.Wait),
     ];
 
     // TODO Oi.. this a refactor..
