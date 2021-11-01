@@ -209,8 +209,8 @@ export class BoardPlayer {
    * the map for properties with a matching faction. */
   scanCapturedProperties() {
     this.capturePoints = [];
-    for (let x = 0; x < this.map.width; x++)
-    for (let y = 0; y < this.map.height; y++) {
+    for (let y = 0; y < this.map.height; y++)
+    for (let x = 0; x < this.map.width; x++) {
       if (this.map.squareAt({x,y}).terrain.faction === this.faction)
         this.capturePoints.push(new Point(x,y));
     }
