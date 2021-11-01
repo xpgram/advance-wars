@@ -63,6 +63,9 @@ export class TurnStart extends TurnState {
       unit.orderable = true
     });
 
+    // Configure initial control script states
+    this.assets.scripts.nextOrderableUnit.resetIndex();
+
     this.advanceToState(this.advanceStates.checkBoardState);
   }
 

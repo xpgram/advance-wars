@@ -44,6 +44,12 @@ export class NextOrderableUnit extends ControlScript {
     this.cursor = cursor;
     this.players = turnModerator;
     this.spawnMap = spawnMap;
+    
+    this.selectIdx = new Slider({
+      max: 1,
+      granularity: 1,
+      looping: true,
+    });
   }
 
   protected enableScript(): void {
@@ -84,6 +90,10 @@ export class NextOrderableUnit extends ControlScript {
 
   protected disableScript(): void {
     this.holdPulsar.stop();
+  }
+
+  resetIndex() {
+    this.selectIdx.track = 'min';
   }
 
 }
