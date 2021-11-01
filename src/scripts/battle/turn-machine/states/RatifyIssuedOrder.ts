@@ -43,7 +43,6 @@ export class RatifyIssuedOrder extends TurnState {
       const actor = get(map.squareAt(location).unit, 'unit at location');
       const path = get(instruction.path, `actor's movement path`);
       const destination = SumCardinalVectorsToVector(path).add(location);
-      const focal = get(instruction.focal, `point of focus for action`);
 
       // Revert settings set for TrackCar.
       map.squareAt(actor.boardLocation).hideUnit = false;
@@ -62,66 +61,72 @@ export class RatifyIssuedOrder extends TurnState {
         this.failTransition(`Move operation was unsuccessful: [Unit ${p1.toString()} '${map.squareAt(p1).unit}' → Unit ${p2.toString()} '${map.squareAt(p2).unit}'] failed.`);
       }
 
-      // Attack Action
-      if (instruction.action == Instruction.Attack) {
-        const toRemove: UnitObject[] = [];
+      // Requires target point
+      if (![Instruction.Wait].includes(action)) {
+        const focal = get(instruction.focal, `point of focus for action`);
 
-        const damageApply = (attacker: UnitObject, defender: UnitObject, dmg: number) => {
-          if (dmg == 0)
-            return;
+        // Attack Action
+        if (instruction.action == Instruction.Attack) {
+          const toRemove: UnitObject[] = [];
 
-          defender.hp -= dmg;
+          const damageApply = (attacker: UnitObject, defender: UnitObject, dmg: number) => {
+            if (dmg == 0)
+              return;
 
-          if (attacker.attackMethodFor(defender) == AttackMethod.Primary)
-            attacker.ammo -= 1;
+            defender.hp -= dmg;
 
-          if (defender.hp == 0)
-            toRemove.push(defender);
+            if (attacker.attackMethodFor(defender) == AttackMethod.Primary)
+              attacker.ammo -= 1;
+
+            if (defender.hp == 0)
+              toRemove.push(defender);
+          }
+
+          const targetLoc = this.assertData(instruction.focal, 'location of attack target');
+          const target = this.assertData(map.squareAt(targetLoc).unit, 'target unit for attack');
+
+          const battleResults = DamageScript.NormalAttack(map, actor, target, seed);
+
+          damageApply(actor, target, battleResults.damage);
+          damageApply(target, actor, battleResults.counter);
+
+          for (const unit of toRemove)
+            map.destroyUnit(unit.boardLocation);
         }
 
-        const targetLoc = this.assertData(instruction.focal, 'location of attack target');
-        const target = this.assertData(map.squareAt(targetLoc).unit, 'target unit for attack');
-
-        const battleResults = DamageScript.NormalAttack(map, actor, target, seed);
-
-        damageApply(actor, target, battleResults.damage);
-        damageApply(target, actor, battleResults.counter);
-
-        for (const unit of toRemove)
-          map.destroyUnit(unit.boardLocation);
-      }
-
-      // Capture Action
-      if (instruction.action === Instruction.Capture) {
-        actor.captureBuilding();
-        if (actor.buildingCaptured()) {
-          actor.stopCapturing();
-          map.squareAt(actor.boardLocation).terrain.faction = actor.faction;
+        // Capture Action
+        if (instruction.action === Instruction.Capture) {
+          actor.captureBuilding();
+          if (actor.buildingCaptured()) {
+            actor.stopCapturing();
+            map.squareAt(actor.boardLocation).terrain.faction = actor.faction;
+          }
         }
-      }
 
-      // Supply Action
-      if (instruction.action === Instruction.Supply) {
-        map.neighborsAt(actor.boardLocation).orthogonals.forEach(square => {
-          if (square.unit && square.unit.faction === actor.faction)
-            square.unit.resupply();
-        });
-      }
+        // Supply Action
+        if (instruction.action === Instruction.Supply) {
+          map.neighborsAt(actor.boardLocation).orthogonals.forEach(square => {
+            if (square.unit && square.unit.faction === actor.faction)
+              square.unit.resupply();
+          });
+        }
 
-      // Join two units
-      if (instruction.action === Instruction.Join) {
-        const otherUnit = this.assertData(map.squareAt(destination).unit, `unit to join with`);
-        const { hp, gas, ammo } = actor;
+        // Join two units
+        if (instruction.action === Instruction.Join) {
+          const otherUnit = this.assertData(map.squareAt(destination).unit, `unit to join with`);
+          const { hp, gas, ammo } = actor;
 
-        const extraHp = Math.max(hp + otherUnit.hp - UnitObject.MaxHp, 0);
-        const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
-        player.funds += returnedFunds;
+          const extraHp = Math.max(hp + otherUnit.hp - UnitObject.MaxHp, 0);
+          const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
+          player.funds += returnedFunds;
 
-        otherUnit.hp += hp;
-        otherUnit.gas += gas;
-        otherUnit.ammo += ammo;
+          otherUnit.hp += hp;
+          otherUnit.gas += gas;
+          otherUnit.ammo += ammo;
 
-        actor.destroy();
+          actor.destroy();
+        }
+
       }
 
       // Update player controls.
