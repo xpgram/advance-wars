@@ -30,8 +30,6 @@ export class Slider {
         this.min = options.min || 0;
         this.max = options.max || 1;
         this._track = (options.track === 'max') ? this.max : this.min;
-        if (typeof options.track === 'number')
-            this.track = options.track;
         
         this.granularity = Math.abs(options.granularity || 0.1);        // By default, tenths.
         this.outputFunction = options.shape || ((v) => { return v; });  // By default, linear.
@@ -40,6 +38,10 @@ export class Slider {
         this.looping = options.looping || false;
         this.maxInclusive = options.maxInclusive || false;
         this.bouncing = options.bouncing || false;
+
+        // If using the this.track() setter, which depends on a lot, this must be last.
+        if (typeof options.track === 'number')
+            this.track = options.track;
 
         Debug.assert(this.min < this.max, `Slider was given conflicting min/max values: min=${this.min}, max=${this.max}`);
     }
@@ -52,6 +54,7 @@ export class Slider {
     /** Returns the difference between this slider's maximum and minimum values. */
     get range() {
         return this.max - this.min; // Since min < max, always positive.
+        // TODO min=-3, max=3 should return 6, not 0
     }
 
     /** Returns true if this slider is set to its maximum value. */
@@ -95,7 +98,9 @@ export class Slider {
     }
 
     /** The value of the slider's tracked position as a decimal normalized between 0 and 1. */
-    decimal() { return (this._track - this.min) / this.range; }
+    decimal() {
+        return (this.range !== 0) ? (this._track - this.min) / this.range : 0;
+    }
 
     /** Set the track position via projection from a normalized value between 0 and 1. */
     setDecimal(n: number) {
