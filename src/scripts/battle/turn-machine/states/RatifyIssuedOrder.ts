@@ -6,7 +6,7 @@ import { MapLayer } from "../../map/MapLayers";
 import { CardinalVector, SumCardinalVectorsToVector, CardinalDirection } from "../../../Common/CardinalDirection";
 import { Debug } from "../../../DebugUtils";
 import { DamageScript } from "../../DamageScript";
-import { AttackMethod } from "../../EnumTypes";
+import { AttackMethod, Instruction } from "../../EnumTypes";
 import { Unit } from "../../Unit";
 
 
@@ -61,7 +61,7 @@ export class RatifyIssuedOrder extends TurnState {
 
         // If an attack target was selected, compute damage and apply.
         // if (this.action == Action.Attack && this.focal.notEqual(Point.Origin)) {}
-        if (instruction.action == 1) {
+        if (instruction.action == Instruction.Attack) {
             const toRemove: UnitObject[] = [];
 
             const damageApply = (attacker: UnitObject, defender: UnitObject, dmg: number) => {
@@ -90,7 +90,7 @@ export class RatifyIssuedOrder extends TurnState {
         }
 
         // Capture Action
-        if (instruction.action === 2) {
+        if (instruction.action === Instruction.Capture) {
             this.actor.captureBuilding();
             if (this.actor.buildingCaptured()) {
                 this.actor.stopCapturing();
@@ -99,7 +99,7 @@ export class RatifyIssuedOrder extends TurnState {
         }
 
         // Supply Action
-        if (instruction.action === 3) {
+        if (instruction.action === Instruction.Supply) {
             map.neighborsAt(this.actor.boardLocation).orthogonals.forEach( square => {
                 if (square.unit && square.unit.faction === this.actor.faction)
                     square.unit.resupply();
