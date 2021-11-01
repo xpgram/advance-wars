@@ -1,5 +1,6 @@
 import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/ListMenuOption";
+import { Instruction } from "../../EnumTypes";
 import { Unit } from "../../Unit";
 import { UnitType } from "../../UnitObject";
 import { defaultUnitSpawnMap } from "../../UnitSpawnMap";
@@ -56,18 +57,12 @@ export class FactoryMenu extends TurnState {
         const serial = option.value;
 
         if (!option.disabled) {
-          // TODO I need to send something to ratify, probably do this there
-          const location = new Point(this.assets.mapCursor.pos);
-          const unit = this.assets.players.current.spawnUnit({
-            location,
-            serial,
-            spent: true,
-          });
-          this.assets.players.current.expendFunds(unit.cost);
+          const { instruction } = this.assets;
+          instruction.place = new Point(this.assets.mapCursor.pos);
+          instruction.action = Instruction.SpawnUnit;
+          instruction.which = serial;
 
-          // TODO This is obviously mega broken. Commands *must* be ratified.
-          // this.advanceToState(this.advanceStates.ratifyOrder);
-          this.regressToPreviousState();
+          this.advanceToState(this.advanceStates.ratifyOrder);
         }
       }
 

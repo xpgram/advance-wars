@@ -8,7 +8,10 @@ import { Debug } from "../../../DebugUtils";
 import { DamageScript } from "../../DamageScript";
 import { AttackMethod, Instruction } from "../../EnumTypes";
 import { Unit } from "../../Unit";
+import { threadId } from "worker_threads";
 
+// TODO Refactor to be less busy; responsibility for action effects doesn't really need
+// to be handled *here*, does it?
 
 export class RatifyIssuedOrder extends TurnState {
     get name(): string { return "RatifyIssuedOrder"; }
@@ -22,6 +25,8 @@ export class RatifyIssuedOrder extends TurnState {
     private actor!: UnitObject;
     private location!: Point;
     private destination!: Point;
+    private action!: Instruction;
+    private which!: number;
     private path!: CardinalDirection[];
     private seed!: number;
 
@@ -33,14 +38,18 @@ export class RatifyIssuedOrder extends TurnState {
         this.actor = get(map.squareAt(this.location).unit, 'unit at location');
         this.path = get(instruction.path, `actor's movement path`);
         this.destination = SumCardinalVectorsToVector(this.path).add(this.location);
-        // action
-        // which
+        this.action = get(instruction.action, `actor's action`);
+        this.which = 0;
         // focal
         this.seed = get(instruction.seed, 'seed for turn randomization');
+
+        if ([Instruction.SpawnUnit, Instruction.SpawnLoadUnit].includes(this.action))
+            this.which = get(instruction.which, `actor's action variant for enumerable ${this.action}`);
     }
 
     protected configureScene(): void {
         const {map, instruction} = this.assets;
+        const { location, which } = this;
 
         // Revert settings set for TrackCar.
         map.squareAt(this.actor.boardLocation).hideUnit = false;
@@ -104,6 +113,16 @@ export class RatifyIssuedOrder extends TurnState {
                 if (square.unit && square.unit.faction === this.actor.faction)
                     square.unit.resupply();
             });
+        }
+
+        // Spawn Unit
+        if (instruction.action === Instruction.SpawnUnit) {
+            const unit = this.assets.players.current.spawnUnit({
+                location,
+                serial: which,
+                spent: true,
+            });
+            this.assets.players.current.expendFunds(unit.cost);
         }
 
         // Update player controls.
