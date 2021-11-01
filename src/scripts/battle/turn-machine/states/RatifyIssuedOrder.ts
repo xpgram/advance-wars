@@ -9,141 +9,155 @@ import { DamageScript } from "../../DamageScript";
 import { AttackMethod, Instruction } from "../../EnumTypes";
 import { Unit } from "../../Unit";
 import { threadId } from "worker_threads";
+import { Common } from "../../../CommonUtils";
 
 // TODO Refactor to be less busy; responsibility for action effects doesn't really need
 // to be handled *here*, does it?
 
 export class RatifyIssuedOrder extends TurnState {
-    get name(): string { return "RatifyIssuedOrder"; }
-    get revertible(): boolean { return false; }
-    get skipOnUndo(): boolean { return false; }
+  get name(): string { return "RatifyIssuedOrder"; }
+  get revertible(): boolean { return false; }
+  get skipOnUndo(): boolean { return false; }
 
-    protected advanceStates = {
-        checkBoardState: {state: CheckBoardState, pre: () => {}}
-    }
+  protected advanceStates = {
+    checkBoardState: { state: CheckBoardState, pre: () => { } }
+  }
 
-    private actor!: UnitObject;
-    private location!: Point;
-    private destination!: Point;
-    private action!: Instruction;
-    private which!: number;
-    private path!: CardinalDirection[];
-    private seed!: number;
+  protected assert(): void {
+    
+  }
 
-    protected assert(): void {
-        const get = this.assertData.bind(this);
-        const {map, instruction} = this.assets;
+  protected configureScene(): void {
+    const get = this.assertData.bind(this);
+    const { map, instruction, players } = this.assets;
+    const player = players.current;
 
-        this.location = get(instruction.place, 'location of actor');
-        this.actor = get(map.squareAt(this.location).unit, 'unit at location');
-        this.path = get(instruction.path, `actor's movement path`);
-        this.destination = SumCardinalVectorsToVector(this.path).add(this.location);
-        this.action = get(instruction.action, `actor's action`);
-        this.which = 0;
-        // focal
-        this.seed = get(instruction.seed, 'seed for turn randomization');
+    const nonActorInstructions = [Instruction.SpawnUnit, Instruction.SpawnLoadUnit];
 
-        if ([Instruction.SpawnUnit, Instruction.SpawnLoadUnit].includes(this.action))
-            this.which = get(instruction.which, `actor's action variant for enumerable ${this.action}`);
-    }
+    const seed = get(instruction.seed, 'seed for turn randomization');
+    const location = get(instruction.place, 'location of actor');
+    const action = get(instruction.action, `actor's action`);
 
-    protected configureScene(): void {
-        const {map, instruction} = this.assets;
-        const { location, which } = this;
+    // logic for actor actions
+    if (!nonActorInstructions.includes(action)) {
+      const actor = get(map.squareAt(location).unit, 'unit at location');
+      const path = get(instruction.path, `actor's movement path`);
+      const destination = SumCardinalVectorsToVector(path).add(location);
+      const focal = get(instruction.focal, `point of focus for action`);
 
-        // Revert settings set for TrackCar.
-        map.squareAt(this.actor.boardLocation).hideUnit = false;
+      // Revert settings set for TrackCar.
+      map.squareAt(actor.boardLocation).hideUnit = false;
 
-        // Set traveling unit as 'spent' for this turn.
-        this.actor.spent = true;
+      // Set traveling unit as 'spent' for this turn.
+      actor.spent = true;
 
-        // Move traveling unit on the board.
-        const moveSuccessful = this.assets.map.moveUnit(this.actor.boardLocation, this.destination);
-        if (this.assets.scenario.rigsInfiniteGas && this.actor.type !== Unit.Rig)
-            this.actor.gas -= map.travelCostForPath(this.location, this.path, this.actor.moveType);
+      // Move traveling unit on the board.
+      const moveSuccessful = this.assets.map.moveUnit(actor.boardLocation, destination);
+      if (this.assets.scenario.rigsInfiniteGas && actor.type !== Unit.Rig)
+        actor.gas -= map.travelCostForPath(location, path, actor.moveType);
 
-        if (moveSuccessful == false) {
-            const p1 = this.actor.boardLocation;
-            const p2 = this.destination;
-            this.failTransition(`Move operation was unsuccessful: [Unit ${p1.toString()} '${map.squareAt(p1).unit}' → Unit ${p2.toString()} '${map.squareAt(p2).unit}'] failed.`);
+      if (moveSuccessful == false) {
+        const p1 = actor.boardLocation;
+        const p2 = destination;
+        this.failTransition(`Move operation was unsuccessful: [Unit ${p1.toString()} '${map.squareAt(p1).unit}' → Unit ${p2.toString()} '${map.squareAt(p2).unit}'] failed.`);
+      }
+
+      // Attack Action
+      if (instruction.action == Instruction.Attack) {
+        const toRemove: UnitObject[] = [];
+
+        const damageApply = (attacker: UnitObject, defender: UnitObject, dmg: number) => {
+          if (dmg == 0)
+            return;
+
+          defender.hp -= dmg;
+
+          if (attacker.attackMethodFor(defender) == AttackMethod.Primary)
+            attacker.ammo -= 1;
+
+          if (defender.hp == 0)
+            toRemove.push(defender);
         }
 
-        // If an attack target was selected, compute damage and apply.
-        // if (this.action == Action.Attack && this.focal.notEqual(Point.Origin)) {}
-        if (instruction.action == Instruction.Attack) {
-            const toRemove: UnitObject[] = [];
+        const targetLoc = this.assertData(instruction.focal, 'location of attack target');
+        const target = this.assertData(map.squareAt(targetLoc).unit, 'target unit for attack');
 
-            const damageApply = (attacker: UnitObject, defender: UnitObject, dmg: number) => {
-                if (dmg == 0)
-                    return;
+        const battleResults = DamageScript.NormalAttack(map, actor, target, seed);
 
-                defender.hp -= dmg;
-                
-                if (attacker.attackMethodFor(defender) == AttackMethod.Primary)
-                    attacker.ammo -= 1;
+        damageApply(actor, target, battleResults.damage);
+        damageApply(target, actor, battleResults.counter);
 
-                if (defender.hp == 0)
-                    toRemove.push(defender);
-            }
+        for (const unit of toRemove)
+          map.destroyUnit(unit.boardLocation);
+      }
 
-            const targetLoc = this.assertData(instruction.focal, 'location of attack target');
-            const target = this.assertData(map.squareAt(targetLoc).unit, 'target unit for attack');
-
-            const battleResults = DamageScript.NormalAttack(map, this.actor, target, this.seed);
-
-            damageApply(this.actor, target, battleResults.damage);
-            damageApply(target, this.actor, battleResults.counter);
-
-            for (const unit of toRemove)
-                map.destroyUnit(unit.boardLocation);
+      // Capture Action
+      if (instruction.action === Instruction.Capture) {
+        actor.captureBuilding();
+        if (actor.buildingCaptured()) {
+          actor.stopCapturing();
+          map.squareAt(actor.boardLocation).terrain.faction = actor.faction;
         }
+      }
 
-        // Capture Action
-        if (instruction.action === Instruction.Capture) {
-            this.actor.captureBuilding();
-            if (this.actor.buildingCaptured()) {
-                this.actor.stopCapturing();
-                map.squareAt(this.actor.boardLocation).terrain.faction = this.actor.faction;
-            }
-        }
+      // Supply Action
+      if (instruction.action === Instruction.Supply) {
+        map.neighborsAt(actor.boardLocation).orthogonals.forEach(square => {
+          if (square.unit && square.unit.faction === actor.faction)
+            square.unit.resupply();
+        });
+      }
 
-        // Supply Action
-        if (instruction.action === Instruction.Supply) {
-            map.neighborsAt(this.actor.boardLocation).orthogonals.forEach( square => {
-                if (square.unit && square.unit.faction === this.actor.faction)
-                    square.unit.resupply();
-            });
-        }
+      // Join two units
+      if (instruction.action === Instruction.Join) {
+        const otherUnit = this.assertData(map.squareAt(destination).unit, `unit to join with`);
+        const { hp, gas, ammo } = actor;
 
-        // Spawn Unit
-        if (instruction.action === Instruction.SpawnUnit) {
-            const unit = this.assets.players.current.spawnUnit({
-                location,
-                serial: which,
-                spent: true,
-            });
-            this.assets.players.current.expendFunds(unit.cost);
-        }
+        const extraHp = Math.max(hp + otherUnit.hp - UnitObject.MaxHp, 0);
+        const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
+        player.funds += returnedFunds;
 
-        // Update player controls.
-        this.assets.mapCursor.teleport(this.destination);
+        otherUnit.hp += hp;
+        otherUnit.gas += gas;
+        otherUnit.ammo += ammo;
 
-        // Cleanup assets used for issuing order.
-        instruction.place = null;
-        instruction.path = null;
-        instruction.action = null;
-        instruction.which = null;
-        instruction.focal = null;
+        actor.destroy();
+      }
 
-        // Advance to next state.
-        this.advanceToState(this.advanceStates.checkBoardState);
+      // Update player controls.
+      this.assets.mapCursor.teleport(destination);
     }
 
-    update(): void {
-        
+    // logic for non-actor actions
+    if (nonActorInstructions.includes(action)) {
+      // Spawn Unit
+      if (instruction.action === Instruction.SpawnUnit) {
+        const which = get(instruction.which, `actor's action variant for enumerable ${action}`);
+        const unit = this.assets.players.current.spawnUnit({
+          location,
+          serial: which,
+          spent: true,
+        });
+        this.assets.players.current.expendFunds(unit.cost);
+      }
     }
 
-    prev(): void {
-        
-    }
+    // Cleanup assets used for issuing order.
+    instruction.place = null;
+    instruction.path = null;
+    instruction.action = null;
+    instruction.which = null;
+    instruction.focal = null;
+
+    // Advance to next state.
+    this.advanceToState(this.advanceStates.checkBoardState);
+  }
+
+  update(): void {
+
+  }
+
+  prev(): void {
+
+  }
 }
