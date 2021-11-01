@@ -1,6 +1,7 @@
 # Next Big Objectives
 
 - [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.
+- [ ] Speaking of positions, write a goddamn method to tell menuGUI where the fuck to be. Jesus.
 
 - Source Game observations:
   - BoardPlayers save their cursor position on turn end. *This* is where focus is returned to on their next turn start.
