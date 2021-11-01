@@ -124,8 +124,8 @@ export class InfoWindowSystem {
     const triggerLine = Math.floor(this.camera.center.x / tileSize) + offsetFromCenter;
 
     // Set show flags
-    const showDetailWindow = (this.gamepad.button.leftTrigger.down);
-    const showCOwindows = (this.gamepad.button.leftBumper.down);
+    const showDetailWindow = (this.gamepad.button.rightTrigger.down);
+    const showCOwindows = (this.gamepad.button.rightBumper.down);
     const showWindowsOnLeft = (this.cursor.pos.x > triggerLine);
     
     // Tell each window which side to be on.
