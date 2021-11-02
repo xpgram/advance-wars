@@ -93,6 +93,7 @@ export function fillInstructionData(assets: BattleSceneControllers): void {
 /**  */
 type CommandObject = {
   name: string,
+  serial: number,
   triggerInclude: () => boolean,
   ratify: () => void,
 }
@@ -103,6 +104,7 @@ export module Command {
   /** Moves a unit from one board location to another. */
   export const Move: CommandObject = {
     name: "Move",
+    serial: 1,
     triggerInclude: function () {
       return false;
     },
@@ -124,11 +126,12 @@ export module Command {
   /** Unit idle at location command. */
   export const Wait: CommandObject = {
     name: "Wait",
-    triggerInclude: function() {
+    serial: 0,
+    triggerInclude() {
       const { map } = data.assets;
       return map.squareAt(data.destination).occupiable(data.actor);
     },
-    ratify: function() {
+    ratify() {
       Command.Move.ratify();
     },
   }
@@ -136,10 +139,11 @@ export module Command {
   /** Unit attack target from location command. */
   export const Attack: CommandObject = {
     name: "Attack",
-    triggerInclude: function() {
+    serial: 2,
+    triggerInclude() {
       return true;
     },
-    ratify: function() {
+    ratify() {
       Command.Move.ratify();
 
       const { map } = data.assets;
@@ -168,10 +172,11 @@ export module Command {
   /** Unit capture property on board command. */
   export const Capture: CommandObject = {
     name: "Capture",
-    triggerInclude: function() {
+    serial: 3,
+    triggerInclude() {
       return true;
     },
-    ratify: function() {
+    ratify() {
       Command.Move.ratify();
 
       const { actor, placeTerrain } = data;
@@ -183,13 +188,14 @@ export module Command {
     },
   }
 
-  /**  */
+  /** Unit supplies resources to adjacent allies command. */
   export const Supply: CommandObject = {
     name: "Supply",
-    triggerInclude: function() {
+    serial: 4,
+    triggerInclude() {
       return true;
     },
-    ratify: function() {
+    ratify() {
       Command.Move.ratify();
 
       const { map } = data.assets;
@@ -204,4 +210,55 @@ export module Command {
     }
   }
 
+  /** Unit combines with allied unit at destination command. */
+  export const Join: CommandObject = {
+    name: "Join",
+    serial: 5,
+    triggerInclude() {
+      return true;
+    },
+    ratify() {
+      const { map, players } = data.assets;
+      const { actor, destination } = data;
+
+      const other = map.squareAt(destination).unit;
+      if (!other)
+        throw new RatificationError(`no unit to join with`);
+      if (other.faction !== actor.faction)
+        throw new RatificationError(`units to join are not allied`);
+      if (other.type !== actor.type)
+        throw new RatificationError(`units to join are not of same type`);
+
+      const { hp, gas, ammo } = actor;
+      const extraHp = Math.max(hp + other.hp - UnitObject.MaxHp, 0);
+      const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
+      players.current.funds += returnedFunds;
+
+      other.hp += hp;
+      other.gas += gas;
+      other.ammo += ammo;
+
+      actor.destroy();
+    },
+  }
+
+  /** Unit spawns at location action. */
+  export const SpawnUnit: CommandObject = {
+    name: "SpawnUnit",
+    serial: 6,
+    triggerInclude() {
+      return false;
+    },
+    ratify() {
+      const { players } = data.assets;
+      const { which, place } = data;
+
+      const unit = players.current.spawnUnit({
+        location: place,
+        serial: which,
+        spent: true,
+      });
+      players.current.expendFunds(unit.cost);
+    },
+  }
 }
