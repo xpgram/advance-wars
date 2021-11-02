@@ -105,6 +105,19 @@ type CommandObject = {
 /** Global container for Command objects and logic. */
 export module Command {
 
+  /** Unit idle at location command. */
+  export const Wait: CommandObject = {
+    name: "Wait",
+    serial: 0,
+    triggerInclude() {
+      const { map } = data.assets;
+      return map.squareAt(data.destination).occupiable(data.actor);
+    },
+    ratify() {
+      Command.Move.ratify();
+    },
+  }
+
   /** Moves a unit from one board location to another. */
   export const Move: CommandObject = {
     name: "Move",
@@ -127,25 +140,28 @@ export module Command {
     },
   }
 
-  /** Unit idle at location command. */
-  export const Wait: CommandObject = {
-    name: "Wait",
-    serial: 0,
-    triggerInclude() {
-      const { map } = data.assets;
-      return map.squareAt(data.destination).occupiable(data.actor);
-    },
-    ratify() {
-      Command.Move.ratify();
-    },
-  }
-
   /** Unit attack target from location command. */
   export const Attack: CommandObject = {
     name: "Attack",
     serial: 2,
     triggerInclude() {
-      return true;
+      const { map } = data.assets;
+      const { actor, place, destination } = data;
+
+      // Determine if an attackable enemy is present
+      let enemyInSight = false;
+      const area = map.squareOfInfluence(actor);
+      for (let y = area.y; y < area.height; y++)
+      for (let x = area.x; x < area.width; x++) {
+        if (map.squareAt({x,y}).attackFlag)
+          enemyInSight = true;
+      }
+
+      // Other checks
+      const targetableInRange = actor.attackReady && enemyInSight;
+      const notIndirect = (!actor.isIndirect);
+      const hasNotMoved = (destination.equal(place));
+      return targetableInRange && (notIndirect || hasNotMoved);
     },
     ratify() {
       Command.Move.ratify();
@@ -178,7 +194,10 @@ export module Command {
     name: "Capture",
     serial: 3,
     triggerInclude() {
-      return true;
+      const { actor, placeTerrain } = data;
+      const readyToCapture = (actor.soldierUnit && placeTerrain.building);
+      const notAllied = (actor.faction !== placeTerrain.faction);
+      return readyToCapture && notAllied;
     },
     ratify() {
       Command.Move.ratify();
@@ -197,7 +216,12 @@ export module Command {
     name: "Supply",
     serial: 4,
     triggerInclude() {
-      return true;
+      const { map } = data.assets;
+      const { actor, destination } = data;
+      return map
+        .neighborsAt(destination)
+        .orthogonals
+        .some( square => square.unit && square.unit.resuppliable(actor) );
     },
     ratify() {
       Command.Move.ratify();
@@ -219,7 +243,17 @@ export module Command {
     name: "Join",
     serial: 5,
     triggerInclude() {
-      return true;
+      const { map } = data.assets;
+      const { actor, destination } = data;
+
+      const other = map.squareAt(destination).unit;
+      if (!other)
+        return false;
+
+      const sameType = (actor.type === other.type);
+      const sameFaction = (actor.faction === other.faction);
+      const repairable = (actor.repairable || other.repairable);
+      return sameType && sameFaction && repairable;
     },
     ratify() {
       const { map, players } = data.assets;
