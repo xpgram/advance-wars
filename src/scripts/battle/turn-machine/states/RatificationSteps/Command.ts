@@ -254,11 +254,12 @@ export module Command {
       if (!other)
         return false;
 
+      const notSelf = (actor !== other);
       const sameType = (actor.type === other.type);
       const sameFaction = (actor.faction === other.faction);
       const bothOrderable = (!actor.spent && !other.spent);
-      const repairable = (actor.repairable || other.repairable);
-      return sameType && sameFaction && bothOrderable && repairable;
+      const oneRepairable = (actor.repairable || other.repairable);
+      return notSelf && sameType && sameFaction && bothOrderable && oneRepairable;
     },
     ratify() {
       const { map, players } = data.assets;

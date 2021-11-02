@@ -98,6 +98,7 @@ export class RatifyIssuedOrder extends TurnState {
         }
 
         // Capture Action
+        // I don't know why this is broken. I guess it doesn't matter.
         if (instruction.action === Instruction.Capture) {
           actor.captureBuilding();
           if (actor.buildingCaptured()) {
