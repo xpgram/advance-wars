@@ -1,7 +1,7 @@
 # Next Big Objectives
 
 - [ ] Refactor triggers and ratifies into an accessible module.
-  - [ ] Implement each command as a CommandObject
+  - [x] Implement each command as a CommandObject
   - [ ] Migrate RatifyOrder implementation to CommandObjectss
 
 - [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.

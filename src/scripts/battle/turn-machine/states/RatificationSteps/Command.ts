@@ -256,8 +256,9 @@ export module Command {
 
       const sameType = (actor.type === other.type);
       const sameFaction = (actor.faction === other.faction);
+      const bothOrderable = (!actor.spent && !other.spent);
       const repairable = (actor.repairable || other.repairable);
-      return sameType && sameFaction && repairable;
+      return sameType && sameFaction && bothOrderable && repairable;
     },
     ratify() {
       const { map, players } = data.assets;
@@ -281,6 +282,7 @@ export module Command {
       other.ammo += ammo;
 
       actor.destroy();
+      other.spent = true;
     },
   }
 
