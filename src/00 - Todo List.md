@@ -1,5 +1,7 @@
 # Next Big Objectives
 
+- [ ] I changed CommandInstruction to type|undefined from type|null; verify steps don't assign null to values.
+
 - [ ] Join is added, but veery buggy.
   - [ ] Refactor to make Ratify cleaner.
   - [ ] Make sure actions like Attack don't appear when the tile being moved to is occupied.

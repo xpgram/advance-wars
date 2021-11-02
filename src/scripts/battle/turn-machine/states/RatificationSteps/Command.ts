@@ -1,36 +1,113 @@
-import { SumCardinalVectorsToVector } from "../../../../Common/CardinalDirection";
+import { CardinalDirection, SumCardinalVectorsToVector } from "../../../../Common/CardinalDirection";
+import { Point } from "../../../../Common/Point";
+import { Instruction } from "../../../EnumTypes";
+import { UnitObject } from "../../../UnitObject";
 import { BattleSceneControllers } from "../../BattleSceneControllers";
-import { CommandObject } from "./CommandObject";
 
+export class RatificationError extends Error {
+  constructor(message: string) {
+      super(`Missing data: ${message}`);
+      this.name = 'RatificactionError';
+  }
+}
 
-const Command = {
-  Wait: new (class WaitCommand extends CommandObject {
-    name = 'RatifyWait';
+/**  */
+const dummyData: {
+  assets?: BattleSceneControllers,
+  seed?: number,
+  action?: Instruction,
+  which?: number,
+  place?: Point,
+  actor?: UnitObject,
+  path?: CardinalDirection[],
+  destination?: Point,
+  focal?: Point,
+  target?: UnitObject,
+} = { };
 
-    triggerInclude(assets: BattleSceneControllers): boolean {
-      // TODO This should be... somewhere.
-      // This code is going to be copied a ~lot~.
+/**  */
+function assertData<T>(data: T | undefined, description: string): T {
+  if (data === undefined)
+    throw new RatificationError(description);
+  return data;
+}
 
-      const { instruction, map } = assets;
-      const { place, path } = instruction;
-      const location = this.assertData(place, `unit location`);
-      const actor = this.assertData(map.squareAt(location).unit, `unit at location`);
-      const travelPath = this.assertData(path, `actor's movement path`);
-      const destination = SumCardinalVectorsToVector(travelPath).add(location);
-      return map.squareAt(destination).occupiable(actor);
-    }
+/**  */
+const data = {
+  // I couldn't come up with a better solution than this.
+  get assets() { return assertData(dummyData.assets, `scene assets`) },
+  get seed() { return assertData(dummyData.seed, `psuedo-random seed`) },
+  get action() { return assertData(dummyData.action, `command serial`) },
+  get which() { return assertData(dummyData.which, `command serial variant`) },
+  get place() { return assertData(dummyData.place, `source location`) },
+  get actor() { return assertData(dummyData.actor, `actor object`) },
+  get path() { return assertData(dummyData.path, `actor movement path`) },
+  get destination() { return assertData(dummyData.destination, `actor movement terminal`) },
+  get focal() { return assertData(dummyData.focal, `target location`) },
+  get target() { return assertData(dummyData.target, `target object`) },
+}
 
-    ratify(assets: BattleSceneControllers): void {
-      const { instruction } = assets;
-      const { place, path } = instruction;
-      const location = this.assertData(place, `unit location`);
-      const destination = 
-      // call on RatifyMove?
-      // return
-  
-      // TODO I can get rid of most of the above.
-      // Map won't move when a tile is occupied,
-      // and all I need to verify is that a move was successful.
-    }
-  }),
+/**  */
+export function fillInstructionData(assets: BattleSceneControllers): void {
+  const d = dummyData;
+
+  //@ts-expect-error
+  Object.keys(d).forEach( key => d[key] = undefined );
+
+  const { instruction, map } = assets;
+  const { seed, action, which, focal, place, path } = instruction;
+
+  // Essential
+  d.assets = assets;
+  d.seed = seed;
+  d.action = action;
+  d.which = which;
+  d.place = place;
+  d.path = path;
+  d.focal = focal;
+
+  // Inferables
+  if (d.place) {
+    d.actor = map.squareAt(d.place).unit;
+    if (d.path)
+      d.destination = SumCardinalVectorsToVector(d.path).add(d.place);
+    if (d.destination)
+      d.target = map.squareAt(d.destination).unit;
+  }
+}
+
+/**  */
+type CommandObject = {
+  name: string,
+  triggerInclude: () => boolean,
+  ratify: () => void,
+}
+
+/**  */
+export module Command {
+
+  /**  */
+  export const Wait: CommandObject = {
+    name: "Wait",
+    triggerInclude: function() {
+      const { map } = data.assets;
+      return map.squareAt(data.destination).occupiable(data.actor);
+    },
+    ratify: function() {
+      const { map } = data.assets;
+      map.moveUnit(data.place, data.destination);
+    },
+  }
+
+  /**  */
+  export const Attack: CommandObject = {
+    name: "Attack",
+    triggerInclude: function() {
+      return true;
+    },
+    ratify: function() {
+      return;
+    },
+  }
+
 }
