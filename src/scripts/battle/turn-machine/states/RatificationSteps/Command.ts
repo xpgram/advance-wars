@@ -1,10 +1,69 @@
-import { SumCardinalVectorsToVector } from "../../../../Common/CardinalDirection";
+import { CardinalDirection, SumCardinalVectorsToVector } from "../../../../Common/CardinalDirection";
+import { Point } from "../../../../Common/Point";
+import { Instruction } from "../../../EnumTypes";
+import { UnitObject } from "../../../UnitObject";
 import { BattleSceneControllers } from "../../BattleSceneControllers";
-import { CommandObject } from "./CommandObject";
 
+export class RatificationError extends Error {
+  constructor(name: string, message: string) {
+    super(`${name} → ${message}`);
+    this.name = 'RatificationError';
+  }
+}
 
-const Command = {
-  Wait: new (class WaitCommand extends CommandObject {
+/**  */
+type CommandObject = {
+
+}
+
+/**  */
+const instructionData: {
+  action: Instruction,
+  which?: number,
+  place?: Point,
+  actor?: UnitObject,
+  path?: CardinalDirection[],
+  destination?: Point,
+  focal?: Point,
+  target?: UnitObject,
+} = {
+  action: -1,
+}
+
+/**  */
+function updateInstructionData(assets: BattleSceneControllers) {
+  
+}
+
+/**  */
+function fillData(step: string, data: Object, assets: BattleSceneControllers): void {
+  updateInstructionData(assets);
+  
+  Object.keys(data).forEach( key => {
+    if (!instructionData[key])
+      throw new RatificationError(step, `Missing data: ${key}`);
+    data[key] = instructionData[key];
+  })
+}
+
+/**  */
+export module Command {
+  export const Wait: CommandObject = {
+    ratify(assets: BattleSceneControllers): void {
+      const data: {} = {
+        
+      }
+      fillData(data, assets);
+    }
+  }
+  export const Attack: CommandObject = {
+
+  }
+}
+
+/**  */
+const Commad = {
+  Wait: {
     name = 'RatifyWait';
 
     triggerInclude(assets: BattleSceneControllers): boolean {
@@ -32,5 +91,5 @@ const Command = {
       // Map won't move when a tile is occupied,
       // and all I need to verify is that a move was successful.
     }
-  }),
+  },
 }
