@@ -1,10 +1,8 @@
 # Next Big Objectives
 
-- [ ] I changed CommandInstruction to type|undefined from type|null; verify steps don't assign null to values.
-
-- [ ] Join is added, but veery buggy.
-  - [ ] Refactor to make Ratify cleaner.
-  - [ ] Make sure actions like Attack don't appear when the tile being moved to is occupied.
+- [ ] Refactor triggers and ratifies into an accessible module.
+  - [ ] Implement each command as a CommandObject
+  - [ ] Migrate RatifyOrder implementation to CommandObjectss
 
 - [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.
 - [ ] Speaking of positions, write a goddamn method to tell menuGUI where the fuck to be. Jesus.

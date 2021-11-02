@@ -151,11 +151,11 @@ export class RatifyIssuedOrder extends TurnState {
     }
 
     // Cleanup assets used for issuing order.
-    instruction.place = null;
-    instruction.path = null;
-    instruction.action = null;
-    instruction.which = null;
-    instruction.focal = null;
+    instruction.place = undefined;
+    instruction.path = undefined;
+    instruction.action = undefined;
+    instruction.which = undefined;
+    instruction.focal = undefined;
 
     // Advance to next state.
     this.advanceToState(this.advanceStates.checkBoardState);
