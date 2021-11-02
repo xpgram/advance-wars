@@ -1,6 +1,9 @@
 import { CardinalDirection, SumCardinalVectorsToVector } from "../../../../Common/CardinalDirection";
 import { Point } from "../../../../Common/Point";
-import { Instruction } from "../../../EnumTypes";
+import { DamageScript } from "../../../DamageScript";
+import { AttackMethod, Instruction } from "../../../EnumTypes";
+import { Square } from "../../../map/Square";
+import { TerrainObject } from "../../../map/TerrainObject";
 import { Unit } from "../../../Unit";
 import { UnitObject } from "../../../UnitObject";
 import { BattleSceneControllers } from "../../BattleSceneControllers";
@@ -16,10 +19,14 @@ const dummyData: {
   action?: Instruction,
   which?: number,
   place?: Point,
+  placeTile?: Square,
+  placeTerrain?: TerrainObject,
   actor?: UnitObject,
   path?: CardinalDirection[],
   destination?: Point,
   focal?: Point,
+  focalTile?: Square,
+  focalTerrain?: TerrainObject,
   target?: UnitObject,
 } = { };
 
@@ -38,10 +45,14 @@ const data = {
   get action() { return assertData(dummyData.action, `command serial`) },
   get which() { return assertData(dummyData.which, `command serial variant`) },
   get place() { return assertData(dummyData.place, `source location`) },
+  get placeTile() { return assertData(dummyData.placeTile, `square object at source location`) },
+  get placeTerrain() { return assertData(dummyData.placeTerrain, `terrain object at source location`) },
   get actor() { return assertData(dummyData.actor, `actor object`) },
   get path() { return assertData(dummyData.path, `actor movement path`) },
   get destination() { return assertData(dummyData.destination, `actor movement terminal`) },
   get focal() { return assertData(dummyData.focal, `target location`) },
+  get focalTile() { return assertData(dummyData.focalTile, `square object at target location`) },
+  get focalTerrain() { return assertData(dummyData.focalTerrain, `terrain object at target location`) },
   get target() { return assertData(dummyData.target, `target object`) },
 }
 
@@ -66,11 +77,16 @@ export function fillInstructionData(assets: BattleSceneControllers): void {
 
   // Inferables
   if (d.place) {
-    d.actor = map.squareAt(d.place).unit;
+    d.placeTile = map.squareAt(d.place);
+    d.placeTerrain = d.placeTile.terrain;
+    d.actor = d.placeTile.unit;
     if (d.path)
       d.destination = SumCardinalVectorsToVector(d.path).add(d.place);
-    if (d.destination)
-      d.target = map.squareAt(d.destination).unit;
+  }
+  if (d.focal) {
+      d.focalTile = map.squareAt(d.focal);
+      d.focalTerrain = d.focalTile.terrain;
+      d.target = d.focalTile.unit;
   }
 }
 
@@ -124,7 +140,41 @@ export module Command {
       return true;
     },
     ratify: function() {
-      return;
+      Command.Move.ratify();
+
+      const { map } = data.assets;
+      const { seed, actor, target } = data;
+      const toRemove: UnitObject[] = [];
+
+      function damageApply(attacker: UnitObject, defender: UnitObject, damage: number) {
+        if (damage === 0)
+          return;
+        defender.hp -= damage;
+        if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
+          attacker.ammo -= 1;
+        if (defender.hp === 0)
+          toRemove.push(defender);
+      }
+
+      const battleResults = DamageScript.NormalAttack(map, actor, target, seed);
+      damageApply(actor, target, battleResults.damage);
+      damageApply(target, actor, battleResults.counter);
+
+      for (const unit of toRemove)
+        unit.destroy();
+    }
+  }
+
+  /** Unit capture property on board command. */
+  export const Capture: CommandObject = {
+    name: "Capture",
+    triggerInclude: function() {
+      return true;
+    },
+    ratify: function() {
+      Command.Move.ratify();
+
+      
     },
   }
 
