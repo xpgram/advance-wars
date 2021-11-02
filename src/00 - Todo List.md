@@ -4,7 +4,7 @@
   - [x] Implement each command as a CommandObject
   - [ ] Migrate RatifyOrder implementation to CommandObjects
   - [ ] Migrate SpawnUnit as well; currently broken because it's literally unimplemented, Ratify doesn't know how to handle the serial.
-  - [ ] Also, PickTarget is broken. Same reason.
+  - [x] Also, PickTarget is broken. Same reason.
 
 - [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.
 - [ ] Speaking of positions, write a goddamn method to tell menuGUI where the fuck to be. Jesus.

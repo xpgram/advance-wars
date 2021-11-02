@@ -118,7 +118,7 @@ export class CommandMenu extends TurnState {
       const commandValue = this.assets.uiMenu.menu.selectedValue;
       instruction.action = commandValue;
 
-      if (commandValue == 1)
+      if (commandValue == Command.Attack.serial)
         this.advanceToState(this.advanceStates.chooseAttackTarget);
       else {
         this.advanceToState(this.advanceStates.animateMoveUnit);
