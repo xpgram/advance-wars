@@ -131,8 +131,8 @@ export module Command {
     name: "Wait",
     serial: 0,
     triggerInclude() {
-      const { map } = data.assets;
-      return map.squareAt(data.destination).occupiable(data.actor);
+      const { actor, destinationTile } = data;
+      return destinationTile.occupiable(actor);
     },
     ratify() {
       Command.Move.ratify();
@@ -216,6 +216,7 @@ export module Command {
     serial: 3,
     triggerInclude() {
       const { actor, destinationTerrain } = data;
+
       const readyToCapture = (actor.soldierUnit && destinationTerrain.building);
       const notAllied = (actor.faction !== destinationTerrain.faction);
       return readyToCapture && notAllied;
@@ -224,6 +225,7 @@ export module Command {
       Command.Move.ratify();
 
       const { actor, destinationTerrain } = data;
+
       actor.captureBuilding();
       if (actor.buildingCaptured()) {
         actor.stopCapturing();
@@ -239,6 +241,7 @@ export module Command {
     triggerInclude() {
       const { map } = data.assets;
       const { actor, destination } = data;
+      
       return map
         .neighborsAt(destination)
         .orthogonals

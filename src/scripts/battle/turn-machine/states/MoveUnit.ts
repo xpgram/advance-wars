@@ -52,14 +52,14 @@ export class MoveUnit extends TurnState {
         }
         
         // On press A and viable location, advance state
+        // TODO Ha ha, hoooly shit. Clean this.
         else if (gamepad.button.A.pressed
             && map.squareAt(this.lastCursorPos).moveFlag == true
             && (map.squareAt(this.lastCursorPos).occupiable(this.travellingUnit)
-                || (map.squareAt(this.lastCursorPos).unit
+                || ( map.squareAt(this.lastCursorPos).unit
                     && map.squareAt(this.lastCursorPos).unit.type === this.travellingUnit.type
                     && map.squareAt(this.lastCursorPos).unit.faction === this.travellingUnit.faction
-                    )
-                )
+                    && !map.squareAt(this.lastCursorPos).unit.spent ) )
             ) {
 
             instruction.path = map.pathFrom(this.location);

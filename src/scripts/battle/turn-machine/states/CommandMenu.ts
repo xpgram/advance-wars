@@ -44,8 +44,6 @@ export class CommandMenu extends TurnState {
 
   protected configureScene(): void {
     const { map } = this.assets;
-    const square = map.squareAt(this.destination);
-    const neighbors = map.neighborsAt(this.destination);
 
     // leave trackCar on
     this.assets.trackCar.show();
@@ -55,12 +53,13 @@ export class CommandMenu extends TurnState {
     map.squareAt(this.location).moveFlag = true;
     map.squareAt(this.destination).moveFlag = true;
 
+    const destOccupiable = map.squareAt(this.destination).occupiable(this.actor);
     const notIndirectOrNotMoved = (!this.actor.isIndirect || this.destination.equal(this.location));
 
     // Retain attackable flags as well.
     const range = this.actor.rangeMap;
     const points = range.points.map(p => this.destination.add(p));
-    if (notIndirectOrNotMoved) {
+    if (notIndirectOrNotMoved && destOccupiable) {
       for (const p of points) {
         if (map.validPoint(p)) {
           if (map.squareAt(p).attackable(this.actor)) {
@@ -73,7 +72,10 @@ export class CommandMenu extends TurnState {
 
     // set up command menu
     fillInstructionData(this.assets);
-    const options = Object.values(Command).map( command =>
+    const commands = (destOccupiable)
+      ? Object.values(Command)
+      : [Command.Join];
+    const options = commands.map( command =>
       new ListMenuOption(command.name, command.serial, {
         triggerInclude: command.triggerInclude,
       })
