@@ -1,12 +1,13 @@
-import { CardinalDirection, SumCardinalVectorsToVector } from "../../../../Common/CardinalDirection";
-import { Point } from "../../../../Common/Point";
-import { DamageScript } from "../../../DamageScript";
-import { AttackMethod, Instruction } from "../../../EnumTypes";
-import { Square } from "../../../map/Square";
-import { TerrainObject } from "../../../map/TerrainObject";
-import { Unit } from "../../../Unit";
-import { UnitObject } from "../../../UnitObject";
-import { BattleSceneControllers } from "../../BattleSceneControllers";
+import { CardinalDirection, SumCardinalVectorsToVector } from "../../Common/CardinalDirection";
+import { Point } from "../../Common/Point";
+import { Debug } from "../../DebugUtils";
+import { DamageScript } from "../DamageScript";
+import { AttackMethod, Instruction } from "../EnumTypes";
+import { Square } from "../map/Square";
+import { TerrainObject } from "../map/TerrainObject";
+import { Unit } from "../Unit";
+import { UnitObject } from "../UnitObject";
+import { BattleSceneControllers } from "./BattleSceneControllers";
 
 export class RatificationError extends Error {
   name = 'RatificationError';
@@ -25,6 +26,8 @@ const dummyData: {
   actor?: UnitObject,
   path?: CardinalDirection[],
   destination?: Point,
+  destinationTile?: Square,
+  destinationTerrain?: TerrainObject,
   focal?: Point,
   focalTile?: Square,
   focalTerrain?: TerrainObject,
@@ -53,6 +56,8 @@ const data = {
   get actor() { return assertData(dummyData.actor, `actor object`) },
   get path() { return assertData(dummyData.path, `actor movement path`) },
   get destination() { return assertData(dummyData.destination, `actor movement terminal`) },
+  get destinationTile() { return assertData(dummyData.destinationTile, `square object at movement terminal`) },
+  get destinationTerrain() { return assertData(dummyData.destinationTerrain, `terrain object at movement terminal`) },
   get focal() { return assertData(dummyData.focal, `target location`) },
   get focalTile() { return assertData(dummyData.focalTile, `square object at target location`) },
   get focalTerrain() { return assertData(dummyData.focalTerrain, `terrain object at target location`) },
@@ -87,11 +92,23 @@ export function fillInstructionData(assets: BattleSceneControllers): void {
     if (d.path)
       d.destination = SumCardinalVectorsToVector(d.path).add(d.place);
   }
+  if (d.destination) {
+    d.destinationTile = map.squareAt(d.destination);
+    d.destinationTerrain = d.destinationTile.terrain;
+  }
   if (d.focal) {
       d.focalTile = map.squareAt(d.focal);
       d.focalTerrain = d.focalTile.terrain;
       d.target = d.focalTile.unit;
   }
+}
+
+/** Returns a CommandObject corrosponding to the given serial number. */
+export function getCommandObject(serial: number): CommandObject {
+  const command = Object.values(Command).find( c => c.serial === serial );
+  if (!command)
+    throw new Error(`could not retrieve command object for serial ${serial}`);
+  return command;
 }
 
 /** Interface all Commands must adhere to. */
@@ -135,10 +152,8 @@ export module Command {
 
       if (! map.moveUnit(place, destination) )
         throw new RatificationError(`could not move unit ${place.toString()} → ${destination.toString()}`);
-
-      map.squareAt(place).hideUnit = false;
+      
       actor.spent = true;
-
       if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
         actor.gas -= map.travelCostForPath(place, path, actor.moveType);
     },
@@ -198,19 +213,19 @@ export module Command {
     name: "Capture",
     serial: 3,
     triggerInclude() {
-      const { actor, placeTerrain } = data;
-      const readyToCapture = (actor.soldierUnit && placeTerrain.building);
-      const notAllied = (actor.faction !== placeTerrain.faction);
+      const { actor, destinationTerrain } = data;
+      const readyToCapture = (actor.soldierUnit && destinationTerrain.building);
+      const notAllied = (actor.faction !== destinationTerrain.faction);
       return readyToCapture && notAllied;
     },
     ratify() {
       Command.Move.ratify();
 
-      const { actor, placeTerrain } = data;
+      const { actor, destinationTerrain } = data;
       actor.captureBuilding();
       if (actor.buildingCaptured()) {
         actor.stopCapturing();
-        placeTerrain.faction = actor.faction;
+        destinationTerrain.faction = actor.faction;
       }
     },
   }
