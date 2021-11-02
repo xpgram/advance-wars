@@ -170,10 +170,12 @@ export module Command {
       // Determine if an attackable enemy is present
       let enemyInSight = false;
       const area = map.squareOfInfluence(actor);
-      for (let y = area.y; y < area.height; y++)
-      for (let x = area.x; x < area.width; x++) {
-        if (map.squareAt({x,y}).attackFlag)
+      
+      for (let y = area.y; y < area.y + area.height; y++)
+      for (let x = area.x; x < area.x + area.width; x++) {
+        if (map.squareAt({x,y}).attackFlag) {
           enemyInSight = true;
+        }
       }
 
       // Other checks

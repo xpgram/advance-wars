@@ -1,9 +1,7 @@
 import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/ListMenuOption";
-import { Instruction } from "../../EnumTypes";
-import { Unit } from "../../Unit";
-import { UnitType } from "../../UnitObject";
 import { defaultUnitSpawnMap } from "../../UnitSpawnMap";
+import { Command } from "../Command";
 import { TurnState } from "../TurnState";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
@@ -54,13 +52,13 @@ export class FactoryMenu extends TurnState {
       // On press A, handle selected option.
       if (gamepad.button.A.pressed) {
         const option = menu.selectedOption;
-        const serial = option.value;
+        const unitSerial = option.value;
 
         if (!option.disabled) {
           const { instruction } = this.assets;
           instruction.place = new Point(this.assets.mapCursor.pos);
-          instruction.action = Instruction.SpawnUnit;
-          instruction.which = serial;
+          instruction.action = Command.SpawnUnit.serial;
+          instruction.which = unitSerial;
 
           this.advanceToState(this.advanceStates.ratifyOrder);
         }

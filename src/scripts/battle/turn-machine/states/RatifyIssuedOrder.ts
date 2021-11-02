@@ -36,8 +36,6 @@ export class RatifyIssuedOrder extends TurnState {
 
     const action = get(instruction.action, `serial for action to be taken`);
     const location = get(instruction.place, 'location of actor');
-    const path = get(instruction.path, `actor's movement path`);
-    const destination = SumCardinalVectorsToVector(path).add(location);
 
     // Revert settings set for TrackCar.
     map.squareAt(location).hideUnit = false;
@@ -48,8 +46,11 @@ export class RatifyIssuedOrder extends TurnState {
     command.ratify();
 
     // Update player controls.
-    if (destination)
+    if (instruction.path) {
+      const path = get(instruction.path, `actor's movement path`);
+      const destination = SumCardinalVectorsToVector(path).add(location);
       this.assets.mapCursor.teleport(destination);
+    }
 
     // logic for non-actor actions
     // TODO link factory menu with ratify to use Command.ts
