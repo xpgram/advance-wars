@@ -174,8 +174,34 @@ export module Command {
     ratify: function() {
       Command.Move.ratify();
 
-      
+      const { actor, placeTerrain } = data;
+      actor.captureBuilding();
+      if (actor.buildingCaptured()) {
+        actor.stopCapturing();
+        placeTerrain.faction = actor.faction;
+      }
     },
+  }
+
+  /**  */
+  export const Supply: CommandObject = {
+    name: "Supply",
+    triggerInclude: function() {
+      return true;
+    },
+    ratify: function() {
+      Command.Move.ratify();
+
+      const { map } = data.assets;
+      const { actor } = data;
+
+      map.neighborsAt(actor.boardLocation)
+        .orthogonals
+        .forEach( square => {
+          if (square.unit && square.unit.resuppliable(actor))
+            square.unit.resupply();
+        });
+    }
   }
 
 }
