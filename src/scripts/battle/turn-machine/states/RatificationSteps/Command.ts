@@ -12,7 +12,8 @@ export class RatificationError extends Error {
   name = 'RatificationError';
 }
 
-/**  */
+/** Container which holds commonly requested field information and object
+ * references, if they are acquirable. */
 const dummyData: {
   assets?: BattleSceneControllers,
   seed?: number,
@@ -30,14 +31,16 @@ const dummyData: {
   target?: UnitObject,
 } = { };
 
-/**  */
+/** Asserts data exists and returns it.
+ * @throws RatificationError if data is undefined. */
 function assertData<T>(data: T | undefined, description: string): T {
   if (data === undefined)
     throw new RatificationError(`Missing data: ${description}`);
   return data;
 }
 
-/**  */
+/** Access to getters for commonly requested field information and object references.
+ * @throws RatificationError if requested information does not exist. */
 const data = {
   // I couldn't come up with a better solution than this.
   get assets() { return assertData(dummyData.assets, `scene assets`) },
@@ -56,7 +59,8 @@ const data = {
   get target() { return assertData(dummyData.target, `target object`) },
 }
 
-/**  */
+/** Updates the CommandObject system with new instruction data.
+ * Must be called before retriggering or ratifying any changes. */
 export function fillInstructionData(assets: BattleSceneControllers): void {
   const d = dummyData;
 
@@ -90,7 +94,7 @@ export function fillInstructionData(assets: BattleSceneControllers): void {
   }
 }
 
-/**  */
+/** Interface all Commands must adhere to. */
 type CommandObject = {
   name: string,
   serial: number,
@@ -98,7 +102,7 @@ type CommandObject = {
   ratify: () => void,
 }
 
-/**  */
+/** Global container for Command objects and logic. */
 export module Command {
 
   /** Moves a unit from one board location to another. */
