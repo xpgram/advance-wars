@@ -96,9 +96,13 @@ export function fillInstructionData(assets: BattleSceneControllers): void {
 
 /** Interface all Commands must adhere to. */
 type CommandObject = {
+  /** Name string; use as menu option title. */
   name: string,
+  /** Command identification serial. */
   serial: number,
+  /** Returns true if this command should be included in a ListMenu. */
   triggerInclude: () => boolean,
+  /** Effects changes on the board. */
   ratify: () => void,
 }
 
