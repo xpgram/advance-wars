@@ -1,14 +1,12 @@
 import { CardinalDirection, SumCardinalVectorsToVector } from "../../../../Common/CardinalDirection";
 import { Point } from "../../../../Common/Point";
 import { Instruction } from "../../../EnumTypes";
+import { Unit } from "../../../Unit";
 import { UnitObject } from "../../../UnitObject";
 import { BattleSceneControllers } from "../../BattleSceneControllers";
 
 export class RatificationError extends Error {
-  constructor(message: string) {
-      super(`Missing data: ${message}`);
-      this.name = 'RatificactionError';
-  }
+  name = 'RatificationError';
 }
 
 /**  */
@@ -28,7 +26,7 @@ const dummyData: {
 /**  */
 function assertData<T>(data: T | undefined, description: string): T {
   if (data === undefined)
-    throw new RatificationError(description);
+    throw new RatificationError(`Missing data: ${description}`);
   return data;
 }
 
@@ -86,7 +84,28 @@ type CommandObject = {
 /**  */
 export module Command {
 
-  /**  */
+  /** Moves a unit from one board location to another. */
+  export const Move: CommandObject = {
+    name: "Move",
+    triggerInclude: function () {
+      return false;
+    },
+    ratify: function () {
+      const { map, scenario } = data.assets;
+      const { place, path, destination, actor } = data;
+
+      if (! map.moveUnit(place, destination) )
+        throw new RatificationError(`could not move unit ${place.toString()} → ${destination.toString()}`);
+
+      map.squareAt(place).hideUnit = false;
+      actor.spent = true;
+
+      if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
+        actor.gas -= map.travelCostForPath(place, path, actor.moveType);
+    },
+  }
+
+  /** Unit idle at location command. */
   export const Wait: CommandObject = {
     name: "Wait",
     triggerInclude: function() {
@@ -94,12 +113,11 @@ export module Command {
       return map.squareAt(data.destination).occupiable(data.actor);
     },
     ratify: function() {
-      const { map } = data.assets;
-      map.moveUnit(data.place, data.destination);
+      Command.Move.ratify();
     },
   }
 
-  /**  */
+  /** Unit attack target from location command. */
   export const Attack: CommandObject = {
     name: "Attack",
     triggerInclude: function() {
