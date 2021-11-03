@@ -1,5 +1,12 @@
 # Next Big Objectives
 
+- [ ] Load Unit
+- [x] nextOrderable - Break into two: unit and base
+- [ ] Land's End - move predeploy closer for more efficient testing.
+- [ ] Expand ListMenu to allow for columns
+- [ ] New FactoryShop GUI for ListMenu
+  - [ ] Force UnitDetail open and right side during shop menu
+
 - [x] Join requires selection over tiles with same-type units, but this requires an occupiable() check on every_ other_ command_. Is this sensible? Is this the future the left wants?
   - [x] PickMove needs special logic anyway to prevent attack tiles from appearing during the Join ingress. So, maybe it can just effect the menu there.
 - [x] Refactor triggers and ratifies into an accessible module.
@@ -10,6 +17,9 @@
 
 - [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.
 - [ ] Speaking of positions, write a goddamn method to tell menuGUI where the fuck to be. Jesus.
+
+- [ ] Global controller proxy.
+  InfoWindowSystem should ask if the showDetailWindow button is down, not specifically the right trigger. Changing that shit is annoying af.
 
 - Source Game observations:
   - BoardPlayers save their cursor position on turn end. *This* is where focus is returned to on their next turn start.

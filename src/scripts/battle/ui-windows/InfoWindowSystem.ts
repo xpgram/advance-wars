@@ -125,7 +125,7 @@ export class InfoWindowSystem {
 
     // Set show flags
     const showDetailWindow = (this.gamepad.button.rightTrigger.down);
-    const showCOwindows = (this.gamepad.button.rightBumper.down);
+    const showCOwindows = (this.gamepad.button.leftTrigger.down);
     const showWindowsOnLeft = (this.cursor.pos.x > triggerLine);
     
     // Tell each window which side to be on.
