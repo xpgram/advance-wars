@@ -3,6 +3,7 @@
 - [x] add cursor pos to debug ui, hide by default?
 - [x] Load Unit
 - [ ] Drop Unit
+  This one's going to be tricky...
   - [ ] CommandMenu → Where → Ratify
   - [ ] CMenu → Where → Ratify → CMenu → Where/Wait → Ratify → TurnChange
 - [x] nextOrderable - Break into two: unit and base
