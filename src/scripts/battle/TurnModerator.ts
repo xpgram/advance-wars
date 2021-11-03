@@ -7,6 +7,7 @@ export class TurnModerator {
 
     private readonly players: BoardPlayer[];
     private currentIdx: Slider;
+    private _day: number = 1;
 
     constructor(players: BoardPlayer[]) {
         this.players = players;
@@ -25,7 +26,13 @@ export class TurnModerator {
         return this.players[this.currentIdx.output];
     }
 
+    get day() {
+        return this._day;
+    }
+
     increment() {
+        if (this.currentIdx.output === this.players.length - 1)
+            this._day++;
         this.currentIdx.increment();
     }
 }

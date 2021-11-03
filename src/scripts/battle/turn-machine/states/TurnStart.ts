@@ -1,4 +1,5 @@
 import { Common } from "../../../CommonUtils";
+import { UnitClass } from "../../EnumTypes";
 import { Unit } from "../../Unit";
 import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
@@ -36,6 +37,8 @@ export class TurnStart extends TurnState {
       const square = neighbors.center;
       const terrain = square.terrain;
 
+      let supplied = false;
+
       // Repair unit HP and resupply from properties
       if (terrain.building && terrain.faction === unit.faction) {
         if (terrain.repairType === unit.unitClass) {
@@ -50,14 +53,25 @@ export class TurnStart extends TurnState {
           }
 
           // TODO This should be an event that gets handled by the resupply animation step.
-          if (unit.resuppliable())
+          if (unit.resuppliable()) {
             unit.resupply();
+            supplied = true;
+          }
         }
       }
 
       // Resupply from Rig/APC
-      if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit) ))
+      if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit) )) {
         unit.resupply();
+        supplied = true;
+      }
+
+      // Expend gas if flying
+      if (unit.unitClass === UnitClass.Air && !supplied && this.assets.players.day > 1) {
+        unit.gas -= 5;    // TODO Unhardcode this
+        if (unit.gas <= 0)
+          unit.destroy();
+      }
 
       // Let the players play.
       unit.orderable = true
