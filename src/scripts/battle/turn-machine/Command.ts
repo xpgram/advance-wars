@@ -126,19 +126,6 @@ type CommandObject = {
 /** Global container for Command objects and logic. */
 export module Command {
 
-  /** Unit idle at location command. */
-  export const Wait: CommandObject = {
-    name: "Wait",
-    serial: 0,
-    triggerInclude() {
-      const { actor, destinationTile } = data;
-      return destinationTile.occupiable(actor);
-    },
-    ratify() {
-      Command.Move.ratify();
-    },
-  }
-
   /** Moves a unit from one board location to another. */
   export const Move: CommandObject = {
     name: "Move",
@@ -324,6 +311,22 @@ export module Command {
         spent: true,
       });
       players.current.expendFunds(unit.cost);
+    },
+  }
+
+  // Wait is last for menu organization reasons, but should also
+  // but the zeroth serial for default-behavior reasons.
+
+  /** Unit idle at location command. */
+  export const Wait: CommandObject = {
+    name: "Wait",
+    serial: 0,
+    triggerInclude() {
+      const { actor, destinationTile } = data;
+      return destinationTile.occupiable(actor);
+    },
+    ratify() {
+      Command.Move.ratify();
     },
   }
 }
