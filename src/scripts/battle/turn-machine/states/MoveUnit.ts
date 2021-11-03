@@ -52,22 +52,23 @@ export class MoveUnit extends TurnState {
         }
         
         // On press A and viable location, advance state
-        // TODO Ha ha, hoooly shit. Clean this.
-        else if (gamepad.button.A.pressed
-            && map.squareAt(this.lastCursorPos).moveFlag == true
-            && (map.squareAt(this.lastCursorPos).occupiable(this.travellingUnit)
-                || ( map.squareAt(this.lastCursorPos).unit
-                    && (map.squareAt(this.lastCursorPos).unit.type === this.travellingUnit.type
-                        && map.squareAt(this.lastCursorPos).unit.faction === this.travellingUnit.faction
-                        && !map.squareAt(this.lastCursorPos).unit.spent
-                    )
-                    || map.squareAt(this.lastCursorPos).unit?.boardable(this.travellingUnit)
-                    )
-                )
-            ) {
+        else if (gamepad.button.A.pressed) {
+            const square = map.squareAt(this.lastCursorPos);
+            const unit = square.unit;
+            const traveler = this.travellingUnit;
 
-            instruction.path = map.pathFrom(this.location);
-            this.advanceToState(this.advanceStates.commandMenu);
+            const moveable = square.moveFlag;
+            const occupiable = square.occupiable(this.travellingUnit);
+            const mergeable = ( unit?.type === traveler.type
+                && unit?.faction === traveler.faction
+                && unit?.spent === false );
+            const boardable = unit?.boardable(traveler);
+
+            // Final check
+            if (moveable && (occupiable || mergeable || boardable)) {
+                instruction.path = map.pathFrom(this.location);
+                this.advanceToState(this.advanceStates.commandMenu);
+            }
         }
     }
 
