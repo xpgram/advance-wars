@@ -6,10 +6,10 @@ const Ttypes = [ Plain, Sea, Wood, Mountain, Road, City, Factory, Airport, Port,
 const Tserials = Ttypes.map( t => t.serial );
 const [ pln, sea, wod, mtn, rod, cty, fct, apt, prt, bch, rgh, ref, hq ] = Tserials;
 
-const { Infantry, Mech, Bike, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine } = Unit;
-const Utypes = [ Infantry, Mech, Bike, Rig, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine ];
+const { Infantry, Mech, Bike, Rig, Flare, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, Fighter, BCopter, TCopter, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine } = Unit;
+const Utypes = [ Infantry, Mech, Bike, Rig, Flare, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, Fighter, BCopter, TCopter, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine ];
 const Userials = Utypes.map( u => u.serial );
-const [ inf, mch, bik, rig, tnk, mdt, aai, art, rck, msl, gnb, lnd, car, cru, btl, sub ] = Userials;
+const [ inf, mch, bik, rig, flr, tnk, mdt, aai, art, rck, msl, fgt, bcp, tcp, gnb, lnd, car, cru, btl, sub ] = Userials;
 
 
 export const data = {
@@ -73,12 +73,24 @@ export const data = {
     {"location": {"x":26, "y":18}, "player": 0},
   ],
   "predeploy": [
-    {"location": {"x":18, "y": 3}, "serial": rck, "player": 1},
-    {"location": {"x":19, "y": 4}, "serial": mdt, "player": 1},
+    {"location": {"x":26, "y": 5}, "serial": rck, "player": 1},
+    {"location": {"x":25, "y": 4}, "serial": mdt, "player": 1},
 
-    {"location": {"x":19, "y":15}, "serial": msl, "player": 0},
-    {"location": {"x":14, "y":12}, "serial": bik, "player": 0},
-    {"location": {"x":15, "y":13}, "serial": tnk, "player": 0},
-    {"location": {"x":16, "y":13}, "serial": rig, "player": 0},
+    {"location": {"x":23, "y": 7}, "serial": inf, "player": 0},
+    {"location": {"x":23, "y": 6}, "serial": rig, "player": 0},
+    {"location": {"x":22, "y": 7}, "serial": bik, "player": 0},
+    {"location": {"x":24, "y": 8}, "serial": tnk, "player": 0},
+
+    {"location": {"x":22, "y":14}, "serial": btl, "player": 0},
+    {"location": {"x":21, "y":15}, "serial": car, "player": 0},
+    {"location": {"x":25, "y":15}, "serial": sub, "player": 0},
+    {"location": {"x":24, "y":16}, "serial": gnb, "player": 0},
+    {"location": {"x":23, "y":15}, "serial": lnd, "player": 0},
+    {"location": {"x":22, "y":16}, "serial": mdt, "player": 0},
+    {"location": {"x":21, "y":16}, "serial": tnk, "player": 0},
+    {"location": {"x":23, "y":17}, "serial": flr, "player": 0},
+    {"location": {"x":20, "y":17}, "serial": fgt, "player": 0},
+    {"location": {"x":20, "y":14}, "serial": tcp, "player": 0},
+    {"location": {"x":19, "y":14}, "serial": mch, "player": 0},
   ]
 }
