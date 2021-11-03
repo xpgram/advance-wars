@@ -273,6 +273,7 @@ export class MapCursor extends Observable {
     private setCursorLocation(p: Point) {
         this._pos.set(p);
         this.updateListeners();
+        Game.diagnosticLayer.cursorPos = this._pos.toString();
     }
 
     /** Moves this cursor's position on the game map relative to its current position.

@@ -1,5 +1,6 @@
 # Next Big Objectives
 
+- [x] add cursor pos to debug ui, hide by default?
 - [ ] Load Unit
 - [x] nextOrderable - Break into two: unit and base
 - [ ] Land's End - move predeploy closer for more efficient testing.

@@ -58,6 +58,9 @@ class App {
     /** A graphics-container acting as a special heads-up display for performance information. */
     readonly debugHud = new PIXI.Container();
 
+    /** Reference to the game's debug UI layer. */
+    readonly diagnosticLayer!: DiagnosticLayer;
+
     readonly globalResources!: PIXI.IResourceDictionary;
 
     /** The number of seconds which have passed since the last loop cycle. Always >= 0. */
@@ -172,7 +175,9 @@ class App {
         // Preload game-wide resources, start the game on completion.
         this.preload( () => {
             // Add the debugger/diagnostics UI to the global scene.
-            this.debugHud.addChild(new DiagnosticLayer({enable: this.debugMode}).container);
+            //@ts-expect-error
+            this.diagnosticLayer = new DiagnosticLayer({enable: this.debugMode});
+            this.debugHud.addChild(this.diagnosticLayer.container);
             
             // Add the main loop to PIXI's ticker.
             this.app.ticker.add( (delta: number) => {this.loop(delta)} );
