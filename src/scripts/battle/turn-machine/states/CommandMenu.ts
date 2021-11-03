@@ -11,6 +11,7 @@ import { ListMenuOption } from "../../../system/ListMenuOption";
 import { MapLayer } from "../../map/MapLayers";
 import { Instruction } from "../../EnumTypes";
 import { Command, fillInstructionData } from "../Command";
+import { DropLocation } from "./DropLocation";
 
 export class CommandMenu extends TurnState {
   get name(): string { return "CommandMenu"; }
@@ -19,6 +20,8 @@ export class CommandMenu extends TurnState {
 
   advanceStates = {
     animateMoveUnit: { state: AnimateMoveUnit, pre: () => { } },
+
+    chooseDropLocation: { state: DropLocation, pre: () => { } },
 
     // TODO Fill these in proper
     chooseAttackTarget: { state: ChooseAttackTarget, pre: () => { } },
@@ -122,6 +125,8 @@ export class CommandMenu extends TurnState {
 
       if (commandValue == Command.Attack.serial)
         this.advanceToState(this.advanceStates.chooseAttackTarget);
+      else if (commandValue === Command.Drop.serial)
+        this.advanceToState(this.advanceStates.chooseDropLocation);
       else {
         this.advanceToState(this.advanceStates.animateMoveUnit);
       }
