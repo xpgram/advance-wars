@@ -1,7 +1,7 @@
 # Next Big Objectives
 
-- [ ] Join requires selection over tiles with same-type units, but this requires an occupiable() check on every_ other_ command_. Is this sensible? Is this the future the left wants?
-  - [ ] PickMove needs special logic anyway to prevent attack tiles from appearing during the Join ingress. So, maybe it can just effect the menu there.
+- [x] Join requires selection over tiles with same-type units, but this requires an occupiable() check on every_ other_ command_. Is this sensible? Is this the future the left wants?
+  - [x] PickMove needs special logic anyway to prevent attack tiles from appearing during the Join ingress. So, maybe it can just effect the menu there.
 - [x] Refactor triggers and ratifies into an accessible module.
   - [x] Implement each command as a CommandObject
   - [x] Migrate RatifyOrder implementation to CommandObjects
