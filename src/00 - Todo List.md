@@ -1,7 +1,10 @@
 # Next Big Objectives
 
 - [x] add cursor pos to debug ui, hide by default?
-- [ ] Load Unit
+- [x] Load Unit
+- [ ] Drop Unit
+  - [ ] CommandMenu → Where → Ratify
+  - [ ] CMenu → Where → Ratify → CMenu → Where/Wait → Ratify → TurnChange
 - [x] nextOrderable - Break into two: unit and base
 - [x] Land's End - move predeploy closer for more efficient testing.
 - [ ] Expand ListMenu to allow for columns
