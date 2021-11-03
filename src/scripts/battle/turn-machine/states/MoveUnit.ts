@@ -57,9 +57,13 @@ export class MoveUnit extends TurnState {
             && map.squareAt(this.lastCursorPos).moveFlag == true
             && (map.squareAt(this.lastCursorPos).occupiable(this.travellingUnit)
                 || ( map.squareAt(this.lastCursorPos).unit
-                    && map.squareAt(this.lastCursorPos).unit.type === this.travellingUnit.type
-                    && map.squareAt(this.lastCursorPos).unit.faction === this.travellingUnit.faction
-                    && !map.squareAt(this.lastCursorPos).unit.spent ) )
+                    && (map.squareAt(this.lastCursorPos).unit.type === this.travellingUnit.type
+                        && map.squareAt(this.lastCursorPos).unit.faction === this.travellingUnit.faction
+                        && !map.squareAt(this.lastCursorPos).unit.spent
+                    )
+                    || map.squareAt(this.lastCursorPos).unit?.boardable(this.travellingUnit)
+                    )
+                )
             ) {
 
             instruction.path = map.pathFrom(this.location);

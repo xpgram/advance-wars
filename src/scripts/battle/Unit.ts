@@ -1,5 +1,5 @@
 import { Game } from "../.."
-import { UnitObject } from "./UnitObject";
+import { UnitObject, UnitType } from "./UnitObject";
 import { AttackMethod, MoveType, ArmorType, UnitClass } from "./EnumTypes";
 
 export const Unit = {
@@ -457,7 +457,19 @@ export const Unit = {
         get range() { return {min: -1, max: -1}; }  
         
         get materialsInsteadOfAmmo() { return true; }  
-        get canMoveAndAttack() { return false; }  
+        get canMoveAndAttack() { return false; }
+
+        boardable(unit?: UnitObject): boolean {
+            const max = 1;
+            const boardTypes: (UnitType | undefined)[] = [
+                Unit.Infantry, Unit.Mech,
+            ];
+
+            const full = (this._loadedUnits.length >= max);
+            const generally = (!unit);
+            const soldierUnit = (boardTypes.includes(unit?.type));
+            return !full && (soldierUnit || generally);
+        }
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
@@ -684,7 +696,19 @@ export const Unit = {
         get vision() { return 2; }
         get range() { return {min: -1, max: -1}; }  
         
-        get canMoveAndAttack() { return false; }  
+        get canMoveAndAttack() { return false; }
+
+        boardable(unit?: UnitObject): boolean {
+            const max = 2;
+            const boardTypes: (UnitType | undefined)[] = [
+                Unit.Infantry, Unit.Mech,
+            ];
+
+            const full = (this._loadedUnits.length >= max);
+            const generally = (!unit);
+            const soldierUnit = (boardTypes.includes(unit?.type));
+            return !full && (soldierUnit || generally);
+        }
     
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
@@ -883,7 +907,15 @@ export const Unit = {
         get vision() { return 1; }
         get range() { return {min: -1, max: -1}; }  
         
-        get canMoveAndAttack() { return false; }  
+        get canMoveAndAttack() { return false; }
+
+        boardable(unit?: UnitObject): boolean {
+            const max = 2;
+            const full = (this._loadedUnits.length >= max);
+            const generally = (!unit);
+            const groundUnit = (unit?.unitClass === UnitClass.Ground);
+            return !full && (groundUnit || generally);
+        }
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Transport; }
@@ -916,6 +948,14 @@ export const Unit = {
         get maxAmmo() { return 1; }
         get maxMovementPoints() { return 7; }
         get vision() { return 2; }
+
+        boardable(unit?: UnitObject): boolean {
+            const max = 1;
+            const full = (this._loadedUnits.length >= max);
+            const generally = (!unit);
+            const groundUnit = (unit?.unitClass === UnitClass.Ground);
+            return !full && (groundUnit || generally);
+        }
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Transport; }

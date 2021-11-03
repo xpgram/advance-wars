@@ -3,7 +3,7 @@
 - [x] add cursor pos to debug ui, hide by default?
 - [ ] Load Unit
 - [x] nextOrderable - Break into two: unit and base
-- [ ] Land's End - move predeploy closer for more efficient testing.
+- [x] Land's End - move predeploy closer for more efficient testing.
 - [ ] Expand ListMenu to allow for columns
 - [ ] New FactoryShop GUI for ListMenu
   - [ ] Force UnitDetail open and right side during shop menu

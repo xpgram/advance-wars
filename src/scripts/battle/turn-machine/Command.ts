@@ -28,6 +28,7 @@ const dummyData: {
   destination?: Point,
   destinationTile?: Square,
   destinationTerrain?: TerrainObject,
+  underneath?: UnitObject,
   focal?: Point,
   focalTile?: Square,
   focalTerrain?: TerrainObject,
@@ -58,6 +59,7 @@ const data = {
   get destination() { return assertData(dummyData.destination, `actor movement terminal`) },
   get destinationTile() { return assertData(dummyData.destinationTile, `square object at movement terminal`) },
   get destinationTerrain() { return assertData(dummyData.destinationTerrain, `terrain object at movement terminal`) },
+  get underneath() { return assertData(dummyData.underneath, `unit object at movement terminal`) },
   get focal() { return assertData(dummyData.focal, `target location`) },
   get focalTile() { return assertData(dummyData.focalTile, `square object at target location`) },
   get focalTerrain() { return assertData(dummyData.focalTerrain, `terrain object at target location`) },
@@ -95,6 +97,7 @@ export function fillInstructionData(assets: BattleSceneControllers): void {
   if (d.destination) {
     d.destinationTile = map.squareAt(d.destination);
     d.destinationTerrain = d.destinationTile.terrain;
+    d.underneath = d.destinationTile.unit;
   }
   if (d.focal) {
       d.focalTile = map.squareAt(d.focal);
@@ -297,10 +300,52 @@ export module Command {
     },
   }
 
+  /** Unit load into boardable unit action. */
+  export const Load: CommandObject = {
+    name: "Load",
+    serial: 6,
+    triggerInclude() {
+      const { actor, underneath } = data;
+      return underneath.boardable(actor);
+    },
+    ratify() {
+      const { map } = data.assets;
+      const { actor, underneath } = data;
+      map.removeUnit(actor.boardLocation);
+      underneath.loadUnit(actor);
+    },
+  }
+
+  /** Unit load into boardable unit action. */
+  export const Drop: CommandObject = {
+    name: "Drop",
+    serial: 7,
+    triggerInclude() {
+      const { map } = data.assets;
+      const { actor, destination } = data;
+
+      const neighbors = map.neighborsAt(destination);
+      const holdingUnit = actor.loadedUnits.length > 0;
+      const oneEmptySpace = actor.loadedUnits
+        .some( unit => neighbors.orthogonals
+          .some( tile => tile.occupiable(unit) )
+        );
+      return holdingUnit && oneEmptySpace;
+    },
+    ratify() {
+      const { map } = data.assets;
+      const { actor, which, focal } = data;
+
+      const unit = actor.unloadUnit(which);
+      map.placeUnit(unit, focal);
+      unit.spent = true;
+    },
+  }
+
   /** Unit spawns at location action. */
   export const SpawnUnit: CommandObject = {
     name: "SpawnUnit",
-    serial: 6,
+    serial: 8,
     triggerInclude() {
       return false;
     },

@@ -288,13 +288,15 @@ export abstract class UnitObject {
         Game.scene.ticker.add(this.update, this);
     }
 
-    /** Loads unit info (a 32-bit number) into this unit object. */
+    /** Loads unit info (a 32-bit number) into this unit object.
+     * @deprecated In spirit. I should use it, though.
+    */
     load(stateInfo: number, conditionInfo: number) {
         this.stateInfo = stateInfo;
         this.conditionInfo = conditionInfo;
     }
 
-    /* TODO Not yet implemented. */
+    /* Unlinks this objects references and connections. */
     destroy() { 
         this.boardPlayer.map.removeUnit(this.boardLocation);
         this.boardPlayer.unspawnUnit(this);
@@ -539,6 +541,7 @@ export abstract class UnitObject {
             if (this.lowAmmo) this.statusTextures.push( sheet.textures[`icon-low-ammo-${color}.png`] );
         }
         if (this.capturing) this.statusTextures.push( sheet.textures[`icon-capturing-${color}.png`] );
+        if (this._loadedUnits.length > 0) this.statusTextures.push( sheet.textures[`icon-boarded-${color}.png`] );
 
         this.setCurrentStatusIcon();
     }
@@ -598,6 +601,12 @@ export abstract class UnitObject {
         this.gas = this.maxGas;
         if (!this.materialsInsteadOfAmmo)
             this.ammo = this.maxAmmo;
+    }
+
+    /** Returns true if this unit can hold the given unit, or is capable of
+     * holding units generally if no unit was given. */
+    boardable(unit?: UnitObject): boolean {
+        return false;
     }
 
     /** Retrieves the attack-effectiveness rating of an action from this unit via an attack against an armor-type. */
@@ -667,5 +676,25 @@ export abstract class UnitObject {
         const primaryDmg = this.getAttackBaseDamage(this.weapon.primary, target.serial);
         const secondaryDmg = this.getAttackBaseDamage(this.weapon.secondary, target.serial);
         return (primaryDmg > 0 && this.ammo > 0) ? primaryDmg : secondaryDmg;
+    }
+
+    /** This unit's list of loaded units. */
+    get loadedUnits() {
+        return this._loadedUnits.slice();
+    }
+    protected _loadedUnits: UnitObject[] = [];
+
+    /** Loads a unit into this unit's load list. */
+    loadUnit(unit: UnitObject) {
+        this._loadedUnits.push(unit);
+    }
+
+    /** Unloads the given unit from this unit's load list. */
+    unloadUnit(n: number): UnitObject {
+        if (!Common.within(n, 0, this._loadedUnits.length - 1))
+            throw new Error(`Can't unload unit at index ${n}`);
+        const u = this._loadedUnits[n];
+        this._loadedUnits = this._loadedUnits.filter( (u,i) => i !== n );
+        return u;
     }
 }
