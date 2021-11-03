@@ -74,7 +74,7 @@ export class CommandMenu extends TurnState {
     fillInstructionData(this.assets);
     const commands = (destOccupiable)
       ? Object.values(Command)
-      : [Command.Join];
+      : [Command.Join, Command.Load];
     const options = commands.map( command =>
       new ListMenuOption(command.name, command.serial, {
         triggerInclude: command.triggerInclude,

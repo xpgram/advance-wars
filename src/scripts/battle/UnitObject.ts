@@ -298,6 +298,8 @@ export abstract class UnitObject {
 
     /* Unlinks this objects references and connections. */
     destroy() { 
+        this._loadedUnits.forEach( u => u.destroy() );
+
         this.boardPlayer.map.removeUnit(this.boardLocation);
         this.boardPlayer.unspawnUnit(this);
         
@@ -687,6 +689,7 @@ export abstract class UnitObject {
     /** Loads a unit into this unit's load list. */
     loadUnit(unit: UnitObject) {
         this._loadedUnits.push(unit);
+        this.rebuildStatusIcons();
     }
 
     /** Unloads the given unit from this unit's load list. */
@@ -695,6 +698,7 @@ export abstract class UnitObject {
             throw new Error(`Can't unload unit at index ${n}`);
         const u = this._loadedUnits[n];
         this._loadedUnits = this._loadedUnits.filter( (u,i) => i !== n );
+        this.rebuildStatusIcons();
         return u;
     }
 }

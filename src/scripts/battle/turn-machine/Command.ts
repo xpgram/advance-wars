@@ -305,8 +305,8 @@ export module Command {
     name: "Load",
     serial: 6,
     triggerInclude() {
-      const { actor, underneath } = data;
-      return underneath.boardable(actor);
+      const { actor, destinationTile } = data;
+      return destinationTile.unit?.boardable(actor) || false;
     },
     ratify() {
       const { map } = data.assets;

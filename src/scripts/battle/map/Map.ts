@@ -465,7 +465,8 @@ export class Map {
             throw new Error(InvalidLocationError(pos));
         let square = this.squareAt(pos);
         if (square.unit) {
-            square.unit = null;
+            square.unit.boardLocation = new Point(-1,-1);
+            square.unit = undefined;
         }
     }
 
