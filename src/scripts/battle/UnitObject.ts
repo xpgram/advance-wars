@@ -329,6 +329,11 @@ export abstract class UnitObject {
             this.hpMeter.text = '';
     }
 
+    /** Returns true if this object has anything less than maximum HP. */
+    get repairable() {
+        return this.hp < UnitObject.MaxHp;
+    }
+
     /** The unit's HP, but as a number between 0 and 10. A UI feature. */
     get displayHP(): number {
         return Math.ceil(this.hp * 0.1);

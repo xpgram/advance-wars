@@ -1,8 +1,12 @@
 # Next Big Objectives
 
-- [ ] Join is added, but veery buggy.
-  - [ ] Refactor to make Ratify cleaner.
-  - [ ] Make sure actions like Attack don't appear when the tile being moved to is occupied.
+- [x] Join requires selection over tiles with same-type units, but this requires an occupiable() check on every_ other_ command_. Is this sensible? Is this the future the left wants?
+  - [x] PickMove needs special logic anyway to prevent attack tiles from appearing during the Join ingress. So, maybe it can just effect the menu there.
+- [x] Refactor triggers and ratifies into an accessible module.
+  - [x] Implement each command as a CommandObject
+  - [x] Migrate RatifyOrder implementation to CommandObjects
+  - [x] Migrate SpawnUnit as well; currently broken because it's literally unimplemented, Ratify doesn't know how to handle the serial.
+  - [x] Also, PickTarget is broken. Same reason.
 
 - [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.
 - [ ] Speaking of positions, write a goddamn method to tell menuGUI where the fuck to be. Jesus.

@@ -81,7 +81,7 @@ export class ChooseAttackTarget extends TurnState {
     }
 
     prev() {
-        this.assets.instruction.focal = null;
+        this.assets.instruction.focal = undefined;
         this.assets.mapCursor.moveTo(this.destination);
     }
 

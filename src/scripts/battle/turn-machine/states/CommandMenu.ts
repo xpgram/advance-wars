@@ -10,6 +10,7 @@ import { Unit } from "../../Unit";
 import { ListMenuOption } from "../../../system/ListMenuOption";
 import { MapLayer } from "../../map/MapLayers";
 import { Instruction } from "../../EnumTypes";
+import { Command, fillInstructionData } from "../Command";
 
 export class CommandMenu extends TurnState {
   get name(): string { return "CommandMenu"; }
@@ -43,8 +44,6 @@ export class CommandMenu extends TurnState {
 
   protected configureScene(): void {
     const { map } = this.assets;
-    const square = map.squareAt(this.destination);
-    const neighbors = map.neighborsAt(this.destination);
 
     // leave trackCar on
     this.assets.trackCar.show();
@@ -54,12 +53,13 @@ export class CommandMenu extends TurnState {
     map.squareAt(this.location).moveFlag = true;
     map.squareAt(this.destination).moveFlag = true;
 
+    const destOccupiable = map.squareAt(this.destination).occupiable(this.actor);
     const notIndirectOrNotMoved = (!this.actor.isIndirect || this.destination.equal(this.location));
 
     // Retain attackable flags as well.
     const range = this.actor.rangeMap;
     const points = range.points.map(p => this.destination.add(p));
-    if (notIndirectOrNotMoved) {
+    if (notIndirectOrNotMoved && destOccupiable) {
       for (const p of points) {
         if (map.validPoint(p)) {
           if (map.squareAt(p).attackable(this.actor)) {
@@ -70,53 +70,16 @@ export class CommandMenu extends TurnState {
       }
     }
 
-    // figure out menu options
-    // Wait
-    // Attack (if unit is attack ready and an attackable target is within range)
-    // Build  (if possible)
-    // Supply (if Rig and adjacent to allied units)
-    // etc.
-
-    // set up command menu  // TODO Refactor this with ListMenuOptions
-    const options = [
-      new ListMenuOption("Attack", Instruction.Attack, {
-        triggerInclude: () => {
-          const targetableInRange = (this.actor.attackReady && this.enemyInSight);
-          const notIndirect = (!this.actor.isIndirect);
-          const hasNotMoved = (this.destination.equal(this.location));
-          return targetableInRange && (notIndirect || hasNotMoved);
-        }
-      }),
-      new ListMenuOption("Capture", Instruction.Capture, {
-        triggerInclude: () => {
-          const readyToCapture = (this.actor.soldierUnit && square.terrain.building);
-          const notAllied = (this.actor.faction !== square.terrain.faction);
-          return readyToCapture && notAllied;
-        }
-      }),
-      new ListMenuOption("Supply", Instruction.Supply, {
-        triggerInclude: () => {
-          return neighbors.orthogonals
-            .some(square => square.unit && square.unit.resuppliable(this.actor));
-        }
-      }),
-      new ListMenuOption("Join", Instruction.Join, {
-        triggerInclude: () => {
-          const other = map.squareAt(this.destination).unit;
-          const sameType = Boolean(other && other.type === this.actor.type);
-          const sameFaction = Boolean(other && other.faction === this.actor.faction);
-          const repairable = (other && other.hp < UnitObject.MaxHp || this.actor.hp < UnitObject.MaxHp);
-          // TODO repairable = (other.repairable || this.actor.repairable) ?
-          return sameType && sameFaction && repairable;
-        }
-      }),
-      new ListMenuOption("Wait", Instruction.Wait, {
-        triggerInclude: () => {
-          const occupiable = map.squareAt(this.destination).occupiable(this.actor);
-          return occupiable;
-        }
-      }),
-    ];
+    // set up command menu
+    fillInstructionData(this.assets);
+    const commands = (destOccupiable)
+      ? Object.values(Command)
+      : [Command.Join];
+    const options = commands.map( command =>
+      new ListMenuOption(command.name, command.serial, {
+        triggerInclude: command.triggerInclude,
+      })
+    );
 
     // TODO Oi.. this a refactor..
     this.assets.uiMenu.menu.setListItems(options);
@@ -157,7 +120,7 @@ export class CommandMenu extends TurnState {
       const commandValue = this.assets.uiMenu.menu.selectedValue;
       instruction.action = commandValue;
 
-      if (commandValue == 1)
+      if (commandValue == Command.Attack.serial)
         this.advanceToState(this.advanceStates.chooseAttackTarget);
       else {
         this.advanceToState(this.advanceStates.animateMoveUnit);
