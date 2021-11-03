@@ -280,12 +280,15 @@ export module Command {
       if (other.type !== actor.type)
         throw new RatificationError(`units to join are not of same type`);
 
+      function roundUp(n: number) { return Math.ceil(n * .10) * 10; }
+
       const { hp, gas, ammo } = actor;
-      const extraHp = Math.max(hp + other.hp - UnitObject.MaxHp, 0);
+      const newHp = roundUp(hp) + roundUp(other.hp);
+      const extraHp = Math.max(newHp - UnitObject.MaxHp, 0);
       const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
       players.current.funds += returnedFunds;
 
-      other.hp += hp;
+      other.hp = newHp;
       other.gas += gas;
       other.ammo += ammo;
 
