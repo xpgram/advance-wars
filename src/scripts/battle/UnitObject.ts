@@ -129,7 +129,7 @@ export abstract class UnitObject {
         return new PIXI.Sprite();
 
         //@ts-ignore    unitPortraitSheet doesn't exist yet or whatever; I'm tired of looking at it.
-        return new PIXI.Sprite(Unit.unitPortraitSheet.textures[`${name}-portrait.png`]);
+        // return new PIXI.Sprite(Unit.unitPortraitSheet.textures[`${name}-portrait.png`]);
     }
 
     /** An object containing the texture sets for the sprite's three movement facings (left must be reflected for right-facing.) */

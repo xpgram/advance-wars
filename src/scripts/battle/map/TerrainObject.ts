@@ -276,10 +276,12 @@ export abstract class TerrainObject {
         sprite.filters = [tileSpotlight];
 
         const tex = Game.app.renderer.generateTexture(  // TODO Use render texture? I guess that was always a workaround.
-            sprite, 
-            PIXI.SCALE_MODES.NEAREST, 
-            1,
-            sprite.getBounds()  // new PIXI.Rectangle(0,0,16,32)
+            sprite,
+            {
+                scaleMode: PIXI.SCALE_MODES.NEAREST, 
+                // resolution: 1,
+                region: sprite.getBounds()  // new PIXI.Rectangle(0,0,16,32)
+            }
         );
 
         Game.textureLibrary.register({id: this.shapeId, texture: tex});
