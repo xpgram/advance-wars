@@ -23,5 +23,5 @@ export type CommandInstruction = {
     seed?: number,
 
     /** A list of of the actor's held units to drop onto the map. */
-    drop?: { idx: number, where: Point }[],
+    drop: { which: number, where: Point }[],
 }

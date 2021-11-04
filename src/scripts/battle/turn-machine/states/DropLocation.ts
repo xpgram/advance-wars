@@ -17,6 +17,7 @@ export class DropLocation extends TurnState {
 
     location!: Point;
     destination!: Point;
+    dropUnitIdx!: number;
     dropUnit!: UnitObject;
 
     assert() {
@@ -30,8 +31,8 @@ export class DropLocation extends TurnState {
 
         const actor = get(map.squareAt(this.location).unit, `actor at location`);
         // const which = get(instruction.which, `unit to drop`);
-        const which = 0;  // TODO CommandMenu needs to ensure this is set.
-        this.dropUnit = actor.loadedUnits[which];
+        this.dropUnitIdx = get(instruction.which, `unit held by actor to drop`);
+        this.dropUnit = actor.loadedUnits[this.dropUnitIdx];
     }
 
     configureScene() {
@@ -60,6 +61,9 @@ export class DropLocation extends TurnState {
         const tile = map.squareAt(mapCursor.pos);
         if (tile.moveFlag) {
           instruction.focal = new Point(mapCursor.pos);
+
+          // TODO This is preferred, but unimplemented. Get rid of focal.
+          instruction.drop.push({which: this.dropUnitIdx, where: new Point(mapCursor.pos)});
           this.advanceToState(this.advanceStates.ratify);
         }
       }
