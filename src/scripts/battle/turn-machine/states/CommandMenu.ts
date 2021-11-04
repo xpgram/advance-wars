@@ -10,8 +10,9 @@ import { Unit } from "../../Unit";
 import { ListMenuOption } from "../../../system/ListMenuOption";
 import { MapLayer } from "../../map/MapLayers";
 import { Instruction } from "../../EnumTypes";
-import { Command, fillInstructionData } from "../Command";
+import { Command } from "../Command";
 import { DropLocation } from "./DropLocation";
+import { instructionData } from "../InstructionData";
 
 export class CommandMenu extends TurnState {
   get name(): string { return "CommandMenu"; }
@@ -74,7 +75,7 @@ export class CommandMenu extends TurnState {
     }
 
     // set up command menu
-    fillInstructionData(this.assets);
+    instructionData.fill(this.assets);
     const commands = (destOccupiable)
       ? Object.values(Command)
       : [Command.Join, Command.Load];

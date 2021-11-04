@@ -10,7 +10,8 @@ import { AttackMethod, Instruction } from "../../EnumTypes";
 import { Unit } from "../../Unit";
 import { threadId } from "worker_threads";
 import { Common } from "../../../CommonUtils";
-import { fillInstructionData, getCommandObject } from "../Command";
+import { getCommandObject } from "../Command";
+import { instructionData } from "../InstructionData";
 
 // TODO Refactor to be less busy; responsibility for action effects doesn't really need
 // to be handled *here*, does it?
@@ -41,7 +42,7 @@ export class RatifyIssuedOrder extends TurnState {
     map.squareAt(location).hideUnit = false;
 
     // Retrieve and execute command
-    fillInstructionData(this.assets);
+    instructionData.fill(this.assets);
     const command = getCommandObject(action);
     command.ratify();
 
