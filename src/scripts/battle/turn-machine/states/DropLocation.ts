@@ -15,6 +15,7 @@ export class DropLocation extends TurnState {
         ratify: {state: RatifyIssuedOrder, pre: () => {}},
     }
 
+    location!: Point;
     destination!: Point;
     dropUnit!: UnitObject;
 
@@ -23,11 +24,11 @@ export class DropLocation extends TurnState {
         const { map } = this.assets;
         const instruction = this.assets.instruction;
         
-        const place = get(instruction.place, `actor location`);
+        this.location = get(instruction.place, `actor location`);
         const path = get(instruction.path, `actor's movement path`);
-        this.destination = SumCardinalVectorsToVector(path).add(place);
+        this.destination = SumCardinalVectorsToVector(path).add(this.location);
 
-        const actor = get(map.squareAt(place).unit, `actor at location`);
+        const actor = get(map.squareAt(this.location).unit, `actor at location`);
         // const which = get(instruction.which, `unit to drop`);
         const which = 0;  // TODO CommandMenu needs to ensure this is set.
         this.dropUnit = actor.loadedUnits[which];
@@ -35,9 +36,11 @@ export class DropLocation extends TurnState {
 
     configureScene() {
         const { assets } = this;
-        const { map, mapCursor } = assets;
+        const { map, mapCursor, trackCar } = assets;
 
+        map.clearTileOverlay();
         mapCursor.show();
+        trackCar.show();
         
         const neighbors = map.neighborsAt(this.destination);
         neighbors.orthogonals.forEach( tile => {
@@ -63,8 +66,11 @@ export class DropLocation extends TurnState {
     }
 
     prev() {
-        const { assets } = this;
-        assets.map.clearMovementMap();
-        assets.mapCursor.teleport(this.destination);
+        const { map, mapCursor } = this.assets;
+        map.clearTileOverlay();
+        mapCursor.teleport(this.destination);
+
+        map.squareAt(this.location).moveFlag = true;
+        map.squareAt(this.destination).moveFlag = true;
     }
 }

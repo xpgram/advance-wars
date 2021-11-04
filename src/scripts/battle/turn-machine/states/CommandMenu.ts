@@ -125,9 +125,10 @@ export class CommandMenu extends TurnState {
 
       if (commandValue == Command.Attack.serial)
         this.advanceToState(this.advanceStates.chooseAttackTarget);
-      else if (commandValue === Command.Drop.serial)
+      else if (commandValue === Command.Drop.serial) {
+        instruction.which = 0;  // This needs to be decided by the menu somehow.
         this.advanceToState(this.advanceStates.chooseDropLocation);
-      else {
+      } else {
         this.advanceToState(this.advanceStates.animateMoveUnit);
       }
     }
