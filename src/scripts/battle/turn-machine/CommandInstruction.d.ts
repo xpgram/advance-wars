@@ -1,7 +1,8 @@
 import { Point } from "../../Common/Point";
 import { CardinalDirection } from "../../Common/CardinalDirection";
+import { Instruction } from "../EnumTypes";
 
-/**  */
+/** Represents a basic  */
 export type CommandInstruction = {
     /** The place with which to give the order; usually contains an actor. */
     place?: Point,
@@ -10,16 +11,17 @@ export type CommandInstruction = {
     path?: CardinalDirection[],
 
     /** The codified contextual action to be taken. */
-    action?: number,
-    // TODO An enum?
+    action?: Instruction,
 
     /** The action's codified variation. */
     which?: number,
-    // TODO Hard to boil down to an enum.
 
     /** The action's point of execution. */
     focal?: Point,
 
     /** The seed for any random nummber generation. */
     seed?: number,
+
+    /** A list of of the actor's held units to drop onto the map. */
+    drop?: { idx: number, where: Point }[],
 }
