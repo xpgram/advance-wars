@@ -808,7 +808,15 @@ export const Unit = {
         get maxMovementPoints() { return 5; }
         get vision() { return 4; }
         
-        get materialsInsteadOfAmmo() { return true; }  
+        get materialsInsteadOfAmmo() { return true; }
+
+        boardable(unit?: UnitObject): boolean {
+            const max = 2;
+            const full = (this._loadedUnits.length >= max);
+            const generally = (!unit);
+            const airUnit = (unit?.unitClass === UnitClass.Air);
+            return !full && (airUnit || generally);
+        }
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }

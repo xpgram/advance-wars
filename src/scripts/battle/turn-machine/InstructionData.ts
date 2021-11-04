@@ -22,7 +22,7 @@ export module instructionData {
 
   /** Container which holds commonly requested field information and object
    * references, if they are acquirable. */
-  const dump: {
+  let dump: {
     assets?: BattleSceneControllers,
     seed?: number,
     action?: Instruction,
@@ -48,7 +48,7 @@ export module instructionData {
   /** Updates the data-access system with new instruction data.
    * Must be called before attempting to access any data. */
   export function fill(assets: BattleSceneControllers): void {
-    //@ts-expect-error  // Reset
+    // Reset
     dump = {};
 
     const d = dump;
