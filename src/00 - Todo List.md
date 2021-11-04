@@ -1,5 +1,15 @@
 # Next Big Objectives
 
+- [ ] Refactor TurnSystem to use state queues.
+  BSM.insert(states: TurnState[], idx: number = 0);
+  BSM.advance();
+    // BSM will _not_ increment to next in queue unless this is called.
+    // Throws StateChangeError if no states exist in queue.
+  BSM.regress();
+  BSM.report();   // Or whatever it's called.
+    // Prints last 20 states.
+    // Prints remaining states in queue.
+
 - [x] add cursor pos to debug ui, hide by default?
 - [x] Load Unit
 - [ ] Drop Unit
