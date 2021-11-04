@@ -1,109 +1,14 @@
-import { CardinalDirection, SumCardinalVectorsToVector } from "../../Common/CardinalDirection";
-import { Point } from "../../Common/Point";
-import { Debug } from "../../DebugUtils";
 import { DamageScript } from "../DamageScript";
-import { AttackMethod, Instruction } from "../EnumTypes";
-import { Square } from "../map/Square";
-import { TerrainObject } from "../map/TerrainObject";
+import { AttackMethod } from "../EnumTypes";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
-import { BattleSceneControllers } from "./BattleSceneControllers";
+import { instructionData } from "./InstructionData";
+
+
+const { data } = instructionData;
 
 export class RatificationError extends Error {
   name = 'RatificationError';
-}
-
-/** Container which holds commonly requested field information and object
- * references, if they are acquirable. */
-const dummyData: {
-  assets?: BattleSceneControllers,
-  seed?: number,
-  action?: Instruction,
-  which?: number,
-  place?: Point,
-  placeTile?: Square,
-  placeTerrain?: TerrainObject,
-  actor?: UnitObject,
-  path?: CardinalDirection[],
-  destination?: Point,
-  destinationTile?: Square,
-  destinationTerrain?: TerrainObject,
-  underneath?: UnitObject,
-  focal?: Point,
-  focalTile?: Square,
-  focalTerrain?: TerrainObject,
-  target?: UnitObject,
-} = { };
-
-/** Asserts data exists and returns it.
- * @throws RatificationError if data is undefined. */
-function assertData<T>(data: T | undefined, description: string): T {
-  if (data === undefined)
-    throw new RatificationError(`Missing data: ${description}`);
-  return data;
-}
-
-/** Access to getters for commonly requested field information and object references.
- * @throws RatificationError if requested information does not exist. */
-const data = {
-  // I couldn't come up with a better solution than this.
-  get assets() { return assertData(dummyData.assets, `scene assets`) },
-  get seed() { return assertData(dummyData.seed, `psuedo-random seed`) },
-  get action() { return assertData(dummyData.action, `command serial`) },
-  get which() { return assertData(dummyData.which, `command serial variant`) },
-  get place() { return assertData(dummyData.place, `source location`) },
-  get placeTile() { return assertData(dummyData.placeTile, `square object at source location`) },
-  get placeTerrain() { return assertData(dummyData.placeTerrain, `terrain object at source location`) },
-  get actor() { return assertData(dummyData.actor, `actor object`) },
-  get path() { return assertData(dummyData.path, `actor movement path`) },
-  get destination() { return assertData(dummyData.destination, `actor movement terminal`) },
-  get destinationTile() { return assertData(dummyData.destinationTile, `square object at movement terminal`) },
-  get destinationTerrain() { return assertData(dummyData.destinationTerrain, `terrain object at movement terminal`) },
-  get underneath() { return assertData(dummyData.underneath, `unit object at movement terminal`) },
-  get focal() { return assertData(dummyData.focal, `target location`) },
-  get focalTile() { return assertData(dummyData.focalTile, `square object at target location`) },
-  get focalTerrain() { return assertData(dummyData.focalTerrain, `terrain object at target location`) },
-  get target() { return assertData(dummyData.target, `target object`) },
-}
-
-/** Updates the CommandObject system with new instruction data.
- * Must be called before retriggering or ratifying any changes. */
-export function fillInstructionData(assets: BattleSceneControllers): void {
-  const d = dummyData;
-
-  //@ts-expect-error
-  Object.keys(d).forEach( key => d[key] = undefined );
-
-  const { instruction, map } = assets;
-  const { seed, action, which, focal, place, path } = instruction;
-
-  // Essential
-  d.assets = assets;
-  d.seed = seed;
-  d.action = action;
-  d.which = which;
-  d.place = place;
-  d.path = path;
-  d.focal = focal;
-
-  // Inferables
-  if (d.place) {
-    d.placeTile = map.squareAt(d.place);
-    d.placeTerrain = d.placeTile.terrain;
-    d.actor = d.placeTile.unit;
-    if (d.path)
-      d.destination = SumCardinalVectorsToVector(d.path).add(d.place);
-  }
-  if (d.destination) {
-    d.destinationTile = map.squareAt(d.destination);
-    d.destinationTerrain = d.destinationTile.terrain;
-    d.underneath = d.destinationTile.unit;
-  }
-  if (d.focal) {
-      d.focalTile = map.squareAt(d.focal);
-      d.focalTerrain = d.focalTile.terrain;
-      d.target = d.focalTile.unit;
-  }
 }
 
 /** Returns a CommandObject corrosponding to the given serial number. */
@@ -138,11 +43,11 @@ export module Command {
     },
     ratify: function () {
       const { map, scenario } = data.assets;
-      const { place, path, destination, actor } = data;
+      const { place, path, goal, actor } = data;
 
-      if (place.notEqual(destination))
-        if (! map.moveUnit(place, destination) )
-          throw new RatificationError(`could not move unit ${place.toString()} → ${destination.toString()}`);
+      if (place.notEqual(goal))
+        if (! map.moveUnit(place, goal) )
+          throw new RatificationError(`could not move unit ${place.toString()} → ${goal.toString()}`);
       
       actor.spent = true;
       if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
@@ -156,7 +61,7 @@ export module Command {
     serial: 2,
     triggerInclude() {
       const { map } = data.assets;
-      const { actor, place, destination } = data;
+      const { actor, place, goal } = data;
 
       // Determine if an attackable enemy is present
       let enemyInSight = false;
@@ -172,7 +77,7 @@ export module Command {
       // Other checks
       const targetableInRange = actor.attackReady && enemyInSight;
       const notIndirect = (!actor.isIndirect);
-      const hasNotMoved = (destination.equal(place));
+      const hasNotMoved = (goal.equal(place));
       return targetableInRange && (notIndirect || hasNotMoved);
     },
     ratify() {
@@ -206,21 +111,21 @@ export module Command {
     name: "Capture",
     serial: 3,
     triggerInclude() {
-      const { actor, destinationTerrain } = data;
+      const { actor, goalTerrain } = data;
 
-      const readyToCapture = (actor.soldierUnit && destinationTerrain.building);
-      const notAllied = (actor.faction !== destinationTerrain.faction);
+      const readyToCapture = (actor.soldierUnit && goalTerrain.building);
+      const notAllied = (actor.faction !== goalTerrain.faction);
       return readyToCapture && notAllied;
     },
     ratify() {
       Command.Move.ratify();
 
-      const { actor, destinationTerrain } = data;
+      const { actor, goalTerrain } = data;
 
       actor.captureBuilding();
       if (actor.buildingCaptured()) {
         actor.stopCapturing();
-        destinationTerrain.faction = actor.faction;
+        goalTerrain.faction = actor.faction;
       }
     },
   }
@@ -231,10 +136,10 @@ export module Command {
     serial: 4,
     triggerInclude() {
       const { map } = data.assets;
-      const { actor, destination } = data;
+      const { actor, goal } = data;
       
       return map
-        .neighborsAt(destination)
+        .neighborsAt(goal)
         .orthogonals
         .some( square => square.unit && square.unit.resuppliable(actor) );
     },
@@ -253,15 +158,15 @@ export module Command {
     }
   }
 
-  /** Unit combines with allied unit at destination command. */
+  /** Unit combines with allied unit at goal command. */
   export const Join: CommandObject = {
     name: "Join",
     serial: 5,
     triggerInclude() {
       const { map } = data.assets;
-      const { actor, destination } = data;
+      const { actor, goal } = data;
 
-      const other = map.squareAt(destination).unit;
+      const other = map.squareAt(goal).unit;
       if (!other)
         return false;
 
@@ -274,9 +179,9 @@ export module Command {
     },
     ratify() {
       const { map, players } = data.assets;
-      const { actor, destination } = data;
+      const { actor, goal } = data;
 
-      const other = map.squareAt(destination).unit;
+      const other = map.squareAt(goal).unit;
       if (!other)
         throw new RatificationError(`no unit to join with`);
       if (other.faction !== actor.faction)
@@ -306,8 +211,8 @@ export module Command {
     name: "Load",
     serial: 6,
     triggerInclude() {
-      const { actor, destinationTile } = data;
-      return destinationTile.unit?.boardable(actor) || false;
+      const { actor, goalTile } = data;
+      return goalTile.unit?.boardable(actor) || false;
     },
     ratify() {
       const { map } = data.assets;
@@ -323,9 +228,9 @@ export module Command {
     serial: 7,
     triggerInclude() {
       const { map } = data.assets;
-      const { actor, destination } = data;
+      const { actor, goal } = data;
 
-      const neighbors = map.neighborsAt(destination);
+      const neighbors = map.neighborsAt(goal);
       const holdingUnit = actor.loadedUnits.length > 0;
       const oneEmptySpace = actor.loadedUnits
         .some( unit => neighbors.orthogonals
@@ -371,8 +276,8 @@ export module Command {
     name: "Wait",
     serial: 0,
     triggerInclude() {
-      const { actor, destinationTile } = data;
-      return destinationTile.occupiable(actor);
+      const { actor, goalTile } = data;
+      return goalTile.occupiable(actor);
     },
     ratify() {
       Command.Move.ratify();

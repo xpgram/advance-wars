@@ -11,7 +11,7 @@ export class InstructionDataError extends Error {
 }
 
 /** Asserts data exists and returns it.
- * @throws RatificationError if data is undefined. */
+ * @throws InstructionDataError if data is undefined. */
  function get<T>(data: T | undefined, description: string): T {
   if (data === undefined)
     throw new InstructionDataError(`missing data: ${description}`);
@@ -45,8 +45,8 @@ export module instructionData {
     target?: UnitObject,
   } = { };
 
-  /** Updates the CommandObject system with new instruction data.
-   * Must be called before retriggering or ratifying any changes. */
+  /** Updates the data-access system with new instruction data.
+   * Must be called before attempting to access any data. */
   export function fill(assets: BattleSceneControllers): void {
     //@ts-expect-error  // Reset
     dump = {};
@@ -86,7 +86,7 @@ export module instructionData {
   }
 
   /** Access to getters for commonly requested field information and object references.
-   * @throws RatificationError if requested information does not exist. */
+   * @throws InstructionDataError if requested information does not exist. */
   export const data = {
     get assets()       { return get(dump.assets,       `scene assets`                 ) },
     get seed()         { return get(dump.seed,         `psuedo-random seed`           ) },
