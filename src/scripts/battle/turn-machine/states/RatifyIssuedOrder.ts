@@ -21,7 +21,7 @@ export class RatifyIssuedOrder extends TurnState {
   get skipOnUndo(): boolean { return false; }
 
   protected advanceStates = {
-    checkBoardState: { state: CheckBoardState, pre: () => { } }
+    checkBoardState: { state: CheckBoardState, pre: () => { } },
   }
 
   protected assert(): void {
@@ -53,7 +53,7 @@ export class RatifyIssuedOrder extends TurnState {
     }
 
     // logic for non-actor actions
-    // TODO link factory menu with ratify to use Command.ts
+    // TODO FactoryMenu does not use Command.ts yet, so this is still necessary for unit spawning.
     if (nonActorInstructions.includes(action)) {
       // Spawn Unit
       if (instruction.action === Instruction.SpawnUnit) {
@@ -66,13 +66,6 @@ export class RatifyIssuedOrder extends TurnState {
         this.assets.players.current.expendFunds(unit.cost);
       }
     }
-
-    // Cleanup assets used for issuing order.
-    instruction.place = undefined;
-    instruction.path = undefined;
-    instruction.action = undefined;
-    instruction.which = undefined;
-    instruction.focal = undefined;
 
     // Advance to next state.
     this.advanceToState(this.advanceStates.checkBoardState);

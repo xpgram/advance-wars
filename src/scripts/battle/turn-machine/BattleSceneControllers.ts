@@ -109,14 +109,7 @@ export class BattleSceneControllers {
     trackCar: TrackCar;
 
     /** A container for an instruction to be given to some location on the game board. */
-    instruction: CommandInstruction = {
-        place: null,
-        path: null,
-        action: null,
-        which: null,
-        focal: null,
-        seed: null,
-    }
+    instruction: CommandInstruction = {};
 
     /** A collection of scripts which, when enabled, control various systems of the battlefield. */
     scripts: {
@@ -243,14 +236,7 @@ export class BattleSceneControllers {
 
     /** Empties the command instruction container. */
     resetCommandInstruction() {
-        this.instruction = {
-            place: null,
-            path: null,
-            action: null,
-            which: null,
-            focal: null,
-            seed: null,
-        }
+        this.instruction = {};
     }
 
     /** Iterates through all control scripts and runs their update methods. */
