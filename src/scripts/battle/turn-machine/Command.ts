@@ -140,8 +140,9 @@ export module Command {
       const { map, scenario } = data.assets;
       const { place, path, destination, actor } = data;
 
-      if (! map.moveUnit(place, destination) )
-        throw new RatificationError(`could not move unit ${place.toString()} → ${destination.toString()}`);
+      if (place.notEqual(destination))
+        if (! map.moveUnit(place, destination) )
+          throw new RatificationError(`could not move unit ${place.toString()} → ${destination.toString()}`);
       
       actor.spent = true;
       if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
