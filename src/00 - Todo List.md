@@ -75,6 +75,9 @@
   - Ratify inserts [OrderStart] to begin the process again.
   This... isn't necessary, strictly speaking. But it sounds kinda nice.
   It sounds a bit like keeping track of state-change flow would be a little easier.
+  The logic for MoveUnit and DropLocation, which tiles to highlight, are different though.
+  I guess that could be handled beforehand, but I'm not sure we'd be achieving anything,
+  really. Other than the connections being a teense easier to see.
 
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
