@@ -503,6 +503,13 @@ export abstract class UnitObject {
         this.uiBox.zIndex = -1; // Below the cursor, menus etc.
     }
 
+    /** Returns true if this unit has a valid board location.
+     * Does not report whether any map tile has this unit as a member. */
+    get onMap(): boolean {
+        // (255,255) is (-1,-1) after bit masking
+        return this.boardLocation.notEqual(new Point(255,255));
+    }
+
     get reverseFacing() {
         let n = Common.readBits(this.stateInfo, reverseFacingBits.length, reverseFacingBits.shift);
         return Boolean(n);

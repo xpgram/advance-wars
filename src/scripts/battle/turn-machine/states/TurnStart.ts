@@ -33,6 +33,9 @@ export class TurnStart extends TurnState {
 
     // Per Unit effects
     player.units.forEach( unit => {
+      if (!unit.onMap)
+        return;
+
       const neighbors = this.assets.map.neighborsAt(unit.boardLocation);
       const square = neighbors.center;
       const terrain = square.terrain;
