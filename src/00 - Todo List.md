@@ -4,21 +4,18 @@
 - [x] Load Unit
 - [ ] Drop Unit
   This one's going to be tricky...
-  - [ ] CommandMenu → Where → Ratify
-  - [ ] CMenu → Where → Ratify → CMenu → Where/Wait → Ratify → TurnChange
+  - [ ] CommandMenu → Where → CommandMenu
+  - [ ] CMenu → Where → CMenu → Where → CMenu → Wait → ... → Ratify
+  - [ ] CMenu → Where → CMenu → Regress (Clear Where) → MoveUnit
 - [x] nextOrderable - Break into two: unit and base
 - [x] Land's End - move predeploy closer for more efficient testing.
 - [ ] Expand ListMenu to allow for columns
 - [ ] New FactoryShop GUI for ListMenu
   - [ ] Force UnitDetail open and right side during shop menu
 
-- [x] Join requires selection over tiles with same-type units, but this requires an occupiable() check on every_ other_ command_. Is this sensible? Is this the future the left wants?
-  - [x] PickMove needs special logic anyway to prevent attack tiles from appearing during the Join ingress. So, maybe it can just effect the menu there.
-- [x] Refactor triggers and ratifies into an accessible module.
-  - [x] Implement each command as a CommandObject
-  - [x] Migrate RatifyOrder implementation to CommandObjects
-  - [x] Migrate SpawnUnit as well; currently broken because it's literally unimplemented, Ratify doesn't know how to handle the serial.
-  - [x] Also, PickTarget is broken. Same reason.
+- [ ] Capture is broken; starts over each time.
+- [ ] Forgot to add aircraft to Carrier boardable.
+- [ ] Missing held unit pictures over unit info window.
 
 - [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.
 - [ ] Speaking of positions, write a goddamn method to tell menuGUI where the fuck to be. Jesus.
@@ -27,13 +24,8 @@
   InfoWindowSystem should ask if the showDetailWindow button is down, not specifically the right trigger. Changing that shit is annoying af.
 
 - Source Game observations:
-  - BoardPlayers save their cursor position on turn end. *This* is where focus is returned to on their next turn start.
-  - If they have no units, the cursor is set to their HQ location. In my case, their zeroth.
-  - Holding B over a unit reveals their attack range. Pressing A over one reveals their movement range, and any attackable units as red. It basically starts the normal PickMoveLocation turn step but disallows any action (arrows, select location, etc) since the actor's faction doesn't match the current player's.
-  - Turns don't auto end when you're out of units, of course. This leaves the shops open. I need a formal way to end turns first, though. I'm working on it.
   - The game shows you every standby phase event in sequential order. You probably won't have 100 resupplies to see, but if you did...
 
-- [x] Move menu event handling to Ratify
 - [ ] Add dummy IssueOrderConfirm step, which would get approval from the server.
 - [ ] ListMenuGUI: 'key' → 'display' : a generic type. Set to {icon, title, cost}, of which some are ignored based on purpose.
 - [ ] Add Field and Shop menus to global UI layer instead of map ui.
@@ -41,41 +33,38 @@
 
 - [ ] The camera needs to emit an event when it stops moving. Or maybe it just has a getter that responds true whenever its target is in focus. This is less sophisticated, but I think it would suffice.
 
-- [x] Can ListMenu extend observer or whatever? I think I have something like that. If not, whatever; I just thought a list of callbacks would be nice, but I didn't actually want to implement them.
-
 - [ ] Dev button for grid: top and left edges, over bottom layer
-
-- [x] Little gameplay stuffs
-  - [x] Add infantry capturing
-  - [x] Add indirects can't move and attack
-  - [x] Add Rigs can resupply
-    - [x] By command
-    - [x] On turn start
-    - [x] Only when next to an ally _with less than max resources_
-  - [x] Add unit costs
-  - [x] Refactor Command menu to use new generic class
-    - [ ] Yes, but refactor it *more.*
-  - [x] Add more commands using the easy-as new generic menu structure.
-  - [x] Add basic unit shop menu
-    - [x] Implement MenuOption class
-      - Title
-      - Value
-      - TriggerFunction
-      - ActionFunction? We can declare, but implementation would require a refactor.
-  - [x] Add FieldMenu so boys can finally end their turn.
-    - [x] Stop auto-ending turn on last unit spend.
 
 - [ ] Alternate road preference for vertical or horizontal based on oddness of tile position. Sounds fun. I like complicated roads. The function which figures this out, though, only knows what *types* its neighbors are, not their location.
 
 - [ ] Refactor InfoWindowSystem
 - [x] Instant move InfoWindowSystem on turn change.
 - [x] Instant move InfoWindowSystem on return from MoveCamera state.
+- [ ] Instant move InfoWindowSystem on FactoryShop menu open.
 
 - [x] NextOrderableUnit
-  - Source game behavior is to go in order of spawn, actually.
   - [ ] Source game has no hold behavior, and won't let you click to next again until the camera has found the cursor (which I think is also hidden, giving the player clear indication when they're allowed to move it).
   - My camera can be fast, that's fine. The player should at least know where the new position is in relation to where the cursor was, though. That's the main problem.
   - I'm gonna need to think about auto-camera-move anyway because watching your opponent on their turn will use it a lot. It needs to be a turn step.
+  - A silent camera-move-to-location step would be nice. The trick is telling it where to go after it's finished...
+    A neat trick would be to start it, let it finish, regress and move on naturally. This kind of bucks the TurnSystem's design principles, though. All steps should be recorded.
+    I've wanted a convenient way to move into an animate step but then direct somewhere else for a while now, though. This should be the way.
+- [ ] TurnStateSystem multi-step direct
+  Add a way to pass information, specifically a queue of states to move into, to the next turnstate. This next turnstate has the responsibility of deciding when and how to use this information. It can shift out the first one, ignore it, pass it on or not, insert something new and then pass it, etc.
+  Realistically, I don't think this game will ever use a list of steps; animation states can chain together logically already, and control states, it's not even reasonable to allow the previous state to dictate where this one goes.
+
+  Actually... I wouldn't do this, but imagine:
+  - OrderStart passes [MoveUnit, CommandMenu, Confirm, Animate, Ratify] to next.
+  - MoveUnit succeeds.
+  - CommandMenu inserts [DropLocation, CommandMenu].
+  - CommandMenu, on return, inserts [PickTarget].
+  - PickTarget, Confirm succeed.
+  - Animate examines the order, inserts [AnimateMove, AnimateDrop, AnimateBattle].
+  - Animation steps succeed.
+  - Ratify affirms all changes on the board.
+  - Ratify inserts [OrderStart] to begin the process again.
+  This... isn't necessary, strictly speaking. But it sounds kinda nice.
+  It sounds a bit like keeping track of state-change flow would be a little easier.
 
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
