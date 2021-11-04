@@ -453,6 +453,8 @@ export class Map {
     placeUnit(unit: UnitObject, pos: ImmutablePointPrimitive) {
         if (!this.validPoint(pos))
             throw new Error(InvalidLocationError(pos));
+        if (this.validPoint(unit.boardLocation))
+            this.removeUnit(unit.boardLocation);
         this.squareAt(pos).unit = unit;
         unit.boardLocation = new Point(pos);
     }
@@ -462,7 +464,7 @@ export class Map {
      */
     removeUnit(pos: ImmutablePointPrimitive) {
         if (!this.validPoint(pos))
-            throw new Error(InvalidLocationError(pos));
+            return;
         let square = this.squareAt(pos);
         if (square.unit) {
             square.unit.boardLocation = new Point(-1,-1);

@@ -299,8 +299,7 @@ export abstract class UnitObject {
     /* Unlinks this objects references and connections. */
     destroy() { 
         this._loadedUnits.forEach( u => u.destroy() );
-
-        this.boardPlayer.map.removeUnit(this.boardLocation);
+        
         this.boardPlayer.unspawnUnit(this);
         
         //@ts-expect-error
