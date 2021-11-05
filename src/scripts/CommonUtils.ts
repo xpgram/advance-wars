@@ -55,8 +55,8 @@ export const Common = {
 
   /** Given a list of objects with a weight property, returns a copy of
    * that list sorted by that property in ascending order. */
-   sortByWeight(li: {weight: number}[]) {
-    return li.slice().sort( (a,b) => b.weight - a.weight );
+  sortByWeight(li: {weight: number}[]) {
+    return li.slice().sort( (a,b) => a.weight - b.weight );
   },
 
   /** Returns true if box1 and box2 overlap in any way. */

@@ -93,7 +93,7 @@ export class CommandMenu extends TurnState {
     const commands = (destOccupiable)
       ? Object.values(Command)
         .concat(dropCommands)
-        .sort( (a,b) => b.weight - a.weight )
+        .sort( (a,b) => a.weight - b.weight )
       : [Command.Join, Command.Load];
     const options = commands.map( command =>
       new ListMenuOption(command.name, command.serial, {
