@@ -19,12 +19,24 @@ export function getCommandObject(serial: number): CommandObject {
   return command;
 }
 
+/** Names for sorting weight categories. */
+enum Weight {
+  Primary,    // First order abilities: Attack
+  Secondary,  // Unit specific special actions.
+  Tertiary,   // Contextual, global actions.
+  Quaternary, // -
+  Bottom,     // Last in list: Wait
+  None,       // Not sequentially, but indicates an item whose sort is irrelevant.
+}
+
 /** Interface all Commands must adhere to. */
 type CommandObject = {
   /** Name string; use as menu option title. */
   name: string,
   /** Command identification serial. */
   serial: number,
+  /** Sort order value. */
+  weight: number,
   /** Returns true if this command should be included in a ListMenu. */
   triggerInclude: () => boolean,
   /** Effects changes on the board. */
@@ -34,10 +46,25 @@ type CommandObject = {
 /** Global container for Command objects and logic. */
 export module Command {
 
+  /** Unit idle at location command. */
+  export const Wait: CommandObject = {
+    name: "Wait",
+    serial: 0,
+    weight: Weight.Bottom,
+    triggerInclude() {
+      const { actor, goalTile } = data;
+      return goalTile.occupiable(actor);
+    },
+    ratify() {
+      Command.Move.ratify();
+    },
+  }
+
   /** Moves a unit from one board location to another. */
   export const Move: CommandObject = {
     name: "Move",
     serial: 1,
+    weight: Weight.None,
     triggerInclude: function () {
       return false;
     },
@@ -59,6 +86,7 @@ export module Command {
   export const Attack: CommandObject = {
     name: "Attack",
     serial: 2,
+    weight: Weight.Primary,
     triggerInclude() {
       const { map } = data.assets;
       const { actor, place, goal } = data;
@@ -110,6 +138,7 @@ export module Command {
   export const Capture: CommandObject = {
     name: "Capture",
     serial: 3,
+    weight: Weight.Secondary,
     triggerInclude() {
       const { actor, goalTerrain } = data;
 
@@ -134,6 +163,7 @@ export module Command {
   export const Supply: CommandObject = {
     name: "Supply",
     serial: 4,
+    weight: Weight.Secondary,
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal } = data;
@@ -162,6 +192,7 @@ export module Command {
   export const Join: CommandObject = {
     name: "Join",
     serial: 5,
+    weight: Weight.Tertiary,
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal } = data;
@@ -210,6 +241,7 @@ export module Command {
   export const Load: CommandObject = {
     name: "Load",
     serial: 6,
+    weight: Weight.Tertiary,
     triggerInclude() {
       const { actor, goalTile } = data;
       return goalTile.unit?.boardable(actor) || false;
@@ -226,6 +258,7 @@ export module Command {
   export const Drop: CommandObject = {
     name: "Drop",
     serial: 7,
+    weight: Weight.Secondary,
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal } = data;
@@ -252,6 +285,7 @@ export module Command {
   export const SpawnUnit: CommandObject = {
     name: "SpawnUnit",
     serial: 8,
+    weight: Weight.None,
     triggerInclude() {
       return false;
     },
@@ -268,19 +302,4 @@ export module Command {
     },
   }
 
-  // Wait is last for menu organization reasons, but should also
-  // but the zeroth serial for default-behavior reasons.
-
-  /** Unit idle at location command. */
-  export const Wait: CommandObject = {
-    name: "Wait",
-    serial: 0,
-    triggerInclude() {
-      const { actor, goalTile } = data;
-      return goalTile.occupiable(actor);
-    },
-    ratify() {
-      Command.Move.ratify();
-    },
-  }
 }

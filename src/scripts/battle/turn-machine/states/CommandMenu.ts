@@ -77,7 +77,7 @@ export class CommandMenu extends TurnState {
     // set up command menu
     instructionData.fill(this.assets);
     const commands = (destOccupiable)
-      ? Object.values(Command)
+      ? Object.values(Command).sort( (a,b) => b.weight - a.weight )
       : [Command.Join, Command.Load];
     const options = commands.map( command =>
       new ListMenuOption(command.name, command.serial, {

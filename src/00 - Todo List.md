@@ -1,14 +1,21 @@
 # Next Big Objectives
 
-- [ ] Refactor TurnSystem to use state queues.
-  BSM.insert(states: TurnState[], idx: number = 0);
-  BSM.advance();
-    // BSM will _not_ increment to next in queue unless this is called.
-    // Throws StateChangeError if no states exist in queue.
-  BSM.regress();
-  BSM.report();   // Or whatever it's called.
-    // Prints last 20 states.
-    // Prints remaining states in queue.
+- [x] Add weight values to each command.
+  Attack: 1
+  Wait: 10
+  Else: 5
+  And then export a sort function to standardize order.
+  Wait no longer needs to be at the bottom, yo.
+  I have to sort ListMenuOptions, though... not Commands.
+- [ ] CommandMenu adds as many Drop commands as it needs, baking in their which value somehow. Probs override ratify() and call 'super'. These set instruction.which on ingress.
+- [ ] DropLocation gets which value from instruction.which or the last item in instruction.drop ... mm. Should it know which direction wake() is coming from? Yeah, probably...
+- [ ] BSM and TurnState work together to know whether wake() was called from advance or from regress.
+- [ ] DropLocation always returns to the CommandMenu, which must choose 'Wait' to finish, or 'Attack' I guess is being implicitly left open, which then moves to Animate, etc., the normal procedure.
+- [ ] Ratify checks the drop list and drops the boys.
+
+Post Function:
+- [ ] DropL also sets a dir value on the square so the player can see where they're dropping.
+- [ ] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
 
 - [x] add cursor pos to debug ui, hide by default?
 - [x] Load Unit
@@ -78,6 +85,30 @@
   The logic for MoveUnit and DropLocation, which tiles to highlight, are different though.
   I guess that could be handled beforehand, but I'm not sure we'd be achieving anything,
   really. Other than the connections being a teense easier to see.
+
+- [ ] Refactor TurnSystem to use state queues.
+  This is actually kind of a big job. I'd need to think of use cases.
+  BSM.insert(states: TurnState[], idx: number = 0);
+  BSM.advance();
+    // BSM will _not_ increment to next in queue unless this is called.
+    // Throws StateChangeError if no states exist in queue.
+  BSM.regress();
+  BSM.report();   // Or whatever it's called.
+    // Prints last 20 states.
+    // Prints remaining states in queue.
+- [ ] Refactor instruction set to be a list of incremental changes.
+  - Instead of {place, path, action, focal, drop, ... }
+  - [ ] make it more extensible with
+    [
+      {path, null, where},
+      {path, null, where},
+      ...
+      {move, null, where},
+      {drop, which, where},
+      {attack, null, where},
+    ]
+    A benefit is that this process makes it reeaally easy to see where interruptions would happen, instead of having to calculate them.
+    I guess calculating them isn't hard. Path is already incremental, essentially.
 
 - [ ] Refactor controls to:
   - Left/Right Bumper: Prev/Next available unit
