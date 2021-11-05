@@ -42,7 +42,6 @@ export class RatifyIssuedOrder extends TurnState {
     map.squareAt(location).hideUnit = false;
 
     // Retrieve and execute command
-    instructionData.fill(this.assets);
     const command = getCommandObject(action);
     command.ratify();
 

@@ -2,6 +2,7 @@ import { Debug } from "../../DebugUtils";
 import { BattleSceneControllers } from "./BattleSceneControllers";
 import { BattleSystemManager, NextState } from "./BattleSystemManager";
 import { StringDictionary } from "../../CommonTypes";
+import { instructionData } from "./InstructionData";
 
 export type TurnStateConstructor = {
   new(manager: BattleSystemManager): TurnState;
@@ -50,6 +51,7 @@ export abstract class TurnState {
    * its UI systems. This does not force the battle manager to use this state's update script. */
   wake({fromRegress = false}) {
     try {
+      instructionData.fill(this.assets);
       this.assert();
       this.assets.hidePlayerSystems();  // Reset the scene configuration
       this.configureScene();
