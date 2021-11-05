@@ -10,7 +10,7 @@ import { AttackMethod, Instruction } from "../../EnumTypes";
 import { Unit } from "../../Unit";
 import { threadId } from "worker_threads";
 import { Common } from "../../../CommonUtils";
-import { getCommandObject } from "../Command";
+import { Command, getCommandObject } from "../Command";
 import { instructionData } from "../InstructionData";
 
 // TODO Refactor to be less busy; responsibility for action effects doesn't really need
@@ -32,6 +32,7 @@ export class RatifyIssuedOrder extends TurnState {
   protected configureScene(): void {
     const get = this.assertData.bind(this);
     const { map, instruction } = this.assets;
+    const { actor } = this.data;
 
     const nonActorInstructions = [Instruction.SpawnUnit, Instruction.SpawnLoadUnit];
 
@@ -44,6 +45,16 @@ export class RatifyIssuedOrder extends TurnState {
     // Retrieve and execute command
     const command = getCommandObject(action);
     command.ratify();
+
+    // Drop units // TODO bad implementation; doesn't make use of Drop.ratify()
+    this.data.drop
+      .sort( (a,b) => b.which - a.which )
+      .forEach( d => {
+        const { which, where } = d;
+        const unit = actor.unloadUnit(which);
+        map.placeUnit(unit, where);
+        unit.spent = true;
+      });
 
     // Update player controls.
     if (instruction.path) {
