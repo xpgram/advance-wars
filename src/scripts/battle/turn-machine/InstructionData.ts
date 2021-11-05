@@ -39,6 +39,8 @@ export module instructionData {
     goalTerrain?: TerrainObject,
     underneath?: UnitObject,
 
+    drop?: {which: number, where: Point}[],
+
     focal?: Point,
     focalTile?: Square,
     focalTerrain?: TerrainObject,
@@ -54,7 +56,7 @@ export module instructionData {
     const d = dump;
 
     const { instruction, map } = assets;
-    const { seed, action, which, focal, place, path } = instruction;
+    const { seed, action, which, place, path, drop, focal } = instruction;
 
     // Essential
     d.assets = assets;
@@ -63,6 +65,7 @@ export module instructionData {
     d.which = which;
     d.place = place;
     d.path = path;
+    d.drop = drop;
     d.focal = focal;
 
     // Inferables
@@ -103,6 +106,8 @@ export module instructionData {
     get goalTile()     { return get(dump.goalTile,     `tile at movement terminal`    ) },
     get goalTerrain()  { return get(dump.goalTerrain,  `terrain at movement terminal` ) },
     get underneath()   { return get(dump.underneath,   `object at movement terminal`  ) },
+
+    get drop()         { return get(dump.drop,         `list of held units to drop`   ) },
 
     get focal()        { return get(dump.focal,        `target location`              ) },
     get focalTile()    { return get(dump.focalTile,    `tile at target location`      ) },
