@@ -39,7 +39,7 @@ export class DropLocation extends TurnState {
 
   configureScene() {
     const { map, mapCursor, trackCar } = this.assets;
-    const { actor, goal } = this.data;
+    const { actor, goal, drop } = this.data;
 
     map.clearTileOverlay();
     mapCursor.show();
@@ -49,7 +49,10 @@ export class DropLocation extends TurnState {
 
     const neighbors = map.neighborsAt(goal);
     const tiles = neighbors.orthogonals
-      .filter( tile => tile.occupiable(toDrop) );
+      .filter( tile => tile.occupiable(toDrop)
+        // Bandaid for set location // TODO Better location filtering
+        // Also has no effect?
+        && !(drop.map( d => d.where ).includes(new Point(tile.pos))) );
     tiles.forEach( tile => tile.moveFlag = true );
 
     if (!this.cursorMoved && tiles) {

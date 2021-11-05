@@ -81,8 +81,13 @@ export class CommandMenu extends TurnState {
     // TODO Drops should refer, somehow, to a *specific* unit.
     // Only include Drop if the unit it refers to can be dropped;
     // current behavior is if any held unit can be dropped.
+    // TODO I can't really prune this for units already selected for
+    // drop because which is set by index; you can't select unit 2
+    // if you first select unit 1, you'll only select 1 twice.
+    // Actually, it does work, at least with max 2, but I don't know why.
+    const lim = actor.loadedUnits.length - this.data.drop.length;
     const dropCommands = actor.loadedUnits
-      .slice(1)   // Drop is already included in Command, so skip 1
+      .slice(1, lim)  // Drop is already included in Command, so skip 1
       .map( unit => Command.Drop );
 
     const commands = (destOccupiable)
