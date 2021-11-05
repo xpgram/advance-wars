@@ -87,11 +87,12 @@ export class CommandMenu extends TurnState {
     // Actually, it does work, at least with max 2, but I don't know why.
     const lim = actor.loadedUnits.length - this.data.drop.length;
     const dropCommands = actor.loadedUnits
-      .slice(1, lim)  // Drop is already included in Command, so skip 1
+      .slice(0, Math.max(0, lim)) // Negative?
       .map( unit => Command.Drop );
 
     const commands = (destOccupiable)
       ? Object.values(Command)
+        .filter( c => c.serial !== Command.Drop.serial )
         .concat(dropCommands)
         .sort( (a,b) => a.weight - b.weight )
       : [Command.Join, Command.Load];
