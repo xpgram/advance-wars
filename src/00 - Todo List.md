@@ -8,10 +8,11 @@
   Wait no longer needs to be at the bottom, yo.
   I have to sort ListMenuOptions, though... not Commands.
 - [x] CommandMenu adds as many Drop commands as it needs, baking in their which value somehow. Probs override ratify() and call 'super'. These set instruction.which on ingress.
-- [ ] DropLocation gets which value from instruction.which or the last item in instruction.drop ... mm. Should it know which direction wake() is coming from? Yeah, probably...
-- [ ] BSM and TurnState work together to know whether wake() was called from advance or from regress.
-- [ ] DropLocation always returns to the CommandMenu, which must choose 'Wait' to finish, or 'Attack' I guess is being implicitly left open, which then moves to Animate, etc., the normal procedure.
-- [ ] Ratify checks the drop list and drops the boys.
+- [x] DropLocation gets which value from instruction.which or the last item in instruction.drop ... mm. Should it know which direction wake() is coming from? Yeah, probably...
+- [x] BSM and TurnState work together to know whether wake() was called from advance or from regress.
+- [x] DropLocation always returns to the CommandMenu, which must choose 'Wait' to finish, or 'Attack' I guess is being implicitly left open, which then moves to Animate, etc., the normal procedure.
+- [x] Ratify checks the drop list and drops the boys.
+  - [ ] But not poorly.
 
 Post Function:
 - [ ] DropL also sets a dir value on the square so the player can see where they're dropping.
