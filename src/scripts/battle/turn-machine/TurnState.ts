@@ -35,6 +35,9 @@ export abstract class TurnState {
    * Provides access to the MapCursor, the Map itself, the UI windows, etc. */
   protected assets: BattleSceneControllers;
 
+  /** Accessors to all commonly requested objects. */
+  protected data = instructionData.data;
+
   constructor(manager: BattleSystemManager) {
     this.battleSystemManager = manager;
     this.assets = manager.controllers;
