@@ -34,6 +34,7 @@ export class CommandMenu extends TurnState {
   private destination!: Point;
   private actor!: UnitObject;
   private path!: CardinalDirection[];
+  private autoEnd = false;
 
   protected assert(): void {
     const get = this.assertData.bind(this);
@@ -90,6 +91,10 @@ export class CommandMenu extends TurnState {
       .slice(0, Math.max(0, lim)) // Negative?
       .map( unit => Command.Drop );
 
+    // Auto-end if no more drops.
+    if (dropCommands.length === 0 && actor.loadedUnits.length > 0)
+      this.autoEnd = true;
+
     const commands = (destOccupiable)
       ? Object.values(Command)
         .filter( c => c.serial !== Command.Drop.serial )
@@ -138,8 +143,10 @@ export class CommandMenu extends TurnState {
     const { menu } = this.assets.uiMenu;
 
     // If A, infer next action from uiMenu.
-    if (gamepad.button.A.pressed) {
-      const commandValue = uiMenu.menu.selectedValue;
+    if (gamepad.button.A.pressed || this.autoEnd) {
+      const commandValue = (!this.autoEnd)
+        ? menu.selectedValue
+        : Command.Wait.serial;
       instruction.action = commandValue;
 
       if (commandValue == Command.Attack.serial)
