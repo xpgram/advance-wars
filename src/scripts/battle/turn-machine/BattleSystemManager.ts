@@ -113,7 +113,7 @@ export class BattleSystemManager {
                 this.log(this.currentState.name);               // Log new current state to trace history.
                 if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
                     this.transitionIntent = TransitionTo.None;
-                    this.currentState.wake();
+                    this.currentState.wake({fromRegress: true});
                 }
             }
         } catch(e) {

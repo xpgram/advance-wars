@@ -57,6 +57,15 @@ export class DropLocation extends TurnState {
         });
     }
 
+    onAdvance() {
+      // get unit from which
+    }
+
+    onRegress() {
+      // get unit from last drop[]
+      // pop last drop[]
+    }
+
     update() {
       const { map, mapCursor, gamepad, instruction } = this.assets;
 
