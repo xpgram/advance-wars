@@ -57,10 +57,10 @@ export abstract class TurnState {
       instructionData.fill(this.assets);
       this.assert();
       this.assets.hidePlayerSystems();  // Reset the scene configuration
-      this.configureScene();
       (!fromRegress)
         ? this.onAdvance()
         : this.onRegress();
+      this.configureScene();
     } catch (err) {
       if (err instanceof StateTransitionError)
         Debug.print(`${err.name}: ${err.message}`);
@@ -97,10 +97,10 @@ export abstract class TurnState {
    * ControlScripts not enabled here are necessarily disabled. */
   protected abstract configureScene(): void;
 
-  /** Function called after configureScene() only when this state is advanced to. */
+  /** Function called before configuration only when this state is advanced to. */
   protected onAdvance() { };
 
-  /** Function called after configureScene() only when this state is regressed to. */
+  /** Function called before configuration only when this state is regressed to. */
   protected onRegress() { };
 
   /** Frame-by-frame processing step for turn-engine's game state.
