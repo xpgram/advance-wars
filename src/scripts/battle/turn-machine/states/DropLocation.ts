@@ -39,6 +39,14 @@ export class DropLocation extends TurnState {
         const { assets } = this;
         const { map, mapCursor, trackCar } = assets;
 
+        // TODO How do we determine direction of wake()?
+        // On advance, get which from instruction.
+        // On regress, get which from last drop[].
+        //
+        // I don't want wake(true) or wake({onRegress: true}) for aesthetic reasons.
+        // Can I have onAdvance() and onRegress()?
+        // I can.
+
         map.clearTileOverlay();
         mapCursor.show();
         trackCar.show();
