@@ -10,9 +10,10 @@ import { Unit } from "../../Unit";
 import { ListMenuOption } from "../../../system/ListMenuOption";
 import { MapLayer } from "../../map/MapLayers";
 import { Instruction } from "../../EnumTypes";
-import { Command } from "../Command";
+import { Command, CommandObject } from "../Command";
 import { DropLocation } from "./DropLocation";
 import { instructionData } from "../InstructionData";
+import { CommandingOfficerObject } from "../../CommandingOfficerObject";
 
 export class CommandMenu extends TurnState {
   get name(): string { return "CommandMenu"; }
@@ -29,12 +30,11 @@ export class CommandMenu extends TurnState {
     animateBuildingCapture: { state: RatifyIssuedOrder, pre: () => { } }
   }
 
+  private commands!: CommandObject[];
   private location!: Point;
   private destination!: Point;
   private actor!: UnitObject;
   private path!: CardinalDirection[];
-
-  private enemyInSight = false;
 
   protected assert(): void {
     const get = this.assertData.bind(this);
@@ -48,6 +48,9 @@ export class CommandMenu extends TurnState {
 
   protected configureScene(): void {
     const { map } = this.assets;
+
+    // TODO Migrate all references to instruction here
+    const { actor } = instructionData.data;
 
     // leave trackCar on
     this.assets.trackCar.show();
@@ -68,7 +71,6 @@ export class CommandMenu extends TurnState {
         if (map.validPoint(p)) {
           if (map.squareAt(p).attackable(this.actor)) {
             map.squareAt(p).attackFlag = true;
-            this.enemyInSight = true;
           }
         }
       }
@@ -76,10 +78,18 @@ export class CommandMenu extends TurnState {
 
     // set up command menu
     instructionData.fill(this.assets);
-    const commands = (destOccupiable)
-      ? Object.values(Command).sort( (a,b) => b.weight - a.weight )
+
+    const dropCommands = actor.loadedUnits.map( unit => {
+      return Command.Drop;
+      // This might be where I assign unit icons to ListMenuOption.
+    });
+
+    this.commands = (destOccupiable)
+      ? Object.values(Command)
+        .concat(dropCommands)
+        .sort( (a,b) => b.weight - a.weight )
       : [Command.Join, Command.Load];
-    const options = commands.map( command =>
+    const options = this.commands.map( command =>
       new ListMenuOption(command.name, command.serial, {
         triggerInclude: command.triggerInclude,
       })
@@ -127,7 +137,8 @@ export class CommandMenu extends TurnState {
       if (commandValue == Command.Attack.serial)
         this.advanceToState(this.advanceStates.chooseAttackTarget);
       else if (commandValue === Command.Drop.serial) {
-        instruction.which = 0;  // This needs to be decided by the menu somehow.
+        const dropIndex = this.commands.findIndex( c => c.serial === Command.Drop.serial );
+        instruction.which = this.assets.uiMenu.menu.selectedIndex - dropIndex;
         this.advanceToState(this.advanceStates.chooseDropLocation);
       } else {
         this.advanceToState(this.advanceStates.animateMoveUnit);

@@ -30,7 +30,7 @@ enum Weight {
 }
 
 /** Interface all Commands must adhere to. */
-type CommandObject = {
+export type CommandObject = {
   /** Name string; use as menu option title. */
   name: string,
   /** Command identification serial. */
