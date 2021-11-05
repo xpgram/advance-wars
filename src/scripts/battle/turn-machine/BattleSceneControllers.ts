@@ -127,6 +127,8 @@ export class BattleSceneControllers {
         // The objective here is to build a complete battle scene given scenario options.
         // Then it is to start the turn engine.
 
+        this.resetCommandInstruction();
+
         this.scenario = {...Default_Scenario, ...options};
 
         /* Instantiate */

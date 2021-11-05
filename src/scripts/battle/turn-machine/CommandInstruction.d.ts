@@ -2,7 +2,13 @@ import { Point } from "../../Common/Point";
 import { CardinalDirection } from "../../Common/CardinalDirection";
 import { Instruction } from "../EnumTypes";
 
-/** Represents a basic  */
+/** Represents a drop-held-unit instruction. */
+export type CommandDropInstruction = {
+    which: number,
+    where: Point,
+}
+
+/** Represents a discrete unit turn-instruction in its most basic terms. */
 export type CommandInstruction = {
     /** The place with which to give the order; usually contains an actor. */
     place?: Point,
@@ -23,5 +29,5 @@ export type CommandInstruction = {
     seed?: number,
 
     /** A list of of the actor's held units to drop onto the map. */
-    drop: { which: number, where: Point }[],
+    drop: CommandDropInstruction[],
 }

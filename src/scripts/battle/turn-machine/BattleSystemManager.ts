@@ -10,7 +10,7 @@ const STACK_SIZE_LIMIT = 100;   // Unenforced
 
 export type NextState = {
     state: TurnStateConstructor,
-    pre: Function
+    pre?: Function
 }
 
 enum TransitionTo {
@@ -87,10 +87,12 @@ export class BattleSystemManager {
             while (this.transitionIntent == TransitionTo.Next) {
                 this.transitionIntent = TransitionTo.None;
 
-                this.currentState.close();
-                this.nextState.pre();       // Run any pre-setup passed in from current state
+                const { state, pre } = this.nextState;
 
-                let newState = new this.nextState.state(this);
+                this.currentState.close();
+                if (pre) pre();             // Run any pre-setup passed in from current state
+
+                let newState = new state(this);
                 this.stack.push(newState);  // Add new state to stack (implicitly changes current)
                 this.log(newState.name);    // Log new state to trace history
                 newState.wake();            // Run new state's scene configurer

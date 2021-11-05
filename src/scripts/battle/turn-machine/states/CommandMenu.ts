@@ -30,7 +30,6 @@ export class CommandMenu extends TurnState {
     animateBuildingCapture: { state: RatifyIssuedOrder, pre: () => { } }
   }
 
-  private commands!: CommandObject[];
   private location!: Point;
   private destination!: Point;
   private actor!: UnitObject;
@@ -79,17 +78,19 @@ export class CommandMenu extends TurnState {
     // set up command menu
     instructionData.fill(this.assets);
 
-    const dropCommands = actor.loadedUnits.map( unit => {
-      return Command.Drop;
-      // This might be where I assign unit icons to ListMenuOption.
-    });
+    // TODO Drops should refer, somehow, to a *specific* unit.
+    // Only include Drop if the unit it refers to can be dropped;
+    // current behavior is if any held unit can be dropped.
+    const dropCommands = actor.loadedUnits
+      .slice(1)   // Drop is already included in Command, so skip 1
+      .map( unit => Command.Drop );
 
-    this.commands = (destOccupiable)
+    const commands = (destOccupiable)
       ? Object.values(Command)
         .concat(dropCommands)
         .sort( (a,b) => b.weight - a.weight )
       : [Command.Join, Command.Load];
-    const options = this.commands.map( command =>
+    const options = commands.map( command =>
       new ListMenuOption(command.name, command.serial, {
         triggerInclude: command.triggerInclude,
       })
@@ -127,18 +128,19 @@ export class CommandMenu extends TurnState {
   }
 
   update(): void {
-    const { map, gamepad, instruction } = this.assets;
+    const { gamepad, uiMenu, instruction } = this.assets;
+    const { menu } = this.assets.uiMenu;
 
     // If A, infer next action from uiMenu.
     if (gamepad.button.A.pressed) {
-      const commandValue = this.assets.uiMenu.menu.selectedValue;
+      const commandValue = uiMenu.menu.selectedValue;
       instruction.action = commandValue;
 
       if (commandValue == Command.Attack.serial)
         this.advanceToState(this.advanceStates.chooseAttackTarget);
       else if (commandValue === Command.Drop.serial) {
-        const dropIndex = this.commands.findIndex( c => c.serial === Command.Drop.serial );
-        instruction.which = this.assets.uiMenu.menu.selectedIndex - dropIndex;
+        const dropIndex = menu.listItems.findIndex( c => c.value === Command.Drop.serial );
+        instruction.which = menu.selectedIndex - dropIndex;
         this.advanceToState(this.advanceStates.chooseDropLocation);
       } else {
         this.advanceToState(this.advanceStates.animateMoveUnit);

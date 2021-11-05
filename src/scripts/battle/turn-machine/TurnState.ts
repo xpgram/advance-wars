@@ -52,7 +52,7 @@ export abstract class TurnState {
 
   /** State will assume control of the scene, asserting correct pre-state and configuring
    * its UI systems. This does not force the battle manager to use this state's update script. */
-  wake({fromRegress = false}) {
+  wake({fromRegress = false} = {}) {
     try {
       instructionData.fill(this.assets);
       this.assert();
@@ -91,7 +91,7 @@ export abstract class TurnState {
    * 
    * assert() should not be used to make changes to state-independent systems: they may
    * be irrevertible and difficult to trace should the assertion fail. */
-  protected abstract assert(): void;
+  protected assert(): void { };
 
   /** Explicitly enables control scripts relevant to the state (important to avoid conflicts.)
    * ControlScripts not enabled here are necessarily disabled. */
@@ -113,7 +113,7 @@ export abstract class TurnState {
 
   /** Any to-dos before regressing to previous state.
    * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
-  abstract prev(): void;
+  prev(): void { };
 
   /** Pushes a request to the battle system manager to advance state to the one given. */
   advanceToState(state: NextState) {

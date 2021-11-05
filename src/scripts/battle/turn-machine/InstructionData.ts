@@ -12,7 +12,7 @@ export class InstructionDataError extends Error {
 
 /** Asserts data exists and returns it.
  * @throws InstructionDataError if data is undefined. */
- function get<T>(data: T | undefined, description: string): T {
+function get<T>(data: T | undefined, description: string): T {
   if (data === undefined)
     throw new InstructionDataError(`missing data: ${description}`);
   return data;
@@ -46,6 +46,17 @@ export module instructionData {
     focalTerrain?: TerrainObject,
     target?: UnitObject,
   } = { };
+
+  /** Sets data to the instruction object. */
+  function setData<T>(value: T, key: string) {
+    const { assets } = dump;
+    if (!assets)
+      throw new InstructionDataError(`can't set instruction values before first fill()`);
+    const { instruction } = assets;
+
+    //@ts-expect-error
+    instruction[key] = value;
+  }
 
   /** Updates the data-access system with new instruction data.
    * Must be called before attempting to access any data. */
@@ -91,7 +102,16 @@ export module instructionData {
   /** Access to getters for commonly requested field information and object references.
    * @throws InstructionDataError if requested information does not exist. */
   export const data = {
+    set seed(n: number)   { setData(n, 'seed'  ) },
+    set action(n: number) { setData(n, 'action') },
+    set which(n: number)  { setData(n, 'which' ) },
+    set place(p: Point)   { setData(p, 'place' ) },
+    set focal(p: Point)   { setData(p, 'focal' ) },
+    set path(p: CardinalDirection[])              { setData(p, 'path') },
+    set drop(l: {which: number, where: Point}[])  { setData(l, 'drop') },
+
     get assets()       { return get(dump.assets,       `scene assets`                 ) },
+    
     get seed()         { return get(dump.seed,         `psuedo-random seed`           ) },
     get action()       { return get(dump.action,       `command serial`               ) },
     get which()        { return get(dump.which,        `command serial variant`       ) },
