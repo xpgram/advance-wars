@@ -89,6 +89,8 @@ export class CommandMenu extends TurnState {
     const neighbors = map.neighborsAt(goal);
     const lim = actor.loadedUnits.length - this.data.drop.length;
     const dropCommands = actor.loadedUnits
+      // TODO This does as it should, but if it filters anything, the latter indices
+      // are literally unchoosable even if they're the ones triggering the drop case.
       // .filter( u => neighbors.orthogonals.some( t => t.occupiable(u) ) )
       .slice(0, Math.max(0, lim)) // Negative?
       .map( unit => Command.Drop );
