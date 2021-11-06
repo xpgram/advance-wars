@@ -50,7 +50,7 @@ export class CommandMenu extends TurnState {
     const { map } = this.assets;
 
     // TODO Migrate all references to instruction here
-    const { actor } = instructionData.data;
+    const { actor, goal, goalTerrain } = instructionData.data;
 
     // leave trackCar on
     this.assets.trackCar.show();
@@ -86,8 +86,10 @@ export class CommandMenu extends TurnState {
     // drop because which is set by index; you can't select unit 2
     // if you first select unit 1, you'll only select 1 twice.
     // Actually, it does work, at least with max 2, but I don't know why.
+    const neighbors = map.neighborsAt(goal);
     const lim = actor.loadedUnits.length - this.data.drop.length;
     const dropCommands = actor.loadedUnits
+      // .filter( u => neighbors.orthogonals.some( t => t.occupiable(u) ) )
       .slice(0, Math.max(0, lim)) // Negative?
       .map( unit => Command.Drop );
 
@@ -100,7 +102,7 @@ export class CommandMenu extends TurnState {
     const commands = (destOccupiable)
       ? Object.values(Command)
         .filter( c => c.serial !== Command.Drop.serial )
-        .concat(dropCommands)
+        .concat( (actor.unloadPosition(goalTerrain)) ? dropCommands : [] )
         .sort( (a,b) => a.weight - b.weight )
       : [Command.Join, Command.Load];
     const options = commands.map( command =>

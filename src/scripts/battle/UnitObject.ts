@@ -11,6 +11,7 @@ import { Map } from "./map/Map";
 import { PointPrimitive, Point } from "../Common/Point";
 import { CommonRangesRetriever, RegionMap } from "./unit-actions/RegionMap";
 import { BoardPlayer } from "./BoardPlayer";
+import { TerrainObject } from "./map/TerrainObject";
 
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
@@ -614,6 +615,11 @@ export abstract class UnitObject {
     /** Returns true if this unit can hold the given unit, or is capable of
      * holding units generally if no unit was given. */
     boardable(unit?: UnitObject): boolean {
+        return false;
+    }
+
+    /** Returns true if the given terrain is of a type this unit can unload units from. */
+    unloadPosition(terrain: TerrainObject): boolean {
         return false;
     }
 

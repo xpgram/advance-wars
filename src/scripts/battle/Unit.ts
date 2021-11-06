@@ -1,6 +1,8 @@
 import { Game } from "../.."
 import { UnitObject, UnitType } from "./UnitObject";
 import { AttackMethod, MoveType, ArmorType, UnitClass } from "./EnumTypes";
+import { TerrainObject } from "./map/TerrainObject";
+import { Terrain } from "./map/Terrain";
 
 export const Unit = {
     spritesheet: 'UnitSpritesheet',
@@ -470,6 +472,10 @@ export const Unit = {
             const soldierUnit = (boardTypes.includes(unit?.type));
             return !full && (soldierUnit || generally);
         }
+
+        unloadPosition(terrain: TerrainObject) {
+            return true;
+        }
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
@@ -709,6 +715,10 @@ export const Unit = {
             const soldierUnit = (boardTypes.includes(unit?.type));
             return !full && (soldierUnit || generally);
         }
+
+        unloadPosition(terrain: TerrainObject) {
+            return terrain.landTile;
+        }
     
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
@@ -817,6 +827,10 @@ export const Unit = {
             const airUnit = (unit?.unitClass === UnitClass.Air);
             return !full && (airUnit || generally);
         }
+
+        unloadPosition(terrain: TerrainObject) {
+            return true;
+        }
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }
@@ -924,6 +938,10 @@ export const Unit = {
             const groundUnit = (unit?.unitClass === UnitClass.Ground);
             return !full && (groundUnit || generally);
         }
+
+        unloadPosition(terrain: TerrainObject) {
+            return terrain.type === Terrain.Beach;
+        }
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Transport; }
@@ -963,6 +981,10 @@ export const Unit = {
             const generally = (!unit);
             const groundUnit = (unit?.unitClass === UnitClass.Ground);
             return !full && (groundUnit || generally);
+        }
+
+        unloadPosition(terrain: TerrainObject) {
+            return terrain.type === Terrain.Beach;
         }
     
         get unitClass() { return UnitClass.Naval; }
