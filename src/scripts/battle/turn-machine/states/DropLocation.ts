@@ -50,9 +50,7 @@ export class DropLocation extends TurnState {
     const neighbors = map.neighborsAt(goal);
     const tiles = neighbors.orthogonals
       .filter( tile => tile.occupiable(toDrop)
-        // Bandaid for set location // TODO Better location filtering
-        // Also has no effect?
-        && !(drop.map( d => d.where ).includes(new Point(tile.pos))) );
+        && !(drop.map( d => d.where ).some( p => p.equal(new Point(tile.pos)) )) );
     tiles.forEach( tile => tile.moveFlag = true );
 
     if (!this.cursorMoved && tiles) {
