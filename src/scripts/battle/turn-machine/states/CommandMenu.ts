@@ -92,8 +92,10 @@ export class CommandMenu extends TurnState {
       .map( unit => Command.Drop );
 
     // Auto-end if no more drops.
-    if (dropCommands.length === 0 && actor.loadedUnits.length > 0)
+    if (dropCommands.length === 0 && actor.loadedUnits.length > 0) {
       this.autoEnd = true;
+      return;
+    }
 
     const commands = (destOccupiable)
       ? Object.values(Command)
