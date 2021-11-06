@@ -85,7 +85,7 @@ export class NextOrderableUnit extends ControlScript {
     });
     // Gets a list of point objects for remaining orderable units + bases.
     this.unitLocations = player.units
-      .filter( u => u.orderable )
+      .filter( u => u.orderable && u.onMap )
       .map( u => u.boardLocation );
     this.unitSelect = new Slider({
       max: this.unitLocations.length,
