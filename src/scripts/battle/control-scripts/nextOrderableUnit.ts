@@ -51,8 +51,8 @@ export class NextOrderableUnit extends ControlScript {
 
   constructor(gp: VirtualGamepad, map: Map, cursor: MapCursor, turnModerator: TurnModerator, spawnMap: UnitSpawnMap[]) {
     super();
-    this.nextUnitButton = gp.button.leftBumper;
-    this.nextBaseButton = gp.button.rightBumper;
+    this.nextUnitButton = gp.button.rightBumper;
+    this.nextBaseButton = gp.button.leftBumper;
     
     this.map = map;
     this.cursor = cursor;
