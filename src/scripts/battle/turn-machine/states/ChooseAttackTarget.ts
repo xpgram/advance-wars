@@ -34,6 +34,8 @@ export class ChooseAttackTarget extends TurnState {
         this.assets.uiSystem.show();
         this.assets.trackCar.show();
 
+        // TODO Make list clockwise if actor is a direct unit
+
         // Build the list of possible targets
         const boundary = map.squareOfInfluence(this.actor);
         for (let yi = 0; yi < boundary.height; yi++)
@@ -47,7 +49,7 @@ export class ChooseAttackTarget extends TurnState {
 
         // If there are no targets, revert to last state; otherwise,
         if (this.possibleTargets.length == 0)
-            this.regressToPreviousState();
+            this.failTransition(`no attackable targets in range`);
         // ...setup the target-picker and move the cursor.
         else {
             this.index = new Slider({
@@ -55,7 +57,7 @@ export class ChooseAttackTarget extends TurnState {
                 granularity: 1,
                 looping: true
             });
-            this.assets.mapCursor.teleport(this.possibleTargets[this.index.output].boardLocation);
+            this.assets.mapCursor.moveTo(this.possibleTargets[this.index.output].boardLocation);
         }
     }
 
@@ -65,12 +67,12 @@ export class ChooseAttackTarget extends TurnState {
         if (gamepad.button.dpadUp.pressed
           || gamepad.button.dpadLeft.pressed) {
             this.index.decrement();
-            mapCursor.teleport(this.possibleTargets[this.index.output].boardLocation);
+            mapCursor.moveTo(this.possibleTargets[this.index.output].boardLocation);
         }
         else if (gamepad.button.dpadDown.pressed
           || gamepad.button.dpadRight.pressed) {
             this.index.increment();
-            mapCursor.teleport(this.possibleTargets[this.index.output].boardLocation);
+            mapCursor.moveTo(this.possibleTargets[this.index.output].boardLocation);
         }
         else if (gamepad.button.B.pressed)
             this.regressToPreviousState();
