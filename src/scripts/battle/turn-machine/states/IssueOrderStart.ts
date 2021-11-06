@@ -89,7 +89,7 @@ export class IssueOrderStart extends TurnState {
             }
 
             // The tile is empty and the terrain is a factory type.
-            else if (!unit && this.assets.scenario.spawnMap.some( dict => dict.type === square.terrain.type )) {
+            else if (!unit && this.assets.scenario.spawnMap.some( dict => dict.type === square.terrain.type && square.terrain.faction === player.faction )) {
                 if (player.faction === square.terrain.faction)
                     this.advanceToState(this.advanceStates.factoryMenu);
             }
