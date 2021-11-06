@@ -59,11 +59,12 @@ export class DropLocation extends TurnState {
       .filter( tile => tile.occupiable(toDrop)
         && !(drop.map( d => d.where ).some( p => p.equal(new Point(tile.pos)) )) );
     this.tiles.forEach( tile => tile.moveFlag = true );
+    this.tiles.sort( (a,b) => a.x - b.x + 2*(a.y - b.y) );  // Sort options by top-down then left-right
 
-    // Sort options by top-down then left-right
-    this.tiles.sort( (a,b) => a.x - b.x + 2*(a.y - b.y) );
+    if (!this.tiles.length)
+      this.failTransition(`No locations to drop unit.`);
 
-    if (!this.cursorMoved && this.tiles) {
+    if (!this.cursorMoved) {
       // Convoluted 'smart' auto-pick.
       const lastDir = (path && path[path.length-1]) || CardinalDirection.North;
       const { Up, Left, Right, Down } = Point;
