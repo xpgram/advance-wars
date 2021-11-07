@@ -1,6 +1,6 @@
 import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
-import { Point } from "../../../Common/Point";
+import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
 import { Slider } from "../../../Common/Slider";
 import { AnimateMoveUnit } from "./AnimateMoveUnit";
 import { SumCardinalVectorsToVector } from "../../../Common/CardinalDirection";
@@ -46,6 +46,7 @@ export class ChooseAttackTarget extends TurnState {
 
   configureScene() {
     const { map, mapCursor } = this.assets;
+    const { goal } = this.data;
 
     mapCursor.show();
     mapCursor.disable();
@@ -64,6 +65,15 @@ export class ChooseAttackTarget extends TurnState {
         if (square.unit && square.attackFlag)
           this.possibleTargets.push(square.unit);
       }
+
+    // Sort points clockwise-style, farthest first
+    function sortAngle(p: Point) {
+      const v = p.subtract(goal);
+      const rad = -v.rotateByVector(0,1).angle();
+      const mag = v.magnitude();
+      return rad*1000 + mag;
+    }
+    this.possibleTargets.sort( (a,b) => sortAngle(b.boardLocation) - sortAngle(a.boardLocation) );
 
     // If there are no targets, revert to last state; otherwise,
     if (this.possibleTargets.length == 0)

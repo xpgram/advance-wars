@@ -116,6 +116,30 @@ export class Point {
         return this.distance(new Point());
     }
 
+    /** Returns an identity vector in the same direction as this. */
+    unit(): Point {
+        const mag = this.magnitude();
+        return this.multiply(1 / mag);
+    }
+
+    /** Returns this vector's counter-clockwise angle from the positive x-axis in radians. */
+    angle() {
+        const { x, y } = this;
+        const negative = y < 0;
+        const raw = Math.acos(x / this.magnitude());
+        const rad = raw*Number(!negative) + (2*Math.PI - raw)*Number(negative);
+        return rad;
+    }
+
+    /** Returns a Point object equivalent to this rotated by the angle of the given vector. */
+    rotateByVector(x: number | ImmutablePointPrimitive, y?: number) {
+        const v = convertArgsToPoint(x, y).unit();
+        return new Point(
+            this.x*v.x - this.y*v.y,
+            this.x*v.y + this.y*v.x
+        )
+    }
+
     /** Returns this point as a string of the form (x,y). */
     toString(): string {
         return `(${this.x},${this.y})`;
