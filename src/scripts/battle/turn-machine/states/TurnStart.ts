@@ -1,7 +1,6 @@
 import { Common } from "../../../CommonUtils";
-import { UnitClass } from "../../EnumTypes";
-import { Unit } from "../../Unit";
 import { TurnState } from "../TurnState";
+import { UnitObject } from "../../UnitObject";
 import { CheckBoardState } from "./CheckBoardState";
 
 export class TurnStart extends TurnState {
@@ -9,88 +8,73 @@ export class TurnStart extends TurnState {
   get revertible() { return false; }
   get skipOnUndo() { return false; }
 
-  advanceStates = {
-    checkBoardState: { state: CheckBoardState, pre: () => { } }
-  }
-
-  assert() {
-    // That there are no configuration conflicts
-  }
-
   configureScene() {
-    const player = this.assets.players.current;
+    const { map, mapCursor, uiSystem, players, scenario, scripts } = this.assets;
+    const player = players.current;
 
     // Update player stuff
     player.collectFunds();
 
     // Move Cursor
     if (player.units.length)
-      this.assets.mapCursor.teleport(player.lastCursorPosition);
+      mapCursor.teleport(player.lastCursorPosition);
     // TODO The camera should lag-follow on all cursor teleports.
 
     // Move UI Windows
-    this.assets.uiSystem.skipAnimations();
+    uiSystem.skipAnimations();
 
     // Per Unit effects
     player.units.forEach( unit => {
       if (!unit.onMap)
         return;
 
-      const neighbors = this.assets.map.neighborsAt(unit.boardLocation);
+      const neighbors = map.neighborsAt(unit.boardLocation);
       const square = neighbors.center;
       const terrain = square.terrain;
 
-      let supplied = false;
+      let expendMaintainanceGas = true;
 
       // Repair unit HP and resupply from properties
       if (terrain.building && terrain.faction === unit.faction) {
         if (terrain.repairType === unit.unitClass) {
           // Repair HP
-          const maxUnitHp = 100;  // TODO This should be a static property of UnitObject or something.
-          const maxRepairHp = this.assets.scenario.repairHp;
+          const maxUnitHp = UnitObject.MaxHp;
+          const maxRepairHp = scenario.repairHp;
           const repairHp = Common.confine(maxUnitHp - unit.hp, 0, maxRepairHp);
           const costToRepair = unit.cost * repairHp / maxUnitHp;
-          if (costToRepair <= unit.boardPlayer.funds) {
+          if (costToRepair <= player.funds) {
             unit.hp += repairHp;
-            unit.boardPlayer.expendFunds(costToRepair);
+            player.expendFunds(costToRepair);
           }
 
-          // TODO This should be an event that gets handled by the resupply animation step.
-          if (unit.resuppliable()) {
-            unit.resupply();
-            supplied = true;
-          }
+          unit.resupply();
+          expendMaintainanceGas = false;
         }
       }
 
       // Resupply from Rig/APC
       if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit) )) {
         unit.resupply();
-        supplied = true;
+        expendMaintainanceGas = false;
       }
 
-      // Expend gas if flying
-      if (unit.unitClass === UnitClass.Air && !supplied && this.assets.players.day > 1) {
-        unit.gas -= 5;    // TODO Unhardcode this
-        if (unit.gas <= 0)
-          unit.destroy();
-      }
+      unit.resupplyHeldUnits();
+
+      // Expend gas if Air or Navy
+      if (expendMaintainanceGas && players.day > 1)
+        unit.expendMaintainanceGas();
+      if (unit.destroyOnGasEmpty && unit.gas === 0)
+        unit.destroy();
+        // Emit an event to the animator
 
       // Let the players play.
       unit.orderable = true
     });
 
     // Configure initial control script states
-    this.assets.scripts.nextOrderableUnit.resetIndex();
+    scripts.nextOrderableUnit.resetIndex();
 
-    this.advanceToState(this.advanceStates.checkBoardState);
+    this.advanceToState(CheckBoardState);
   }
 
-  update() {
-    // Observer for next-state's pre-conditions
-  }
-
-  prev() {
-    // Undo when rolling back
-  }
 }

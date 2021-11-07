@@ -25,6 +25,8 @@ export class Axis2D {
     get tilted() { return this._state == ButtonState.Pressed; }
     /** Returns true if this axis was disengaged this frame. */
     get returned() { return this._state == ButtonState.Released; }
+    /** Returns true if this axis' engaged state was changed this frame. */
+    get changed() { return this.tilted || this.returned; }
 
     /** Updates this axis with new values. Used by the parent-controller object. */
     update(input: PointPrimitive) {

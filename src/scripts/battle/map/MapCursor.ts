@@ -35,19 +35,29 @@ export class MapCursor extends Observable {
         banPointer: PIXI.Texture[]
     }
 
+    /** Sets this cursor's graphics by context. */
+    get mode() { return this._mode; }
+    set mode(mode) {
+        const sets = this.cursorGraphics;
+        const textures =
+            (mode === 'point')
+            ? sets.arrowPointer
+            : (mode === 'build')
+            ? sets.constructPointer
+            : sets.banPointer;
+        this.pointerSprite.textures = textures;
+        this._mode = mode;
+    }
+    private _mode: 'point' | 'build' | 'ban' | 'target' = 'point';
+
     /** Whether the cursor should listen for input from a controller. */
     private controlsEnabled = true;
 
-    private _pos = new Point();
     /** Where this cursor exists on the map it is selecting over. */
     get pos() {
-        let p = this._pos.clone();
-        // Return immutable
-        return {
-            get x() { return p.x; },
-            get y() { return p.y; }
-        }
+        return this._pos.clone();
     }
+    private _pos = new Point();
 
     /** Where this cursor was last. */
     private lastPos = new Point();
@@ -142,6 +152,11 @@ export class MapCursor extends Observable {
         this.mapRef = null;
         //@ts-ignore
         this.controller = null;
+    }
+
+    /** Resets this cursor's listener connections. */
+    clearAllListeners() {
+        this.clearListeners();
     }
 
     /** Hides the cursor's graphics and disables player controls. */
@@ -272,7 +287,7 @@ export class MapCursor extends Observable {
     /** Moves the cursor's actual position while updating any listeners about this change. */
     private setCursorLocation(p: Point) {
         this._pos.set(p);
-        this.updateListeners();
+        this.updateListeners('move');
         Game.diagnosticLayer.cursorPos = this._pos.toString();
     }
 

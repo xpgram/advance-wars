@@ -13,10 +13,6 @@ export class DropLocation extends TurnState {
   get revertible() { return true; }
   get skipOnUndo() { return false; }
 
-  advanceStates = {
-    commandMenu: { state: CommandMenu },
-  }
-
   cursorMoved = false;
   drop!: {
     which: number,
@@ -51,7 +47,7 @@ export class DropLocation extends TurnState {
   onRegress() {
     const { mapCursor } = this.assets;
     const { drop } = this.data;
-
+    
     const { which, where } = drop.pop() as typeof this.drop;
     this.drop = {
       which,
@@ -134,7 +130,7 @@ export class DropLocation extends TurnState {
       if (tile.moveFlag) {
         this.drop.where = new Point(mapCursor.pos);
         this.data.drop.push(this.drop as CommandDropInstruction);
-        this.advanceToState(this.advanceStates.commandMenu);
+        this.advanceToState(CommandMenu);
       }
     }
 
@@ -156,4 +152,5 @@ export class DropLocation extends TurnState {
     map.squareAt(place).moveFlag = true;
     map.squareAt(goal).moveFlag = true;
   }
+  
 }

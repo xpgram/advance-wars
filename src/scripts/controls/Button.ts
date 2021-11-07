@@ -26,6 +26,7 @@ export class Button {
     get down() { return this._state == ButtonState.Down || this.pressed; }
     get released() { return this._state == ButtonState.Released; }
     get up() { return this._state == ButtonState.Up || this.released; }
+    get changed() { return this.pressed || this.released; }
 
     /** Given a raw input signal (pressed/unpressed), update this button's state. */
     update(buttonDown: boolean) {

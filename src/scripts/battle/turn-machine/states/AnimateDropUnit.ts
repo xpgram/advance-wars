@@ -1,13 +1,13 @@
 import { TurnState } from "../TurnState";
-import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
+import { AnimateBattle } from "./AnimateBattle";
 
-export class AnimateBattle extends TurnState {
+export class AnimateDropUnit extends TurnState {
   get name(): string { return "CheckBoardState"; }
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return true; }
 
   configureScene(): void {
-    this.advanceToState(RatifyIssuedOrder);
+    this.advanceToState(AnimateBattle);
   }
 
 }

@@ -2,32 +2,20 @@ import { TurnState } from "../TurnState";
 import { TurnStart } from "./TurnStart";
 
 export class TurnChange extends TurnState {
-    get name() { return 'TurnChange'; }
-    get revertible() { return false; }
-    get skipOnUndo() { return false; }
+  get name() { return 'TurnChange'; }
+  get revertible() { return false; }
+  get skipOnUndo() { return false; }
 
-    advanceStates = {
-        turnStart: {state: TurnStart, pre: () => {}}
-    }
+  configureScene() {
+    const { players, uiSystem } = this.assets;
 
-    assert() {
+    players.increment();
+    uiSystem.updatePlayerWindowOrder();
 
-    }
+    // TODO Rebind controller? BoardPlayer probably should know which input its listening from.
+    // TODO gamepad should be gotten from players.current, yeah? That would be cool. I think.
 
-    configureScene() {
-        // TODO Rebind controller? BoardPlayer probably should know which input its listening from.
-        this.assets.players.increment();
-        this.assets.uiSystem.updatePlayerWindowOrder();
-        this.advanceToState(this.advanceStates.turnStart);
-    }
-
-    update() {
-
-    }
-
-    prev() {
-
-    }
-
+    this.advanceToState(TurnStart);
+  }
 
 }

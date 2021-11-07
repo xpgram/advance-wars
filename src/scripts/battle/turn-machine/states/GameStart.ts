@@ -2,21 +2,12 @@ import { TurnState } from "../TurnState";
 import { TurnStart } from "./TurnStart";
 
 export class GameStart extends TurnState {
-    get name() { return 'GameStart'; }
-    get revertible() { return false; }
-    get skipOnUndo() { return false; }
+  get name() { return 'GameStart'; }
+  get revertible() { return false; }
+  get skipOnUndo() { return false; }
 
-    advanceStates = {
-      turnChange: {state: TurnStart, pre: () => {}}
-    }
+  configureScene() {
+    this.advanceToState(TurnStart);
+  }
 
-    assert() { }
-
-    configureScene() {
-      this.advanceToState(this.advanceStates.turnChange);
-    }
-
-    update() { }
-
-    prev() { }
 }

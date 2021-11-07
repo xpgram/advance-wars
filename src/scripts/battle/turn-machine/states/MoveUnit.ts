@@ -1,85 +1,78 @@
 import { TurnState } from "../TurnState";
-import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
 import { CommandMenu } from "./CommandMenu";
-import { TileInspector } from "../../map/TileInspector";
 
 export class MoveUnit extends TurnState {
-    get name() { return 'MoveUnit'; }
-    get revertible() { return true; }
-    get skipOnUndo() { return false; }
+  get name() { return 'MoveUnit'; }
+  get revertible() { return true; }
+  get skipOnUndo() { return false; }
 
-    private location!: Point;
-    private travellingUnit!: UnitObject;
-    private lastCursorPos = new Point(-1, -1);
+  private lastCursorPos = new Point(-1, -1);
 
-    assert() {
-        this.location = this.assertData(this.assets.instruction.place, 'location of unit to move');
-        this.travellingUnit = this.assertData(this.assets.map.squareAt(this.location).unit, 'unit to move');
+  configureScene() {
+    const { map, mapCursor, uiSystem, trackCar } = this.assets;
+    const { actor, placeTile } = this.data;
+
+    mapCursor.show();
+    uiSystem.show();
+
+    // Hide unit's map sprite
+    placeTile.hideUnit = true;
+
+    // Show the unit's trackcar
+    trackCar.buildNewAnimation(actor);
+    trackCar.show();
+
+    // Generate movement map
+    map.generateMovementMap(actor);
+  }
+
+  update() {
+    const { map, mapCursor, gamepad, players, instruction } = this.assets;
+    const { actor, place } = this.data;
+
+    // On press B, revert state
+    if (gamepad.button.B.pressed)
+      this.regressToPreviousState();
+
+    // If the unit is not owned by current player, do nothing else
+    if (players.current.faction !== actor.faction)
+      return;
+
+    // Request a recalc of the travel path on cursor move
+    if (this.lastCursorPos.notEqual(mapCursor.pos)) {
+      this.lastCursorPos = new Point(mapCursor.pos);
+      map.recalculatePathToPoint(actor, this.lastCursorPos);
     }
 
-    configureScene() {
-        this.assets.mapCursor.show();
-        this.assets.uiSystem.show();
+    // On press A and viable location, advance state
+    else if (gamepad.button.A.pressed) {
+      const square = map.squareAt(this.lastCursorPos);
+      const underneath = square.unit;
 
-        // Hide unit's map sprite
-        let square = this.assets.map.squareAt(this.location);
-        square.hideUnit = true;
+      const moveable = square.moveFlag;
+      const occupiable = square.occupiable(actor);
+      const mergeable = (underneath?.type === actor.type
+        && underneath?.faction === actor.faction
+        && underneath?.spent === false);
+      const boardable = underneath?.boardable(actor);
 
-        // Show the unit's trackcar
-        this.assets.trackCar.buildNewAnimation(this.travellingUnit);
-        this.assets.trackCar.show();
-
-        // Generate movement map
-        this.assets.map.generateMovementMap(this.travellingUnit);
+      // Final check
+      if (moveable && (occupiable || mergeable || boardable)) {
+        instruction.path = map.pathFrom(place);
+        this.advanceToState(CommandMenu);
+      }
     }
+  }
 
-    update() {
-        const {map, mapCursor, gamepad, instruction} = this.assets;
+  prev() {
+    const { map, mapCursor, trackCar } = this.assets;
+    const { place, placeTile } = this.data;
 
-        // On press B, revert state
-        if (gamepad.button.B.pressed)
-            this.regressToPreviousState();
+    placeTile.hideUnit = false;
+    trackCar.hide();
+    map.clearMovementMap();
+    mapCursor.moveTo(place);
+  }
 
-        // If the unit is not owned by current player, do nothing else
-        if (this.assets.players.current.faction !== this.travellingUnit.faction)
-            return;
-
-        // Request a recalc of the travel path on cursor move
-        if (this.lastCursorPos.notEqual(mapCursor.pos)) {
-            this.lastCursorPos = new Point(mapCursor.pos);
-            map.recalculatePathToPoint(this.travellingUnit, this.lastCursorPos);
-        }
-        
-        // On press A and viable location, advance state
-        else if (gamepad.button.A.pressed) {
-            const square = map.squareAt(this.lastCursorPos);
-            const unit = square.unit;
-            const traveler = this.travellingUnit;
-
-            const moveable = square.moveFlag;
-            const occupiable = square.occupiable(this.travellingUnit);
-            const mergeable = ( unit?.type === traveler.type
-                && unit?.faction === traveler.faction
-                && unit?.spent === false );
-            const boardable = unit?.boardable(traveler);
-
-            // Final check
-            if (moveable && (occupiable || mergeable || boardable)) {
-                instruction.path = map.pathFrom(this.location);
-                this.advanceToState(this.advanceStates.commandMenu);
-            }
-        }
-    }
-
-    prev() {
-        this.assets.map.squareAt(this.location).hideUnit = false;
-        this.assets.trackCar.hide();
-        this.assets.map.clearMovementMap();
-        this.assets.mapCursor.moveTo(this.location);
-    }
-
-    advanceStates = {
-        commandMenu: {state: CommandMenu, pre: () => {} }
-    }
 }

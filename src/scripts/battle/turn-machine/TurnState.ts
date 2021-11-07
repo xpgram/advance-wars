@@ -24,9 +24,6 @@ export abstract class TurnState {
   abstract get revertible(): boolean;     // Whether this state may revert to a previous one.
   abstract get skipOnUndo(): boolean;     // Whether this state is skipped when reached via reversion.
 
-  /** A collection of states and pre-transition functions this state would lead to. */
-  protected abstract advanceStates: StringDictionary<NextState>;
-
   /** A reference to the controlling battle system manager, the object which runs the
    * turn-state machine. */
   protected battleSystemManager: BattleSystemManager;
@@ -55,17 +52,13 @@ export abstract class TurnState {
   wake({fromRegress = false} = {}) {
     try {
       instructionData.fill(this.assets);
-      this.assert();
       this.assets.hidePlayerSystems();  // Reset the scene configuration
       (!fromRegress)
         ? this.onAdvance()
         : this.onRegress();
       this.configureScene();
     } catch (err) {
-      if (err instanceof StateTransitionError)
-        Debug.print(`${err.name}: ${err.message}`);
-      else
-        Debug.error(err);
+      Debug.error(err);
       Debug.print(this.battleSystemManager.getStackTrace());
       this.battleSystemManager.failToPreviousState(this);
     }
@@ -84,17 +77,11 @@ export abstract class TurnState {
     return data as T;
   }
 
-  /** Used to confirm inter-state dependencies important to this scene's construction or
-   * execution. For example, that some previous state has chosen a combat-unit to issue
-   * instructions to. If any error is raised during this function call, it is posted to the
-   * console and the BattleSystemManager is signaled to reject this state advancement.
-   * 
-   * assert() should not be used to make changes to state-independent systems: they may
-   * be irrevertible and difficult to trace should the assertion fail. */
-  protected assert(): void { };
-
-  /** Explicitly enables control scripts relevant to the state (important to avoid conflicts.)
-   * ControlScripts not enabled here are necessarily disabled. */
+  /** Explicitly enables battle system components and control scripts relevant to this
+   * game state; automatic defaults for these are always run before this state gets
+   * control of anything to avoid conflicts.
+   * Raising an error of any kind in this step will be caught and reported by the
+   * Battle System Manager, and this will be auto-reverted to the last stable game state. */
   protected abstract configureScene(): void;
 
   /** Function called before configuration only when this state is advanced to. */
@@ -106,18 +93,22 @@ export abstract class TurnState {
   /** Frame-by-frame processing step for turn-engine's game state.
    * UI and UX player systems typically add themselves to the scene's ticker,
    * so this is primarily used for state-observation and next-state triggering. */
-  abstract update(): void;
+  update() { };
 
   /** Generic close procedure called during any state transition. */
-  close(): void { };
+  close() { };
 
   /** Any to-dos before regressing to previous state.
    * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
-  prev(): void { };
+  prev() { };
 
   /** Pushes a request to the battle system manager to advance state to the one given. */
-  advanceToState(state: NextState) {
-    this.battleSystemManager.advanceToState(this, state);
+  advanceToState(state: TurnStateConstructor, pre?: () => void) {
+    const next = {
+      state,
+      pre,
+    }
+    this.battleSystemManager.advanceToState(this, next);
   }
 
   /** Pushes a request to the battle system manager to revert state to the one previous. */

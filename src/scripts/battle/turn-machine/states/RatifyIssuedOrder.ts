@@ -1,20 +1,6 @@
 import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
-import { UnitObject } from "../../UnitObject";
-import { Point } from "../../../Common/Point";
-import { MapLayer } from "../../map/MapLayers";
-import { CardinalVector, SumCardinalVectorsToVector, CardinalDirection } from "../../../Common/CardinalDirection";
-import { Debug } from "../../../DebugUtils";
-import { DamageScript } from "../../DamageScript";
-import { AttackMethod, Instruction } from "../../EnumTypes";
-import { Unit } from "../../Unit";
-import { threadId } from "worker_threads";
-import { Common } from "../../../CommonUtils";
-import { Command, getCommandObject } from "../Command";
-import { instructionData } from "../InstructionData";
-
-// TODO Refactor to be less busy; responsibility for action effects doesn't really need
-// to be handled *here*, does it?
+import { getCommandObject } from "../Command";
 
 export class RatifyIssuedOrder extends TurnState {
   get name(): string { return "RatifyIssuedOrder"; }
@@ -25,23 +11,14 @@ export class RatifyIssuedOrder extends TurnState {
     checkBoardState: { state: CheckBoardState, pre: () => { } },
   }
 
-  protected assert(): void {
-    
-  }
-
   protected configureScene(): void {
-    const get = this.assertData.bind(this);
     const { map, instruction } = this.assets;
+    const { action, placeTile } = this.data;
 
-    const nonActorInstructions = [Instruction.SpawnUnit, Instruction.SpawnLoadUnit];
+    const tileEmpty = (!placeTile.unit);
 
-    const action = get(instruction.action, `serial for action to be taken`);
-    const location = get(instruction.place, 'location of actor');
-
-    const tileEmpty = (!map.squareAt(location).unit);
-
-    // Revert settings set for TrackCar.
-    map.squareAt(location).hideUnit = false;
+    // Revert settings set from TrackCar.
+    placeTile.hideUnit = false;
 
     // Retrieve and execute command
     const command = getCommandObject(action);
@@ -50,6 +27,7 @@ export class RatifyIssuedOrder extends TurnState {
     // Drop units // TODO bad implementation; doesn't make use of Drop.ratify()
     if (!tileEmpty) {
       const { actor } = this.data;
+
       this.data.drop
         .sort( (a,b) => b.which - a.which )
         .forEach( d => {
@@ -60,22 +38,14 @@ export class RatifyIssuedOrder extends TurnState {
         });
     }
 
-    // Update player controls.
+    // Update cursor position.
     if (instruction.path) {
-      const path = get(instruction.path, `actor's movement path`);
-      const destination = SumCardinalVectorsToVector(path).add(location);
-      this.assets.mapCursor.teleport(destination);
+      const { goal } = this.data;
+      this.assets.mapCursor.teleport(goal);
     }
 
     // Advance to next state.
-    this.advanceToState(this.advanceStates.checkBoardState);
+    this.advanceToState(CheckBoardState);
   }
 
-  update(): void {
-
-  }
-
-  prev(): void {
-
-  }
 }

@@ -1,10 +1,8 @@
 import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
-import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
+import { Point } from "../../../Common/Point";
 import { Slider } from "../../../Common/Slider";
 import { AnimateMoveUnit } from "./AnimateMoveUnit";
-import { SumCardinalVectorsToVector } from "../../../Common/CardinalDirection";
-import { Debug } from "../../../DebugUtils";
 import { Common } from "../../../CommonUtils";
 import { Pulsar } from "../../../timer/Pulsar";
 
@@ -13,8 +11,6 @@ export class ChooseAttackTarget extends TurnState {
   get revertible() { return true; }
   get skipOnUndo() { return false; }
 
-  private actor!: UnitObject;
-  private destination!: Point;
   private possibleTargets: UnitObject[] = [];
   private index!: Slider;
 
@@ -34,29 +30,17 @@ export class ChooseAttackTarget extends TurnState {
     this
   )
 
-  assert() {
-    const get = this.assertData.bind(this);
-    const { instruction, map } = this.assets;
-
-    const place = get(instruction.place, 'location of acting unit');
-    this.actor = get(map.squareAt(place).unit, `acting unit at location ${place.toString()}`);
-    const path = get(instruction.path, 'travel instructions for unit');
-    this.destination = SumCardinalVectorsToVector(path).add(place);
-  }
-
   configureScene() {
-    const { map, mapCursor } = this.assets;
-    const { goal } = this.data;
+    const { map, mapCursor, uiSystem, trackCar } = this.assets;
+    const { actor, goal } = this.data;
 
     mapCursor.show();
     mapCursor.disable();
-    this.assets.uiSystem.show();
-    this.assets.trackCar.show();
-
-    // TODO Make list clockwise if actor is a direct unit
+    uiSystem.show();
+    trackCar.show();
 
     // Build the list of possible targets
-    const boundary = map.squareOfInfluence(this.actor);
+    const boundary = map.squareOfInfluence(actor);
     for (let yi = 0; yi < boundary.height; yi++)
       for (let xi = 0; xi < boundary.width; xi++) {
         const x = xi + boundary.x;
@@ -78,37 +62,37 @@ export class ChooseAttackTarget extends TurnState {
     // If there are no targets, revert to last state; otherwise,
     if (this.possibleTargets.length == 0)
       this.failTransition(`no attackable targets in range`);
-    // ...setup the target-picker and move the cursor.
+    // setup the target-picker and move the cursor.
     else {
       this.index = new Slider({
         max: this.possibleTargets.length,
         granularity: 1,
         looping: true
       });
-      this.assets.mapCursor.moveTo(this.possibleTargets[this.index.output].boardLocation);
+      mapCursor.moveTo(this.possibleTargets[this.index.output].boardLocation);
     }
   }
 
   update() {
     const { gamepad, mapCursor, instruction } = this.assets;
 
-    if (gamepad.button.dpadUp.pressed
-      || gamepad.button.dpadLeft.pressed) {
+    const { dpadUp, dpadLeft, dpadDown, dpadRight, A, B } = gamepad.button;
+
+    if (dpadUp.pressed || dpadLeft.pressed) {
       this.index.decrement();
       mapCursor.moveTo(this.possibleTargets[this.index.output].boardLocation);
       this.holdButton.start();
     }
-    else if (gamepad.button.dpadDown.pressed
-      || gamepad.button.dpadRight.pressed) {
+    else if (dpadDown.pressed || dpadRight.pressed) {
       this.index.increment();
       mapCursor.moveTo(this.possibleTargets[this.index.output].boardLocation);
       this.holdButton.start();
     }
-    else if (gamepad.button.B.pressed)
+    else if (B.pressed)
       this.regressToPreviousState();
-    else if (gamepad.button.A.pressed) {
+    else if (A.pressed) {
       instruction.focal = this.possibleTargets[this.index.output].boardLocation;
-      this.advanceToState(this.advanceStates.animateMoveUnit);
+      this.advanceToState(AnimateMoveUnit);
     }
 
     if (gamepad.axis.dpad.returned)
@@ -120,11 +104,10 @@ export class ChooseAttackTarget extends TurnState {
   }
 
   prev() {
-    this.assets.instruction.focal = undefined;
-    this.assets.mapCursor.moveTo(this.destination);
+    const { mapCursor, instruction } = this.assets;
+    const { goal } = this.data;
+    instruction.focal = undefined;
+    mapCursor.moveTo(goal);
   }
-
-  advanceStates = {
-    animateMoveUnit: { state: AnimateMoveUnit, pre: () => { } }
-  }
+  
 }

@@ -211,6 +211,15 @@ export abstract class UnitObject {
      * This is, primarily, a distinction between direct and indirect units. */
     get canMoveAndAttack(): boolean { return true; }
 
+    /** Whether this unit can hide itself from other players. */
+    get canHide(): boolean { return false; }
+
+    /** Whether this unit self-destructs when its gas is empty. */
+    get destroyOnGasEmpty() {
+        // TODO Move into Unit module properties? If it ever gets more complex, I guess.
+        return ([UnitClass.Air, UnitClass.Naval].includes(this.unitClass));
+    }
+
     /** The unit's class: either Groundforce, Airforce or Navy. */
     abstract get unitClass(): UnitClass;
 
@@ -291,13 +300,13 @@ export abstract class UnitObject {
 
     /** Loads unit info (a 32-bit number) into this unit object.
      * @deprecated In spirit. I should use it, though.
-    */
+     * */
     load(stateInfo: number, conditionInfo: number) {
         this.stateInfo = stateInfo;
         this.conditionInfo = conditionInfo;
     }
 
-    /* Unlinks this objects references and connections. */
+    /** Unlinks this objects references and connections. */
     destroy() { 
         this._loadedUnits.forEach( u => u.destroy() );
         
@@ -308,6 +317,12 @@ export abstract class UnitObject {
         this.sprite.destroy({children: true});
         this.uiBox.destroy({children: true});
         Game.scene.ticker.remove(this.update, this);
+    }
+
+    /** Emits an event to this unit's board player that it is to be destroyed.
+     * Use this instead of destroy() to signal an intent to animate. */
+    destruct() {
+        // TODO stub
     }
 
     /** The unit's team-assocation. */
@@ -455,6 +470,17 @@ export abstract class UnitObject {
         this.uiBox.visible = b;
     }
 
+    /** Whether this unit is hidden from any non-allied players. */
+    get hiding() { return this._hiding; }
+    set hiding(b: boolean) {
+        this._hiding = b;
+        this.rebuildStatusIcons();
+    }
+    private _hiding = false;
+
+    /** Returns true if this unit has some applied status condition. */
+    get statusApplied() { return this.statusTextures.length > 0; }
+
     /** The unit's x-coordinate on the game board. */
     private get x(): number {
         return Common.readBits(this.stateInfo, xCoordBits.length, xCoordBits.shift);
@@ -551,6 +577,7 @@ export abstract class UnitObject {
         }
         if (this.capturing) this.statusTextures.push( sheet.textures[`icon-capturing-${color}.png`] );
         if (this._loadedUnits.length > 0) this.statusTextures.push( sheet.textures[`icon-boarded-${color}.png`] );
+        if (this.hiding) this.statusTextures.push( sheet.textures[`icon-hidden-${color}.png`] );
 
         this.setCurrentStatusIcon();
     }
@@ -610,6 +637,28 @@ export abstract class UnitObject {
         this.gas = this.maxGas;
         if (!this.materialsInsteadOfAmmo)
             this.ammo = this.maxAmmo;
+
+        if (this.onMap) {
+            // TODO Emit an event to the board player to animate
+        }
+    }
+
+    /** Resupplies this units on-board units, if it is a supplier unit. */
+    resupplyHeldUnits() {
+        const resupplied = this._loadedUnits.some( unit => unit.resuppliable() );
+        // TODO Emit an event to the board unit to animate.
+        this._loadedUnits.forEach( unit => unit.resupply() );
+    }
+
+    /** Spends a set amount of gas needed to keep the unit aloft / whatever boats do. */
+    expendMaintainanceGas() {
+        // Instead of letting the units override, I'm just gonna write it here for now.
+        if (this.unitClass === UnitClass.Air)
+            this.gas -= 5;
+        else if (this.type === Unit.Submarine && this.hiding)
+            this.gas -= 5;  // A total of 5
+        else if (this.unitClass === UnitClass.Naval)
+            this.gas -= 1;
     }
 
     /** Returns true if this unit can hold the given unit, or is capable of

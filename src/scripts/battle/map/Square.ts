@@ -401,4 +401,5 @@ export class Square {
         else
             return false;
     }
+    
 }
