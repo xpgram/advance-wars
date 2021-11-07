@@ -51,8 +51,8 @@ export class NextOrderableUnit extends ControlScript {
 
   constructor(gp: VirtualGamepad, map: Map, cursor: MapCursor, turnModerator: TurnModerator, spawnMap: UnitSpawnMap[]) {
     super();
-    this.nextUnitButton = gp.button.rightBumper;
-    this.nextBaseButton = gp.button.leftBumper;
+    this.nextUnitButton = gp.button.leftBumper;
+    this.nextBaseButton = gp.button.rightBumper;
     
     this.map = map;
     this.cursor = cursor;
@@ -76,7 +76,7 @@ export class NextOrderableUnit extends ControlScript {
     this.baseLocations = player.capturePoints
       .filter( p =>
         spawnTypes.includes(this.map.squareAt(p).terrain.type)
-        && !this.map.squareAt(p).unit );
+        && (!this.map.squareAt(p).unit || this.map.squareAt(p).unit?.orderable) );
     this.baseSelect = new Slider({
       max: this.baseLocations.length,
       track: this.baseSelect?.track || 0,
