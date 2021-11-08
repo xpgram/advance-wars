@@ -261,6 +261,7 @@ export module Command {
       const { actor, underneath } = data;
       map.removeUnit(actor.boardLocation);
       underneath.loadUnit(actor);
+      actor.spent = true;
     },
   }
 
