@@ -47,7 +47,7 @@ const LIST_ITEM_PROPS = new BoxContainerProperties({
  * Basic menu component. Can or should be overridden to 
  * implement new visual styles.
  * */
-export class ListMenuGUI<X, Y> {
+export class CommandMenuGUI<X, Y> {
 
   static readonly CursorSettings = {
     animFrames: 3,
@@ -65,7 +65,7 @@ export class ListMenuGUI<X, Y> {
 
   /** Pulsar which triggers cursor animation. */
   private animPulsar = new Pulsar(
-    ListMenuGUI.CursorSettings.interval,
+    CommandMenuGUI.CursorSettings.interval,
     () => {},
     this
   );
@@ -73,7 +73,7 @@ export class ListMenuGUI<X, Y> {
   /** Slider which determines cursor position when traveling
    * between menu options. */
   private cursorMovementSlider = new Slider({
-    granularity: 1 / ListMenuGUI.CursorSettings.animFrames,
+    granularity: 1 / CommandMenuGUI.CursorSettings.animFrames,
   });
 
   constructor(menu: ListMenu<X, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties}) {
