@@ -14,20 +14,6 @@ More observations:
 - The drop animation will require at least two additional TrackCars.
 - The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
 
-- [x] Add weight values to each command.
-  Attack: 1
-  Wait: 10
-  Else: 5
-  And then export a sort function to standardize order.
-  Wait no longer needs to be at the bottom, yo.
-  I have to sort ListMenuOptions, though... not Commands.
-- [x] CommandMenu adds as many Drop commands as it needs, baking in their which value somehow. Probs override ratify() and call 'super'. These set instruction.which on ingress.
-- [x] DropLocation gets which value from instruction.which or the last item in instruction.drop ... mm. Should it know which direction wake() is coming from? Yeah, probably...
-- [x] BSM and TurnState work together to know whether wake() was called from advance or from regress.
-- [x] DropLocation always returns to the CommandMenu, which must choose 'Wait' to finish, or 'Attack' I guess is being implicitly left open, which then moves to Animate, etc., the normal procedure.
-- [x] Ratify checks the drop list and drops the boys.
-  - [ ] But not poorly.
-
 Post Function:
 - [ ] DropL also sets a dir value on the square so the player can see where they're dropping.
 - [ ] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
