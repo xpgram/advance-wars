@@ -1,3 +1,4 @@
+import { Game } from "../../../..";
 import { ListMenuOption } from "../../../system/ListMenuOption";
 import { TurnState } from "../TurnState";
 import { TurnEnd } from "./TurnEnd";
@@ -8,10 +9,10 @@ export class FieldMenu extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { cmdMenu: uiMenu, camera } = this.assets;
+    const { fieldMenu, camera } = this.assets;
 
     // TODO Instead of an enum, value could easily be the state to advance to.
-    this.assets.cmdMenu.menu.setListItems([
+    fieldMenu.menu.setListItems([
       new ListMenuOption('Commanders', 1, {
         triggerDisable: () => true,
       }),
@@ -22,19 +23,18 @@ export class FieldMenu extends TurnState {
     ]);
 
     // TODO This should be a different ui menu held in the global UI layer, not map ui.
-    uiMenu.buildGraphics();
-    uiMenu.show();
+    fieldMenu.buildGraphics();
+    fieldMenu.show();
     //@ts-expect-error
-    uiMenu.gui.position.set(
-      //@ts-expect-error
-      camera.center.x - uiMenu.gui.width / 2,
-      camera.y + 56,
+    fieldMenu.gui.position.set(
+      0.5*Game.display.renderWidth - 0.5*fieldMenu.gui.width,
+      56,
     );
   }
 
   update() {
-    const { gamepad, cmdMenu: uiMenu } = this.assets;
-    const { menu } = uiMenu;
+    const { gamepad, fieldMenu } = this.assets;
+    const { menu } = fieldMenu;
 
     // On press A, handle selected option.
     if (gamepad.button.A.pressed) {

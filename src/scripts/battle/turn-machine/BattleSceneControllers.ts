@@ -26,7 +26,7 @@ import { defaultUnitSpawnMap, UnitSpawnMap } from "../UnitSpawnMap";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
 import { CommandObject } from "./Command";
-import { IconTitle } from "../../system/ListMenuTitleTypes";
+import { ShopItemTitle } from "../../system/ListMenuTitleTypes";
 import { UnitShopMenuGUI } from "../../system/UnitShopMenuGUI";
 
 /** Scenario options for constructing the battle scene. */
@@ -108,7 +108,7 @@ export class BattleSceneControllers {
   mapCursor: MapCursor;
   uiSystem: InfoWindowSystem;
   cmdMenu: CommandMenuGUI<string, CommandObject<number>>;
-  shopMenu: UnitShopMenuGUI<IconTitle, number>;
+  shopMenu: UnitShopMenuGUI<ShopItemTitle, number>;
   fieldMenu: CommandMenuGUI<string, number>;
 
   trackCar: TrackCar;
@@ -187,9 +187,13 @@ export class BattleSceneControllers {
       players: this.players,
     });
 
-    // this.uiMenu = new MenuWindow(this.gamepad, MapLayer('ui'));
-    const menu = new ListMenu<string, number>(this.gamepad);
-    this.cmdMenu = new CommandMenuGUI(menu, MapLayer('ui'));
+    // Setup menu window systems
+    const menuCmd = new ListMenu<string, CommandObject<number>>(this.gamepad);
+    this.cmdMenu = new CommandMenuGUI(menuCmd, MapLayer('ui'));
+    const menuShop = new ListMenu<ShopItemTitle, number>(this.gamepad);
+    this.shopMenu = new UnitShopMenuGUI(menuShop, Game.hud);
+    const menuField = new ListMenu<string, number>(this.gamepad);
+    this.fieldMenu = new CommandMenuGUI<string, number>(menuField, Game.hud);
 
     // Setup static background image.
     let backdrop = new PIXI.Sprite(Game.scene.resources['background'].texture);
@@ -233,6 +237,8 @@ export class BattleSceneControllers {
     this.trackCar.hide();
     this.uiSystem.hide();
     this.cmdMenu.hide();
+    this.shopMenu.hide();
+    this.fieldMenu.hide();
 
     // Reset all scripts
     let scripts = this.scripts as StringDictionary<ControlScript>;

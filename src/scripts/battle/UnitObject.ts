@@ -103,7 +103,7 @@ export abstract class UnitObject {
     abstract get serial(): number;
 
     /** The sprite container for this unit. */
-    get sprite(): PIXI.Sprite {
+    get sprite(): PIXI.AnimatedSprite {
         return this._sprite;
     }
 
@@ -258,6 +258,7 @@ export abstract class UnitObject {
         //let country = team.country;
         let country = ['rubinelle','lazurian'][this.faction  % 2];
 
+        // TODO Export this to a public method
         if (this.type == Unit.Infantry || this.type == Unit.Mech || this.type == Unit.Bike)
             this._sprite = new PIXI.AnimatedSprite(sheet.animations[`${name}/${country}/${color}/idle`]);
         else

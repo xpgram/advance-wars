@@ -11,15 +11,6 @@ import { ListMenuOption } from "./ListMenuOption";
 
 const { HSV } = Color;
 
-// Menu element property defaults
-const LIST_ITEM_PROPS = new BoxContainerProperties({
-  minWidth: 40,
-  height: fonts.menu.fontSize + 2,
-  margin: { left: 3, right: 3, top: 1, bottom: 1 },
-  border: { left: 1, right: 1, top: 1, bottom: 1, },
-  padding: { left: 2, right: 2 },
-});
-
 /** A generic GUI represention for a ListMenu.
  * Basic menu component. Can or should be overridden to 
  * implement new visual styles.
@@ -30,6 +21,15 @@ export class CommandMenuGUI<X, Y> {
     animFrames: 3,
     interval: 45,
   }
+
+  /** Reference to this menu's pseudo-css properties. */
+  readonly listItemProps = new BoxContainerProperties({
+    minWidth: 40,
+    height: fonts.menu.fontSize + 2,
+    margin: { left: 3, right: 3, top: 1, bottom: 1 },
+    border: { left: 1, right: 1, top: 1, bottom: 1, },
+    padding: { left: 2, right: 2 },
+  });
 
   readonly palette = {
     selector:     HSV(166, 100, 80),
@@ -58,9 +58,6 @@ export class CommandMenuGUI<X, Y> {
   /** Reference to the menu object which controls this GUI. */
   readonly menu: ListMenu<X, Y>;
 
-  /** Reference to this menu's pseudo-css properties. */
-  protected listItemProps: BoxContainerProperties;
-
   /** The top-level graphical object for this GUI menu. */
   protected readonly gui = new PIXI.Container();
 
@@ -78,7 +75,6 @@ export class CommandMenuGUI<X, Y> {
   });
 
   constructor(menu: ListMenu<X, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties}) {
-    this.listItemProps = LIST_ITEM_PROPS;
 
     // Well. It's nominally correct now.
     

@@ -1,9 +1,19 @@
 import { Game } from "../..";
 import { fonts } from "../battle/ui-windows/DisplayInfo";
+import { BoxContainerProperties } from "../Common/BoxContainerProperties";
 import { Point } from "../Common/Point";
 import { CommandMenuGUI } from "./CommandMenuGUI";
+import { ShopItemTitle } from "./ListMenuTitleTypes";
 
-export class UnitShopMenuGUI<X, Y> extends CommandMenuGUI<X, Y> {
+export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
+
+  readonly listItemProps = new BoxContainerProperties({
+    minWidth: 144,
+    height: fonts.menu.fontSize + 2,
+    margin: { left: 3, right: 3, top: 1, bottom: 1 },
+    border: { left: 1, right: 1, top: 1, bottom: 1, },
+    padding: { left: 2, right: 2 },
+  });
 
   // A lot of wiring I need to do...
   // BattleScene needs to build it correctly
@@ -12,7 +22,6 @@ export class UnitShopMenuGUI<X, Y> extends CommandMenuGUI<X, Y> {
   // BattleScene also needs to give this the right UI layer.
 
   buildGraphics() {
-    this.listItemProps.width = this.getContentWidth();
 
     this.gui.removeChildren();
     
@@ -69,14 +78,19 @@ export class UnitShopMenuGUI<X, Y> extends CommandMenuGUI<X, Y> {
 
       // Text   // TODO Make this overridable
       const { key } = this.menu.listItems[idx];
-      const gText = new PIXI.BitmapText(key, fonts.menu);
-      if (item.disabled)
+      const { icon, title, cost } = key;
+      const gText = new PIXI.BitmapText(title, fonts.menu);
+      const gCost = new PIXI.BitmapText(cost.toString(), fonts.menu);
+      if (item.disabled) {
+        icon.tint = 0x888888;
         gText.tint = 0x888888;
-      gText.position.set(content.x + content.width*.5, content.y + 1);
-      gText.anchor.set(.5, 0);
+      }
+      icon.position.set(content.x, content.y + 1);
+      gText.position.set(icon.x + 18, content.y + 1);
+      gCost.position.set(content.x + content.width - gCost.width, content.y);
 
       // Combine
-      g.addChild(gText);
+      g.addChild(icon, gText, gCost);
       menu.addChild(g);
     });
 

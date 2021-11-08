@@ -1,3 +1,4 @@
+import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/ListMenuOption";
 import { defaultUnitSpawnMap } from "../../UnitSpawnMap";
@@ -11,8 +12,8 @@ export class FactoryMenu extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { players, map, mapCursor, cmdMenu: uiMenu, camera } = this.assets;
-    const { menu } = uiMenu;
+    const { players, map, mapCursor, shopMenu, camera } = this.assets;
+    const { menu } = shopMenu;
 
     const location = new Point(mapCursor.pos);
     const square = map.squareAt(location);
@@ -24,27 +25,29 @@ export class FactoryMenu extends TurnState {
 
     const listItems = unitTypes.map(type => {
       const unit = new type();
-      return new ListMenuOption(unit.name, unit.serial, {
+      const key = {
+        icon: new PIXI.Sprite(),
+        title: unit.name,
+        cost: unit.cost,
+      }
+      return new ListMenuOption(key, unit.serial, {
         triggerDisable: () => player.canAfford(unit.cost) === false,
       });
     });
 
     // Build and position menu
     menu.setListItems(listItems);
-    uiMenu.buildGraphics();
-    uiMenu.show();
-    //@ts-expect-error
-    uiMenu.gui.position.set(
-      //@ts-expect-error
-      camera.center.x - uiMenu.gui.width / 2,
-      //@ts-expect-error
-      camera.center.y - uiMenu.gui.height / 2,
+    shopMenu.buildGraphics();
+    shopMenu.show();
+    shopMenu.gui.position.set(
+      16,
+      40,
     );
   }
 
   update() {
-    const { gamepad, cmdMenu: uiMenu, instruction } = this.assets;
-    const { menu } = uiMenu;
+    const { gamepad, shopMenu, instruction } = this.assets;
+    const { menu } = shopMenu;
 
     // On press A, handle selected option.
     if (gamepad.button.A.pressed) {
