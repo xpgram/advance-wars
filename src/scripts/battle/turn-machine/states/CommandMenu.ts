@@ -4,7 +4,7 @@ import { ChooseAttackTarget } from "./ChooseAttackTarget";
 import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/ListMenuOption";
 import { MapLayer } from "../../map/MapLayers";
-import { Command } from "../Command";
+import { Command, CommandObject } from "../Command";
 import { DropLocation } from "./DropLocation";
 
 export class CommandMenu extends TurnState {
@@ -39,39 +39,29 @@ export class CommandMenu extends TurnState {
             map.squareAt(p).attackFlag = true;
           }
 
-    // TODO Drops should refer, somehow, to a *specific* unit.
-    // Only include Drop if the unit it refers to can be dropped;
-    // current behavior is if any held unit can be dropped.
-    // TODO I can't really prune this for units already selected for
-    // drop because which is set by index; you can't select unit 2
-    // if you first select unit 1, you'll only select 1 twice.
-    // Actually, it does work, at least with max 2, but I don't know why.
-    const lim = actor.loadedUnits.length - drop.length;
+    // Get drop command instances and auto-end if all previously selected.
     const dropCommands = actor.loadedUnits
-      // TODO This does as it should, but if it filters anything, the latter indices
-      // are literally unchoosable even if they're the ones triggering the drop case.
-      // .filter( u => neighbors.orthogonals.some( t => t.occupiable(u) ) )
-      .slice(0, Math.max(0, lim)) // Negative?
-      .map( unit => Command.Drop );
-
-    // Auto-end if no more drops.
+      .map( (u, idx) => ({
+        ...Command.Drop,
+        input: idx,
+      }))
+      .filter( c => !drop.some( d => d.which === c.input ) );
     if (dropCommands.length === 0 && actor.loadedUnits.length > 0) {
       this.autoEnd = true;
       return;
     }
 
+    // Get commands
     const commands = (destOccupiable)
       ? Object.values(Command)
-        .filter( c => c.serial !== Command.Drop.serial )
         .concat( (actor.unloadPosition(goalTerrain)) ? dropCommands : [] )
         .sort( (a,b) => a.weight - b.weight )
       : [Command.Join, Command.Load];
     const options = commands.map( command =>
-      new ListMenuOption(command.name, command.serial, {
-        triggerInclude: command.triggerInclude,
+      new ListMenuOption(command.name, command, {
+        triggerInclude: () => command.triggerInclude(),
       })
     );
-
 
     // Set and build uiMenu options
     uiMenu.menu.setListItems(options);
@@ -113,15 +103,14 @@ export class CommandMenu extends TurnState {
     // If A, infer next action from uiMenu.
     if (gamepad.button.A.pressed || this.autoEnd) {
       const commandValue = (!this.autoEnd)
-        ? menu.selectedValue
+        ? menu.selectedValue.serial
         : Command.Wait.serial;
       instruction.action = commandValue;
 
       if (commandValue == Command.Attack.serial)
         this.advanceToState(ChooseAttackTarget);
       else if (commandValue === Command.Drop.serial) {
-        const dropIndex = menu.listItems.findIndex( c => c.value === Command.Drop.serial );
-        instruction.which = menu.selectedIndex - dropIndex;
+        instruction.which = menu.selectedValue.input;
         this.advanceToState(DropLocation);
       } else {
         this.advanceToState(AnimateMoveUnit);

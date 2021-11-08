@@ -1,6 +1,6 @@
 import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
-import { getCommandObject } from "../Command";
+import { Command, getCommandObject } from "../Command";
 
 export class RatifyIssuedOrder extends TurnState {
   get name(): string { return "RatifyIssuedOrder"; }
@@ -12,10 +12,8 @@ export class RatifyIssuedOrder extends TurnState {
   }
 
   protected configureScene(): void {
-    const { map, instruction } = this.assets;
+    const { instruction } = this.assets;
     const { action, placeTile } = this.data;
-
-    const tileEmpty = (!placeTile.unit);
 
     // Revert settings set from TrackCar.
     placeTile.hideUnit = false;
@@ -24,19 +22,7 @@ export class RatifyIssuedOrder extends TurnState {
     const command = getCommandObject(action);
     command.ratify();
 
-    // Drop units // TODO bad implementation; doesn't make use of Drop.ratify()
-    if (!tileEmpty) {
-      const { actor } = this.data;
-
-      this.data.drop
-        .sort( (a,b) => b.which - a.which )
-        .forEach( d => {
-          const { which, where } = d;
-          const unit = actor.unloadUnit(which);
-          map.placeUnit(unit, where);
-          unit.spent = true;
-        });
-    }
+    Command.Drop.ratify();
 
     // Update cursor position.
     if (instruction.path) {

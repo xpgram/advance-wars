@@ -1,3 +1,4 @@
+import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
 import { Unit } from "../Unit";
@@ -11,8 +12,8 @@ export class RatificationError extends Error {
   name = 'RatificationError';
 }
 
-/** Returns a CommandObject corrosponding to the given serial number. */
-export function getCommandObject(serial: number): CommandObject {
+/** Returns a CommandObject<number> corrosponding to the given serial number. */
+export function getCommandObject(serial: number): CommandObject<number> {
   const command = Object.values(Command).find( c => c.serial === serial );
   if (!command)
     throw new Error(`could not retrieve command object for serial ${serial}`);
@@ -30,11 +31,13 @@ enum Weight {
 }
 
 /** Interface all Commands must adhere to. */
-export type CommandObject = {
+export type CommandObject<T> = {
   /** Name string; use as menu option title. */
   name: string,
   /** Command identification serial. */
   serial: number,
+  /** Values for variant behavior. */
+  input: T,
   /** Sort order value. */
   weight: number,
   /** Returns true if this command should be included in a ListMenu. */
@@ -47,9 +50,10 @@ export type CommandObject = {
 export module Command {
 
   /** Unit idle at location command. */
-  export const Wait: CommandObject = {
+  export const Wait: CommandObject<number> = {
     name: "Wait",
     serial: 0,
+    input: 0,
     weight: Weight.Bottom,
     triggerInclude() {
       const { actor, goalTile } = data;
@@ -61,9 +65,10 @@ export module Command {
   }
 
   /** Moves a unit from one board location to another. */
-  export const Move: CommandObject = {
+  export const Move: CommandObject<number> = {
     name: "Move",
     serial: 1,
+    input: 0,
     weight: Weight.None,
     triggerInclude: function () {
       return false;
@@ -83,9 +88,10 @@ export module Command {
   }
 
   /** Unit attack target from location command. */
-  export const Attack: CommandObject = {
+  export const Attack: CommandObject<number> = {
     name: "Attack",
     serial: 2,
+    input: 0,
     weight: Weight.Primary,
     triggerInclude() {
       const { map } = data.assets;
@@ -135,9 +141,10 @@ export module Command {
   }
 
   /** Unit capture property on board command. */
-  export const Capture: CommandObject = {
+  export const Capture: CommandObject<number> = {
     name: "Capture",
     serial: 3,
+    input: 0,
     weight: Weight.Secondary,
     triggerInclude() {
       const { actor, goalTerrain } = data;
@@ -160,9 +167,10 @@ export module Command {
   }
 
   /** Unit supplies resources to adjacent allies command. */
-  export const Supply: CommandObject = {
+  export const Supply: CommandObject<number> = {
     name: "Supply",
     serial: 4,
+    input: 0,
     weight: Weight.Secondary,
     triggerInclude() {
       const { map } = data.assets;
@@ -189,9 +197,10 @@ export module Command {
   }
 
   /** Unit combines with allied unit at goal command. */
-  export const Join: CommandObject = {
+  export const Join: CommandObject<number> = {
     name: "Join",
     serial: 5,
+    input: 0,
     weight: Weight.Tertiary,
     triggerInclude() {
       const { map } = data.assets;
@@ -238,9 +247,10 @@ export module Command {
   }
 
   /** Unit load into boardable unit action. */
-  export const Load: CommandObject = {
+  export const Load: CommandObject<number> = {
     name: "Load",
     serial: 6,
+    input: 0,
     weight: Weight.Tertiary,
     triggerInclude() {
       const { actor, goalTile } = data;
@@ -255,36 +265,59 @@ export module Command {
   }
 
   /** Unit load into boardable unit action. */
-  export const Drop: CommandObject = {
+  export const Drop: CommandObject<number> = {
     name: "Drop",
     serial: 7,
+    input: -1,
     weight: Weight.Secondary,
     triggerInclude() {
       const { map } = data.assets;
-      const { actor, goal } = data;
+      const { actor, goal, drop } = data;
+
+      if (this.input === -1)  // Null case
+        return false;
+
+      if (actor.loadedUnits.length === 0) // Nothing to drop
+        return false;
+
+      if (!Common.validIndex(this.input, actor.loadedUnits.length))
+        throw new RatificationError(`${this.name} → input ${this.input} does not correspond to a held unit.`);
 
       const neighbors = map.neighborsAt(goal);
-      const holdingUnit = actor.loadedUnits.length > 0;
-      const oneEmptySpace = actor.loadedUnits
-        .some( unit => neighbors.orthogonals
-          .some( tile => tile.occupiable(unit) )
-        );
-      return holdingUnit && oneEmptySpace;
+      const unit = actor.loadedUnits[this.input];
+
+      const alreadyDropped = drop
+        .map( d => d.which )
+        .includes( this.input );
+      const oneEmptySpace = neighbors.orthogonals
+          .some( tile => tile.occupiable(unit) );
+      return !alreadyDropped && oneEmptySpace;
     },
     ratify() {
-      const { map } = data.assets;
-      const { actor, which, focal } = data;
+      const { drop } = data;
 
-      const unit = actor.unloadUnit(which);
-      map.placeUnit(unit, focal);
-      unit.spent = true;
+      if (drop.length === 0)
+        return;
+
+      const { map } = data.assets;
+      const { actor } = data;
+
+      // Unlike trigger, ratify is generic.
+      drop
+        .sort( (a,b) => b.which - a.which )
+        .forEach( ins => {
+          const unit = actor.unloadUnit(ins.which);
+          map.placeUnit(unit, ins.where);
+          unit.spent = true;
+        });
     },
   }
 
   /** Unit spawns at location action. */
-  export const SpawnUnit: CommandObject = {
+  export const SpawnUnit: CommandObject<number> = {
     name: "SpawnUnit",
     serial: 8,
+    input: 0,
     weight: Weight.None,
     triggerInclude() {
       return false;
