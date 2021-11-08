@@ -720,6 +720,8 @@ export const Unit = {
             const types = [Terrain.Beach, Terrain.Port, Terrain.TempPort] as TerrainType[];
             return terrain.landTile || types.includes(terrain.type);
         }
+
+        resupplyHeldUnits() { } // T's aren't resuppliers
     
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
@@ -898,7 +900,7 @@ export const Unit = {
         get vision() { return 5; }
 
         boardable(unit?: UnitObject): boolean {
-            const max = 2;
+            const max = 1;
             const full = (this._loadedUnits.length >= max);
             const generally = (!unit);
             const copterTypes = [Unit.BCopter, Unit.TCopter] as (UnitType | undefined)[];

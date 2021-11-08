@@ -1,38 +1,18 @@
 # Next Big Objectives
 
 More observations:
-- Ships actually lose 1 gas every turn. This seems fair.
-- I wonder if this was always the case; subs expending 5 gas while sunk was always their big trade-off. And although I couldn't think of why, I *felt* like ships lost gas every turn. I just thought 0 and 5 were the only options.
-- Aircraft and ships do not lose gas over terrain that would repair them anyway. This is a nice easy way to avoid retriggering the god damn supply event every turn if you leave them there. This naturally doesn't work next to rigs.
-- Carriers will resupply aircraft *contained within them.* This triggers the same supply event, just over the carrier. They do not resupply adjacent air units, however. (How does a Rig reach the sky?) [They have a little supplies cannon.]
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
   - This of course means units that load must also spend because otherwise Carriers would be second-turn bounce points.
 - Advancing to Launch behaves exactly like you had just picked that air unit directly off the map, as if the Carrier weren't even there. It implants the air unit as the object and proceeds through the turn system from MoveUnit as normal. Actually... I don't think my animation system has an equivalent for this. Place is used to grab the Carrier, and always the Carrier. Hm.
 - More on that, regressing from Launch returns to OrderStart. My system would have to advance to OrderStart, skipping ratify and such. I'll have to experiment with what I'd rather have happen: going back one stage makes intuitive sense and that's how my system is built anyway, but truthfully, if one launched a unit and then changed their mind, it probably wasn't to pick *the other unit*. Going back to the map might be a worthwhile convenience.
-- Launch, further further, does not spend the Carrier. It can Launch both held units. Wait, Attack and Build, of course, prevent any more Launches.
-- Carriers have Material, not ammo. I don't know if I forgot this.
-  - This means they can build at most 4 Seaplanes.
-- Drop moves the cursor, doesn't teleport.
-- TCopters only hold *one* soldier unit.
-- Gunboats only hold one *soldier* unit.
-- Cruisers can carry two copter units.
-  - This includes TCopters
-  - Which includes TCopters holding soldiers wtf
+- Launch, further further, does not spend the Carrier. It can Launch both held units. 'Wait,' 'Attack' and 'Build,' of course, prevent any more Launches.
 - Dropping TCopters, it's impossible to know which is which. Can I fix this in mine? Can I force UnitInfo open while selecting over held units?
-- Cruisers do resupply copters while holding them, just like Carriers.
-- You know, Rigs can resupply their held soldiers then too, why not. Like, what the fuck?
-  - Unless this is annoying. If it don't *feel* right then it *ain't* right.
-- TCopters can fuck off, though.
 - TargetCursor appears over actionables. So, over an attackable unit, or over a unit you can load into, maybe over a Silo, I dunno. Honestly, it's probably a visual flair that means "you can do something here."
 - Because path arrows do not disappear when dropping, the game has special icon arrows to indicate a drop tile.
 - These drop-tile icons appear above units, path arrows, etc. Do I need a second UI layer?
 - Landers drop both their units at once, not in order.
 - The drop animation will require at least two additional TrackCars.
 - The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
-- When picking drop locations/attack targets, the cursor moves, not teleports.
-- Drop locations *are* in clockwise order.
-- Drop locations have no 'smart' preferred direction detection, like me. This is because I'm very cool.
-- Allow maps to support no HQ for player if they have predeploy units.
 
 - [x] Add weight values to each command.
   Attack: 1

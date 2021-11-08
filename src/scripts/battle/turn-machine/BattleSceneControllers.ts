@@ -151,6 +151,7 @@ export class BattleSceneControllers {
         faction: [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][i],
         officerSerial: -2,
         map: this.map,
+        scenario: this.scenario,
         capturePoints: mapLandsEnd.owners
           .filter(captures => captures.player === i)
           .map(captures => new Point(captures.location)),

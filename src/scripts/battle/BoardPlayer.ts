@@ -7,6 +7,7 @@ import { Faction, FactionColors } from "./EnumTypes";
 import { Terrain } from "./map/Terrain";
 import { CommandingOfficerObject } from "./CommandingOfficerObject";
 import { Unit } from "./Unit";
+import { Scenario } from "./turn-machine/BattleSceneControllers";
 
 /**  */
 export type UnitSpawnSettings = {
@@ -45,6 +46,8 @@ type BoardPlayerOptions = {
   officerSerial: number,
   /** Reference to the board being played on. */
   map: Map,
+  /** Reference to the game's scenario rules. */
+  scenario: Scenario,
 
   /** Board location of all player-owned properties. Must include at least one HQ.
    * All points listed must be neutral, cannot be owned by other players. */
@@ -63,18 +66,21 @@ type BoardPlayerOptions = {
 /** The player-data object for a participant in a game. */
 export class BoardPlayer {
   map: Map;
+  scenario: Scenario;
   playerNumber: number;             // Which real player (slot) this player-object belongs to.
   faction: Faction;                 // The army-color owned by this player, more or less.
   officer: CommandingOfficerObject; // Reference to CO class, like Unit.??? or Terrain.???
   capturePoints: Point[] = [];      // Where this player's properties are located.
   powerMeter: Slider;               // How much power meter is charged.
   funds: number;                    // Funds available for spending.
+  hasHQ: boolean;                   // Whether this player has an HQ to capture or not; allows players to begin games with no HQ whatsoever.
   armyDeployed: boolean;            // Whether this player has had an army yet. Prevents match loss before unit purchase.
   units: UnitObject[] = [];         // List of units under control.
   lastCursorPosition: Point;
 
   constructor(options: BoardPlayerOptions) {
     this.map = options.map;
+    this.scenario = options.scenario;
     this.playerNumber = options.playerNumber;
     this.faction = options.faction;
     this.powerMeter = new Slider({max: 128}); // TODO COWindow uses 0-12, so convert or refactor.
@@ -106,7 +112,20 @@ export class BoardPlayer {
     // Validate and spawn units.
     if (options.unitSpawns)
       options.unitSpawns.forEach( settings => this.spawnUnit(settings) );
+
+    // Set pre-match known conditions
     this.armyDeployed = (this.units.length > 0);
+    this.hasHQ = (this.HQs.length > 0);
+
+    // Get (temp) known number of base locations.
+    const spawnTypes = this.scenario.spawnMap.map( m => m.type );
+    const bases = this.capturePoints
+      .map( p => this.map.squareAt(p).terrain.type )
+      .filter( type => spawnTypes.includes(type) );
+
+    // Validate player pre-play options
+    if (bases.length === 0 && this.units.length === 0)
+      throw new BoardPlayerConstructionError(`BoardPlayer object has no means of playing.`);
 
     // Collect property count
     this.scanCapturedProperties();

@@ -37,17 +37,23 @@ export class TurnStart extends TurnState {
       // Repair unit HP and resupply from properties
       if (terrain.building && terrain.faction === unit.faction) {
         if (terrain.repairType === unit.unitClass) {
+          // TODO Move repair logic to UnitObject; resupply and repair
+          // should emit event to their player object for the animation step.
+          // if (unit.repairable())
+          //   unit.repair();
+
           // Repair HP
           const maxUnitHp = UnitObject.MaxHp;
           const maxRepairHp = scenario.repairHp;
-          const repairHp = Common.confine(maxUnitHp - unit.hp, 0, maxRepairHp);
+          const repairHp = Common.clamp(maxUnitHp - unit.hp, 0, maxRepairHp);
           const costToRepair = unit.cost * repairHp / maxUnitHp;
           if (costToRepair <= player.funds) {
             unit.hp += repairHp;
             player.expendFunds(costToRepair);
           }
 
-          unit.resupply();
+          if (unit.resuppliable())
+            unit.resupply();
           expendMaintainanceGas = false;
         }
       }
@@ -58,6 +64,7 @@ export class TurnStart extends TurnState {
         expendMaintainanceGas = false;
       }
 
+      // TODO TCopters shouln't tho. Mechs gettin' resupped by T's might be a little shit.
       unit.resupplyHeldUnits();
 
       // Expend gas if Air or Navy
