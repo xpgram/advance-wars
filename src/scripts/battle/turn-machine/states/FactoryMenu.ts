@@ -11,7 +11,7 @@ export class FactoryMenu extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { players, map, mapCursor, uiMenu, camera } = this.assets;
+    const { players, map, mapCursor, cmdMenu: uiMenu, camera } = this.assets;
     const { menu } = uiMenu;
 
     const location = new Point(mapCursor.pos);
@@ -43,7 +43,7 @@ export class FactoryMenu extends TurnState {
   }
 
   update() {
-    const { gamepad, uiMenu, instruction } = this.assets;
+    const { gamepad, cmdMenu: uiMenu, instruction } = this.assets;
     const { menu } = uiMenu;
 
     // On press A, handle selected option.

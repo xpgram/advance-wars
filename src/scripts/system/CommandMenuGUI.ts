@@ -8,31 +8,8 @@ import { Pulsar } from "../timer/Pulsar";
 import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
 
-// Color palette definition
+
 const { HSV } = Color;
-const PALETTE = {
-  selector:     HSV(166, 100, 80),
-  button: {
-    unselected: {
-      background: HSV(200, 30, 30),
-      primary:    HSV(215, 25, 35),
-      light:      HSV(220, 15,100),
-      dark:       HSV(190, 10,  0),
-    },
-    selected: {
-      background: HSV(200, 30, 30),
-      primary:    HSV(170, 65, 40),
-      light:      HSV(185, 35,  0),
-      dark:       HSV(170, 35,100),
-    },
-    disabled: {
-      background: HSV(200, 0, 20),
-      primary:    HSV(215, 0, 30),
-      light:      HSV(190, 0,  0),
-      dark:       HSV(220, 0, 80),
-    },
-  },
-}
 
 // Menu element property defaults
 const LIST_ITEM_PROPS = new BoxContainerProperties({
@@ -54,17 +31,41 @@ export class CommandMenuGUI<X, Y> {
     interval: 45,
   }
 
+  readonly palette = {
+    selector:     HSV(166, 100, 80),
+    button: {
+      unselected: {
+        background: HSV(200, 30, 30),
+        primary:    HSV(215, 25, 35),
+        light:      HSV(220, 15,100),
+        dark:       HSV(190, 10,  0),
+      },
+      selected: {
+        background: HSV(200, 30, 30),
+        primary:    HSV(170, 65, 40),
+        light:      HSV(185, 35,  0),
+        dark:       HSV(170, 35,100),
+      },
+      disabled: {
+        background: HSV(200, 0, 20),
+        primary:    HSV(215, 0, 30),
+        light:      HSV(190, 0,  0),
+        dark:       HSV(220, 0, 80),
+      },
+    },
+  }
+
   /** Reference to the menu object which controls this GUI. */
   readonly menu: ListMenu<X, Y>;
 
   /** Reference to this menu's pseudo-css properties. */
-  private listItemProps: BoxContainerProperties;
+  protected listItemProps: BoxContainerProperties;
 
   /** The top-level graphical object for this GUI menu. */
-  private readonly gui = new PIXI.Container();
+  protected readonly gui = new PIXI.Container();
 
   /** Pulsar which triggers cursor animation. */
-  private animPulsar = new Pulsar(
+  protected animPulsar = new Pulsar(
     CommandMenuGUI.CursorSettings.interval,
     () => {},
     this
@@ -72,7 +73,7 @@ export class CommandMenuGUI<X, Y> {
 
   /** Slider which determines cursor position when traveling
    * between menu options. */
-  private cursorMovementSlider = new Slider({
+  protected cursorMovementSlider = new Slider({
     granularity: 1 / CommandMenuGUI.CursorSettings.animFrames,
   });
 
@@ -161,10 +162,10 @@ export class CommandMenuGUI<X, Y> {
 
     this.menu.listItems.forEach( (item, idx) => {
       const palette = (item.disabled)
-        ? PALETTE.button.disabled
+        ? this.palette.button.disabled
         : (idx === this.menu.selectedIndex)
-        ? PALETTE.button.selected
-        : PALETTE.button.unselected;
+        ? this.palette.button.selected
+        : this.palette.button.unselected;
 
       const g = new PIXI.Graphics();
       const content = props.contentBox();
@@ -227,7 +228,7 @@ export class CommandMenuGUI<X, Y> {
     const hpad = 1 - shrink;
     const size = 2;
 
-    cursor.beginFill(PALETTE.selector);
+    cursor.beginFill(this.palette.selector);
     cursor.drawRect(border.x - wpad - size, border.y - hpad - size, border.width + 2*wpad + 2*size, border.height + 2*hpad + 2*size);
     cursor.endFill();
 

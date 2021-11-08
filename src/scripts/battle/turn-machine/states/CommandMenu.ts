@@ -15,7 +15,7 @@ export class CommandMenu extends TurnState {
   private autoEnd = false;
 
   protected configureScene(): void {
-    const { map, mapCursor, trackCar, uiMenu, camera } = this.assets;
+    const { map, mapCursor, trackCar, cmdMenu: uiMenu, camera } = this.assets;
     const { actor, place, placeTile, goal, goalTile, goalTerrain, drop } = this.data;
 
     // leave trackCar on
@@ -98,7 +98,7 @@ export class CommandMenu extends TurnState {
 
   update(): void {
     const { gamepad, instruction } = this.assets;
-    const { menu } = this.assets.uiMenu;
+    const { menu } = this.assets.cmdMenu;
 
     // If A, infer next action from uiMenu.
     if (gamepad.button.A.pressed || this.autoEnd) {

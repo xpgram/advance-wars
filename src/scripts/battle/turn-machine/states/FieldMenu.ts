@@ -8,10 +8,10 @@ export class FieldMenu extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { uiMenu, camera } = this.assets;
+    const { cmdMenu: uiMenu, camera } = this.assets;
 
     // TODO Instead of an enum, value could easily be the state to advance to.
-    this.assets.uiMenu.menu.setListItems([
+    this.assets.cmdMenu.menu.setListItems([
       new ListMenuOption('Commanders', 1, {
         triggerDisable: () => true,
       }),
@@ -33,7 +33,7 @@ export class FieldMenu extends TurnState {
   }
 
   update() {
-    const { gamepad, uiMenu } = this.assets;
+    const { gamepad, cmdMenu: uiMenu } = this.assets;
     const { menu } = uiMenu;
 
     // On press A, handle selected option.
