@@ -7,14 +7,29 @@ import { Terrain } from "../../map/Terrain";
 import { FieldMenu } from "./FieldMenu";
 import { FactoryMenu } from "./FactoryMenu";
 
-
 export class IssueOrderStart extends TurnState {
   get name() { return 'IssueOrderStart'; }
   get revertible() { return true; }   // ← If each state is either auto-skipped on undo or must deliberately cancel
   get skipOnUndo() { return false; }  //   itself via a function call, I wonder if this property is even necessary.
 
+  changeCursorMode() {
+    const { map, mapCursor, players, scenario } = this.assets;
+
+    const tile = map.squareAt(mapCursor.pos);
+    const allied = tile.terrain.faction === players.current.faction;
+    const empty = !tile.unit;
+
+    const types = scenario.spawnMap.map( map => map.type );
+    const spawnType = types.includes(tile.terrain.type);
+
+    if (spawnType && allied && empty)
+      mapCursor.mode = 'build';
+    else
+      mapCursor.mode = 'point';
+  }
+
   configureScene() {
-    const { map, mapCursor, uiSystem, camera, scripts, players, instruction, scenario } = this.assets;
+    const { mapCursor, uiSystem, camera, scripts, players, instruction, scenario } = this.assets;
 
     // Reveal UI systems
     mapCursor.show();
@@ -37,20 +52,13 @@ export class IssueOrderStart extends TurnState {
     scripts.nextOrderableUnit.enable();
 
     // Configure map cursor to update pointer graphic over certain terrains
-    mapCursor.on('move', () => {
-      const tile = map.squareAt(mapCursor.pos);
-      const allied = tile.terrain.faction === players.current.faction;
-      const empty = !tile.unit;
-
-      const types = scenario.spawnMap.map( map => map.type );
-      const spawnType = types.includes(tile.terrain.type);
-
-      if (spawnType && allied && empty)
-        mapCursor.mode = 'build';
-      else
-        mapCursor.mode = 'point';
-    });
+    mapCursor.on('move', this.changeCursorMode, this);
     mapCursor.teleport(mapCursor.pos);  // Trigger cursor mode.
+  }
+
+  close() {
+    const { mapCursor } = this.assets;
+    mapCursor.removeListener(this.changeCursorMode, this);
   }
 
   update() {

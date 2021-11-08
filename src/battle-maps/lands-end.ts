@@ -30,7 +30,7 @@ export const data = {
     [sea,sea,sea,sea,pln,pln,pln,wod,wod,wod,rod,rod,rod,rod,pln,mtn,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,wod,pln,wod,wod],
     [sea,sea,sea,sea,sea,pln,pln,pln,wod,wod,mtn,mtn,mtn,rod,pln,mtn,pln,pln,sea,sea,ref,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,pln],
     [sea,sea,sea,sea,sea,sea,pln,pln,pln,wod,cty,mtn,mtn,rod,cty,mtn,mtn,pln,pln,sea,sea,sea,sea,sea,sea,ref,sea,sea,sea,sea,wod,pln],
-    [sea,sea,sea,sea,sea,sea,sea,pln,pln,pln,wod,wod,mtn,rod,rod,rod,cty,pln,pln,pln,sea,sea,sea,ref,sea,sea,sea,sea,sea,sea,pln,wod],
+    [sea,sea,sea,sea,sea,sea,sea,pln,pln,pln,wod,wod,mtn,rod,rod,rod,cty,pln,pln,pln,prt,sea,sea,ref,sea,sea,sea,sea,sea,sea,pln,wod],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,wod,wod,cty,mtn,mtn,pln,cty,pln,fct,pln,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,wod],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,pln,wod,wod,wod,pln,pln,fct,pln,fct,sea,sea,bch,sea,sea,sea,sea,sea,sea,sea,pln],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,pln,pln,wod,wod,wod,pln,fct,pln,pln,pln,pln,bch,bch,sea,sea,sea,sea,sea,sea],
@@ -71,6 +71,8 @@ export const data = {
     {"location": {"x":20, "y":15}, "player": 0},
     {"location": {"x":19, "y":16}, "player": 0},
     {"location": {"x":26, "y":18}, "player": 0},
+
+    {"location": {"x":20, "y":13}, "player": 0},
   ],
   "predeploy": [
     {"location": {"x":26, "y": 5}, "serial": rck, "player": 1},

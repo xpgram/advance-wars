@@ -1,7 +1,7 @@
 import { Game } from "../.."
 import { UnitObject, UnitType } from "./UnitObject";
-import { AttackMethod, MoveType, ArmorType, UnitClass } from "./EnumTypes";
-import { TerrainObject } from "./map/TerrainObject";
+import { MoveType, ArmorType, UnitClass } from "./EnumTypes";
+import { TerrainObject, TerrainType } from "./map/TerrainObject";
 import { Terrain } from "./map/Terrain";
 
 export const Unit = {
@@ -717,7 +717,8 @@ export const Unit = {
         }
 
         unloadPosition(terrain: TerrainObject) {
-            return terrain.landTile;
+            const types = [Terrain.Beach, Terrain.Port, Terrain.TempPort] as TerrainType[];
+            return terrain.landTile || types.includes(terrain.type);
         }
     
         get unitClass() { return UnitClass.Air; }
@@ -895,6 +896,19 @@ export const Unit = {
         get maxAmmo() { return 9; }
         get maxMovementPoints() { return 6; }
         get vision() { return 5; }
+
+        boardable(unit?: UnitObject): boolean {
+            const max = 2;
+            const full = (this._loadedUnits.length >= max);
+            const generally = (!unit);
+            const copterTypes = [Unit.BCopter, Unit.TCopter] as (UnitType | undefined)[];
+            const copterUnit = (copterTypes.includes(unit?.type));
+            return !full && (copterUnit || generally);
+        }
+
+        unloadPosition(terrain: TerrainObject) {
+            return true;
+        }
     
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }
@@ -940,7 +954,8 @@ export const Unit = {
         }
 
         unloadPosition(terrain: TerrainObject) {
-            return terrain.type === Terrain.Beach;
+            const types = [Terrain.Beach, Terrain.Port, Terrain.TempPort] as TerrainType[];
+            return types.includes(terrain.type);
         }
     
         get unitClass() { return UnitClass.Naval; }
@@ -979,12 +994,13 @@ export const Unit = {
             const max = 1;
             const full = (this._loadedUnits.length >= max);
             const generally = (!unit);
-            const groundUnit = (unit?.unitClass === UnitClass.Ground);
-            return !full && (groundUnit || generally);
+            const soldierUnit = (unit?.soldierUnit);
+            return !full && (soldierUnit || generally);
         }
 
         unloadPosition(terrain: TerrainObject) {
-            return terrain.type === Terrain.Beach;
+            const types = [Terrain.Beach, Terrain.Port, Terrain.TempPort] as TerrainType[];
+            return types.includes(terrain.type);
         }
     
         get unitClass() { return UnitClass.Naval; }

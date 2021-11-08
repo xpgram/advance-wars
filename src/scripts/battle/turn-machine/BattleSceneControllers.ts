@@ -196,7 +196,7 @@ export class BattleSceneControllers {
       this.uiSystem.inspectListenerCallback();
     }
     // Initiates uiSystem listener → mapCursor position relationship — implementation is still a bit primitive
-    this.mapCursor.addListener(updateUI);
+    this.mapCursor.on('move', updateUI);
     // TODO InfoWindowSystem desperately needs a refactor
 
     // TrackCar for faking inter-tile unit movement.
@@ -223,7 +223,6 @@ export class BattleSceneControllers {
   /** Hides all UI and player-interface systems. */
   hidePlayerSystems() {
     this.mapCursor.hide();
-    this.mapCursor.clearAllListeners();
     this.mapCursor.mode = 'point';
     this.trackCar.hide();
     this.uiSystem.hide();
