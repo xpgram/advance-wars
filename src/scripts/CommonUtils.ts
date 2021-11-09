@@ -118,6 +118,13 @@ export const Common = {
   animationSpeedFromFrameInterval(interval: number) {
     return 1 / interval;
   },
+
+  /**  */
+  repeatingSequence<T>(li: T[], maxLookAhead: number): T[] {
+    // TODO stub
+    // Must discover 3 sequential iterations of some sequence to return.
+    return [];
+  }
 }
 
 /** Color value functions. */

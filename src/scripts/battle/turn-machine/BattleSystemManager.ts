@@ -4,6 +4,7 @@ import { BattleSceneControllers } from "./BattleSceneControllers";
 import { Game } from "../../..";
 import { NullTurnState } from "./NullTurnState";
 import { GameStart } from "./states/GameStart";
+import { Common } from "../../CommonUtils";
 
 const STACK_TRACE_LIMIT = 20;
 const STACK_SIZE_LIMIT = 100;   // Unenforced
@@ -15,7 +16,9 @@ export type NextState = {
 
 enum TransitionTo {
     None,
+    NoneFromRegress,
     Next,
+    NextFromRegress,
     Previous,
     PreviousOnFail
 }
@@ -42,7 +45,7 @@ export class BattleSystemManager {
     /** A list containing the battle-system's state history. */
     private stack = new Array<TurnState>();
     /** A string list of all previously visited game states, kept for debugging purposes. */
-    private stackTrace = new Array<string>();
+    private stackTrace: {msg: string, mode: string, exit?: number}[] = [];
 
     // TODO Define scenarioOptions
     constructor(scenarioOptions: {}) {
@@ -80,21 +83,29 @@ export class BattleSystemManager {
      * transition requests. */
     private update() {
         try {
-            if (this.transitionIntent == TransitionTo.None)
+            if (this.transitionIntent == TransitionTo.None
+                || this.transitionIntent == TransitionTo.NoneFromRegress)
                 this.currentState.update();
 
             // nextState->new handler
-            while (this.transitionIntent == TransitionTo.Next) {
+            while (this.transitionIntent == TransitionTo.Next
+                || this.transitionIntent == TransitionTo.NextFromRegress) {
+
+                const mode = (this.transitionIntent === TransitionTo.NextFromRegress)
+                    ? '⟳'
+                    : '→'
                 this.transitionIntent = TransitionTo.None;
 
-                const { state, pre } = this.nextState;
-
+                // Close and log previous state.
                 this.currentState.close();
-                if (pre) pre();             // Run any pre-setup passed in from current state
+                const exit = this.currentState.exit;
+                this.log(mode, `${this.currentState.name}`, exit);
 
-                let newState = new state(this);
+                // Setup next state
+                const { state, pre } = this.nextState;
+                if (pre) pre();             // Run any pre-setup passed in from current state
+                const newState = new state(this);
                 this.stack.push(newState);  // Add new state to stack (implicitly changes current)
-                this.log('→', `${newState.name}`);    // Log new state to trace history
                 newState.wake();            // Run new state's scene configurer
             }
             
@@ -103,18 +114,22 @@ export class BattleSystemManager {
                 || this.transitionIntent == TransitionTo.PreviousOnFail) {
 
                 let oldState = this.stack.pop();    // Implicitly changes current
+                if (!oldState)
+                    throw new Error(`Cannot revert state from undefined.`);
+
                 if (this.transitionIntent == TransitionTo.Previous) {
-                    oldState?.close();      // Runs generic close procedure
-                    oldState?.prev();       // Ctrl+Z Undo for smooth backwards transition
-                    oldState?.destroy();    // Free up memory
+                    oldState.close();      // Runs generic close procedure
+                    oldState.prev();       // Ctrl+Z Undo for smooth backwards transition
+                    this.log('↩', `${oldState.name}`, oldState.exit);
+                    oldState.destroy();    // Free up memory
                 } else {
-                    this.log('🛑', `${oldState?.name}`);
-                    oldState?.destroy();
+                    this.log('🛑', `${oldState.name}`, oldState.exit);
+                    oldState.destroy();
                 }
 
-                this.log('↩', `${this.currentState.name}`); // Log new current state to trace history.
+                // Log new current state to trace history.
                 if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
-                    this.transitionIntent = TransitionTo.None;
+                    this.transitionIntent = TransitionTo.NoneFromRegress;
                     this.currentState.wake({fromRegress: true});
                 }
             }
@@ -141,7 +156,9 @@ export class BattleSystemManager {
      * and after calling nextState.pre(). */
     advanceToState(state: TurnState, nextState: NextState) {
         if (this.isSelfsameState(state)) {
-            this.transitionIntent = TransitionTo.Next;
+            this.transitionIntent = (this.transitionIntent === TransitionTo.None)
+                ? TransitionTo.Next
+                : TransitionTo.NextFromRegress;
             this.nextState = nextState;
         }
     }
@@ -169,24 +186,33 @@ export class BattleSystemManager {
         }
     }
 
+    /** Returns true if the current stack is experiencing an infinite failure loop. */
+    stackFailureLoop() {
+        const sequence = Common.repeatingSequence(
+            this.stackTrace.map( t => t.exit || 0 ),
+            5
+        );
+        const notEmpty = (sequence.length > 0);
+        const errorCode = (sequence.some( n => n < 0 ));
+        return notEmpty && errorCode;
+    }
+
     /** Logs a string——which should be the name of a game state——to the manager's game state history. */
-    private log(mode: string, msg: string, exit?: number) {
-        // Add exit code from last to last
-        if (this.stackTrace.length > 0) {
-            const idx = this.stackTrace.length-1,
-                item = this.stackTrace[idx],
-                [mode, msg] = [item[0], item.slice(2)];
-            this.stackTrace[idx] = `${mode} ${exit} ${msg}`;
-        }
-        // Push new state
-        this.stackTrace.push(`${mode[0]} ${msg}`);
+    private log(mode: string, msg: string, exit: number) {
+        this.stackTrace.push({msg, mode, exit});
         if (this.stackTrace.length > STACK_TRACE_LIMIT)
             this.stackTrace.shift();
     }
 
     /** Returns a string log of this battle-system's game state history. */
     getStackTrace() {
-        const trace = this.stackTrace.map( (item, idx) => `${idx}: ${item}` ).reverse();
-        return `Game State History (last ${STACK_TRACE_LIMIT}):\n` + trace.join('\n');
+        const mode = (this.transitionIntent === TransitionTo.PreviousOnFail)
+            ? '🛑'
+            : (this.transitionIntent === TransitionTo.NoneFromRegress)
+            ? '⟳▶'
+            : '▶';
+        const cur = `cur: ${mode} ${this.currentState.exit} ${this.currentState.name}`;
+        const trace = this.stackTrace.map( ({msg, mode, exit}, idx) => `${`${idx}`.padStart(2,'0')}: ${mode} ${exit} ${msg}` ).reverse();
+        return `Game State History (last ${STACK_TRACE_LIMIT}):\n${cur}\n` + trace.join('\n');
     }
 }

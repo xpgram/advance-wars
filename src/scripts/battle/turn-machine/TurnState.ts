@@ -35,6 +35,11 @@ export abstract class TurnState {
   /** Accessors to all commonly requested objects. */
   protected data = instructionData.data;
 
+  /** The status code this program has concluded with.
+   * Positives are successful, negatives are failures, and 0 is default success. */
+  get exit() { return this._exit; }
+  protected _exit = 0;
+
   constructor(manager: BattleSystemManager) {
     this.battleSystemManager = manager;
     this.assets = manager.controllers;
@@ -59,14 +64,15 @@ export abstract class TurnState {
       this.configureScene();
     } catch (err) {
       Debug.error(err);
-      Debug.print(this.battleSystemManager.getStackTrace());
       this.battleSystemManager.failToPreviousState(this);
+      Debug.print(this.battleSystemManager.getStackTrace());
     }
   }
 
   /** Signal the state-manager that this state transition has failed and must be aborted.
    * @param message A description of what went wrong. */
   protected failTransition(message: string) {
+    this._exit = -1;
     throw new StateTransitionError(this.name, message);
   }
 
