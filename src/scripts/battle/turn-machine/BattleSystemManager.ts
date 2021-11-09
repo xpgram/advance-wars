@@ -125,6 +125,7 @@ export class BattleSystemManager {
                 } else {
                     this.log('🛑', `${oldState.name}`, oldState.exit);
                     oldState.destroy();
+                    this.transitionIntent = TransitionTo.Previous;
                 }
 
                 // Log new current state to trace history.
