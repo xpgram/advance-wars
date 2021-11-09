@@ -53,8 +53,7 @@ export class MoveUnit extends TurnState {
       const moveable = square.moveFlag;
       const occupiable = square.occupiable(actor);
       const mergeable = (underneath?.type === actor.type
-        && underneath?.faction === actor.faction
-        && underneath?.spent === false);
+        && underneath?.faction === actor.faction);
       const boardable = underneath?.boardable(actor);
 
       // Final check
