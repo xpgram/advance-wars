@@ -50,10 +50,14 @@ export class MoveUnit extends TurnState {
       const square = map.squareAt(this.lastCursorPos);
       const underneath = square.unit;
 
+      // TODO Some of this is the same as Join.trigger() and other commands.
+      // Wouldn't it be nice if I could just ask "Will there be any commands here?"
+
       const moveable = square.moveFlag;
       const occupiable = square.occupiable(actor);
       const mergeable = (underneath?.type === actor.type
-        && underneath?.faction === actor.faction);
+        && underneath?.faction === actor.faction
+        && underneath?.repairable || actor.repairable);
       const boardable = underneath?.boardable(actor);
 
       // Final check
