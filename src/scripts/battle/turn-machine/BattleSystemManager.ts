@@ -94,7 +94,7 @@ export class BattleSystemManager {
 
                 let newState = new state(this);
                 this.stack.push(newState);  // Add new state to stack (implicitly changes current)
-                this.log(newState.name);    // Log new state to trace history
+                this.log('→', `${newState.name}`);    // Log new state to trace history
                 newState.wake();            // Run new state's scene configurer
             }
             
@@ -108,11 +108,11 @@ export class BattleSystemManager {
                     oldState?.prev();       // Ctrl+Z Undo for smooth backwards transition
                     oldState?.destroy();    // Free up memory
                 } else {
-                    this.log(`${oldState?.name} (failed)`);
+                    this.log('🛑', `${oldState?.name}`);
                     oldState?.destroy();
                 }
 
-                this.log(this.currentState.name);               // Log new current state to trace history.
+                this.log('↩', `${this.currentState.name}`); // Log new current state to trace history.
                 if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
                     this.transitionIntent = TransitionTo.None;
                     this.currentState.wake({fromRegress: true});
@@ -170,8 +170,16 @@ export class BattleSystemManager {
     }
 
     /** Logs a string——which should be the name of a game state——to the manager's game state history. */
-    private log(msg: string) {
-        this.stackTrace.push(msg);
+    private log(mode: string, msg: string, exit?: number) {
+        // Add exit code from last to last
+        if (this.stackTrace.length > 0) {
+            const idx = this.stackTrace.length-1,
+                item = this.stackTrace[idx],
+                [mode, msg] = [item[0], item.slice(2)];
+            this.stackTrace[idx] = `${mode} ${exit} ${msg}`;
+        }
+        // Push new state
+        this.stackTrace.push(`${mode[0]} ${msg}`);
         if (this.stackTrace.length > STACK_TRACE_LIMIT)
             this.stackTrace.shift();
     }
