@@ -190,7 +190,7 @@ export class BattleSceneControllers {
     // Setup menu window systems
     const menuCmd = new ListMenu<string, CommandObject<number>>(this.gamepad);
     this.cmdMenu = new CommandMenuGUI(menuCmd, MapLayer('ui'));
-    const menuShop = new ListMenu<ShopItemTitle, number>(this.gamepad);
+    const menuShop = new ListMenu<ShopItemTitle, number>(this.gamepad, {pageLength: 7});
     this.shopMenu = new UnitShopMenuGUI(menuShop, Game.hud);
     const menuField = new ListMenu<string, number>(this.gamepad);
     this.fieldMenu = new CommandMenuGUI<string, number>(menuField, Game.hud);

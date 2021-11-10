@@ -11,6 +11,8 @@ type CursorSettings = {
   frameInterval: number,
 }
 
+// TODO Scrolling along pages was planned, but never implemented.
+
 /** User-interactable UI element for seleting one of many options.
  * MenuWindow should be provided a list of MenuOptions with which to populate
  * itself and will return the value of the selected-over option upon request.
@@ -19,30 +21,36 @@ export class ListMenu<X, Y> extends Observable {
 
   private settings = {
     /** The maximum length of the virtual page for list items. */
-    pageSize: 0,
-    /** The maximum length of list items viewable at one time. Default is all.
-     * The starting index of the scroll window is pushed by the menu cursor. */
-    scrollWindow: 0,
+    pageLength: 0,
     /** The number of list items to maintain around the cursor, if possible.
      * Use this to prevent the cursor from being at the bottom of the view. Default is 0. */
-    scrollWindowPadding: 0,
-    /** Set this to true to treat pageSize like a skip number for fast scrolling. */
+    pagePadding: 0,
+    /** Set this to true to treat page-breaks as continuous.
+     * @notimplemented Behave as if one page? That might work. */
     extendPages: false,
   };
 
+  get pageLength() {
+    return this.settings.pageLength || this._listSieve.length;
+  }
+  get pagePadding() { return this.settings.pagePadding; }
+  get extendPages() { return this.settings.extendPages; }
+
   private readonly gamepad: VirtualGamepad;
 
-  private _listItems!: ListMenuOption<X, Y>[];
-  private _displayedListItems!: ListMenuOption<X, Y>[];
+  private _listReal!: ListMenuOption<X, Y>[];   // Global list of all items referenceable by menu.
+  private _listSieve!: ListMenuOption<X, Y>[];  // Global list of all items filtered by their inclusion functions.
+  private _listPage!: ListMenuOption<X, Y>[];   // List of items in current page view.
   private _inputEnabled = true;
 
-  /** Represents the currently selected option. */
+  /** Represents the currently selected option of the current page. */
   private cursor!: Slider;
-
-  /** Scroll window position and length. */
-  private scrollWindow: {
+  /** Represents the currently selected page. */
+  private pageCursor!: Slider;
+  /** Limit for returnable items of the current list page. */
+  private view!: {
     index: number,
-    height: number,
+    length: number,
     padding: number,
   }
 
@@ -52,9 +60,8 @@ export class ListMenu<X, Y> extends Observable {
   constructor(gp: VirtualGamepad, options?: {
     listItems?: ListMenuOption<X, Y>[],
     cursorSettings?: CursorSettings,
-    pageSize?: number,
-    scrollWindow?: number,
-    scrollWindowPadding?: number,
+    pageLength?: number,
+    pagePadding?: number,
     extendPages?: boolean,
   }) {
     super();
@@ -73,22 +80,14 @@ export class ListMenu<X, Y> extends Observable {
     Game.scene.ticker.add(this.update, this);
 
     // Initiate timers
-    this.movementPulsar = new Pulsar({
-      firstInterval: options?.cursorSettings?.firstFrameInterval || 20,
-      interval: options?.cursorSettings?.frameInterval || 6,
-    },
+    this.movementPulsar = new Pulsar(
+      {
+        firstInterval: options?.cursorSettings?.firstFrameInterval || 20,
+        interval: options?.cursorSettings?.frameInterval || 6,
+      },
       this.triggerCursorMovement,
       this
     );
-
-    // Setup scroll window
-    this.scrollWindow = {
-      index: 0,
-      height: this.settings.scrollWindow
-        || this.settings.pageSize
-        || this.cursor.max - 1,
-      padding: this.settings.scrollWindowPadding || 0,
-    }
   }
 
   /** Unlinks circular connections. */
@@ -121,20 +120,30 @@ export class ListMenu<X, Y> extends Observable {
 
   /** Triggers a cursor change according the held player inputs. */
   private triggerCursorMovement() {
-    const { cursor, gamepad } = this;
-    const view = this.scrollWindow;
+    const { cursor, pageCursor, gamepad, view } = this;
 
     // Reposition cursor
-    const ydir = gamepad.axis.dpad.point.y;
-    const xdir = gamepad.axis.dpad.point.x * this.settings.pageSize;
-    cursor.increment(ydir + xdir);
+    const dir = gamepad.axis.dpad.point;
+    cursor.increment(dir.y);
+    if(dir.x !== 0) {
+      pageCursor.increment(dir.x);
+      this.setPage();
+    }
 
     // Reposition viewport
     if (cursor.output < view.index + view.padding)
       view.index = this.cursor.output - view.padding;
-    if (cursor.output > view.index + view.height - view.padding)
-      view.index = cursor.output - view.height + view.padding;
+    if (cursor.output > view.index + view.length - view.padding)
+      view.index = cursor.output - view.length + view.padding;
 
+    this.updateListeners('move-cursor');
+  }
+
+  /** Resets menu cursor to the first item of the first page. */
+  resetCursor() {
+    this.pageCursor.track = 0;
+    this.setPage();
+    this.cursor.track = 0;
     this.updateListeners('move-cursor');
   }
 
@@ -156,35 +165,59 @@ export class ListMenu<X, Y> extends Observable {
 
   /** The list of selectables as key/value pairs. */
   get listItems() {
-    // TODO Limit by page size, unless extend pages, then limit by scroll
-    // I need page index via modulus
-    // I need scroll window as... a product of minIndex=pageIndex, maxIndex=pageNext-height, pageNext might be the end of the list
-    // If scroll window isn't outside these bounds, then it is whatever it is.
-    // Gonna be a lot of consts in a row. That'll be the best way to do this.
-    // 
-    // I'm sure we'll do this tomorrow.
-    return this._displayedListItems.slice();
+    const { max, min } = Math;
+    const { index, length } = this.view;
+    const start = min(max(index, 0), this._listPage.length - length);
+    return this._listPage.slice(start, start+length);
+  }
+
+  /** Sets a new list of menu options. It is recommended to use triggerInclude on each
+   * list-option instead to automatically add or remove them from the menu. */
+   setListItems(li: ListMenuOption<X, Y>[]) {
+    this._listReal = li;
+    this.retriggerListItems();
   }
 
   /** Retriggers configuration of each list item to update which are included
    * and which are disabled. Will possibly update the options list. */
   retriggerListItems() {
-    this._listItems.forEach( item => item.retrigger() );
-    this._displayedListItems = this._listItems.filter( item => item.included );
+    this._listReal.forEach( item => item.retrigger() );
+    this._listSieve = this._listReal.filter( item => item.included );
+
+    const max = Math.floor(this._listSieve.length / this.pageLength);
+    const idx = (this.pageCursor)
+      ? Math.min(this.pageCursor.output, max)
+      : 0;
+    this.pageCursor = new Slider({
+      max,
+      track: idx,
+      granularity: 1,
+      looping: true,
+    });
+    this.setPage();
+  }
+
+  /** Sets the current page of items. */
+  private setPage() {
+    const start = this.pageCursor.output * this.pageLength;
+    const end = Math.min(start+this.pageLength, this._listSieve.length);
+    this._listPage = this._listSieve.slice(start, end);
+
+    const idx = (this.cursor)
+      ? Math.min(this.cursor.output, end-start)
+      : 0;
     this.cursor = new Slider({
-      max: this._displayedListItems.length,
-      track: 'min',
+      max: this._listPage.length,
+      track: idx,
       granularity: 1,
       looping: true,
       // mode: 'loop',    // TODO Slider refactor was unsuccessful.
     });
-  }
-
-  /** Sets a new list of menu options. It is recommended to use triggerInclude on each
-   * list-option instead to automatically add or remove them from the menu. */
-  setListItems(li: ListMenuOption<X, Y>[]) {
-    this._listItems = li;
-    this.retriggerListItems();
+    this.view = {
+      index: 0,
+      length: this.cursor.max,
+      padding: 0, // this.pagePadding,
+    }
   }
 
   /** Returns the number index of the ListMenuOption currently being selected over. */
@@ -194,7 +227,7 @@ export class ListMenu<X, Y> extends Observable {
 
   /** Returns the ListMenuOption currently being selected over. */
   get selectedOption() {
-    return this._displayedListItems[this.selectedIndex];
+    return this._listPage[this.selectedIndex];
   }
 
   /** Returns the value currently being selected over. */

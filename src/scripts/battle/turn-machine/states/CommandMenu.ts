@@ -65,6 +65,7 @@ export class CommandMenu extends TurnState {
 
     // Set and build uiMenu options
     uiMenu.menu.setListItems(options);
+    uiMenu.menu.resetCursor();
     uiMenu.buildGraphics();
 
     // Position uiMenu on screen

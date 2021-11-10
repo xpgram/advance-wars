@@ -21,8 +21,8 @@ export class FieldMenu extends TurnState {
       }),
       new ListMenuOption('End Turn', 9),
     ]);
-
-    // TODO This should be a different ui menu held in the global UI layer, not map ui.
+    fieldMenu.menu.resetCursor();
+    
     fieldMenu.buildGraphics();
     fieldMenu.show();
     //@ts-expect-error
