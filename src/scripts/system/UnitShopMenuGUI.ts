@@ -2,8 +2,11 @@ import { Game } from "../..";
 import { fonts } from "../battle/ui-windows/DisplayInfo";
 import { BoxContainerProperties } from "../Common/BoxContainerProperties";
 import { Point } from "../Common/Point";
+import { Color } from "../CommonUtils";
 import { CommandMenuGUI } from "./CommandMenuGUI";
 import { ShopItemTitle } from "./ListMenuTitleTypes";
+
+const { HSV } = Color;
 
 export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
 
@@ -14,6 +17,16 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     border: { left: 1, right: 1, top: 1, bottom: 1, },
     padding: { left: 2, right: 2 },
   });
+
+  readonly palette = {
+    selector:     HSV(166, 100, 80),
+    button: {
+      background: HSV(200, 30, 30),
+      primary:    HSV(215, 25, 35),
+      light:      HSV(220, 15,100),
+      dark:       HSV(190, 10,  0),
+    },
+  }
 
   // A lot of wiring I need to do...
   // BattleScene needs to build it correctly
@@ -35,16 +48,11 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     const worldPosition = new Point(menu);
 
     this.menu.listItems.forEach( (item, idx) => {
-      const palette = (item.disabled)
-        ? this.palette.button.disabled
-        : (idx === this.menu.selectedIndex)
-        ? this.palette.button.selected
-        : this.palette.button.unselected;
+      const palette = this.palette.button;
 
       const g = new PIXI.Graphics();
       const content = props.contentBox();
-      const fill = props.borderInnerBox();
-      const border = props.borderOuterBox();
+      const fill = props.borderOuterBox();
       const element = props.containerBox();
 
       // Position
@@ -60,20 +68,12 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
 
       // Button Fill
       g.beginFill(palette.primary);
-      g.drawRect(fill.x, fill.y, fill.width, fill.height);
+      g.drawRect(fill.x, element.y, fill.width, element.height);
       g.endFill();
 
-      // Shadowed Border
+      // Underline
       g.beginFill(palette.dark, .50);
-      g.drawRect(border.x, border.y + border.height, border.width, -props.border.bottom);
-      g.drawRect(border.x + border.width, border.y, -props.border.right, border.height);
-      g.endFill();
-
-      // Lit Border
-      g.beginFill(palette.light, .25);
-      g.drawRect(border.x, border.y, props.border.left, border.height);
-      g.beginFill(palette.light, .50);
-      g.drawRect(border.x, border.y, border.width, props.border.top);
+      g.drawRect(content.x, content.y + content.height, content.width, -props.border.bottom);
       g.endFill();
 
       // Text   // TODO Make this overridable
@@ -83,7 +83,8 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
       const gCost = new PIXI.BitmapText(cost.toString(), fonts.menu);
       if (item.disabled) {
         icon.tint = 0x888888;
-        gText.tint = 0x888888;
+        gText.alpha = 0.35;
+        gCost.alpha = 0.35;
       }
       icon.position.set(content.x, content.y + 1);
       gText.position.set(icon.x + 18, content.y + 1);
