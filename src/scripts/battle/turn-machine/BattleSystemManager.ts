@@ -133,6 +133,10 @@ export class BattleSystemManager {
                     this.transitionIntent = TransitionTo.NoneFromRegress;
                     this.currentState.wake({fromRegress: true});
                 }
+
+                // Failure looping check
+                if (this.stackFailureLoop())
+                    throw new Error(`Infinite failure loop detected.`);
             }
         } catch(e) {
             Debug.ping(this.getStackTrace());
@@ -190,7 +194,7 @@ export class BattleSystemManager {
     /** Returns true if the current stack is experiencing an infinite failure loop. */
     stackFailureLoop() {
         const sequence = Common.repeatingSequence(
-            this.stackTrace.map( t => t.exit || 0 ),
+            this.stackTrace.map( t => t.exit || 0 ).reverse(),
             5
         );
         const notEmpty = (sequence.length > 0);

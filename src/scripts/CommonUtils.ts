@@ -119,10 +119,37 @@ export const Common = {
     return 1 / interval;
   },
 
-  /**  */
-  repeatingSequence<T>(li: T[], maxLookAhead: number): T[] {
-    // TODO stub
-    // Must discover 3 sequential iterations of some sequence to return.
+  /** Returns the first found repeating sequence within the list li.
+   * A sequence must repeat 3 times for it to be returned. */
+  repeatingSequence<T>(li: T[], maxSequence: number): T[] {
+    function get(idx: number): T | undefined {
+      if (Common.validIndex(idx, li.length))
+        return li[idx];
+    }
+
+    for (let lim = 2; lim <= maxSequence; lim++) {
+      let result: T[] = [];
+      let found = true;
+
+      for (let i = 0; i < lim; i++) {
+        if (!Common.validIndex(i, li.length))
+          break;
+
+        const double = li[i] === get(i + lim*2);
+        const triple = li[i] === get(i + lim*3);
+
+        if (double && triple)
+          result.push(li[i]);
+        else {
+          found = false;
+          break;
+        }
+      }
+
+      if (found)
+        return result;
+    }
+    // Null case
     return [];
   }
 }
