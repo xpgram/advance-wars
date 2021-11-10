@@ -1,5 +1,6 @@
 import { Game } from "../..";
 import { Slider } from "../Common/Slider";
+import { Common } from "../CommonUtils";
 import { VirtualGamepad } from "../controls/VirtualGamepad";
 import { Observable } from "../Observable";
 import { Pulsar } from "../timer/Pulsar";
@@ -16,6 +17,19 @@ type CursorSettings = {
  */
 export class ListMenu<X, Y> extends Observable {
 
+  private settings = {
+    /** The maximum length of the virtual page for list items. */
+    pageSize: 0,
+    /** The maximum length of list items viewable at one time. Default is all.
+     * The starting index of the scroll window is pushed by the menu cursor. */
+    scrollWindow: 0,
+    /** The number of list items to maintain around the cursor, if possible.
+     * Use this to prevent the cursor from being at the bottom of the view. Default is 0. */
+    scrollWindowPadding: 0,
+    /** Set this to true to treat pageSize like a skip number for fast scrolling. */
+    extendPages: false,
+  };
+
   private readonly gamepad: VirtualGamepad;
 
   private _listItems!: ListMenuOption<X, Y>[];
@@ -25,40 +39,56 @@ export class ListMenu<X, Y> extends Observable {
   /** Represents the currently selected option. */
   private cursor!: Slider;
 
+  /** Scroll window position and length. */
+  private scrollWindow: {
+    index: number,
+    height: number,
+    padding: number,
+  }
+
   /** The timer which triggers repeatable movements. */
   private movementPulsar: Pulsar;
 
   constructor(gp: VirtualGamepad, options?: {
     listItems?: ListMenuOption<X, Y>[],
     cursorSettings?: CursorSettings,
+    pageSize?: number,
+    scrollWindow?: number,
+    scrollWindowPadding?: number,
+    extendPages?: boolean,
   }) {
     super();
 
     // Setup option defaults
-    const _options = {
-      listItems: [],
-      cursorSettings: {
-        firstFrameInterval: 20,
-        frameInterval: 6,
-      },
+    this.settings = {
+      ...this.settings,
       ...options,
     }
 
     // Configure
     this.gamepad = gp;
-    this.setListItems(_options.listItems);
+    this.setListItems(options?.listItems || []);
 
     // Add updater to global ticker.
     Game.scene.ticker.add(this.update, this);
 
     // Initiate timers
     this.movementPulsar = new Pulsar({
-      firstInterval: _options.cursorSettings.firstFrameInterval,
-      interval: _options.cursorSettings.frameInterval,
+      firstInterval: options?.cursorSettings?.firstFrameInterval || 20,
+      interval: options?.cursorSettings?.frameInterval || 6,
     },
       this.triggerCursorMovement,
       this
     );
+
+    // Setup scroll window
+    this.scrollWindow = {
+      index: 0,
+      height: this.settings.scrollWindow
+        || this.settings.pageSize
+        || this.cursor.max - 1,
+      padding: this.settings.scrollWindowPadding || 0,
+    }
   }
 
   /** Unlinks circular connections. */
@@ -77,8 +107,10 @@ export class ListMenu<X, Y> extends Observable {
       return;
 
     // Input polling.
-    const { dpadUp, dpadDown } = this.gamepad.button;
-    if (dpadUp.pressed || dpadDown.pressed) {
+    const { dpadUp, dpadDown, dpadLeft, dpadRight } = this.gamepad.button;
+    const buttons = [dpadUp, dpadDown, dpadLeft, dpadRight];
+
+    if (buttons.some( b => b.pressed )) {
       this.triggerCursorMovement();
       this.movementPulsar.start();
     }
@@ -89,8 +121,20 @@ export class ListMenu<X, Y> extends Observable {
 
   /** Triggers a cursor change according the held player inputs. */
   private triggerCursorMovement() {
-    const dir = this.gamepad.axis.dpad.point.y;
-    this.cursor.increment(dir);
+    const { cursor, gamepad } = this;
+    const view = this.scrollWindow;
+
+    // Reposition cursor
+    const ydir = gamepad.axis.dpad.point.y;
+    const xdir = gamepad.axis.dpad.point.x * this.settings.pageSize;
+    cursor.increment(ydir + xdir);
+
+    // Reposition viewport
+    if (cursor.output < view.index + view.padding)
+      view.index = this.cursor.output - view.padding;
+    if (cursor.output > view.index + view.height - view.padding)
+      view.index = cursor.output - view.height + view.padding;
+
     this.updateListeners('move-cursor');
   }
 
@@ -112,6 +156,13 @@ export class ListMenu<X, Y> extends Observable {
 
   /** The list of selectables as key/value pairs. */
   get listItems() {
+    // TODO Limit by page size, unless extend pages, then limit by scroll
+    // I need page index via modulus
+    // I need scroll window as... a product of minIndex=pageIndex, maxIndex=pageNext-height, pageNext might be the end of the list
+    // If scroll window isn't outside these bounds, then it is whatever it is.
+    // Gonna be a lot of consts in a row. That'll be the best way to do this.
+    // 
+    // I'm sure we'll do this tomorrow.
     return this._displayedListItems.slice();
   }
 
