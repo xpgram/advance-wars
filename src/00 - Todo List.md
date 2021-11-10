@@ -15,11 +15,11 @@ More observations:
 - The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
 
 - [ ] ListMenu - Pages and View
-  - [ ] Pages separate the list into discrete chunks.
+  - [x] Pages separate the list into discrete chunks.
   They are left/right incrementable.
-    - [ ] Blend/ExtendPages=true eliminates the discrete chunks part of this equation. Chunks become relative to cursor position.
+    - [x] Blend/ExtendPages=true eliminates the discrete chunks part of this equation. Chunks become relative to cursor position.
     This allows left/right to 'fast scroll' long menus.
-  - [ ] Scroll view limits the number of items returned on get and is pushed around by the menu's cursor position.
+  - [x] Scroll view limits the number of items returned on get and is pushed around by the menu's cursor position.
   - [ ] get view() returns a portion of the displayList which is 'seen' by pageView sub scrollView.  
 
 - [x] BSM - Inf. loop detection.
