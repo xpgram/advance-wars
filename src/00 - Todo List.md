@@ -14,19 +14,7 @@ More observations:
 - The drop animation will require at least two additional TrackCars.
 - The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
 
-- [ ] ListMenu - Pages and View
-  - [x] Pages separate the list into discrete chunks.
-  They are left/right incrementable.
-    - [x] Blend/ExtendPages=true eliminates the discrete chunks part of this equation. Chunks become relative to cursor position.
-    This allows left/right to 'fast scroll' long menus.
-  - [x] Scroll view limits the number of items returned on get and is pushed around by the menu's cursor position.
-  - [ ] get view() returns a portion of the displayList which is 'seen' by pageView sub scrollView.  
-
-- [x] BSM - Inf. loop detection.
-  - Every state must provide an exit code during transition.
-    The digits are of varying usefulness, but something could be there.
-  - Positives are success modes, negatives are failures, and 0 is default success.
-  - [x] If BSM notices a pattern like -1 0 -1 0 -1, then it should realize it can't resolve and should throw its own error.
+- [ ] Extract menu cursor from the GUIs
 
 Post Function:
 - [ ] DropLocation also sets a dir value on the square so the player can see where they're dropping.
