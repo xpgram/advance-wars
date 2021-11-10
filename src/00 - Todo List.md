@@ -22,27 +22,27 @@ More observations:
   - [ ] Scroll view limits the number of items returned on get and is pushed around by the menu's cursor position.
   - [ ] get view() returns a portion of the displayList which is 'seen' by pageView sub scrollView.  
 
-- [ ] BSM - Inf. loop detection.
+- [x] BSM - Inf. loop detection.
   - Every state must provide an exit code during transition.
     The digits are of varying usefulness, but something could be there.
   - Positives are success modes, negatives are failures, and 0 is default success.
-  - [ ] If BSM notices a pattern like -1 0 -1 0 -1, then it should realize it can't resolve and should throw its own error.
+  - [x] If BSM notices a pattern like -1 0 -1 0 -1, then it should realize it can't resolve and should throw its own error.
 
 Post Function:
-- [ ] DropL also sets a dir value on the square so the player can see where they're dropping.
+- [ ] DropLocation also sets a dir value on the square so the player can see where they're dropping.
 - [ ] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
 
 - [x] add cursor pos to debug ui, hide by default?
 - [x] Load Unit
-- [ ] Drop Unit
+- [x] Drop Unit
   This one's going to be tricky...
-  - [ ] CommandMenu → Where → CommandMenu
-  - [ ] CMenu → Where → CMenu → Where → CMenu → Wait → ... → Ratify
-  - [ ] CMenu → Where → CMenu → Regress (Clear Where) → MoveUnit
+  - [x] CommandMenu → Where → CommandMenu
+  - [x] CMenu → Where → CMenu → Where → CMenu → Wait → ... → Ratify
+  - [x] CMenu → Where → CMenu → Regress (Clear Where) → MoveUnit
 - [x] nextOrderable - Break into two: unit and base
 - [x] Land's End - move predeploy closer for more efficient testing.
 - [ ] Expand ListMenu to allow for columns
-- [ ] New FactoryShop GUI for ListMenu
+- [x] New FactoryShop GUI for ListMenu
   - [ ] Force UnitDetail open and right side during shop menu
 
 - [ ] Capture is broken; starts over each time.
