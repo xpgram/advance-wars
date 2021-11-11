@@ -4,6 +4,7 @@ import { BoxContainerProperties } from "../Common/BoxContainerProperties";
 import { Point } from "../Common/Point";
 import { Color } from "../CommonUtils";
 import { CommandMenuGUI } from "./CommandMenuGUI";
+import { ListMenuOption } from "./ListMenuOption";
 import { ShopItemTitle } from "./ListMenuTitleTypes";
 
 const { HSV } = Color;
@@ -13,7 +14,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
   readonly listItemProps = new BoxContainerProperties({
     minWidth: 144,
     height: fonts.menu.fontSize + 2,
-    margin: { left: 3, right: 3, top: 1, bottom: 1 },
+    margin: { left: 3, right: 3, top: 1 },
     border: { left: 1, right: 1, top: 1, bottom: 1, },
     padding: { left: 2, right: 2 },
   });
@@ -64,6 +65,8 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
       // Background
       g.beginFill(palette.background);
       g.drawRect(element.x, element.y, element.width, element.height);
+      g.beginFill(palette.dark, 0.50);
+      g.drawRect(element.x, element.y, element.width, element.height);
       g.endFill();
 
       // Button Fill
@@ -75,6 +78,9 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
       g.beginFill(palette.dark, .50);
       g.drawRect(content.x, content.y + content.height, content.width, -props.border.bottom);
       g.endFill();
+
+      // Combine
+      menu.addChild(g);
 
       // Text   // TODO Make this overridable
       const { key } = this.menu.listItems[idx];
@@ -92,7 +98,6 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
 
       // Combine
       g.addChild(icon, gText, gCost);
-      menu.addChild(g);
     });
 
     /* Cursor */
