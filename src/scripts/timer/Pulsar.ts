@@ -60,7 +60,7 @@ export class Pulsar {
   }
 
   /** Updates the internal clock, and emits a function call to self.action on pulse interval. */
-  update(delta: number) {
+  private update(delta: number) {
     if (!this.active)
       return;
 
