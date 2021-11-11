@@ -51,7 +51,10 @@ export class MenuCursor {
 
   /** Retriggers the pulse animation at a set interval. */
   private animPulsar = new Pulsar(
-    40,
+    {
+      firstInterval: 20,
+      interval: 40,
+    },
     () => { this.animSlider.track = 'min' },
     this
   )
@@ -136,5 +139,9 @@ export class MenuCursor {
   /** Teleports the cursor to wherever it is currently moving toward. */
   skipMotion() {
     this.motionSlider.track = 'max';
+
+    // I'm treating this function like a full reset.
+    this.animSlider.track = 'max';
+    this.animPulsar.reset();
   }
 }
