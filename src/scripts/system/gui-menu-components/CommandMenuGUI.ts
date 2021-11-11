@@ -7,6 +7,7 @@ import { Color } from "../../CommonUtils";
 import { Pulsar } from "../../timer/Pulsar";
 import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
+import { MenuCursor } from "./MenuCursor";
 
 
 const { HSV } = Color;
@@ -21,6 +22,9 @@ export class CommandMenuGUI<X, Y> {
     animFrames: 3,
     interval: 45,
   }
+
+  /** The cursor graphic which visually selects over the menu. */
+  private cursorGraphic: MenuCursor;
 
   /** Reference to this menu's pseudo-css properties. */
   readonly listItemProps = new BoxContainerProperties({
@@ -60,7 +64,9 @@ export class CommandMenuGUI<X, Y> {
 
   /** The top-level graphical object for this GUI menu. */
   protected readonly gui = new PIXI.Container();
+  protected readonly menuGui = new PIXI.Container();
 
+  // TODO Remove; redundant
   /** Pulsar which triggers cursor animation. */
   protected animPulsar = new Pulsar(
     CommandMenuGUI.CursorSettings.interval,
@@ -85,10 +91,20 @@ export class CommandMenuGUI<X, Y> {
     this.menu = menu;
     this.menu.on('move-cursor', () => {
       this.buildGraphics();
+      const element = this.listItemProps.containerBox();
+      this.cursorGraphic.rect = new PIXI.Rectangle(
+        element.x,
+        element.height * this.menu.selectedIndex,
+        element.width,
+        element.height
+      );
     });
 
-    this.buildGraphics();
     container.addChild(this.gui);
+    this.gui.addChild(this.menuGui);
+    this.cursorGraphic = new MenuCursor(this.gui);
+
+    this.buildGraphics();
 
     // TODO Remove
     Game.scene.ticker.add(() => { this.buildGraphics() });
@@ -101,12 +117,14 @@ export class CommandMenuGUI<X, Y> {
     this.gui.destroy({children: true});
     this.animPulsar.destroy();
     this.menu.destroy();
+    this.cursorGraphic.destroy();
   }
 
   /** Reveals this menu's graphics and enables player input. */
   show() {
     this.gui.visible = true;
     this.menu.enableInput();
+    this.cursorGraphic.skipMotion();
   }
 
   /** Hides this menu's graphics and disables player input. */
@@ -124,6 +142,7 @@ export class CommandMenuGUI<X, Y> {
   setListItems(li: ListMenuOption<X,Y>[]) {
     this.menu.setListItems(li);
     this.buildGraphics();
+    this.cursorGraphic.skipMotion();
   }
 
   /** Returns the longest pixel-width needed by this menu's displayed list items. */
@@ -145,7 +164,7 @@ export class CommandMenuGUI<X, Y> {
   buildGraphics() {
     this.listItemProps.width = this.getContentWidth();
 
-    this.gui.removeChildren();
+    this.menuGui.removeChildren();
     
     /* Menu */
 
@@ -211,7 +230,10 @@ export class CommandMenuGUI<X, Y> {
       menu.addChild(g);
     });
 
-    /* Cursor */
+    // Final
+    this.menuGui.addChild(menu);
+
+    return;
 
     // TODO Extract this to a thing. Just build all frames at once. Set play speed, etc.
 
@@ -238,8 +260,5 @@ export class CommandMenuGUI<X, Y> {
     );
 
     menu.addChild(cursor);
-
-    // Final
-    this.gui.addChild(menu);
   }
 }

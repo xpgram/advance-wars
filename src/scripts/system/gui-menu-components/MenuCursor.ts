@@ -27,7 +27,7 @@ export class MenuCursor {
   /** The on-screen position and dimensions of the cursor. */
   get rect() { return this.goalPose; }
   set rect(p: Rectangle) {
-    this.lastPose = this.sprite.getBounds();  // Technically this grows the bounds by settings.thickness, but it probably doesn't matter.
+    this.lastPose = this.goalPose;  // Technically this grows the bounds by settings.thickness, but it probably doesn't matter.
     this.goalPose = p;
     this.motionSlider.track = 'min';
   }
@@ -38,11 +38,12 @@ export class MenuCursor {
   private motionSlider = new Slider({
     track: 'max',
     granularity: 1 / this.settings.motionFrames,
+    shape: v => Math.sqrt(v),
   });
 
   /** Used to pick an animation frame for the pulse animation. */
   private animSlider = new Slider({
-    max: 4,
+    max: 3,
     track: 'max',
     granularity: 1 / this.settings.pulseFrameInterval,
     shape: v => Math.floor(v),
@@ -85,6 +86,9 @@ export class MenuCursor {
     const lastP = new Point(this.lastPose);
     const lastD = new Point(this.lastPose.width, this.lastPose.height);
 
+    // TODO Interpolation is broken.
+    // Or maybe it was get bounds.
+
     // Get real position: interpolate between old and new.
     const position = goalP
       .subtract(lastP)
@@ -122,7 +126,7 @@ export class MenuCursor {
       dimensions.x - 2*shrink,
       dimensions.y - 2*shrink
     );
-    g.endHold();
+    g.endHole();
 
     // Final
     this.sprite.removeChildren();
