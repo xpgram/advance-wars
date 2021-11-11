@@ -1,8 +1,8 @@
-import { Game } from "../..";
-import { fonts } from "../battle/ui-windows/DisplayInfo";
-import { BoxContainerProperties } from "../Common/BoxContainerProperties";
-import { Point } from "../Common/Point";
-import { Color } from "../CommonUtils";
+import { Game } from "../../..";
+import { fonts } from "../../battle/ui-windows/DisplayInfo";
+import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
+import { Point } from "../../Common/Point";
+import { Color } from "../../CommonUtils";
 import { CommandMenuGUI } from "./CommandMenuGUI";
 import { ListMenuOption } from "./ListMenuOption";
 import { ShopItemTitle } from "./ListMenuTitleTypes";

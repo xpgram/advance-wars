@@ -1,6 +1,6 @@
 import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
-import { ListMenuOption } from "../../../system/ListMenuOption";
+import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOption";
 import { defaultUnitSpawnMap } from "../../UnitSpawnMap";
 import { Command } from "../Command";
 import { TurnState } from "../TurnState";

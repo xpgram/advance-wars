@@ -1,9 +1,9 @@
-import { Game } from "../..";
-import { Slider } from "../Common/Slider";
-import { Common } from "../CommonUtils";
-import { VirtualGamepad } from "../controls/VirtualGamepad";
-import { Observable } from "../Observable";
-import { Pulsar } from "../timer/Pulsar";
+import { Game } from "../../..";
+import { Slider } from "../../Common/Slider";
+import { Common } from "../../CommonUtils";
+import { VirtualGamepad } from "../../controls/VirtualGamepad";
+import { Observable } from "../../Observable";
+import { Pulsar } from "../../timer/Pulsar";
 import { ListMenuOption } from "./ListMenuOption";
 
 type CursorSettings = {

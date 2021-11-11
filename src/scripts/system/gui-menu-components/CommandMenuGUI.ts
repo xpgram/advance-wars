@@ -1,10 +1,10 @@
-import { Game } from "../..";
-import { fonts } from "../battle/ui-windows/DisplayInfo";
-import { BoxContainerProperties } from "../Common/BoxContainerProperties";
-import { Point } from "../Common/Point";
-import { Slider } from "../Common/Slider";
-import { Color } from "../CommonUtils";
-import { Pulsar } from "../timer/Pulsar";
+import { Game } from "../../..";
+import { fonts } from "../../battle/ui-windows/DisplayInfo";
+import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
+import { Point } from "../../Common/Point";
+import { Slider } from "../../Common/Slider";
+import { Color } from "../../CommonUtils";
+import { Pulsar } from "../../timer/Pulsar";
 import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
 

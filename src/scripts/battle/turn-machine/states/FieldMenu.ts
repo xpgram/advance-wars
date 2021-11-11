@@ -1,5 +1,5 @@
 import { Game } from "../../../..";
-import { ListMenuOption } from "../../../system/ListMenuOption";
+import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOption";
 import { TurnState } from "../TurnState";
 import { TurnEnd } from "./TurnEnd";
 

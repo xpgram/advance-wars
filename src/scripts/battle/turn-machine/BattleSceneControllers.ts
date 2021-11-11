@@ -6,28 +6,25 @@ import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
 import { MapLayer, MapLayerFunctions } from "../map/MapLayers";
-import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { Point } from "../../Common/Point";
 import { CameraZoom } from "../control-scripts/cameraZoom";
 import { StringDictionary } from "../../CommonTypes";
 import { ControlScript } from "../../ControlScript";
 import { CommandInstruction } from "./CommandInstruction";
-import { MenuWindow } from "../ui-windows/MenuWindow";
 import { BoardPlayer } from "../BoardPlayer";
 import { Faction, TerrainTileSet, Weather, AIPlayStyle } from "../EnumTypes";
 import { MapData } from "../../../battle-maps/MapData";
-import { Slider } from "../../Common/Slider";
 import { NextOrderableUnit } from "../control-scripts/nextOrderableUnit";
 import { TurnModerator } from "../TurnModerator";
-import { ListMenu } from "../../system/ListMenu";
-import { CommandMenuGUI } from "../../system/CommandMenuGUI";
+import { ListMenu } from "../../system/gui-menu-components/ListMenu";
+import { CommandMenuGUI } from "../../system/gui-menu-components/CommandMenuGUI";
 import { defaultUnitSpawnMap, UnitSpawnMap } from "../UnitSpawnMap";
+import { CommandObject } from "./Command";
+import { ShopItemTitle } from "../../system/gui-menu-components/ListMenuTitleTypes";
+import { UnitShopMenuGUI } from "../../system/gui-menu-components/UnitShopMenuGUI";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
-import { CommandObject } from "./Command";
-import { ShopItemTitle } from "../../system/ListMenuTitleTypes";
-import { UnitShopMenuGUI } from "../../system/UnitShopMenuGUI";
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {

@@ -2,7 +2,7 @@ import { TurnState } from "../TurnState";
 import { AnimateMoveUnit } from "./AnimateMoveUnit";
 import { ChooseAttackTarget } from "./ChooseAttackTarget";
 import { Point } from "../../../Common/Point";
-import { ListMenuOption } from "../../../system/ListMenuOption";
+import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOption";
 import { MapLayer } from "../../map/MapLayers";
 import { Command, CommandObject } from "../Command";
 import { DropLocation } from "./DropLocation";
