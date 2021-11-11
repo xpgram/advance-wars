@@ -2,9 +2,7 @@ import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { Point } from "../../Common/Point";
-import { Slider } from "../../Common/Slider";
 import { Color } from "../../CommonUtils";
-import { Pulsar } from "../../timer/Pulsar";
 import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
 import { MenuCursor } from "./MenuCursor";
@@ -66,27 +64,8 @@ export class CommandMenuGUI<X, Y> {
   protected readonly gui = new PIXI.Container();
   protected readonly menuGui = new PIXI.Container();
 
-  // TODO Remove; redundant
-  /** Pulsar which triggers cursor animation. */
-  protected animPulsar = new Pulsar(
-    CommandMenuGUI.CursorSettings.interval,
-    () => {},
-    this
-  );
-
-  /** Slider which determines cursor position when traveling
-   * between menu options. */
-  protected cursorMovementSlider = new Slider({
-    granularity: 1 / CommandMenuGUI.CursorSettings.animFrames,
-  });
 
   constructor(menu: ListMenu<X, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties}) {
-
-    // Well. It's nominally correct now.
-    
-    // TODO BoxProperties assumes a value of 0 or all properties undeclared in
-    // its options object, which breaks merge() entirely; every single property
-    // is 'defined' so every single property get overwritten. With 0.
 
     this.menu = menu;
     this.menu.on('move-cursor', () => {
@@ -98,6 +77,10 @@ export class CommandMenuGUI<X, Y> {
         element.width,
         element.height
       );
+
+      // TODO Build elements for each palette, save as AnimatedSprite.
+      // TODO Update list-item frames: all→unselected/disabled, one→selected/disabled
+      // TODO Remove build() on every frame.
     });
 
     container.addChild(this.gui);
@@ -106,16 +89,15 @@ export class CommandMenuGUI<X, Y> {
 
     this.buildGraphics();
 
-    // TODO Remove
+    // TODO Remove; build should happen once and saved.
+    // Did I only do this because of the cursor?
+    // TODO Oh, it was also for selected vs. unselected.
     Game.scene.ticker.add(() => { this.buildGraphics() });
-
-    this.animPulsar.start();
   }
 
   /** Unlinks this object's circular references and removes it from higher scope structures. */
   destroy() {
     this.gui.destroy({children: true});
-    this.animPulsar.destroy();
     this.menu.destroy();
     this.cursorGraphic.destroy();
   }
@@ -164,12 +146,12 @@ export class CommandMenuGUI<X, Y> {
   buildGraphics() {
     this.listItemProps.width = this.getContentWidth();
 
-    this.menuGui.removeChildren();
-    
-    /* Menu */
-
     const menu = new PIXI.Graphics();
     const props = this.listItemProps;
+
+    // Reset containers
+    this.menuGui.removeChildren();
+    this.menuGui.addChild(menu);
 
     /* List Items */
 
@@ -230,35 +212,5 @@ export class CommandMenuGUI<X, Y> {
       menu.addChild(g);
     });
 
-    // Final
-    this.menuGui.addChild(menu);
-
-    return;
-
-    // TODO Extract this to a thing. Just build all frames at once. Set play speed, etc.
-
-    const time = (Game.frameCount % 45);
-    const shrink = (time < 3) ? 1 : (time < 6) ? 2 : (time < 9) ? 1 : 0;
-
-    const border = props.borderOuterBox();
-    const cursor = new PIXI.Graphics();
-    const wpad = 3 - shrink;
-    const hpad = 1 - shrink;
-    const size = 2;
-
-    cursor.beginFill(this.palette.selector);
-    cursor.drawRect(border.x - wpad - size, border.y - hpad - size, border.width + 2*wpad + 2*size, border.height + 2*hpad + 2*size);
-    cursor.endFill();
-
-    cursor.beginHole();
-    cursor.drawRect(border.x - wpad, border.y - hpad, border.width + 2*wpad, border.height + 2*hpad);
-    cursor.endHole();
-
-    cursor.position.set(
-      worldPosition.x,
-      worldPosition.y + props.elementHeight * this.menu.selectedIndex
-    );
-
-    menu.addChild(cursor);
   }
 }
