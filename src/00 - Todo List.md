@@ -15,6 +15,8 @@ More observations:
 - The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
 
 - [ ] Dig into IWS and change all visible binaries to 3 frame opacity transitions.
+  CommandMenuGUI's transition is ~incredibly~ subtle: 3 frames on a sqrt curve.
+  But you still feel it.
 
 - [x] Extract menu cursor from the GUIs
   - [x] Finish extracting own-cursor-draw from CommandMenu
