@@ -26,7 +26,7 @@ export class FactoryMenu extends TurnState {
     const listItems = unitTypes.map(type => {
       const unit = new type();
       const key = {
-        icon: new PIXI.Sprite(),
+        icon: unit.shopPreview(player.faction),
         title: unit.name,
         cost: unit.cost,
       }
@@ -43,6 +43,11 @@ export class FactoryMenu extends TurnState {
       16,
       40,
     );
+
+    // Remind us what we're selecting over
+    mapCursor.show();
+    mapCursor.disable();
+    mapCursor.mode = 'build';
   }
 
   update() {

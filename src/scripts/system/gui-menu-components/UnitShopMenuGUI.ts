@@ -27,7 +27,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
   }
 
   /** How thick in pixels the top and bottom margins of the menu are. */
-  capHeight = 3;
+  capHeight = 2;
   /** How thick in pixels the top and bottom bezels of the menu are. */
   capBezel = 1;
 
@@ -54,7 +54,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
       element.x,
       element.height * this.menu.selectedIndex + capHeight,
       element.width,
-      element.height - 2,
+      element.height,
     );
   }
 
@@ -111,9 +111,11 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     // Bottom Cap
     g.clear();
     g.beginFill(palette.background);
-    g.drawRect(element.x, element.y, element.width, capBezel);
+    g.drawRect(element.x, element.y, element.width, capHeight);
     g.beginFill(palette.dark, 0.35);
-    g.drawRect(element.x, element.y, element.width, capBezel);
+    g.drawRect(element.x, element.y, element.width, capHeight);
+    g.beginFill(palette.primary);
+    g.drawRect(fill.x, element.y, fill.width, capHeight - capBezel);
 
     // Generate texture
     const bottomCap = Game.app.renderer
@@ -149,19 +151,18 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
       const { key } = item;
       const { icon, title, cost } = key;
 
-      const gIcon = new PIXI.Sprite();
-      gIcon.position.set(content.x, content.y + 1);
+      icon.position.set(content.x + 2, content.y);
 
       const gText = new PIXI.BitmapText(title, fonts.list);
-      gText.position.set(content.x + 18, content.y + 0.5*content.height);
+      gText.position.set(content.x + 23, content.y + 0.6*content.height);
       gText.anchor.set(0,.5);
 
       const gCost = new PIXI.BitmapText(cost.toString(), fonts.list);
-      gCost.position.set(content.x + content.width - gCost.width, content.y + 0.5*content.height);
+      gCost.position.set(content.x + content.width - gCost.width, content.y + 0.6*content.height);
       gCost.anchor.set(0,.5);
 
       // Combine
-      spr.addChild(gIcon, gText, gCost);
+      spr.addChild(icon, gText, gCost);
       this.menuGui.addChild(spr);
     })
 

@@ -107,12 +107,17 @@ export abstract class UnitObject {
         return this._sprite;
     }
 
-    /** A 16x16 thumbnail image for this unit type. */
+    /** A 16x16 thumbnail image for this unit object. Must be initiated. */
     get preview(): PIXI.Sprite {
+        return this.shopPreview(this.faction);
+    }
+
+    /** A 16x16 thumbnail image for this unit type. */
+    shopPreview(faction: Faction): PIXI.Sprite {
         // TODO This process, identifying the filepath, asking about soldier sprites because they're different, is common. Encapsulate it somewhere.
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
-        let color = FactionColors[this.faction];
-        let army = ['rubinelle', 'lazurian'][this.faction % 2]; // TODO Get this from team.CO.armyType or something.
+        let color = FactionColors[faction];
+        let army = ['rubinelle', 'lazurian'][faction % 2]; // TODO Get this from team.CO.armyType or something.
         let sprite;
 
         if (this.type == Unit.Infantry || this.type == Unit.Mech || this.type == Unit.Bike)

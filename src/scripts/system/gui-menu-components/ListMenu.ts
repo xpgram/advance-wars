@@ -147,6 +147,7 @@ export class ListMenu<X, Y> extends Observable {
     this.pageCursor.track = 0;
     this.setPage();
     this.cursor.track = 0;
+    this.updateListeners('change-page');
     this.updateListeners('move-cursor');
   }
 

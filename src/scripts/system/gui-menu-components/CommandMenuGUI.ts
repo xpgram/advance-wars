@@ -1,6 +1,7 @@
 import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
+import { Slider } from "../../Common/Slider";
 import { Color } from "../../CommonUtils";
 import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
@@ -62,6 +63,11 @@ export class CommandMenuGUI<X, Y> {
     },
   }
 
+  /** Controls the menu's opacity. */
+  private fadeInSlider = new Slider({
+    granularity: 1 / 3,
+  });
+
   /** Reference to the menu object which controls this GUI. */
   readonly menu: ListMenu<X, Y>;
 
@@ -82,6 +88,8 @@ export class CommandMenuGUI<X, Y> {
 
     this.buildTextures();
     this.buildListItems();
+
+    Game.scene.ticker.add(this.update, this);
   }
 
   /** Unlinks this object's circular references and removes it from higher scope structures. */
@@ -90,18 +98,24 @@ export class CommandMenuGUI<X, Y> {
     this.menu.destroy();
     this.cursorGraphic.destroy();
     Object.values(this.stateTextures).forEach( t => t.destroy() );
+    Game.scene.ticker.remove(this.update, this);
+  }
+
+  private update() {
+    this.fadeInSlider.increment();
+    this.gui.alpha = this.fadeInSlider.output;
   }
 
   /** Reveals this menu's graphics and enables player input. */
   show() {
-    this.gui.visible = true;
+    this.fadeInSlider.incrementFactor = 1;
     this.menu.enableInput();
     this.cursorGraphic.skipMotion();
   }
 
   /** Hides this menu's graphics and disables player input. */
   hide() {
-    this.gui.visible = false;
+    this.fadeInSlider.incrementFactor = -1;
     this.menu.disableInput();
   }
 
