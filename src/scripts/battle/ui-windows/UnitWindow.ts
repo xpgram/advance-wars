@@ -67,7 +67,7 @@ export class UnitWindow extends SlidingWindow {
       color: 0x000000,
       alpha: 0.5
     });
-    this.firstLoad.x = 1; this.firstLoad.y = -16;
+    this.firstLoad.x = 2; this.firstLoad.y = -17;
 
     // Unit second-loaded unit window
     this.secondLoad = RectBuilder({
@@ -77,7 +77,7 @@ export class UnitWindow extends SlidingWindow {
       color: 0x000000,
       alpha: 0.5
     });
-    this.secondLoad.x = 19; this.secondLoad.y = -16;
+    this.secondLoad.x = 20; this.secondLoad.y = -17;
 
     // Formal add
     this.displayContainer.addChild(background);
@@ -88,7 +88,7 @@ export class UnitWindow extends SlidingWindow {
 
   /** Sets this UI window to visible only if a unit is present to describe. */
   setVisible() {
-    this.displayContainer.visible = this.unitToDisplay;
+    this.opacitySlider.incrementFactor = (this.unitToDisplay) ? 1 : -1;
   }
 
   positionWindow(options = { skip: false }) {
@@ -96,8 +96,8 @@ export class UnitWindow extends SlidingWindow {
 
     // Move the loaded units mini-window to the other side when displayed on the right edge of the screen.
     if (this.firstLoad) {   // ← This is a dumb bandaid solution. SlidingWindow probably shouldn't call positionWindow in its constructor. The window system can handle that.
-      this.firstLoad.x = (this.onLeftSide) ? 0 : 71;
-      this.secondLoad.x = (this.onLeftSide) ? 18 : 53;
+      this.firstLoad.x = (this.onLeftSide) ? 2 : 70;
+      this.secondLoad.x = (this.onLeftSide) ? 21 : 51;
     }
   }
 
@@ -148,7 +148,7 @@ export class UnitWindow extends SlidingWindow {
   /** Updates window UI elements with details from the given unit object. */
   inspectUnit(unit?: UnitObject) {
     this.unitToDisplay = Boolean(unit);
-    this.displayContainer.visible = this.unitToDisplay;
+    this.setVisible();
 
     if (!unit)
       return;
@@ -160,10 +160,12 @@ export class UnitWindow extends SlidingWindow {
     (unit.materialsInsteadOfAmmo)
       ? this.setMaterialMeterValue(unit.ammo)
       : this.setAmmoMeterValue(unit.ammo, unit.maxAmmo);
-    this.setFirstLoadUnit(null);
-    this.setSecondLoadUnit(null);
-    // this..setFirstLoadUnit(unit.loaded.first);
-    // this..setSecondLoadUnit(unit.loaded.second);
-    // TODO loaded.first should return null if no units are loaded.
+
+    this.setFirstLoadUnit( (unit.loadedUnits.length > 0)
+      ? unit.loadedUnits[0].preview
+      : null);
+    this.setSecondLoadUnit( (unit.loadedUnits.length > 1)
+      ? unit.loadedUnits[1].preview
+      : null);
   }
 }

@@ -60,6 +60,12 @@ export class SlidingWindow {
     /** The horizontal distance from the hidden position the window will stop at when hiding. */
     private stickOutDistance: number;
 
+    /** Controls the smooth transition between shown and hidden states. */
+    protected opacitySlider = new Slider({
+        granularity: 1 / 2,
+        shape: v => Math.sqrt(v),
+    });
+
     /** The window, graphically. The background and all sub-elements should be added here. */
     readonly displayContainer = new PIXI.Container();
     /** The mask which may reveal or hide other UI elements if they're properly linked up. */
@@ -89,12 +95,12 @@ export class SlidingWindow {
 
     /** Sets this display UI to visible. */
     setVisible() {
-        this.displayContainer.visible = true;
+        this.opacitySlider.incrementFactor = 1;
     }
 
     /** Sets this display UI to not visible. */
     setInvisible() {
-        this.displayContainer.visible = false;
+        this.opacitySlider.incrementFactor = -1;
     }
 
     /** Positions the window on-screen according to its sliders. */
@@ -130,9 +136,11 @@ export class SlidingWindow {
         // Update slider incrementers
         this.holdToOpenSlider.increment();
         this.sideChangeSlider.increment();
+        this.opacitySlider.increment();
 
-        // Move the window graphically
+        // Effect graphical changes
         this.positionWindow();
+        this.displayContainer.alpha = this.opacitySlider.output;
     }
 
     /** Returns true if the window is in a pleasant position to refresh its display, i.e., not switching screen sides. */
