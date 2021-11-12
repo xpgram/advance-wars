@@ -29,11 +29,12 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     },
   }
 
-  // A lot of wiring I need to do...
-  // BattleScene needs to build it correctly
-  // FactoryMenu needs to reference this instead of cmd
-  // And that might be it, actually.
-  // BattleScene also needs to give this the right UI layer.
+  // TODO Reconnect this with CommandMenu logic.
+  // Override buildTextures, buildListItems, and updateFrames
+  // buildTextures should also build a topCap and a bottomCap
+  // top/bottom caps are included in buildListItems
+  //   buildListItems could also include page indicators, too
+  // updateFrames just changes text opacity, basically.
 
   buildGraphics() {
 
