@@ -6,6 +6,7 @@ import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOpti
 import { MapLayer } from "../../map/MapLayers";
 import { Command, CommandObject } from "../Command";
 import { DropLocation } from "./DropLocation";
+import { Game } from "../../../..";
 
 export class CommandMenu extends TurnState {
   get name(): string { return "CommandMenu"; }
@@ -15,7 +16,7 @@ export class CommandMenu extends TurnState {
   private autoEnd = false;
 
   protected configureScene(): void {
-    const { map, mapCursor, trackCar, cmdMenu: uiMenu, camera } = this.assets;
+    const { map, mapCursor, trackCar, cmdMenu, camera } = this.assets;
     const { actor, place, placeTile, goal, goalTile, goalTerrain, drop } = this.data;
 
     // leave trackCar on
@@ -63,22 +64,23 @@ export class CommandMenu extends TurnState {
       })
     );
 
-    // Set and build uiMenu options
-    uiMenu.setListItems(options);
-    uiMenu.menu.resetCursor();
+    // Set and build cmdMenu options
+    cmdMenu.setListItems(options);
+    cmdMenu.menu.resetCursor();
 
-    // Position uiMenu on screen
-    const location = (new Point(mapCursor.transform.pos)).add(new Point(20, 4));
+    // Position cmdMenu on screen
+    const tileSize = Game.display.standardLength;
+    const location = goal.multiply(tileSize).add(new Point(1.25*tileSize, 0));
     if (camera.center.x < location.x)
-      location.x = mapCursor.transform.pos.x - 4 - uiMenu.gui.width;
-    if (location.y + uiMenu.gui.height + 4 > camera.y + camera.height)
-      location.y -= location.y + uiMenu.gui.height + 4 - camera.y - camera.height;
-    uiMenu.gui.position.set(location.x, location.y);
-    uiMenu.gui.zIndex = 1000;
+      location.x = goal.x*tileSize - 0.25*tileSize - cmdMenu.menuGui.width;
+    if (location.y + cmdMenu.gui.height + 4 > camera.y + camera.height)
+      location.y -= location.y + cmdMenu.gui.height + 4 - camera.y - camera.height;
+    cmdMenu.gui.position.set(location.x, location.y);
+    cmdMenu.gui.zIndex = 1000;
 
     // Sort ui layer
     MapLayer('ui').sortChildren();
-    uiMenu.show();
+    cmdMenu.show();
 
     // TODO .sortChildren() should not be here.
 
@@ -100,7 +102,7 @@ export class CommandMenu extends TurnState {
     const { gamepad, instruction } = this.assets;
     const { menu } = this.assets.cmdMenu;
 
-    // If A, infer next action from uiMenu.
+    // If A, infer next action from cmdMenu.
     if (gamepad.button.A.pressed || this.autoEnd) {
       const commandValue = (!this.autoEnd)
         ? menu.selectedValue.serial
