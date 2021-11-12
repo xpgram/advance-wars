@@ -14,9 +14,11 @@ More observations:
 - The drop animation will require at least two additional TrackCars.
 - The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
 
+- [ ] Dig into IWS and change all visible binaries to 3 frame opacity transitions.
+
 - [x] Extract menu cursor from the GUIs
-  - [ ] Finish extracting own-cursor-draw from CommandMenu
-  - [ ] Extract own-cursor-draw from ShopMenu
+  - [x] Finish extracting own-cursor-draw from CommandMenu
+  - [x] Extract own-cursor-draw from ShopMenu
 
 Post Function:
 - [ ] DropLocation also sets a dir value on the square so the player can see where they're dropping.
