@@ -12,7 +12,7 @@ export class FieldMenu extends TurnState {
     const { fieldMenu, camera } = this.assets;
 
     // TODO Instead of an enum, value could easily be the state to advance to.
-    fieldMenu.menu.setListItems([
+    fieldMenu.setListItems([
       new ListMenuOption('Commanders', 1, {
         triggerDisable: () => true,
       }),
@@ -23,7 +23,6 @@ export class FieldMenu extends TurnState {
     ]);
     fieldMenu.menu.resetCursor();
     
-    fieldMenu.buildGraphics();
     fieldMenu.show();
     //@ts-expect-error
     fieldMenu.gui.position.set(

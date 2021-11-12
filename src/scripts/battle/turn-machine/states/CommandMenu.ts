@@ -64,9 +64,8 @@ export class CommandMenu extends TurnState {
     );
 
     // Set and build uiMenu options
-    uiMenu.menu.setListItems(options);
+    uiMenu.setListItems(options);
     uiMenu.menu.resetCursor();
-    uiMenu.buildGraphics();
 
     // Position uiMenu on screen
     const location = (new Point(mapCursor.transform.pos)).add(new Point(20, 4));

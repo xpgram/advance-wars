@@ -36,9 +36,8 @@ export class FactoryMenu extends TurnState {
     });
 
     // Build and position menu
-    menu.setListItems(listItems);
+    shopMenu.setListItems(listItems);
     menu.resetCursor();   // Only because there is no separation between the different base types.
-    shopMenu.buildGraphics();
     shopMenu.show();
     shopMenu.gui.position.set(
       16,

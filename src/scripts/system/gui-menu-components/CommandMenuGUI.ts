@@ -74,7 +74,7 @@ export class CommandMenuGUI<X, Y> {
 
     this.menu = menu;
     this.menu.on('move-cursor', () => {
-      this.buildListItems();
+      this.updateFrames();
       const element = this.listItemProps.containerBox();
       this.cursorGraphic.rect = new PIXI.Rectangle(
         element.x,
@@ -121,7 +121,9 @@ export class CommandMenuGUI<X, Y> {
   /** Sets a new list of menu options, and rebuilds the GUI's graphics. */
   setListItems(li: ListMenuOption<X,Y>[]) {
     this.menu.setListItems(li);
+    this.buildTextures();
     this.buildListItems();
+    this.updateFrames();
     this.cursorGraphic.skipMotion();
   }
 
@@ -145,7 +147,7 @@ export class CommandMenuGUI<X, Y> {
     const { palette, stateTextures, listItemProps: props } = this;
 
     type buttonPalette = typeof palette.unselected; // TODO ? Why not officially declare it?
-    this.listItemProps.width = this.getContentWidth();
+    props.width = this.getContentWidth();
     
     function build(palette: buttonPalette): PIXI.Texture {
       const g = new PIXI.Graphics();
@@ -175,13 +177,18 @@ export class CommandMenuGUI<X, Y> {
       g.endFill();
 
       // Save texture
-      return Game.app.renderer.generateTexture(g);
+      return Game.app.renderer.generateTexture(g, {
+        scaleMode: PIXI.SCALE_MODES.NEAREST
+      });
     }
     
-    Object.values(stateTextures).forEach( t => t.destroy() );
-    stateTextures.enabled = build(palette.unselected);
-    stateTextures.disabled = build(palette.disabled);
-    stateTextures.selected = build(palette.selected);
+    if (stateTextures)
+      Object.values(stateTextures).forEach( t => t.destroy() );
+    this.stateTextures = {
+      enabled: build(palette.unselected),
+      disabled: build(palette.disabled),
+      selected: build(palette.selected),
+    };
   }
 
   /** Builds the list of list-item graphics objects. */
@@ -197,13 +204,8 @@ export class CommandMenuGUI<X, Y> {
 
     // Build a sprite for each element
     menu.listItems.forEach( (item, idx) => {
-      const tex = (item.disabled)
-        ? stateTextures.disabled
-        : (menu.selectedOption === item)
-        ? stateTextures.selected
-        : stateTextures.enabled;
-
-      const spr = new PIXI.Sprite(tex);
+      // Button body
+      const spr = new PIXI.Sprite();
       spr.position.y = element.height * idx;
 
       // Build text
@@ -224,6 +226,8 @@ export class CommandMenuGUI<X, Y> {
     const objects = this.menuGui.children;
 
     this.menu.listItems.forEach( (item, idx) => {
+      if (idx >= objects.length)
+        return; // Skip 
       const object = objects[idx];
       object.texture = (item.disabled)
         ? textures.disabled
