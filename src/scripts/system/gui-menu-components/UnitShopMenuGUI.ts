@@ -20,13 +20,10 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
   });
 
   readonly palette = {
-    selector:     HSV(166, 100, 80),
-    button: {
-      background: HSV(200, 30, 30),
-      primary:    HSV(215, 25, 35),
-      light:      HSV(220, 15,100),
-      dark:       HSV(190, 10,  0),
-    },
+    background: HSV(200, 30, 30),
+    primary:    HSV(215, 25, 35),
+    light:      HSV(220, 15,100),
+    dark:       HSV(190, 10,  0),
   }
 
   // TODO Reconnect this with CommandMenu logic.
@@ -35,6 +32,125 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
   // top/bottom caps are included in buildListItems
   //   buildListItems could also include page indicators, too
   // updateFrames just changes text opacity, basically.
+
+  protected stateTextures!: {
+    item: PIXI.Texture,
+    topCap: PIXI.Texture,
+    bottomCap: PIXI.Texture,
+  }
+
+  private buildTextures() {
+    const { palette, listItemProps: props } = this;
+
+    if (this.stateTextures)
+      Object.values(this.stateTextures).forEach( t => t.destroy() );
+
+    const content = props.contentBox();
+    const fill = props.borderOuterBox();
+    const element = props.containerBox();
+    const capHeight = 3;
+
+    const g = new PIXI.Graphics();
+
+    // Background
+    g.beginFill(palette.background);
+    g.drawRect(element.x, element.y, element.width, element.height);
+    g.beginFill(palette.dark, 0.50);
+    g.drawRect(element.x, element.y, element.width, element.height);
+
+    // Button Fill
+    g.beginFill(palette.primary);
+    g.drawRect(fill.x, element.y, fill.width, element.height);
+
+    // Underline
+    g.beginFill(palette.dark, .50);
+    g.drawRect(content.x, content.y + content.height, content.width, -props.border.bottom);
+
+    g.endFill();
+
+    // Save texture
+    this.stateTextures.item = Game.app.renderer
+      .generateTexture(g, {
+        scaleMode: PIXI.SCALE_MODES.NEAREST
+      });
+
+
+    // Top Cap
+    g.clear();
+    g.beginFill(palette.background);
+    g.drawRect(element.x, element.y, element.width, capHeight);
+    g.beginFill(palette.dark, 0.50);
+    g.drawRect(element.x, element.y, element.width, capHeight);
+
+    // Save texture
+    const tex = Game.app.renderer
+      .generateTexture(g, {
+        scaleMode: PIXI.SCALE_MODES.NEAREST
+      });
+    this.stateTextures.topCap = tex;
+    this.stateTextures.bottomCap = tex;
+  }
+
+  buildListItems() {
+    const { menu, stateTextures: textures, listItemProps: props } = this;
+
+    const content = props.contentBox();
+    const element = props.containerBox();
+    const capHeight = 3;
+
+    // Reset menu gui
+    this.menuGui.children.forEach( g => g.destroy() );
+    this.menuGui.removeChildren();
+
+    // Build a sprite for each element
+    menu.listItems.forEach( (item, idx) => {
+      // Button body
+      const spr = new PIXI.Sprite(textures.item);
+      spr.position.y = element.height * idx + capHeight;
+
+      // Build text
+      const { key } = item;
+      const { icon, title, cost } = key;
+
+      const gIcon = new PIXI.Sprite();
+      gIcon.position.set(content.x, content.y + 1);
+
+      const gText = new PIXI.BitmapText(title, fonts.list);
+      gText.position.set(content.x + 18, content.y + 1);
+
+      const gCost = new PIXI.BitmapText(cost.toString(), fonts.list);
+      gCost.position.set(content.x + content.width - gCost.width, content.y);
+
+      // Combine
+      spr.addChild(gIcon, gText, gCost);
+      this.menuGui.addChild(spr);
+    })
+
+    // Add the caps
+    const top = new PIXI.Sprite(textures.topCap);
+    const bottom = new PIXI.Sprite(textures.bottomCap);
+    bottom.y = element.height * menu.listItems.length + capHeight;
+    this.menuGui.addChild(top, bottom);
+  }
+
+  updateFrames() {
+    const objects = this.menuGui.children;
+    
+    this.menu.listItems.forEach( (item, idx) => {
+      if (idx >= objects.length)
+        return;
+      const object = objects[idx];
+      if (item.disabled) {
+        object.children[0].tint = 0x888888;
+        object.children[1].alpha = 0.35;
+        object.children[2].alpha = 0.35;
+      } else {
+        object.children[0].tint = 0xFFFFFF;
+        object.children[1].alpha = 1;
+        object.children[2].alpha = 1;
+      }
+    });
+  }
 
   buildGraphics() {
 
@@ -50,7 +166,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     const worldPosition = new Point(menu);
 
     this.menu.listItems.forEach( (item, idx) => {
-      const palette = this.palette.button;
+      const { palette } = this;
 
       const g = new PIXI.Graphics();
       const content = props.contentBox();

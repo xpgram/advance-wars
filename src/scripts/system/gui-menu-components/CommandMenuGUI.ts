@@ -26,7 +26,7 @@ export class CommandMenuGUI<X, Y> {
   private cursorGraphic: MenuCursor;
 
   /** A list of all list-item textures; textures for each state. */
-  private stateTextures!: {
+  protected stateTextures!: {
     enabled: PIXI.Texture,
     disabled: PIXI.Texture,
     selected: PIXI.Texture,
