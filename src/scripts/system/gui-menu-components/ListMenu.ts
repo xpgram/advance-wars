@@ -136,7 +136,10 @@ export class ListMenu<X, Y> extends Observable {
     if (cursor.output > view.index + view.length - view.padding)
       view.index = cursor.output - view.length + view.padding;
 
-    this.updateListeners('move-cursor');
+    if (dir.y !== 0)
+      this.updateListeners('move-cursor');
+    if (dir.x !== 0)
+      this.updateListeners('change-page');
   }
 
   /** Resets menu cursor to the first item of the first page. */

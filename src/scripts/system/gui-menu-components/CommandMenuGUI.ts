@@ -23,7 +23,7 @@ export class CommandMenuGUI<X, Y> {
   }
 
   /** The cursor graphic which visually selects over the menu. */
-  private cursorGraphic: MenuCursor;
+  protected cursorGraphic: MenuCursor;
 
   /** A list of all list-item textures; textures for each state. */
   protected stateTextures!: {
@@ -73,16 +73,8 @@ export class CommandMenuGUI<X, Y> {
   constructor(menu: ListMenu<X, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties}) {
 
     this.menu = menu;
-    this.menu.on('move-cursor', () => {
-      this.updateFrames();
-      const element = this.listItemProps.containerBox();
-      this.cursorGraphic.rect = new PIXI.Rectangle(
-        element.x,
-        element.height * this.menu.selectedIndex,
-        element.width,
-        element.height
-      );
-    });
+    this.menu.on('move-cursor', this.onCursorMove, this);
+    this.menu.on('change-page', this.onPageChange, this);
 
     container.addChild(this.gui);
     this.gui.addChild(this.menuGui);
@@ -125,6 +117,24 @@ export class CommandMenuGUI<X, Y> {
     this.buildListItems();
     this.updateFrames();
     this.cursorGraphic.skipMotion();
+  }
+
+  /** Function to call every time the menu's cursor changes position. */
+  protected onCursorMove() {
+    this.updateFrames();
+    const element = this.listItemProps.containerBox();
+    this.cursorGraphic.rect = new PIXI.Rectangle(
+      element.x,
+      element.height * this.menu.selectedIndex,
+      element.width,
+      element.height
+    );
+  }
+
+  /** Function to call every time the menu's page changes. */
+  protected onPageChange() {
+    this.buildListItems();
+    this.updateFrames();
   }
 
   /** Returns the longest pixel-width needed by this menu's displayed list items. */

@@ -12,10 +12,10 @@ const { HSV } = Color;
 export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
 
   readonly listItemProps = new BoxContainerProperties({
-    minWidth: 144,
-    height: fonts.menu.fontSize + 2,
-    margin: { left: 3, right: 3, top: 1 },
-    border: { left: 1, right: 1, top: 1, bottom: 1, },
+    minWidth: 16*7,
+    height: 16,
+    margin: { left: 3, right: 3 },
+    border: { left: 1, right: 1, bottom: 1, },
     padding: { left: 2, right: 2 },
   });
 
@@ -25,6 +25,11 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     light:      HSV(220, 15,100),
     dark:       HSV(190, 10,  0),
   }
+
+  /** How thick in pixels the top and bottom margins of the menu are. */
+  capHeight = 3;
+  /** How thick in pixels the top and bottom bezels of the menu are. */
+  capBezel = 1;
 
   // TODO Reconnect this with CommandMenu logic.
   // Override buildTextures, buildListItems, and updateFrames
@@ -39,8 +44,22 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     bottomCap: PIXI.Texture,
   }
 
+  protected onCursorMove() {
+    const { listItemProps: props, capHeight } = this;
+
+    this.updateFrames();
+
+    const element = props.containerBox();
+    this.cursorGraphic.rect = new PIXI.Rectangle(
+      element.x,
+      element.height * this.menu.selectedIndex + capHeight,
+      element.width,
+      element.height - 2,
+    );
+  }
+
   private buildTextures() {
-    const { palette, listItemProps: props } = this;
+    const { palette, listItemProps: props, capHeight, capBezel } = this;
 
     if (this.stateTextures)
       Object.values(this.stateTextures).forEach( t => t.destroy() );
@@ -48,14 +67,13 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     const content = props.contentBox();
     const fill = props.borderOuterBox();
     const element = props.containerBox();
-    const capHeight = 3;
 
     const g = new PIXI.Graphics();
 
     // Background
     g.beginFill(palette.background);
     g.drawRect(element.x, element.y, element.width, element.height);
-    g.beginFill(palette.dark, 0.50);
+    g.beginFill(palette.dark, 0.35);
     g.drawRect(element.x, element.y, element.width, element.height);
 
     // Button Fill
@@ -63,13 +81,13 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     g.drawRect(fill.x, element.y, fill.width, element.height);
 
     // Underline
-    g.beginFill(palette.dark, .50);
+    g.beginFill(palette.dark, .35);
     g.drawRect(content.x, content.y + content.height, content.width, -props.border.bottom);
 
     g.endFill();
 
-    // Save texture
-    this.stateTextures.item = Game.app.renderer
+    // Generate texture
+    const item = Game.app.renderer
       .generateTexture(g, {
         scaleMode: PIXI.SCALE_MODES.NEAREST
       });
@@ -79,24 +97,43 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     g.clear();
     g.beginFill(palette.background);
     g.drawRect(element.x, element.y, element.width, capHeight);
-    g.beginFill(palette.dark, 0.50);
+    g.beginFill(palette.dark, 0.35);
     g.drawRect(element.x, element.y, element.width, capHeight);
+    g.beginFill(palette.primary);
+    g.drawRect(fill.x, element.y + capBezel, fill.width, capHeight - capBezel);
 
-    // Save texture
-    const tex = Game.app.renderer
+    // Generate texture
+    const topCap = Game.app.renderer
       .generateTexture(g, {
         scaleMode: PIXI.SCALE_MODES.NEAREST
       });
-    this.stateTextures.topCap = tex;
-    this.stateTextures.bottomCap = tex;
+
+    // Bottom Cap
+    g.clear();
+    g.beginFill(palette.background);
+    g.drawRect(element.x, element.y, element.width, capBezel);
+    g.beginFill(palette.dark, 0.35);
+    g.drawRect(element.x, element.y, element.width, capBezel);
+
+    // Generate texture
+    const bottomCap = Game.app.renderer
+      .generateTexture(g, {
+        scaleMode: PIXI.SCALE_MODES.NEAREST
+      });
+
+    // Save textures
+    this.stateTextures = {
+      item,
+      topCap,
+      bottomCap
+    }
   }
 
   buildListItems() {
-    const { menu, stateTextures: textures, listItemProps: props } = this;
+    const { menu, stateTextures: textures, listItemProps: props, capHeight } = this;
 
     const content = props.contentBox();
     const element = props.containerBox();
-    const capHeight = 3;
 
     // Reset menu gui
     this.menuGui.children.forEach( g => g.destroy() );
@@ -116,10 +153,12 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
       gIcon.position.set(content.x, content.y + 1);
 
       const gText = new PIXI.BitmapText(title, fonts.list);
-      gText.position.set(content.x + 18, content.y + 1);
+      gText.position.set(content.x + 18, content.y + 0.5*content.height);
+      gText.anchor.set(0,.5);
 
       const gCost = new PIXI.BitmapText(cost.toString(), fonts.list);
-      gCost.position.set(content.x + content.width - gCost.width, content.y);
+      gCost.position.set(content.x + content.width - gCost.width, content.y + 0.5*content.height);
+      gCost.anchor.set(0,.5);
 
       // Combine
       spr.addChild(gIcon, gText, gCost);
@@ -139,7 +178,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
     this.menu.listItems.forEach( (item, idx) => {
       if (idx >= objects.length)
         return;
-      const object = objects[idx];
+      const object = objects[idx] as PIXI.Sprite;
       if (item.disabled) {
         object.children[0].tint = 0x888888;
         object.children[1].alpha = 0.35;
@@ -150,103 +189,6 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
         object.children[2].alpha = 1;
       }
     });
-  }
-
-  buildGraphics() {
-
-    this.gui.removeChildren();
-    
-    /* Menu */
-
-    const menu = new PIXI.Graphics();
-    const props = this.listItemProps;
-
-    /* List Items */
-
-    const worldPosition = new Point(menu);
-
-    this.menu.listItems.forEach( (item, idx) => {
-      const { palette } = this;
-
-      const g = new PIXI.Graphics();
-      const content = props.contentBox();
-      const fill = props.borderOuterBox();
-      const element = props.containerBox();
-
-      // Position
-      g.position.set(
-        worldPosition.x,
-        worldPosition.y + props.elementHeight*idx
-      );
-
-      // Background
-      g.beginFill(palette.background);
-      g.drawRect(element.x, element.y, element.width, element.height);
-      g.beginFill(palette.dark, 0.50);
-      g.drawRect(element.x, element.y, element.width, element.height);
-      g.endFill();
-
-      // Button Fill
-      g.beginFill(palette.primary);
-      g.drawRect(fill.x, element.y, fill.width, element.height);
-      g.endFill();
-
-      // Underline
-      g.beginFill(palette.dark, .50);
-      g.drawRect(content.x, content.y + content.height, content.width, -props.border.bottom);
-      g.endFill();
-
-      // Combine
-      menu.addChild(g);
-
-      // Text   // TODO Make this overridable
-      const { key } = this.menu.listItems[idx];
-      const { icon, title, cost } = key;
-      const gText = new PIXI.BitmapText(title, fonts.menu);
-      const gCost = new PIXI.BitmapText(cost.toString(), fonts.menu);
-      if (item.disabled) {
-        icon.tint = 0x888888;
-        gText.alpha = 0.35;
-        gCost.alpha = 0.35;
-      }
-      icon.position.set(content.x, content.y + 1);
-      gText.position.set(icon.x + 18, content.y + 1);
-      gCost.position.set(content.x + content.width - gCost.width, content.y);
-
-      // Combine
-      g.addChild(icon, gText, gCost);
-    });
-
-    /* Cursor */
-
-    // TODO Extract this to a thing. Just build all frames at once. Set play speed, etc.
-
-    const time = (Game.frameCount % 45);
-    const shrink = (time < 3) ? 1 : (time < 6) ? 2 : (time < 9) ? 1 : 0;
-
-    const border = props.borderOuterBox();
-    const cursor = new PIXI.Graphics();
-    const wpad = 3 - shrink;
-    const hpad = 1 - shrink;
-    const size = 2;
-
-    cursor.beginFill(this.palette.selector);
-    cursor.drawRect(border.x - wpad - size, border.y - hpad - size, border.width + 2*wpad + 2*size, border.height + 2*hpad + 2*size);
-    cursor.endFill();
-
-    cursor.beginHole();
-    cursor.drawRect(border.x - wpad, border.y - hpad, border.width + 2*wpad, border.height + 2*hpad);
-    cursor.endHole();
-
-    cursor.position.set(
-      worldPosition.x,
-      worldPosition.y + props.elementHeight * this.menu.selectedIndex
-    );
-
-    menu.addChild(cursor);
-
-    // Final
-    this.gui.addChild(menu);
   }
 
 }
