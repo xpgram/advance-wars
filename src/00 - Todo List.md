@@ -23,8 +23,10 @@ More observations:
   - [x] Extract own-cursor-draw from ShopMenu
 
 Post Function:
+  I don't remember what post function means.
+- [ ] Drop Cmds use IconTitle and the held unit preview is passed in.
 - [ ] DropLocation also sets a dir value on the square so the player can see where they're dropping.
-- [ ] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
+- [x] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
 
 - [x] add cursor pos to debug ui, hide by default?
 - [x] Load Unit
