@@ -93,6 +93,11 @@ export class UnitWindow extends SlidingWindow {
     this.displayContainer.addChild(this.damageForecast.container);
   }
 
+  destroy() {
+    super.destroy();
+    this.damageForecast.destroy();
+  }
+
   /** Sets this UI window to visible only if a unit is present to describe. */
   setVisible() {
     this.opacitySlider.incrementFactor = (this.unitToDisplay) ? 1 : -1;

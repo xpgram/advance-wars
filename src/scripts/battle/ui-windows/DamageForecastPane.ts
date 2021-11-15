@@ -1,6 +1,8 @@
 import * as PixiFilters from 'pixi-filters';
 import { Game } from "../../..";
+import { Slider } from '../../Common/Slider';
 import { Common } from '../../CommonUtils';
+import { Pulsar } from '../../timer/Pulsar';
 import { fonts } from './DisplayInfo';
 import { Fadable } from './Fadable';
 
@@ -35,6 +37,26 @@ export class DamageForecastPane extends Fadable {
     ),
   };
   // TODO I wanted to animate the brightness, too. Make it shimmer, you know.
+  // TODO Make it oscillate up and down a bit, too.
+
+  private verticalOscillate = new Slider({
+    max: 2,
+    granularity: 1,
+    looping: true,
+  });
+
+  private animPulsar = new Pulsar(
+    20,
+    () => {
+      this.verticalOscillate.decrement();
+      this.window.y = -this.verticalOscillate.output;
+      this.damageNumber.y = 5 - this.verticalOscillate.output;
+
+      // this.brightness.increment();
+      // I want it to like heartbeat-pulse downward from white. Thump-Thump... thump-thump... you get it.
+    },
+    this
+  )
 
   /** The forecasted damage number to display. */
   get damage() { return this.damageNumber.text; }
@@ -63,6 +85,12 @@ export class DamageForecastPane extends Fadable {
     this.container.addChild(this.window, this.damageNumber);
     this.damage = 0;
     this.mode = 'safe';
+    this.animPulsar.start();
+  }
+
+  destroy() {
+    this.container.destroy({children: true});
+    this.animPulsar.destroy();
   }
 
 }
