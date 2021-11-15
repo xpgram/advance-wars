@@ -1,5 +1,14 @@
 # Next Big Objectives
 
+ - [ ] Plasma Textures: Second frame, I believe.
+
+- [ ] Damage Forecast window
+  - Safe:      0 255 115
+  - Normal:    0 255 255
+  - Caution: 255 255  80
+  - Danger:  255  75  80
+  Replace color   0   0   0 255 (black)
+
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
   - This of course means units that load must also spend because otherwise Carriers would be second-turn bounce points.
