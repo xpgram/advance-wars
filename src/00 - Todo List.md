@@ -23,14 +23,6 @@ More observations:
 - The drop animation will require at least two additional TrackCars.
 - The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
 
-- [x] Dig into IWS and change all visible binaries to 3 frame opacity transitions.
-  CommandMenuGUI's transition is ~incredibly~ subtle: 3 frames on a sqrt curve.
-  But you still feel it.
-
-- [x] Extract menu cursor from the GUIs
-  - [x] Finish extracting own-cursor-draw from CommandMenu
-  - [x] Extract own-cursor-draw from ShopMenu
-
 Post Function:
   I don't remember what post function means.
 - [ ] Drop Cmds use IconTitle and the held unit preview is passed in.
@@ -46,16 +38,11 @@ Post Function:
   - [x] CMenu → Where → CMenu → Regress (Clear Where) → MoveUnit
 - [x] nextOrderable - Break into two: unit and base
 - [x] Land's End - move predeploy closer for more efficient testing.
-- [ ] Expand ListMenu to allow for columns
+- [x] Expand ListMenu to allow for columns (I added pages, anyway)
 - [x] New FactoryShop GUI for ListMenu
   - [ ] Force UnitDetail open and right side during shop menu
 
-- [ ] Capture is broken; starts over each time.
-- [ ] Forgot to add aircraft to Carrier boardable.
-- [ ] Missing held unit pictures over unit info window.
-
-- [ ] Extra menu cursor to separate class: tell it a position and a width and height, and it will move there and bounce like it ought to. Literally it. That's all it is.
-- [ ] Speaking of positions, write a goddamn method to tell menuGUI where the fuck to be. Jesus.
+- [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
 
 - [ ] Global controller proxy.
   InfoWindowSystem should ask if the showDetailWindow button is down, not specifically the right trigger. Changing that shit is annoying af.
@@ -64,9 +51,6 @@ Post Function:
   - The game shows you every standby phase event in sequential order. You probably won't have 100 resupplies to see, but if you did...
 
 - [ ] Add dummy IssueOrderConfirm step, which would get approval from the server.
-- [ ] ListMenuGUI: 'key' → 'display' : a generic type. Set to {icon, title, cost}, of which some are ignored based on purpose.
-- [ ] Add Field and Shop menus to global UI layer instead of map ui.
-- [ ] Add multi-column to ListMenu.
 
 - [ ] The camera needs to emit an event when it stops moving. Or maybe it just has a getter that responds true whenever its target is in focus. This is less sophisticated, but I think it would suffice.
 - [ ] Camera can use this signal itself, too. Whenever its object *is* in focus, it should pick the nearest map-tile point quantized to its zoom ratio or whatever and move there, I suppose at a speed that also scales with zoom to avoid weird staircase zoom effects.
@@ -81,6 +65,8 @@ Post Function:
 - [x] Instant move InfoWindowSystem on turn change.
 - [x] Instant move InfoWindowSystem on return from MoveCamera state.
 - [ ] Instant move InfoWindowSystem on FactoryShop menu open.
+- [ ] Force open UnitDetail
+- [ ] Move camera to show base tile between shop menu and detail window?
 
 - [x] NextOrderableUnit
   - [ ] Source game has no hold behavior, and won't let you click to next again until the camera has found the cursor (which I think is also hidden, giving the player clear indication when they're allowed to move it).
@@ -108,6 +94,7 @@ Post Function:
   The logic for MoveUnit and DropLocation, which tiles to highlight, are different though.
   I guess that could be handled beforehand, but I'm not sure we'd be achieving anything,
   really. Other than the connections being a teense easier to see.
+  It's obviously better for reuse; I'd love to be able to insert PickTarget with maybe a few parameters like I would a function call, without having to write 2+ different versions, one for attack targets, one for Silo targets, one for CO Power targets, etc.
 
 - [ ] Refactor TurnSystem to use state queues.
   This is actually kind of a big job. I'd need to think of use cases.
@@ -132,17 +119,7 @@ Post Function:
     ]
     A benefit is that this process makes it reeaally easy to see where interruptions would happen, instead of having to calculate them.
     I guess calculating them isn't hard. Path is already incremental, essentially.
-
-- [ ] Refactor controls to:
-  - Left/Right Bumper: Prev/Next available unit
-  - Left/Right Trigger: Info/Player UI Panel
-  - [ ] Move bumpers to Caps/A? Or A/S?
-
-- [ ] Camera needs a lag follow method that's used when the cursor teleports.
-  The zero-frame jumps are really jarring. I get vertigo.
-
-- [ ] BattleSceneController - Comprehensive refactor, baby!
-  - [ ] Generally clean up around here; Mom says I have to pick up my toys.
+    Nevertheless, it's highly extensible in the sense that an Order is a set of actions and not just one discrete action.
 
 - [ ] Maps should be able to read from a serial string or probably a json object.
   This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on.
