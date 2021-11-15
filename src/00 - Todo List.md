@@ -23,7 +23,7 @@ More observations:
 - The drop animation will require at least two additional TrackCars.
 - The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
 
-- [ ] Dig into IWS and change all visible binaries to 3 frame opacity transitions.
+- [x] Dig into IWS and change all visible binaries to 3 frame opacity transitions.
   CommandMenuGUI's transition is ~incredibly~ subtle: 3 frames on a sqrt curve.
   But you still feel it.
 
@@ -32,8 +32,10 @@ More observations:
   - [x] Extract own-cursor-draw from ShopMenu
 
 Post Function:
+  I don't remember what post function means.
+- [ ] Drop Cmds use IconTitle and the held unit preview is passed in.
 - [ ] DropLocation also sets a dir value on the square so the player can see where they're dropping.
-- [ ] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
+- [x] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
 
 - [x] add cursor pos to debug ui, hide by default?
 - [x] Load Unit

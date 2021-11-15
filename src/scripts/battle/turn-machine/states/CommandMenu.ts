@@ -27,6 +27,9 @@ export class CommandMenu extends TurnState {
     placeTile.moveFlag = true;
     goalTile.moveFlag = true;
 
+    // Reposition mapCursor at relevant tile
+    mapCursor.moveTo(goal);
+
     const destOccupiable = goalTile.occupiable(actor);
     const notIndirectOrNotMoved = (!actor.isIndirect || goal.equal(place));
 

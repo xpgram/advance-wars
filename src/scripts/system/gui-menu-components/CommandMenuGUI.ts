@@ -65,7 +65,7 @@ export class CommandMenuGUI<X, Y> {
 
   /** Controls the menu's opacity. */
   private fadeInSlider = new Slider({
-    granularity: 1 / 3,
+    granularity: 1 / 2,
     shape: v => Math.sqrt(v),
   });
 
