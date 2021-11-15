@@ -7,9 +7,9 @@
   - Normal:    0 255 255
   - Caution: 255 255  80
   - Danger:  255  75  80
-  - [ ] Replace color   0   0   0 255 (black)
+  - [x] Replace color   0   0   0 255 (black)
   - [ ] Member of UnitInfo
-  - [ ] Displays two numbers: damage given as an integer, recieved as a color.
+  - [x] Displays two numbers: damage given as an integer, recieved as a color.
 
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
