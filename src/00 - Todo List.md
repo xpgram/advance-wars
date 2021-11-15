@@ -185,53 +185,29 @@ Post Function:
 - [ ] Sea looks nicer, I think, but my frame-animation skills are a teense lacking. Update it.
 - [ ] Setup unit-portraits image spritesheet.
   - [x] Unit.exhibit → Unit.infoPortrait
-  - [ ] Terrain.landscape → Terrain.infoPortrait (consistency)
+  - [ ] Terrain.landscape → Terrain.illustration (consistency)
+  - [ ] Unit.infoPortrait (or w/e) → Unit.illustration
 
-- [ ] TurnState: Start→Move→Anim→Command→Cancel→Start loses the player-drawn path
 - [ ] Clean up Window UI classes
 - [ ] Add "Unit Info" window switch-to-able with 'C' — all unit information is prepped now.
-  - [ ] Let 'C' switch the stack-order of the blurb panels; bottom is whichever detailed describes.  
-    I can't... quite remember why. I think this was to sync the blurb panel with the More Info panel; only one can show while More Info is extended and they should probably match since I don't think More Info is exhaustive.
-    - [ ] This will require adding TerrainInfo to Detailed's wipe-away mask.
 
 - [ ] Z-Ordering and UI Properties refactor  
   Currently, each UI element defines these in their class scripts—in their constructors, actually. I can confirm MenuWindow and MapCursor do. This will be messy later on.
   - [ ] Introduce one place to define z-ordering relationships between layers and layer elements, and extend that for other inter-UI properties as well, if such properties are useful.
 
 - [ ] The cursor behavior settings used by MapCursor and MenuWindow are defined separately and far away from each other, but behave similarly. This might be a good candidate for globalization.
-
-- [ ] Include CommandMenu in the turn structure.
-  - [x] Implement Waiting
-  - [x] Implement the decision branch
-  - Before the above:
-    - [x] Refactor the turn scripting system to be more... composed? Less slapped together.
-    - [x] Refactor each turn script to follow the new principles——get rid of redlines.
-    - [x] Refactor each turn script to make requests, not to evalutate algorithms.  
-      Ie, Map.getDestinationFrom(point): Point is used to confirm a path leads to a known location; the algorithm is not contained in the script.
-    - [ ] Refactor BattleSceneControllers (I remember now I didn't know what to call it)  
-      Call it CommandOrder, BattleOrder or something.
-      - [ ] order.source: Point               Typically the actor to carry out order.
-      - [ ] order.path: CardinalDirection[]   The movement path, if travelling.
-      - [ ] order.action: Number              Codified contextual action.
-      - [ ] order.focal: Point                Action's point of execution.
-      - [ ] order.which: Number               Action's variation, such as which held unit to release.
-      - Action type possible values:
-        - 0: Wait; Do Nothing
-        - 1: Attack
-        - 2: Contextual (capture/use-Silo, build (unit/T.base), cast flare, stealth)
-        - 3: Contextual 2 (release held unit, supply nearby units)
-        - How does a carrier, which may Build, Attack and Release, indicate  
-          that it wants to release its second held unit and not the first?
+- [ ] ListMenu also has similar control settings which are defined seperately. The frequency of animation pulses, the length of first held-button interval time, the frequency of held-button retrigger pulses; these should all be consistent and tweakable from one place.
 
 - [ ] MoveUnit step: if square under cursor is an attackable target, change to target reticle.
   - [x] Cursor graphic switching infrastructure
-  - [ ] Alternate cursor graphics in spritesheet
-  - [ ] Cursor graphics change logic in relevant turn-states
-  - [ ] Graphics change logic is written in MapCursor.ts, enable switches are given to turn states to configure behaviour.
-  - [ ] Cursor over base and base is uninhabited → wrench icon
+  - [ ] Add missing target reticle graphics to spritesheet
+  - [x] Cursor graphics change-logic in relevant turn-states
+  - [x] Graphics change-logic is written in MapCursor.ts, enable switches are given to turn states to configure behaviour.
+    - [ ] mapCursor.mode is defined, it's just lacking a 'target' or 'actionable' mode.
+  - [x] Cursor over base and base is uninhabited → wrench icon
   - [ ] Cursor over attackable target square → target reticle
   - [ ] TurnState == DestroyUnits → ban icon / 'X' icon
-  - [ ] Reset cursor switches to default cursor graphics
+  - [x] Reset cursor switches to default cursor graphics
 
 - [ ] Add "Choose Attack Target" step to turn structure in two steps:
   - [x] Active step:
@@ -242,4 +218,4 @@ Post Function:
     - [x] TurnState handles controls as it handles the list.
   - [ ] Passive step (during 'Move' step):
   - [ ] Use recalcPathToPoint() (whatever it's called) to adjust the unit's travel destination to the nearest position within range of the target.
-    - The source game ignores this rule if the actionable unit is a battleship and only recalcs the path on formally choosing a target, prefering not a similar path to the one drawn but the shortest path to some point within range. I can't think of a technical reason for this; it is probably just a convenience assumed for the player.
+    - The source game ignores this rule if the actionable unit is a battleship and only recalcs the path on formally choosing a target, prefering not a similar path to the one drawn but the shortest path to some point within range. I can't think of a technical reason for this; it is probably just a convenience assumed for the player since just-in-range is typically desirable for indirect units.
