@@ -3,6 +3,7 @@ import { fonts } from "./DisplayInfo";
 import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
 import { UnitObject } from "../UnitObject";
+import { DamageForecastPane } from "./DamageForecastPane";
 
 export class UnitWindow extends SlidingWindow {
 
@@ -24,6 +25,7 @@ export class UnitWindow extends SlidingWindow {
   private ammoMeterText = new PIXI.BitmapText('', fonts.scriptOutlined);
   private firstLoad = new PIXI.Graphics();
   private secondLoad = new PIXI.Graphics();
+  private damageForecast: DamageForecastPane;
 
   constructor(options: SlidingWindowOptions) {
     super(options);
@@ -79,11 +81,16 @@ export class UnitWindow extends SlidingWindow {
     });
     this.secondLoad.x = 20; this.secondLoad.y = -17;
 
+    // Damage Forecast
+    this.damageForecast = new DamageForecastPane();
+    this.damageForecast.container.position.set(0,-24);
+
     // Formal add
     this.displayContainer.addChild(background);
     this.displayContainer.addChild(this.thumbnail, this.name);
     this.displayContainer.addChild(this.hpMeter, this.gasMeter, this.ammoMeter);
     this.displayContainer.addChild(this.firstLoad, this.secondLoad);
+    this.displayContainer.addChild(this.damageForecast.container);
   }
 
   /** Sets this UI window to visible only if a unit is present to describe. */
@@ -98,6 +105,13 @@ export class UnitWindow extends SlidingWindow {
     if (this.firstLoad) {   // ← This is a dumb bandaid solution. SlidingWindow probably shouldn't call positionWindow in its constructor. The window system can handle that.
       this.firstLoad.x = (this.onLeftSide) ? 2 : 70;
       this.secondLoad.x = (this.onLeftSide) ? 21 : 51;
+    }
+
+    // Reposition damage forecast preview
+    if (this.damageForecast) {
+      this.damageForecast.container.x = (this.onLeftSide)
+        ? this.displayContainer.width - this.damageForecast.container.width
+        : 0;
     }
   }
 
@@ -145,6 +159,16 @@ export class UnitWindow extends SlidingWindow {
       this.secondLoad.addChild(img);
   }
 
+  private setDamageForecast(dmgOut: number, dmgIn: number) {
+    if (dmgOut >= 0) {
+      this.damageForecast.damage = dmgOut;
+      this.damageForecast.mode = 'caution';
+      this.damageForecast.show();
+    } else {
+      this.damageForecast.hide();
+    }
+  }
+
   /** Updates window UI elements with details from the given unit object. */
   inspectUnit(unit?: UnitObject) {
     this.unitToDisplay = Boolean(unit);
@@ -167,5 +191,7 @@ export class UnitWindow extends SlidingWindow {
     this.setSecondLoadUnit( (unit.loadedUnits.length > 1)
       ? unit.loadedUnits[1].preview
       : null);
+
+    this.setDamageForecast(26, 21);
   }
 }

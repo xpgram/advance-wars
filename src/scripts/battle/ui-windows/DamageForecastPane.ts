@@ -8,7 +8,10 @@ import { Fadable } from './Fadable';
 export class DamageForecastPane extends Fadable {
   
   /** The graphical object for this UI element. */
-  readonly container: PIXI.Sprite;
+  readonly container = new PIXI.Container();
+
+  /** The graphical window object for this UI element. */
+  private readonly window: PIXI.Sprite;
 
   /** The graphical text (damage number) displayed on this UI element. */
   private readonly damageNumber: PIXI.BitmapText;
@@ -45,7 +48,7 @@ export class DamageForecastPane extends Fadable {
     if (!Object.keys(this.colorFilters).includes(mode))
       throw new Error(`Color mode '${mode}' does not exist in filters repository.`);
     //@ts-expect-error
-    this.container.filters = [this.colorFilters[mode]];
+    this.window.filters = [this.colorFilters[mode]];
     this._mode = mode;
   }
   private _mode: 'safe' | 'normal' | 'caution' | 'danger' = 'safe';
@@ -53,8 +56,11 @@ export class DamageForecastPane extends Fadable {
   constructor() {
     super();
     const sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
-    this.container = new PIXI.Sprite(sheet.textures['damage-forecast-pane.png']);
+    this.window = new PIXI.Sprite(sheet.textures['damage-forecast-pane.png']);
     this.damageNumber = new PIXI.BitmapText('', fonts.scriptOutlined);
+    this.damageNumber.position.set(23,5);
+    this.damageNumber.anchor.set(1,0);
+    this.container.addChild(this.window, this.damageNumber);
     this.damage = 0;
     this.mode = 'safe';
   }
