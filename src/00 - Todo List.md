@@ -1,13 +1,15 @@
 # Next Big Objectives
 
- - [ ] Plasma Textures: Second frame, I believe.
+- [ ] Plasma Textures: Second frame, I believe.
 
 - [ ] Damage Forecast window
   - Safe:      0 255 115
   - Normal:    0 255 255
   - Caution: 255 255  80
   - Danger:  255  75  80
-  Replace color   0   0   0 255 (black)
+  - [ ] Replace color   0   0   0 255 (black)
+  - [ ] Member of UnitInfo
+  - [ ] Displays two numbers: damage given as an integer, recieved as a color.
 
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
