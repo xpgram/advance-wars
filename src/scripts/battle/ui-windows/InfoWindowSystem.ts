@@ -155,9 +155,9 @@ export class InfoWindowSystem {
     }, this);
   }
 
-  inspectTile(square: Square) {
+  inspectTile(square: Square, forecast?: {damage: number, counter: number}) {
     this.windows.terrainInfo.inspectTerrain(square.terrain, square.unit);
-    this.windows.unitInfo.inspectUnit(square.unit);
+    this.windows.unitInfo.inspectUnit(square.unit, forecast);
     this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
   }
 

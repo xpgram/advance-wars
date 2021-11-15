@@ -5,6 +5,7 @@ import { Slider } from "../../../Common/Slider";
 import { AnimateMoveUnit } from "./AnimateMoveUnit";
 import { Common } from "../../../CommonUtils";
 import { Pulsar } from "../../../timer/Pulsar";
+import { DamageScript } from "../../DamageScript";
 
 export class ChooseAttackTarget extends TurnState {
   get name() { return 'ChooseAttackTarget'; }
@@ -74,7 +75,15 @@ export class ChooseAttackTarget extends TurnState {
   }
 
   update() {
-    const { gamepad, mapCursor, instruction } = this.assets;
+    const { gamepad, map, mapCursor, uiSystem, players, instruction } = this.assets;
+    const { actor, seed } = this.data;
+
+    // Update UI System with damage forecast.
+    const targetTile = map.squareAt(mapCursor.pos);
+    if (targetTile.unit && targetTile.unit.faction !== players.current.faction) {
+      const damage = DamageScript.NormalAttack(map, actor, targetTile.unit, seed);
+      uiSystem.inspectTile(targetTile, damage.estimate);
+    }
 
     const { dpadUp, dpadLeft, dpadDown, dpadRight, A, B } = gamepad.button;
 

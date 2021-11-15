@@ -59,6 +59,7 @@ export class DamageScript {
         
         const attackState = new CombatState(map, attacker);
         const defenseState = new CombatState(map, defender);
+        const estimateState = new CombatState(map, defender);
 
         const LCK1 = DamageScript.Random();
         const LCK2 = DamageScript.Random();
@@ -66,11 +67,23 @@ export class DamageScript {
         const damageEst = formula(attackState, defenseState, 0);
         const damage = formula(attackState, defenseState, LCK1);
 
-        defenseState.HP = Math.max(defenseState.HP - damage, 0);
         const canCounter = defenseState.unit.canCounterAttack(attackState.unit);
+
+        estimateState.HP = Math.max(estimateState.HP - damageEst, 0);
+        const counterEst = formula(estimateState, attackState, 0) * Number(canCounter);
+        console.log(estimateState, damageEst, counterEst);
+
+        defenseState.HP = Math.max(defenseState.HP - damage, 0);
         const counter = formula(defenseState, attackState, LCK2) * Number(canCounter);
 
-        return {damage: damage, counter: counter, estimate: damageEst};
+        return {
+            damage: damage,
+            counter: counter,
+            estimate: {
+                damage: damageEst,
+                counter: counterEst
+            }
+        };
     }
 }
 

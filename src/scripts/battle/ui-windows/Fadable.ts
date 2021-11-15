@@ -9,6 +9,7 @@ export abstract class Fadable {
   transparency = new Slider({
     granularity: 1 / 3,
     track: 'min',
+    incrementFactor: -1,
   });
 
   constructor() {

@@ -86,11 +86,17 @@ export class DamageForecastPane extends Fadable {
     this.damage = 0;
     this.mode = 'safe';
     this.animPulsar.start();
+    Game.scene.ticker.add(this.update, this);
   }
 
   destroy() {
     this.container.destroy({children: true});
     this.animPulsar.destroy();
+    Game.scene.ticker.remove(this.update, this);
+  }
+
+  update() {
+    this.container.alpha = this.transparency.output;
   }
 
 }

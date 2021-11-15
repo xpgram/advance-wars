@@ -164,18 +164,29 @@ export class UnitWindow extends SlidingWindow {
       this.secondLoad.addChild(img);
   }
 
-  private setDamageForecast(dmgOut: number, dmgIn: number) {
-    if (dmgOut >= 0) {
-      this.damageForecast.damage = dmgOut;
-      this.damageForecast.mode = 'caution';
-      this.damageForecast.show();
-    } else {
+  private setDamageForecast(dmgOut?: number, dmgIn?: number) {
+    if (dmgOut === undefined || dmgIn === undefined) {
       this.damageForecast.hide();
+      return;
     }
+
+    dmgOut = Math.round(dmgOut);
+    dmgIn = Math.round(dmgIn);
+
+    this.damageForecast.damage = dmgOut;
+    this.damageForecast.mode =
+      (dmgIn < 7)
+      ? 'safe'
+      : (dmgIn < 18)
+      ? 'normal'
+      : (dmgIn < 50)
+      ? 'caution'
+      : 'danger';
+    this.damageForecast.show();
   }
 
   /** Updates window UI elements with details from the given unit object. */
-  inspectUnit(unit?: UnitObject) {
+  inspectUnit(unit?: UnitObject, forecast?: {damage: number, counter: number}) {
     this.unitToDisplay = Boolean(unit);
     this.setVisible();
 
@@ -197,6 +208,6 @@ export class UnitWindow extends SlidingWindow {
       ? unit.loadedUnits[1].preview
       : null);
 
-    this.setDamageForecast(26, 21);
+    this.setDamageForecast(forecast?.damage, forecast?.counter);
   }
 }
