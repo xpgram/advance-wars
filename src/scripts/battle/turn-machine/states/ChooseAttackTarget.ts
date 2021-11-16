@@ -31,6 +31,23 @@ export class ChooseAttackTarget extends TurnState {
     this
   )
 
+  updateDamageForecast() {
+    const { map, mapCursor, uiSystem, players } = this.assets;
+    const { actor, goal, seed } = this.data;
+
+    // TODO This still has order issues: it needs to happen *before* inspectTile() now.
+    // But... eh.
+
+    const focalTile = map.squareAt(mapCursor.pos);
+    const focalUnit = focalTile.unit;
+    if (focalUnit && focalUnit.faction !== players.current.faction) {
+      const damage = DamageScript.NormalAttack(map, actor, goal, focalUnit, seed);
+      uiSystem.battleForecast = damage.estimate;
+    } else {
+      uiSystem.battleForecast = undefined;
+    }
+  }
+
   configureScene() {
     const { map, mapCursor, uiSystem, trackCar } = this.assets;
     const { actor, goal } = this.data;
@@ -39,6 +56,9 @@ export class ChooseAttackTarget extends TurnState {
     mapCursor.disable();
     uiSystem.show();
     trackCar.show();
+
+    // Update damage forecast on cursor move
+    mapCursor.on('move', this.updateDamageForecast, this);
 
     // Build the list of possible targets
     const boundary = map.squareOfInfluence(actor);
@@ -76,14 +96,6 @@ export class ChooseAttackTarget extends TurnState {
 
   update() {
     const { gamepad, map, mapCursor, uiSystem, players, instruction } = this.assets;
-    const { actor, goal, seed } = this.data;
-
-    // Update UI System with damage forecast.
-    const targetTile = map.squareAt(mapCursor.pos);
-    if (targetTile.unit && targetTile.unit.faction !== players.current.faction) {
-      const damage = DamageScript.NormalAttack(map, actor, goal, targetTile.unit, seed);
-      uiSystem.inspectTile(targetTile, damage.estimate);
-    }
 
     const { dpadUp, dpadLeft, dpadDown, dpadRight, A, B } = gamepad.button;
 
@@ -109,7 +121,14 @@ export class ChooseAttackTarget extends TurnState {
   }
 
   close() {
+    const { map, mapCursor, uiSystem } = this.assets;
+
+    const tile = map.squareAt(mapCursor.pos);
+
     this.holdButton.stop();
+    uiSystem.battleForecast = undefined;
+    uiSystem.inspectTile(tile); // TODO On set battleForecast, uiSystem should ask UnitWindow to update forecast; skip inspect() entirely.
+    mapCursor.removeListener(this.updateDamageForecast, this);
   }
 
   prev() {

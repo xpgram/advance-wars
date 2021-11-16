@@ -2,14 +2,16 @@
 
 - [ ] Plasma Textures: Second frame, I believe.
 
-- [ ] Damage Forecast window
-  - Safe:      0 255 115
-  - Normal:    0 255 255
-  - Caution: 255 255  80
-  - Danger:  255  75  80
-  - [x] Replace color   0   0   0 255 (black)
-  - [ ] Member of UnitInfo
-  - [x] Displays two numbers: damage given as an integer, recieved as a color.
+- [ ] Camera
+  - [ ] Maximum speed: one tile per frame.
+  - [ ] Pick points toward target to move to, interpolate.
+  - [ ] Build this into the turnstate engine? It's reeaally common and asking every individual step to wait for camera placement seems like a lot of writing. But it also seems like a limitation I'd be building into the engine.
+
+- [x] Damage Forecast window
+  - [x] Impl.
+  - [x] Adds its update step to cursor.on('move')
+  - [x] On turnstate close, removes that update step, hides the elem.
+ -[ ] Refactor access to UnitWindow.updateDamageForecast to skip inspectTile()
 
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.

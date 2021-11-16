@@ -4,6 +4,11 @@ import { Map } from "./map/Map";
 import { Square } from "./map/Square";
 import { Point } from "../Common/Point";
 
+export type BattleForecast = {
+    damage: number,
+    counter: number,
+}
+
 /**
  * 
  */

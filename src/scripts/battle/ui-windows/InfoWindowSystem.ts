@@ -13,6 +13,7 @@ import { Slider } from "../../Common/Slider";
 import { UnitClass } from "../EnumTypes";
 import { StringDictionary } from "../../CommonTypes";
 import { TurnModerator } from "../TurnModerator";
+import { BattleForecast } from "../DamageScript";
 
 type InfoWindowSystemSettings = {
   gamepad: VirtualGamepad,
@@ -52,6 +53,8 @@ export class InfoWindowSystem {
   camera: Camera;
   map: Map;
   players: TurnModerator;
+
+  battleForecast?: BattleForecast;
 
   commandersSlider = new Slider({
     granularity: 0.2,
@@ -155,9 +158,9 @@ export class InfoWindowSystem {
     }, this);
   }
 
-  inspectTile(square: Square, forecast?: {damage: number, counter: number}) {
+  inspectTile(square: Square) {
     this.windows.terrainInfo.inspectTerrain(square.terrain, square.unit);
-    this.windows.unitInfo.inspectUnit(square.unit, forecast);
+    this.windows.unitInfo.inspectUnit(square.unit, this.battleForecast);
     this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
   }
 
