@@ -9,7 +9,7 @@ import { ShopItemTitle } from "./ListMenuTitleTypes";
 
 const { HSV } = Color;
 
-export class UnitShopMenuGUI<Y> extends CommandMenuGUI<ShopItemTitle, Y> {
+export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
 
   readonly listItemProps = new BoxContainerProperties({
     minWidth: 16*7,

@@ -55,6 +55,8 @@ export class CommandMenu extends TurnState {
       return;
     }
 
+    const nullSprite = new PIXI.Sprite()
+
     // Get commands
     const commands = (destOccupiable)
       ? Object.values(Command)
@@ -62,9 +64,18 @@ export class CommandMenu extends TurnState {
         .sort( (a,b) => a.weight - b.weight )
       : [Command.Join, Command.Load];
     const options = commands.map( command =>
-      new ListMenuOption(command.name, command, {
-        triggerInclude: () => command.triggerInclude(),
-      })
+      new ListMenuOption(
+        {
+          // This is bad, but it's fine-bad.
+          icon: (command.name === 'Drop' && command.input >= 0)
+            ? actor.loadedUnits[command.input].preview
+            : nullSprite,
+          title: command.name
+        },
+        command, {
+          triggerInclude: () => command.triggerInclude(),
+        }
+      )
     );
 
     // Set and build cmdMenu options

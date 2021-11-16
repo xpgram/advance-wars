@@ -104,9 +104,9 @@ export class BattleSceneControllers {
   map: Map;
   mapCursor: MapCursor;
   uiSystem: InfoWindowSystem;
-  cmdMenu: CommandMenuGUI<string, CommandObject<number>>;
-  shopMenu: UnitShopMenuGUI<ShopItemTitle, number>;
-  fieldMenu: CommandMenuGUI<string, number>;
+  cmdMenu: CommandMenuGUI<CommandObject<number>>;
+  shopMenu: UnitShopMenuGUI<number>;
+  fieldMenu: CommandMenuGUI<number>;
 
   trackCar: TrackCar;
 

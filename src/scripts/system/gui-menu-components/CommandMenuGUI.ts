@@ -5,6 +5,7 @@ import { Slider } from "../../Common/Slider";
 import { Color } from "../../CommonUtils";
 import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
+import { IconTitle } from "./ListMenuTitleTypes";
 import { MenuCursor } from "./MenuCursor";
 
 // This is 'done' but I'm scared.
@@ -16,7 +17,7 @@ const { HSV } = Color;
  * Basic menu component. Can or should be overridden to 
  * implement new visual styles.
  * */
-export class CommandMenuGUI<X, Y> {
+export class CommandMenuGUI<Y> {
 
   static readonly CursorSettings = {
     animFrames: 3,
@@ -70,14 +71,14 @@ export class CommandMenuGUI<X, Y> {
   });
 
   /** Reference to the menu object which controls this GUI. */
-  readonly menu: ListMenu<X, Y>;
+  readonly menu: ListMenu<IconTitle, Y>;
 
   /** The top-level graphical object for this GUI menu. */
   protected readonly gui = new PIXI.Container();
   protected readonly menuGui = new PIXI.Container();
 
 
-  constructor(menu: ListMenu<X, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties}) {
+  constructor(menu: ListMenu<IconTitle, Y>, container: PIXI.Container, options?: {listItemProps?: BoxContainerProperties}) {
 
     this.menu = menu;
     this.menu.on('move-cursor', this.onCursorMove, this);
@@ -126,7 +127,7 @@ export class CommandMenuGUI<X, Y> {
   }
 
   /** Sets a new list of menu options, and rebuilds the GUI's graphics. */
-  setListItems(li: ListMenuOption<X,Y>[]) {
+  setListItems(li: ListMenuOption<IconTitle,Y>[]) {
     this.menu.setListItems(li);
     this.buildTextures();
     this.buildListItems();
@@ -159,10 +160,11 @@ export class CommandMenuGUI<X, Y> {
       return this.listItemProps.minWidth;
 
     const text = new PIXI.BitmapText('', fonts.menu);
-    const sizes = listItems.map( i => {
-      const iter = Array.isArray(i.key) ? i.key : [i.key];
-      text.text = iter.join(' ');
-      return text.textWidth;
+    const sizes = listItems.map( item => {
+      const { icon, title } = item.key;
+      text.text = title;
+      const iconWidth = (icon.width > 0) ? icon.width + 2 : 0;
+      return text.textWidth + iconWidth;
     });
     return Math.max(...sizes);
   }
@@ -218,7 +220,7 @@ export class CommandMenuGUI<X, Y> {
 
   /** Builds the list of list-item graphics objects. */
   buildListItems() {
-    const { menu, stateTextures, listItemProps: props } = this;
+    const { menu, listItemProps: props } = this;
 
     const content = props.contentBox();
     const element = props.containerBox();
@@ -235,12 +237,15 @@ export class CommandMenuGUI<X, Y> {
 
       // Build text
       const { key } = item;
-      const title = new PIXI.BitmapText(key, fonts.menu);
-      title.position.set(content.x + content.width*.5, content.y + 1);
-      title.anchor.set(.5, 0);
+      const { icon, title } = key;
+      icon.position.set(content.x, 0);
+      const gText = new PIXI.BitmapText(title, fonts.menu);
+      const iconWidth = (icon.width > 0) ? icon.width + 2 : 0;
+      gText.position.set(content.x + iconWidth + (content.width - iconWidth)*.5, content.y + 1);
+      gText.anchor.set(.5, 0);
 
       // Combine
-      spr.addChild(title);
+      spr.addChild(icon, gText);
       this.menuGui.addChild(spr);
     });
   }
