@@ -2,11 +2,6 @@
 
 - [ ] Plasma Textures: Second frame, I believe.
 
-- [ ] Camera
-  - [ ] Maximum speed: one tile per frame.
-  - [ ] Pick points toward target to move to, interpolate.
-  - [ ] Build this into the turnstate engine? It's reeaally common and asking every individual step to wait for camera placement seems like a lot of writing. But it also seems like a limitation I'd be building into the engine.
-
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
   - This of course means units that load must also spend because otherwise Carriers would be second-turn bounce points.
