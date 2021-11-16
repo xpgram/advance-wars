@@ -7,12 +7,6 @@
   - [ ] Pick points toward target to move to, interpolate.
   - [ ] Build this into the turnstate engine? It's reeaally common and asking every individual step to wait for camera placement seems like a lot of writing. But it also seems like a limitation I'd be building into the engine.
 
-- [x] Damage Forecast window
-  - [x] Impl.
-  - [x] Adds its update step to cursor.on('move')
-  - [x] On turnstate close, removes that update step, hides the elem.
- -[ ] Refactor access to UnitWindow.updateDamageForecast to skip inspectTile()
-
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
   - This of course means units that load must also spend because otherwise Carriers would be second-turn bounce points.
