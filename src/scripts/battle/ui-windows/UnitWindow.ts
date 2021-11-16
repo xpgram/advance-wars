@@ -164,7 +164,7 @@ export class UnitWindow extends SlidingWindow {
       this.secondLoad.addChild(img);
   }
 
-  private setDamageForecast(dmgOut?: number, dmgIn?: number) {
+  setDamageForecast(dmgOut?: number, dmgIn?: number) {
     if (dmgOut === undefined || dmgIn === undefined) {
       this.damageForecast.hide();
       return;
@@ -207,7 +207,5 @@ export class UnitWindow extends SlidingWindow {
     this.setSecondLoadUnit( (unit.loadedUnits.length > 1)
       ? unit.loadedUnits[1].preview
       : null);
-
-    this.setDamageForecast(forecast?.damage, forecast?.counter);
   }
 }

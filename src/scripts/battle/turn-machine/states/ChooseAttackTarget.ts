@@ -123,11 +123,8 @@ export class ChooseAttackTarget extends TurnState {
   close() {
     const { map, mapCursor, uiSystem } = this.assets;
 
-    const tile = map.squareAt(mapCursor.pos);
-
     this.holdButton.stop();
     uiSystem.battleForecast = undefined;
-    uiSystem.inspectTile(tile); // TODO On set battleForecast, uiSystem should ask UnitWindow to update forecast; skip inspect() entirely.
     mapCursor.removeListener(this.updateDamageForecast, this);
   }
 

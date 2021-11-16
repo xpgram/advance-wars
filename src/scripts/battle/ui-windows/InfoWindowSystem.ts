@@ -54,7 +54,13 @@ export class InfoWindowSystem {
   map: Map;
   players: TurnModerator;
 
-  battleForecast?: BattleForecast;
+  /**  */
+  get battleForecast() { return this._battleForecast; }
+  set battleForecast(b) {
+    this._battleForecast = b;
+    this.windows.unitInfo.setDamageForecast(b?.damage, b?.counter);
+  }
+  private _battleForecast?: BattleForecast;
 
   commandersSlider = new Slider({
     granularity: 0.2,
@@ -160,7 +166,7 @@ export class InfoWindowSystem {
 
   inspectTile(square: Square) {
     this.windows.terrainInfo.inspectTerrain(square.terrain, square.unit);
-    this.windows.unitInfo.inspectUnit(square.unit, this.battleForecast);
+    this.windows.unitInfo.inspectUnit(square.unit);
     this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
   }
 
