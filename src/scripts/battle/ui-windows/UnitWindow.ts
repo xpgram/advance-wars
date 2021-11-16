@@ -175,11 +175,11 @@ export class UnitWindow extends SlidingWindow {
 
     this.damageForecast.damage = dmgOut;
     this.damageForecast.mode =
-      (dmgIn < 8)
+      (dmgIn < 10)
       ? 'safe'
-      : (dmgIn < 16)
+      : (dmgIn < 20)
       ? 'normal'
-      : (dmgIn < 40)
+      : (dmgIn < 50)
       ? 'caution'
       : 'danger';
     this.damageForecast.show();
