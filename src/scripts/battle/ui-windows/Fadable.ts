@@ -6,6 +6,8 @@ import { Slider } from "../../Common/Slider";
  */
 export abstract class Fadable {
 
+  abstract container: PIXI.Container;
+
   transparency = new Slider({
     granularity: 1 / 3,
     track: 'min',
@@ -22,6 +24,7 @@ export abstract class Fadable {
 
   protected updateTransparency() {
     this.transparency.increment();
+    this.container.alpha = this.transparency.output;
   }
 
   show() {
