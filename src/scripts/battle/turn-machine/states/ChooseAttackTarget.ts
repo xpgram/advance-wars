@@ -76,12 +76,12 @@ export class ChooseAttackTarget extends TurnState {
 
   update() {
     const { gamepad, map, mapCursor, uiSystem, players, instruction } = this.assets;
-    const { actor, seed } = this.data;
+    const { actor, goal, seed } = this.data;
 
     // Update UI System with damage forecast.
     const targetTile = map.squareAt(mapCursor.pos);
     if (targetTile.unit && targetTile.unit.faction !== players.current.faction) {
-      const damage = DamageScript.NormalAttack(map, actor, targetTile.unit, seed);
+      const damage = DamageScript.NormalAttack(map, actor, goal, targetTile.unit, seed);
       uiSystem.inspectTile(targetTile, damage.estimate);
     }
 

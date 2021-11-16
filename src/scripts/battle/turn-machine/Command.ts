@@ -118,7 +118,7 @@ export module Command {
       Command.Move.ratify();
 
       const { map } = data.assets;
-      const { seed, actor, target } = data;
+      const { seed, actor, goal, target } = data;
       const toRemove: UnitObject[] = [];
 
       function damageApply(attacker: UnitObject, defender: UnitObject, damage: number) {
@@ -131,7 +131,7 @@ export module Command {
           toRemove.push(defender);
       }
 
-      const battleResults = DamageScript.NormalAttack(map, actor, target, seed);
+      const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);
       damageApply(actor, target, battleResults.damage);
       damageApply(target, actor, battleResults.counter);
 

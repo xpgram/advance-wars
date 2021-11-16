@@ -722,10 +722,10 @@ export abstract class UnitObject {
     /** Returns true if this unit is capable of counter-attacking aggressors.
      * Counter-attacks are only valid against adjacent units; it is recommended to move
      * the aggressor's board location before calling this method. */
-    canCounterAttack(unit: UnitObject) {
+    canCounterAttack(unit: UnitObject, position: Point) {
         const targetable = this.canTarget(unit);
         const inRange = (this.range.min == 1);
-        const distance = new Point(this.boardLocation).manhattanDistance(unit.boardLocation);
+        const distance = new Point(this.boardLocation).manhattanDistance(position);
         const adjacent = (distance == 1);
         return targetable && inRange && adjacent;
     }

@@ -2,6 +2,7 @@ import { UnitObject } from "./UnitObject";
 import { Debug } from "../DebugUtils";
 import { Map } from "./map/Map";
 import { Square } from "./map/Square";
+import { Point } from "../Common/Point";
 
 /**
  * 
@@ -53,7 +54,7 @@ export class DamageScript {
     }
     
     /**  */
-    static NormalAttack(map: Map, attacker: UnitObject, defender: UnitObject, seed: number) {
+    static NormalAttack(map: Map, attacker: UnitObject, from: Point, defender: UnitObject, seed: number) {
         DamageScript.SetSeed(seed);
         const formula = DamageScript.NormalAttackFormula;
         
@@ -67,11 +68,10 @@ export class DamageScript {
         const damageEst = formula(attackState, defenseState, 0);
         const damage = formula(attackState, defenseState, LCK1);
 
-        const canCounter = defenseState.unit.canCounterAttack(attackState.unit);
+        const canCounter = defenseState.unit.canCounterAttack(attackState.unit, from);
 
         estimateState.HP = Math.max(estimateState.HP - damageEst, 0);
         const counterEst = formula(estimateState, attackState, 0) * Number(canCounter);
-        console.log(estimateState, damageEst, counterEst);
 
         defenseState.HP = Math.max(defenseState.HP - damage, 0);
         const counter = formula(defenseState, attackState, LCK2) * Number(canCounter);
