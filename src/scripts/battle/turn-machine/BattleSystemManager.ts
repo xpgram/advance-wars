@@ -82,6 +82,11 @@ export class BattleSystemManager {
     /** Turn Machine's update step which runs the current state's update step and handles
      * transition requests. */
     private update() {
+        // Wait for the camera before doing anything.
+        // TODO I'm concerned this awkward step insertion breaks things.
+        if (!this.controllers.camera.subjectInView)
+            return;
+
         try {
             if (this.transitionIntent == TransitionTo.None
                 || this.transitionIntent == TransitionTo.NoneFromRegress)

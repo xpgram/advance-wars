@@ -3,6 +3,7 @@ import { LowResTransform } from "./LowResTransform";
 import { TransformContainer } from "./CommonTypes";
 import { Game } from "..";
 import { Point } from "./Common/Point";
+import { Common } from "./CommonUtils";
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
@@ -179,6 +180,15 @@ export class Camera {
         }
         return focal;
     }
+
+    /** True if the camera's focal point is inside the view bounds. */
+    get subjectInView(): boolean {
+        const focal = this.getFocalPoint();
+        const rect = this.frameRect;
+        const hor = focal.x >= rect.x && focal.x <= rect.x + rect.width;
+        const ver = focal.y >= rect.y && focal.y <= rect.y + rect.height;
+        return hor && ver;
+    }
     
     /** If camera has a follow target, it will move to keep that target in view. */
     private update() {
@@ -199,6 +209,7 @@ function borderedScreenPush(camera: Camera) {
     // TODO Softcode these somewhere, or at least meaningfully hardcode them.
     let border = 32;
     let tileSize = 16;
+    let maxDist = tileSize * .5;
 
     // TODO This is obviously broken implementation.
     //@ts-ignore
@@ -240,6 +251,9 @@ function borderedScreenPush(camera: Camera) {
         moveDist.y = focal.y - bottom;
     else if (focal.y < top)
         moveDist.y = focal.y - top;
+
+    moveDist.x = Common.clamp(moveDist.x, -maxDist, maxDist);
+    moveDist.y = Common.clamp(moveDist.y, -maxDist, maxDist);
 
     // Move the frame.
     camera.x += moveDist.x;
