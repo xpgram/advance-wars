@@ -115,8 +115,8 @@ export class UnitWindow extends SlidingWindow {
     // Reposition damage forecast preview
     if (this.damageForecast) {
       this.damageForecast.container.x = (this.onLeftSide)
-        ? this.displayContainer.width - this.damageForecast.container.width
-        : 0;
+        ? this.displayContainer.width - this.damageForecast.container.width - 2
+        : 2;
     }
   }
 
@@ -186,7 +186,7 @@ export class UnitWindow extends SlidingWindow {
   }
 
   /** Updates window UI elements with details from the given unit object. */
-  inspectUnit(unit?: UnitObject, forecast?: {damage: number, counter: number}) {
+  inspectUnit(unit?: UnitObject) {
     this.unitToDisplay = Boolean(unit);
     this.setVisible();
 
