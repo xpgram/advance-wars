@@ -900,7 +900,7 @@ export const Unit = {
         get vision() { return 5; }
 
         boardable(unit?: UnitObject): boolean {
-            const max = 1;
+            const max = 2;
             const full = (this._loadedUnits.length >= max);
             const generally = (!unit);
             const copterTypes = [Unit.BCopter, Unit.TCopter] as (UnitType | undefined)[];
