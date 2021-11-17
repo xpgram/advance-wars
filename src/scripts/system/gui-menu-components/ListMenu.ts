@@ -126,7 +126,9 @@ export class ListMenu<X, Y> extends Observable {
     const frameDir = gamepad.axis.dpad.framePoint;
     const maskFunc = (n: number) => Math.ceil(Math.abs(n));
     const mask = new Point(maskFunc(frameDir.x), maskFunc(frameDir.y));
+
     if (mask.equal(Point.Origin)) mask.set(1,1);
+    else this.movementPulsar.reset();
 
     const dir = {
       x: gamepad.axis.dpad.point.x * mask.x,
