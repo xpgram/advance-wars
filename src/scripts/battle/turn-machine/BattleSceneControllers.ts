@@ -151,7 +151,7 @@ export class BattleSceneControllers {
       const boardPlayer = new BoardPlayer({
         playerNumber: i,
         faction: [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][i],
-        officerSerial: -2,
+        officerSerial: i+1,   // TODO Set CO serial
         map: this.map,
         scenario: this.scenario,
         capturePoints: mapLandsEnd.owners
