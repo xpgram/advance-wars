@@ -7,6 +7,7 @@ export const CommandingOfficer = {
     static readonly serial = -2;
 
     readonly name = 'Void';
+    readonly allegiance = 'None';
   },
 
   None: class NoneCO extends CommandingOfficerObject {
@@ -14,6 +15,7 @@ export const CommandingOfficer = {
     static readonly serial = 0;
 
     readonly name = 'None';
+    readonly allegiance = 'None';
   },
 
   Will: class WillCO extends CommandingOfficerObject {
@@ -21,6 +23,7 @@ export const CommandingOfficer = {
     static readonly serial = 1;
 
     readonly name = 'Will';
+    readonly allegiance = '13th Battalion';
   },
 
   Brenner: class BrennerCO extends CommandingOfficerObject {
@@ -28,6 +31,7 @@ export const CommandingOfficer = {
     static readonly serial = 2;
 
     readonly name = 'Brenner';
+    readonly allegiance = '13th Battalion';
   },
 
   Lin: class LinCO extends CommandingOfficerObject {
@@ -35,6 +39,7 @@ export const CommandingOfficer = {
     static readonly serial = 3;
 
     readonly name = 'Lin';
+    readonly allegiance = '13th Battalion';
   },
 
   Isabella: class IsabellaCO extends CommandingOfficerObject {
@@ -42,5 +47,10 @@ export const CommandingOfficer = {
     static readonly serial = 4;
 
     readonly name = 'Isabella';
+    readonly allegiance = '13th Battalion';
   },
+
+  // readonly allegiance = 'Lazuria';
+  // readonly allegiance = 'New Rubinelle';
+  // readonly allegiance = 'IDS';
 }

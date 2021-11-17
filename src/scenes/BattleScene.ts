@@ -1,17 +1,7 @@
 import { Scene } from "./Scene";
-import { Map } from "../scripts/battle/map/Map";
 import { Game } from "..";
-import { Camera } from "../scripts/Camera";
-import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
-import { MapCursor } from "../scripts/battle/map/MapCursor";
 import { MapLayer } from "../scripts/battle/map/MapLayers";
-import { InfoWindowSystem } from "../scripts/battle/ui-windows/InfoWindowSystem";
-import { Unit } from "../scripts/battle/Unit";
 import { UnitObject } from "../scripts/battle/UnitObject";
-import { Slider } from "../scripts/Common/Slider";
-import { Debug } from "../scripts/DebugUtils";
-import { TrackCar } from "../scripts/battle/TrackCar";
-import { CardinalDirection } from "../scripts/Common/CardinalDirection";
 import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSceneControllers";
 import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystemManager";
 import { updateUniforms } from "../scripts/filters/TileSpotlight";

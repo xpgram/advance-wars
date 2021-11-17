@@ -16,7 +16,7 @@ export class COWindow extends SlidingWindow {
     private powerMeter1Fill = new PIXI.TilingSprite( this.sheet.textures['power-meter-full.png'], 0, 4 );
     private powerMeter2 = new PIXI.Sprite( this.sheet.textures['power-meter.png'] );
     private powerMeter2Fill = new PIXI.TilingSprite( this.sheet.textures['power-meter-full.png'], 0, 4 );
-    private insignia = new PIXI.Sprite( this.sheet.textures['insignia-13th-battalion.png']);
+    private insignia: PIXI.Sprite;
     private cityIcon = new PIXI.Sprite( this.sheet.textures['icon-building-large.png']);
     private funds = new PIXI.Sprite( this.sheet.textures['icon-funds.png']);
     private fundsText = new PIXI.BitmapText('', fonts.scriptOutlined);
@@ -43,10 +43,10 @@ export class COWindow extends SlidingWindow {
         const palettes = [
             colorPalette(0xBAB2BA, 0x8A828A),
             colorPalette(0xBAB2BA, 0x8A828A),
-            colorPalette(0x943142, 0xFFCCCC),
-            colorPalette(0x294A9C, 0xCCCCFF),
-            colorPalette(0x736321, 0xEEDDAA),
-            colorPalette(0x4A424A, 0xCCCCCC),
+            colorPalette(0x943142, 0xEEAAAA),
+            colorPalette(0x294A9C, 0xAAAAEE),
+            colorPalette(0x736321, 0xDDCC88),
+            colorPalette(0x4A424A, 0xAAAAAA),
         ]
 
         let background = RectBuilder({
@@ -66,14 +66,16 @@ export class COWindow extends SlidingWindow {
         // CO Image
         this.commanderImage = function () {
             const g = new PIXI.Graphics();
-            g.beginFill(0xFFFFFF);
-            g.drawRect(0,0,46,14);
+            const { width, height } = player.officer.eyeshot;
+            g.beginFill(palettes[faction].whiteTint, .50);
+            g.drawRect(2,0,width-2,height);
+            g.beginFill(palettes[faction].whiteTint, .25);
+            g.drawRect(1,0,1,height);
             g.endFill();
             g.addChild(player.officer.eyeshot);
             return g;
         }();
         this.commanderImage.x = 40; this.commanderImage.y = 1;
-        // TODO Pick the CO image
 
         // CO Power Meter, Leftmost
         this.powerMeter1.x = 42; this.powerMeter1.y = 16;
@@ -85,13 +87,15 @@ export class COWindow extends SlidingWindow {
         this.powerMeter2Fill.x = 21;
 
         // Insignia
+        this.insignia = player.officer.insignia;
         this.insignia.x = 4; this.insignia.y = 1;
         this.insignia.tint = palettes[faction].whiteTint;
-        // TODO Pick Insignia via player.CO
+        this.insignia.alpha = .8;
 
         // City Icon
         this.cityIcon.x = 4; this.cityIcon.y = 16;
         this.cityIcon.tint = palettes[faction].whiteTint;
+        this.cityIcon.alpha = .8;
 
         // Funds
         this.funds.x = 22; this.funds.y = 21;
