@@ -40,7 +40,7 @@ export class FactoryMenu extends TurnState {
     menu.resetCursor();   // Only because there is no separation between the different base types.
     shopMenu.show();
     shopMenu.gui.position.set(
-      (mapCursor.transform.x > camera.center.x - 16) ? 16 : camera.width - 16 - shopMenu.gui.width,
+      (mapCursor.transform.x > camera.center.x - 16) ? 16 : Game.display.renderWidth - 16 - shopMenu.gui.width,
       40,
     );
 
