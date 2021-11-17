@@ -292,7 +292,7 @@ export module Command {
         .map( d => d.which )
         .includes( this.input );
       const oneEmptySpace = neighbors.orthogonals
-          .some( tile => tile.occupiable(unit) );
+          .some( tile => tile.occupiable(unit) || tile.unit === actor );
       return !alreadyDropped && oneEmptySpace;
     },
     ratify() {
