@@ -83,7 +83,7 @@ export class BoardPlayer {
     this.scenario = options.scenario;
     this.playerNumber = options.playerNumber;
     this.faction = options.faction;
-    this.powerMeter = new Slider({max: 128}); // TODO COWindow uses 0-12, so convert or refactor.
+    this.powerMeter = new Slider({max: 50*12, granularity: 1}); // 1 of 12 segments every 50 HP.
     this.funds = options.funds || 0;
 
     // Validate player number.
@@ -252,8 +252,28 @@ export class BoardPlayer {
     this.funds = Math.max(this.funds, 0);
   }
 
-  /**  */
-  increasePowerMeter(amt: number) {
-    // TODO Formula?
+  /** Increases this player's power meter by an amount proportional to
+   * damage dealt. Not implemented here, but this is damage dealt by
+   * an allied unit within the CO Zone. This may be attack or counter-
+   * attack damage. */
+  increasePowerMeter(damage: number) {
+    this.powerMeter.increment(damage);
+  }
+
+  /** Resets the player's CO power to 0. */
+  resetPowerMeter() {
+    this.powerMeter.track = 'min';
+  }
+
+  /** Returns a number 0 through 12 indicating how many visual meter
+   * segments are filled by this player's stored CO power. */
+  get powerMeterSegments() {
+    return Math.floor(this.powerMeter.output / 50);
+  }
+
+  /** Returns a number 0, 1 or 2 indicating which degree of CO power
+   * stored up this player has. */
+  get powerMeterLevel() {
+    return Math.floor(this.powerMeter.output / 50 / 6);
   }
 }

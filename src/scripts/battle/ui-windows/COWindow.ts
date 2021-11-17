@@ -119,8 +119,6 @@ export class COWindow extends SlidingWindow {
     }
 
     setPowerMeterValue(value: number) {
-        const uiValue = Math.floor(value / this.player.powerMeter.max) * 12;
-
         const valueToWidth = (v: number) => {
             v *= 3;     // Convert to pixels
             v += 2;     // Accomodate borders
@@ -128,8 +126,8 @@ export class COWindow extends SlidingWindow {
             return v;
         }
 
-        const v1 = Common.confine(uiValue, 0, 6);
-        const v2 = Common.confine(uiValue - 6, 0, 6);
+        const v1 = Common.clamp(value, 0, 6);
+        const v2 = Common.clamp(value - 6, 0, 6);
         
         this.powerMeter2Fill.width = valueToWidth(v1);
         this.powerMeter1Fill.width = valueToWidth(v2);
@@ -149,7 +147,7 @@ export class COWindow extends SlidingWindow {
 
     inspectKnownPlayer() {
         // using known BoardPlayer, get stuff
-        this.setPowerMeterValue(this.player.powerMeter.output);
+        this.setPowerMeterValue(this.player.powerMeterSegments);
         this.setFundsValue(this.player.funds);
         this.setArmyCountValue(this.player.units.length);
         this.setCityCountValue(this.player.propertyCount);

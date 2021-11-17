@@ -17,8 +17,6 @@ export class AnimateDropUnit extends TurnState {
 
     trackCar.show();
 
-    console.log('anim drops');
-
     // Setup drop trackCar animations
     this.dropCars = drop.map( d => {
       const unit = actor.loadedUnits[d.which];

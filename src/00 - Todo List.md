@@ -1,5 +1,10 @@
 # Next Big Objectives
 
+- [ ] COAffectedFlag needs to be open to multiple players.
+  Naturally, because you should be able to see your opponent's ranges.
+  - [ ] COAffected overlays should be color tinted then, huh.
+  - [ ] Instead of tints, why not use a (non-obnoxious) variant of the area-target reticle that Silos and Battleships use?
+
 - [ ] Supply animations
   - [ ] TileMessage class which displays a message, oscillates up and down, then fades away after a set time.
   - [ ] Anim step sets cursor to tile pos; this moves the camera

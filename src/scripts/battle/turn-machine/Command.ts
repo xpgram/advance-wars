@@ -127,6 +127,8 @@ export module Command {
         defender.hp -= damage;
         if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
           attacker.ammo -= 1;
+        if (map.squareAt(attacker.boardLocation).COAffectedFlag)
+          attacker.boardPlayer.increasePowerMeter(damage);
         if (defender.hp === 0)
           toRemove.push(defender);
       }
