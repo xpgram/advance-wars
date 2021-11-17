@@ -55,8 +55,6 @@ export class CommandMenu extends TurnState {
       return;
     }
 
-    const nullSprite = new PIXI.Sprite()
-
     // Get commands
     const commands = (destOccupiable)
       ? Object.values(Command)
@@ -69,7 +67,7 @@ export class CommandMenu extends TurnState {
           // This is bad, but it's fine-bad.
           icon: (command.name === 'Drop' && command.input >= 0)
             ? actor.loadedUnits[command.input].preview
-            : nullSprite,
+            : undefined,
           title: command.name
         },
         command, {

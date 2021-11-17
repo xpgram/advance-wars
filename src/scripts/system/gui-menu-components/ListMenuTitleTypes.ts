@@ -8,6 +8,6 @@ export type ShopItemTitle = {
 
 /** A list-item title which features a sprite and a string. */
 export type IconTitle = {
-  icon: PIXI.Sprite,
+  icon?: PIXI.Sprite,
   title: string,
 }

@@ -163,7 +163,7 @@ export class CommandMenuGUI<Y> {
     const sizes = listItems.map( item => {
       const { icon, title } = item.key;
       text.text = title;
-      const iconWidth = (icon.width > 0) ? icon.width + 2 : 0;
+      const iconWidth = (icon && icon.width > 0) ? icon.width + 2 : 0;
       return text.textWidth + iconWidth;
     });
     return Math.max(...sizes);
@@ -238,14 +238,15 @@ export class CommandMenuGUI<Y> {
       // Build text
       const { key } = item;
       const { icon, title } = key;
-      icon.position.set(content.x, 0);
+      if (icon) icon.position.set(content.x, 0);
       const gText = new PIXI.BitmapText(title, fonts.menu);
-      const iconWidth = (icon.width > 0) ? icon.width + 2 : 0;
+      const iconWidth = (icon) ? icon.width + 2 : 0;
       gText.position.set(content.x + iconWidth + (content.width - iconWidth)*.5, content.y + 1);
       gText.anchor.set(.5, 0);
 
       // Combine
-      spr.addChild(icon, gText);
+      if (icon) spr.addChild(icon);
+      spr.addChild(gText);
       this.menuGui.addChild(spr);
     });
   }

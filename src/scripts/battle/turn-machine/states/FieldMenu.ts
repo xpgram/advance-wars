@@ -11,17 +11,15 @@ export class FieldMenu extends TurnState {
   configureScene() {
     const { fieldMenu, camera } = this.assets;
 
-    const nullSprite = new PIXI.Sprite();
-
     // TODO Instead of an enum, value could easily be the state to advance to.
     fieldMenu.setListItems([
-      new ListMenuOption({icon: nullSprite, title: 'Commanders'}, 1, {
+      new ListMenuOption({title: 'Commanders'}, 1, {
         triggerDisable: () => true,
       }),
-      new ListMenuOption({icon: nullSprite, title: 'Options'}, 1, {
+      new ListMenuOption({title: 'Options'}, 1, {
         triggerDisable: () => true,
       }),
-      new ListMenuOption({icon: nullSprite, title: 'End Turn'}, 9),
+      new ListMenuOption({title: 'End Turn'}, 9),
     ]);
     fieldMenu.menu.resetCursor();
     
