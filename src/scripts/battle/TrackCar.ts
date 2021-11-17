@@ -84,12 +84,12 @@ export class TrackCar {
     }
 
     /**  */
-    buildNewAnimation(unit: UnitObject) {
+    buildNewAnimation(unit: UnitObject, start?: Point) {
         let runningInterval = 6.25; // Frames-per-texture-update for foot-soldiers.
         let vehicleInterval = 4;    // The same for vehicle units.
 
         // Compile new animation details
-        this.startPoint = new Point(unit.boardLocation);
+        this.startPoint = (start) ? start : unit.boardLocation;
         this.directions = [];
         this.leftFacing = unit.reverseFacing;
         this.movementSpriteSet = unit.movementAnimations;

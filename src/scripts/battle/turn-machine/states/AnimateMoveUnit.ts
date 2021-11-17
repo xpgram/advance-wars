@@ -1,5 +1,5 @@
 import { TurnState } from "../TurnState";
-import { AnimateBattle } from "./AnimateBattle";
+import { AnimateDropUnit } from "./AnimateDropUnit";
 
 export class AnimateMoveUnit extends TurnState {
   get name() { return 'AnimateMoveUnit'; }
@@ -26,7 +26,7 @@ export class AnimateMoveUnit extends TurnState {
   update() {
     const { trackCar } = this.assets;
     if (trackCar.finished)
-      this.advanceToState(AnimateBattle);
+      this.advanceToState(AnimateDropUnit);
   }
 
   prev() {
