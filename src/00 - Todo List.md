@@ -8,7 +8,8 @@ More observations:
 - Advancing to Launch behaves exactly like you had just picked that air unit directly off the map, as if the Carrier weren't even there. It implants the air unit as the object and proceeds through the turn system from MoveUnit as normal. Actually... I don't think my animation system has an equivalent for this. Place is used to grab the Carrier, and always the Carrier. Hm.
 - More on that, regressing from Launch returns to OrderStart. My system would have to advance to OrderStart, skipping ratify and such. I'll have to experiment with what I'd rather have happen: going back one stage makes intuitive sense and that's how my system is built anyway, but truthfully, if one launched a unit and then changed their mind, it probably wasn't to pick *the other unit*. Going back to the map might be a worthwhile convenience.
 - Launch, further further, does not spend the Carrier. It can Launch both held units. 'Wait,' 'Attack' and 'Build,' of course, prevent any more Launches.
-- Dropping TCopters, it's impossible to know which is which. Can I fix this in mine? Can I force UnitInfo open while selecting over held units?
+- Dropping TCopters, it's impossible to know which is which. Can I fix this in mine? Can I link UnitWindow to the cursor selection?
+  - [ ] On ListMenu.cursorMove => inspectUnit(actor.loadedUnits[command.input])
 - TargetCursor appears over actionables. So, over an attackable unit, or over a unit you can load into, maybe over a Silo, I dunno. Honestly, it's probably a visual flair that means "you can do something here."
 - Because path arrows do not disappear when dropping, the game has special icon arrows to indicate a drop tile.
 - These drop-tile icons appear above units, path arrows, etc. Do I need a second UI layer?
@@ -18,7 +19,7 @@ More observations:
 
 Post Function:
   I don't remember what post function means.
-- [ ] Drop Cmds use IconTitle and the held unit preview is passed in.
+- [x] Drop Cmds use IconTitle and the held unit preview is passed in.
 - [ ] DropLocation also sets a dir value on the square so the player can see where they're dropping.
 - [x] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
 
