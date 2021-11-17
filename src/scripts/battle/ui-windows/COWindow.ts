@@ -11,7 +11,7 @@ export class COWindow extends SlidingWindow {
     player: BoardPlayer;
 
     // Objects
-    private commanderImage = new PIXI.Sprite();
+    private commanderImage: PIXI.Graphics;
     private powerMeter1 = new PIXI.Sprite( this.sheet.textures['power-meter.png'] );
     private powerMeter1Fill = new PIXI.TilingSprite( this.sheet.textures['power-meter-full.png'], 0, 4 );
     private powerMeter2 = new PIXI.Sprite( this.sheet.textures['power-meter.png'] );
@@ -64,7 +64,15 @@ export class COWindow extends SlidingWindow {
         });
 
         // CO Image
-        this.commanderImage.x = 41; this.commanderImage.y = 2;
+        this.commanderImage = function () {
+            const g = new PIXI.Graphics();
+            g.beginFill(0xFFFFFF);
+            g.drawRect(0,0,46,14);
+            g.endFill();
+            g.addChild(player.officer.eyeshot);
+            return g;
+        }();
+        this.commanderImage.x = 40; this.commanderImage.y = 1;
         // TODO Pick the CO image
 
         // CO Power Meter, Leftmost

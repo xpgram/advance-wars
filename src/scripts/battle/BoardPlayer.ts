@@ -99,7 +99,7 @@ export class BoardPlayer {
     const COType = Object.values(CommandingOfficer).find( CO => CO.serial === options.officerSerial );
     if (!COType)
       throw new BoardPlayerConstructionError(`Cannot set commanding officer: CO serial ${options.officerSerial} not found.`);
-    this.officer = new COType();
+    this.officer = new COType().init();
 
     // Validate and set ownership of property locations.
     options.capturePoints.forEach( point => {
