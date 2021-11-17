@@ -6,16 +6,26 @@ import { PointPrimitive } from "../Common/Point";
 export class Axis2D {
     private _name: string | null;
     private _point: PointPrimitive;
+    private _lastPoint: PointPrimitive;
     private _state: ButtonState;
 
     constructor(name: string | null) {
         this._name = name || null;
         this._point = {x: 0, y: 0};
+        this._lastPoint = {x: 0, y: 0};
         this._state = ButtonState.Up;
     }
 
     get name() { return this._name; }
     get point() { return this._point; }
+
+    /** A point representing relative changes to the dpad axis this frame. */
+    get framePoint() {
+        return {
+            x: this._point.x - this._lastPoint.x,
+            y: this._point.y - this._lastPoint.y,
+        };
+    }
 
     /** Returns true if this axis has a directional bias (non-neutral). */
     get roaming() { return this._state == ButtonState.Down || this.tilted; }
@@ -30,8 +40,10 @@ export class Axis2D {
 
     /** Updates this axis with new values. Used by the parent-controller object. */
     update(input: PointPrimitive) {
-        this._point.x = Common.confine(input.x, -1, 1);
-        this._point.y = Common.confine(input.y, -1, 1);
+        this._lastPoint.x = this._point.x;
+        this._lastPoint.y = this._point.y;
+        this._point.x = Common.clamp(input.x, -1, 1);
+        this._point.y = Common.clamp(input.y, -1, 1);
 
         // Absolve single-frame states
         if (this.returned) this._state = ButtonState.Up;
@@ -48,5 +60,6 @@ export class Axis2D {
     /** Resets the axis state; sets its position to home, skipping the released state. */
     reset() {
         this._point = {x: 0, y: 0};
+        this._lastPoint = {x: 0, y: 0};
     }
 }

@@ -28,7 +28,6 @@ export abstract class CommandingOfficerObject {
     this.illustration = new PIXI.Sprite(sheet.textures[`${name}-p${color}-full.png`]);
     this.eyeshot = new PIXI.Sprite(sheet.textures[`${name}-p${color}-eyes.png`]);
     this.insignia = new PIXI.Sprite(uiSheet.textures[`insignia-${allegiance}.png`]);
-    console.log(this.insignia);
 
     return this;
   }

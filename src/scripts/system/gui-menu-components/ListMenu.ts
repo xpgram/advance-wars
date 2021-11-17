@@ -1,6 +1,6 @@
 import { Game } from "../../..";
+import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
-import { Common } from "../../CommonUtils";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { Observable } from "../../Observable";
 import { Pulsar } from "../../timer/Pulsar";
@@ -122,8 +122,18 @@ export class ListMenu<X, Y> extends Observable {
   private triggerCursorMovement() {
     const { cursor, pageCursor, gamepad, view } = this;
 
+    // Get only pressed-this-frame dirs unless no change.
+    const frameDir = gamepad.axis.dpad.framePoint;
+    const maskFunc = (n: number) => Math.ceil(Math.abs(n));
+    const mask = new Point(maskFunc(frameDir.x), maskFunc(frameDir.y));
+    if (mask.equal(Point.Origin)) mask.set(1,1);
+
+    const dir = {
+      x: gamepad.axis.dpad.point.x * mask.x,
+      y: gamepad.axis.dpad.point.y * mask.y,
+    }
+
     // Reposition cursor
-    const dir = gamepad.axis.dpad.point;
     cursor.increment(dir.y);
     if(dir.x !== 0) {
       pageCursor.increment(dir.x);
