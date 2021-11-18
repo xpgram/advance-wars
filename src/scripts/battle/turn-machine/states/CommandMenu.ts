@@ -49,8 +49,8 @@ export class CommandMenu extends TurnState {
         ...Command.Drop,
         input: idx,
       }))
-      .filter( c => !drop.some( d => d.which === c.input ) );
-    if (dropCommands.length === 0 && actor.loadedUnits.length > 0) {
+      .filter( c => c.triggerInclude() );
+    if (dropCommands.length === 0 && drop.length > 0) {
       this.autoEnd = true;
       return;
     }

@@ -1,3 +1,4 @@
+import { Point } from "../../Common/Point";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
@@ -292,7 +293,8 @@ export module Command {
         .map( d => d.which )
         .includes( this.input );
       const oneEmptySpace = neighbors.orthogonals
-          .some( tile => tile.occupiable(unit) || tile.unit === actor );
+          .some( tile => (tile.occupiable(unit) || tile.unit === actor)
+            && !drop.some( d => d.where.equal(tile.pos) ) );
       return !alreadyDropped && oneEmptySpace;
     },
     ratify() {
