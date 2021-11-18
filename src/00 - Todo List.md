@@ -1,7 +1,9 @@
 # Next Big Objectives
 
+- [ ] I totally forgot I haven't added rank ups. That would be mad easy.
+
 - [ ] UnitDetail Window
-- [ ] Switchable with X. Or Y. I forget.
+- [ ] Switchable with Y.
 
 - [ ] Target Reticle around Battleships.
 - [ ] Enable move and attack.
@@ -10,6 +12,7 @@
   Naturally, because you should be able to see your opponent's ranges.
   - [ ] COAffected overlays should be color tinted then, huh.
   - [ ] Instead of tints, why not use a (non-obnoxious) variant of the area-target reticle that Silos and Battleships use?
+  - [ ] Units are missing the CO-Boarded badge.
 
 - [ ] Supply and Repair are saved as events in BoardPlayer
 - [ ] Have AnimateEvents post them to confirm.
@@ -92,7 +95,7 @@ Post Function:
   Add a way to pass information, specifically a queue of states to move into, to the next turnstate. This next turnstate has the responsibility of deciding when and how to use this information. It can shift out the first one, ignore it, pass it on or not, insert something new and then pass it, etc.
   Realistically, I don't think this game will ever use a list of steps; animation states can chain together logically already, and control states, it's not even reasonable to allow the previous state to dictate where this one goes.
 
-  Actually... I wouldn't do this, but imagine:
+- [ ] Refactor to something like this procedure:
   - OrderStart passes [MoveUnit, CommandMenu, Confirm, Animate, Ratify] to next.
   - MoveUnit succeeds.
   - CommandMenu inserts [DropLocation, CommandMenu].
@@ -109,16 +112,6 @@ Post Function:
   really. Other than the connections being a teense easier to see.
   It's obviously better for reuse; I'd love to be able to insert PickTarget with maybe a few parameters like I would a function call, without having to write 2+ different versions, one for attack targets, one for Silo targets, one for CO Power targets, etc.
 
-- [ ] Refactor TurnSystem to use state queues.
-  This is actually kind of a big job. I'd need to think of use cases.
-  BSM.insert(states: TurnState[], idx: number = 0);
-  BSM.advance();
-    // BSM will _not_ increment to next in queue unless this is called.
-    // Throws StateChangeError if no states exist in queue.
-  BSM.regress();
-  BSM.report();   // Or whatever it's called.
-    // Prints last 20 states.
-    // Prints remaining states in queue.
 - [ ] Refactor instruction set to be a list of incremental changes.
   - Instead of {place, path, action, focal, drop, ... }
   - [ ] make it more extensible with

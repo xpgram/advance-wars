@@ -7,7 +7,6 @@ import { GameStart } from "./states/GameStart";
 import { Common } from "../../CommonUtils";
 
 const STACK_TRACE_LIMIT = 20;
-const STACK_SIZE_LIMIT = 100;   // Unenforced
 
 export type NextState = {
     state: TurnStateConstructor,
@@ -34,8 +33,6 @@ export class BattleSystemManager {
 
     /** Enum flag indicating what the battle-system's state-machine intends to do on next cycle. */
     private transitionIntent = TransitionTo.None;
-    /** Container for the next state to transition to when advancing, should be empty otherwise. */
-    private nextState!: NextState;
     /** The default state of the manager. Empty. Does nothing. */
     private readonly NULL_STATE = new NullTurnState(this);
 
@@ -46,6 +43,8 @@ export class BattleSystemManager {
     private stack = new Array<TurnState>();
     /** A string list of all previously visited game states, kept for debugging purposes. */
     private stackTrace: {msg: string, mode: string, exit?: number}[] = [];
+    /** A list containing the battle-system's upcoming states. */
+    private queue: TurnStateConstructor[] = [];
 
     // TODO Define scenarioOptions
     constructor(scenarioOptions: {}) {
@@ -58,17 +57,17 @@ export class BattleSystemManager {
         //      Spawned enemies
         //      etc.
 
-        const firstState: NextState = {
-            state: GameStart,
-            pre: () => {}
-        }
+        this.queue.push(GameStart);
+        this.advance(this.NULL_STATE);
 
-        this.advanceToState(this.NULL_STATE, firstState);
         Game.scene.ticker.add(this.update, this);
     }
 
     destroy() {
-        //this.controllers.destroy();
+        this.NULL_STATE.destroy();
+        //@ts-expect-error
+        this.NULL_STATE = undefined;
+        this.controllers.destroy();
         this.stack.forEach( state => {state.destroy();} );  // Break all references to self in state stack
         Game.scene.ticker.remove(this.update, this);
     }
@@ -83,7 +82,6 @@ export class BattleSystemManager {
      * transition requests. */
     private update() {
         // Wait for the camera before doing anything.
-        // TODO I'm concerned this awkward step insertion breaks things.
         if (!this.controllers.camera.subjectInView)
             return;
 
@@ -96,6 +94,9 @@ export class BattleSystemManager {
             while (this.transitionIntent == TransitionTo.Next
                 || this.transitionIntent == TransitionTo.NextFromRegress) {
 
+                if (this.queue.length === 0)
+                    throw new Error(`Cannot advance to next in queue: queue is empty.`);
+
                 const mode = (this.transitionIntent === TransitionTo.NextFromRegress)
                     ? '⟳'
                     : '→'
@@ -107,21 +108,32 @@ export class BattleSystemManager {
                 this.log(mode, `${this.currentState.name}`, exit);
 
                 // Setup next state
-                const { state, pre } = this.nextState;
-                if (pre) pre();             // Run any pre-setup passed in from current state
+                const state = this.queue.shift() as TurnStateConstructor;
                 const newState = new state(this);
                 this.stack.push(newState);  // Add new state to stack (implicitly changes current)
                 newState.wake();            // Run new state's scene configurer
+
+                // Message logging
+                Debug.log({
+                    msg: `Advancing to state ${state.name}`,
+                    priority: 4, // TODO Wtf does 4 mean?
+                    type: `TurnMachine`,
+                });
             }
             
             // nextState->previous handler
             while (this.transitionIntent == TransitionTo.Previous
                 || this.transitionIntent == TransitionTo.PreviousOnFail) {
 
-                let oldState = this.stack.pop();    // Implicitly changes current
-                if (!oldState)
-                    throw new Error(`Cannot revert state from undefined.`);
+                if (this.currentState === this.NULL_STATE)
+                    throw new Error(`Cannot revert state from null.`);
+                if (!this.currentState.revertible)
+                    throw new Error(`Cannot revert unrevertible state ${this.currentState.name}.`);
+                    
+                const oldState = this.stack.pop() as TurnState;
+                this.queue.unshift(oldState.type);
 
+                // Transition procedure
                 if (this.transitionIntent == TransitionTo.Previous) {
                     oldState.close();      // Runs generic close procedure
                     oldState.prev();       // Ctrl+Z Undo for smooth backwards transition
@@ -162,24 +174,36 @@ export class BattleSystemManager {
         return true;
     }
 
-    /** Signals the BattleSystemManager that it should transition to nextState.state at the end of the current cycle,
-     * and after calling nextState.pre(). */
-    advanceToState(state: TurnState, nextState: NextState) {
-        if (this.isSelfsameState(state)) {
-            this.transitionIntent = (this.transitionIntent === TransitionTo.None)
-                ? TransitionTo.Next
-                : TransitionTo.NextFromRegress;
-            this.nextState = nextState;
+    /** True if the current state has signalled an intent to change states. */
+    get transitioning() {
+        return this.transitionIntent !== TransitionTo.None
+            && this.transitionIntent !== TransitionTo.NoneFromRegress;
+    }
+
+    /** Removes the first n entries from the state queue.
+     * This is an undo method used by TurnStates to clean up after a regression.
+     * The current state must provide itself as a safety mechanism; only the current state may request changes. */
+    unqueue(requestedBy: TurnState, n: number) {
+        if (this.isSelfsameState(requestedBy))
+            this.queue = this.queue.slice(n);
+    }
+
+    /** Signals an AdvanceIntent to the turn system.
+     * The current state must provide itself as a safety mechanism; only the current state may request changes.
+     * Further turn states may be included to add to queue, but if none are provided, BSM will simply advance
+     * to next in queue. */
+    advance(requestedBy: TurnState, ...next: TurnStateConstructor[]) {
+        if (!this.transitioning && this.isSelfsameState(requestedBy)) {
+            this.queue.unshift(...next);
+            this.transitionIntent = TransitionTo.Next;
         }
     }
 
-    /** Signals the BattleSystemManager that it should transition to the last stable game state before this one at the end of
-     * the current cycle. Fails if there is no previous state to roll back to or if the current turn state would not allow it. */
-    regressToPreviousState(state: TurnState) {
-        if (this.isSelfsameState(state)) {
-            if (this.stack.length > 1 && this.currentState.revertible)
-                this.transitionIntent = TransitionTo.Previous;
-        }
+    /** Signals a RegressIntent to the turn system.
+     * The current state must provide itself as a safety mechanism; only the current state may request changes. */
+    regress(requestedBy: TurnState) {
+        if (!this.transitioning && this.isSelfsameState(requestedBy))
+            this.transitionIntent = TransitionTo.Previous;
     }
 
     /** Signals the BattleSystemManager that it should abandon its most recent state advancement and continue regressing to the
@@ -192,7 +216,7 @@ export class BattleSystemManager {
             this.transitionIntent = TransitionTo.PreviousOnFail;
         else {
             Debug.ping(this.getStackTrace());
-            Debug.error('BattleSystemManager failed to advance state but has no stable state to revert to.');
+            throw new Error('BattleSystemManager failed to advance state but has no state to revert to.');
         }
     }
 
@@ -216,13 +240,21 @@ export class BattleSystemManager {
 
     /** Returns a string log of this battle-system's game state history. */
     getStackTrace() {
+        const queue = this.queue
+            .slice()
+            .map( (s, idx) => `${`${idx}`.padStart(2,'0')}: ${(new s(this)).name}` )
+            .reverse()
+            .join('\n');
         const mode = (this.transitionIntent === TransitionTo.PreviousOnFail)
             ? '🛑'
             : (this.transitionIntent === TransitionTo.NoneFromRegress)
             ? '⟳▶'
             : '▶';
         const cur = `cur: ${mode} ${this.currentState.exit} ${this.currentState.name}`;
-        const trace = this.stackTrace.map( ({msg, mode, exit}, idx) => `${`${idx}`.padStart(2,'0')}: ${mode} ${exit} ${msg}` ).reverse();
-        return `Game State History (last ${STACK_TRACE_LIMIT}):\n${cur}\n` + trace.join('\n');
+        const trace = this.stackTrace
+            .map( ({msg, mode, exit}, idx) => `${`${idx}`.padStart(2,'0')}: ${mode} ${exit} ${msg}` )
+            .reverse()
+            .join('\n');
+        return `Game State History (last ${STACK_TRACE_LIMIT}):\nQueue\n${queue}\n${cur}\n${trace}`;
     }
 }

@@ -4,6 +4,7 @@ import { UnitObject } from "../../UnitObject";
 import { CheckBoardState } from "./CheckBoardState";
 
 export class TurnStart extends TurnState {
+  get type() { return TurnStart; }
   get name() { return 'TurnStart'; }
   get revertible() { return false; }
   get skipOnUndo() { return false; }
@@ -81,7 +82,7 @@ export class TurnStart extends TurnState {
     // Configure initial control script states
     scripts.nextOrderableUnit.resetIndex();
 
-    this.advanceToState(CheckBoardState);
+    this.advance(CheckBoardState);
   }
 
 }

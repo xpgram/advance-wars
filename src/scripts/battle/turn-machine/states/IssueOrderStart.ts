@@ -3,11 +3,11 @@ import { MoveUnit } from "./MoveUnit";
 import { Point } from "../../../Common/Point";
 import { ShowUnitAttackRange } from "./ShowUnitAttackRange";
 import { MoveCamera } from "./MoveCamera";
-import { Terrain } from "../../map/Terrain";
 import { FieldMenu } from "./FieldMenu";
 import { FactoryMenu } from "./FactoryMenu";
 
 export class IssueOrderStart extends TurnState {
+  get type() { return IssueOrderStart; }
   get name() { return 'IssueOrderStart'; }
   get revertible() { return true; }   // ← If each state is either auto-skipped on undo or must deliberately cancel
   get skipOnUndo() { return false; }  //   itself via a function call, I wonder if this property is even necessary.
@@ -78,18 +78,18 @@ export class IssueOrderStart extends TurnState {
       const examinableEnemy = (unit?.faction !== player.faction);
       if (unit && (orderableAlly || examinableEnemy)) {
         instruction.place = unit.boardLocation;
-        this.advanceToState(MoveUnit);
+        this.advance(MoveUnit);
       }
 
       // Empty, allied factory tile to build
       else if (!unit && scenario.spawnMap.some(dict => dict.type === square.terrain.type && square.terrain.faction === player.faction)) {
         if (player.faction === square.terrain.faction)
-          this.advanceToState(FactoryMenu);
+          this.advance(FactoryMenu);
       }
 
       // The tile has no particular function — open the Field Menu.
       else {
-        this.advanceToState(FieldMenu);
+        this.advance(FieldMenu);
       }
 
     }
@@ -98,14 +98,14 @@ export class IssueOrderStart extends TurnState {
     else if (B.pressed) {
       if (square.unit) {
         instruction.place = new Point(mapCursor.pos);
-        this.advanceToState(ShowUnitAttackRange);
+        this.advance(ShowUnitAttackRange);
       } else
-        this.advanceToState(MoveCamera);
+        this.advance(MoveCamera);
     }
 
     // On press Start, open the Field Menu.
     else if (start.pressed) {
-      this.advanceToState(FieldMenu);
+      this.advance(FieldMenu);
     }
   }
 

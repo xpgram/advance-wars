@@ -1,7 +1,6 @@
 import { Debug } from "../../DebugUtils";
 import { BattleSceneControllers } from "./BattleSceneControllers";
 import { BattleSystemManager, NextState } from "./BattleSystemManager";
-import { StringDictionary } from "../../CommonTypes";
 import { instructionData } from "./InstructionData";
 
 export type TurnStateConstructor = {
@@ -20,6 +19,7 @@ export class StateTransitionError extends Error {
  * update scripts operating the turn-moment. */
 export abstract class TurnState {
 
+  abstract get type(): TurnStateConstructor;  // The constructor type for this object.
   abstract get name(): string;            // The formal name of this game state (for logging purposes).
   abstract get revertible(): boolean;     // Whether this state may revert to a previous one.
   abstract get skipOnUndo(): boolean;     // Whether this state is skipped when reached via reversion.
@@ -40,6 +40,10 @@ export abstract class TurnState {
   get exit() { return this._exit; }
   protected _exit = 0;
 
+  /** The number of states pushed into the next-state queue during AdvanceIntent.
+   * Used during undo procedures. */
+  private queueChange = 0;
+
   constructor(manager: BattleSystemManager) {
     this.battleSystemManager = manager;
     this.assets = manager.controllers;
@@ -56,6 +60,8 @@ export abstract class TurnState {
    * its UI systems. This does not force the battle manager to use this state's update script. */
   wake({fromRegress = false} = {}) {
     try {
+      this.battleSystemManager.unqueue(this, this.queueChange);
+      this.queueChange = 0;
       instructionData.fill(this.assets);
       this.assets.hidePlayerSystems();  // Reset the scene configuration
       (!fromRegress)
@@ -72,11 +78,12 @@ export abstract class TurnState {
   /** Signal the state-manager that this state transition has failed and must be aborted.
    * @param message A description of what went wrong. */
   protected failTransition(message: string) {
-    this._exit = -1;
+    if (this._exit === 0) this._exit = -1;
     throw new StateTransitionError(this.name, message);
   }
 
-  /** Asserts that the given data is dataful and not empty. */
+  /** Asserts that the given data is dataful and not empty.
+   * @deprecated Retrieve vars from this.data instead. */
   protected assertData<T>(data: T | null | undefined, msg?: string): T {
     if (data == null || data == undefined)
       this.failTransition(`Missing data: ${msg}`);
@@ -109,16 +116,19 @@ export abstract class TurnState {
   prev() { };
 
   /** Pushes a request to the battle system manager to advance state to the one given. */
-  advanceToState(state: TurnStateConstructor, pre?: () => void) {
-    const next = {
-      state,
-      pre,
-    }
-    this.battleSystemManager.advanceToState(this, next);
+  advance(...next: TurnStateConstructor[]) {
+    if (!this.battleSystemManager.transitioning) {
+      this.queueChange = next.length;
+      this.battleSystemManager.advance(this, ...next);
+    } else
+      console.warn(`State ${this.name} tried to advance during transition intent. Are we requesting multiple times?`);
   }
 
   /** Pushes a request to the battle system manager to revert state to the one previous. */
   regressToPreviousState() {
-    this.battleSystemManager.regressToPreviousState(this);
+    if (!this.battleSystemManager.transitioning) {
+      this.battleSystemManager.regress(this);
+    } else
+      console.warn(`State ${this.name} tried to regress during transition intent. Are we requesting multiple times?`);
   }
 }

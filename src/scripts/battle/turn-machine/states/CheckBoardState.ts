@@ -3,6 +3,7 @@ import { IssueOrderStart } from "./IssueOrderStart";
 import { AnimateStandbyEvents } from "./AnimateStandbyEvents";
 
 export class CheckBoardState extends TurnState {
+  get type() { return CheckBoardState; }
   get name(): string { return "CheckBoardState"; }
   get revertible(): boolean { return false; }
   get skipOnUndo(): boolean { return false; }
@@ -15,7 +16,7 @@ export class CheckBoardState extends TurnState {
     // This should split between Animating the player's standby events, which are determined
     // in TurnStart, and moving into some kind of PlayerEnd/Animate state.
 
-    this.advanceToState(AnimateStandbyEvents);
+    this.advance(AnimateStandbyEvents, IssueOrderStart);
   }
 
 }
