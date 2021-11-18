@@ -1,5 +1,8 @@
 # Next Big Objectives
 
+- [ ] UnitDetail Window
+- [ ] Switchable with X. Or Y. I forget.
+
 - [ ] Target Reticle around Battleships.
 - [ ] Enable move and attack.
 
