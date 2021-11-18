@@ -95,22 +95,12 @@ Post Function:
   Add a way to pass information, specifically a queue of states to move into, to the next turnstate. This next turnstate has the responsibility of deciding when and how to use this information. It can shift out the first one, ignore it, pass it on or not, insert something new and then pass it, etc.
   Realistically, I don't think this game will ever use a list of steps; animation states can chain together logically already, and control states, it's not even reasonable to allow the previous state to dictate where this one goes.
 
-- [ ] Refactor to something like this procedure:
-  - OrderStart passes [MoveUnit, CommandMenu, Confirm, Animate, Ratify] to next.
-  - MoveUnit succeeds.
-  - CommandMenu inserts [DropLocation, CommandMenu].
-  - CommandMenu, on return, inserts [PickTarget].
-  - PickTarget, Confirm succeed.
-  - Animate examines the order, inserts [AnimateMove, AnimateDrop, AnimateBattle].
-  - Animation steps succeed.
-  - Ratify affirms all changes on the board.
-  - Ratify inserts [OrderStart] to begin the process again.
-  This... isn't necessary, strictly speaking. But it sounds kinda nice.
-  It sounds a bit like keeping track of state-change flow would be a little easier.
-  The logic for MoveUnit and DropLocation, which tiles to highlight, are different though.
-  I guess that could be handled beforehand, but I'm not sure we'd be achieving anything,
-  really. Other than the connections being a teense easier to see.
-  It's obviously better for reuse; I'd love to be able to insert PickTarget with maybe a few parameters like I would a function call, without having to write 2+ different versions, one for attack targets, one for Silo targets, one for CO Power targets, etc.
+- [ ] Refactor TurnStates to take advantage of queueing:
+  - [ ] Expand IssueOrderStart to MoveUnit,CommandMenu,Confirm,Animate,Ratify
+  - [ ] Expand CommandMenu to DropLocation,CommandMenu
+  - [ ] Expand Animate to AnimateMove,AnimateDrop,AnimateBattle,AnimateStandbyEvents
+  - [ ] Expand CommandMenu(Silo) to PickBoardTarget
+  - [ ] Expand CoPower to PickBoardTarget
 
 - [ ] Refactor instruction set to be a list of incremental changes.
   - Instead of {place, path, action, focal, drop, ... }
@@ -124,8 +114,11 @@ Post Function:
       {attack, null, where},
     ]
     A benefit is that this process makes it reeaally easy to see where interruptions would happen, instead of having to calculate them.
-    I guess calculating them isn't hard. Path is already incremental, essentially.
-    Nevertheless, it's highly extensible in the sense that an Order is a set of actions and not just one discrete action.
+    Also, it's easier to analyze on more function-like TurnStates.
+    I think, anyway.
+    Really, I just want a way to pass in arguments to function-like TurnStates.
+    Say, PickBoardTarget should know what AoE cursor shape to use.
+    A Silo needs spread-3, but some CO powers need square-3.
 
 - [ ] Maps should be able to read from a serial string or probably a json object.
   This is in preparation of developing multiplayer; the server *needs* to know which map you're playing on.
