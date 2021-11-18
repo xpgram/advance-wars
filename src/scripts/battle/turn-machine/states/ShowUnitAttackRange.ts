@@ -4,6 +4,7 @@ import { Game } from "../../../..";
 const EXIT_FRAME_DELAY = 2;
 
 export class ShowUnitAttackRange extends TurnState {
+  get type() { return ShowUnitAttackRange; }
   get name(): string { return "ShowUnitAttackRange"; }
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return true; }
@@ -21,7 +22,7 @@ export class ShowUnitAttackRange extends TurnState {
       const frameSchedule = Game.frameCount + EXIT_FRAME_DELAY;
       Game.workOrders.send( () => {
         if (Game.frameCount === frameSchedule) {
-          this.regressToPreviousState();
+          this.regress();
           return true;
         }
       }, this);
@@ -33,7 +34,7 @@ export class ShowUnitAttackRange extends TurnState {
 
     // On release B, return to previous state.
     if (gamepad.button.B.up)
-      this.regressToPreviousState();
+      this.regress();
   }
 
   prev(): void {

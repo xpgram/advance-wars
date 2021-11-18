@@ -8,6 +8,7 @@ import { Unit } from "../../Unit";
 const CAMERA_SPEED = 7;     // How many tiles the camera travels per 60 frames.
 
 export class MoveCamera extends TurnState {
+  get type() { return MoveCamera; }
   get name(): string { return "MoveCamera"; }
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return true; }
@@ -32,7 +33,7 @@ export class MoveCamera extends TurnState {
 
     // On release B, revert to previous state.
     if (gamepad.button.B.up)
-      this.regressToPreviousState();
+      this.regress();
 
     // Otherwise, move the camera according to movement axis.
     else {

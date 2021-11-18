@@ -3,6 +3,7 @@ import { TurnState } from "../TurnState";
 import { TurnChange } from "./TurnChange";
 
 export class TurnEnd extends TurnState {
+  get type() { return TurnEnd; }
   get name() { return 'TurnEnd'; }
   get revertible() { return false; }
   get skipOnUndo() { return false; }
@@ -16,7 +17,7 @@ export class TurnEnd extends TurnState {
       u.orderable = false;
     });
     player.lastCursorPosition = new Point(mapCursor.pos);
-    this.advanceToState(TurnChange);
+    this.advance(TurnChange);
   }
 
 }

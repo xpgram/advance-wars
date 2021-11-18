@@ -125,7 +125,7 @@ export abstract class TurnState {
   }
 
   /** Pushes a request to the battle system manager to revert state to the one previous. */
-  regressToPreviousState() {
+  regress() {
     if (!this.battleSystemManager.transitioning) {
       this.battleSystemManager.regress(this);
     } else

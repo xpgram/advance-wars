@@ -2,6 +2,7 @@ import { TurnState } from "../TurnState";
 import { AnimateDropUnit } from "./AnimateDropUnit";
 
 export class AnimateMoveUnit extends TurnState {
+  get type() { return AnimateMoveUnit; }
   get name() { return 'AnimateMoveUnit'; }
   get revertible() { return true; }
   get skipOnUndo() { return true; }
@@ -26,7 +27,7 @@ export class AnimateMoveUnit extends TurnState {
   update() {
     const { trackCar } = this.assets;
     if (trackCar.finished)
-      this.advanceToState(AnimateDropUnit);
+      this.advance(AnimateDropUnit);
   }
 
   prev() {

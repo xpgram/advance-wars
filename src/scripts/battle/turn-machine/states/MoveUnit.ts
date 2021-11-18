@@ -3,6 +3,7 @@ import { Point } from "../../../Common/Point";
 import { CommandMenu } from "./CommandMenu";
 
 export class MoveUnit extends TurnState {
+  get type() { return MoveUnit; }
   get name() { return 'MoveUnit'; }
   get revertible() { return true; }
   get skipOnUndo() { return false; }
@@ -33,7 +34,7 @@ export class MoveUnit extends TurnState {
 
     // On press B, revert state
     if (gamepad.button.B.pressed)
-      this.regressToPreviousState();
+      this.regress();
 
     // If the unit is not owned by current player, do nothing else
     if (players.current.faction !== actor.faction)
@@ -63,7 +64,7 @@ export class MoveUnit extends TurnState {
       // Final check
       if (moveable && (occupiable || mergeable || boardable)) {
         instruction.path = map.pathFrom(place);
-        this.advanceToState(CommandMenu);
+        this.advance(CommandMenu);
       }
     }
   }

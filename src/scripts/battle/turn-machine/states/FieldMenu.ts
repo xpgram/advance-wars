@@ -4,6 +4,7 @@ import { TurnState } from "../TurnState";
 import { TurnEnd } from "./TurnEnd";
 
 export class FieldMenu extends TurnState {
+  get type() { return FieldMenu; }
   get name() { return 'FieldMenu'; }
   get revertible() { return true; }
   get skipOnUndo() { return false; }
@@ -40,14 +41,14 @@ export class FieldMenu extends TurnState {
       const value = menu.selectedValue;
 
       if (value === 9)
-        this.advanceToState(TurnEnd);
+        this.advance(TurnEnd);
       else if (value === 0)
-        this.regressToPreviousState();
+        this.regress();
     }
 
     // On press B or press Start, revert to field cursor.
     else if (gamepad.button.B.pressed || gamepad.button.start.pressed) {
-      this.regressToPreviousState();
+      this.regress();
     }
   }
   

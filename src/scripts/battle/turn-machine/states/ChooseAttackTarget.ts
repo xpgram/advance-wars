@@ -8,6 +8,7 @@ import { Pulsar } from "../../../timer/Pulsar";
 import { DamageScript } from "../../DamageScript";
 
 export class ChooseAttackTarget extends TurnState {
+  get type() { return ChooseAttackTarget; }
   get name() { return 'ChooseAttackTarget'; }
   get revertible() { return true; }
   get skipOnUndo() { return false; }
@@ -110,10 +111,10 @@ export class ChooseAttackTarget extends TurnState {
       this.holdButton.start();
     }
     else if (B.pressed)
-      this.regressToPreviousState();
+      this.regress();
     else if (A.pressed) {
       instruction.focal = this.possibleTargets[this.index.output].boardLocation;
-      this.advanceToState(AnimateMoveUnit);
+      this.advance(AnimateMoveUnit);
     }
 
     if (gamepad.axis.dpad.returned)

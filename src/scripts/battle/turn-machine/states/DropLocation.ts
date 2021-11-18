@@ -9,6 +9,7 @@ import { TurnState } from "../TurnState";
 import { CommandMenu } from "./CommandMenu";
 
 export class DropLocation extends TurnState {
+  get type() { return DropLocation; }
   get name() { return 'DropLocation'; }
   get revertible() { return true; }
   get skipOnUndo() { return false; }
@@ -122,7 +123,7 @@ export class DropLocation extends TurnState {
 
     // On press B, revert state
     else if (gamepad.button.B.pressed)
-      this.regressToPreviousState();
+      this.regress();
 
     // On press A, advance to next state
     else if (gamepad.button.A.pressed) {
@@ -130,7 +131,7 @@ export class DropLocation extends TurnState {
       if (tile.moveFlag) {
         this.drop.where = new Point(mapCursor.pos);
         this.data.drop.push(this.drop as CommandDropInstruction);
-        this.advanceToState(CommandMenu);
+        this.advance(CommandMenu);
       }
     }
 

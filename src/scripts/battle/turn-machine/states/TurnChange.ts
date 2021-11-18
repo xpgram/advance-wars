@@ -2,6 +2,7 @@ import { TurnState } from "../TurnState";
 import { TurnStart } from "./TurnStart";
 
 export class TurnChange extends TurnState {
+  get type() { return TurnChange; }
   get name() { return 'TurnChange'; }
   get revertible() { return false; }
   get skipOnUndo() { return false; }
@@ -15,7 +16,7 @@ export class TurnChange extends TurnState {
     // TODO Rebind controller? BoardPlayer probably should know which input its listening from.
     // TODO gamepad should be gotten from players.current, yeah? That would be cool. I think.
 
-    this.advanceToState(TurnStart);
+    this.advance(TurnStart);
   }
 
 }

@@ -7,6 +7,7 @@ import { TurnState } from "../TurnState";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
 export class FactoryMenu extends TurnState {
+  get type() { return FactoryMenu; }
   get name() { return 'FieldMenu'; }
   get revertible() { return true; }
   get skipOnUndo() { return false; }
@@ -64,13 +65,13 @@ export class FactoryMenu extends TurnState {
         instruction.action = Command.SpawnUnit.serial;
         instruction.which = unitSerial;
 
-        this.advanceToState(RatifyIssuedOrder);
+        this.advance(RatifyIssuedOrder);
       }
     }
 
     // On press B, revert to field cursor.
     else if (gamepad.button.B.pressed) {
-      this.regressToPreviousState();
+      this.regress();
     }
   }
 

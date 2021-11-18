@@ -3,6 +3,7 @@ import { CheckBoardState } from "./CheckBoardState";
 import { Command, getCommandObject } from "../Command";
 
 export class RatifyIssuedOrder extends TurnState {
+  get type() { return RatifyIssuedOrder; }
   get name(): string { return "RatifyIssuedOrder"; }
   get revertible(): boolean { return false; }
   get skipOnUndo(): boolean { return false; }
@@ -31,7 +32,7 @@ export class RatifyIssuedOrder extends TurnState {
     }
 
     // Advance to next state.
-    this.advanceToState(CheckBoardState);
+    this.advance(CheckBoardState);
   }
 
 }

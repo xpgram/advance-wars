@@ -5,6 +5,7 @@ import { TurnState } from "../TurnState";
 import { AnimateBattle } from "./AnimateBattle";
 
 export class AnimateDropUnit extends TurnState {
+  get type() { return AnimateDropUnit; }
   get name(): string { return "CheckBoardState"; }
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return true; }
@@ -45,7 +46,7 @@ export class AnimateDropUnit extends TurnState {
 
   update(): void {
     if (this.dropCars.every( c => c.finished ))
-      this.advanceToState(AnimateBattle);
+      this.advance(AnimateBattle);
   }
 
   close(): void {

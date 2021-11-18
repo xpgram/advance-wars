@@ -9,6 +9,7 @@ import { DropLocation } from "./DropLocation";
 import { Game } from "../../../..";
 
 export class CommandMenu extends TurnState {
+  get type() { return CommandMenu; }
   get name(): string { return "CommandMenu"; }
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return false; }
@@ -122,18 +123,18 @@ export class CommandMenu extends TurnState {
       instruction.action = commandValue;
 
       if (commandValue == Command.Attack.serial)
-        this.advanceToState(ChooseAttackTarget);
+        this.advance(ChooseAttackTarget);
       else if (commandValue === Command.Drop.serial) {
         instruction.which = menu.selectedValue.input;
-        this.advanceToState(DropLocation);
+        this.advance(DropLocation);
       } else {
-        this.advanceToState(AnimateMoveUnit);
+        this.advance(AnimateMoveUnit);
       }
     }
 
     // If B, cancel, revert state
     else if (gamepad.button.B.pressed) {
-      this.regressToPreviousState();
+      this.regress();
     }
   }
 
