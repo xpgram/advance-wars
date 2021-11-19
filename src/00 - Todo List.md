@@ -96,9 +96,9 @@ Post Function:
   Realistically, I don't think this game will ever use a list of steps; animation states can chain together logically already, and control states, it's not even reasonable to allow the previous state to dictate where this one goes.
 
 - [ ] Refactor TurnStates to take advantage of queueing:
-  - [ ] Expand IssueOrderStart to MoveUnit,CommandMenu,Confirm,Animate,Ratify
-  - [ ] Expand CommandMenu to DropLocation,CommandMenu
-  - [ ] Expand Animate to AnimateMove,AnimateDrop,AnimateBattle,AnimateStandbyEvents
+  - [x] Expand IssueOrderStart to MoveUnit,CommandMenu,Confirm,Animate,Ratify
+  - [x] Expand CommandMenu to DropLocation,CommandMenu
+  - [x] Expand Animate to AnimateMove,AnimateDrop,AnimateBattle,AnimateStandbyEvents
   - [ ] Expand CommandMenu(Silo) to PickBoardTarget
   - [ ] Expand CoPower to PickBoardTarget
 
