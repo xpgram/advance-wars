@@ -131,7 +131,7 @@ export class DropLocation extends TurnState {
       if (tile.moveFlag) {
         this.drop.where = new Point(mapCursor.pos);
         this.data.drop.push(this.drop as CommandDropInstruction);
-        this.advance(CommandMenu);
+        this.advance();
       }
     }
 

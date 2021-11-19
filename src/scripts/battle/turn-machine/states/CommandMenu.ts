@@ -127,8 +127,7 @@ export class CommandMenu extends TurnState {
         this.advance(ChooseAttackTarget);
       else if (commandValue === Command.Drop.serial) {
         instruction.which = menu.selectedValue.input;
-        // TODO DropLocation, CommandMenu
-        this.advance(DropLocation);
+        this.advance(DropLocation, CommandMenu);
       } else {
         // TODO These will move into OrderStart
         this.advance(AnimateOrder, RatifyIssuedOrder);
