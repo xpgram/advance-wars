@@ -4,6 +4,13 @@ import { TileEventType } from "./TileEventType";
 /** Simple increment-on-request handler for individual TileEvents. */
 export class TileEventQueue {
 
+  // TODO Convert to static singleton.
+  // TileEvents add themselves to global queue.
+  // This is the fastest, easiest to implement solution.
+  // Whatever.
+  //
+  // I gotta actually get to work, though.
+
   /** The list of TileEvents queued for play. */
   private list: TileEventType[] = [];
   /** Reference to the game's scene assets. */

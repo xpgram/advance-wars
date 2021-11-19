@@ -44,6 +44,21 @@ export class AnimateStandbyEvents extends TurnState {
     // Or maybe just combine the two of them since this information seems
     // inextricable from each other.
 
+    // TODO Fix...
+    // TileEventQueue has a reference to assets
+    // TileEventType is forcibly passed a reference to assets
+    // Unit gets resupplied.
+    // Unit creates TileEventType.
+    // Unit adds TileEventType to TileEventQueue.
+    // How?
+    // Unit needs a reference to assets to assets.boardEvents.add(event)
+    // Okay.
+    // The static solution is the necessary solution then.
+    // When an event is created, in its constructor, it adds itself to the event queue.
+    // The event queue, in its constructor, adds its reference to assets to a static value.
+    // This makes it a singleton in essence, you couldn't have more than one.
+    // I guess that's fine, though.
+
   }
   
 }
