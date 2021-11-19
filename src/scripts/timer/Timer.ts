@@ -27,6 +27,10 @@ export class Timer {
     this.elapsedTime = 0;
   }
 
+  get ticking() {
+    return (this.elapsedTime > 0 && this.elapsedTime < this.timerLength);
+  }
+
   get finished() {
     return (this.elapsedTime >= this.timerLength);
   }

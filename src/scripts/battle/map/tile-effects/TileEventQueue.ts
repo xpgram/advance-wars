@@ -4,42 +4,33 @@ import { TileEventType } from "./TileEventType";
 /** Simple increment-on-request handler for individual TileEvents. */
 export class TileEventQueue {
 
-  // TODO Convert to static singleton.
-  // TileEvents add themselves to global queue.
-  // This is the fastest, easiest to implement solution.
-  // Whatever.
-  //
-  // I gotta actually get to work, though.
-
   /** The list of TileEvents queued for play. */
-  private list: TileEventType[] = [];
+  static readonly list: TileEventType[] = [];
   /** Reference to the game's scene assets. */
-  private assets: BattleSceneControllers;
+  static assets: BattleSceneControllers;
 
-  constructor(assets: BattleSceneControllers) {
+  static init(assets: BattleSceneControllers) {
     this.assets = assets;
   }
 
-  destroy() {
+  static destroy() {
     //@ts-expect-error
     this.assets = undefined;
   }
 
   /** Add a new event(s) to the queue for playing. */
-  add(...event: TileEventType[]) {
-    //@ts-expect-error  // Forcibly add reference to game assets. // TODO There are other ways of doing this.
-    event.forEach( e => e._assets = this.assets);
+  static add(...event: TileEventType[]) {
     this.list.push(...event);
   }
 
   /** Returns the current event to be played. */
-  get current(): TileEventType | undefined {
+  static get current(): TileEventType | undefined {
     if (this.list.length > 0)
       return this.list[0];
   }
 
   /** Discards the current event and shifts focus to the next in sequence. */
-  next() {
+  static next() {
     this.current?.stop();
     this.list.shift();
   }

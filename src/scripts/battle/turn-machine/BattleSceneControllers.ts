@@ -108,7 +108,7 @@ export class BattleSceneControllers {
   cmdMenu: CommandMenuGUI<CommandObject<number>>;
   shopMenu: UnitShopMenuGUI<number>;
   fieldMenu: CommandMenuGUI<number>;
-  boardEvents: TileEventQueue;
+  boardEvents = TileEventQueue;
 
   trackCar: TrackCar;
 
@@ -193,9 +193,6 @@ export class BattleSceneControllers {
     this.shopMenu = new UnitShopMenuGUI(menuShop, Game.hud);
     const menuField = new ListMenu<IconTitle, number>(this.gamepad);
     this.fieldMenu = new CommandMenuGUI<number>(menuField, Game.hud);
-
-    // Setup board events
-    this.boardEvents = new TileEventQueue(this);
 
     // Setup static background image.
     let backdrop = new PIXI.Sprite(Game.scene.resources['background'].texture);

@@ -1,3 +1,4 @@
+import { Point } from "../../../Common/Point";
 import { TurnState } from "../TurnState";
 
 export class AnimateStandbyEvents extends TurnState {
@@ -7,10 +8,31 @@ export class AnimateStandbyEvents extends TurnState {
   get skipOnUndo(): boolean { return true; }
 
   configureScene(): void {
-    this.advance();
+
   }
 
   update(): void {
+    const { boardEvents, mapCursor, camera } = this.assets;
+
+    if (boardEvents.current) {
+      const { location } = boardEvents.current;
+
+      if (mapCursor.pos.notEqual(location))
+        mapCursor.teleport(new Point(location));
+
+      else if (!camera.subjectInView)
+        return;
+
+      else if (!boardEvents.current.playing)
+        boardEvents.current.play();
+
+      else if (boardEvents.current.finished)
+        boardEvents.next();
+        
+    } else {
+      this.advance();
+    }
+
     // For each standby event:
     // - Move map cursor, or some other follow point
     // - Camera will suspend action until it arrives

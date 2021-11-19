@@ -1,7 +1,7 @@
 import { Game } from "../../../..";
-import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
+import { ImmutablePointPrimitive } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
-import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
+import { TileEventQueue } from "./TileEventQueue";
 
 /** An animation event over the game map which will be started by the event handler. */
 export abstract class TileEventType {
@@ -11,11 +11,8 @@ export abstract class TileEventType {
   protected abstract timer: Timer;
 
   protected get assets() {
-    if (this._assets === undefined)
-      throw new Error(`This TileEffect has no reference to game assets but requires them. Was it added to an EventQueue?`);
-    return this._assets;
+    return TileEventQueue.assets;
   }
-  private _assets!: BattleSceneControllers;
   
   /** Whether or not this animation has completed. */
   get finished() { return this._finished; }
@@ -23,6 +20,7 @@ export abstract class TileEventType {
 
   constructor(options: {location: ImmutablePointPrimitive}) {
     this.location = options.location;
+    TileEventQueue.add(this);
   }
 
   /** Starts this object's animation. */
@@ -38,6 +36,11 @@ export abstract class TileEventType {
         return true;
     });
   };
+
+  /** Whether this event is mid duration. False if not yet started. */
+  get playing(): boolean {
+    return this.timer.ticking;
+  }
 
   /** Stops this object's animation and destructs its assets. */
   stop(): void {
