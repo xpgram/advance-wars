@@ -1,5 +1,9 @@
 # Next Big Objectives
 
+- [ ] BUG: When a Battleship is just out of range of a potential target, but a diagonal adjacent ally is present, that target is redlit.
+  It's as if 'occupying' a tile occupied by an ally extends range by 1.
+  This seems to only be a problem with canMoveAndAttack units.
+
 - [ ] I totally forgot I haven't added rank ups. That would be mad easy.
 
 - [ ] UnitDetail Window

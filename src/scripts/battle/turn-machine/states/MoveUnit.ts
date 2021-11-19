@@ -41,13 +41,13 @@ export class MoveUnit extends TurnState {
 
     // Request a recalc of the travel path on cursor move
     if (this.lastCursorPos.notEqual(mapCursor.pos)) {
-      this.lastCursorPos = new Point(mapCursor.pos);
-      map.recalculatePathToPoint(actor, this.lastCursorPos);
+      this.lastCursorPos = mapCursor.pos;
+      map.recalculatePathToPoint(actor, mapCursor.pos);
     }
 
     // On press A and viable location, advance state
     else if (gamepad.button.A.pressed) {
-      const square = map.squareAt(this.lastCursorPos);
+      const square = map.squareAt(mapCursor.pos);
       const underneath = square.unit;
 
       // TODO Some of this is the same as Join.trigger() and other commands.
@@ -57,7 +57,7 @@ export class MoveUnit extends TurnState {
       const occupiable = square.occupiable(actor);
       const mergeable = (underneath?.type === actor.type
         && underneath?.faction === actor.faction
-        && underneath?.repairable || actor.repairable);
+        && (underneath?.repairable || actor.repairable));
       const boardable = underneath?.boardable(actor);
 
       // Final check
