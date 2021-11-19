@@ -4,7 +4,7 @@ import { Timer } from "../../../timer/Timer";
 import { TileEventQueue } from "./TileEventQueue";
 
 /** An animation event over the game map which will be started by the event handler. */
-export abstract class TileEventType {
+export abstract class TileEvent {
   /** The board location this event takes place at. */
   readonly location: ImmutablePointPrimitive;
   /** A timer which auto-destructs this object on completion. */

@@ -1,11 +1,11 @@
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
-import { TileEventType } from "./TileEventType";
+import { TileEvent } from "./TileEvent";
 
 /** Simple increment-on-request handler for individual TileEvents. */
 export class TileEventQueue {
 
   /** The list of TileEvents queued for play. */
-  static readonly list: TileEventType[] = [];
+  static readonly list: TileEvent[] = [];
   /** Reference to the game's scene assets. */
   static assets: BattleSceneControllers;
 
@@ -19,12 +19,12 @@ export class TileEventQueue {
   }
 
   /** Add a new event(s) to the queue for playing. */
-  static add(...event: TileEventType[]) {
+  static add(...event: TileEvent[]) {
     this.list.push(...event);
   }
 
   /** Returns the current event to be played. */
-  static get current(): TileEventType | undefined {
+  static get current(): TileEvent | undefined {
     if (this.list.length > 0)
       return this.list[0];
   }
