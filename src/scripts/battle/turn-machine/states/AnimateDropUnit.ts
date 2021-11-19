@@ -5,7 +5,7 @@ import { TurnState } from "../TurnState";
 
 export class AnimateDropUnit extends TurnState {
   get type() { return AnimateDropUnit; }
-  get name(): string { return "CheckBoardState"; }
+  get name(): string { return "AnimateDropUnit"; }
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return true; }
 

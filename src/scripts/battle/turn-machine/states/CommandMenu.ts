@@ -129,8 +129,7 @@ export class CommandMenu extends TurnState {
         instruction.which = menu.selectedValue.input;
         this.advance(DropLocation, CommandMenu);
       } else {
-        // TODO These will move into OrderStart
-        this.advance(AnimateOrder, RatifyIssuedOrder);
+        this.advance();
       }
     }
 

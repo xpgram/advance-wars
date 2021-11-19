@@ -17,6 +17,8 @@ export class RatifyIssuedOrder extends TurnState {
     const { action, placeTile } = this.data;
 
     // Revert settings set from TrackCar.
+    // TODO If a tile does not hold a unit, it should auto-unhide.
+    // I think this statement would still be necessary for no movement, however.
     placeTile.hideUnit = false;
 
     // Retrieve and execute command

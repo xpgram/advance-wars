@@ -65,7 +65,7 @@ export class FactoryMenu extends TurnState {
         instruction.action = Command.SpawnUnit.serial;
         instruction.which = unitSerial;
 
-        this.advance(RatifyIssuedOrder);
+        this.advance();
       }
     }
 

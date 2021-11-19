@@ -64,7 +64,7 @@ export class MoveUnit extends TurnState {
       // Final check
       if (moveable && (occupiable || mergeable || boardable)) {
         instruction.path = map.pathFrom(place);
-        this.advance(CommandMenu);
+        this.advance();
       }
     }
   }

@@ -5,6 +5,9 @@ import { ShowUnitAttackRange } from "./ShowUnitAttackRange";
 import { MoveCamera } from "./MoveCamera";
 import { FieldMenu } from "./FieldMenu";
 import { FactoryMenu } from "./FactoryMenu";
+import { CommandMenu } from "./CommandMenu";
+import { AnimateOrder } from "./AnimateOrder";
+import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -54,6 +57,8 @@ export class IssueOrderStart extends TurnState {
     // Configure map cursor to update pointer graphic over certain terrains
     mapCursor.on('move', this.changeCursorMode, this);
     mapCursor.teleport(mapCursor.pos);  // Trigger cursor mode.
+
+    console.log(this.battleSystemManager.getStackTrace());
   }
 
   close() {
@@ -78,13 +83,13 @@ export class IssueOrderStart extends TurnState {
       const examinableEnemy = (unit?.faction !== player.faction);
       if (unit && (orderableAlly || examinableEnemy)) {
         instruction.place = unit.boardLocation;
-        this.advance(MoveUnit);
+        this.advance(MoveUnit, CommandMenu, AnimateOrder, RatifyIssuedOrder);
       }
 
       // Empty, allied factory tile to build
       else if (!unit && scenario.spawnMap.some(dict => dict.type === square.terrain.type && square.terrain.faction === player.faction)) {
         if (player.faction === square.terrain.faction)
-          this.advance(FactoryMenu);
+          this.advance(FactoryMenu, RatifyIssuedOrder);
       }
 
       // The tile has no particular function — open the Field Menu.

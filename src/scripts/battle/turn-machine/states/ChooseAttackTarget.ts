@@ -115,8 +115,7 @@ export class ChooseAttackTarget extends TurnState {
       this.regress();
     else if (A.pressed) {
       instruction.focal = this.possibleTargets[this.index.output].boardLocation;
-      // TODO These will move into OrderStart
-      this.advance(AnimateOrder, RatifyIssuedOrder);
+      this.advance();
     }
 
     if (gamepad.axis.dpad.returned)
