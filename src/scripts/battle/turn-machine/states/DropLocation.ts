@@ -6,7 +6,6 @@ import { Pulsar } from "../../../timer/Pulsar";
 import { Square } from "../../map/Square";
 import { CommandDropInstruction } from "../CommandInstruction";
 import { TurnState } from "../TurnState";
-import { CommandMenu } from "./CommandMenu";
 
 export class DropLocation extends TurnState {
   get type() { return DropLocation; }

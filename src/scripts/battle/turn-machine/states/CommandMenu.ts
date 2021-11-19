@@ -6,8 +6,6 @@ import { MapLayer } from "../../map/MapLayers";
 import { Command } from "../Command";
 import { DropLocation } from "./DropLocation";
 import { Game } from "../../../..";
-import { AnimateOrder } from "./AnimateOrder";
-import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
 export class CommandMenu extends TurnState {
   get type() { return CommandMenu; }

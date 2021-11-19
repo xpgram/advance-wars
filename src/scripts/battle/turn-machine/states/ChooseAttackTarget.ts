@@ -5,8 +5,6 @@ import { Slider } from "../../../Common/Slider";
 import { Common } from "../../../CommonUtils";
 import { Pulsar } from "../../../timer/Pulsar";
 import { DamageScript } from "../../DamageScript";
-import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
-import { AnimateOrder } from "./AnimateOrder";
 
 export class ChooseAttackTarget extends TurnState {
   get type() { return ChooseAttackTarget; }

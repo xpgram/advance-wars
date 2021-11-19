@@ -3,7 +3,6 @@ import { TransformContainer } from "../../../CommonTypes";
 import { Point } from "../../../Common/Point";
 import { Game } from "../../../..";
 import { Common } from "../../../CommonUtils";
-import { Unit } from "../../Unit";
 
 const CAMERA_SPEED = 7;     // How many tiles the camera travels per 60 frames.
 

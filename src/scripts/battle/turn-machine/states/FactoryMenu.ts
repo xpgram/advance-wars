@@ -4,11 +4,10 @@ import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOpti
 import { defaultUnitSpawnMap } from "../../UnitSpawnMap";
 import { Command } from "../Command";
 import { TurnState } from "../TurnState";
-import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
 export class FactoryMenu extends TurnState {
   get type() { return FactoryMenu; }
-  get name() { return 'FieldMenu'; }
+  get name() { return 'FactoryMenu'; }
   get revertible() { return true; }
   get skipOnUndo() { return false; }
 

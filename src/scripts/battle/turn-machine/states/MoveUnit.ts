@@ -1,6 +1,5 @@
 import { TurnState } from "../TurnState";
 import { Point } from "../../../Common/Point";
-import { CommandMenu } from "./CommandMenu";
 
 export class MoveUnit extends TurnState {
   get type() { return MoveUnit; }
