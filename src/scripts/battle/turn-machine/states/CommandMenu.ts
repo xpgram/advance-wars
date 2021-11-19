@@ -1,12 +1,13 @@
 import { TurnState } from "../TurnState";
-import { AnimateMoveUnit } from "./AnimateMoveUnit";
 import { ChooseAttackTarget } from "./ChooseAttackTarget";
 import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOption";
 import { MapLayer } from "../../map/MapLayers";
-import { Command, CommandObject } from "../Command";
+import { Command } from "../Command";
 import { DropLocation } from "./DropLocation";
 import { Game } from "../../../..";
+import { AnimateOrder } from "./AnimateOrder";
+import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
 export class CommandMenu extends TurnState {
   get type() { return CommandMenu; }
@@ -126,9 +127,11 @@ export class CommandMenu extends TurnState {
         this.advance(ChooseAttackTarget);
       else if (commandValue === Command.Drop.serial) {
         instruction.which = menu.selectedValue.input;
+        // TODO DropLocation, CommandMenu
         this.advance(DropLocation);
       } else {
-        this.advance(AnimateMoveUnit);
+        // TODO These will move into OrderStart
+        this.advance(AnimateOrder, RatifyIssuedOrder);
       }
     }
 

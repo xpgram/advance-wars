@@ -2,10 +2,11 @@ import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
 import { Point } from "../../../Common/Point";
 import { Slider } from "../../../Common/Slider";
-import { AnimateMoveUnit } from "./AnimateMoveUnit";
 import { Common } from "../../../CommonUtils";
 import { Pulsar } from "../../../timer/Pulsar";
 import { DamageScript } from "../../DamageScript";
+import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
+import { AnimateOrder } from "./AnimateOrder";
 
 export class ChooseAttackTarget extends TurnState {
   get type() { return ChooseAttackTarget; }
@@ -96,7 +97,7 @@ export class ChooseAttackTarget extends TurnState {
   }
 
   update() {
-    const { gamepad, map, mapCursor, uiSystem, players, instruction } = this.assets;
+    const { gamepad, mapCursor, instruction } = this.assets;
 
     const { dpadUp, dpadLeft, dpadDown, dpadRight, A, B } = gamepad.button;
 
@@ -114,7 +115,8 @@ export class ChooseAttackTarget extends TurnState {
       this.regress();
     else if (A.pressed) {
       instruction.focal = this.possibleTargets[this.index.output].boardLocation;
-      this.advance(AnimateMoveUnit);
+      // TODO These will move into OrderStart
+      this.advance(AnimateOrder, RatifyIssuedOrder);
     }
 
     if (gamepad.axis.dpad.returned)

@@ -2,7 +2,6 @@ import { CardinalDirection } from "../../../Common/CardinalDirection";
 import { Point } from "../../../Common/Point";
 import { TrackCar } from "../../TrackCar";
 import { TurnState } from "../TurnState";
-import { AnimateBattle } from "./AnimateBattle";
 
 export class AnimateDropUnit extends TurnState {
   get type() { return AnimateDropUnit; }
@@ -46,7 +45,7 @@ export class AnimateDropUnit extends TurnState {
 
   update(): void {
     if (this.dropCars.every( c => c.finished ))
-      this.advance(AnimateBattle);
+      this.advance();
   }
 
   close(): void {
