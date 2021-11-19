@@ -42,9 +42,13 @@ export class DamageScript {
         // Sandstorm -30/0
         // Luck +LCK/0, where LCK is range 0 to ceil(attackerHP / 10)
 
-        const atkRankBoosts = [0,5,10,20];                     // TODO What if rank is 4?! Irrelevant. It'll never happen.
+        // TODO Implement CO stuff
+        const atkOfficer = A.unit.boardPlayer.officer;
+        const defOfficer = B.unit.boardPlayer.officer;
+
+        const atkRankBoosts = [0,5,10,20];                      // TODO What if rank is 4?! Irrelevant. It'll never happen.
         const atkRank = atkRankBoosts[A.unit.rank];
-        const atkCOZone = (A.square.COAffectedFlag) ? 10 : 0;  // TODO Which CO? God damn it.
+        const atkCOZone = (A.square.COAffectedFlag) ? 10 : 0;   // TODO Which CO?
         const luck = ceil(rand * ceil(A.HP / 10 + 1)) - 1;
 
         const attackStat = 100 + atkRank + atkCOZone + luck;
