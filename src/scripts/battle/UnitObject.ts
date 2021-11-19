@@ -667,6 +667,14 @@ export abstract class UnitObject {
             this.gas -= 1;
     }
 
+    /** Returns true if this unit can merge with the given unit as the result of a Join command. */
+    mergeable(unit: UnitObject): boolean {
+        const sameType = (this.type === unit.type);
+        const sameFaction = (this.faction === unit.faction);
+        const oneRepairable = (this.repairable || unit.repairable);
+        return sameType && sameFaction && oneRepairable;
+    }
+
     /** Returns true if this unit can hold the given unit, or is capable of
      * holding units generally if no unit was given. */
     boardable(unit?: UnitObject): boolean {

@@ -1,5 +1,6 @@
 import { TurnState } from "../TurnState";
 import { Point } from "../../../Common/Point";
+import { Command } from "../Command";
 
 export class MoveUnit extends TurnState {
   get type() { return MoveUnit; }
@@ -54,10 +55,9 @@ export class MoveUnit extends TurnState {
       // Wouldn't it be nice if I could just ask "Will there be any commands here?"
 
       const moveable = square.moveFlag;
+      // const commandable = [Command.Load, Command.Join].every( c => c.triggerInclude() );
       const occupiable = square.occupiable(actor);
-      const mergeable = (underneath?.type === actor.type
-        && underneath?.faction === actor.faction
-        && (underneath?.repairable || actor.repairable));
+      const mergeable = underneath?.mergeable(actor);
       const boardable = underneath?.boardable(actor);
 
       // Final check
