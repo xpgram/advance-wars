@@ -39,7 +39,7 @@ export abstract class TileEvent {
 
   /** Whether this event is mid duration. False if not yet started. */
   get playing(): boolean {
-    return this.timer.ticking;
+    return this.timer.ticking && !this.finished;
   }
 
   /** Stops this object's animation and destructs its assets. */

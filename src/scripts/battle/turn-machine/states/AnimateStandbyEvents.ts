@@ -23,7 +23,7 @@ export class AnimateStandbyEvents extends TurnState {
       else if (!camera.subjectInView)
         return;
 
-      else if (!boardEvents.current.playing)
+      else if (!boardEvents.current.playing && !boardEvents.current.finished)
         boardEvents.current.play();
 
       else if (boardEvents.current.finished)

@@ -6,7 +6,7 @@ import { TileEvent } from "./TileEvent";
 
 
 export class SupplyEvent extends TileEvent {
-  protected timer: Timer = new Timer(2);
+  protected timer: Timer = new Timer(1);
 
   image!: PIXI.Sprite;
 
@@ -18,12 +18,12 @@ export class SupplyEvent extends TileEvent {
     this.image = new PIXI.Sprite(tex);
 
     const placement = new Point(this.location);
-    placement.x += (onLeft) ? 0 : 1;
+    placement.x += (onLeft) ? .15 : .85;
 
     this.image.anchor.x = (onLeft) ? 1 : 0;
     this.image.position.set(
       placement.x * Game.display.standardLength,
-      placement.y * Game.display.standardLength,
+      (placement.y - .35) * Game.display.standardLength,
     );
 
     MapLayer('ui').addChild(this.image);
@@ -34,7 +34,7 @@ export class SupplyEvent extends TileEvent {
   }
 
   protected destroy(): void {
-    this.image.destroy();
+    this.image?.destroy();
     //@ts-expect-error
     this.image = undefined;
   }
