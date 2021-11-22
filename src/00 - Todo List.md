@@ -1,8 +1,17 @@
 # Next Big Objectives
 
-- [ ] BUG: When a Battleship is just out of range of a potential target, but a diagonal adjacent ally is present, that target is redlit.
-  It's as if 'occupying' a tile occupied by an ally extends range by 1.
-  This seems to only be a problem with canMoveAndAttack units.
+- [ ] COAffectedTiles
+  - [ ] Tiles reflect whether they are affected or not visually.
+    - [ ] Tiles do this *and* indicate by which player they are affected.
+  - [ ] MapSquare is refactored to allow for a list of players which affect it.
+    - It can't be redetermined per turn because COAffected affects DEF too.
+  - [ ] Does the source game change the map UI depending on whose turn it is? I don't remember them having two different visual effects. What happens during overlap then?
+- [ ] Alt:
+  - COAffected could be obtained from the board players themselves. They would just have a rangeMap, just like units do.
+  - The visual effect, if in the overlay layer, could also be maintained by the board player.
+
+- [ ] AnimateStandbyEvents should handle unit explosions; gas-empty air and naval units need to blow up all the same. AnimateBattle (will never be filled in) would handle the cutscene battle, then. It probably needs to go before standby, in that case.
+Luckily that's really easy to do with the new queueing system.
 
 - [ ] I totally forgot I haven't added rank ups. That would be mad easy.
 

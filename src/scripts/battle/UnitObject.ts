@@ -12,6 +12,7 @@ import { PointPrimitive, Point } from "../Common/Point";
 import { CommonRangesRetriever, RegionMap } from "./unit-actions/RegionMap";
 import { BoardPlayer } from "./BoardPlayer";
 import { TerrainObject } from "./map/TerrainObject";
+import { SupplyEvent } from "./map/tile-effects/SupplyEvent";
 
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
@@ -646,6 +647,9 @@ export abstract class UnitObject {
 
         if (this.onMap) {
             // TODO Emit an event to the board player to animate
+            new SupplyEvent({
+                location: this.boardLocation,
+            });
         }
     }
 

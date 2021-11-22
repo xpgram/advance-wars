@@ -130,8 +130,13 @@ export module Command {
           attacker.ammo -= 1;
         if (map.squareAt(attacker.boardLocation).COAffectedFlag)
           attacker.boardPlayer.increasePowerMeter(damage);
-        if (defender.hp === 0)
+          // TODO This counts *potential* damage, not real. Does this matter?
+          // If you destroy a 2HP Rockets, should you get CO power for all 6 you would have done?
+        if (defender.hp === 0) {
+          attacker.rank += 1;
+          // TODO Push destroy event to anim standby events
           toRemove.push(defender);
+        }
       }
 
       const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);

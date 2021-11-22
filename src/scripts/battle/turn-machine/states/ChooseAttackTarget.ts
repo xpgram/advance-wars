@@ -35,9 +35,6 @@ export class ChooseAttackTarget extends TurnState {
     const { map, mapCursor, uiSystem, players } = this.assets;
     const { actor, goal, seed } = this.data;
 
-    // TODO This still has order issues: it needs to happen *before* inspectTile() now.
-    // But... eh.
-
     const focalTile = map.squareAt(mapCursor.pos);
     const focalUnit = focalTile.unit;
     if (focalUnit && focalUnit.faction !== players.current.faction) {
@@ -121,7 +118,7 @@ export class ChooseAttackTarget extends TurnState {
   }
 
   close() {
-    const { map, mapCursor, uiSystem } = this.assets;
+    const { mapCursor, uiSystem } = this.assets;
 
     this.holdButton.stop();
     uiSystem.battleForecast = undefined;
