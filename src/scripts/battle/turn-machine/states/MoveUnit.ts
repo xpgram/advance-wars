@@ -10,6 +10,16 @@ export class MoveUnit extends TurnState {
 
   private lastCursorPos = new Point(-1, -1);
 
+  changeCursorMode() {
+    const { map, mapCursor } = this.assets;
+    const { actor } = this.data;
+
+    const unit = map.squareAt(mapCursor.pos).unit;
+    const boardable = unit?.boardable(actor);
+
+    mapCursor.mode = boardable ? 'target' : 'point';
+  }
+
   configureScene() {
     const { map, mapCursor, uiSystem, trackCar } = this.assets;
     const { actor, placeTile } = this.data;
@@ -24,8 +34,17 @@ export class MoveUnit extends TurnState {
     trackCar.buildNewAnimation(actor);
     trackCar.show();
 
+    // Configure map cursor to update pointer graphic over certain terrains
+    mapCursor.on('move', this.changeCursorMode, this);
+    mapCursor.teleport(mapCursor.pos);  // Trigger cursor mode.
+
     // Generate movement map
     map.generateMovementMap(actor);
+  }
+
+  close() {
+    const { mapCursor } = this.assets;
+    mapCursor.removeListener(this.changeCursorMode, this);
   }
 
   update() {
