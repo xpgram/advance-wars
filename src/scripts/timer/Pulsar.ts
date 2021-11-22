@@ -19,7 +19,12 @@ export class Pulsar {
   private _active = false;
 
   /** Whether or not this pulsar's first interval has finished. */
-  private firstIntervalComplete = false;
+  get firstIntervalComplete() { return this._firstIntervalComplete; }
+  private _firstIntervalComplete = false;
+
+  /** The number of pulses this pulsar has triggered since last reset. */
+  get pulseCount() { return this._pulses; }
+  private _pulses = 0;
 
   /** This class' internal measure of elapsed time in frames. */
   private clock = 0;
@@ -64,7 +69,7 @@ export class Pulsar {
     if (!this.active)
       return;
 
-    const effectiveInterval = (this.firstIntervalComplete)
+    const effectiveInterval = (this._firstIntervalComplete)
       ? this.interval
       : this.firstInterval;
 
@@ -72,7 +77,8 @@ export class Pulsar {
     this.clock += delta;
     if (this.clock > effectiveInterval) {
       this.clock -= effectiveInterval;
-      this.firstIntervalComplete = true;
+      this._firstIntervalComplete = true;
+      this._pulses++;
       this.action.call(this.context);
     }
   }
@@ -92,6 +98,7 @@ export class Pulsar {
    * Does not stop the clock's ticking. */
   reset() {
     this.clock = 0;
-    this.firstIntervalComplete = false;
+    this._firstIntervalComplete = false;
+    this._pulses = 0;
   }
 }

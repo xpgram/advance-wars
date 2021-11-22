@@ -1,18 +1,18 @@
 import { ButtonState } from "./ButtonState";
 import { Common } from "../CommonUtils";
-import { PointPrimitive } from "../Common/Point";
+import { ImmutablePointPrimitive, Point, PointPrimitive } from "../Common/Point";
 
 /**  */
 export class Axis2D {
     private _name: string | null;
-    private _point: PointPrimitive;
-    private _lastPoint: PointPrimitive;
+    private _point: Point;
+    private _lastPoint: Point;
     private _state: ButtonState;
 
     constructor(name: string | null) {
         this._name = name || null;
-        this._point = {x: 0, y: 0};
-        this._lastPoint = {x: 0, y: 0};
+        this._point = new Point();
+        this._lastPoint = new Point();
         this._state = ButtonState.Up;
     }
 
@@ -20,11 +20,13 @@ export class Axis2D {
     get point() { return this._point; }
 
     /** A point representing relative changes to the dpad axis this frame. */
-    get framePoint() {
-        return {
-            x: this._point.x - this._lastPoint.x,
-            y: this._point.y - this._lastPoint.y,
-        };
+    get relativePoint(): Point {
+        return this._point.subtract(this._lastPoint);
+    }
+
+    /** A point with axis values altered this frame. */
+    get framePoint(): Point {
+        return this._point.multiply(this.relativePoint.abs().ceil());
     }
 
     /** Returns true if this axis has a directional bias (non-neutral). */
@@ -39,9 +41,8 @@ export class Axis2D {
     get changed() { return this.tilted || this.returned; }
 
     /** Updates this axis with new values. Used by the parent-controller object. */
-    update(input: PointPrimitive) {
-        this._lastPoint.x = this._point.x;
-        this._lastPoint.y = this._point.y;
+    update(input: ImmutablePointPrimitive) {
+        this._lastPoint.set(this._point)
         this._point.x = Common.clamp(input.x, -1, 1);
         this._point.y = Common.clamp(input.y, -1, 1);
 
@@ -59,7 +60,7 @@ export class Axis2D {
 
     /** Resets the axis state; sets its position to home, skipping the released state. */
     reset() {
-        this._point = {x: 0, y: 0};
-        this._lastPoint = {x: 0, y: 0};
+        this._point.set(0);
+        this._lastPoint.set(0);
     }
 }

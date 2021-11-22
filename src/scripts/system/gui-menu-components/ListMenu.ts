@@ -122,17 +122,12 @@ export class ListMenu<X, Y> extends Observable {
   private triggerCursorMovement() {
     const { cursor, pageCursor, gamepad, view } = this;
 
-    // Get only pressed-this-frame dirs unless no change.
-    const frameDir = gamepad.axis.dpad.framePoint;
-    const maskFunc = (n: number) => Math.ceil(Math.abs(n));
-    const mask = new Point(maskFunc(frameDir.x), maskFunc(frameDir.y));
+    const { dpad } = gamepad.axis;
 
-    if (mask.equal(Point.Origin)) mask.set(1,1);
-    else this.movementPulsar.reset();
-
-    const dir = {
-      x: gamepad.axis.dpad.point.x * mask.x,
-      y: gamepad.axis.dpad.point.y * mask.y,
+    let dir = dpad.point;
+    if (dpad.framePoint.notEqual(Point.Origin)) {
+      this.movementPulsar.reset();
+      dir = dpad.framePoint;
     }
 
     // Reposition cursor
