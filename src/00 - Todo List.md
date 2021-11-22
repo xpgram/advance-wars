@@ -1,5 +1,8 @@
 # Next Big Objectives
 
+- [ ] Unit can send a message to QueueEvents or boardPlayer or whatever.
+- [ ] That message is instantiated later when it's relevant by a turnstate or BoardEvents which will have a reference to assets (camera).
+
 - [ ] COAffectedTiles
   - [ ] Tiles reflect whether they are affected or not visually.
     - [ ] Tiles do this *and* indicate by which player they are affected.

@@ -54,8 +54,9 @@ export class ChooseAttackTarget extends TurnState {
     uiSystem.show();
     trackCar.show();
 
-    // Update damage forecast on cursor move
+    // Setup map cursor
     mapCursor.on('move', this.updateDamageForecast, this);
+    mapCursor.mode = 'target';
 
     // Build the list of possible targets
     const boundary = map.squareOfInfluence(actor);
