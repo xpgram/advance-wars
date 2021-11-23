@@ -67,10 +67,10 @@ export class COWindow extends SlidingWindow {
         this.commanderImage = function () {
             const g = new PIXI.Graphics();
             const { width, height } = player.officer.eyeshot;
-            g.beginFill(palettes[faction].whiteTint, .50);
-            g.drawRect(2,0,width-2,height);
-            g.beginFill(palettes[faction].whiteTint, .25);
-            g.drawRect(1,0,1,height);
+            g.beginFill(palettes[faction].whiteTint, .30);
+            g.drawRect(4,0,width-4,height);
+            g.beginFill(palettes[faction].whiteTint, .15);
+            g.drawRect(3,0,1,height);
             g.endFill();
             g.addChild(player.officer.eyeshot);
             return g;

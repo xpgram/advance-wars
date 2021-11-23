@@ -5,8 +5,10 @@ import { Game } from "../../..";
 import { NullTurnState } from "./NullTurnState";
 import { GameStart } from "./states/GameStart";
 import { Common } from "../../CommonUtils";
+import { Keys } from "../../controls/KeyboardObserver";
 
 const STACK_TRACE_LIMIT = 20;
+const QUEUE_STACK_WARNING = 30;
 
 export type NextState = {
   state: TurnStateConstructor,
@@ -81,6 +83,10 @@ export class BattleSystemManager {
   /** Turn Machine's update step which runs the current state's update step and handles
    * transition requests. */
   private update() {
+    // Dev stack trace
+    if (Game.devController.get(Keys.P).pressed)
+      Debug.ping(this.getStackTrace());
+
     // Wait for the camera before doing anything.
     if (!this.controllers.camera.subjectInView)
       return;
@@ -119,6 +125,9 @@ export class BattleSystemManager {
           priority: 4, // TODO Wtf does 4 mean?
           type: `TurnMachine`,
         });
+
+        // Cull unreachables from stack
+        this.cullNonRevertibles();
       }
 
       // nextState->previous handler
@@ -196,6 +205,9 @@ export class BattleSystemManager {
     if (!this.transitioning && this.isSelfsameState(requestedBy)) {
       this.queue.unshift(...next);
       this.transitionIntent = TransitionTo.Next;
+
+      if (this.queue.length >= QUEUE_STACK_WARNING)
+        Debug.warn(`TurnMachine: queue is ${this.queue.length} members long.`);
     }
   }
 
@@ -204,6 +216,28 @@ export class BattleSystemManager {
   regress(requestedBy: TurnState) {
     if (!this.transitioning && this.isSelfsameState(requestedBy))
       this.transitionIntent = TransitionTo.Previous;
+  }
+
+  /** Reduces the stack length at non-revertible break points. */
+  cullNonRevertibles() {
+    let idx = -1;
+    // Find last non-revertible occurrence.
+    for (let i = this.stack.length; i >= 0; i--)
+      if (this.stack[i]?.revertible === false) {
+        idx = i;
+        break;
+      }
+    // Slice list and destroy states not needed.
+    if (idx > -1) {
+      const culled = this.stack.slice(0,idx);
+      this.stack = this.stack.slice(idx);
+      culled.forEach( s => s.destroy() );
+      Debug.log({
+        msg: `Culling ${idx} unreachable turnstates.`,
+        priority: 4,
+        type: `Turnmachine`,
+      })
+    }
   }
 
   /** Signals the BattleSystemManager that it should abandon its most recent state advancement and continue regressing to the
