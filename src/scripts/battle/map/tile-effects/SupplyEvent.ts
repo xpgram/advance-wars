@@ -3,16 +3,18 @@ import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
+import { TileEventQueue } from "./TileEventQueue";
 
 
 export class SupplyEvent extends TileEvent {
-  protected timer: Timer = new Timer(1);
+  protected timer: Timer = new Timer(0.66);
 
   image!: PIXI.Sprite;
 
   protected create(): void {
+    const { camera } = TileEventQueue.assets;
     const sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
-    const onLeft = false;
+    const onLeft = (camera.center.x > this.location.x);
     const imgTitle = `bubble-supply-${onLeft ? 'left' : 'right'}.png`;
     const tex = sheet.textures[imgTitle];
     this.image = new PIXI.Sprite(tex);

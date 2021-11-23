@@ -147,6 +147,9 @@ export class BattleSceneControllers {
     this.map = new Map(mapLandsEnd);
     this.mapCursor = new MapCursor(this.map, this.gamepad);
 
+    // Setup board event queue
+    this.boardEvents.init(this);
+
     // Setup Players
     const playerObjects = [];
     for (let i = 0; i < mapLandsEnd.players; i++) {
