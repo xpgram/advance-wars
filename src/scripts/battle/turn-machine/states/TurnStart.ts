@@ -2,6 +2,8 @@ import { Common } from "../../../CommonUtils";
 import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
 import { CheckBoardState } from "./CheckBoardState";
+import { RepairEvent } from "../../map/tile-effects/RepairEvent";
+import { Point } from "pixi.js";
 
 export class TurnStart extends TurnState {
   get type() { return TurnStart; }
@@ -10,7 +12,7 @@ export class TurnStart extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { map, mapCursor, uiSystem, players, scenario, scripts } = this.assets;
+    const { map, mapCursor, uiSystem, players, scenario, scripts, boardEvents } = this.assets;
     const player = players.current;
 
     // Update player stuff
@@ -48,9 +50,13 @@ export class TurnStart extends TurnState {
           const maxRepairHp = scenario.repairHp;
           const repairHp = Common.clamp(maxUnitHp - unit.hp, 0, maxRepairHp);
           const costToRepair = unit.cost * repairHp / maxUnitHp;
-          if (costToRepair <= player.funds) {
+
+          const repairable = (repairHp > 0);
+          const fundsAvailable = (costToRepair <= player.funds);
+          if (repairable && fundsAvailable) {
             unit.hp += repairHp;
             player.expendFunds(costToRepair);
+            boardEvents.add(new RepairEvent({location: unit.boardLocation}));
           }
 
           if (unit.resuppliable())
