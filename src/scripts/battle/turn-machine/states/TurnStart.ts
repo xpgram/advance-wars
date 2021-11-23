@@ -26,6 +26,10 @@ export class TurnStart extends TurnState {
     // Move UI Windows
     uiSystem.skipAnimations();
 
+    // TODO Refactor to split steps: spend, then repair;
+    // sometimes aircraft miss rig resupply events because they haven't
+    // expended any maintainance gas yet.
+
     // Per Unit effects
     player.units.forEach( unit => {
       if (!unit.onMap)
