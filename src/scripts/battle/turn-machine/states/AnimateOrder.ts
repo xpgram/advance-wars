@@ -15,8 +15,8 @@ export class AnimateOrder extends TurnState {
     this.advance(
       AnimateMoveUnit,
       AnimateDropUnit,
-      AnimateStandbyEvents,
       AnimateBattle,
+      AnimateStandbyEvents,
     );
   }
 
