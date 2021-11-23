@@ -4,6 +4,10 @@
 - [ ] That message is instantiated later when it's relevant by a turnstate or BoardEvents which will have a reference to assets (camera).
 
 - [ ] COAffectedTiles
+  - [ ] Do some drafting to confirm visual style before implementation.
+  - Source game does *not* show all player's CO ranges. I would like to change this, I think. But with caveats:
+    - Do not show CO range on tiles hidden by Fog of War
+    - Do not show CO range at all if CO unit is hidden by Fog of War
   - [ ] Tiles reflect whether they are affected or not visually.
     - [ ] Tiles do this *and* indicate by which player they are affected.
   - [ ] MapSquare is refactored to allow for a list of players which affect it.
@@ -16,10 +20,10 @@
 - [ ] AnimateStandbyEvents should handle unit explosions; gas-empty air and naval units need to blow up all the same. AnimateBattle (will never be filled in) would handle the cutscene battle, then. It probably needs to go before standby, in that case.
 Luckily that's really easy to do with the new queueing system.
 
-- [ ] I totally forgot I haven't added rank ups. That would be mad easy.
+- [x] I totally forgot I haven't added rank ups. That would be mad easy.
 
 - [ ] UnitDetail Window
-- [ ] Switchable with Y.
+- [ ] Switchable with Button.Y / Key.C.
 
 - [ ] Target Reticle around Battleships.
 - [ ] Enable move and attack.
@@ -99,17 +103,6 @@ Post Function:
 - [ ] Instant move InfoWindowSystem on FactoryShop menu open.
 - [ ] Force open UnitDetail
 - [ ] Move camera to show base tile between shop menu and detail window?
-
-- [x] NextOrderableUnit
-  - [ ] Source game has no hold behavior, and won't let you click to next again until the camera has found the cursor (which I think is also hidden, giving the player clear indication when they're allowed to move it).
-  - My camera can be fast, that's fine. The player should at least know where the new position is in relation to where the cursor was, though. That's the main problem.
-  - I'm gonna need to think about auto-camera-move anyway because watching your opponent on their turn will use it a lot. It needs to be a turn step.
-  - A silent camera-move-to-location step would be nice. The trick is telling it where to go after it's finished...
-    A neat trick would be to start it, let it finish, regress and move on naturally. This kind of bucks the TurnSystem's design principles, though. All steps should be recorded.
-    I've wanted a convenient way to move into an animate step but then direct somewhere else for a while now, though. This should be the way.
-- [ ] TurnStateSystem multi-step direct
-  Add a way to pass information, specifically a queue of states to move into, to the next turnstate. This next turnstate has the responsibility of deciding when and how to use this information. It can shift out the first one, ignore it, pass it on or not, insert something new and then pass it, etc.
-  Realistically, I don't think this game will ever use a list of steps; animation states can chain together logically already, and control states, it's not even reasonable to allow the previous state to dictate where this one goes.
 
 - [ ] Refactor TurnStates to take advantage of queueing:
   - [x] Expand IssueOrderStart to MoveUnit,CommandMenu,Confirm,Animate,Ratify
@@ -203,9 +196,6 @@ Post Function:
   - [ ] Terrain.landscape → Terrain.illustration (consistency)
   - [ ] Unit.infoPortrait (or w/e) → Unit.illustration
 
-- [ ] Clean up Window UI classes
-- [ ] Add "Unit Info" window switch-to-able with 'C' — all unit information is prepped now.
-
 - [ ] Z-Ordering and UI Properties refactor  
   Currently, each UI element defines these in their class scripts—in their constructors, actually. I can confirm MenuWindow and MapCursor do. This will be messy later on.
   - [ ] Introduce one place to define z-ordering relationships between layers and layer elements, and extend that for other inter-UI properties as well, if such properties are useful.
@@ -215,12 +205,12 @@ Post Function:
 
 - [ ] MoveUnit step: if square under cursor is an attackable target, change to target reticle.
   - [x] Cursor graphic switching infrastructure
-  - [ ] Add missing target reticle graphics to spritesheet
+  - [x] Add missing target reticle graphics to spritesheet
   - [x] Cursor graphics change-logic in relevant turn-states
   - [x] Graphics change-logic is written in MapCursor.ts, enable switches are given to turn states to configure behaviour.
     - [ ] mapCursor.mode is defined, it's just lacking a 'target' or 'actionable' mode.
   - [x] Cursor over base and base is uninhabited → wrench icon
-  - [ ] Cursor over attackable target square → target reticle
+  - [x] Cursor over attackable target square → target reticle
   - [ ] TurnState == DestroyUnits → ban icon / 'X' icon
   - [x] Reset cursor switches to default cursor graphics
 
