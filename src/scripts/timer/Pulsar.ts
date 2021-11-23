@@ -30,17 +30,23 @@ export class Pulsar {
   private clock = 0;
 
   /** The elapsed time between pulses. Measured in frames. */
-  interval: number;
+  get interval() { return this._interval; }
+  set interval(n) {
+    const noFirstInterval = (this.firstInterval === this._interval);
+    this.firstInterval = noFirstInterval ? n : this.firstInterval;
+    this._interval = n;
+  }
+  private _interval: number;
 
   /** The elapsed time between clock start and the first pulse. Measured in frames. */
   firstInterval: number;
 
   /** Pulses per second. Modifies interval to achieve the value set. */
   get frequency(): number {
-    return 60 / this.interval;
+    return 60 / this._interval;
   }
   set frequency(n) {
-    this.interval = 60 / n;
+    this._interval = 60 / n;
   }
 
   /** A reference to the method we are to call every pulse. */
@@ -52,8 +58,8 @@ export class Pulsar {
     const isOptions = (typeof interval !== 'number');
     const options = (isOptions) ? interval : { interval };
 
-    this.interval = options.interval;
-    this.firstInterval = options.firstInterval || this.interval;
+    this._interval = options.interval;
+    this.firstInterval = options.firstInterval || this._interval;
     this.action = action;
     this.context = context || null;
     Game.app.ticker.add(this.update, this);
@@ -70,7 +76,7 @@ export class Pulsar {
       return;
 
     const effectiveInterval = (this._firstIntervalComplete)
-      ? this.interval
+      ? this._interval
       : this.firstInterval;
 
     // Handle time

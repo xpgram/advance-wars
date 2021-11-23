@@ -11,13 +11,14 @@ export class MoveUnit extends TurnState {
   private lastCursorPos = new Point(-1, -1);
 
   changeCursorMode() {
-    const { map, mapCursor } = this.assets;
+    const { map, mapCursor, players } = this.assets;
     const { actor } = this.data;
 
     const unit = map.squareAt(mapCursor.pos).unit;
     const boardable = unit?.boardable(actor);
+    const sameFaction = unit?.faction === players.current.faction;
 
-    mapCursor.mode = boardable ? 'target' : 'point';
+    mapCursor.mode = (boardable && sameFaction) ? 'target' : 'point';
   }
 
   configureScene() {

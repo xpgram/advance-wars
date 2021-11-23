@@ -19,19 +19,14 @@ export class MapCursor extends Observable {
   /** Cursor animation settings. */
   static readonly settings = {
     animSpeed: 1 / 2.5,
-    targetAnimSpeed: 1 / 4,
-    animSelectorPulseInterval: 40,
-    animTargetPulseInterval: 40,
-    selectorAnchor: new Point(),
-    targetSelectorAnchor: new Point(),
+    reticleSpeed: 1 / 4,
+    animPulseInterval: 40,
     moveFirst: 15,
     moveRepeat: 3,
-    // sel: wait → up/down → wait → up/down
-    // tar: up → wait → down → wait → up
   }
 
   animPulsar = new Pulsar(
-    MapCursor.settings.animSelectorPulseInterval,
+    MapCursor.settings.animPulseInterval,
     this.triggerAnimation,
     this
   )
@@ -61,7 +56,7 @@ export class MapCursor extends Observable {
   /** Sets this cursor's graphics by context. */
   get mode() { return this._mode; }
   set mode(mode) {
-    const showPointer = (mode !== 'target');
+    const targetMode = (mode === 'target');
     const sets = this.cursorGraphics;
     const pointer =
       (mode === 'build')
@@ -69,21 +64,12 @@ export class MapCursor extends Observable {
         : (mode === 'ban')
           ? sets.banPointer
           : sets.arrowPointer;
-    const cursor =
-      (mode === 'target')
-        ? sets.targetSelector
-        : sets.selector;
     this.pointerSprite.textures = pointer;
-    this.pointerSprite.visible = showPointer;
-    this.cursorSprite.textures = cursor;
-    const anchor =
-      (showPointer)
-      ? MapCursor.settings.selectorAnchor
-      : MapCursor.settings.targetSelectorAnchor;
-    this.cursorSprite.anchor.set(anchor.x, anchor.y);
-    this.cursorSprite.animationSpeed = showPointer
-      ? MapCursor.settings.animSpeed
-      : MapCursor.settings.targetAnimSpeed;
+
+    this.pointerSprite.visible = !targetMode;
+    this.cursorSprite.visible = !targetMode;
+    this.reticleSprite.visible = targetMode;
+    
     this._mode = mode;
   }
   private _mode: 'point' | 'build' | 'ban' | 'target' = 'point';
@@ -119,6 +105,9 @@ export class MapCursor extends Observable {
   /** The arrow-pointer sprite which accompanies the cursor. */
   private pointerSprite: AnimatedSprite;
 
+  /** The tile-selector sprite object used over actionable locations in place of the cursor. */
+  private reticleSprite: AnimatedSprite;
+
 
   constructor(map: Map, gp: VirtualGamepad) {
     super();
@@ -138,13 +127,6 @@ export class MapCursor extends Observable {
       banPointer: sheet.animations['MapCursor/mapcursor-wrong'],
     }
 
-    // Save anchor positions for different cursor sprite dimensions (dumb).
-    const sel = (new AnimatedSprite(this.cursorGraphics.selector));
-    const tsel = (new AnimatedSprite(this.cursorGraphics.targetSelector));
-    MapCursor.settings.selectorAnchor = new Point(sel.anchor.x);
-    MapCursor.settings.targetSelectorAnchor = new Point(tsel.anchor.x);
-    MapCursor.settings.animTargetPulseInterval = tsel.textures.length / MapCursor.settings.targetAnimSpeed;
-
     // Build Cursor
     this.cursorSprite = new AnimatedSprite(this.cursorGraphics.selector);
     this.cursorSprite.animationSpeed = MapCursor.settings.animSpeed;
@@ -155,8 +137,18 @@ export class MapCursor extends Observable {
     this.pointerSprite.animationSpeed = MapCursor.settings.animSpeed;
     this.pointerSprite.loop = false;
 
-    this.spriteLayer.addChild(this.cursorSprite);
-    this.spriteLayer.addChild(this.pointerSprite);
+    // Build target reticle
+    this.reticleSprite = new AnimatedSprite(this.cursorGraphics.targetSelector);
+    this.reticleSprite.animationSpeed = MapCursor.settings.reticleSpeed;
+    this.reticleSprite.loop = true;
+    this.reticleSprite.visible = false;
+    this.reticleSprite.play();
+
+    this.spriteLayer.addChild(
+      this.cursorSprite,
+      this.pointerSprite,
+      this.reticleSprite
+    );
 
     // Add the created image layer to the relevant places
     this.transform.object = this.spriteLayer;
@@ -219,10 +211,6 @@ export class MapCursor extends Observable {
   private triggerAnimation() {
     this.cursorSprite.gotoAndPlay(0);
     this.pointerSprite.gotoAndPlay(0);
-
-    this.animPulsar.interval = (this.mode === 'target')
-      ? MapCursor.settings.animTargetPulseInterval
-      : MapCursor.settings.animSelectorPulseInterval;
   }
 
   /** Triggers this object's position to move according to the directional input of the dpad.
