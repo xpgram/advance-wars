@@ -1,11 +1,5 @@
 # Next Big Objectives
 
-- [ ] Figure out timing issue with AnimEvents
-  - I think it either has to do with
-    - Camera Movement: subject-not-in-view suspends the turnstate update step, and there is sometimes odd behavior from the camera when teleporting the invisible cursor around the map. Why would this only be on the first item, though?
-    - Asset Preparation: something about preparing the speech bubble for display causes the lag. This makes... absolutely no sense to me because those assets are already loaded, but it's my fallback hypothesis.
-  - When investigating, I couldn't really confirm where the time gap was because, as I said, camera movement suspends the update step, so reporting on exactly *when* that occurs and finishes never actually happened. I just know the gap is between 'move cursor' and 'play'.
-
 - [ ] Unit can send a message to QueueEvents or boardPlayer or whatever.
   - [ ] Unit must use BoardPlayer as a proxy to emit() since it has no references to anything.
   - [ ] Unit emits constructed object; queue or whatever inits later with references to camera, etc.
