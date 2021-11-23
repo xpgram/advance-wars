@@ -36,7 +36,7 @@ export abstract class SpeechBubbleEvent extends TileEvent {
   }
 
   protected update(): void {
-    this.image.visible = (this.timer.elapsed > 0.1);
+    this.image.visible = (this.timer.elapsed > 0.2);
   }
 
   protected destroy(): void {

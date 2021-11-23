@@ -12,16 +12,13 @@ export class AnimateStandbyEvents extends TurnState {
   }
 
   update(): void {
-    const { boardEvents, mapCursor, camera } = this.assets;
+    const { boardEvents, mapCursor } = this.assets;
 
     if (boardEvents.current) {
       const { location } = boardEvents.current;
 
       if (mapCursor.pos.notEqual(location))
         mapCursor.teleport(new Point(location));
-
-      else if (!camera.subjectInView)
-        return;
 
       else if (!boardEvents.current.playing && !boardEvents.current.finished)
         boardEvents.current.play();

@@ -11,7 +11,6 @@ export class Timer {
   constructor(seconds: number, cb?: () => void) {
     this.timerLength = seconds;
     this.callback = cb;
-    this.start();
   }
 
   start() {

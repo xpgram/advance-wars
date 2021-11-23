@@ -3,7 +3,6 @@ import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
 import { CheckBoardState } from "./CheckBoardState";
 import { RepairEvent } from "../../map/tile-effects/RepairEvent";
-import { Point } from "pixi.js";
 
 export class TurnStart extends TurnState {
   get type() { return TurnStart; }
