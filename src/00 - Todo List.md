@@ -1,7 +1,27 @@
 # Next Big Objectives
 
 - [ ] Unit can send a message to QueueEvents or boardPlayer or whatever.
-- [ ] That message is instantiated later when it's relevant by a turnstate or BoardEvents which will have a reference to assets (camera).
+  - [ ] Unit must use BoardPlayer as a proxy to emit() since it has no references to anything.
+  - [ ] Unit emits constructed object; queue or whatever inits later with references to camera, etc.
+
+const event = new SupplyEvent({...});
+this.boardPlayer.emit(event);
+emit(event) {
+  this.assets.boardEvents.add(event);
+}
+AnimateStandbyEvents:
+update() {
+  const event = this.assets.queue.unshift();
+  event.init(this.assets).play();
+  ...
+}
+
+I feel like I want to refine the above process a little more, but...
+it seems fine. I just think boardPlayer.emit(event) -> queue.add(event)
+is an obvious out-of-necessity kind of thing and not because it should be
+BoardPlayer's responsibility.
+The alternative, I suppose, is to give every unit a (static?) reference to
+queue, which... isn't an abjectly horrible idea.
 
 - [ ] COAffectedTiles
   - [ ] Do some drafting to confirm visual style before implementation.
