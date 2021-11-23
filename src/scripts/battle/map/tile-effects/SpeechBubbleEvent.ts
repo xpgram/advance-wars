@@ -19,17 +19,17 @@ export abstract class SpeechBubbleEvent extends TileEvent {
 
     const boardPos = new Point(this.location);
     const worldPos = boardPos.multiply(tileSize);
-    const onLeft = (camera.center.x > worldPos.x);
+    const leftsideViewport = (camera.center.x > worldPos.x);
 
     const sheet = Game.scene.resources['UISpritesheet'].spritesheet as Spritesheet;
-    const tex = sheet.textures[`bubble-${this.title}-${onLeft ? 'right' : 'left'}.png`];
+    const tex = sheet.textures[`bubble-${this.title}-${leftsideViewport ? 'right' : 'left'}.png`];
     this.image = new PIXI.Sprite(tex);
 
-    worldPos.x += (onLeft) ? .8*tileSize : .2*tileSize;
+    worldPos.x += (leftsideViewport) ? .8*tileSize : .2*tileSize;
     worldPos.y -= .5*tileSize;
 
     this.image.position.set(worldPos.x, worldPos.y);
-    this.image.anchor.x = (onLeft) ? 0 : 1;
+    this.image.anchor.x = (leftsideViewport) ? 0 : 1;
     this.image.visible = false;
 
     MapLayer('ui').addChild(this.image);
