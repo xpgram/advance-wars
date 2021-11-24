@@ -22,6 +22,7 @@ export class BattleScene extends Scene {
         this.linker.push({name: 'NormalMapLandscapeSheet', url: 'assets/sheets/normal-map-landscapes.json'});
         this.linker.push({name: 'UnitSpritesheet', url: 'assets/sheets/unit-sprites.json'});
         this.linker.push({name: 'UISpritesheet', url: 'assets/sheets/ui-sprites.json'});
+        this.linker.push({name: 'VFXSpritesheet', url: 'assets/sheets/vfx-sprites.json'});
         this.linker.push({name: 'CoSpritesheet', url: 'assets/sheets/commanding-officers.json'});
         this.linker.push({name: 'background', url: 'assets/background-battle.png'});
 

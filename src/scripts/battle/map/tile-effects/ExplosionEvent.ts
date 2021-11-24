@@ -12,6 +12,8 @@ export abstract class ExplosionEvent extends TileEvent {
   image!: PIXI.Sprite;
 
   protected create(): void {
+    const { map, trackCar } = this.assets;
+
     const tileSize = Game.display.standardLength;
 
     const boardPos = new Point(this.location);
@@ -22,14 +24,24 @@ export abstract class ExplosionEvent extends TileEvent {
     this.image = new PIXI.AnimatedSprite(textures);
 
     this.image.position.set(worldPos.x, worldPos.y);
-    this.image.animationSpeed = 1 / 2;
+    this.image.animationSpeed = 1 / 3;
+    this.image.loop = false;
+    this.image.onComplete = () => { this.image.visible = false; }
     this.image.play();
+
+    // Hide blown-up target
+    const unit = map.squareAt(boardPos).unit;
+    if (unit)
+      unit.visible = false;
+    // Hide blown-up actor
+    if (trackCar.curPoint.equal(this.location))
+      trackCar.hide();
 
     MapLayer('ui').addChild(this.image);
   }
 
   protected update(): void {
-    
+
   }
 
   protected destroy(): void {

@@ -1,5 +1,7 @@
 # Next Big Objectives
 
+- [ ] Units emit standby events on resupply, meaning they're emitted during Ratify, meaning Rigs can't resupply allies while its track car is showing.
+
 - [ ] Unit can send a message to QueueEvents or boardPlayer or whatever.
   - [ ] Unit must use BoardPlayer as a proxy to emit() since it has no references to anything.
   - [ ] Unit emits constructed object; queue or whatever inits later with references to camera, etc.

@@ -11,7 +11,9 @@ import { LowResTransform } from "../LowResTransform";
 export class TrackCar {
     transform: LowResTransform = new LowResTransform();
     
-    private started = false;                // Whether this object's update process is doing so.
+    /** Whether this object's update process is doing so. */
+    get started() { return this._started; }
+    private _started = false;
 
     tileSize: number = Game.display.standardLength; // Conversion factor from board points to world points.
 
@@ -121,11 +123,11 @@ export class TrackCar {
     /** Starts the movement animation from current board location to final destination.
      * If this element is hidden, this method will reveal it. */
     start(): void {
-        if (this.started)
+        if (this._started)
             return;
 
         this.show();
-        this.started = true;
+        this._started = true;
         this.directionIndex--;  // Re-initiate the current instruction.
         this.prepareNextInstruction();
         Game.scene.ticker.add(this.update, this);
@@ -133,8 +135,8 @@ export class TrackCar {
 
     /** Halts the animation by removing update processes from the game loop. */
     stop(): void {
-        this.started = false;
-        Game.scene.ticker.remove(this.update, this);    // TODO Why am I doing this?
+        this._started = false;
+        Game.scene.ticker.remove(this.update, this);
     }
 
     /** Skips to the end of the animation. */

@@ -10,8 +10,12 @@ export class AnimateStandbyEvents extends TurnState {
   cursorPosSwap!: Point;
 
   configureScene(): void {
-    const { mapCursor } = this.assets;
+    const { mapCursor, trackCar } = this.assets;
     this.cursorPosSwap = mapCursor.pos;
+
+    // Show acting unit if this is the 2nd standby event.
+    if (trackCar.started)
+      trackCar.show();
   }
 
   update(): void {
