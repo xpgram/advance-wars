@@ -218,11 +218,7 @@ export module Command {
       if (!other)
         return false;
 
-      const notSelf = (actor !== other);
-      const sameType = (actor.type === other.type);
-      const sameFaction = (actor.faction === other.faction);
-      const oneRepairable = (actor.repairable || other.repairable);
-      return notSelf && sameType && sameFaction && oneRepairable;
+      return actor.mergeable(other);
     },
     ratify() {
       const { map, players } = data.assets;
@@ -244,9 +240,12 @@ export module Command {
       const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
       players.current.funds += returnedFunds;
 
+      const highestRank = Math.max(actor.rank, other.rank);
+
       other.hp = newHp;
       other.gas += gas;
       other.ammo += ammo;
+      other.rank = highestRank;
 
       actor.destroy();
       other.spent = true;

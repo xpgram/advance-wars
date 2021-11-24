@@ -673,10 +673,12 @@ export abstract class UnitObject {
 
     /** Returns true if this unit can merge with the given unit as the result of a Join command. */
     mergeable(unit: UnitObject): boolean {
+        const notSelf = (this !== unit);
         const sameType = (this.type === unit.type);
         const sameFaction = (this.faction === unit.faction);
         const oneRepairable = (this.repairable || unit.repairable);
-        return sameType && sameFaction && oneRepairable;
+        const notHolding = (this.loadedUnits.length === 0 && unit.loadedUnits.length === 0);
+        return notSelf && sameType && sameFaction && oneRepairable && notHolding;
     }
 
     /** Returns true if this unit can hold the given unit, or is capable of

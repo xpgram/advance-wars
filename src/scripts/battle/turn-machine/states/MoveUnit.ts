@@ -16,9 +16,10 @@ export class MoveUnit extends TurnState {
 
     const unit = map.squareAt(mapCursor.pos).unit;
     const boardable = unit?.boardable(actor);
+    const mergeable = unit?.mergeable(actor);
     const sameFaction = unit?.faction === players.current.faction;
 
-    mapCursor.mode = (boardable && sameFaction) ? 'target' : 'point';
+    mapCursor.mode = ((boardable || mergeable) && sameFaction) ? 'target' : 'point';
   }
 
   configureScene() {
