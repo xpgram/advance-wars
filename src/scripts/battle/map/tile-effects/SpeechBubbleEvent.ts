@@ -10,7 +10,7 @@ import { TileEventQueue } from "./TileEventQueue";
 export abstract class SpeechBubbleEvent extends TileEvent {
   protected abstract title: string;
 
-  protected timer: Timer = new Timer(0.8);
+  protected timer: Timer = new Timer(0.5);
   image!: PIXI.Sprite;
 
   protected create(): void {
@@ -30,13 +30,8 @@ export abstract class SpeechBubbleEvent extends TileEvent {
 
     this.image.position.set(worldPos.x, worldPos.y);
     this.image.anchor.x = (leftsideViewport) ? 0 : 1;
-    this.image.visible = false;
 
     MapLayer('ui').addChild(this.image);
-  }
-
-  protected update(): void {
-    this.image.visible = (this.timer.elapsed > 0.2);
   }
 
   protected destroy(): void {
