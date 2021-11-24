@@ -2,6 +2,8 @@
 
 - [ ] There is no TurnStart→Animate→Ratify sequence, so if two units blow up because their gas is empty, both will explode, but one will disappear before the explosion happens. Or both will, depending on where the cursor is, I guess.
 
+- [ ] There is an odd discrepancy between ground and air explosions since they aren't the same length. They don't *feel* right. Either I need to vary the event time length or the explosion playback speed. Probably the former.
+
 - [ ] Source game: Can you 'Join' two Rigs holding infantry? Like, probably not, right? What rules does the game use? I have it disabled, but it's a little unintuitive to see Rig10 and Rig2 and not be able to merge them. Like, the reasoning is sound, but the UI doesn't communicate anything.
 
 - [ ] Units emit standby events on resupply, meaning they're emitted during Ratify, meaning Rigs can't resupply allies while its track car is showing.
