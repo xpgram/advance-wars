@@ -22,7 +22,8 @@ export class ShowUnitAttackRange extends TurnState {
       const frameSchedule = Game.frameCount + EXIT_FRAME_DELAY;
       Game.workOrders.send( () => {
         if (Game.frameCount === frameSchedule) {
-          this.regress();
+          if (!this.destroyed)
+            this.regress();
           return true;
         }
       }, this);

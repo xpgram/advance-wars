@@ -49,10 +49,13 @@ export abstract class TurnState {
     this.assets = manager.controllers;
   }
 
+  readonly destroyed = false;
   destroy() {
-    //@ts-ignore
+    //@ts-expect-error
+    this.destroyed = true;
+    //@ts-expect-error
     this.assets = null;
-    //@ts-ignore
+    //@ts-expect-error
     this.battleSystemManager = null;
   }
 
