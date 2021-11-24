@@ -4,32 +4,26 @@ import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
-import { TileEventQueue } from "./TileEventQueue";
 
-
-export abstract class SpeechBubbleEvent extends TileEvent {
+export abstract class ExplosionEvent extends TileEvent {
   protected abstract title: string;
 
-  protected timer: Timer = new Timer(0.5);
+  protected timer: Timer = new Timer(0.8);
   image!: PIXI.Sprite;
 
   protected create(): void {
-    const { camera } = TileEventQueue.assets;
     const tileSize = Game.display.standardLength;
 
     const boardPos = new Point(this.location);
     const worldPos = boardPos.multiply(tileSize);
-    const leftsideViewport = (camera.center.x > worldPos.x);
-
-    const sheet = Game.scene.resources['UISpritesheet'].spritesheet as Spritesheet;
-    const tex = sheet.textures[`bubble-${this.title}-${leftsideViewport ? 'right' : 'left'}.png`];
-    this.image = new PIXI.Sprite(tex);
-
-    worldPos.x += (leftsideViewport) ? .8*tileSize : .2*tileSize;
-    worldPos.y -= .5*tileSize;
+    
+    const sheet = Game.scene.resources[`VFXSpritesheet`].spritesheet as Spritesheet;
+    const textures = sheet.animations[`explosion-${this.title}`];
+    this.image = new PIXI.AnimatedSprite(textures);
 
     this.image.position.set(worldPos.x, worldPos.y);
-    this.image.anchor.x = (leftsideViewport) ? 0 : 1;
+    this.image.animationSpeed = 1 / 2;
+    this.image.play();
 
     MapLayer('ui').addChild(this.image);
   }
