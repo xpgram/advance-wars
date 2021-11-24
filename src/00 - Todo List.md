@@ -1,5 +1,7 @@
 # Next Big Objectives
 
+- [ ] Source game: Can you 'Join' two Rigs holding infantry? Like, probably not, right? What rules does the game use? I have it disabled, but it's a little unintuitive to see Rig10 and Rig2 and not be able to merge them. Like, the reasoning is sound, but the UI doesn't communicate anything.
+
 - [ ] Units emit standby events on resupply, meaning they're emitted during Ratify, meaning Rigs can't resupply allies while its track car is showing.
 
 - [ ] Unit can send a message to QueueEvents or boardPlayer or whatever.
