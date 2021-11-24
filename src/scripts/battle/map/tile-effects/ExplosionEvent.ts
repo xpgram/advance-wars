@@ -21,12 +21,12 @@ export abstract class ExplosionEvent extends TileEvent {
     
     const sheet = Game.scene.resources[`VFXSpritesheet`].spritesheet as Spritesheet;
     const textures = sheet.animations[`explosion-${this.title}`];
+    textures.push(PIXI.Texture.EMPTY);
     this.image = new PIXI.AnimatedSprite(textures);
 
     this.image.position.set(worldPos.x, worldPos.y);
     this.image.animationSpeed = 1 / 3;
     this.image.loop = false;
-    this.image.onComplete = () => { this.image.visible = false; }
     this.image.play();
 
     // Hide blown-up target

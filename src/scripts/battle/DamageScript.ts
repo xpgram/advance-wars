@@ -67,20 +67,20 @@ export class DamageScript {
         DamageScript.SetSeed(seed);
         const formula = DamageScript.NormalAttackFormula;
         
-        const attackState = new CombatState(map, attacker);
+        const attackState = new CombatState(map, attacker, from);
         const defenseState = new CombatState(map, defender);
         const estimateState = new CombatState(map, defender);
 
         const LCK1 = DamageScript.Random();
         const LCK2 = DamageScript.Random();
 
-        const damageEst = formula(attackState, defenseState, 0);
+        const damageEst = formula(attackState, defenseState, .5);
         const damage = formula(attackState, defenseState, LCK1);
 
         const canCounter = defenseState.unit.canCounterAttack(attackState.unit, from);
 
         estimateState.HP = Math.max(estimateState.HP - damageEst, 0);
-        const counterEst = formula(estimateState, attackState, 0) * Number(canCounter);
+        const counterEst = formula(estimateState, attackState, .5) * Number(canCounter);
 
         defenseState.HP = Math.max(defenseState.HP - damage, 0);
         const counter = formula(defenseState, attackState, LCK2) * Number(canCounter);
@@ -100,9 +100,9 @@ class CombatState {
     unit: UnitObject;
     square: Square;
     HP: number;
-    constructor(map: Map, unit: UnitObject) {
+    constructor(map: Map, unit: UnitObject, from?: Point) {
         this.unit = unit;
-        this.square = map.squareAt(unit.boardLocation);
+        this.square = map.squareAt(from || unit.boardLocation);
         this.HP = unit.hp;
     }
 }
