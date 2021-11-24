@@ -1,24 +1,12 @@
 # Next Big Objectives
 
+- [ ] There is no TurnStart→Animate→Ratify sequence, so if two units blow up because their gas is empty, both will explode, but one will disappear before the explosion happens. Or both will, depending on where the cursor is, I guess.
+
 - [ ] Source game: Can you 'Join' two Rigs holding infantry? Like, probably not, right? What rules does the game use? I have it disabled, but it's a little unintuitive to see Rig10 and Rig2 and not be able to merge them. Like, the reasoning is sound, but the UI doesn't communicate anything.
 
 - [ ] Units emit standby events on resupply, meaning they're emitted during Ratify, meaning Rigs can't resupply allies while its track car is showing.
 
-- [ ] Unit can send a message to QueueEvents or boardPlayer or whatever.
-  - [ ] Unit must use BoardPlayer as a proxy to emit() since it has no references to anything.
-  - [ ] Unit emits constructed object; queue or whatever inits later with references to camera, etc.
-
-const event = new SupplyEvent({...});
-this.boardPlayer.emit(event);
-emit(event) {
-  this.assets.boardEvents.add(event);
-}
-AnimateStandbyEvents:
-update() {
-  const event = this.assets.queue.unshift();
-  event.init(this.assets).play();
-  ...
-}
+- [ ] Refactor TileEvents not to automatically add themselves to queue; have turnstates do that.
 
 I feel like I want to refine the above process a little more, but...
 it seems fine. I just think boardPlayer.emit(event) -> queue.add(event)

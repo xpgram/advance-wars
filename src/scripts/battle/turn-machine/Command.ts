@@ -266,11 +266,15 @@ export module Command {
       return goalTile.unit?.boardable(actor) || false;
     },
     ratify() {
-      const { map } = data.assets;
-      const { actor, underneath } = data;
+      const { map, scenario } = data.assets;
+      const { actor, place, path, underneath } = data;
+
       map.removeUnit(actor.boardLocation);
       underneath.loadUnit(actor);
       actor.spent = true;
+      
+      if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
+        actor.gas -= map.travelCostForPath(place, path, actor.moveType);
     },
   }
 

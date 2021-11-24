@@ -45,6 +45,7 @@ export class TurnStart extends TurnState {
       let supplied = false;   // Records for animation intent
       let repaired = false;
       let destroyed = false;
+      const location = unit.boardLocation;
 
       let expendMaintainanceGas = true;
 
@@ -102,14 +103,14 @@ export class TurnStart extends TurnState {
       // Emit animation events   // TODO Manually add them to queue; this is weird.
       if (destroyed) {
         if (unit.unitClass === UnitClass.Ground)
-          new GroundExplosionEvent({location: unit.boardLocation});
+          new GroundExplosionEvent({location});
         else
-          new AirExplosionEvent({location: unit.boardLocation});
+          new AirExplosionEvent({location});
       }
       else if (repaired)
-        new RepairEvent({location: unit.boardLocation});
+        new RepairEvent({location});
       else if (supplied)
-        new SupplyEvent({location: unit.boardLocation});
+        new SupplyEvent({location});
 
       // Let the players play.
       unit.orderable = true;
