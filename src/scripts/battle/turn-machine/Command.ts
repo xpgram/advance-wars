@@ -2,6 +2,7 @@ import { Point } from "../../Common/Point";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
+import { SupplyEvent } from "../map/tile-effects/SupplyEvent";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { instructionData } from "./InstructionData";
@@ -198,8 +199,10 @@ export module Command {
       map.neighborsAt(actor.boardLocation)
         .orthogonals
         .forEach( square => {
-          if (square.unit && square.unit.resuppliable(actor))
+          if (square.unit && square.unit.resuppliable(actor)) {
             square.unit.resupply();
+            new SupplyEvent({location: square.unit.boardLocation});
+          }
         });
     }
   }

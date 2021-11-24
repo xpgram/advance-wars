@@ -460,6 +460,7 @@ export const Unit = {
         
         get materialsInsteadOfAmmo() { return true; }  
         get canMoveAndAttack() { return false; }
+        get canResupply() { return true; }
 
         boardable(unit?: UnitObject): boolean {
             const max = 1;
@@ -822,6 +823,7 @@ export const Unit = {
         get vision() { return 4; }
         
         get materialsInsteadOfAmmo() { return true; }
+        get canResupplyHeldUnits() { return true; }
 
         boardable(unit?: UnitObject): boolean {
             const max = 2;
@@ -898,6 +900,8 @@ export const Unit = {
         get maxAmmo() { return 9; }
         get maxMovementPoints() { return 6; }
         get vision() { return 5; }
+
+        get canResupplyHeldUnits() { return true; }
 
         boardable(unit?: UnitObject): boolean {
             const max = 2;

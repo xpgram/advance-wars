@@ -3,6 +3,10 @@ import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
 import { CheckBoardState } from "./CheckBoardState";
 import { RepairEvent } from "../../map/tile-effects/RepairEvent";
+import { SupplyEvent } from "../../map/tile-effects/SupplyEvent";
+import { UnitClass } from "../../EnumTypes";
+import { GroundExplosionEvent } from "../../map/tile-effects/GroundExplosionEvent";
+import { AirExplosionEvent } from "../../map/tile-effects/AirExplosionEvent";
 
 export class TurnStart extends TurnState {
   get type() { return TurnStart; }
@@ -38,6 +42,10 @@ export class TurnStart extends TurnState {
       const square = neighbors.center;
       const terrain = square.terrain;
 
+      let supplied = false;   // Records for animation intent
+      let repaired = false;
+      let destroyed = false;
+
       let expendMaintainanceGas = true;
 
       // Repair unit HP and resupply from properties
@@ -59,33 +67,52 @@ export class TurnStart extends TurnState {
           if (repairable && fundsAvailable) {
             unit.hp += repairHp;
             player.expendFunds(costToRepair);
-            boardEvents.add(new RepairEvent({location: unit.boardLocation}));
+            repaired = true;
           }
 
-          if (unit.resuppliable())
+          if (unit.resuppliable()) {
             unit.resupply();
+            supplied = true;
+          }
           expendMaintainanceGas = false;
         }
       }
 
-      // Resupply from Rig/APC
-      if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit) )) {
-        unit.resupply();
+      // Resupply from adjacent supplier — hypothetical, non-strict
+      if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit, {strict: false}) )) {
         expendMaintainanceGas = false;
+        // Resupply and emit — strict checking; don't resupply full units
+        if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit) )) {
+          unit.resupply();
+          supplied = true;
+        }
       }
 
-      // TODO TCopters shouln't tho. Mechs gettin' resupped by T's might be a little shit.
-      unit.resupplyHeldUnits();
+      // Resupply held units if doable (method call returns success)
+      supplied = unit.resupplyHeldUnits() || supplied;
 
       // Expend gas if Air or Navy
       if (expendMaintainanceGas && players.day > 1)
         unit.expendMaintainanceGas();
-      if (unit.destroyOnGasEmpty && unit.gas === 0)
-        unit.destroy();
-        // Emit an event to the animator
+      if (unit.destroyOnGasEmpty && unit.gas === 0) {
+        unit.destroy();   // TODO This hasn't been animated yet.
+        destroyed = true;
+      }
+
+      // Emit animation events   // TODO Manually add them to queue; this is weird.
+      if (destroyed) {
+        if (unit.unitClass === UnitClass.Ground)
+          new GroundExplosionEvent({location: unit.boardLocation});
+        else
+          new AirExplosionEvent({location: unit.boardLocation});
+      }
+      else if (repaired)
+        new RepairEvent({location: unit.boardLocation});
+      else if (supplied)
+        new SupplyEvent({location: unit.boardLocation});
 
       // Let the players play.
-      unit.orderable = true
+      unit.orderable = true;
     });
 
     // Configure initial control script states
