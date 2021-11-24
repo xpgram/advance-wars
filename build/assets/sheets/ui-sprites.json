@@ -738,6 +738,15 @@
 	"sourceSize": {"w":32,"h":32},
 	"anchor": {"x":0.25,"y":0.25}
 },
+"MapCursor/targetcursor-3.png":
+{
+	"frame": {"x":1,"y":133,"w":32,"h":32},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
+	"sourceSize": {"w":32,"h":32},
+	"anchor": {"x":0.25,"y":0.25}
+},
 "MiniMap/beach.png":
 {
 	"frame": {"x":59,"y":213,"w":4,"h":4},
@@ -1328,7 +1337,7 @@
 	"MapCursor/mapcursor-arrow": ["MapCursor/mapcursor-arrow-0.png","MapCursor/mapcursor-arrow-1.png","MapCursor/mapcursor-arrow-2.png","MapCursor/mapcursor-arrow-3.png","MapCursor/mapcursor-arrow-4.png"],
 	"MapCursor/mapcursor-wrench": ["MapCursor/mapcursor-wrench-0.png","MapCursor/mapcursor-wrench-1.png","MapCursor/mapcursor-wrench-2.png","MapCursor/mapcursor-wrench-3.png","MapCursor/mapcursor-wrench-4.png"],
 	"MapCursor/mapcursor-wrong": ["MapCursor/mapcursor-wrong-0.png","MapCursor/mapcursor-wrong-1.png","MapCursor/mapcursor-wrong-2.png","MapCursor/mapcursor-wrong-3.png","MapCursor/mapcursor-wrong-4.png"],
-	"MapCursor/targetcursor": ["MapCursor/targetcursor-0.png","MapCursor/targetcursor-1.png","MapCursor/targetcursor-2.png","MapCursor/targetcursor-1.png"],
+	"MapCursor/targetcursor": ["MapCursor/targetcursor-0.png","MapCursor/targetcursor-1.png","MapCursor/targetcursor-2.png","MapCursor/targetcursor-3.png"],
 	"MiniMap/hq-black": ["MiniMap/hq-black-0.png","MiniMap/hq-black-1.png","MiniMap/hq-black-2.png","MiniMap/hq-black-3.png","MiniMap/hq-black-4.png","MiniMap/hq-black-5.png"],
 	"MiniMap/hq-blue": ["MiniMap/hq-blue-0.png","MiniMap/hq-blue-1.png","MiniMap/hq-blue-2.png","MiniMap/hq-blue-3.png","MiniMap/hq-blue-4.png","MiniMap/hq-blue-5.png"],
 	"MiniMap/hq-red": ["MiniMap/hq-red-0.png","MiniMap/hq-red-1.png","MiniMap/hq-red-2.png","MiniMap/hq-red-3.png","MiniMap/hq-red-4.png","MiniMap/hq-red-5.png"],
@@ -1343,6 +1352,6 @@
 	"format": "RGBA5555",
 	"size": {"w":64,"h":464},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:7d87c4c8584b8b54189cd421e0fac4d2:71ccd884f5fcd188f931a7b97d6113fe:7703082df9e3e5b4cde32d891be0eb71$"
+	"smartupdate": "$TexturePacker:SmartUpdate:6e7b7aad8ef833f1208817af6f98e68c:b83239c69015b1dc82a784e154503660:7703082df9e3e5b4cde32d891be0eb71$"
 }
 }
