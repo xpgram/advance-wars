@@ -7,8 +7,11 @@ export class AnimateStandbyEvents extends TurnState {
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return true; }
 
-  configureScene(): void {
+  cursorPosSwap!: Point;
 
+  configureScene(): void {
+    const { mapCursor } = this.assets;
+    this.cursorPosSwap = mapCursor.pos;
   }
 
   update(): void {
@@ -29,6 +32,13 @@ export class AnimateStandbyEvents extends TurnState {
     } else {
       this.advance();
     }
+  }
+
+  close(): void {
+    const { mapCursor } = this.assets;
+    mapCursor.teleport(this.cursorPosSwap);
+    //@ts-expect-error
+    this.cursorPosSwap = undefined;
   }
   
 }
