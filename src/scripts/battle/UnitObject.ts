@@ -670,9 +670,9 @@ export abstract class UnitObject {
         if (this.unitClass === UnitClass.Air)
             this.gas -= 5;
         else if (this.type === Unit.Submarine && this.hiding)
-            this.gas -= 5;  // A total of 5
+            this.gas -= 5;
         else if (this.unitClass === UnitClass.Naval)
-            this.gas -= 1;
+            this.gas -= 2;
     }
 
     /** Returns true if this unit can merge with the given unit as the result of a Join command. */
