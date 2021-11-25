@@ -193,7 +193,7 @@ export module Command {
     ratify() {
       Command.Move.ratify();
 
-      const { map, camera } = data.assets;
+      const { map, camera, boardEvents } = data.assets;
       const { actor } = data;
 
       map.neighborsAt(actor.boardLocation)
@@ -201,7 +201,8 @@ export module Command {
         .forEach( square => {
           if (square.unit && square.unit.resuppliable(actor)) {
             square.unit.resupply();
-            new SupplyEvent({location: square.unit.boardLocation, camera});
+            const event = new SupplyEvent({location: square.unit.boardLocation, camera});
+            boardEvents.add(event);
           }
         });
     }
