@@ -1,5 +1,6 @@
 import { Spritesheet } from "pixi.js";
 import { Game } from "../../../..";
+import { Camera } from "../../../Camera";
 import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { MapLayer } from "../MapLayers";
@@ -11,10 +12,16 @@ export abstract class SpeechBubbleEvent extends TileEvent {
   protected abstract title: string;
 
   protected timer: Timer = new Timer(0.5);
-  image!: PIXI.Sprite;
+  private camera: Camera;
+  private image!: PIXI.Sprite;
+
+  constructor(options: {location: Point, camera: Camera}) {
+    super(options);
+    this.camera = options.camera;
+  }
 
   protected create(): void {
-    const { camera } = TileEventQueue.assets;
+    const { camera } = this;
     const tileSize = Game.display.standardLength;
 
     const boardPos = new Point(this.location);

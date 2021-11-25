@@ -1,7 +1,6 @@
 import { Game } from "../../../..";
 import { ImmutablePointPrimitive } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
-import { TileEventQueue } from "./TileEventQueue";
 
 /** An animation event over the game map which will be started by the event handler. */
 export abstract class TileEvent {
@@ -9,10 +8,6 @@ export abstract class TileEvent {
   readonly location: ImmutablePointPrimitive;
   /** A timer which auto-destructs this object on completion. */
   protected abstract timer: Timer;
-
-  protected get assets() {
-    return TileEventQueue.assets;
-  }
   
   /** Whether or not this animation has completed. */
   get finished() { return this._finished; }
@@ -20,7 +15,6 @@ export abstract class TileEvent {
 
   constructor(options: {location: ImmutablePointPrimitive}) {
     this.location = options.location;
-    TileEventQueue.add(this);
   }
 
   /** Starts this object's animation. */
@@ -29,6 +23,8 @@ export abstract class TileEvent {
     this.create();
     this.timer.start();
     Game.scene.ticker.add(this.update, this);
+
+    // TODO Timers have callbacks they'll invoke on finish.
     Game.workOrders.send( () => {
       if (this.timer.finished)
         this.stop();

@@ -15,7 +15,7 @@ export class TurnStart extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { map, mapCursor, uiSystem, players, scenario, scripts, boardEvents } = this.assets;
+    const { map, mapCursor, trackCar, camera, uiSystem, players, scenario, scripts, boardEvents } = this.assets;
     const player = players.current;
 
     // Update player stuff
@@ -101,16 +101,21 @@ export class TurnStart extends TurnState {
       }
 
       // Emit animation events   // TODO Manually add them to queue; this is weird.
+      let event;
+
       if (destroyed) {
         if (unit.unitClass === UnitClass.Ground)
-          new GroundExplosionEvent({location});
+          event = new GroundExplosionEvent({location, map, trackCar});
         else
-          new AirExplosionEvent({location});
+          event = new AirExplosionEvent({location, map, trackCar});
       }
       else if (repaired)
-        new RepairEvent({location});
+        event = new RepairEvent({location, camera});
       else if (supplied)
-        new SupplyEvent({location});
+        event = new SupplyEvent({location, camera});
+
+      if (event)
+        boardEvents.add(event);
 
       // Let the players play.
       unit.orderable = true;

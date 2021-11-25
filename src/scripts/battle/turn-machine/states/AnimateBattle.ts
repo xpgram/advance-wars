@@ -14,7 +14,7 @@ export class AnimateBattle extends TurnState {
   get skipOnUndo(): boolean { return true; }
 
   configureScene(): void {
-    const { map } = this.assets;
+    const { map, trackCar, boardEvents } = this.assets;
     const { action } = this.data;
 
     // Determine and emit blow-up events for units.
@@ -22,9 +22,10 @@ export class AnimateBattle extends TurnState {
       const { actor, goal, target, seed } = this.data;
 
       function emit(unit: UnitObject, location: Point) {
-        (unit.unitClass === UnitClass.Ground)
-          ? new GroundExplosionEvent({location})
-          : new AirExplosionEvent({location});
+        const event = (unit.unitClass === UnitClass.Ground)
+          ? new GroundExplosionEvent({location, map, trackCar})
+          : new AirExplosionEvent({location, map, trackCar});
+        boardEvents.add(event);
       }
 
       const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);

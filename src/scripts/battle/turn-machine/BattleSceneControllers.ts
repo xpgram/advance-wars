@@ -108,7 +108,7 @@ export class BattleSceneControllers {
   cmdMenu: CommandMenuGUI<CommandObject<number>>;
   shopMenu: UnitShopMenuGUI<number>;
   fieldMenu: CommandMenuGUI<number>;
-  boardEvents = TileEventQueue;
+  boardEvents = new TileEventQueue();
 
   trackCar: TrackCar;
 
@@ -146,9 +146,6 @@ export class BattleSceneControllers {
     // Setup Map
     this.map = new Map(mapLandsEnd);
     this.mapCursor = new MapCursor(this.map, this.gamepad);
-
-    // Setup board event queue
-    this.boardEvents.init(this);
 
     // Setup Players
     const playerObjects = [];

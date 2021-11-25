@@ -2,17 +2,26 @@ import { Spritesheet } from "pixi.js";
 import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
+import { TrackCar } from "../../TrackCar";
+import { Map } from "../Map";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
 
 export abstract class ExplosionEvent extends TileEvent {
   protected abstract title: string;
 
-  protected timer: Timer = new Timer(0.8);
-  image!: PIXI.Sprite;
+  private map: Map;
+  private trackCar: TrackCar;
+  private image!: PIXI.Sprite;
+
+  constructor(options: {location: Point, map: Map, trackCar: TrackCar}) {
+    super(options);
+    this.map = options.map;
+    this.trackCar = options.trackCar;
+  }
 
   protected create(): void {
-    const { map, trackCar } = this.assets;
+    const { map, trackCar } = this;
 
     const tileSize = Game.display.standardLength;
 
