@@ -31,12 +31,12 @@ export class CommandMenu extends TurnState {
     mapCursor.moveTo(goal);
 
     const destOccupiable = goalTile.occupiable(actor);
-    const notIndirectOrNotMoved = (!actor.isIndirect || goal.equal(place));
+    const canMoveOrNotMoved = (actor.canMoveAndAttack || goal.equal(place));
 
     // Retain attackable flags as well.
     const range = actor.rangeMap;
     const points = range.points.map(p => goal.add(p));
-    if (notIndirectOrNotMoved && destOccupiable)
+    if (canMoveOrNotMoved && destOccupiable)
       for (const p of points)
         if (map.validPoint(p))
           if (map.squareAt(p).attackable(actor)) {

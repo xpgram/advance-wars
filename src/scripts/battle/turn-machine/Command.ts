@@ -112,9 +112,9 @@ export module Command {
 
       // Other checks
       const targetableInRange = actor.attackReady && enemyInSight;
-      const notIndirect = (!actor.isIndirect);
+      const canMove = (actor.canMoveAndAttack);
       const hasNotMoved = (goal.equal(place));
-      return targetableInRange && (notIndirect || hasNotMoved);
+      return targetableInRange && (canMove || hasNotMoved);
     },
     ratify() {
       Command.Move.ratify();
