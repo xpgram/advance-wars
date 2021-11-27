@@ -34,7 +34,7 @@ export abstract class ExplosionEvent extends TileEvent {
     this.image = new PIXI.AnimatedSprite(textures);
 
     this.image.position.set(worldPos.x, worldPos.y);
-    this.image.animationSpeed = 1 / 3;
+    this.image.animationSpeed = 1 / 4;
     this.image.loop = false;
     this.image.play();
 

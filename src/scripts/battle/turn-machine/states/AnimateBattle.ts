@@ -3,6 +3,7 @@ import { DamageScript } from "../../DamageScript";
 import { UnitClass } from "../../EnumTypes";
 import { AirExplosionEvent } from "../../map/tile-effects/AirExplosionEvent";
 import { GroundExplosionEvent } from "../../map/tile-effects/GroundExplosionEvent";
+import { SeaExplosionEvent } from "../../map/tile-effects/SeaExplosionEvent";
 import { UnitObject } from "../../UnitObject";
 import { Command } from "../Command";
 import { TurnState } from "../TurnState";
@@ -24,7 +25,9 @@ export class AnimateBattle extends TurnState {
       function emit(unit: UnitObject, location: Point) {
         const event = (unit.unitClass === UnitClass.Ground)
           ? new GroundExplosionEvent({location, map, trackCar})
-          : new AirExplosionEvent({location, map, trackCar});
+          : (unit.unitClass === UnitClass.Air)
+          ? new AirExplosionEvent({location, map, trackCar})
+          : new SeaExplosionEvent({location, map, trackCar});
         boardEvents.add(event);
       }
 

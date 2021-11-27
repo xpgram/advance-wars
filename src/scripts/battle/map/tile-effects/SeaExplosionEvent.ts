@@ -1,5 +1,7 @@
+import { Timer } from "../../../timer/Timer";
 import { ExplosionEvent } from "./ExplosionEvent";
 
 export class SeaExplosionEvent extends ExplosionEvent {
-  protected title: string = 'sea';
+  protected timer: Timer = new Timer(.8);
+  protected title: string = 'wet';
 }
