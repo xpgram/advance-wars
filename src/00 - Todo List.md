@@ -1,5 +1,35 @@
 # Next Big Objectives
 
+BoardEvents
+  - Repair
+    - Replenish HP
+    - Extract funds
+    - Replenish resources
+  - Supply
+    - Replenish resources
+  - Damage
+    - Subtract HP
+  - Destruct
+    - Remove from map
+  - Move
+    - Plays trackcar until finished.  (We cannot use a timer for this)
+- [ ] Ratify and Commands schedule animation/board-change events to happen later.
+- [ ] These events have a callback that returns true when they're done occurring, like work orders.
+- [ ] These events have a method of reporting when they've been interrupted.
+  When a Move interruption happens, whatever events were supposed to happen after need to be replaced with an Ambush bubble event.
+  This, I think... should happen during the ratify() steps; those are meant to plan out these events anyway.
+  So, Attack invokes Move first, Move reports (somehow) it can't complete, it gets stopped on step 4 of the 6-step path.
+  Attack then cancels any damage blah blah blah it would have done and creates an Ambush bubble event at wherever path stops.
+  Otherwise, with no interruptions, Attack schedules damage/destruction as normal.
+  Drop also has to do this.
+  Probably Move should schedule the Move animation, as it would, but also the interrupt, and then reports (somehow) that it failed
+  to succeed, and Attack, Drop, etc. simply stop processing.
+- [ ] Attack→Damage is migrated (I need art assets first)
+- [ ] Attack→Destroy is migrated
+- [ ] Move is migrated
+- [ ] Animate assumes the role of AnimateStandbyEvents; all animation happens via the BoardEvents queue in that turnstate.
+  
+
 - [ ] I think we just need to delay the unit deletion event to the animation time.
   - Ratify still confirms the order, it just isn't carried out right away. But, once it says "Yo, dis guy trash" there should be no conceivable way it doesn't explode eventually.
   - Same with TurnStart
