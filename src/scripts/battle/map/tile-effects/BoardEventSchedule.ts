@@ -2,7 +2,7 @@ import { BattleSceneControllers } from "../../turn-machine/BattleSceneController
 import { TileEvent } from "./TileEvent";
 
 /** Simple increment-on-request handler for individual TileEvents. */
-export class TileEventQueue {
+export class BoardEventSchedule {
 
   /** The list of TileEvents queued for play. */
   readonly list: TileEvent[] = [];

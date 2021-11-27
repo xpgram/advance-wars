@@ -25,7 +25,7 @@ import { IconTitle, ShopItemTitle } from "../../system/gui-menu-components/ListM
 import { UnitShopMenuGUI } from "../../system/gui-menu-components/UnitShopMenuGUI";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
-import { TileEventQueue } from "../map/tile-effects/TileEventQueue";
+import { BoardEventSchedule } from "../map/tile-effects/BoardEventSchedule";
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -108,7 +108,7 @@ export class BattleSceneControllers {
   cmdMenu: CommandMenuGUI<CommandObject<number>>;
   shopMenu: UnitShopMenuGUI<number>;
   fieldMenu: CommandMenuGUI<number>;
-  boardEvents = new TileEventQueue();
+  boardEvents = new BoardEventSchedule();
 
   trackCar: TrackCar;
 

@@ -5,7 +5,7 @@ import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
-import { TileEventQueue } from "./TileEventQueue";
+import { BoardEventSchedule } from "./BoardEventSchedule";
 
 
 export abstract class SpeechBubbleEvent extends TileEvent {
