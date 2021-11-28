@@ -19,7 +19,7 @@ export class DestructEvent extends TileEvent {
 
   constructor(options: DestructEventOptions) {
     super(options.unit.boardLocation);
-    this.options = options;
+    this.options = {...options};
   }
 
   protected create(): void {

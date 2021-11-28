@@ -2,6 +2,8 @@ import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
 import { DestructEvent } from "../map/tile-effects/DestructEvent";
+import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
+import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
@@ -76,16 +78,13 @@ export module Command {
       return false;
     },
     ratify: function () {
-      const { map, scenario } = data.assets;
-      const { place, path, goal, actor } = data;
+      const { boardEvents } = data.assets;
+      const { place, path, goal, actor, assets } = data;
+
+      // TODO Scan path tiles for ambush interruptions
 
       if (place.notEqual(goal))
-        if (! map.moveUnit(place, goal) )
-          throw new RatificationError(`could not move unit ${place.toString()} → ${goal.toString()}`);
-      
-      actor.spent = true;
-      if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
-        actor.gas -= map.travelCostForPath(place, path, actor.moveType);
+        boardEvents.add(new MoveUnitEvent({actor, path, assets}));
     },
   }
 
@@ -316,17 +315,10 @@ export module Command {
       if (drop.length === 0)
         return;
 
-      const { map } = data.assets;
-      const { actor } = data;
+      const { boardEvents } = data.assets;
+      const { actor, assets } = data;
 
-      // Unlike trigger, ratify is generic.
-      drop
-        .sort( (a,b) => b.which - a.which )
-        .forEach( ins => {
-          const unit = actor.unloadUnit(ins.which);
-          map.placeUnit(unit, ins.where);
-          unit.spent = true;
-        });
+      boardEvents.add( new DropHeldUnitEvent({actor, drop, assets}));
     },
   }
 
