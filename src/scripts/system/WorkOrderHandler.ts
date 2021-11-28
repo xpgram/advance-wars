@@ -20,6 +20,11 @@ export class WorkOrderHandler {
         this.workOrders.push({order:order, context:context});
     }
 
+    /** Cancels a given work order, preventing it from being carried out (any further). */
+    cancel(order: () => boolean | undefined, context?: object) {
+        this.workOrders = this.workOrders.filter( request => request.order !== order || request.context !== context );
+    }
+
     /** Abandons all work orders and empties the to-do list. Let's go golfing. */
     clear() {
         this.workOrders = [];

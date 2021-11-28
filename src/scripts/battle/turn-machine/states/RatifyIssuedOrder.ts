@@ -1,6 +1,7 @@
 import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
 import { Command, getCommandObject } from "../Command";
+import { AnimateOrder } from "./AnimateOrder";
 
 export class RatifyIssuedOrder extends TurnState {
   get type() { return RatifyIssuedOrder; }
@@ -35,7 +36,7 @@ export class RatifyIssuedOrder extends TurnState {
     }
 
     // Advance to next state.
-    this.advance(CheckBoardState);
+    this.advance(AnimateOrder, CheckBoardState);
   }
 
 }

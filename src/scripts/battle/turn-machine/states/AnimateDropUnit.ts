@@ -12,6 +12,9 @@ export class AnimateDropUnit extends TurnState {
   dropCars!: TrackCar[];
 
   configureScene(): void {
+    this.advance();
+    return;
+
     const { trackCar } = this.assets;
     const { actor, goal, drop } = this.data;
 
@@ -49,6 +52,7 @@ export class AnimateDropUnit extends TurnState {
   }
 
   close(): void {
+    return;
     this.dropCars.forEach( c => c.destroy() );
   }
 

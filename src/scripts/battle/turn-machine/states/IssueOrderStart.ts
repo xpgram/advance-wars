@@ -8,6 +8,7 @@ import { FactoryMenu } from "./FactoryMenu";
 import { CommandMenu } from "./CommandMenu";
 import { AnimateOrder } from "./AnimateOrder";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
+import { CheckBoardState } from "./CheckBoardState";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -81,7 +82,7 @@ export class IssueOrderStart extends TurnState {
       const examinableEnemy = (unit?.faction !== player.faction);
       if (unit && (orderableAlly || examinableEnemy)) {
         instruction.place = unit.boardLocation;
-        this.advance(MoveUnit, CommandMenu, AnimateOrder, RatifyIssuedOrder);
+        this.advance(MoveUnit, CommandMenu, RatifyIssuedOrder);
       }
 
       // Empty, allied factory tile to build

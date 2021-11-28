@@ -1,5 +1,4 @@
 import { TurnState } from "../TurnState";
-import { AnimateBattle } from "./AnimateBattle";
 import { AnimateDropUnit } from "./AnimateDropUnit";
 import { AnimateMoveUnit } from "./AnimateMoveUnit";
 import { AnimateStandbyEvents } from "./AnimateStandbyEvents";
@@ -15,7 +14,6 @@ export class AnimateOrder extends TurnState {
     this.advance(
       AnimateMoveUnit,
       AnimateDropUnit,
-      AnimateBattle,
       AnimateStandbyEvents,
     );
   }

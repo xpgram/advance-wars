@@ -112,6 +112,12 @@ export const Common = {
     // TODO Get 60 fps from Pixi.ticker settings?
   },
 
+  /** Given the frames.length of an animation and the speed at which it plays (frames per frame), returns the
+   * time-length of the animation in seconds. */
+  animationTimeDuration(animLength: number, animationSpeed: number) {
+    return animLength / (60 * animationSpeed);
+  },
+
   /** Returns the reciprocal of the elapsed frames desired per frame-change.
    * Providing this a value of 15 returns a number corresponding to one frame-change per 1/4th a second.
    */

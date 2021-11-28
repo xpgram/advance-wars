@@ -7,6 +7,10 @@ export class AnimateMoveUnit extends TurnState {
   get skipOnUndo() { return true; }
 
   configureScene() {
+    this.assets.map.clearMovementMap();
+    this.advance();
+    return;
+
     const { map, camera, trackCar } = this.assets;
     const { actor, path } = this.data;
 

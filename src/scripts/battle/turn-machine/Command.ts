@@ -1,8 +1,8 @@
-import { Point } from "../../Common/Point";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
-import { SupplyEvent } from "../map/tile-effects/SupplyEvent";
+import { DestructEvent } from "../map/tile-effects/DestructEvent";
+import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { instructionData } from "./InstructionData";
@@ -91,7 +91,7 @@ export module Command {
 
   /** Unit attack target from location command. */
   export const Attack: CommandObject<number> = {
-    name: "Attack",
+    name: "Fire",
     serial: 2,
     input: 0,
     weight: Weight.Primary,
@@ -119,23 +119,19 @@ export module Command {
     ratify() {
       Command.Move.ratify();
 
-      const { map } = data.assets;
+      const { map, trackCar, boardEvents } = data.assets;
       const { seed, actor, goal, target } = data;
       const toRemove: UnitObject[] = [];
 
       function damageApply(attacker: UnitObject, defender: UnitObject, damage: number) {
-        if (damage === 0)
-          return;
+        const damageDealt = Math.min(defender.hp, damage);
         defender.hp -= damage;
         if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
           attacker.ammo -= 1;
         if (map.squareAt(attacker.boardLocation).COAffectedFlag)
-          attacker.boardPlayer.increasePowerMeter(damage);
-          // TODO This counts *potential* damage, not real. Does this matter?
-          // If you destroy a 2HP Rockets, should you get CO power for all 6 you would have done?
+          attacker.boardPlayer.increasePowerMeter(damageDealt);
         if (defender.hp === 0) {
           attacker.rank += 1;
-          // TODO Push destroy event to anim standby events
           toRemove.push(defender);
         }
       }
@@ -144,8 +140,9 @@ export module Command {
       damageApply(actor, target, battleResults.damage);
       damageApply(target, actor, battleResults.counter);
 
-      for (const unit of toRemove)
-        unit.destroy();
+      for (const unit of toRemove) {
+        boardEvents.add( new DestructEvent({unit, trackCar}) );
+      }
     }
   }
 
@@ -200,8 +197,12 @@ export module Command {
         .orthogonals
         .forEach( square => {
           if (square.unit && square.unit.resuppliable(actor)) {
-            square.unit.resupply();
-            const event = new SupplyEvent({location: square.unit.boardLocation, camera});
+            square.unit.resupply();   // TODO Happens in scheduled event
+            const event = new SpeechBubbleEvent({
+              message: 'supply',
+              location: square.unit.boardLocation,
+              camera
+            });
             boardEvents.add(event);
           }
         });

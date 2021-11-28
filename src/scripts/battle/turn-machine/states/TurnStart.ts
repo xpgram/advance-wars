@@ -2,11 +2,9 @@ import { Common } from "../../../CommonUtils";
 import { TurnState } from "../TurnState";
 import { UnitObject } from "../../UnitObject";
 import { CheckBoardState } from "./CheckBoardState";
-import { RepairEvent } from "../../map/tile-effects/RepairEvent";
-import { SupplyEvent } from "../../map/tile-effects/SupplyEvent";
 import { UnitClass } from "../../EnumTypes";
-import { GroundExplosionEvent } from "../../map/tile-effects/GroundExplosionEvent";
-import { AirExplosionEvent } from "../../map/tile-effects/AirExplosionEvent";
+import { DestructEvent } from "../../map/tile-effects/DestructEvent";
+import { SpeechBubbleEvent } from "../../map/tile-effects/SpeechBubbleEvent";
 
 export class TurnStart extends TurnState {
   get type() { return TurnStart; }
@@ -103,16 +101,20 @@ export class TurnStart extends TurnState {
       // Emit animation events   // TODO Manually add them to queue; this is weird.
       let event;
 
-      if (destroyed) {
-        if (unit.unitClass === UnitClass.Ground)
-          event = new GroundExplosionEvent({location, map, trackCar});
-        else
-          event = new AirExplosionEvent({location, map, trackCar});
-      }
+      if (destroyed)
+        event = new DestructEvent({unit, trackCar});
       else if (repaired)
-        event = new RepairEvent({location, camera});
+        event = new SpeechBubbleEvent({
+          message: 'repair',
+          location,
+          camera,
+        });
       else if (supplied)
-        event = new SupplyEvent({location, camera});
+        event = new SpeechBubbleEvent({
+          message: 'supply',
+          location,
+          camera,
+        });
 
       if (event)
         boardEvents.add(event);

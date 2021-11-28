@@ -5,31 +5,36 @@ import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
-import { BoardEventSchedule } from "./BoardEventSchedule";
 
+interface SpeechBubbleEventOptions {
+  message: 'supply' | 'repair' | 'ambush';
+  location: Point;
+  camera: Camera;
+}
 
-export abstract class SpeechBubbleEvent extends TileEvent {
-  protected abstract title: string;
+export class SpeechBubbleEvent extends TileEvent {
+  
+  private options: SpeechBubbleEventOptions;
 
-  protected timer: Timer = new Timer(0.5);
-  private camera: Camera;
+  private timer: Timer = new Timer(0.5);
   private image!: PIXI.Sprite;
 
-  constructor(options: {location: Point, camera: Camera}) {
-    super(options);
-    this.camera = options.camera;
+
+  constructor(options: SpeechBubbleEventOptions) {
+    super(options.location);
+    this.options = {...options};
   }
 
   protected create(): void {
-    const { camera } = this;
+    const { message, location, camera } = this.options;
     const tileSize = Game.display.standardLength;
 
-    const boardPos = new Point(this.location);
+    const boardPos = new Point(location);
     const worldPos = boardPos.multiply(tileSize);
     const leftsideViewport = (camera.center.x > worldPos.x);
 
     const sheet = Game.scene.resources['UISpritesheet'].spritesheet as Spritesheet;
-    const tex = sheet.textures[`bubble-${this.title}-${leftsideViewport ? 'right' : 'left'}.png`];
+    const tex = sheet.textures[`bubble-${message}-${leftsideViewport ? 'right' : 'left'}.png`];
     this.image = new PIXI.Sprite(tex);
 
     worldPos.x += (leftsideViewport) ? .8*tileSize : .2*tileSize;
@@ -38,16 +43,21 @@ export abstract class SpeechBubbleEvent extends TileEvent {
     this.image.position.set(worldPos.x, worldPos.y);
     this.image.anchor.x = (leftsideViewport) ? 0 : 1;
 
+    this.timer.start();
+
     MapLayer('ui').addChild(this.image);
   }
 
   protected update(): void {
-    
+    if (this.timer.finished)
+      this.finish();
   }
 
   protected destroy(): void {
     this.image?.destroy();
     //@ts-expect-error
     this.image = undefined;
+    //@ts-expect-error
+    this.options = undefined;
   }
 }
