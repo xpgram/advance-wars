@@ -1,5 +1,8 @@
 # Next Big Objectives
 
+- [ ] Command.???.ratify → Command.???.schedule
+- [ ] abstract TileEvent.ratify(): void;           ← This is just to force a little consistency; obvs the event has full control over when and how events are formally ratified.
+
 BoardEvents
   - Repair
     - Replenish HP
