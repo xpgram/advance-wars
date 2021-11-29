@@ -31,6 +31,9 @@ export class TurnStart extends TurnState {
     // sometimes aircraft miss rig resupply events because they haven't
     // expended any maintainance gas yet.
 
+    // Pretend-spend player funds on repairs so we know what their limit is.
+    let remainingFunds = player.funds;
+
     // Per Unit effects
     player.units.forEach( unit => {
       if (!unit.onMap)
@@ -44,7 +47,6 @@ export class TurnStart extends TurnState {
       let repaired = false;
       let repairHp = 0, repairCost = 0;
       let destroyed = false;
-      const location = unit.boardLocation;
 
       let expendMaintainanceGas = true;
 
@@ -64,9 +66,11 @@ export class TurnStart extends TurnState {
           repairCost = unit.cost * repairHp / maxUnitHp;
 
           const repairable = (repairHp > 0);
-          const fundsAvailable = (repairCost <= player.funds);
-          if (repairable && fundsAvailable)
+          const fundsAvailable = (repairCost <= remainingFunds);
+          if (repairable && fundsAvailable) {
+            remainingFunds -= repairCost;
             repaired = true;
+          }
 
           if (unit.resuppliable())
             supplied = true;
