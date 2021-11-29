@@ -7,6 +7,7 @@ import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
 import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
 import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
+import { TrackCar } from "../TrackCar";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { instructionData } from "./InstructionData";
@@ -129,7 +130,7 @@ export module Command {
       const { seed, actor, goal, target } = data;
       const toRemove: UnitObject[] = [];
 
-      function damageApply(attacker: UnitObject, defender: UnitObject, damage: number) {
+      function damageApply(attacker: UnitObject, defender: UnitObject, damage: number, trackCar?: TrackCar) {
         const damageDealt = Math.min(defender.hp, damage);
         defender.hp -= damage;
         if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
@@ -140,6 +141,7 @@ export module Command {
           attacker.rank += 1;
           toRemove.push(defender);
         }
+        // return new BattleDamageEvent({attacker, defender, damage, trackCar}) );
       }
 
       const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);
