@@ -17,7 +17,7 @@ BoardEvents
   - Move
     - Plays trackcar until finished.  (We cannot use a timer for this)
 - [ ] Ratify and Commands schedule animation/board-change events to happen later.
-- [ ] These events have a callback that returns true when they're done occurring, like work orders.
+- [x] These events have a callback that returns true when they're done occurring, like work orders.
 - [ ] These events have a method of reporting when they've been interrupted.
   When a Move interruption happens, whatever events were supposed to happen after need to be replaced with an Ambush bubble event.
   This, I think... should happen during the ratify() steps; those are meant to plan out these events anyway.
@@ -28,22 +28,15 @@ BoardEvents
   Probably Move should schedule the Move animation, as it would, but also the interrupt, and then reports (somehow) that it failed
   to succeed, and Attack, Drop, etc. simply stop processing.
 - [ ] Attack→Damage is migrated (I need art assets first)
-- [ ] Attack→Destroy is migrated
-- [ ] Move is migrated
+- [x] Attack→Destroy is migrated
+- [x] Move is migrated
 - [ ] Animate assumes the role of AnimateStandbyEvents; all animation happens via the BoardEvents queue in that turnstate.
-  
-
-- [ ] I think we just need to delay the unit deletion event to the animation time.
-  - Ratify still confirms the order, it just isn't carried out right away. But, once it says "Yo, dis guy trash" there should be no conceivable way it doesn't explode eventually.
-  - Same with TurnStart
-
-- [ ] There is no TurnStart→Animate→Ratify sequence, so if two units blow up because their gas is empty, both will explode, but one will disappear before the explosion happens. Or both will, depending on where the cursor is, I guess.
-
-- [ ] There is an odd discrepancy between ground and air explosions since they aren't the same length. They don't *feel* right. Either I need to vary the event time length or the explosion playback speed. Probably the former.
-
-- [ ] Source game: Can you 'Join' two Rigs holding infantry? Like, probably not, right? What rules does the game use? I have it disabled, but it's a little unintuitive to see Rig10 and Rig2 and not be able to merge them. Like, the reasoning is sound, but the UI doesn't communicate anything.
 
 - [ ] Units emit standby events on resupply, meaning they're emitted during Ratify, meaning Rigs can't resupply allies while its track car is showing.
+  - This might not actually be a problem.
+
+- [ ] mapCursor remains shown and in target mode when there is an attack target on approach (movement).
+- [ ] Damage vfx sprite happens to both attacked and countered concurrently.
 
 - [ ] Refactor TileEvents not to automatically add themselves to queue; have turnstates do that.
 
