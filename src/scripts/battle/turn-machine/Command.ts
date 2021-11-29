@@ -1,6 +1,7 @@
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
+import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { DestructEvent } from "../map/tile-effects/DestructEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
 import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
@@ -127,30 +128,17 @@ export module Command {
       Command.Move.ratify();
 
       const { map, trackCar, boardEvents } = data.assets;
-      const { seed, actor, goal, target } = data;
-      const toRemove: UnitObject[] = [];
+      const { seed, actor, goal, target, assets } = data;
+      const events = [];
 
-      function damageApply(attacker: UnitObject, defender: UnitObject, damage: number, trackCar?: TrackCar) {
-        const damageDealt = Math.min(defender.hp, damage);
-        defender.hp -= damage;
-        if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
-          attacker.ammo -= 1;
-        if (map.squareAt(attacker.boardLocation).COAffectedFlag)
-          attacker.boardPlayer.increasePowerMeter(damageDealt);
-        if (defender.hp === 0) {
-          attacker.rank += 1;
-          toRemove.push(defender);
-        }
-        // return new BattleDamageEvent({attacker, defender, damage, trackCar}) );
+      function getDamageEvent(attacker: UnitObject, defender: UnitObject, damage: number, trackCar?: TrackCar) {
+        return new BattleDamageEvent({attacker, defender, damage, trackCar, assets});
       }
 
       const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);
-      damageApply(actor, target, battleResults.damage);
-      damageApply(target, actor, battleResults.counter);
-
-      for (const unit of toRemove) {
-        boardEvents.add( new DestructEvent({unit, trackCar}) );
-      }
+      events.push(getDamageEvent(actor, target, battleResults.damage));
+      events.push(getDamageEvent(target, actor, battleResults.counter, trackCar));
+      boardEvents.add(...events);
     }
   }
 

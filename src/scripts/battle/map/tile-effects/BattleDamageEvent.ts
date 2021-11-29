@@ -41,6 +41,12 @@ export class BattleDamageEvent extends TileEvent {
         attacker.rank += 1;
     }
 
+    // Null case
+    if (damageDealt === 0) {
+      this.finish();
+      return;
+    }
+
     // World position variables
     const boardPos = defender.boardLocation;
     const worldPos = boardPos.multiply(Game.display.standardLength);
@@ -49,7 +55,7 @@ export class BattleDamageEvent extends TileEvent {
     const destructVariant = (defender.unitClass === UnitClass.Naval) ? 'wet' : 'dry';
     const destructAnim = `explosion-${destructVariant}`;
     const damageAnim = `damage-hit`;
-    const anim = (defender.hp === 0) ? destructAnim : damageAnim;
+    const anim = (defender.hp === 0) ? destructAnim : destructAnim; // damageAnim;
 
     // Get animation object
     const sheet = Game.scene.resources[`VFXSpritesheet`].spritesheet as PIXI.Spritesheet;
