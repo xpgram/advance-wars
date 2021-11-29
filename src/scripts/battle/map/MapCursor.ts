@@ -230,11 +230,11 @@ export class MapCursor extends Observable {
     const buttons = [dpadUp, dpadDown, dpadLeft, dpadRight];
 
     const dpadDirChanged = (buttons.some( b => b.pressed || b.released ))
-    const firstFrameSinceEnabled = (dpad.roaming && !this.movementPulsar.active);
+    const dpadTilted = (dpad.roaming && !this.movementPulsar.active);
 
     // Handle any frame input immediately.
-    if (dpadDirChanged || firstFrameSinceEnabled) {
-      const point = (firstFrameSinceEnabled)
+    if (dpadDirChanged || dpadTilted) {
+      const point = (dpadTilted)
         ? dpad.point
         : dpad.framePoint;
       this.move(point);
@@ -249,7 +249,7 @@ export class MapCursor extends Observable {
       this.movementPulsar.reset();
 
     // Held input handler
-    if (dpadDirChanged || firstFrameSinceEnabled)
+    if (dpadDirChanged || dpadTilted)
       this.movementPulsar.startReset();
     if (dpad.returned)
       this.movementPulsar.stop();
