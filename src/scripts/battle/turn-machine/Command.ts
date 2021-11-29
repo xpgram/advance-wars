@@ -2,6 +2,7 @@ import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
+import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DestructEvent } from "../map/tile-effects/DestructEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
 import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
@@ -159,13 +160,10 @@ export module Command {
     ratify() {
       Command.Move.ratify();
 
-      const { actor, goalTerrain } = data;
+      const { boardEvents } = data.assets;
+      const { actor, goalTerrain: terrain } = data;
 
-      actor.captureBuilding();
-      if (actor.buildingCaptured()) {
-        actor.stopCapturing();
-        goalTerrain.faction = actor.faction;
-      }
+      boardEvents.add(new CapturePropertyEvent({actor, terrain}));
     },
   }
 
