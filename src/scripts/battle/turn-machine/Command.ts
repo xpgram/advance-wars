@@ -139,6 +139,7 @@ export module Command {
       events.push(getDamageEvent(actor, target, battleResults.damage));
       events.push(getDamageEvent(target, actor, battleResults.counter, trackCar));
       boardEvents.add(...events);
+      // TODO boardEvents.add(events); // When there is concurrency
     }
   }
 
