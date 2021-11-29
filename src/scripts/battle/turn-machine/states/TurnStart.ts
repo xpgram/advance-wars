@@ -94,7 +94,6 @@ export class TurnStart extends TurnState {
       if (expendMaintainanceGas && players.day > 1)
         unit.expendMaintainanceGas();
       if (unit.destroyOnGasEmpty && unit.gas === 0) {
-        unit.destroy();   // TODO This hasn't been animated yet.
         destroyed = true;
       }
 
