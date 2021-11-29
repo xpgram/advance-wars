@@ -186,13 +186,12 @@ export module Command {
       Command.Move.ratify();
 
       const { map, camera, boardEvents } = data.assets;
-      const { actor } = data;
+      const { actor, goal } = data;
 
-      map.neighborsAt(actor.boardLocation)
+      map.neighborsAt(goal)
         .orthogonals
         .forEach( square => {
           if (square.unit && square.unit.resuppliable(actor)) {
-            square.unit.resupply();   // TODO Happens in scheduled event
             const event = new SpeechBubbleEvent({
               message: 'supply',
               actor: square.unit,
