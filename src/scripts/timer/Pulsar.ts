@@ -94,6 +94,12 @@ export class Pulsar {
     this._active = true;
   }
 
+  /** Stops, resets and starts the pusling loop-interval. */
+  startReset() {
+    this.reset();
+    this.start();
+  }
+
   /** Stops the pulsing loop-interval and resets the clock. */
   stop() {
     this._active = false;
