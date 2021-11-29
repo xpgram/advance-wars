@@ -78,13 +78,18 @@ export module Command {
       return false;
     },
     ratify: function () {
-      const { boardEvents } = data.assets;
+      const { boardEvents, instruction } = data.assets;
       const { place, path, goal, actor, assets } = data;
 
       // TODO Scan path tiles for ambush interruptions
 
+      // TODO It would be nice if Command.Attack could specify this itself.
+      const target = (instruction.action === Command.Attack.serial)
+        ? instruction.focal
+        : undefined;
+
       if (place.notEqual(goal))
-        boardEvents.add(new MoveUnitEvent({actor, path, assets}));
+        boardEvents.add(new MoveUnitEvent({actor, path, target, assets}));
     },
   }
 
