@@ -25,9 +25,9 @@ export class RatifyIssuedOrder extends TurnState {
 
     // Retrieve and execute command
     const command = getCommandObject(action);
-    command.ratify();
+    command.scheduleEvents();
 
-    Command.Drop.ratify();
+    Command.Drop.scheduleEvents();
 
     if (placeTile.unit) // if (command.spendsUnit)
       boardEvents.add(new SpendActorEvent({actor: placeTile.unit}));

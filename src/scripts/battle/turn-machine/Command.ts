@@ -52,7 +52,7 @@ export type CommandObject<T> = {
   /** Returns true if this command should be included in a ListMenu. */
   triggerInclude: () => boolean,
   /** Effects changes on the board. */
-  ratify: () => void,
+  scheduleEvents: () => void,
 }
 
 /** Global container for Command objects and logic. */
@@ -68,8 +68,8 @@ export module Command {
       const { actor, goalTile } = data;
       return goalTile.occupiable(actor);
     },
-    ratify() {
-      Command.Move.ratify();
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
     },
   }
 
@@ -82,7 +82,7 @@ export module Command {
     triggerInclude: function () {
       return false;
     },
-    ratify: function () {
+    scheduleEvents: function () {
       const { boardEvents, instruction } = data.assets;
       const { place, path, goal, actor, assets } = data;
 
@@ -125,8 +125,8 @@ export module Command {
       const hasNotMoved = (goal.equal(place));
       return targetableInRange && (canMove || hasNotMoved);
     },
-    ratify() {
-      Command.Move.ratify();
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
 
       const { map, trackCar, boardEvents } = data.assets;
       const { seed, actor, goal, target, assets } = data;
@@ -157,8 +157,8 @@ export module Command {
       const notAllied = (actor.faction !== goalTerrain.faction);
       return readyToCapture && notAllied;
     },
-    ratify() {
-      Command.Move.ratify();
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
 
       const { boardEvents } = data.assets;
       const { actor, goalTerrain: terrain } = data;
@@ -182,8 +182,8 @@ export module Command {
         .orthogonals
         .some( square => square.unit && square.unit.resuppliable(actor) );
     },
-    ratify() {
-      Command.Move.ratify();
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
 
       const { map, camera, boardEvents } = data.assets;
       const { actor, goal } = data;
@@ -219,7 +219,7 @@ export module Command {
 
       return actor.mergeable(other);
     },
-    ratify() {
+    scheduleEvents() {
       const { map, boardEvents } = data.assets;
       const { actor, path, goal, assets } = data;
 
@@ -245,7 +245,7 @@ export module Command {
       const { actor, goalTile } = data;
       return goalTile.unit?.boardable(actor) || false;
     },
-    ratify() {
+    scheduleEvents() {
       const { boardEvents } = data.assets;
       const { actor, path, underneath, assets } = data;
 
@@ -283,7 +283,7 @@ export module Command {
             && !drop.some( d => d.where.equal(tile.pos) ) );
       return !alreadyDropped && oneEmptySpace;
     },
-    ratify() {
+    scheduleEvents() {
       const { drop } = data;
 
       if (drop.length === 0)
@@ -305,7 +305,7 @@ export module Command {
     triggerInclude() {
       return false;
     },
-    ratify() {
+    scheduleEvents() {
       const { players } = data.assets;
       const { which, place } = data;
 
