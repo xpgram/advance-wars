@@ -3,6 +3,8 @@ import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
 import { DestructEvent } from "../map/tile-effects/DestructEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
+import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
+import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
 import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { Unit } from "../Unit";
@@ -230,8 +232,8 @@ export module Command {
       return actor.mergeable(other);
     },
     ratify() {
-      const { map, players } = data.assets;
-      const { actor, goal } = data;
+      const { map, boardEvents } = data.assets;
+      const { actor, path, goal, assets } = data;
 
       const other = map.squareAt(goal).unit;
       if (!other)
@@ -241,23 +243,7 @@ export module Command {
       if (other.type !== actor.type)
         throw new RatificationError(`units to join are not of same type`);
 
-      function roundUp(n: number) { return Math.ceil(n * .10) * 10; }
-
-      const { hp, gas, ammo } = actor;
-      const newHp = roundUp(hp) + roundUp(other.hp);
-      const extraHp = Math.max(newHp - UnitObject.MaxHp, 0);
-      const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
-      players.current.funds += returnedFunds;
-
-      const highestRank = Math.max(actor.rank, other.rank);
-
-      other.hp = newHp;
-      other.gas += gas;
-      other.ammo += ammo;
-      other.rank = highestRank;
-
-      actor.destroy();
-      other.spent = true;
+      boardEvents.add(new JoinUnitEvent({actor, path, other, assets}));
     },
   }
 
@@ -272,15 +258,10 @@ export module Command {
       return goalTile.unit?.boardable(actor) || false;
     },
     ratify() {
-      const { map, scenario } = data.assets;
-      const { actor, place, path, underneath } = data;
+      const { boardEvents } = data.assets;
+      const { actor, path, underneath, assets } = data;
 
-      map.removeUnit(actor.boardLocation);
-      underneath.loadUnit(actor);
-      actor.spent = true;
-      
-      if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
-        actor.gas -= map.travelCostForPath(place, path, actor.moveType);
+      boardEvents.add(new LoadUnitEvent({actor, path, underneath, assets}));
     },
   }
 

@@ -17,7 +17,7 @@ interface MoveUnitEventOptions {
 
 export class MoveUnitEvent extends TileEvent {
 
-  private options: MoveUnitEventOptions;
+  protected options: MoveUnitEventOptions;
   private cameraTargetSwap!: TransformContainer | Point | null;
 
   constructor(options: MoveUnitEventOptions) {
@@ -29,7 +29,7 @@ export class MoveUnitEvent extends TileEvent {
   // Granted, I hvae more control here if I'm allowed to break it up.
   // A ratify() method makes all changes instantly, but if I wanted to subtract funds sequentially I'd need
   // to spread that instant change over time.
-  private ratifyMovement() {
+  protected ratifyMovement() {
     const { map, scenario } = this.options.assets;
     const { actor, path } = this.options;
 
@@ -39,7 +39,6 @@ export class MoveUnitEvent extends TileEvent {
     if (!map.moveUnit(place, goal))
       throw new RatificationError(`could not move unit ${place.toString()} → ${goal.toString()}`);
 
-    actor.spent = true;
     if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
       actor.gas -= map.travelCostForPath(place, path, actor.moveType);
   }

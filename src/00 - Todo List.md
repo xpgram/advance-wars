@@ -1,5 +1,9 @@
 # Next Big Objectives
 
+- [ ] MoveEvent does not reset trackCar
+- [ ] Damage/Destruct hides actor and shows trackCar
+  - [ ] This won't cause flickering, will it? I would just have to modify how the animation schedule handles transitions then, I guess.
+
 - [ ] Command.???.ratify → Command.???.schedule
 - [ ] abstract TileEvent.ratify(): void;           ← This is just to force a little consistency; obvs the event has full control over when and how events are formally ratified.
 
