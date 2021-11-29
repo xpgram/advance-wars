@@ -195,7 +195,7 @@ export module Command {
             square.unit.resupply();   // TODO Happens in scheduled event
             const event = new SpeechBubbleEvent({
               message: 'supply',
-              location: square.unit.boardLocation,
+              actor: square.unit,
               camera
             });
             boardEvents.add(event);

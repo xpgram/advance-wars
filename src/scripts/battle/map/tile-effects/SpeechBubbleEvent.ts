@@ -3,12 +3,15 @@ import { Game } from "../../../..";
 import { Camera } from "../../../Camera";
 import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
+import { UnitObject } from "../../UnitObject";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
 
 interface SpeechBubbleEventOptions {
   message: 'supply' | 'repair' | 'ambush';
-  location: Point;
+  actor: UnitObject;
+  repairHp?: number,        // This is mega-dumb. Split this into an inheriting RepairEvent
+  repairCost?: number,      // like I had before—make these numbers mandatory.
   camera: Camera;
 }
 
@@ -21,15 +24,28 @@ export class SpeechBubbleEvent extends TileEvent {
 
 
   constructor(options: SpeechBubbleEventOptions) {
-    super(options.location);
+    super(options.actor.boardLocation);
     this.options = {...options};
   }
 
+  private ratifySupply() {
+    const { actor } = this.options;
+    actor.resupply();
+  }
+
+  private ratifyRepair() {
+    const { actor, repairHp, repairCost } = this.options;
+    const player = actor.boardPlayer;
+    actor.resupply();
+    actor.hp += repairHp || 0;
+    player.expendFunds(repairCost || 0);
+  }
+
   protected create(): void {
-    const { message, location, camera } = this.options;
+    const { message, actor, camera } = this.options;
     const tileSize = Game.display.standardLength;
 
-    const boardPos = new Point(location);
+    const boardPos = actor.boardLocation;
     const worldPos = boardPos.multiply(tileSize);
     const leftsideViewport = (camera.center.x > worldPos.x);
 
@@ -44,6 +60,9 @@ export class SpeechBubbleEvent extends TileEvent {
     this.image.anchor.x = (leftsideViewport) ? 0 : 1;
 
     this.timer.start();
+
+    if (message === 'repair') this.ratifyRepair();
+    if (message === 'supply') this.ratifySupply();
 
     MapLayer('ui').addChild(this.image);
   }
