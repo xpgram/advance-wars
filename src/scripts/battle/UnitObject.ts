@@ -37,6 +37,7 @@ const captureBits = genBitmask(5);
 const gasBits = genBitmask(7);
 const rankBits = genBitmask(2);
 const orderableBits = genBitmask(1);
+const coOnBoardBits = genBitmask(1);
 
 shift = 0;
 const typeBits = genBitmask(6);
@@ -458,6 +459,16 @@ export abstract class UnitObject {
     set orderable(b: boolean) {
         let n = Number(b);
         this.conditionInfo = Common.writeBits(this.conditionInfo, n, orderableBits.length, orderableBits.shift);
+    }
+
+    /** Whether this unit is considered a CO unit. */
+    get CoOnBoard(): boolean {
+        let n = Common.readBits(this.conditionInfo, coOnBoardBits.length, coOnBoardBits.shift);
+        return n == 1;
+    }
+    set CoOnBoard(b: boolean) {
+        let n = Number(b);
+        this.conditionInfo = Common.writeBits(this.conditionInfo, n, coOnBoardBits.length, coOnBoardBits.shift);
     }
 
     /** Whether this unit has carried out its order. */

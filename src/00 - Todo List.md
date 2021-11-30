@@ -1,5 +1,9 @@
 # Next Big Objectives
 
+- [x] Unit CO loaded
+- [ ] CO loaded state affects adjacent board tiles.
+- [ ] BoardPlayer.CoUnit : filter units => unit.coLoaded == true
+
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 
