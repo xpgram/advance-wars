@@ -60,7 +60,7 @@ export class SpeechBubbleEvent extends TileEvent {
     const tex = sheet.textures[`bubble-${message}-${leftsideViewport ? 'right' : 'left'}.png`];
     this.image = new PIXI.Sprite(tex);
 
-    worldPos.x += .5*tileSize;
+    worldPos.x += ((leftsideViewport) ? .6 : .4)*tileSize;
     worldPos.y += .5*tileSize;
 
     this.image.position.set(worldPos.x, worldPos.y);
