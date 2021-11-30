@@ -76,8 +76,7 @@ export class IssueOrderStart extends TurnState {
 
     // TODO Remove — but not yet; I find it useful. Extract it to a control script, maybe.
     // Dev insert to instantly empty unit resources
-    const devC = Game.devController;
-    if (devC.get(Keys.E).pressed && devC.get(Keys.Shift).down)
+    if (Game.devController.pressed(Keys.E, 'Shift'))
       if (unit) {
         unit.gas = 1;
         unit.ammo = 0;

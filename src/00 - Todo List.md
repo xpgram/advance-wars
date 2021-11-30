@@ -1,7 +1,5 @@
 # Next Big Objectives
 
-- [ ] DevController + Shift is really common, just make that part of get() somehow.
-
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 
