@@ -60,7 +60,6 @@ export class BattleDamageEvent extends TileEvent {
     // Get animation object
     const sheet = Game.scene.resources[`VFXSpritesheet`].spritesheet as PIXI.Spritesheet;
     const textures = sheet.animations[anim];
-    textures.push(PIXI.Texture.EMPTY);
     this.vfx = new PIXI.AnimatedSprite(textures);
 
     // Configure animation settings
