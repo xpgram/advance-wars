@@ -1,55 +1,23 @@
 # Next Big Objectives
 
-- [ ] MoveEvent does not reset trackCar
-- [ ] Damage/Destruct hides actor and shows trackCar
-  - [ ] This won't cause flickering, will it? I would just have to modify how the animation schedule handles transitions then, I guess.
+- [ ] There is flickering of the target cursor between ChooseAttackTarget and MoveUnitEvent. I suspect because there is at least one state transition: CAT(shown)→Ratify(hidden)→Animate(shown), where the mapCursor isn't shown.
+  - [ ] This could possibly be fixed by implementing a next-state loop in BSM like there is for previous; so if a state call advance() during is wake() step, the system should auto grab the next state without waiting for a new draw frame.
 
-- [ ] Command.???.ratify → Command.???.schedule
-- [ ] abstract TileEvent.ratify(): void;           ← This is just to force a little consistency; obvs the event has full control over when and how events are formally ratified.
-
-BoardEvents
-  - Repair
-    - Replenish HP
-    - Extract funds
-    - Replenish resources
-  - Supply
-    - Replenish resources
-  - Damage
-    - Subtract HP
-  - Destruct
-    - Remove from map
-  - Move
-    - Plays trackcar until finished.  (We cannot use a timer for this)
-- [ ] Ratify and Commands schedule animation/board-change events to happen later.
+- [x] Ratify and Commands schedule animation/board-change events to happen later.
 - [x] These events have a callback that returns true when they're done occurring, like work orders.
-- [ ] These events have a method of reporting when they've been interrupted.
-  When a Move interruption happens, whatever events were supposed to happen after need to be replaced with an Ambush bubble event.
-  This, I think... should happen during the ratify() steps; those are meant to plan out these events anyway.
-  So, Attack invokes Move first, Move reports (somehow) it can't complete, it gets stopped on step 4 of the 6-step path.
-  Attack then cancels any damage blah blah blah it would have done and creates an Ambush bubble event at wherever path stops.
-  Otherwise, with no interruptions, Attack schedules damage/destruction as normal.
-  Drop also has to do this.
-  Probably Move should schedule the Move animation, as it would, but also the interrupt, and then reports (somehow) that it failed
-  to succeed, and Attack, Drop, etc. simply stop processing.
-- [ ] Attack→Damage is migrated (I need art assets first)
+- [ ] Command.Move calculates ambushes
+- [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
+- [x] Attack→Damage is migrated (I need art assets first)
+  - [ ] Attack vfx
+  - [x] Destroy (dry) vfx
+  - [x] Destroy (sea) vfx
 - [x] Attack→Destroy is migrated
 - [x] Move is migrated
 - [ ] Animate assumes the role of AnimateStandbyEvents; all animation happens via the BoardEvents queue in that turnstate.
 
-- [ ] Units emit standby events on resupply, meaning they're emitted during Ratify, meaning Rigs can't resupply allies while its track car is showing.
-  - This might not actually be a problem.
-
-- [ ] mapCursor remains shown and in target mode when there is an attack target on approach (movement).
 - [ ] Damage vfx sprite happens to both attacked and countered concurrently.
 
-- [ ] Refactor TileEvents not to automatically add themselves to queue; have turnstates do that.
-
-I feel like I want to refine the above process a little more, but...
-it seems fine. I just think boardPlayer.emit(event) -> queue.add(event)
-is an obvious out-of-necessity kind of thing and not because it should be
-BoardPlayer's responsibility.
-The alternative, I suppose, is to give every unit a (static?) reference to
-queue, which... isn't an abjectly horrible idea.
+- [ ] Refactor boardEvents.add() to boardEvents.schedule() or something.
 
 - [ ] COAffectedTiles
   - [ ] Do some drafting to confirm visual style before implementation.
@@ -65,16 +33,11 @@ queue, which... isn't an abjectly horrible idea.
   - COAffected could be obtained from the board players themselves. They would just have a rangeMap, just like units do.
   - The visual effect, if in the overlay layer, could also be maintained by the board player.
 
-- [x] AnimateStandbyEvents should handle unit explosions; gas-empty air and naval units need to blow up all the same. AnimateBattle (will never be filled in) would handle the cutscene battle, then. It probably needs to go before standby, in that case.
-Luckily that's really easy to do with the new queueing system.
-
-- [x] I totally forgot I haven't added rank ups. That would be mad easy.
-
 - [ ] UnitDetail Window
 - [ ] Switchable with Button.Y / Key.C.
 
 - [ ] Target Reticle around Battleships.
-- [ ] Enable move and attack.
+- [x] Enable move and attack.
 
 - [ ] COAffectedFlag needs to be open to multiple players.
   Naturally, because you should be able to see your opponent's ranges.
@@ -136,7 +99,7 @@ Post Function:
 
 - [ ] Add dummy IssueOrderConfirm step, which would get approval from the server.
 
-- [ ] The camera needs to emit an event when it stops moving. Or maybe it just has a getter that responds true whenever its target is in focus. This is less sophisticated, but I think it would suffice.
+- [x] The camera needs to emit an event when it stops moving. Or maybe it just has a getter that responds true whenever its target is in focus. This is less sophisticated, but I think it would suffice.
 - [ ] Camera can use this signal itself, too. Whenever its object *is* in focus, it should pick the nearest map-tile point quantized to its zoom ratio or whatever and move there, I suppose at a speed that also scales with zoom to avoid weird staircase zoom effects.
 - [ ] Hold B to move fast: camera focal point needs to move to whichever edge or corner your dpad is curretnly pointing in. This will make zoom a little smoother.
 - [ ] Hold B to move fast: never goes beyond a few tiles of the map. But you can zoom-trick the camera further. And then tapping B will snap that camera. That's bad.
