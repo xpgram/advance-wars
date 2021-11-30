@@ -2,6 +2,7 @@ import { Spritesheet } from "pixi.js";
 import { Game } from "../../../..";
 import { Camera } from "../../../Camera";
 import { Point } from "../../../Common/Point";
+import { Slider } from "../../../Common/Slider";
 import { Timer } from "../../../timer/Timer";
 import { UnitObject } from "../../UnitObject";
 import { MapLayer } from "../MapLayers";
@@ -19,9 +20,15 @@ export class SpeechBubbleEvent extends TileEvent {
   
   private options: SpeechBubbleEventOptions;
 
-  private timer: Timer = new Timer(0.5);
+  private timer: Timer = new Timer(0.6);
   private image!: PIXI.Sprite;
 
+  private readonly MaxScale = 2.5;
+  private readonly IntroFrames = 3;
+
+  private animSlider = new Slider({
+    granularity: 1 / this.IntroFrames,
+  });
 
   constructor(options: SpeechBubbleEventOptions) {
     super(options.actor.boardLocation);
@@ -53,11 +60,13 @@ export class SpeechBubbleEvent extends TileEvent {
     const tex = sheet.textures[`bubble-${message}-${leftsideViewport ? 'right' : 'left'}.png`];
     this.image = new PIXI.Sprite(tex);
 
-    worldPos.x += (leftsideViewport) ? .8*tileSize : .2*tileSize;
-    worldPos.y -= .5*tileSize;
+    worldPos.x += .5*tileSize;
+    worldPos.y += .5*tileSize;
 
     this.image.position.set(worldPos.x, worldPos.y);
-    this.image.anchor.x = (leftsideViewport) ? 0 : 1;
+    this.image.anchor.set( ((leftsideViewport) ? 0 : 1), .5 );
+    this.image.scale.set(this.MaxScale);
+    this.image.alpha = 0;
 
     this.timer.start();
 
@@ -68,6 +77,11 @@ export class SpeechBubbleEvent extends TileEvent {
   }
 
   protected update(): void {
+    this.image.scale.set(this.MaxScale - this.animSlider.output*(this.MaxScale-1));
+    this.image.alpha = this.animSlider.output;
+
+    this.animSlider.increment();
+
     if (this.timer.finished)
       this.finish();
   }
