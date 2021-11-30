@@ -1,4 +1,7 @@
 import { Game } from "../../../..";
+import { Camera } from "../../../Camera";
+import { Point } from "../../../Common/Point";
+import { Slider } from "../../../Common/Slider";
 import { AttackMethod, UnitClass } from "../../EnumTypes";
 import { TrackCar } from "../../TrackCar";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
@@ -19,13 +22,22 @@ export class BattleDamageEvent extends TileEvent {
   protected options: BattleDamageEventOptions;
   private vfx!: PIXI.AnimatedSprite;
 
+  private cameraPoint!: Point;
+  private cameraFollowAlgorithmSwap!: ((camera: Camera) => void) | null;
+  private screenShakeSlider = new Slider({
+    max: 4,
+    track: 'max',
+    granularity: 1/4,
+    shape: v => ((v % 2 === 0) ? v : -v)*.5,
+  });
+
   constructor(options: BattleDamageEventOptions) {
     super(options.defender.boardLocation);
     this.options = options;
   }
 
   protected create(): void {
-    const { map } = this.options.assets;
+    const { map, camera } = this.options.assets;
     const { attacker, defender, damage, trackCar } = this.options;
 
     // Calculate damage results
@@ -76,20 +88,39 @@ export class BattleDamageEvent extends TileEvent {
       trackCar?.hide();
     }
 
+    // Configure camera for shake
+    this.cameraPoint = camera.pos;
+    this.cameraFollowAlgorithmSwap = camera.followAlgorithm;
+    camera.followAlgorithm = function(){};
+
     MapLayer('ui').addChild(this.vfx);
   }
 
   protected update(): void {
+    const { camera } = this.options.assets;
+
+    // Update VFX settings
     const lastidx = this.vfx.textures.length - 1;
     const curidx = this.vfx.currentFrame;
     const progress = curidx / lastidx;
     this.vfx.alpha = 1-Math.max(progress-.5, 0)/.65;
 
+    // Update camera settings
+    const curPoint = this.cameraPoint.add(0, this.screenShakeSlider.output);
+    camera.pos = curPoint;
+    this.screenShakeSlider.decrement();
+
+    // Signal finish
     if (curidx === lastidx)
       this.finish();
   }
 
   protected destroy(): void {
+    const { camera } = this.options.assets;
+
+    camera.pos = this.cameraPoint;
+    camera.followAlgorithm = this.cameraFollowAlgorithmSwap;
+
     this.vfx?.destroy();
     this.vfx = undefined;
     //@ts-expect-error
