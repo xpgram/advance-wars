@@ -1,8 +1,8 @@
 # Next Big Objectives
 
-- [ ] Implement Event Concurrency
-- [ ] Damage vfx sprite happens to both attacked and countered at once.
-- [ ] All units affected by Command.Supply are supplied at once.
+- [x] Implement Event Concurrency
+- [x] Damage vfx sprite happens to both attacked and countered at once.
+- [x] All units affected by Command.Supply are supplied at once.
 
 - [x] Infinite next in BSM
 - [x] Infinite next in Events
@@ -20,7 +20,7 @@
   - [x] Destroy (sea) vfx
 - [x] Attack→Destroy is migrated
 - [x] Move is migrated
-- [ ] Animate assumes the role of AnimateStandbyEvents; all animation happens via the BoardEvents queue in that turnstate.
+- [x] Animate assumes the role of AnimateStandbyEvents; all animation happens via the BoardEvents queue in that turnstate.
 
 - [ ] COAffectedTiles
   - [ ] Do some drafting to confirm visual style before implementation.
