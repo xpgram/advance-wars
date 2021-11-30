@@ -55,7 +55,9 @@ export class BattleDamageEvent extends TileEvent {
     const destructVariant = (defender.unitClass === UnitClass.Naval) ? 'wet' : 'dry';
     const destructAnim = `explosion-${destructVariant}`;
     const damageAnim = `damage-hit`;
-    const anim = (defender.hp === 0) ? destructAnim : destructAnim; // damageAnim;
+
+    const explodeSprite = (defender.hp === 0);
+    const anim = (explodeSprite) ? destructAnim : damageAnim;
 
     // Get animation object
     const sheet = Game.scene.resources[`VFXSpritesheet`].spritesheet as PIXI.Spritesheet;
@@ -64,7 +66,7 @@ export class BattleDamageEvent extends TileEvent {
 
     // Configure animation settings
     this.vfx.position.set(worldPos.x, worldPos.y);
-    this.vfx.animationSpeed = 1/4;
+    this.vfx.animationSpeed = (explodeSprite) ? 1/4 : 1;
     this.vfx.loop = false;
     this.vfx.play();
 
@@ -81,7 +83,7 @@ export class BattleDamageEvent extends TileEvent {
     const lastidx = this.vfx.textures.length - 1;
     const curidx = this.vfx.currentFrame;
     const progress = curidx / lastidx;
-    this.vfx.alpha = 1-(progress-.65)/.65;  // Transparency rapidly declines to ~.5 toward the end.
+    this.vfx.alpha = 1-Math.max(progress-.5, 0)/.65;
 
     if (curidx === lastidx)
       this.finish();

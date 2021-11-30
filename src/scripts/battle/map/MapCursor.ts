@@ -233,7 +233,7 @@ export class MapCursor extends Observable {
     const dpadTilted = (dpad.roaming && !this.movementPulsar.active);
 
     // Handle any frame input immediately.
-    if (dpadDirChanged || dpadTilted) {
+    if (dpadDirChanged) {
       const point = (dpadTilted)
         ? dpad.point
         : dpad.framePoint;
