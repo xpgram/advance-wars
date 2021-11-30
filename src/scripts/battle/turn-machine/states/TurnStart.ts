@@ -118,7 +118,7 @@ export class TurnStart extends TurnState {
         });
 
       if (event)
-        boardEvents.add(event);
+        boardEvents.schedule(event);
 
       // Let the players play.
       unit.orderable = true;

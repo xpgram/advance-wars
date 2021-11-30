@@ -1,16 +1,13 @@
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
-import { AttackMethod } from "../EnumTypes";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
-import { DestructEvent } from "../map/tile-effects/DestructEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
 import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
 import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
 import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
-import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { instructionData } from "./InstructionData";
 
@@ -94,7 +91,7 @@ export module Command {
         : undefined;
 
       if (place.notEqual(goal))
-        boardEvents.add(new MoveUnitEvent({actor, path, target, assets}));
+        boardEvents.schedule(new MoveUnitEvent({actor, path, target, assets}));
     },
   }
 
@@ -139,8 +136,7 @@ export module Command {
       const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);
       events.push(getDamageEvent(actor, target, battleResults.damage));
       events.push(getDamageEvent(target, actor, battleResults.counter, trackCar));
-      boardEvents.add(...events);
-      // TODO boardEvents.add(events); // When there is concurrency
+      boardEvents.schedule(events);
     }
   }
 
@@ -163,7 +159,7 @@ export module Command {
       const { boardEvents } = data.assets;
       const { actor, goalTerrain: terrain } = data;
 
-      boardEvents.add(new CapturePropertyEvent({actor, terrain}));
+      boardEvents.schedule(new CapturePropertyEvent({actor, terrain}));
     },
   }
 
@@ -187,6 +183,7 @@ export module Command {
 
       const { map, camera, boardEvents } = data.assets;
       const { actor, goal } = data;
+      const events: SpeechBubbleEvent[] = [];
 
       map.neighborsAt(goal)
         .orthogonals
@@ -197,9 +194,10 @@ export module Command {
               actor: square.unit,
               camera
             });
-            boardEvents.add(event);
+            events.push(event);
           }
         });
+      boardEvents.schedule(events);
     }
   }
 
@@ -231,7 +229,7 @@ export module Command {
       if (other.type !== actor.type)
         throw new RatificationError(`units to join are not of same type`);
 
-      boardEvents.add(new JoinUnitEvent({actor, path, other, assets}));
+      boardEvents.schedule(new JoinUnitEvent({actor, path, other, assets}));
     },
   }
 
@@ -249,7 +247,7 @@ export module Command {
       const { boardEvents } = data.assets;
       const { actor, path, underneath, assets } = data;
 
-      boardEvents.add(new LoadUnitEvent({actor, path, underneath, assets}));
+      boardEvents.schedule(new LoadUnitEvent({actor, path, underneath, assets}));
     },
   }
 
@@ -292,7 +290,7 @@ export module Command {
       const { boardEvents } = data.assets;
       const { actor, assets } = data;
 
-      boardEvents.add( new DropHeldUnitEvent({actor, drop, assets}));
+      boardEvents.schedule( new DropHeldUnitEvent({actor, drop, assets}));
     },
   }
 

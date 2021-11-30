@@ -21,16 +21,16 @@ export class AnimateEvents extends TurnState {
   update(): void {
     const { boardEvents, mapCursor, camera } = this.assets;
 
-    if (boardEvents.current) {
-      const { location } = boardEvents.current;
+    if (boardEvents.eventsInQueue) {
+      const location = boardEvents.boardLocation || mapCursor.pos;
 
       if (mapCursor.pos.notEqual(location))
         mapCursor.teleport(new Point(location));
 
-      if (camera.subjectInView && !boardEvents.current.playing && !boardEvents.current.finished)
-        boardEvents.current.play();
+      if (camera.subjectInView && !boardEvents.batchPlaying && !boardEvents.batchFinished)
+        boardEvents.batchPlay();
 
-      else if (boardEvents.current.finished)
+      else if (boardEvents.batchFinished)
         boardEvents.next();
         
     } else {

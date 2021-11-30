@@ -29,7 +29,7 @@ export class RatifyIssuedOrder extends TurnState {
     Command.Drop.scheduleEvents();
 
     if (placeTile.unit) // if (command.spendsUnit)
-      boardEvents.add(new SpendActorEvent({actor: placeTile.unit}));
+      boardEvents.schedule(new SpendActorEvent({actor: placeTile.unit}));
 
     // Update cursor position.
     if (instruction.path) {
