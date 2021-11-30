@@ -1,5 +1,9 @@
 # Next Big Objectives
 
+- [ ] Implement Event Concurrency
+- [ ] Damage vfx sprite happens to both attacked and countered at once.
+- [ ] All units affected by Command.Supply are supplied at once.
+
 - [ ] There is flickering of the target cursor between ChooseAttackTarget and MoveUnitEvent. I suspect because there is at least one state transition: CAT(shown)→Ratify(hidden)→Animate(shown), where the mapCursor isn't shown.
   - [ ] This could possibly be fixed by implementing a next-state loop in BSM like there is for previous; so if a state call advance() during is wake() step, the system should auto grab the next state without waiting for a new draw frame.
 
@@ -8,16 +12,12 @@
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 - [x] Attack→Damage is migrated (I need art assets first)
-  - [ ] Attack vfx
+  - [x] Attack vfx
   - [x] Destroy (dry) vfx
   - [x] Destroy (sea) vfx
 - [x] Attack→Destroy is migrated
 - [x] Move is migrated
 - [ ] Animate assumes the role of AnimateStandbyEvents; all animation happens via the BoardEvents queue in that turnstate.
-
-- [ ] Damage vfx sprite happens to both attacked and countered concurrently.
-
-- [ ] Refactor boardEvents.add() to boardEvents.schedule() or something.
 
 - [ ] COAffectedTiles
   - [ ] Do some drafting to confirm visual style before implementation.
@@ -45,15 +45,6 @@
   - [ ] Instead of tints, why not use a (non-obnoxious) variant of the area-target reticle that Silos and Battleships use?
   - [ ] Units are missing the CO-Boarded badge.
 
-- [ ] Supply and Repair are saved as events in BoardPlayer
-- [ ] Have AnimateEvents post them to confirm.
-- [ ] Supply animations
-  - [ ] TileMessage class which displays a message, oscillates up and down, then fades away after a set time.
-  - [ ] Anim step sets cursor to tile pos; this moves the camera
-  - [ ] Creates a TileMessage
-  - [ ] After the TileMessage disappears (boolean, callback, idk), move on to next anim event.
-  - [ ] This happens for Supply and Repair
-
 - [ ] Plasma Textures: Second frame, I believe.
 
 More observations:
@@ -63,31 +54,10 @@ More observations:
 - Launch, further further, does not spend the Carrier. It can Launch both held units. 'Wait,' 'Attack' and 'Build,' of course, prevent any more Launches.
 - Dropping TCopters, it's impossible to know which is which. Can I fix this in mine? Can I link UnitWindow to the cursor selection?
   - [ ] On ListMenu.cursorMove => inspectUnit(actor.loadedUnits[command.input])
-- TargetCursor appears over actionables. So, over an attackable unit, or over a unit you can load into, maybe over a Silo, I dunno. Honestly, it's probably a visual flair that means "you can do something here."
-- Because path arrows do not disappear when dropping, the game has special icon arrows to indicate a drop tile.
+- [ ] Because path arrows do not disappear when dropping, the game has special icon arrows to indicate a drop tile.
 - These drop-tile icons appear above units, path arrows, etc. Do I need a second UI layer?
-- Landers drop both their units at once, not in order.
-- The drop animation will require at least two additional TrackCars.
-- The original TrackCar just hangs for a second while the other two do their thing. I think I'd have to go out of my way to change this.
 
-Post Function:
-  I don't remember what post function means.
-- [x] Drop Cmds use IconTitle and the held unit preview is passed in.
-- [ ] DropLocation also sets a dir value on the square so the player can see where they're dropping.
-- [x] AnimateMove moves to AnimateDrop which does what you would think, which moves to AnimateBattle which doesn't exist yet, which moves to Ratify, I think.
-
-- [x] add cursor pos to debug ui, hide by default?
-- [x] Load Unit
-- [x] Drop Unit
-  This one's going to be tricky...
-  - [x] CommandMenu → Where → CommandMenu
-  - [x] CMenu → Where → CMenu → Where → CMenu → Wait → ... → Ratify
-  - [x] CMenu → Where → CMenu → Regress (Clear Where) → MoveUnit
-- [x] nextOrderable - Break into two: unit and base
-- [x] Land's End - move predeploy closer for more efficient testing.
-- [x] Expand ListMenu to allow for columns (I added pages, anyway)
-- [x] New FactoryShop GUI for ListMenu
-  - [ ] Force UnitDetail open and right side during shop menu
+- [ ] Force UnitDetail open and right side during shop menu
 
 - [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
 
