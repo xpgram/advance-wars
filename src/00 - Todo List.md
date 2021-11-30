@@ -1,26 +1,9 @@
 # Next Big Objectives
 
-- [x] Implement Event Concurrency
-- [x] Damage vfx sprite happens to both attacked and countered at once.
-- [x] All units affected by Command.Supply are supplied at once.
+- [ ] DevController + Shift is really common, just make that part of get() somehow.
 
-- [x] Infinite next in BSM
-- [x] Infinite next in Events
-
-- [x] There is flickering of the target cursor between ChooseAttackTarget and MoveUnitEvent. I suspect because there is at least one state transition: CAT(shown)→Ratify(hidden)→Animate(shown), where the mapCursor isn't shown.
-  - [x] This could possibly be fixed by implementing a next-state loop in BSM like there is for previous; so if a state call advance() during is wake() step, the system should auto grab the next state without waiting for a new draw frame.
-
-- [x] Ratify and Commands schedule animation/board-change events to happen later.
-- [x] These events have a callback that returns true when they're done occurring, like work orders.
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
-- [x] Attack→Damage is migrated (I need art assets first)
-  - [x] Attack vfx
-  - [x] Destroy (dry) vfx
-  - [x] Destroy (sea) vfx
-- [x] Attack→Destroy is migrated
-- [x] Move is migrated
-- [x] Animate assumes the role of AnimateStandbyEvents; all animation happens via the BoardEvents queue in that turnstate.
 
 - [ ] COAffectedTiles
   - [ ] Do some drafting to confirm visual style before implementation.

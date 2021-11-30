@@ -10,7 +10,7 @@ import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
 
 interface BattleDamageEventOptions {
-  attacker: UnitObject;
+  attacker?: UnitObject;
   defender: UnitObject;
   damage: number;
   trackCar?: TrackCar;
@@ -28,7 +28,7 @@ export class BattleDamageEvent extends TileEvent {
     max: 4,
     track: 'max',
     granularity: 1/4,
-    shape: v => ((v % 2 === 0) ? v : -v)*.5,
+    shape: v => Math.ceil(((v % 2 === 0) ? v : -v)*.5),
   });
 
   constructor(options: BattleDamageEventOptions) {
@@ -44,7 +44,7 @@ export class BattleDamageEvent extends TileEvent {
     const damageDealt = Math.min(defender.hp, damage);
     defender.hp -= damage;
 
-    if (attacker.hp > 0) {  // TODO !attacker.destroyed: boolean
+    if (attacker && attacker.hp > 0) {  // TODO !attacker.destroyed: boolean
       if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
         attacker.ammo -= 1;
       if (map.squareAt(attacker.boardLocation).COAffectedFlag)
@@ -52,6 +52,11 @@ export class BattleDamageEvent extends TileEvent {
       if (defender.hp === 0)
         attacker.rank += 1;
     }
+
+    // Configure camera for shake
+    this.cameraPoint = camera.pos;
+    this.cameraFollowAlgorithmSwap = camera.followAlgorithm;
+    camera.followAlgorithm = function(){};
 
     // Null case
     if (damageDealt === 0) {
@@ -87,11 +92,6 @@ export class BattleDamageEvent extends TileEvent {
       defender.destroy();
       trackCar?.hide();
     }
-
-    // Configure camera for shake
-    this.cameraPoint = camera.pos;
-    this.cameraFollowAlgorithmSwap = camera.followAlgorithm;
-    camera.followAlgorithm = function(){};
 
     MapLayer('ui').addChild(this.vfx);
   }

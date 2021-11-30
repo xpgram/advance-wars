@@ -62,10 +62,10 @@ export class MoveCamera extends TurnState {
       const min = new Point();
       const max = new Point(map.width * size, map.height * size);
 
-      min.x -= camera.frameBorder.x;
-      min.y -= camera.frameBorder.y;
-      max.x -= camera.frameBorder.width;
-      max.y -= camera.frameBorder.height;
+      min.x -= camera.focalFrame.x;
+      min.y -= camera.focalFrame.y;
+      max.x -= camera.focalFrame.width + size;  // tile origins are in the top left
+      max.y -= camera.focalFrame.height + size; // so size brings our limit to the bottom right
 
       camera.x = Common.clamp(camera.x, min.x, max.x);
       camera.y = Common.clamp(camera.y, min.y, max.y);

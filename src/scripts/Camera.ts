@@ -28,8 +28,8 @@ export class Camera {
     // TODO This needs to be packageable and interchangeable, just like the follow algorithms.
     // TODO Setup a setFollow() that takes both algo? and border? as optional arguments.
 
-    /** A rectangle representing what the camera can see in-world. */
-    get frame() {
+    /** A rectangle in world-space representing what the camera can see. */
+    get worldFrame() {
         let frameRect = this.frameRect.clone();
         return {
             get x() { return frameRect.x; },
@@ -39,14 +39,26 @@ export class Camera {
         };
     }
 
-    /** A rectangle representing what the camera considers 'in-frame'. */
-    get frameBorder() {
+    /** The rectangle within frame-space that the camera considers 'in-focus' or 'in-view'. */
+    get focalFrame() {
         let borderRect = this.borderRect.clone();
         return {
             get x() { return borderRect.x; },
             get y() { return borderRect.y; },
             get width() { return borderRect.width; },
             get height() { return borderRect.height; }
+        };
+    }
+
+    /** A rectangle in world-space representing what the camera considers in-view. */
+    get viewFrame() {
+        const { x: fx, y: fy, width: fw, height: fh } = this.frameRect;
+        const { x: bx, y: by, width: bw, height: bh } = this.borderRect;
+        return {
+            get x() { return bx + fx; },
+            get y() { return by + fy; },
+            get width() { return bw; },
+            get height() { return bh; }
         };
     }
 
@@ -90,10 +102,10 @@ export class Camera {
     }
 
     /** The camera's x-coordinate in 2D space, anchored in the top-left. */
-    get x() { return this.frame.x; }
+    get x() { return this.worldFrame.x; }
     set x(num) { this.frameRect.x = num; }
     /** The camera's y-coordinate in 2D space, anchored in the top-left. */
-    get y() { return this.frame.y; }
+    get y() { return this.worldFrame.y; }
     set y(num) { this.frameRect.y = num; }
 
     /** A point object representing the camera's position in 2D space, anchored in the top-left. */
@@ -104,14 +116,14 @@ export class Camera {
     }
 
     /** The length in pixels (as game-world units of distance) of the camera's width. */
-    get width() { return this.frame.width; }
+    get width() { return this.worldFrame.width; }
     set width(num) {
         this.frameRect.width = num;
         this._center.x = num / 2;
     }
 
     /** The length in pixels (as game-world units of distance) of the camera's height. */
-    get height() { return this.frame.height; }
+    get height() { return this.worldFrame.height; }
     set height(num) {
         this.frameRect.height = num;
         this._center.y = num / 2;
@@ -132,7 +144,7 @@ export class Camera {
  
     /** The camera's zoom level by magnification of lengths. */
     get zoom() {
-        return this.baseDimensions.width / this.frame.width;
+        return this.baseDimensions.width / this.worldFrame.width;
     }
     set zoom(n: number) {
         // Get the focal point to zoom in on.
@@ -184,7 +196,7 @@ export class Camera {
     /** True if the camera's focal point is inside the view bounds. */
     get subjectInView(): boolean {
         const focal = this.getFocalPoint();
-        const rect = this.frameRect;
+        const rect = this.viewFrame;
         const hor = focal.x >= rect.x && focal.x <= rect.x + rect.width;
         const ver = focal.y >= rect.y && focal.y <= rect.y + rect.height;
         return hor && ver;
@@ -217,8 +229,8 @@ function borderedScreenPush(camera: Camera) {
 
     borderRect.x = border + 8;
     borderRect.y = border;
-    borderRect.width = camera.frame.width - border - 8;
-    borderRect.height = camera.frame.height - border;
+    borderRect.width = camera.worldFrame.width - 2*border - 8;
+    borderRect.height = camera.worldFrame.height - 2*border;
 
     let focal = camera.getFocalPoint();
 

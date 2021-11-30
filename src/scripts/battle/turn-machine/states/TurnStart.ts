@@ -101,7 +101,7 @@ export class TurnStart extends TurnState {
       let event;
 
       if (destroyed)
-        event = new DestructEvent({unit, trackCar});
+        event = new DestructEvent({unit, trackCar, assets: this.assets});
       else if (repaired)
         event = new SpeechBubbleEvent({
           message: 'repair',

@@ -1,3 +1,5 @@
+import { Game } from "../../../.."
+import { Keys } from "../../../controls/KeyboardObserver";
 import { TurnState } from "../TurnState";
 import { MoveUnit } from "./MoveUnit";
 import { Point } from "../../../Common/Point";
@@ -71,6 +73,15 @@ export class IssueOrderStart extends TurnState {
 
     const square = map.squareAt(mapCursor.pos);
     const unit = square.unit;
+
+    // TODO Remove — but not yet; I find it useful. Extract it to a control script, maybe.
+    // Dev insert to instantly empty unit resources
+    const devC = Game.devController;
+    if (devC.get(Keys.E).pressed && devC.get(Keys.Shift).down)
+      if (unit) {
+        unit.gas = 1;
+        unit.ammo = 0;
+      }
 
     // On press A, select an allied unit to give instruction to
     if (A.pressed) {
