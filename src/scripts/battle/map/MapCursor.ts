@@ -229,10 +229,15 @@ export class MapCursor extends Observable {
     const { dpadUp, dpadDown, dpadLeft, dpadRight } = this.controller.button;
     const buttons = [dpadUp, dpadDown, dpadLeft, dpadRight];
 
+    const dpadDirChanged = (buttons.some( b => b.pressed || b.released ))
+    const dpadTilted = (dpad.roaming && !this.movementPulsar.active);
+
     // Handle any frame input immediately.
-    if (buttons.some( b => b.pressed || b.released )) {
-      this.movementPulsar.reset();
-      this.move(dpad.framePoint);
+    if (dpadDirChanged || dpadTilted) {
+      const point = (dpadTilted)
+        ? dpad.point
+        : dpad.framePoint;
+      this.move(point);
     }
 
     // QoL check: Reset move handler if held-dir intends to move beyond the movement map.
@@ -244,8 +249,8 @@ export class MapCursor extends Observable {
       this.movementPulsar.reset();
 
     // Held input handler
-    if (dpad.tilted)
-      this.movementPulsar.start();
+    if (dpadDirChanged || dpadTilted)
+      this.movementPulsar.startReset();
     if (dpad.returned)
       this.movementPulsar.stop();
   }

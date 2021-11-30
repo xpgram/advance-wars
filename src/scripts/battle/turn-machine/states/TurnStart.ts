@@ -31,6 +31,9 @@ export class TurnStart extends TurnState {
     // sometimes aircraft miss rig resupply events because they haven't
     // expended any maintainance gas yet.
 
+    // Pretend-spend player funds on repairs so we know what their limit is.
+    let remainingFunds = player.funds;
+
     // Per Unit effects
     player.units.forEach( unit => {
       if (!unit.onMap)
@@ -42,8 +45,8 @@ export class TurnStart extends TurnState {
 
       let supplied = false;   // Records for animation intent
       let repaired = false;
+      let repairHp = 0, repairCost = 0;
       let destroyed = false;
-      const location = unit.boardLocation;
 
       let expendMaintainanceGas = true;
 
@@ -58,21 +61,20 @@ export class TurnStart extends TurnState {
           // Repair HP
           const maxUnitHp = UnitObject.MaxHp;
           const maxRepairHp = scenario.repairHp;
-          const repairHp = Common.clamp(maxUnitHp - unit.hp, 0, maxRepairHp);
-          const costToRepair = unit.cost * repairHp / maxUnitHp;
+          const remainder = (10 - unit.hp % 10) % 10; // Range 0–9
+          repairHp = Common.clamp(maxUnitHp - unit.hp, 0, maxRepairHp) + remainder;
+          repairCost = unit.cost * repairHp / maxUnitHp;
 
           const repairable = (repairHp > 0);
-          const fundsAvailable = (costToRepair <= player.funds);
+          const fundsAvailable = (repairCost <= remainingFunds);
           if (repairable && fundsAvailable) {
-            unit.hp += repairHp;
-            player.expendFunds(costToRepair);
+            remainingFunds -= repairCost;
             repaired = true;
           }
 
-          if (unit.resuppliable()) {
-            unit.resupply();
+          if (unit.resuppliable())
             supplied = true;
-          }
+
           expendMaintainanceGas = false;
         }
       }
@@ -81,10 +83,8 @@ export class TurnStart extends TurnState {
       if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit, {strict: false}) )) {
         expendMaintainanceGas = false;
         // Resupply and emit — strict checking; don't resupply full units
-        if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit) )) {
-          unit.resupply();
+        if (neighbors.orthogonals.some( square => square.unit && unit.resuppliable(square.unit) ))
           supplied = true;
-        }
       }
 
       // Resupply held units if doable (method call returns success)
@@ -105,13 +105,15 @@ export class TurnStart extends TurnState {
       else if (repaired)
         event = new SpeechBubbleEvent({
           message: 'repair',
-          location,
+          actor: unit,
+          repairHp,
+          repairCost,
           camera,
         });
       else if (supplied)
         event = new SpeechBubbleEvent({
           message: 'supply',
-          location,
+          actor: unit,
           camera,
         });
 

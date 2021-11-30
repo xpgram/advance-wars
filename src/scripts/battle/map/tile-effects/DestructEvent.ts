@@ -11,6 +11,10 @@ interface DestructEventOptions {
   trackCar: TrackCar;
 }
 
+// TODO This is a duplicate of BattleDamageEvent, but is necessary for
+// non-battle-damage-related destroy events, like gas-empty or manual destroy.
+// Clean up duplicate code somehow.
+
 export class DestructEvent extends TileEvent {
   
   private options: DestructEventOptions;

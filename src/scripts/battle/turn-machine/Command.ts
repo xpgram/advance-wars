@@ -1,10 +1,15 @@
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { AttackMethod } from "../EnumTypes";
+import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
+import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DestructEvent } from "../map/tile-effects/DestructEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
+import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
+import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
 import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
+import { TrackCar } from "../TrackCar";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { instructionData } from "./InstructionData";
@@ -47,7 +52,7 @@ export type CommandObject<T> = {
   /** Returns true if this command should be included in a ListMenu. */
   triggerInclude: () => boolean,
   /** Effects changes on the board. */
-  ratify: () => void,
+  scheduleEvents: () => void,
 }
 
 /** Global container for Command objects and logic. */
@@ -63,8 +68,8 @@ export module Command {
       const { actor, goalTile } = data;
       return goalTile.occupiable(actor);
     },
-    ratify() {
-      Command.Move.ratify();
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
     },
   }
 
@@ -77,14 +82,19 @@ export module Command {
     triggerInclude: function () {
       return false;
     },
-    ratify: function () {
-      const { boardEvents } = data.assets;
+    scheduleEvents: function () {
+      const { boardEvents, instruction } = data.assets;
       const { place, path, goal, actor, assets } = data;
 
       // TODO Scan path tiles for ambush interruptions
 
+      // TODO It would be nice if Command.Attack could specify this itself.
+      const target = (instruction.action === Command.Attack.serial)
+        ? instruction.focal
+        : undefined;
+
       if (place.notEqual(goal))
-        boardEvents.add(new MoveUnitEvent({actor, path, assets}));
+        boardEvents.add(new MoveUnitEvent({actor, path, target, assets}));
     },
   }
 
@@ -115,33 +125,22 @@ export module Command {
       const hasNotMoved = (goal.equal(place));
       return targetableInRange && (canMove || hasNotMoved);
     },
-    ratify() {
-      Command.Move.ratify();
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
 
       const { map, trackCar, boardEvents } = data.assets;
-      const { seed, actor, goal, target } = data;
-      const toRemove: UnitObject[] = [];
+      const { seed, actor, goal, target, assets } = data;
+      const events = [];
 
-      function damageApply(attacker: UnitObject, defender: UnitObject, damage: number) {
-        const damageDealt = Math.min(defender.hp, damage);
-        defender.hp -= damage;
-        if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
-          attacker.ammo -= 1;
-        if (map.squareAt(attacker.boardLocation).COAffectedFlag)
-          attacker.boardPlayer.increasePowerMeter(damageDealt);
-        if (defender.hp === 0) {
-          attacker.rank += 1;
-          toRemove.push(defender);
-        }
+      function getDamageEvent(attacker: UnitObject, defender: UnitObject, damage: number, trackCar?: TrackCar) {
+        return new BattleDamageEvent({attacker, defender, damage, trackCar, assets});
       }
 
       const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);
-      damageApply(actor, target, battleResults.damage);
-      damageApply(target, actor, battleResults.counter);
-
-      for (const unit of toRemove) {
-        boardEvents.add( new DestructEvent({unit, trackCar}) );
-      }
+      events.push(getDamageEvent(actor, target, battleResults.damage));
+      events.push(getDamageEvent(target, actor, battleResults.counter, trackCar));
+      boardEvents.add(...events);
+      // TODO boardEvents.add(events); // When there is concurrency
     }
   }
 
@@ -158,16 +157,13 @@ export module Command {
       const notAllied = (actor.faction !== goalTerrain.faction);
       return readyToCapture && notAllied;
     },
-    ratify() {
-      Command.Move.ratify();
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
 
-      const { actor, goalTerrain } = data;
+      const { boardEvents } = data.assets;
+      const { actor, goalTerrain: terrain } = data;
 
-      actor.captureBuilding();
-      if (actor.buildingCaptured()) {
-        actor.stopCapturing();
-        goalTerrain.faction = actor.faction;
-      }
+      boardEvents.add(new CapturePropertyEvent({actor, terrain}));
     },
   }
 
@@ -186,20 +182,19 @@ export module Command {
         .orthogonals
         .some( square => square.unit && square.unit.resuppliable(actor) );
     },
-    ratify() {
-      Command.Move.ratify();
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
 
       const { map, camera, boardEvents } = data.assets;
-      const { actor } = data;
+      const { actor, goal } = data;
 
-      map.neighborsAt(actor.boardLocation)
+      map.neighborsAt(goal)
         .orthogonals
         .forEach( square => {
           if (square.unit && square.unit.resuppliable(actor)) {
-            square.unit.resupply();   // TODO Happens in scheduled event
             const event = new SpeechBubbleEvent({
               message: 'supply',
-              location: square.unit.boardLocation,
+              actor: square.unit,
               camera
             });
             boardEvents.add(event);
@@ -224,9 +219,9 @@ export module Command {
 
       return actor.mergeable(other);
     },
-    ratify() {
-      const { map, players } = data.assets;
-      const { actor, goal } = data;
+    scheduleEvents() {
+      const { map, boardEvents } = data.assets;
+      const { actor, path, goal, assets } = data;
 
       const other = map.squareAt(goal).unit;
       if (!other)
@@ -236,23 +231,7 @@ export module Command {
       if (other.type !== actor.type)
         throw new RatificationError(`units to join are not of same type`);
 
-      function roundUp(n: number) { return Math.ceil(n * .10) * 10; }
-
-      const { hp, gas, ammo } = actor;
-      const newHp = roundUp(hp) + roundUp(other.hp);
-      const extraHp = Math.max(newHp - UnitObject.MaxHp, 0);
-      const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
-      players.current.funds += returnedFunds;
-
-      const highestRank = Math.max(actor.rank, other.rank);
-
-      other.hp = newHp;
-      other.gas += gas;
-      other.ammo += ammo;
-      other.rank = highestRank;
-
-      actor.destroy();
-      other.spent = true;
+      boardEvents.add(new JoinUnitEvent({actor, path, other, assets}));
     },
   }
 
@@ -266,16 +245,11 @@ export module Command {
       const { actor, goalTile } = data;
       return goalTile.unit?.boardable(actor) || false;
     },
-    ratify() {
-      const { map, scenario } = data.assets;
-      const { actor, place, path, underneath } = data;
+    scheduleEvents() {
+      const { boardEvents } = data.assets;
+      const { actor, path, underneath, assets } = data;
 
-      map.removeUnit(actor.boardLocation);
-      underneath.loadUnit(actor);
-      actor.spent = true;
-      
-      if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
-        actor.gas -= map.travelCostForPath(place, path, actor.moveType);
+      boardEvents.add(new LoadUnitEvent({actor, path, underneath, assets}));
     },
   }
 
@@ -309,7 +283,7 @@ export module Command {
             && !drop.some( d => d.where.equal(tile.pos) ) );
       return !alreadyDropped && oneEmptySpace;
     },
-    ratify() {
+    scheduleEvents() {
       const { drop } = data;
 
       if (drop.length === 0)
@@ -331,7 +305,7 @@ export module Command {
     triggerInclude() {
       return false;
     },
-    ratify() {
+    scheduleEvents() {
       const { players } = data.assets;
       const { which, place } = data;
 

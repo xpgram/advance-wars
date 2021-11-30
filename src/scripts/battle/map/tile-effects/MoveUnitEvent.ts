@@ -11,16 +11,17 @@ import { TileEvent } from "./TileEvent";
 interface MoveUnitEventOptions {
   actor: UnitObject;
   path: CardinalDirection[];
+  target?: Point,
   assets: BattleSceneControllers;
 }
 
 export class MoveUnitEvent extends TileEvent {
 
-  private options: MoveUnitEventOptions;
+  protected options: MoveUnitEventOptions;
   private cameraTargetSwap!: TransformContainer | Point | null;
 
   constructor(options: MoveUnitEventOptions) {
-    super(options.actor.boardLocation);
+    super(options.target || options.actor.boardLocation);
     this.options = {...options};
   }
 
@@ -28,24 +29,28 @@ export class MoveUnitEvent extends TileEvent {
   // Granted, I hvae more control here if I'm allowed to break it up.
   // A ratify() method makes all changes instantly, but if I wanted to subtract funds sequentially I'd need
   // to spread that instant change over time.
-  private ratifyMovement() {
+  protected ratifyMovement() {
     const { map, scenario } = this.options.assets;
-    const { actor: unit, path } = this.options;
+    const { actor, path } = this.options;
 
-    const place = unit.boardLocation;
+    const place = actor.boardLocation;
     const goal = SumCardinalVectorsToVector(path).add(place);
 
     if (!map.moveUnit(place, goal))
       throw new RatificationError(`could not move unit ${place.toString()} → ${goal.toString()}`);
 
-    unit.spent = true;
-    if (unit.type !== Unit.Rig || !scenario.rigsInfiniteGas)
-      unit.gas -= map.travelCostForPath(place, path, unit.moveType);
+    if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
+      actor.gas -= map.travelCostForPath(place, path, actor.moveType);
   }
 
   protected create(): void {
-    const { trackCar, camera } = this.options.assets;
-    const { actor, path } = this.options;
+    const { mapCursor, trackCar, camera } = this.options.assets;
+    const { actor, path, target } = this.options;
+
+    if (target) {
+      mapCursor.mode = 'target';
+      mapCursor.show();
+    }
 
     this.cameraTargetSwap = camera.followTarget;
     camera.followTarget = trackCar;
@@ -67,8 +72,13 @@ export class MoveUnitEvent extends TileEvent {
   }
 
   protected destroy(): void {
-    const { camera, trackCar } = this.options.assets;
-    const { actor } = this.options;
+    const { mapCursor, camera, trackCar } = this.options.assets;
+    const { actor, target } = this.options;
+
+    if (target) {
+      mapCursor.mode = 'point';
+      mapCursor.hide();
+    }
 
     camera.followTarget = this.cameraTargetSwap;
     trackCar.reset();

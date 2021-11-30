@@ -2,6 +2,7 @@ import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
 import { Command, getCommandObject } from "../Command";
 import { AnimateOrder } from "./AnimateOrder";
+import { SpendActorEvent } from "../../map/tile-effects/SpendActorEvent";
 
 export class RatifyIssuedOrder extends TurnState {
   get type() { return RatifyIssuedOrder; }
@@ -14,9 +15,8 @@ export class RatifyIssuedOrder extends TurnState {
   }
 
   protected configureScene(): void {
-    const { instruction, trackCar } = this.assets;
+    const { instruction, trackCar, boardEvents } = this.assets;
     const { action, placeTile } = this.data;
-
     // Revert settings set from TrackCar.
     // TODO If a tile does not hold a unit, it should auto-unhide.
     // I think this statement would still be necessary for no movement, however.
@@ -25,9 +25,12 @@ export class RatifyIssuedOrder extends TurnState {
 
     // Retrieve and execute command
     const command = getCommandObject(action);
-    command.ratify();
+    command.scheduleEvents();
 
-    Command.Drop.ratify();
+    Command.Drop.scheduleEvents();
+
+    if (placeTile.unit) // if (command.spendsUnit)
+      boardEvents.add(new SpendActorEvent({actor: placeTile.unit}));
 
     // Update cursor position.
     if (instruction.path) {
