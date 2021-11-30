@@ -6,9 +6,7 @@ import { MoveCamera } from "./MoveCamera";
 import { FieldMenu } from "./FieldMenu";
 import { FactoryMenu } from "./FactoryMenu";
 import { CommandMenu } from "./CommandMenu";
-import { AnimateOrder } from "./AnimateOrder";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
-import { CheckBoardState } from "./CheckBoardState";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }

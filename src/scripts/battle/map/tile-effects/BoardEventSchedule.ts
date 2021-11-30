@@ -1,4 +1,3 @@
-import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { TileEvent } from "./TileEvent";
 
 /** Simple increment-on-request handler for individual TileEvents. */
@@ -25,10 +24,6 @@ export class BoardEventSchedule {
 
   /** Discards the current event and shifts focus to the next in sequence. */
   next() {
-    // TODO If I want queue to move on without destroying the previous effect,
-    // do a kind of vfx event overlap thing, I need to change this behavior.
-    this.current?.stop();
-
     this.list.shift();
   }
 }

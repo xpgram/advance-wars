@@ -4,8 +4,11 @@
 - [ ] Damage vfx sprite happens to both attacked and countered at once.
 - [ ] All units affected by Command.Supply are supplied at once.
 
-- [ ] There is flickering of the target cursor between ChooseAttackTarget and MoveUnitEvent. I suspect because there is at least one state transition: CAT(shown)→Ratify(hidden)→Animate(shown), where the mapCursor isn't shown.
-  - [ ] This could possibly be fixed by implementing a next-state loop in BSM like there is for previous; so if a state call advance() during is wake() step, the system should auto grab the next state without waiting for a new draw frame.
+- [x] Infinite next in BSM
+- [x] Infinite next in Events
+
+- [x] There is flickering of the target cursor between ChooseAttackTarget and MoveUnitEvent. I suspect because there is at least one state transition: CAT(shown)→Ratify(hidden)→Animate(shown), where the mapCursor isn't shown.
+  - [x] This could possibly be fixed by implementing a next-state loop in BSM like there is for previous; so if a state call advance() during is wake() step, the system should auto grab the next state without waiting for a new draw frame.
 
 - [x] Ratify and Commands schedule animation/board-change events to happen later.
 - [x] These events have a callback that returns true when they're done occurring, like work orders.

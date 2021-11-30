@@ -1,7 +1,7 @@
 import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
 import { Command, getCommandObject } from "../Command";
-import { AnimateOrder } from "./AnimateOrder";
+import { AnimateEvents } from "./AnimateEvents";
 import { SpendActorEvent } from "../../map/tile-effects/SpendActorEvent";
 
 export class RatifyIssuedOrder extends TurnState {
@@ -15,13 +15,12 @@ export class RatifyIssuedOrder extends TurnState {
   }
 
   protected configureScene(): void {
-    const { instruction, trackCar, boardEvents } = this.assets;
+    const { instruction, map, trackCar, boardEvents } = this.assets;
     const { action, placeTile } = this.data;
-    // Revert settings set from TrackCar.
-    // TODO If a tile does not hold a unit, it should auto-unhide.
-    // I think this statement would still be necessary for no movement, however.
-    placeTile.hideUnit = false;
-    trackCar.reset();
+
+    map.clearMovementMap();           // Remnant from turnstate ingress.
+    placeTile.hideUnit = false;       // Automatic, but not when unit doesn't move.
+    trackCar.reset();                 // TODO Doesn't this get built again right after? By the Command.Move event.
 
     // Retrieve and execute command
     const command = getCommandObject(action);
@@ -39,7 +38,7 @@ export class RatifyIssuedOrder extends TurnState {
     }
 
     // Advance to next state.
-    this.advance(AnimateOrder, CheckBoardState);
+    this.advance(AnimateEvents, CheckBoardState);
   }
 
 }

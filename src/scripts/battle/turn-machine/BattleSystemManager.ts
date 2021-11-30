@@ -92,10 +92,6 @@ export class BattleSystemManager {
       return;
 
     try {
-      if (this.transitionIntent == TransitionTo.None
-        || this.transitionIntent == TransitionTo.NoneFromRegress)
-        this.currentState.update();
-
       // nextState->new handler
       while (this.transitionIntent == TransitionTo.Next
         || this.transitionIntent == TransitionTo.NextFromRegress) {
@@ -129,6 +125,11 @@ export class BattleSystemManager {
         // Cull unreachables from stack
         this.cullNonRevertibles();
       }
+
+      // nextState->none handler
+      if (this.transitionIntent == TransitionTo.None
+        || this.transitionIntent == TransitionTo.NoneFromRegress)
+        this.currentState.update();
 
       // nextState->previous handler
       while (this.transitionIntent == TransitionTo.Previous

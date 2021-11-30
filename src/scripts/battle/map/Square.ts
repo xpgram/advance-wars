@@ -24,14 +24,14 @@ import { ArmorType, MoveType } from "../EnumTypes";
  */
 export class Square {
     private _terrain!: TerrainObject;
-    /**  */
+    /** The terrain object associated with this board location object. */
     get terrain() { return this._terrain; }
     set terrain(terr: TerrainObject) {
         this._terrain = terr;
     }
 
     private _unit?: UnitObject;
-    /**  */
+    /** The unit object inhabiting this board location object. */
     get unit() { return this._unit; }
     set unit(unitObj: UnitObject | undefined) {
         const oldUnit = this._unit;
@@ -44,8 +44,8 @@ export class Square {
             container.removeChild(oldUnit.sprite);
         }
 
-        // TODO Conform unit's display properties to this tile's.
-        // You know, like hidden being hidden.
+        if (this._unit !== oldUnit)
+            this.hideUnit = false;
     }
 
     /** The tinted-glass tile highlight that informs the player what actions or information is available for this square. */
