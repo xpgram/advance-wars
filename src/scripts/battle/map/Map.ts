@@ -726,6 +726,13 @@ export class Map {
             return rangeMap.get(relativePoint) || isCurrentLocation;
         }
 
+        /** Returns true if destination is a valid result of the recalc algorithm. */
+        let validResult = (node: TileInspector) => {
+            const inRange = withinRange(node);
+            const occupiable = node.square.occupiable(unit);
+            return inRange && (occupiable || !searchingForTarget);
+        }
+
         // Map crawling algorithm
         // Extends the first node out as far as its remaining travel points will allow,
         // looking for a position from which the destination is visible through the range map.
@@ -772,12 +779,12 @@ export class Map {
         if (destIdx != -1) inspector = inspector.shortenToIndex(destIdx);
 
         // Step 2: If not, invoke the map crawler until a solution is found.
-        if (!withinRange(inspector)) {
+        if (!withinRange(inspector) || (searchingForTarget && !inspector.square.occupiable(unit))) {
             for (let i of pathIndices) {
                 this.clearTemporaryValues();
                 inspector = inspector.shortenToIndex(i);
                 search = newPathfinder(inspector);
-                if (search.resultNode && withinRange(search.resultNode)) {
+                if (search.resultNode && validResult(search.resultNode)) {
                     inspector = (search.resultNode as TileInspector);
                     break;
                 }
@@ -785,7 +792,7 @@ export class Map {
         }
 
         // At this point, a new path ~must~ be found; if not, something went wrong.
-        Debug.assert(withinRange(inspector), `Could not find a path to the given destination.`);
+        Debug.assert(validResult(inspector), `Could not find a path to the given destination.`);
 
         // Clear the existing path and bake-in the new one.
         this.clearTileArrows();
