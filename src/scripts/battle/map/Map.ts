@@ -689,15 +689,18 @@ export class Map {
      */
     // TODO Left a little messy. Clean it up.
     recalculatePathToPoint(unit: UnitObject, destination: ImmutablePointPrimitive, rangeMap?: RegionMap) {
-        
-        // Default rangeMap is the point-location: i.e. a range of 0.
-        const rangeMapSelf = CommonRangesRetriever({min: 0, max: 0});
-        let range = rangeMap || rangeMapSelf;
 
         // If destination is not reachable (pre-calculated), then don't bother — do not clear old path.
         const destTile = this.squareAt(destination);
         if (!destTile.moveFlag && !destTile.attackFlag)
             return;
+
+        const searchingForTarget = (destTile.attackFlag);
+        
+        // Default rangeMap is the point-location: i.e. a range of 0.
+        const rangeMapSelf = CommonRangesRetriever({min: 0, max: 0});
+        const originRangeMap = rangeMap || CommonRangesRetriever({min: 1, max: 1});
+        const searchRangeMap = (unit.canMoveAndAttack && searchingForTarget) ? originRangeMap : rangeMapSelf;
 
         // TODO Standardize/fold-together these error messages.
         Debug.assert(this.validPoint(unit.boardLocation),
@@ -716,8 +719,11 @@ export class Map {
         
         /** Returns true if destination is within the shape described by rangeMap relative to the inspector. */
         let withinRange = (node: TileInspector) => {
-            let relative = new Point(destination).subtract(node.point);
-            return range.get(relative);
+            const isCurrentLocation = unit.boardLocation.equal(destination);
+            const fromCurrentLocation = node.point.equal(unit.boardLocation);
+            let rangeMap = (fromCurrentLocation && searchingForTarget) ? originRangeMap : searchRangeMap;
+            let relativePoint = new Point(destination).subtract(node.point);
+            return rangeMap.get(relativePoint) || isCurrentLocation;
         }
 
         // Map crawling algorithm
