@@ -1,4 +1,4 @@
-import { CardinalDirection, SumCardinalVectorsToVector } from "../../Common/CardinalDirection";
+import { CardinalDirection, SumCardinalsToVector } from "../../Common/CardinalDirection";
 import { Point } from "../../Common/Point";
 import { Instruction } from "../EnumTypes";
 import { Square } from "../map/Square";
@@ -85,7 +85,7 @@ export module instructionData {
       d.placeTerrain = d.placeTile.terrain;
       d.actor = d.placeTile.unit;
       if (d.path)
-        d.goal = SumCardinalVectorsToVector(d.path).add(d.place);
+        d.goal = SumCardinalsToVector(d.path).add(d.place);
     }
     if (d.goal) {
       d.goalTile = map.squareAt(d.goal);

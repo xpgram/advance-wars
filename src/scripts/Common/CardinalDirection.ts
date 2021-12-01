@@ -30,7 +30,7 @@ export function CardinalVectorToCardinal(point: Point) {
 };
 
 /** Given a list of directions, returns a cumulative sum vector as a Point object. */
-export function SumCardinalVectorsToVector(dirs: CardinalDirection[]): Point {
+export function SumCardinalsToVector(dirs: CardinalDirection[]): Point {
     if (dirs.length == 0)
         return Point.Origin;
     const vectors = dirs.map( dir => CardinalVector(dir) );

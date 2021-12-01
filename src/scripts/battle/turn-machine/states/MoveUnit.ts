@@ -1,6 +1,7 @@
 import { TurnState } from "../TurnState";
 import { Point } from "../../../Common/Point";
 import { Command } from "../Command";
+import { SumCardinalsToVector } from "../../../Common/CardinalDirection";
 
 export class MoveUnit extends TurnState {
   get type() { return MoveUnit; }
@@ -64,7 +65,13 @@ export class MoveUnit extends TurnState {
     // Request a recalc of the travel path on cursor move
     if (this.lastCursorPos.notEqual(mapCursor.pos)) {
       this.lastCursorPos = mapCursor.pos;
-      map.recalculatePathToPoint(actor, mapCursor.pos);
+
+      // Determine whether smart, range-map pathfinding is necessary.
+      const rangeMap = (map.squareAt(mapCursor.pos).attackFlag)
+        ? actor.rangeMap
+        : undefined;
+
+      map.recalculatePathToPoint(actor, mapCursor.pos, rangeMap);
     }
 
     // On press A and viable location, advance state

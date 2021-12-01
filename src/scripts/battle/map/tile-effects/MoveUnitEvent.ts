@@ -1,4 +1,4 @@
-import { CardinalDirection, SumCardinalVectorsToVector } from "../../../Common/CardinalDirection";
+import { CardinalDirection, SumCardinalsToVector } from "../../../Common/CardinalDirection";
 import { Point } from "../../../Common/Point";
 import { TransformContainer } from "../../../CommonTypes";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
@@ -34,7 +34,7 @@ export class MoveUnitEvent extends TileEvent {
     const { actor, path } = this.options;
 
     const place = actor.boardLocation;
-    const goal = SumCardinalVectorsToVector(path).add(place);
+    const goal = SumCardinalsToVector(path).add(place);
 
     if (!map.moveUnit(place, goal))
       throw new RatificationError(`could not move unit ${place.toString()} → ${goal.toString()}`);

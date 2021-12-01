@@ -689,18 +689,14 @@ export class Map {
      */
     // TODO Left a little messy. Clean it up.
     recalculatePathToPoint(unit: UnitObject, destination: ImmutablePointPrimitive, rangeMap?: RegionMap) {
-        // TODO This is done.. ish. I feel I've left it a little messy, though. But it works.
-        // TODO Export some common RegionMaps in the RegionMap class file.
+        
         // Default rangeMap is the point-location: i.e. a range of 0.
         const rangeMapSelf = CommonRangesRetriever({min: 0, max: 0});
         let range = rangeMap || rangeMapSelf;
-        // TODO TurnState, I think, has to be the one to determine whether the cursor is on
-        // an enemy and needs to pass in Adjacents or not.
-        // If we assume I don't know what kind of attack unit is about to use, having
-        // TurnState pass this in makes sense, I suppose.
 
         // If destination is not reachable (pre-calculated), then don't bother — do not clear old path.
-        if (this.squareAt(destination).moveFlag == false)
+        const destTile = this.squareAt(destination);
+        if (!destTile.moveFlag && !destTile.attackFlag)
             return;
 
         // TODO Standardize/fold-together these error messages.

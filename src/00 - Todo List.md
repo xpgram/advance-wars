@@ -1,6 +1,8 @@
 # Next Big Objectives
 
-- [ ] When selecting over a red tile, MoveUnit should call planPathFromPoint and provide the range map or whatever; I should already have the infrastructure for this.
+- [ ] Can I get pathRecalculate() to prefer points similar to where path's current terminal is? Like, if you pass through a reef, which costs more movement points, but an alternative path could take you to the same terminal more efficiently, then we should check for path extensions to the target from *that path* before reverting to searching from the origin.
+
+- [x] When selecting over a red tile, MoveUnit should call planPathFromPoint and provide the range map or whatever; I should already have the infrastructure for this.
 - [ ] Pressing A in this context skips the command menu and assumes Path, Command.Attack: moves right on to Ratify.
 
 - [x] It is possible to trick BSM into thinking the map-cursor isn't in view if you zoom out and move the cursor to one of the side extremes.
