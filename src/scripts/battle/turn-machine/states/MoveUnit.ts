@@ -5,6 +5,7 @@ import { SumCardinalsToVector } from "../../../Common/CardinalDirection";
 import { CommandMenu } from "./CommandMenu";
 import { DamageScript } from "../../DamageScript";
 
+
 export class MoveUnit extends TurnState {
   get type() { return MoveUnit; }
   get name() { return 'MoveUnit'; }
@@ -13,28 +14,24 @@ export class MoveUnit extends TurnState {
 
   private lastCursorPos = new Point(-1, -1);
 
-  changeCursorMode() {
-    const { map, mapCursor, players } = this.assets;
-    const { actor } = this.data;
+  updateUiSystems() {
+    const { map, mapCursor, players, uiSystem } = this.assets;
+    const { actor, place, seed } = this.data;
 
-    const unit = map.squareAt(mapCursor.pos).unit;
+    // Change cursor mode
+    const tile = map.squareAt(mapCursor.pos);
+    const unit = tile.unit;
     const boardable = unit?.boardable(actor);
     const mergeable = unit?.mergeable(actor);
     const sameFaction = unit?.faction === players.current.faction;
+    const attackable = tile.attackFlag;
 
-    mapCursor.mode = ((boardable || mergeable) && sameFaction) ? 'target' : 'point';
-  }
+    mapCursor.mode = ((boardable || mergeable) && sameFaction || attackable) ? 'target' : 'point';
 
-  // TODO This script is also written in ChooseAttackTarget; combine them.
-  updateDamageForecast(from: Point) {
-    const { map, mapCursor, uiSystem, players } = this.assets;
-    const { actor, seed } = this.data;
-    const goal = from;
-
-    const focalTile = map.squareAt(mapCursor.pos);
-    const focalUnit = focalTile.unit;
-    if (focalUnit && focalUnit.faction !== players.current.faction) {
-      const damage = DamageScript.NormalAttack(map, actor, goal, focalUnit, seed);
+    // Update damage forecast
+    if (unit && attackable && !sameFaction) {
+      const goal = SumCardinalsToVector(map.pathFrom(place)).add(actor.boardLocation);
+      const damage = DamageScript.NormalAttack(map, actor, goal, unit, seed);
       uiSystem.battleForecast = damage.estimate;
     } else {
       uiSystem.battleForecast = undefined;
@@ -55,17 +52,8 @@ export class MoveUnit extends TurnState {
     trackCar.buildNewAnimation(actor);
     trackCar.show();
 
-    // Configure map cursor to update pointer graphic over certain terrains
-    mapCursor.on('move', this.changeCursorMode, this);
-    mapCursor.teleport(mapCursor.pos);  // Trigger cursor mode.
-
     // Generate movement map
     map.generateMovementMap(actor);
-  }
-
-  close() {
-    const { mapCursor } = this.assets;
-    mapCursor.removeListener(this.changeCursorMode, this);
   }
 
   update() {
@@ -80,7 +68,9 @@ export class MoveUnit extends TurnState {
     if (players.current.faction !== actor.faction)
       return;
 
-    // Request a recalc of the travel path on cursor move
+    // Request a recalc of the travel path on cursor move.
+    // *None of this* can be a listener callback on mapCursor because I don't want
+    // any discrepancy between recalc and A button presses.
     if (this.lastCursorPos.notEqual(mapCursor.pos)) {
       this.lastCursorPos = mapCursor.pos;
 
@@ -91,12 +81,7 @@ export class MoveUnit extends TurnState {
         : undefined;
 
       map.recalculatePathToPoint(actor, mapCursor.pos, rangeMap);
-
-      // Update UI systems
-      mapCursor.mode = (selectingOverTarget) ? 'target' : 'point';
-      
-      const terminal = SumCardinalsToVector(map.pathFrom(place)).add(actor.boardLocation);
-      this.updateDamageForecast(terminal);
+      this.updateUiSystems();
     }
 
     // On press A and viable location, advance state
