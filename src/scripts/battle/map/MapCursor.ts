@@ -213,9 +213,12 @@ export class MapCursor extends Observable {
     this.pointerSprite.gotoAndPlay(0);
   }
 
-  /** Triggers this object's position to move according to the directional input of the dpad.
-   * Also sets the next interval to a faster time. */
+  /** Triggers this object's position to move according to the directional input of the dpad. */
   private triggerMovement() {
+    // TODO The DPad is fine, but this would not work as-is with sticks.
+    if (this.controller.axis.dpad.framePoint.notEqual(Point.Origin))
+      return;
+      
     let travelDir = new Point(this.controller.axis.dpad.point);
     this.move(travelDir);
   }
