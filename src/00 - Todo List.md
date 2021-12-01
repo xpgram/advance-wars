@@ -1,5 +1,7 @@
 # Next Big Objectives
 
+- [ ] I don't think the camera's viewFrame factors in the zoom level. I'm not quite sure how the MoveCamera border does. I guess I'd have to look at MoveCamera. Anyway, it is possible to trick BSM into thinking the map-cursor isn't in view if you zoom out and move the cursor to one of the side extremes.
+
 - [x] Unit CO loaded
 - [ ] CO loaded state affects adjacent board tiles.
 - [ ] BoardPlayer.CoUnit : filter units => unit.coLoaded == true
