@@ -67,11 +67,15 @@ export class MoveUnit extends TurnState {
       this.lastCursorPos = mapCursor.pos;
 
       // Determine whether smart, range-map pathfinding is necessary.
-      const rangeMap = (map.squareAt(mapCursor.pos).attackFlag)
+      const selectingOverTarget = (map.squareAt(mapCursor.pos).attackFlag);
+      const rangeMap = (selectingOverTarget)
         ? actor.rangeMap
         : undefined;
 
       map.recalculatePathToPoint(actor, mapCursor.pos, rangeMap);
+
+      mapCursor.mode = (selectingOverTarget) ? 'target' : 'point';
+      // TODO Update damage forecast as well
     }
 
     // On press A and viable location, advance state
@@ -91,7 +95,8 @@ export class MoveUnit extends TurnState {
       // Final check
       if (moveable && (occupiable || mergeable || boardable)) {
         instruction.path = map.pathFrom(place);
-        this.advance();
+        this.advance();   // TODO This needs to assume control from OrderStart
+                          // It's either →CmdMenu→Ratify or →Ratify with Attack details filled in.
       }
     }
   }
