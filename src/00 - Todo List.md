@@ -1,6 +1,12 @@
 # Next Big Objectives
 
+- [ ] When selecting over a red tile, MoveUnit should call planPathFromPoint and provide the range map or whatever; I should already have the infrastructure for this.
+- [ ] Pressing A in this context skips the command menu and assumes Path, Command.Attack: moves right on to Ratify.
+
 - [ ] I don't think the camera's viewFrame factors in the zoom level. I'm not quite sure how the MoveCamera border does. I guess I'd have to look at MoveCamera. Anyway, it is possible to trick BSM into thinking the map-cursor isn't in view if you zoom out and move the cursor to one of the side extremes.
+
+- [ ] UnitDetail Window
+- [ ] Switchable with Button.Y / Key.C
 
 - [x] Unit CO loaded
 - [ ] CO loaded state affects adjacent board tiles.
@@ -22,9 +28,6 @@
 - [ ] Alt:
   - COAffected could be obtained from the board players themselves. They would just have a rangeMap, just like units do.
   - The visual effect, if in the overlay layer, could also be maintained by the board player.
-
-- [ ] UnitDetail Window
-- [ ] Switchable with Button.Y / Key.C.
 
 - [ ] Target Reticle around Battleships.
 - [x] Enable move and attack.
