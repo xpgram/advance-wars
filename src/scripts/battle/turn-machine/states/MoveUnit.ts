@@ -2,6 +2,8 @@ import { TurnState } from "../TurnState";
 import { Point } from "../../../Common/Point";
 import { Command } from "../Command";
 import { SumCardinalsToVector } from "../../../Common/CardinalDirection";
+import { CommandMenu } from "./CommandMenu";
+import { DamageScript } from "../../DamageScript";
 
 export class MoveUnit extends TurnState {
   get type() { return MoveUnit; }
@@ -21,6 +23,22 @@ export class MoveUnit extends TurnState {
     const sameFaction = unit?.faction === players.current.faction;
 
     mapCursor.mode = ((boardable || mergeable) && sameFaction) ? 'target' : 'point';
+  }
+
+  // TODO This script is also written in ChooseAttackTarget; combine them.
+  updateDamageForecast(from: Point) {
+    const { map, mapCursor, uiSystem, players } = this.assets;
+    const { actor, seed } = this.data;
+    const goal = from;
+
+    const focalTile = map.squareAt(mapCursor.pos);
+    const focalUnit = focalTile.unit;
+    if (focalUnit && focalUnit.faction !== players.current.faction) {
+      const damage = DamageScript.NormalAttack(map, actor, goal, focalUnit, seed);
+      uiSystem.battleForecast = damage.estimate;
+    } else {
+      uiSystem.battleForecast = undefined;
+    }
   }
 
   configureScene() {
@@ -74,8 +92,11 @@ export class MoveUnit extends TurnState {
 
       map.recalculatePathToPoint(actor, mapCursor.pos, rangeMap);
 
+      // Update UI systems
       mapCursor.mode = (selectingOverTarget) ? 'target' : 'point';
-      // TODO Update damage forecast as well
+      
+      const terminal = SumCardinalsToVector(map.pathFrom(place)).add(actor.boardLocation);
+      this.updateDamageForecast(terminal);
     }
 
     // On press A and viable location, advance state
@@ -91,12 +112,19 @@ export class MoveUnit extends TurnState {
       const occupiable = square.occupiable(actor);
       const mergeable = underneath?.mergeable(actor);
       const boardable = underneath?.boardable(actor);
+      const attackable = square.attackFlag;
 
       // Final check
       if (moveable && (occupiable || mergeable || boardable)) {
         instruction.path = map.pathFrom(place);
-        this.advance();   // TODO This needs to assume control from OrderStart
-                          // It's either →CmdMenu→Ratify or →Ratify with Attack details filled in.
+        this.advance(CommandMenu);
+      }
+      else if (attackable) {
+        // TODO Doesn't (or shouldn't) this transition to a confirm state first?
+        instruction.path = map.pathFrom(place);
+        instruction.action = Command.Attack.serial;
+        instruction.focal = mapCursor.pos;
+        this.advance();
       }
     }
   }

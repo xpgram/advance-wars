@@ -90,7 +90,7 @@ export class IssueOrderStart extends TurnState {
       const examinableEnemy = (unit?.faction !== player.faction);
       if (unit && (orderableAlly || examinableEnemy)) {
         instruction.place = unit.boardLocation;
-        this.advance(MoveUnit, CommandMenu, RatifyIssuedOrder);
+        this.advance(MoveUnit, RatifyIssuedOrder);
       }
 
       // Empty, allied factory tile to build
