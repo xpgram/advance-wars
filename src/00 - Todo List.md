@@ -3,7 +3,9 @@
 - [ ] When selecting over a red tile, MoveUnit should call planPathFromPoint and provide the range map or whatever; I should already have the infrastructure for this.
 - [ ] Pressing A in this context skips the command menu and assumes Path, Command.Attack: moves right on to Ratify.
 
-- [ ] I don't think the camera's viewFrame factors in the zoom level. I'm not quite sure how the MoveCamera border does. I guess I'd have to look at MoveCamera. Anyway, it is possible to trick BSM into thinking the map-cursor isn't in view if you zoom out and move the cursor to one of the side extremes.
+- [x] It is possible to trick BSM into thinking the map-cursor isn't in view if you zoom out and move the cursor to one of the side extremes.
+- [ ] This is some kind of off-by-one error that was fixed by adding a small amount of padding around the default camera view frame. I suspect this has to do with how zoom is kind of awkwardly implemented: it only affected the top-side (and maybe left, I didn't check), only after zoom, and the default zoom state that worked flawlessly exhibits the same problem after zooming in again.
+  - [ ] Specifically, I wonder if the zoom-scale-slider never actually reaches its target. If it ranges between 1 and 2, let's say, it would start at 1, zoom to 1.999, then zoom again to 1.001. This would affect the focal frame in the way that it is always *just too big* or *just too small*.
 
 - [ ] UnitDetail Window
 - [ ] Switchable with Button.Y / Key.C
