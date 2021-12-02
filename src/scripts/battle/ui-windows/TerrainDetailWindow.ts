@@ -4,64 +4,57 @@ import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
 import { TerrainObject } from "../map/TerrainObject";
 import { UnitClass } from "../EnumTypes";
+import { UnitObject } from "../UnitObject";
+import { Point } from "../../Common/Point";
+import { BitmapText } from "@pixi/text-bitmap";
+import { StringDictionary } from "../../CommonTypes";
+import { Slider } from "../../Common/Slider";
+import { VirtualGamepad } from "../../controls/VirtualGamepad";
+import { Game } from "../../..";
+import { TerrainProperties } from "../map/Terrain";
 
+
+/**  */
 export class TerrainDetailWindow extends SlidingWindow {
 
+  gamepad?: VirtualGamepad;
+
+  private terrain!: TerrainObject;
+  private unit?: UnitObject;
+
   /** Whether this window should display, even if able. */
-  get visible() { return this._visible; }
-  set visible(b) {
-    this._visible = b;
-    this.displayContainer.visible = this._visible;
-  }
-  private _visible = true;
+  get visible() { return this.displayContainer.visible; }
+  set visible(b) { this.displayContainer.visible = b; }
+
+  /** Which details window pane to show: terrain, unit1 or unit2. */
+  private tabSlider = new Slider({
+    max: 3,
+    granularity: 1,
+    looping: true,
+    shape: v => (this.unit) ? v : 0,
+  });
+
+  /** Which details window pane to show (during forced unit details). */
+  private shopTabSlider = new Slider({
+    max: 2,
+    granularity: 1,
+    looping: true,
+    shape: v => (this.unit) ? v+1 : 0,
+  });
 
   // Objects
-  private header = new PIXI.BitmapText('', fonts.title);
-  private illustration = new PIXI.Container();
-  private description = new PIXI.BitmapText('', fonts.script);
+  private header = new Header(new Point(5, 4));
+  private illustration = new Illustration(new Point(8, 18));
+  private description = new Description(new Point(8, 62), this.width - 16);
+  private income = new Income(
+    new Point(8,119,),
+    new PIXI.Sprite(this.sheet.textures['icon-funds.png'])
+  );
+  private repairType = new RepairType(
+    new Point(46, 120)
+  );
+  private moveCostTable = new MoveCostTable(new Point(8, 130));
 
-  private income = new PIXI.Sprite(this.sheet.textures['icon-funds.png']);
-  private incomeText = new PIXI.BitmapText('', fonts.list);
-
-  private repairType = new PIXI.BitmapText('Rep', fonts.list);
-  private repairTypeG = new PIXI.BitmapText('G', fonts.list);
-  private repairTypeN = new PIXI.BitmapText('N', fonts.list);
-  private repairTypeA = new PIXI.BitmapText('A', fonts.list);
-
-  private moveCostTable = {
-    infantry: {
-      label: new PIXI.BitmapText('Inf', fonts.list),
-      value: new PIXI.BitmapText('', fonts.list)
-    },
-    mech: {
-      label: new PIXI.BitmapText('Mech', fonts.list),
-      value: new PIXI.BitmapText('', fonts.list)
-    },
-    tireA: {
-      label: new PIXI.BitmapText('TireA', fonts.list),
-      value: new PIXI.BitmapText('', fonts.list)
-    },
-    tireB: {
-      label: new PIXI.BitmapText('TireB', fonts.list),
-      value: new PIXI.BitmapText('', fonts.list)
-    },
-    tread: {
-      label: new PIXI.BitmapText('Tank', fonts.list),
-      value: new PIXI.BitmapText('', fonts.list)
-    },
-    air: {
-      label: new PIXI.BitmapText('Air', fonts.list),
-      value: new PIXI.BitmapText('', fonts.list)
-    },
-    ship: {
-      label: new PIXI.BitmapText('Ship', fonts.list),
-      value: new PIXI.BitmapText('', fonts.list)
-    },
-    transport: {
-      label: new PIXI.BitmapText('Trpt', fonts.list),
-      value: new PIXI.BitmapText('', fonts.list)
-    }
-  };
 
   constructor(options: SlidingWindowOptions) {
     super(options);
@@ -82,124 +75,240 @@ export class TerrainDetailWindow extends SlidingWindow {
     });
     this.mask.x = (this.showOnLeftSide) ? options.width : -options.width;
 
-    // Header
-    this.header.x = 5; this.header.y = 4;
+    // Assemble components
+    this.displayContainer.addChild(
+      background,
+      this.mask,
+      this.illustration.container,
+      this.header.container,
+      this.description.container,
+      this.income.container,
+      this.repairType.container,
+      this.moveCostTable.container,
+    )
 
-    // Illustration
-    this.illustration.x = 8; this.illustration.y = 18;
+    Game.scene.ticker.add(this.getInput, this);
+  }
 
-    // Body Text
-    this.description.x = 8; this.description.y = 62;
-    this.description.maxWidth = this.width - 16;
+  destroy() {
+    this.gamepad = undefined;
+    Game.scene.ticker.remove(this.getInput, this);
+  }
 
-    // Income
-    this.income.x = 8; this.income.y = 119;
-    this.income.addChild(this.incomeText);
-    this.incomeText.x = 34; this.incomeText.y = 1;
-    (this.incomeText.anchor as PIXI.Point).x = 1;
-
-    // Repair Type
-    this.repairType.x = 46; this.repairType.y = 120;
-    this.repairType.addChild(this.repairTypeG);
-    this.repairType.addChild(this.repairTypeN);
-    this.repairType.addChild(this.repairTypeA);
-    this.repairTypeG.x = 18;
-    this.repairTypeN.x = 24;
-    this.repairTypeA.x = 30;
-
-    // Formal add
-    this.displayContainer.addChild(background, this.mask);
-    this.displayContainer.addChild(this.illustration);
-    this.displayContainer.addChild(this.header);
-    this.displayContainer.addChild(this.description);
-    this.displayContainer.addChild(this.income);
-    this.displayContainer.addChild(this.repairType);
-
-    // Set up move cost table — Order is important to column organization (0–3: side A, 4–7: side B)
-    let moveCosts = [
-      this.moveCostTable.infantry,
-      this.moveCostTable.tireA,
-      this.moveCostTable.tireB,
-      this.moveCostTable.ship,
-      this.moveCostTable.mech,
-      this.moveCostTable.tread,
-      this.moveCostTable.air,
-      this.moveCostTable.transport
-    ];
-    let tablePos = { x: 8, y: 130 };
-    let columnShift = 38;       // Column distance
-    let lineHeight = 8;
-    let keyValueShift = 34;     // Value-from-key distance
-    for (let i = 0; i < moveCosts.length; i++) {
-      let colShift = (i < moveCosts.length / 2) ? 0 : columnShift;    // Sets up two columns
-      let rowShift = (i % 4) * lineHeight;
-
-      moveCosts[i].label.x = tablePos.x + colShift;
-      moveCosts[i].label.y = tablePos.y + rowShift;
-      moveCosts[i].value.x = moveCosts[i].label.x + keyValueShift;
-      moveCosts[i].value.y = moveCosts[i].label.y;
-      (moveCosts[i].value.anchor as PIXI.Point).x = 1;
-
-      this.displayContainer.addChild(moveCosts[i].label);
-      this.displayContainer.addChild(moveCosts[i].value);
+  private getInput() {
+    if (this.gamepad?.button.X.pressed) {
+      this.tabSlider.increment();
+      this.inspectTerrain(this.terrain, this.unit);
     }
   }
 
-  private setHeaderText(text: string) {
-    this.header.text = text;
-  }
-
-  private setIllustration(img: PIXI.Container) {
-    this.illustration.removeChildren();
-    this.illustration.addChild(img);
-  }
-
-  private setDescriptionText(text: string) {
-    text = text.replace(/\//g, ''); // '/' were going to denote colored text, but I haven't figured out how to work that yet.
-    this.description.text = text;
-  }
-
-  private setIncomeValue(value: number) {
-    let text = value.toString().slice(0, 4);
-    if (text === '0') text = '-';
-    this.incomeText.text = text;
-  }
-
-  private setRepType(ground: boolean, naval: boolean, air: boolean) {
-    let bright = 0xDDDDDD, dimmed = 0x888888;
-    this.repairTypeG.tint = (ground) ? bright : dimmed;
-    this.repairTypeN.tint = (naval) ? bright : dimmed;
-    this.repairTypeA.tint = (air) ? bright : dimmed;
-  }
-
-  private setInfantryMoveCost(mc: number) { this.moveCostTable.infantry.value.text = (mc == 0) ? '-' : mc.toString().slice(0, 1); }
-  private setMechMoveCost(mc: number) { this.moveCostTable.mech.value.text = (mc == 0) ? '-' : mc.toString().slice(0, 1); }
-  private setTireAMoveCost(mc: number) { this.moveCostTable.tireA.value.text = (mc == 0) ? '-' : mc.toString().slice(0, 1); }
-  private setTireBMoveCost(mc: number) { this.moveCostTable.tireB.value.text = (mc == 0) ? '-' : mc.toString().slice(0, 1); }
-  private setTreadMoveCost(mc: number) { this.moveCostTable.tread.value.text = (mc == 0) ? '-' : mc.toString().slice(0, 1); }
-  private setAirMoveCost(mc: number) { this.moveCostTable.air.value.text = (mc == 0) ? '-' : mc.toString().slice(0, 1); }
-  private setShipMoveCost(mc: number) { this.moveCostTable.ship.value.text = (mc == 0) ? '-' : mc.toString().slice(0, 1); }
-  private setTransportMoveCost(mc: number) { this.moveCostTable.transport.value.text = (mc == 0) ? '-' : mc.toString().slice(0, 1); }
-
   /** Updates window UI elements with details from the given terrain object. */
-  inspectTerrain(terrain: TerrainObject) {
-    this.setHeaderText(terrain.name);
-    this.setIllustration(terrain.landscape);
-    this.setDescriptionText(terrain.description);
-    this.setIncomeValue((terrain.generatesIncome) ? 1000 : 0);
-    this.setRepType(
-      terrain.repairType == UnitClass.Ground,
-      terrain.repairType == UnitClass.Naval,
-      terrain.repairType == UnitClass.Air,
+  inspectTerrain(terrain: TerrainObject, unit?: UnitObject) {
+    this.terrain = terrain;
+    this.unit = unit;
+
+    const showingUnit = (this.tabSlider.output > 0);
+    const showingUnit2 = (this.tabSlider.output === 2);
+
+    /* Main */
+    
+    this.header.text = (unit && showingUnit) ? unit.name : terrain.name;
+    this.description.text = (unit && showingUnit) ? unit.description : terrain.description;
+    this.illustration.setIllustration(terrain, unit, showingUnit);
+    this.illustration.focusUnit = showingUnit;
+
+    /* Terrain Details */
+
+    const incomeValue = (terrain.generatesIncome) ? 1000 : 0;
+      // TODO income value needs to be obtained from the scenario.
+    this.income.setValue(incomeValue);
+    this.repairType.setState(terrain.repairType);
+    this.moveCostTable.setTable(terrain);
+
+    [this.income, this.repairType, this.moveCostTable].forEach(
+      e => e.container.visible = !showingUnit
     );
 
-    this.setInfantryMoveCost(terrain.movementCost.infantry);
-    this.setMechMoveCost(terrain.movementCost.mech);
-    this.setTireAMoveCost(terrain.movementCost.tireA);
-    this.setTireBMoveCost(terrain.movementCost.tireB);
-    this.setTreadMoveCost(terrain.movementCost.tread);
-    this.setAirMoveCost(terrain.movementCost.air);
-    this.setShipMoveCost(terrain.movementCost.ship);
-    this.setTransportMoveCost(terrain.movementCost.transport);
+    /* Unit1 Details */
+
+    /* Unit2 Details */
+
+  }
+}
+
+
+abstract class UiComponent {
+  container = new PIXI.Container();
+  constructor(p: Point) {
+    this.container.position.set(p.x, p.y);
+  }
+}
+
+abstract class TextComponent extends UiComponent {
+  protected elem: BitmapText;
+  get text() { return this.elem.text; }
+  set text(t) { this.elem.text = t; }
+
+  constructor(p: Point, font: typeof fonts.list) {
+    super(p);
+    this.elem = new BitmapText('', font);
+    this.container.addChild(this.elem as BitmapText);
+  }
+}
+
+class Header extends TextComponent {
+  constructor(p: Point) {
+    super(p, fonts.title);
+  }
+}
+
+class Description extends TextComponent {
+  set text(t: string) { this.elem.text = t.replace(/\//g, ''); }
+    // '/' were going to denote colored text, but I don't know how to do that yet.
+  constructor(p: Point, maxWidth: number) {
+    super(p, fonts.script);
+    this.elem.maxWidth = maxWidth;
+  }
+}
+
+class Illustration {
+  container = new PIXI.Container();
+  private unit = new PIXI.Container();
+  
+  get focusUnit() { return this._focusUnit; }
+  set focusUnit(b) { 
+    this._focusUnit = b;
+    this.unit.alpha = (this._focusUnit) ? 1 : .5;
+  }
+  private _focusUnit = false;
+
+  constructor(p: Point) {
+    this.container.position.set(p.x, p.y);
+  }
+  
+  setIllustration(terrain: TerrainObject, unit?: UnitObject, showAirUnit?: boolean) {
+    const sheet = TerrainProperties.infoPortraitSheet;
+    const skyLandscape = new PIXI.Sprite(sheet.textures['sky-landscape.png']);
+
+    const airUnit = (unit && unit.unitClass === UnitClass.Air);
+    const landscape = (airUnit && showAirUnit) ? skyLandscape : terrain.landscape;
+
+    const nullIllustration = new PIXI.Container();
+    const unitIllustration = (airUnit && !showAirUnit) ? nullIllustration : unit?.illustration || nullIllustration;
+
+    this.unit = unitIllustration;
+    this.unit.alpha = (this._focusUnit) ? 1 : .2;
+
+    this.container.removeChildren();
+    this.container.addChild(landscape, this.unit);
+    return this;
+  }
+}
+
+class Income extends TextComponent {
+  constructor(p: Point, icon: PIXI.Container) {
+    super(p, fonts.list);
+    this.elem.position.set(34, 1);
+    this.elem.anchor.set(1, 0);
+    this.container.addChild(icon);
+  }
+
+  setValue(n: number) {
+    this.text = n.toString().slice(0,4);
+    if (this.text === '0') this.text = '-';
+  }
+}
+
+class RepairType extends UiComponent {
+  private rep = new BitmapText('Rep', fonts.list);
+  private typeG = new BitmapText('G', fonts.list);
+  private typeN = new BitmapText('N', fonts.list);
+  private typeA = new BitmapText('A', fonts.list);
+
+  constructor(p: Point) {
+    super(p);
+    const x = 18, w = 6;
+    this.typeG.x = x;
+    this.typeN.x = x + w;
+    this.typeA.x = x + 2*w;
+    this.container.addChild(this.rep, this.typeG, this.typeN, this.typeA);
+  }
+
+  setState(unitClass: UnitClass) {
+    const bright = 0xDDDDDD;
+    const dim = 0x888888;
+    this.typeG.tint = (unitClass === UnitClass.Ground) ? bright : dim;
+    this.typeN.tint = (unitClass === UnitClass.Naval) ? bright : dim;
+    this.typeA.tint = (unitClass === UnitClass.Air) ? bright : dim;
+  }
+}
+
+class MoveCostTable extends UiComponent {
+  private table = {
+    infantry: {
+      label: new BitmapText('Inf', fonts.list),
+      value: new BitmapText('', fonts.list),
+    },
+    tireA: {
+      label: new BitmapText('TireA', fonts.list),
+      value: new BitmapText('', fonts.list),
+    },
+    tireB: {
+      label: new BitmapText('TireB', fonts.list),
+      value: new BitmapText('', fonts.list),
+    },
+    ship: {
+      label: new BitmapText('Ship', fonts.list),
+      value: new BitmapText('', fonts.list),
+    },
+    mech: {
+      label: new BitmapText('Mech', fonts.list),
+      value: new BitmapText('', fonts.list),
+    },
+    tread: {
+      label: new BitmapText('Tank', fonts.list),
+      value: new BitmapText('', fonts.list),
+    },
+    air: {
+      label: new BitmapText('Air', fonts.list),
+      value: new BitmapText('', fonts.list),
+    },
+    transport: {
+      label: new BitmapText('Trpt', fonts.list),
+      value: new BitmapText('', fonts.list),
+    }
+  }
+
+  constructor(p: Point) {
+    super(p);
+
+    const tableItems = Object.values(this.table);
+    const halfLen = Math.ceil(tableItems.length / 2);
+
+    const columnShift = 38;
+    const lineHeight = 8;
+    const columnRight = 34;
+
+    tableItems.forEach( (item,idx) => {
+      let colShift = (idx < halfLen) ? 0 : columnShift;
+      let rowShift = (idx % halfLen) * lineHeight;
+      item.label.position.set(colShift, rowShift);
+      item.value.position.set(colShift + columnRight, rowShift);
+      item.value.anchor.set(1,0);
+
+      this.container.addChild(item.label, item.value);
+    });
+  }
+
+  setTable(terrain: TerrainObject) {
+    type Entry = typeof this.table.infantry;
+    const format = (n: number) => (n === 0) ? '-' : n.toString().slice(0,1);
+
+    Object.entries(terrain.movementCost).forEach( item => {
+      const [key, cost] = item;
+      const entry = (this.table as StringDictionary<Entry>)[key];
+      if (entry)
+        entry.value.text = format(cost);
+    });
   }
 }

@@ -7,12 +7,10 @@ import { fonts } from "./ui-windows/DisplayInfo";
 import { MapLayer, MapLayerFunctions } from "./map/MapLayers";
 import { Unit } from "./Unit";
 import { Slider } from "../Common/Slider";
-import { Map } from "./map/Map";
-import { PointPrimitive, Point } from "../Common/Point";
+import { Point } from "../Common/Point";
 import { CommonRangesRetriever, RegionMap } from "./unit-actions/RegionMap";
 import { BoardPlayer } from "./BoardPlayer";
 import { TerrainObject } from "./map/TerrainObject";
-import { SupplyEvent } from "./map/tile-effects/SupplyEvent";
 
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
@@ -132,12 +130,13 @@ export abstract class UnitObject {
 
     // TODO Rename this; 'exhibit' is stupid, I'm tired of reading it.
     /** A larger preview image of this unit type.  */
-    get infoPortrait(): PIXI.Sprite {
-        let name = this.name.replace(' ','').replace('-','').toLowerCase();
-        return new PIXI.Sprite();
-
-        //@ts-ignore    unitPortraitSheet doesn't exist yet or whatever; I'm tired of looking at it.
-        // return new PIXI.Sprite(Unit.unitPortraitSheet.textures[`${name}-portrait.png`]);
+    get illustration(): PIXI.Sprite {
+        const sheet = Unit.illustrationSheet;
+        const name = this.name.replace(' ','').replace('-','').toLowerCase();
+        const sprite = new PIXI.Sprite(sheet.textures[`rubinelle-red-${name}.png`]);
+        sprite.scale.x = this.reverseFacing ? 1 : -1;
+        sprite.x = this.reverseFacing ? 0 : sprite.width;
+        return sprite;
     }
 
     /** An object containing the texture sets for the sprite's three movement facings (left must be reflected for right-facing.) */

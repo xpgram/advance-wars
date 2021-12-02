@@ -6,7 +6,9 @@ import { Terrain } from "./map/Terrain";
 
 export const Unit = {
     spritesheet: 'UnitSpritesheet',
+    illustrationSpritesheet: 'UnitIllustrationSpritesheet',
     get sheet() { return Game.scene.resources[ Unit.spritesheet ].spritesheet as PIXI.Spritesheet; },
+    get illustrationSheet() { return Game.scene.resources[ Unit.illustrationSpritesheet ].spritesheet as PIXI.Spritesheet; },
 
     //start
     Infantry: class InfantryUnit extends UnitObject {

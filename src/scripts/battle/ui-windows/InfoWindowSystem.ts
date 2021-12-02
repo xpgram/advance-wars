@@ -7,11 +7,8 @@ import { MapCursor } from "../map/MapCursor";
 import { Camera } from "../../Camera";
 import { Square } from "../map/Square";
 import { Map } from "../map/Map";
-import { Terrain } from "../map/Terrain";
 import { TerrainDetailWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
-import { UnitClass } from "../EnumTypes";
-import { StringDictionary } from "../../CommonTypes";
 import { TurnModerator } from "../TurnModerator";
 import { BattleForecast } from "../DamageScript";
 import { UnitDetailWindow } from "./UnitDetailWindow";
@@ -73,7 +70,6 @@ export class InfoWindowSystem {
   }
 
   windows = {
-    detailedUnitInfo: new UnitDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     detailedTerrainInfo: new TerrainDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     unitInfo: new UnitWindow({...WindowSettings.AlwaysShow, verticalDistance: 142}),
     terrainInfo: new TerrainWindow({...WindowSettings.AlwaysShow, verticalDistance: 167}),
@@ -92,6 +88,9 @@ export class InfoWindowSystem {
     this.playerInfo.windows = this.playerInfo.idealOrder;
     this.updatePlayerWindowOrder(); // This sets y position
 
+    // Give windows references to input object
+    this.windows.detailedTerrainInfo.gamepad = this.gamepad;
+
     // Apply mask to screen-wipeable ui elements
     const mask = this.windows.detailedTerrainInfo.mask;
 
@@ -103,6 +102,11 @@ export class InfoWindowSystem {
 
     // First update window text elements
     this.inspectListenerCallback();
+  }
+
+  destroy() {
+    // FIXME Not implement
+    this.windows.detailedTerrainInfo.destroy();
   }
 
   /** Returns a list of all known SlidingWindows from all window categories. */
@@ -138,11 +142,6 @@ export class InfoWindowSystem {
     const showDetailWindow = (this.gamepad.button.rightTrigger.down);
     const showCOwindows = (this.gamepad.button.leftTrigger.down);
     const showWindowsOnLeft = (this.cursor.pos.x > triggerLine);
-
-    if (this.gamepad.button.X.pressed) {
-      this.windows.detailedUnitInfo.visible = !this.windows.detailedUnitInfo.visible;
-      this.windows.detailedTerrainInfo.visible = !this.windows.detailedUnitInfo.isShowing;
-    }
     
     // Tell each window which side to be on.
     // It isn't possible to set this to one window the rest are children of, is it?
@@ -152,7 +151,6 @@ export class InfoWindowSystem {
 
     // Show the detail window
     this.windows.detailedTerrainInfo.show = showDetailWindow;
-    this.windows.detailedUnitInfo.show = showDetailWindow;
 
     // Increment CO Window slider (staggers their reveal)
     this.commandersSlider.increment((showCOwindows) ? 1 : -1);
@@ -175,10 +173,7 @@ export class InfoWindowSystem {
   inspectTile(square: Square) {
     this.windows.terrainInfo.inspectTerrain(square.terrain, square.unit);
     this.windows.unitInfo.inspectUnit(square.unit);
-    this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
-    this.windows.detailedUnitInfo.inspectUnit(square.unit);
-
-    this.windows.detailedTerrainInfo.visible = !this.windows.detailedUnitInfo.isShowing;
+    this.windows.detailedTerrainInfo.inspectTerrain(square.terrain, square.unit);
   }
 
   /** Updates player info window metrics. */
