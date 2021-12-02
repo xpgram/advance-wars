@@ -178,7 +178,7 @@ class Illustration {
   get focusUnit() { return this._focusUnit; }
   set focusUnit(b) { 
     this._focusUnit = b;
-    this.unit.alpha = (this._focusUnit) ? 1 : .5;
+    this.unit.alpha = (this._focusUnit) ? 1 : .35;
   }
   private _focusUnit = false;
 
@@ -197,7 +197,7 @@ class Illustration {
     const unitIllustration = (airUnit && !showAirUnit) ? nullIllustration : unit?.illustration || nullIllustration;
 
     this.unit = unitIllustration;
-    this.unit.alpha = (this._focusUnit) ? 1 : .2;
+    this.focusUnit = false;
 
     this.container.removeChildren();
     this.container.addChild(landscape, this.unit);
