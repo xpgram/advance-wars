@@ -14,6 +14,7 @@ import { UnitClass } from "../EnumTypes";
 import { StringDictionary } from "../../CommonTypes";
 import { TurnModerator } from "../TurnModerator";
 import { BattleForecast } from "../DamageScript";
+import { UnitDetailWindow } from "./UnitDetailWindow";
 
 type InfoWindowSystemSettings = {
   gamepad: VirtualGamepad,
@@ -72,7 +73,7 @@ export class InfoWindowSystem {
   }
 
   windows = {
-    // detailedUnitInfo: new UnitDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
+    detailedUnitInfo: new UnitDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     detailedTerrainInfo: new TerrainDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     unitInfo: new UnitWindow({...WindowSettings.AlwaysShow, verticalDistance: 142}),
     terrainInfo: new TerrainWindow({...WindowSettings.AlwaysShow, verticalDistance: 167}),
@@ -146,6 +147,7 @@ export class InfoWindowSystem {
 
     // Show the detail window
     this.windows.detailedTerrainInfo.show = showDetailWindow;
+    this.windows.detailedUnitInfo.show = showDetailWindow;
 
     // Increment CO Window slider (staggers their reveal)
     this.commandersSlider.increment((showCOwindows) ? 1 : -1);
@@ -169,6 +171,7 @@ export class InfoWindowSystem {
     this.windows.terrainInfo.inspectTerrain(square.terrain, square.unit);
     this.windows.unitInfo.inspectUnit(square.unit);
     this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
+    this.windows.detailedUnitInfo.inspectUnit(square.unit);
   }
 
   /** Updates player info window metrics. */
