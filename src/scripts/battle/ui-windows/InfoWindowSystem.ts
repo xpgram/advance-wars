@@ -138,6 +138,11 @@ export class InfoWindowSystem {
     const showDetailWindow = (this.gamepad.button.rightTrigger.down);
     const showCOwindows = (this.gamepad.button.leftTrigger.down);
     const showWindowsOnLeft = (this.cursor.pos.x > triggerLine);
+
+    if (this.gamepad.button.X.pressed) {
+      this.windows.detailedUnitInfo.visible = !this.windows.detailedUnitInfo.visible;
+      this.windows.detailedTerrainInfo.visible = !this.windows.detailedUnitInfo.isShowing;
+    }
     
     // Tell each window which side to be on.
     // It isn't possible to set this to one window the rest are children of, is it?
@@ -172,6 +177,8 @@ export class InfoWindowSystem {
     this.windows.unitInfo.inspectUnit(square.unit);
     this.windows.detailedTerrainInfo.inspectTerrain(square.terrain);
     this.windows.detailedUnitInfo.inspectUnit(square.unit);
+
+    this.windows.detailedTerrainInfo.visible = !this.windows.detailedUnitInfo.isShowing;
   }
 
   /** Updates player info window metrics. */

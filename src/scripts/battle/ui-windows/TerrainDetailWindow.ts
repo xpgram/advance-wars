@@ -7,6 +7,14 @@ import { UnitClass } from "../EnumTypes";
 
 export class TerrainDetailWindow extends SlidingWindow {
 
+  /** Whether this window should display, even if able. */
+  get visible() { return this._visible; }
+  set visible(b) {
+    this._visible = b;
+    this.displayContainer.visible = this._visible;
+  }
+  private _visible = true;
+
   // Objects
   private header = new PIXI.BitmapText('', fonts.title);
   private illustration = new PIXI.Container();

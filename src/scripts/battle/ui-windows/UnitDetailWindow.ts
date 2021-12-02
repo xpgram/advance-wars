@@ -8,6 +8,20 @@ const Container = PIXI.Container;
 
 export class UnitDetailWindow extends SlidingWindow {
 
+  /** Whether this window should display, even if able. */
+  get visible() { return this._visible; }
+  set visible(b) {
+    this._visible = b;
+    this.displayContainer.visible = this.isShowing;
+  }
+  private _visible = false;
+  private _unitPresent = false;
+
+  /** Whether this windows is displaying. */
+  get isShowing() {
+    return this._visible && this._unitPresent;
+  }
+
   // Objects
   private header = new BitmapText('', fonts.title);
   private illustration = new Container();
@@ -69,6 +83,7 @@ export class UnitDetailWindow extends SlidingWindow {
     this.displayContainer.addChild(background);
     this.displayContainer.addChild(this.illustration);
     this.displayContainer.addChild(this.header, this.description);
+    this.displayContainer.visible = false;
   }
 
   private setHeaderText(text: string) {
@@ -86,9 +101,8 @@ export class UnitDetailWindow extends SlidingWindow {
   }
 
   inspectUnit(unit?: UnitObject) {
-    this.displayContainer.visible = (unit !== undefined);
-
-    console.log('present', this.displayContainer.visible);
+    this._unitPresent = (unit !== undefined);
+    this.displayContainer.visible = (this._visible && this._unitPresent);
 
     if (!unit)
       return;
