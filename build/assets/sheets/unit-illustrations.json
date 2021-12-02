@@ -1,8 +1,224 @@
 {"frames": {
 
+"lazurian-red-antiair.png":
+{
+	"frame": {"x":73,"y":242,"w":54,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":54,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-antitank.png":
+{
+	"frame": {"x":1,"y":616,"w":65,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":7,"y":0,"w":65,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-artillery.png":
+{
+	"frame": {"x":69,"y":578,"w":58,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":0,"w":58,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-battleship.png":
+{
+	"frame": {"x":1,"y":207,"w":70,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":2,"y":0,"w":70,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-bcopter.png":
+{
+	"frame": {"x":1,"y":291,"w":69,"h":35},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":0,"w":69,"h":35},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-bike.png":
+{
+	"frame": {"x":71,"y":452,"w":54,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":12,"y":0,"w":54,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-bomber.png":
+{
+	"frame": {"x":1,"y":1,"w":72,"h":40},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":72,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-carrier.png":
+{
+	"frame": {"x":1,"y":168,"w":71,"h":37},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":3,"w":71,"h":37},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-cruiser.png":
+{
+	"frame": {"x":1,"y":328,"w":68,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":0,"w":68,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-duster.png":
+{
+	"frame": {"x":63,"y":904,"w":60,"h":36},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":12,"y":0,"w":60,"h":36},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-fighter.png":
+{
+	"frame": {"x":1,"y":700,"w":65,"h":32},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":1,"w":65,"h":32},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-flare.png":
+{
+	"frame": {"x":67,"y":743,"w":60,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":8,"y":0,"w":60,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-gunboat.png":
+{
+	"frame": {"x":72,"y":284,"w":55,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":55,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-lander.png":
+{
+	"frame": {"x":64,"y":869,"w":61,"h":33},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":8,"y":7,"w":61,"h":33},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-mdtank.png":
+{
+	"frame": {"x":68,"y":620,"w":59,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":0,"w":59,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-missiles.png":
+{
+	"frame": {"x":80,"y":942,"w":42,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":19,"y":0,"w":42,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-recon.png":
+{
+	"frame": {"x":75,"y":1,"w":52,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":52,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-rig.png":
+{
+	"frame": {"x":71,"y":494,"w":54,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":12,"y":0,"w":54,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-rockets.png":
+{
+	"frame": {"x":66,"y":785,"w":61,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":9,"y":0,"w":61,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-seaplane.png":
+{
+	"frame": {"x":1,"y":917,"w":60,"h":33},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":1,"w":60,"h":33},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-sub.png":
+{
+	"frame": {"x":1,"y":370,"w":68,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":0,"w":68,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-tank.png":
+{
+	"frame": {"x":74,"y":85,"w":52,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":15,"y":0,"w":52,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-tcopter.png":
+{
+	"frame": {"x":1,"y":575,"w":66,"h":39},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":0,"w":66,"h":39},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
+"lazurian-red-wartank.png":
+{
+	"frame": {"x":1,"y":43,"w":71,"h":40},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":0,"w":71,"h":40},
+	"sourceSize": {"w":72,"h":40},
+	"anchor": {"x":0,"y":0}
+},
 "rubinelle-red-antiair.png":
 {
-	"frame": {"x":72,"y":116,"w":55,"h":40},
+	"frame": {"x":72,"y":326,"w":55,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":11,"y":0,"w":55,"h":40},
@@ -11,7 +227,7 @@
 },
 "rubinelle-red-antitank.png":
 {
-	"frame": {"x":1,"y":289,"w":65,"h":40},
+	"frame": {"x":1,"y":658,"w":65,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":7,"y":0,"w":65,"h":40},
@@ -20,8 +236,8 @@
 },
 "rubinelle-red-artillery.png":
 {
-	"frame": {"x":1,"y":476,"w":57,"h":40},
-	"rotated": false,
+	"frame": {"x":1,"y":952,"w":57,"h":40},
+	"rotated": true,
 	"trimmed": true,
 	"spriteSourceSize": {"x":9,"y":0,"w":57,"h":40},
 	"sourceSize": {"w":72,"h":40},
@@ -29,7 +245,7 @@
 },
 "rubinelle-red-battleship.png":
 {
-	"frame": {"x":1,"y":126,"w":68,"h":40},
+	"frame": {"x":1,"y":412,"w":68,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":0,"w":68,"h":40},
@@ -38,7 +254,7 @@
 },
 "rubinelle-red-bcopter.png":
 {
-	"frame": {"x":1,"y":360,"w":63,"h":35},
+	"frame": {"x":1,"y":763,"w":63,"h":35},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":7,"y":0,"w":63,"h":35},
@@ -47,7 +263,7 @@
 },
 "rubinelle-red-bike.png":
 {
-	"frame": {"x":71,"y":158,"w":56,"h":40},
+	"frame": {"x":71,"y":368,"w":56,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":11,"y":0,"w":56,"h":40},
@@ -56,7 +272,7 @@
 },
 "rubinelle-red-bomber.png":
 {
-	"frame": {"x":1,"y":84,"w":69,"h":40},
+	"frame": {"x":1,"y":249,"w":69,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":0,"w":69,"h":40},
@@ -65,7 +281,7 @@
 },
 "rubinelle-red-carrier.png":
 {
-	"frame": {"x":1,"y":43,"w":71,"h":39},
+	"frame": {"x":1,"y":127,"w":71,"h":39},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":71,"h":39},
@@ -74,7 +290,7 @@
 },
 "rubinelle-red-cruiser.png":
 {
-	"frame": {"x":1,"y":168,"w":68,"h":40},
+	"frame": {"x":1,"y":454,"w":68,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":4,"y":0,"w":68,"h":40},
@@ -83,7 +299,7 @@
 },
 "rubinelle-red-duster.png":
 {
-	"frame": {"x":65,"y":410,"w":61,"h":36},
+	"frame": {"x":1,"y":837,"w":61,"h":36},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":11,"y":0,"w":61,"h":36},
@@ -92,7 +308,7 @@
 },
 "rubinelle-red-fighter.png":
 {
-	"frame": {"x":1,"y":251,"w":68,"h":36},
+	"frame": {"x":1,"y":537,"w":68,"h":36},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":4,"y":0,"w":68,"h":36},
@@ -101,7 +317,7 @@
 },
 "rubinelle-red-flare.png":
 {
-	"frame": {"x":1,"y":434,"w":60,"h":40},
+	"frame": {"x":1,"y":875,"w":60,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":8,"y":0,"w":60,"h":40},
@@ -110,7 +326,7 @@
 },
 "rubinelle-red-gunboat.png":
 {
-	"frame": {"x":68,"y":326,"w":59,"h":40},
+	"frame": {"x":68,"y":662,"w":59,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":11,"y":0,"w":59,"h":40},
@@ -119,8 +335,8 @@
 },
 "rubinelle-red-infantry.png":
 {
-	"frame": {"x":60,"y":487,"w":45,"h":35},
-	"rotated": false,
+	"frame": {"x":43,"y":952,"w":45,"h":35},
+	"rotated": true,
 	"trimmed": true,
 	"spriteSourceSize": {"x":14,"y":4,"w":45,"h":35},
 	"sourceSize": {"w":72,"h":40},
@@ -128,7 +344,7 @@
 },
 "rubinelle-red-lander.png":
 {
-	"frame": {"x":1,"y":331,"w":64,"h":27},
+	"frame": {"x":1,"y":734,"w":64,"h":27},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":6,"y":13,"w":64,"h":27},
@@ -137,7 +353,7 @@
 },
 "rubinelle-red-mdtank.png":
 {
-	"frame": {"x":71,"y":200,"w":56,"h":40},
+	"frame": {"x":71,"y":410,"w":56,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":11,"y":0,"w":56,"h":40},
@@ -146,7 +362,7 @@
 },
 "rubinelle-red-mech.png":
 {
-	"frame": {"x":74,"y":43,"w":52,"h":29},
+	"frame": {"x":74,"y":127,"w":52,"h":29},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":17,"y":10,"w":52,"h":29},
@@ -155,7 +371,7 @@
 },
 "rubinelle-red-missiles.png":
 {
-	"frame": {"x":71,"y":284,"w":45,"h":40},
+	"frame": {"x":74,"y":200,"w":45,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":17,"y":0,"w":45,"h":40},
@@ -164,7 +380,7 @@
 },
 "rubinelle-red-recon.png":
 {
-	"frame": {"x":74,"y":1,"w":53,"h":40},
+	"frame": {"x":74,"y":43,"w":53,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":13,"y":0,"w":53,"h":40},
@@ -173,7 +389,7 @@
 },
 "rubinelle-red-rig.png":
 {
-	"frame": {"x":71,"y":242,"w":54,"h":40},
+	"frame": {"x":71,"y":536,"w":54,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":12,"y":0,"w":54,"h":40},
@@ -182,7 +398,7 @@
 },
 "rubinelle-red-rockets.png":
 {
-	"frame": {"x":66,"y":368,"w":61,"h":40},
+	"frame": {"x":65,"y":827,"w":61,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":8,"y":0,"w":61,"h":40},
@@ -191,7 +407,7 @@
 },
 "rubinelle-red-seaplane.png":
 {
-	"frame": {"x":63,"y":448,"w":59,"h":37},
+	"frame": {"x":68,"y":704,"w":59,"h":37},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":10,"y":0,"w":59,"h":37},
@@ -200,7 +416,7 @@
 },
 "rubinelle-red-sub.png":
 {
-	"frame": {"x":1,"y":210,"w":68,"h":39},
+	"frame": {"x":1,"y":496,"w":68,"h":39},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":1,"w":68,"h":39},
@@ -209,7 +425,7 @@
 },
 "rubinelle-red-tank.png":
 {
-	"frame": {"x":74,"y":74,"w":49,"h":40},
+	"frame": {"x":74,"y":158,"w":49,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":16,"y":0,"w":49,"h":40},
@@ -218,7 +434,7 @@
 },
 "rubinelle-red-tcopter.png":
 {
-	"frame": {"x":1,"y":397,"w":62,"h":35},
+	"frame": {"x":1,"y":800,"w":62,"h":35},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":10,"y":0,"w":62,"h":35},
@@ -227,10 +443,10 @@
 },
 "rubinelle-red-wartank.png":
 {
-	"frame": {"x":1,"y":1,"w":71,"h":40},
+	"frame": {"x":1,"y":85,"w":71,"h":40},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":0,"w":71,"h":40},
+	"spriteSourceSize": {"x":1,"y":0,"w":71,"h":40},
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 }},
@@ -239,8 +455,8 @@
 	"version": "1.0",
 	"image": "unit-illustrations.png",
 	"format": "RGBA5551",
-	"size": {"w":128,"h":523},
+	"size": {"w":128,"h":1010},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:7a3b140c25768b42f2544d79e507b6dc:8a2ad6fc48a4a8f0da3dcd2b17dc1652:6228a711823c27fb0e38059a10f1e6a6$"
+	"smartupdate": "$TexturePacker:SmartUpdate:1a336c96fa462304de80a0841d20d022:85485ea9f570f710b94b398e3d950790:6228a711823c27fb0e38059a10f1e6a6$"
 }
 }
