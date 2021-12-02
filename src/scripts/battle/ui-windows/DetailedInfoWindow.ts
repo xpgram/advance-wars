@@ -197,7 +197,7 @@ class Illustration {
     const unitIllustration = (airUnit && !showAirUnit) ? nullIllustration : unit?.illustration || nullIllustration;
 
     this.unit = unitIllustration;
-    this.unit.alpha = (this._focusUnit) ? 1 : .1;
+    this.unit.alpha = (this._focusUnit) ? 1 : .2;
 
     this.container.removeChildren();
     this.container.addChild(landscape, this.unit);

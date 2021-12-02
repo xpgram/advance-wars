@@ -7,11 +7,10 @@ import { MapCursor } from "../map/MapCursor";
 import { Camera } from "../../Camera";
 import { Square } from "../map/Square";
 import { Map } from "../map/Map";
-import { DetailedInfoWindow } from "./TerrainDetailWindow";
+import { DetailedInfoWindow } from "./DetailedInfoWindow";
 import { Slider } from "../../Common/Slider";
 import { TurnModerator } from "../TurnModerator";
 import { BattleForecast } from "../DamageScript";
-import { UnitDetailWindow } from "./UnitDetailWindow";
 
 type InfoWindowSystemSettings = {
   gamepad: VirtualGamepad,
