@@ -37,6 +37,10 @@ export class UnitDetailWindow extends SlidingWindow {
   // ATK / DEF
   //  ↑ or ↓ when CO augment or CO power. I don't know the specifics.
 
+  // Warning / Danger
+  //  :DangerIcon: :GreyUnit: :GreyUnit: :GreyUnit:
+  //  :WarningIcon: :GreyUnit: :GreyUnit: :GreyUnit:
+
   // Sheesh, man. I don't have room for all this shit.
   // I guess I could 1.5 size it or something, it would just open faster than detail.
   // I could also flip through 3 possible panes instead of 2.
