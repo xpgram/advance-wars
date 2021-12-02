@@ -72,6 +72,7 @@ export class InfoWindowSystem {
   }
 
   windows = {
+    // detailedUnitInfo: new UnitDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     detailedTerrainInfo: new TerrainDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     unitInfo: new UnitWindow({...WindowSettings.AlwaysShow, verticalDistance: 142}),
     terrainInfo: new TerrainWindow({...WindowSettings.AlwaysShow, verticalDistance: 167}),
