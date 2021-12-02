@@ -15,7 +15,7 @@ import { TerrainProperties } from "../map/Terrain";
 
 
 /**  */
-export class TerrainDetailWindow extends SlidingWindow {
+export class DetailedInfoWindow extends SlidingWindow {
 
   gamepad?: VirtualGamepad;
 
@@ -197,7 +197,7 @@ class Illustration {
     const unitIllustration = (airUnit && !showAirUnit) ? nullIllustration : unit?.illustration || nullIllustration;
 
     this.unit = unitIllustration;
-    this.unit.alpha = (this._focusUnit) ? 1 : .2;
+    this.unit.alpha = (this._focusUnit) ? 1 : .1;
 
     this.container.removeChildren();
     this.container.addChild(landscape, this.unit);

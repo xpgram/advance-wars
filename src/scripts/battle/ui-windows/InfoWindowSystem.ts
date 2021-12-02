@@ -7,7 +7,7 @@ import { MapCursor } from "../map/MapCursor";
 import { Camera } from "../../Camera";
 import { Square } from "../map/Square";
 import { Map } from "../map/Map";
-import { TerrainDetailWindow } from "./TerrainDetailWindow";
+import { DetailedInfoWindow } from "./TerrainDetailWindow";
 import { Slider } from "../../Common/Slider";
 import { TurnModerator } from "../TurnModerator";
 import { BattleForecast } from "../DamageScript";
@@ -70,7 +70,7 @@ export class InfoWindowSystem {
   }
 
   windows = {
-    detailedTerrainInfo: new TerrainDetailWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
+    detailedInfo: new DetailedInfoWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     unitInfo: new UnitWindow({...WindowSettings.AlwaysShow, verticalDistance: 142}),
     terrainInfo: new TerrainWindow({...WindowSettings.AlwaysShow, verticalDistance: 167}),
   }
@@ -89,10 +89,10 @@ export class InfoWindowSystem {
     this.updatePlayerWindowOrder(); // This sets y position
 
     // Give windows references to input object
-    this.windows.detailedTerrainInfo.gamepad = this.gamepad;
+    this.windows.detailedInfo.gamepad = this.gamepad;
 
     // Apply mask to screen-wipeable ui elements
-    const mask = this.windows.detailedTerrainInfo.mask;
+    const mask = this.windows.detailedInfo.mask;
 
     this.windows.unitInfo.displayContainer.mask = mask;
     this.playerInfo.windows.forEach( window => window.displayContainer.mask = mask );  
@@ -106,7 +106,7 @@ export class InfoWindowSystem {
 
   destroy() {
     // FIXME Not implement
-    this.windows.detailedTerrainInfo.destroy();
+    this.windows.detailedInfo.destroy();
   }
 
   /** Returns a list of all known SlidingWindows from all window categories. */
@@ -150,7 +150,7 @@ export class InfoWindowSystem {
     });
 
     // Show the detail window
-    this.windows.detailedTerrainInfo.show = showDetailWindow;
+    this.windows.detailedInfo.show = showDetailWindow;
 
     // Increment CO Window slider (staggers their reveal)
     this.commandersSlider.increment((showCOwindows) ? 1 : -1);
@@ -173,7 +173,7 @@ export class InfoWindowSystem {
   inspectTile(square: Square) {
     this.windows.terrainInfo.inspectTerrain(square.terrain, square.unit);
     this.windows.unitInfo.inspectUnit(square.unit);
-    this.windows.detailedTerrainInfo.inspectTerrain(square.terrain, square.unit);
+    this.windows.detailedInfo.inspectTerrain(square.terrain, square.unit);
   }
 
   /** Updates player info window metrics. */
