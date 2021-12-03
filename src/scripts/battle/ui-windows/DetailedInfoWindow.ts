@@ -57,18 +57,18 @@ export class DetailedInfoWindow extends SlidingWindow {
 
 
   private unitMoveType = new IconText(
-    new Point(8, 124),
+    new Point(8, 126),
     new PIXI.Sprite(this.sheet.textures['icon-stats-movetype.png'])
   )
   private unitArmorType = new IconText(
-    new Point(46, 124),
+    new Point(46, 126),
     new PIXI.Sprite(this.sheet.textures['icon-stats-armortype.png'])
   )
-  private unitGas = new LabelValue(new Point(8,135), 'Gas');
-  private unitAmmo = new LabelValue(new Point(8,143), 'Amu');
-  private unitMobility = new LabelValue(new Point(8,151), 'Mob');
-  private unitVision = new LabelValue(new Point(46,135), 'Vis');
-  private unitRange = new LabelRange(new Point(46,143), 'Rng');
+  private unitGas = new LabelValue(new Point(8,138), 'Gas');
+  private unitAmmo = new LabelValue(new Point(8,146), 'Amu');
+  private unitMobility = new LabelValue(new Point(8,154), 'Mob');
+  private unitVision = new LabelValue(new Point(46,138), 'Vis');
+  private unitRange = new LabelRange(new Point(46,146), 'Rng');
 
 
   constructor(options: SlidingWindowOptions) {
