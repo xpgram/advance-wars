@@ -28,16 +28,16 @@ export const defaultUnitSpawnMap = [
     Unit.Mech,
     Unit.Bike,
     Unit.Recon,
+    Unit.Flare,
+    Unit.AntiAir,
     Unit.Tank,
+
     Unit.MdTank,
     Unit.WarTank,
-
     Unit.Artillery,
     Unit.AntiTank,
-    Unit.Missiles,
     Unit.Rockets,
-    Unit.AntiAir,
-    Unit.Flare,
+    Unit.Missiles,
     Unit.Rig,
   ]),
   new UnitSpawnMap(Terrain.Airport, [
