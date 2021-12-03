@@ -34,7 +34,6 @@ export const CommandingOfficer = {
 
       this.setUnitStats({
         attack: 20,
-        defense: 20,
       },
         // All direct units
         ...Object.values(Unit)
