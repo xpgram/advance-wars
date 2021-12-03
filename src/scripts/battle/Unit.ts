@@ -96,7 +96,7 @@ export const Unit = {
         get soldierUnit() { return true; }  
     
         get unitClass() { return UnitClass.Ground; }
-        get moveType() { return MoveType.TireB; }
+        get moveType() { return MoveType.TireA; }   // Def: TireB
         get armorType() { return ArmorType.Infantry; }
         
         get weapon() { return {
