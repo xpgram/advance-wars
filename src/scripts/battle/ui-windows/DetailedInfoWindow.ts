@@ -55,6 +55,12 @@ export class DetailedInfoWindow extends SlidingWindow {
   );
   private moveCostTable = new MoveCostTable(new Point(8, 130));
 
+  private unitGas = new LabelValue(new Point(8,119), 'Gas');
+  private unitAmmo = new LabelValue(new Point(8,127), 'Amu');
+  private unitMobility = new LabelValue(new Point(8,135), 'Mob');
+  private unitVision = new LabelValue(new Point(8,143), 'Vis');
+  private unitRange = new LabelRange(new Point(8,151), 'Rng');
+
 
   constructor(options: SlidingWindowOptions) {
     super(options);
@@ -79,12 +85,20 @@ export class DetailedInfoWindow extends SlidingWindow {
     this.displayContainer.addChild(
       background,
       this.mask,
-      this.illustration.container,
-      this.header.container,
-      this.description.container,
-      this.income.container,
-      this.repairType.container,
-      this.moveCostTable.container,
+      ...[
+        this.illustration,
+        this.header,
+        this.description,
+        this.income,
+        this.repairType,
+        this.moveCostTable,
+
+        this.unitGas,
+        this.unitAmmo,
+        this.unitMobility,
+        this.unitVision,
+        this.unitRange,
+      ].map( e => e.container ),
     )
 
     Game.scene.ticker.add(this.getInput, this);
@@ -125,17 +139,34 @@ export class DetailedInfoWindow extends SlidingWindow {
     this.repairType.setState(terrain.repairType);
     this.moveCostTable.setTable(terrain);
 
-    [this.income, this.repairType, this.moveCostTable].forEach(
+    [  // Set visibility
+      this.income,
+      this.repairType,
+      this.moveCostTable
+    ].forEach(
       e => e.container.visible = !showingUnit
     );
 
     /* Unit1 Details */
 
-    // stub
+    this.unitGas.setValue(unit?.maxGas);
+    this.unitAmmo.setValue(unit?.maxAmmo);
+    this.unitMobility.setValue(unit?.maxMovementPoints);
+    this.unitVision.setValue(unit?.vision);
+    this.unitRange.setRange(unit?.range);
 
-    [this.description].forEach(
-      e => e.container.visible = !showingUnit2
+    [  // Set visibility
+      this.unitGas,
+      this.unitAmmo,
+      this.unitMobility,
+      this.unitVision,
+      this.unitRange,
+    ].forEach(
+      e => e.container.visible = showingUnit && !showingUnit2
     );
+
+    // Special visibility case
+    this.description.container.visible = !showingUnit2;
 
     /* Unit2 Details */
 
@@ -224,6 +255,47 @@ class Income extends TextComponent {
   setValue(n: number) {
     this.text = n.toString().slice(0,4);
     if (this.text === '0') this.text = '-';
+  }
+}
+
+class LabelValue extends TextComponent {
+  constructor(p: Point, label: string) {
+    super(p, fonts.list);
+    this.elem.position.set(36,1);
+    this.elem.anchor.set(1,0);
+
+    const labelText = new BitmapText(label, fonts.list);
+    labelText.position.set(1);
+
+    const rect = RectBuilder({
+      width: 17,
+      height: 8,
+      color: 0x0,
+      alpha: .35,
+    });
+    rect.addChild(labelText);
+
+    this.container.addChild(rect);
+  }
+
+  setValue(n?: number) {
+    this.text = n?.toString().slice(0,2) || '0';
+    if (this.text === '0') this.text = '-';
+  }
+}
+
+class LabelRange extends LabelValue {
+  // TODO But setValue is still public... uh...
+  setRange(r?: {min: number, max: number}) {
+    if (!r || r.min < 1 || r.max < 1) {
+      this.text = '-';
+      return;
+    }
+
+    if (r.min === r.max)
+      this.text = `${r.min}`;
+    else
+      this.text = `${r.min}-${r.max}`;
   }
 }
 
