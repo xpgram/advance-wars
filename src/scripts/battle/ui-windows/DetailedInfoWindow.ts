@@ -178,7 +178,7 @@ class Illustration {
   get focusUnit() { return this._focusUnit; }
   set focusUnit(b) { 
     this._focusUnit = b;
-    this.unit.alpha = (this._focusUnit) ? 1 : .35;
+    this.unit.alpha = (this._focusUnit) ? 1 : .3;
   }
   private _focusUnit = false;
 
@@ -195,6 +195,8 @@ class Illustration {
 
     const nullIllustration = new PIXI.Container();
     const unitIllustration = (airUnit && !showAirUnit) ? nullIllustration : unit?.illustration || nullIllustration;
+    // TODO It's weird that air units aren't visible.
+    // I want to put a line at the top that indicates there's something high up.
 
     this.unit = unitIllustration;
     this.focusUnit = false;
