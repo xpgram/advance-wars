@@ -3,7 +3,7 @@ import { fonts } from "./DisplayInfo";
 import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
 import { TerrainObject } from "../map/TerrainObject";
-import { UnitClass } from "../EnumTypes";
+import { ArmorTypeString, MoveTypeString, UnitClass } from "../EnumTypes";
 import { UnitObject } from "../UnitObject";
 import { Point } from "../../Common/Point";
 import { BitmapText } from "@pixi/text-bitmap";
@@ -55,11 +55,20 @@ export class DetailedInfoWindow extends SlidingWindow {
   );
   private moveCostTable = new MoveCostTable(new Point(8, 130));
 
-  private unitGas = new LabelValue(new Point(8,119), 'Gas');
-  private unitAmmo = new LabelValue(new Point(8,127), 'Amu');
-  private unitMobility = new LabelValue(new Point(8,135), 'Mob');
-  private unitVision = new LabelValue(new Point(8,143), 'Vis');
-  private unitRange = new LabelRange(new Point(8,151), 'Rng');
+
+  private unitMoveType = new IconText(
+    new Point(8, 124),
+    new PIXI.Sprite(this.sheet.textures['icon-stats-movement.png'])
+  )
+  private unitArmorType = new IconText(
+    new Point(46, 124),
+    new PIXI.Sprite(this.sheet.textures['icon-stats-defense.png'])
+  )
+  private unitGas = new LabelValue(new Point(8,135), 'Gas');
+  private unitAmmo = new LabelValue(new Point(8,143), 'Amu');
+  private unitMobility = new LabelValue(new Point(8,151), 'Mob');
+  private unitVision = new LabelValue(new Point(46,135), 'Vis');
+  private unitRange = new LabelRange(new Point(46,143), 'Rng');
 
 
   constructor(options: SlidingWindowOptions) {
@@ -93,6 +102,8 @@ export class DetailedInfoWindow extends SlidingWindow {
         this.repairType,
         this.moveCostTable,
 
+        this.unitMoveType,
+        this.unitArmorType,
         this.unitGas,
         this.unitAmmo,
         this.unitMobility,
@@ -149,6 +160,8 @@ export class DetailedInfoWindow extends SlidingWindow {
 
     /* Unit1 Details */
 
+    this.unitMoveType.text = (unit) ? MoveTypeString(unit.moveType) : '';
+    this.unitArmorType.text = (unit) ? ArmorTypeString(unit.armorType) : '';
     this.unitGas.setValue(unit?.maxGas);
     this.unitAmmo.setValue(unit?.maxAmmo);
     this.unitMobility.setValue(unit?.maxMovementPoints);
@@ -156,6 +169,8 @@ export class DetailedInfoWindow extends SlidingWindow {
     this.unitRange.setRange(unit?.range);
 
     [  // Set visibility
+      this.unitMoveType,
+      this.unitArmorType,
       this.unitGas,
       this.unitAmmo,
       this.unitMobility,
@@ -258,10 +273,19 @@ class Income extends TextComponent {
   }
 }
 
+class IconText extends TextComponent {
+  constructor(p: Point, icon: PIXI.Container) {
+    super(p, fonts.list);
+    this.elem.position.set(30, 1);
+    this.elem.anchor.set(1,0);
+    this.container.addChild(icon);
+  }
+}
+
 class LabelValue extends TextComponent {
   constructor(p: Point, label: string) {
     super(p, fonts.list);
-    this.elem.position.set(36,1);
+    this.elem.position.set(35,1);
     this.elem.anchor.set(1,0);
 
     const labelText = new BitmapText(label, fonts.list);

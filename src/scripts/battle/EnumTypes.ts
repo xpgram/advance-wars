@@ -11,6 +11,19 @@ export enum MoveType {
   Transport,
 }
 
+export function MoveTypeString(t: MoveType) {
+  return [
+    'Inftry',
+    'Mech',
+    'TireA',
+    'TireB',
+    'Tread',
+    'Air',
+    'Ship',
+    'Trpt',
+  ][t];
+}
+
 /** The various armor classes 'worn' by units and attackable by others.
  * This type is a targeting system; it does not implicitly affect damage. */
 export enum ArmorType {
@@ -20,6 +33,17 @@ export enum ArmorType {
   Heli,
   Ship,
   Sub,
+}
+
+export function ArmorTypeString(t: ArmorType) {
+  return [
+    'Inftry',
+    'Veh',
+    'Air',
+    'Heli',
+    'Ship',
+    'Sub',
+  ][t];
 }
 
 /** Used to describe a unit's method of attack: which of their two weapons they'll be using. */
