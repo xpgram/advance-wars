@@ -132,10 +132,15 @@ export abstract class UnitObject {
     /** A larger preview image of this unit type.  */
     get illustration(): PIXI.Sprite {
         const sheet = Unit.illustrationSheet;
+
         const name = this.name.replace(' ','').replace('-','').toLowerCase();
-        const sprite = new PIXI.Sprite(sheet.textures[`rubinelle-red-${name}.png`]);
+        const nationality = this.boardPlayer.officer.nationality;
+        const color = FactionColors[this.boardPlayer.faction];  // TODO Missing assets for blue/yellow/black
+
+        const sprite = new PIXI.Sprite(sheet.textures[`${nationality}-red-${name}.png`]);
         sprite.scale.x = this.reverseFacing ? 1 : -1;
         sprite.x = this.reverseFacing ? 0 : sprite.width;
+
         return sprite;
     }
 

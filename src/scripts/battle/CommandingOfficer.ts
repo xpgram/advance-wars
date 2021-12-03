@@ -8,6 +8,7 @@ export const CommandingOfficer = {
 
     readonly name = 'Void';
     readonly allegiance = 'None';
+    readonly nationality = 'rubinelle';
   },
 
   None: class NoneCO extends CommandingOfficerObject {
@@ -16,6 +17,7 @@ export const CommandingOfficer = {
 
     readonly name = 'None';
     readonly allegiance = 'None';
+    readonly nationality = 'rubinelle';
   },
 
   Will: class WillCO extends CommandingOfficerObject {
@@ -24,6 +26,7 @@ export const CommandingOfficer = {
 
     readonly name = 'Will';
     readonly allegiance = '13th Battalion';
+    readonly nationality = 'rubinelle';
   },
 
   Brenner: class BrennerCO extends CommandingOfficerObject {
@@ -32,6 +35,7 @@ export const CommandingOfficer = {
 
     readonly name = 'Brenner';
     readonly allegiance = '13th Battalion';
+    readonly nationality = 'rubinelle';
   },
 
   Lin: class LinCO extends CommandingOfficerObject {
@@ -40,6 +44,7 @@ export const CommandingOfficer = {
 
     readonly name = 'Lin';
     readonly allegiance = '13th Battalion';
+    readonly nationality = 'rubinelle';
   },
 
   Isabella: class IsabellaCO extends CommandingOfficerObject {
@@ -48,6 +53,7 @@ export const CommandingOfficer = {
 
     readonly name = 'Isabella';
     readonly allegiance = '13th Battalion';
+    readonly nationality = 'rubinelle';
   },
 
   // readonly allegiance = 'Lazuria';

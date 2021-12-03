@@ -12,6 +12,7 @@ export abstract class CommandingOfficerObject {
 
   abstract readonly name: string;
   abstract readonly allegiance: string;
+  abstract readonly nationality: 'rubinelle' | 'lazurian';
 
   readonly illustration!: PIXI.Sprite;
   readonly eyeshot!: PIXI.Sprite;
