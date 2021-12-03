@@ -1,5 +1,10 @@
 # Next Big Objectives
 
+- [ ] Unit illustrations need to be smaller: no more than 2/3rds on either axis.
+- [ ] When terrain focused: unit ghost, unit dim (slight)
+- [ ] When unit focused: unit opaque, terrain dim (slight)
+  Would this look better? I might want to do a little drafting.
+
 - [ ] Can I get pathRecalculate() to prefer points similar to where path's current terminal is? Like, if you pass through a reef, which costs more movement points, but an alternative path could take you to the same terminal more efficiently, then we should check for path extensions to the target from *that path* before reverting to searching from the origin.
 
 - [x] When selecting over a red tile, MoveUnit should call planPathFromPoint and provide the range map or whatever; I should already have the infrastructure for this.

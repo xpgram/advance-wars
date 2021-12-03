@@ -24,9 +24,12 @@ export class MoveUnit extends TurnState {
     const boardable = unit?.boardable(actor);
     const mergeable = unit?.mergeable(actor);
     const sameFaction = unit?.faction === players.current.faction;
+    const reachable = tile.moveFlag;
+
+    const actionable = reachable && sameFaction && (boardable || mergeable);
     const attackable = tile.attackFlag;
 
-    mapCursor.mode = ((boardable || mergeable) && sameFaction || attackable) ? 'target' : 'point';
+    mapCursor.mode = (actionable || attackable) ? 'target' : 'point';
 
     // Update damage forecast
     if (unit && attackable && !sameFaction) {
