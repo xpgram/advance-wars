@@ -5,7 +5,7 @@ import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod } 
 import { Debug } from "../DebugUtils";
 import { fonts } from "./ui-windows/DisplayInfo";
 import { MapLayer, MapLayerFunctions } from "./map/MapLayers";
-import { Unit } from "./Unit";
+import { Unit, UnitProperties } from "./Unit";
 import { Slider } from "../Common/Slider";
 import { Point } from "../Common/Point";
 import { CommonRangesRetriever, RegionMap } from "./unit-actions/RegionMap";
@@ -121,9 +121,9 @@ export abstract class UnitObject {
         let sprite;
 
         if (this.type == Unit.Infantry || this.type == Unit.Mech || this.type == Unit.Bike)
-            sprite = new PIXI.Sprite(Unit.sheet.textures[`${name}/${army}/${color}/idle-1.png`]);
+            sprite = new PIXI.Sprite(UnitProperties.sheet.textures[`${name}/${army}/${color}/idle-1.png`]);
         else
-            sprite = new PIXI.Sprite(Unit.sheet.textures[`${name}/${color}/idle-1.png`]);
+            sprite = new PIXI.Sprite(UnitProperties.sheet.textures[`${name}/${color}/idle-1.png`]);
 
         return sprite;
     }
@@ -131,7 +131,7 @@ export abstract class UnitObject {
     // TODO Rename this; 'exhibit' is stupid, I'm tired of reading it.
     /** A larger preview image of this unit type.  */
     get illustration(): PIXI.Sprite {
-        const sheet = Unit.illustrationSheet;
+        const sheet = UnitProperties.illustrationSheet;
 
         const name = this.name.replace(' ','').replace('-','').toLowerCase();
         const nationality = this.boardPlayer.officer.nationality;
@@ -152,10 +152,10 @@ export abstract class UnitObject {
 
         // Spriteset lookup functions
         let soldierSprites = (name: string, army: string, color: string, action: string): PIXI.Texture[] => {
-            return Unit.sheet.animations[`${name}/${army}/${color}/${action}`];
+            return UnitProperties.sheet.animations[`${name}/${army}/${color}/${action}`];
         }
         let vehicleSprites = (name: string, army: string, color: string, action: string): PIXI.Texture[] => {
-            return Unit.sheet.animations[`${name}/${color}/${action}`];
+            return UnitProperties.sheet.animations[`${name}/${color}/${action}`];
         }
 
         // Pick the spriteset lookup function relevant to this unit.

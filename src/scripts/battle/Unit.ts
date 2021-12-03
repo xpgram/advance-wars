@@ -4,13 +4,14 @@ import { MoveType, ArmorType, UnitClass } from "./EnumTypes";
 import { TerrainObject, TerrainType } from "./map/TerrainObject";
 import { Terrain } from "./map/Terrain";
 
-export const Unit = {
-
-    // TODO Extract these; they fuckin' wit mah shit.
+export const UnitProperties = {
     spritesheet: 'UnitSpritesheet',
     illustrationSpritesheet: 'UnitIllustrationSpritesheet',
-    get sheet() { return Game.scene.resources[ Unit.spritesheet ].spritesheet as PIXI.Spritesheet; },
-    get illustrationSheet() { return Game.scene.resources[ Unit.illustrationSpritesheet ].spritesheet as PIXI.Spritesheet; },
+    get sheet() { return Game.scene.resources[ UnitProperties.spritesheet ].spritesheet as PIXI.Spritesheet; },
+    get illustrationSheet() { return Game.scene.resources[ UnitProperties.illustrationSpritesheet ].spritesheet as PIXI.Spritesheet; },
+}
+
+export const Unit = {
 
     //start
     Infantry: class InfantryUnit extends UnitObject {
