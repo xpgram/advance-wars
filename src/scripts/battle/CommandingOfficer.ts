@@ -36,7 +36,6 @@ export const CommandingOfficer = {
         attack: 20,
         defense: 20,
       },
-        'CO',
         // All direct units
         ...Object.values(Unit)
           .filter( type => new type().isDirectOnly )

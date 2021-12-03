@@ -17,6 +17,14 @@ type UnitStatsPartial = {
   vision?: number,
 }
 
+const UNIVERSAL_CO_ATK_DEF_BOOST: UnitStats = {
+  attack: 20,
+  defense: 20,
+  range: 0,
+  move: 0,
+  vision: 0,
+}
+
 const DEFAULT_STATS: UnitStats = {
   attack: 0,
   defense: 0,
@@ -53,10 +61,11 @@ export abstract class CommandingOfficerObject {
   /** Returns an entry from the unit stats table.
    * All element names are acceptable; any non-entries will assume default values. */
   getUnitStats(name: string): UnitStats {
-    const stats = this.unitStatTable[name];
-    return (stats)
-      ? stats
-      : DEFAULT_STATS;
+    const coUnit = (name === 'CO');
+
+    let stats = this.unitStatTable[name] || DEFAULT_STATS;
+    if (coUnit) stats = {...stats, ...UNIVERSAL_CO_ATK_DEF_BOOST};
+    return stats;
   }
 
   /** Sets only the described fields for all given element names on the unit stats table. */
