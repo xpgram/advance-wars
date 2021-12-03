@@ -20,7 +20,7 @@ export class RatifyIssuedOrder extends TurnState {
 
     map.clearMovementMap();           // Remnant from turnstate ingress.
     placeTile.hideUnit = false;       // Automatic, but not when unit doesn't move.
-    trackCar.reset();                 // TODO Doesn't this get built again right after? By the Command.Move event.
+    // trackCar.reset();                 // TODO Doesn't this get built again right after? By the Command.Move event.
 
     // Retrieve and execute command
     const command = getCommandObject(action);
