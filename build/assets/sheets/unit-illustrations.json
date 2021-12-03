@@ -180,7 +180,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"lazurian-red-sub.png":
+"lazurian-red-submarine.png":
 {
 	"frame": {"x":1,"y":370,"w":68,"h":40},
 	"rotated": false,
@@ -414,7 +414,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"rubinelle-red-sub.png":
+"rubinelle-red-submarine.png":
 {
 	"frame": {"x":1,"y":496,"w":68,"h":39},
 	"rotated": false,
