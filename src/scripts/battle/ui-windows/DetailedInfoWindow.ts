@@ -276,7 +276,7 @@ class Income extends TextComponent {
 class IconText extends TextComponent {
   constructor(p: Point, icon: PIXI.Container) {
     super(p, fonts.list);
-    this.elem.position.set(icon.width + (36 - icon.width)/2, 1);
+    this.elem.position.set(icon.width + 2 + .5*(34 - icon.width), 1);
     this.elem.anchor.set(.5,0);
     this.container.addChild(icon);
   }
