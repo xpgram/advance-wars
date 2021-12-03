@@ -58,11 +58,11 @@ export class DetailedInfoWindow extends SlidingWindow {
 
   private unitMoveType = new IconText(
     new Point(8, 124),
-    new PIXI.Sprite(this.sheet.textures['icon-stats-movement.png'])
+    new PIXI.Sprite(this.sheet.textures['icon-stats-movetype.png'])
   )
   private unitArmorType = new IconText(
     new Point(46, 124),
-    new PIXI.Sprite(this.sheet.textures['icon-stats-defense.png'])
+    new PIXI.Sprite(this.sheet.textures['icon-stats-armortype.png'])
   )
   private unitGas = new LabelValue(new Point(8,135), 'Gas');
   private unitAmmo = new LabelValue(new Point(8,143), 'Amu');
@@ -276,7 +276,11 @@ class Income extends TextComponent {
 class IconText extends TextComponent {
   constructor(p: Point, icon: PIXI.Container) {
     super(p, fonts.list);
-    this.elem.position.set(icon.width + 2 + .5*(34 - icon.width), 1);
+    this.elem.text = "GET HEIGHT";
+    this.elem.position.set(
+      icon.width + 2 + .5*(34 - icon.width),
+      icon.height - this.elem.height
+    );
     this.elem.anchor.set(.5,0);
     this.container.addChild(icon);
   }
