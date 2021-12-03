@@ -36,14 +36,10 @@ export const CommandingOfficer = {
         attack: 20,
         defense: 20,
       },
-        // All direct units
+        // All direct units   // TODO I forget, do Rigs and such get the movement boost on CO Power?
         ...Object.values(Unit)
           .filter( type => new type().isDirectOnly )
-          .map( type => new type().name ),
-        // Unit.Infantry.name,
-        // Unit.Mech.name,
-        // Unit.Bike.name,
-        // Unit.Recon.name,
+          .map( type => new type().name )
       )
 
       return this;
