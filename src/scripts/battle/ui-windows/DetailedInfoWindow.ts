@@ -131,6 +131,12 @@ export class DetailedInfoWindow extends SlidingWindow {
 
     /* Unit1 Details */
 
+    // stub
+
+    [this.description].forEach(
+      e => e.container.visible = !showingUnit2
+    );
+
     /* Unit2 Details */
 
   }
