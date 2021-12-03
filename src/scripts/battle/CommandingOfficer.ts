@@ -1,4 +1,5 @@
 import { CommandingOfficerObject } from "./CommandingOfficerObject";
+import { Unit } from "./Unit";
 
 /**  */
 export const CommandingOfficer = {
@@ -27,6 +28,27 @@ export const CommandingOfficer = {
     readonly name = 'Will';
     readonly allegiance = '13th Battalion';
     readonly nationality = 'rubinelle';
+
+    init() {
+      super.init();
+
+      this.setUnitStats({
+        attack: 20,
+        defense: 20,
+      },
+        'CO',
+        // All direct units
+        ...Object.values(Unit)
+          .filter( type => new type().isDirectOnly )
+          .map( type => new type().name ),
+        // Unit.Infantry.name,
+        // Unit.Mech.name,
+        // Unit.Bike.name,
+        // Unit.Recon.name,
+      )
+
+      return this;
+    }
   },
 
   Brenner: class BrennerCO extends CommandingOfficerObject {

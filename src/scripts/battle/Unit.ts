@@ -5,6 +5,8 @@ import { TerrainObject, TerrainType } from "./map/TerrainObject";
 import { Terrain } from "./map/Terrain";
 
 export const Unit = {
+
+    // TODO Extract these; they fuckin' wit mah shit.
     spritesheet: 'UnitSpritesheet',
     illustrationSpritesheet: 'UnitIllustrationSpritesheet',
     get sheet() { return Game.scene.resources[ Unit.spritesheet ].spritesheet as PIXI.Spritesheet; },

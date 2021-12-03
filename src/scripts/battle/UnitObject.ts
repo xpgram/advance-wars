@@ -409,7 +409,17 @@ export abstract class UnitObject {
         return (this.gas < this.maxMovementPoints) ? this.gas : this.maxMovementPoints;
     }
 
-    /** Returns true if this unit can attack distant targets. */
+    /** True if this unit can attack adjacent units. */
+    get isDirect(): boolean {
+        return Common.within(1, this.range.min, this.range.max);
+    }
+
+    /** True if this unit can attack adjacent units, and *only* adjacent units. */
+    get isDirectOnly(): boolean {
+        return this.range.max === 1;
+    }
+
+    /** True if this unit can attack distant targets. */
     get isIndirect(): boolean {
         return this.range.max > 1;
     }
