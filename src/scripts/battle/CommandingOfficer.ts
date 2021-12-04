@@ -1,4 +1,5 @@
 import { CommandingOfficerObject } from "./CommandingOfficerObject";
+import { UnitClass } from "./EnumTypes";
 import { Unit } from "./Unit";
 
 /**  */
@@ -29,15 +30,20 @@ export const CommandingOfficer = {
     readonly allegiance = '13th Battalion';
     readonly nationality = 'rubinelle';
 
+    // CO Zone = 2      // Gets +1 for every CO bar filled, so max is 4
+
     init() {
       super.init();
 
       this.setUnitStats({
         attack: 20,
       },
-        // All direct units
+        // All direct ground units
         ...Object.values(Unit)
-          .filter( type => new type().isDirectOnly )
+          .filter( type => {
+            const u = new type();
+            return u.isDirectOnly && u.unitClass === UnitClass.Ground;
+          })
           .map( type => new type().name )
       )
 
