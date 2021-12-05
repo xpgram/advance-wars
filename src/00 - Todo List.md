@@ -1,5 +1,24 @@
 # Next Big Objectives
 
+- [ ] Multi-controller support.
+  - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.
+  - [ ] Controller Proxy's context is switched to the new controller on turn change.
+  - [ ] 'internet' is a keyword controller context that signals "wait for server updates." It is only relevant in online play, for which there can only be one controller player (because of fog of war).
+    - [ ] Single-hardware users could open two browsers, though. Can the controller bind process allow for different same-hardware clients to have different controllers?
+      - I might need this for testing purposes, even. Well, not *need*, but I will have two browsers open while developing online play a lot, so I'll have plenty of time to build this behavior.
+  - [ ] TurnStates ingressed to from the internet context still allow the perspective player to pause/quit/etc.
+  - [ ] keyboard controls are always in-focus
+  - [ ] Some kind of report or event happens when bound controllers are disconnected
+    - [ ] On disconnect, the system waits for one of several events:
+      - [ ] The controller reconnects, is present in the controller list, and listening is resumed.
+      - [ ] The player presses a button on an unknown controller and binds it to their player context.
+      - [ ] The player presses a button on a known controller, the system prompts for confirmation that this controller will be shared, and the user confirms. The controller is then bound to their player context.
+      - [ ] The player presses a button on the keyboard and confirms they will not have a controller.
+
+- [ ] Subs can sink and hide from non-allied players, but hidden units are not reliably hidden.
+  - [ ] inspectCursor() still reports hidden units
+  - [ ] OrderStart still allows selection and ingress from hidden units
+
 - [ ] Unit illustrations need to be smaller: no more than 2/3rds on either axis.
 - [ ] When terrain focused: unit ghost, unit dim (slight)
 - [ ] When unit focused: unit opaque, terrain dim (slight)
