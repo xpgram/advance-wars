@@ -22,6 +22,10 @@ export class TurnModerator {
         return this.players;
     }
 
+    get allUnits() {
+        return this.players.map( p => p.units ).flat();
+    }
+
     get current() {
         return this.players[this.currentIdx.output];
     }

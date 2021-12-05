@@ -157,7 +157,8 @@ export const Common = {
     }
     // Null case
     return [];
-  }
+  },
+
 }
 
 /** Color value functions. */

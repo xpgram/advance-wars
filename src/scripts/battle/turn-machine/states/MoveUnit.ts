@@ -42,7 +42,7 @@ export class MoveUnit extends TurnState {
   }
 
   configureScene() {
-    const { map, mapCursor, uiSystem, trackCar } = this.assets;
+    const { map, mapCursor, uiSystem, trackCar, scripts } = this.assets;
     const { actor, placeTile } = this.data;
 
     mapCursor.show();
@@ -57,6 +57,9 @@ export class MoveUnit extends TurnState {
 
     // Generate movement map
     map.generateMovementMap(actor);
+
+    // Enable control shortcuts
+    scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
   }
 
   update() {

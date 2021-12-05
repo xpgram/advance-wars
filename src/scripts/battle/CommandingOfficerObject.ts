@@ -56,7 +56,7 @@ export abstract class CommandingOfficerObject {
   get insignia() { return this._insignia; }
   private _insignia!: PIXI.Sprite;
 
-  readonly unitStatTable!: StringDictionary<UnitStats>;
+  readonly unitStatTable: StringDictionary<UnitStats> = {};
 
   /** Returns an entry from the unit stats table.
    * All element names are acceptable; any non-entries will assume default values. */
