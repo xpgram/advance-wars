@@ -20,9 +20,13 @@
   - [ ] OrderStart still allows selection and ingress from hidden units
 
 - [ ] Unit illustrations need to be smaller: no more than 2/3rds on either axis.
-- [ ] When terrain focused: unit ghost, unit dim (slight)
-- [ ] When unit focused: unit opaque, terrain dim (slight)
-  Would this look better? I might want to do a little drafting.
+- [ ] When terrain focused: terrain saturation up
+- [ ] When unit focused: unit saturation up
+  - [ ] When unit spent: unit darkened
+  - [x] Unit reflects player facing
+  - [ ] Unit refelcts player color
+    - [ ] Write a python script to obtain color palettes, then use mogrify to operate for me.
+    - [ ] Or I guess I could use a color-replace filter to do it live. Eh. I dunno. This would technically be better.
 
 - [ ] Can I get pathRecalculate() to prefer points similar to where path's current terminal is? Like, if you pass through a reef, which costs more movement points, but an alternative path could take you to the same terminal more efficiently, then we should check for path extensions to the target from *that path* before reverting to searching from the origin.
 
