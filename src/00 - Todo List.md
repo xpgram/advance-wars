@@ -138,7 +138,7 @@ More observations:
   - boardstate : boardId / gameId / datetime / [data . . . ]  
     Game-instance landmarking system. Events extend the initial board state through a kind of 'redo' application and the system occasionally updates this anchor point with a new, time-stamped snapshot contained here.
   EventsView returns accepted/rejected after input depending on whether the given action-Json a legal change of board state.  
-  'Legal' here doesn't mean all that much; I'm not going to implement server-side distance, terrain and fuel checking because oh_ my_ god_ that would take forever.
+  'Legal' here doesn't mean all that much; I'm not going to implement server-side distance, terrain and fuel checking because  oh  my  god  that would take forever.
 
 - [ ] Game DB and Online Multiplayer
   - [ ] Game State DB System
@@ -153,6 +153,21 @@ More observations:
             → Revert to Confirm Order
           → Reify
           → IssueOrderStart
+- [ ] Player Linking System
+  PlayerList
+  - playerId (login)
+  - boardPlayerNumber(s)
+  - controller(ref) / keyboard / Internet
+     ref needs to persist between unplug/plugin somehow
+     but also be reassignable
+- [ ] Controller Proxy System
+  - proxy.gamepad.button.A.pressed
+    proxy.gamepad => players.current.controller
+- [ ] Button Mapping System
+  - get confirm() { return proxy.gamepad.button.A }
+  - get cancel() { return proxy.gamepad.button.B }
+  - get moveAxis() { return proxy.gamepad.axis.dpad }
+    - axis.dpad.add( axis.leftStick ) => axis (point x [-1, 1] y [-1, 1])
 - [ ] UI Event-Messaging System
   When online functions fail to authenticate, or whatever, a message should pop in
   from above to let the player know what's up.
