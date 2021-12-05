@@ -3,16 +3,25 @@ import { DamageScript } from "../DamageScript";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
+import { GenericRatifyEvent } from "../map/tile-effects/GenericRatifyEvent";
 import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
 import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
 import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
+import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
 import { instructionData } from "./InstructionData";
 
 
 const { data } = instructionData;
+
+/** Auto generates a new serial so I don't have to hardcode them manually. */
+function generateSerial() {
+  serialCount++;
+  return serialCount;
+}
+let serialCount = -1;
 
 export class RatificationError extends Error {
   name = 'RatificationError';
@@ -58,7 +67,7 @@ export module Command {
   /** Unit idle at location command. */
   export const Wait: CommandObject<number> = {
     name: "Wait",
-    serial: 0,
+    serial: generateSerial(),
     input: 0,
     weight: Weight.Bottom,
     triggerInclude() {
@@ -73,7 +82,7 @@ export module Command {
   /** Moves a unit from one board location to another. */
   export const Move: CommandObject<number> = {
     name: "Move",
-    serial: 1,
+    serial: generateSerial(),
     input: 0,
     weight: Weight.None,
     triggerInclude: function () {
@@ -98,7 +107,7 @@ export module Command {
   /** Unit attack target from location command. */
   export const Attack: CommandObject<number> = {
     name: "Fire",
-    serial: 2,
+    serial: generateSerial(),
     input: 0,
     weight: Weight.Primary,
     triggerInclude() {
@@ -143,7 +152,7 @@ export module Command {
   /** Unit capture property on board command. */
   export const Capture: CommandObject<number> = {
     name: "Capture",
-    serial: 3,
+    serial: generateSerial(),
     input: 0,
     weight: Weight.Secondary,
     triggerInclude() {
@@ -166,7 +175,7 @@ export module Command {
   /** Unit supplies resources to adjacent allies command. */
   export const Supply: CommandObject<number> = {
     name: "Supply",
-    serial: 4,
+    serial: generateSerial(),
     input: 0,
     weight: Weight.Secondary,
     triggerInclude() {
@@ -201,10 +210,38 @@ export module Command {
     }
   }
 
+  /** Unit sinks into water, hiding itself from other players. */
+  export const Sink: CommandObject<number> = {
+    name: "Sink",
+    serial: generateSerial(),
+    input: 0,
+    weight: Weight.Secondary,
+    triggerInclude() {
+      const { actor } = data;
+      return !actor.hiding && actor.type === Unit.Submarine;
+    },
+    scheduleEvents() {
+      Command.Move.scheduleEvents();
+
+      const { boardEvents } = data.assets;
+      const { actor } = data;
+
+      boardEvents.schedule(new GenericRatifyEvent({
+        location: actor.boardLocation,
+        ratify: () => {
+          actor.hiding = true;
+          // TODO Update actor vis; this will probs duplicate some code in TurnStart, so I need to extract.
+          // Square has access to map — at least I think it does — so it can evaluate whether to actually show the
+          // unit or not. I mean, it does that anyway.
+        }
+      }));
+    }
+  }
+
   /** Unit combines with allied unit at goal command. */
   export const Join: CommandObject<number> = {
     name: "Join",
-    serial: 5,
+    serial: generateSerial(),
     input: 0,
     weight: Weight.Tertiary,
     triggerInclude() {
@@ -236,7 +273,7 @@ export module Command {
   /** Unit load into boardable unit action. */
   export const Load: CommandObject<number> = {
     name: "Load",
-    serial: 6,
+    serial: generateSerial(),
     input: 0,
     weight: Weight.Tertiary,
     triggerInclude() {
@@ -254,7 +291,7 @@ export module Command {
   /** Unit load into boardable unit action. */
   export const Drop: CommandObject<number> = {
     name: "Drop",
-    serial: 7,
+    serial: generateSerial(),
     input: -1,
     weight: Weight.Secondary,
     triggerInclude() {
@@ -297,7 +334,7 @@ export module Command {
   /** Unit spawns at location action. */
   export const SpawnUnit: CommandObject<number> = {
     name: "SpawnUnit",
-    serial: 8,
+    serial: generateSerial(),
     input: 0,
     weight: Weight.None,
     triggerInclude() {
