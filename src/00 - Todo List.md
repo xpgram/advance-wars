@@ -172,6 +172,18 @@ More observations:
   When online functions fail to authenticate, or whatever, a message should pop in
   from above to let the player know what's up.
 
+- [ ] For FoW, track car should be invisible when not in sight range, and vice versa.
+  - [ ] When the sight map is generated, and every time it's updated, construct a giant mask from all the seeable tiles.
+    - This can just be squares, no need for complex mountain shapes. (Actually, is that true? I'll need to see source game.)
+    - [ ] Track Car uses this white/black big-sprite as a mask.
+
+- [ ] TurnModerator has an unimplemented property called 'perspective' which returns a player object.
+  This is to handle visibility and such; the perspective player is the client player.
+  - [ ] In local matches, the perspective player is always the current turn player.
+  - [ ] In online matches, the perspective player is the login player.
+    - [ ] login IDs are only required for online play. Local matches are fine, there's just a bit of controller matching.
+    - [ ] Trying to ingress from the Online menu button (to the menu with options: Create Room, Join Room, etc.) prompts an unidentified user for login information (sign in, sign up)
+
 
 - [ ] Refactor to use reducers? Approximate the pattern, anyway.
   I want: ratifyInstruction(boardState, action) => boardState

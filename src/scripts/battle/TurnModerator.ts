@@ -30,6 +30,11 @@ export class TurnModerator {
         return this.players[this.currentIdx.output];
     }
 
+    // TODO Unimplemented anywhere
+    get perspective() {
+        return this.players[this.currentIdx.output];
+    }
+
     get day() {
         return this._day;
     }
