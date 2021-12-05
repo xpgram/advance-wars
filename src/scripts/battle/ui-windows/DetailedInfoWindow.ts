@@ -164,6 +164,7 @@ export class DetailedInfoWindow extends SlidingWindow {
     this.unitArmorType.text = (unit) ? ArmorTypeString(unit.armorType) : '';
     this.unitGas.setValue(unit?.maxGas);
     this.unitAmmo.setValue(unit?.maxAmmo);
+    this.unitAmmo.setLabel(unit?.materialsInsteadOfAmmo ? 'Mtl' : 'Amu' );
     this.unitMobility.setValue(unit?.maxMovementPoints);
     this.unitVision.setValue(unit?.vision);
     this.unitRange.setRange(unit?.range);
@@ -287,13 +288,15 @@ class IconText extends TextComponent {
 }
 
 class LabelValue extends TextComponent {
+  label: BitmapText;
+
   constructor(p: Point, label: string) {
     super(p, fonts.list);
     this.elem.position.set(35,1);
     this.elem.anchor.set(1,0);
 
-    const labelText = new BitmapText(label, fonts.list);
-    labelText.position.set(1);
+    this.label = new BitmapText(label, fonts.list);
+    this.label.position.set(1);
 
     const rect = RectBuilder({
       width: 17,
@@ -301,7 +304,7 @@ class LabelValue extends TextComponent {
       color: 0x0,
       alpha: .35,
     });
-    rect.addChild(labelText);
+    rect.addChild(this.label);
 
     this.container.addChild(rect);
   }
@@ -309,6 +312,10 @@ class LabelValue extends TextComponent {
   setValue(n?: number) {
     this.text = n?.toString().slice(0,2) || '0';
     if (this.text === '0') this.text = '-';
+  }
+
+  setLabel(t: string) {
+    this.label.text = t;
   }
 }
 
