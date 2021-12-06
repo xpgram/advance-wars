@@ -721,6 +721,14 @@ export abstract class UnitObject {
         return false;
     }
 
+    /** A number 0, 1 or 2 indicating this unit's best attack effectiveness
+     * rating against a given armor type among all its weapons. */
+    getIdealAttackHeuristic(armorType: ArmorType) {
+        const primaryRating = this.getAttackHeuristic(this.weapon.primary, armorType);
+        const secondaryRating = this.getAttackHeuristic(this.weapon.secondary, armorType);
+        return Math.max(primaryRating, secondaryRating);
+    }
+
     /** Retrieves the attack-effectiveness rating of an action from this unit via an attack against an armor-type. */
     private getAttackHeuristic(attack: AttackInfo, armorType: ArmorType) {
         try {

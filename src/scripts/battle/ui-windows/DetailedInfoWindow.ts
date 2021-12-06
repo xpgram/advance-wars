@@ -358,7 +358,8 @@ class DamageHeuristicTable extends UiComponent {
     [Infantry, Vehicle, Ship, Air, Heli, Sub]
       .forEach( armorType => {
         const key = ArmorTypeString(armorType);
-        this.elems[key].setHeuristic(unit.couldTarget(armorType) ? 2 : 0);
+        const heuristic = unit.getIdealAttackHeuristic(armorType);
+        this.elems[key].setHeuristic(heuristic);
       });
   }
 }
