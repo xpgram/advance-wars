@@ -238,6 +238,34 @@ export module Command {
     }
   }
 
+  /** Unit sinks into water, hiding itself from other players. */
+  export const Surface: CommandObject<number> = {
+    name: "Surface",
+    serial: generateSerial(),
+    input: 0,
+    weight: Weight.Secondary,
+    triggerInclude() {
+      const { actor } = data;
+      return actor.hiding && actor.type === Unit.Submarine;
+    },
+    scheduleEvents() {
+      const { boardEvents } = data.assets;
+      const { actor } = data;
+
+      boardEvents.schedule(new GenericRatifyEvent({
+        location: actor.boardLocation,
+        ratify: () => {
+          actor.hiding = false;
+          // TODO Update actor vis; this will probs duplicate some code in TurnStart, so I need to extract.
+          // Square has access to map — at least I think it does — so it can evaluate whether to actually show the
+          // unit or not. I mean, it does that anyway.
+        }
+      }));
+
+      Command.Move.scheduleEvents();
+    }
+  }
+
   /** Unit combines with allied unit at goal command. */
   export const Join: CommandObject<number> = {
     name: "Join",

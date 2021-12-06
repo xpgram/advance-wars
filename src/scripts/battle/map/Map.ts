@@ -120,7 +120,7 @@ export class Map {
         for (let x = 0; x < width; x++) {
             this.board[x] = [];
             for (let y = 0; y < height; y++) {
-                this.board[x][y] = new Square(x-1, y-1);    // Squares don't "know about" there being a void perimeter.
+                this.board[x][y] = new Square(this, x-1, y-1);    // Squares don't "know about" there being a void perimeter.
 
                 // Add null-object border
                 if (x == 0 || x == (width - 1) || y == 0 || y == (height - 1))

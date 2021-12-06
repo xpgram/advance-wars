@@ -11,6 +11,8 @@ import { Point } from "../Common/Point";
 import { CommonRangesRetriever, RegionMap } from "./unit-actions/RegionMap";
 import { BoardPlayer } from "./BoardPlayer";
 import { TerrainObject } from "./map/TerrainObject";
+import { NeighborMatrix } from "../NeighborMatrix";
+import { Square } from "./map/Square";
 
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
@@ -521,8 +523,11 @@ export abstract class UnitObject {
     private _hiding = false;
 
     /** Whether this unit is visible to the given player object. */
-    visibleToPlayer(player: BoardPlayer) {
-        return (this.faction === player.faction || !this.hiding);
+    visibleToPlayer(player: BoardPlayer, neighbors: NeighborMatrix<Square>) {
+        const revealedByEnemy = neighbors && neighbors.orthogonals
+            .some( square => square.unit?.faction === player.faction );
+        const revealedToSamePlayer = (this.faction === player.faction);
+        return (!this.hiding || revealedByEnemy || revealedToSamePlayer);
     }
 
     /** Returns true if this unit has some applied status condition. */

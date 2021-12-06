@@ -23,6 +23,8 @@ import { ArmorType, MoveType } from "../EnumTypes";
  * @version 0.1.0
  */
 export class Square {
+    private map: Map;
+
     private _terrain!: TerrainObject;
     /** The terrain object associated with this board location object. */
     get terrain() { return this._terrain; }
@@ -82,9 +84,10 @@ export class Square {
 
     static readonly Max_Coords = Math.pow(2, Square.coordinateLength);
 
-    constructor(x = 0, y = 0) {
+    constructor(map: Map, x = 0, y = 0) {
         this.setCoords(x,y);
         this.terrain = new Terrain.Void();
+        this.map = map;
     }
 
     /** Destroys this object and its children. */
@@ -92,6 +95,8 @@ export class Square {
         this.terrain.destroy();
         if (this.unit)
             this.unit.destroy();
+        //@ts-expect-error
+        this.map = undefined;
     }
 
     /** Retrieves the next frame for this tile's overlay panel. */
@@ -339,6 +344,11 @@ export class Square {
             this.overlayArrow.texture = sheet.textures[`MovementArrow/movement-arrow-${variation}.png`];
             this.overlayArrow.visible = true;
         }
+    }
+
+    /** The neighboring tiles adjacent to this one. */
+    get neighbors() {
+        return this.map.neighborsAt(this.pos);
     }
 
     /** Returns true if the given unit may legally inhabit this square. */

@@ -30,21 +30,6 @@ export class TurnStart extends TurnState {
     // Pretend-spend player funds on repairs so we know what their limit is.
     let remainingFunds = player.funds;
 
-    // Per Unit inter-player configurations
-    players.allUnits.forEach( unit => {
-      if (!unit.onMap)
-        return;
-      
-      const neighbors = map.neighborsAt(unit.boardLocation);
-      const square = neighbors.center;
-      const terrain = square.terrain;
-
-      // Determine visibility
-      const notAllied = (unit.faction !== player.faction);
-      const adjacentToAllied = (neighbors.orthogonals.some( s => s.unit && s.unit.faction === player.faction ));
-      square.hideUnit = (unit.hiding && notAllied && !adjacentToAllied);
-    });
-
     // Per Unit effects
     player.units.forEach( unit => {
       if (!unit.onMap)
