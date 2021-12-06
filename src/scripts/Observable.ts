@@ -24,6 +24,11 @@ export abstract class Observable {
     this.observers = this.observers.filter(obs => obs.callback !== callback || obs.context !== context);
   }
 
+  /** Removes the given callback and context from the specific event trigger in the list of observers, if it was present. */
+  removeListenerFromEvent(event: string, callback: () => void, context?: object) {
+    this.observers = this.observers.filter(obs => obs.event !== event || obs.callback !== callback || obs.context !== context);
+  }
+
   /** Empties the list of callback-context pairs. */
   protected clearListeners(event?: string): void {
     if (!event)

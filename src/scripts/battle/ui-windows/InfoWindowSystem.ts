@@ -11,6 +11,7 @@ import { DetailedInfoWindow } from "./DetailedInfoWindow";
 import { Slider } from "../../Common/Slider";
 import { TurnModerator } from "../TurnModerator";
 import { BattleForecast } from "../DamageScript";
+import { UnitObject } from "../UnitObject";
 
 type InfoWindowSystemSettings = {
   gamepad: VirtualGamepad,
@@ -74,6 +75,12 @@ export class InfoWindowSystem {
     terrainInfo: new TerrainWindow({...WindowSettings.AlwaysShow, verticalDistance: 167}),
   }
 
+  /** Whether the details window should be on-screen regardless of reveal-button state. */
+  forceOpenDetailWindow = false;
+
+  /** Which side of the screen the window system should appear on. */
+  screenSide: 'left' | 'right' | 'auto' = 'auto';
+
   constructor(settings: InfoWindowSystemSettings) {
     this.gamepad = settings.gamepad;
     this.cursor = settings.cursor;
@@ -104,8 +111,13 @@ export class InfoWindowSystem {
   }
 
   destroy() {
-    // FIXME Not implement
+    // FIXME Destruction not implemented
     this.windows.detailedInfo.destroy();
+  }
+
+  resetSettings() {
+    this.screenSide = 'auto';
+    this.forceOpenDetailWindow = false;
   }
 
   /** Returns a list of all known SlidingWindows from all window categories. */
@@ -140,7 +152,12 @@ export class InfoWindowSystem {
     // Set show flags
     const showDetailWindow = (this.gamepad.button.rightTrigger.down);
     const showCOwindows = (this.gamepad.button.leftTrigger.down);
-    const showWindowsOnLeft = (this.cursor.pos.x > triggerLine);
+
+    const autoLeftSide = (this.cursor.pos.x > triggerLine);
+    const showWindowsOnLeft =
+      (this.screenSide === 'auto')
+      ? autoLeftSide
+      : (this.screenSide === 'left');
     
     // Tell each window which side to be on.
     // It isn't possible to set this to one window the rest are children of, is it?
@@ -149,7 +166,7 @@ export class InfoWindowSystem {
     });
 
     // Show the detail window
-    this.windows.detailedInfo.show = showDetailWindow;
+    this.windows.detailedInfo.show = showDetailWindow || this.forceOpenDetailWindow;
 
     // Increment CO Window slider (staggers their reveal)
     this.commandersSlider.increment((showCOwindows) ? 1 : -1);
@@ -169,10 +186,10 @@ export class InfoWindowSystem {
     }, this);
   }
 
-  inspectTile(square: Square) {
-    this.windows.terrainInfo.inspectTerrain(square.terrain, square.unit);
+  inspectTile(square: Square, unit?: UnitObject) {
+    this.windows.terrainInfo.inspectTerrain(square.terrain, unit || square.unit);
     this.windows.unitInfo.inspectUnit(square.unit);
-    this.windows.detailedInfo.inspectTerrain(square.terrain, square.unit);
+    this.windows.detailedInfo.inspectTile(square.terrain, unit || square.unit);
   }
 
   /** Updates player info window metrics. */
@@ -204,4 +221,5 @@ export class InfoWindowSystem {
     this.inspectTile(this.map.squareAt(this.cursor.pos));
     this.allWindows.forEach( window => window.positionWindow({skip: true}) );
   }
+
 }

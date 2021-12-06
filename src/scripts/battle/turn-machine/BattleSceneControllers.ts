@@ -238,6 +238,7 @@ export class BattleSceneControllers {
     this.mapCursor.mode = 'point';
     this.trackCar.hide();
     this.uiSystem.hide();
+    this.uiSystem.resetSettings();
     this.uiSystem.battleForecast = undefined;
     this.cmdMenu.hide();
     this.shopMenu.hide();

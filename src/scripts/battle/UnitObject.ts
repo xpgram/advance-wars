@@ -261,6 +261,8 @@ export abstract class UnitObject {
         let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
         // TODO If spritesheet is undefined... what happens?
 
+        // TODO faction is known by boardplayer...
+
         //@ts-expect-error // Team Object
         this.boardPlayer = options.boardPlayer;
 
@@ -314,6 +316,8 @@ export abstract class UnitObject {
 
         // *Activate* this unit's update step.
         Game.scene.ticker.add(this.update, this);
+
+        return this;
     }
 
     /** Loads unit info (a 32-bit number) into this unit object.

@@ -27,6 +27,22 @@ export class DetailedInfoWindow extends SlidingWindow {
   get visible() { return this.displayContainer.visible; }
   set visible(b) { this.displayContainer.visible = b; }
 
+  /** Whether to use the normal inspector page arrangement, or the shop-specific one. */
+  get useShopTabSlider() { return this._useShopTabSlider; }
+  set useShopTabSlider(b) {
+    this._useShopTabSlider = b;
+    // When switching between tab sets, prefer the last tab if possible.
+    if (this._useShopTabSlider)
+      this.shopTabSlider.track = (this.tabSlider.track > 0)
+        ? this.tabSlider.track as number - 1
+        : 0;
+    else
+      this.tabSlider.track = (this.shopTabSlider.output === 2)
+        ? this.shopTabSlider.output
+        : this.tabSlider.track;
+  }
+  private _useShopTabSlider = false;
+
   /** Which details window pane to show: terrain, unit1 or unit2. */
   private tabSlider = new Slider({
     max: 3,
@@ -137,18 +153,22 @@ export class DetailedInfoWindow extends SlidingWindow {
 
   private getInput() {
     if (this.gamepad?.button.X.pressed) {
-      this.tabSlider.increment();
-      this.inspectTerrain(this.terrain, this.unit);
+      (this.useShopTabSlider)
+        ? this.shopTabSlider.increment()
+        : this.tabSlider.increment();
+      this.inspectTile(this.terrain, this.unit);
     }
   }
 
   /** Updates window UI elements with details from the given terrain object. */
-  inspectTerrain(terrain: TerrainObject, unit?: UnitObject) {
+  inspectTile(terrain: TerrainObject, unit?: UnitObject) {
     this.terrain = terrain;
     this.unit = unit;
 
-    const showingUnit = (this.tabSlider.output > 0);
-    const showingUnit2 = (this.tabSlider.output === 2);
+    const tabSlider = (this.useShopTabSlider) ? this.shopTabSlider : this.tabSlider;
+
+    const showingUnit = (tabSlider.output > 0);
+    const showingUnit2 = (tabSlider.output === 2);
 
     /* Main */
     
