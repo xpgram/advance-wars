@@ -37,9 +37,6 @@
 - [ ] This is some kind of off-by-one error that was fixed by adding a small amount of padding around the default camera view frame. I suspect this has to do with how zoom is kind of awkwardly implemented: it only affected the top-side (and maybe left, I didn't check), only after zoom, and the default zoom state that worked flawlessly exhibits the same problem after zooming in again.
   - [ ] Specifically, I wonder if the zoom-scale-slider never actually reaches its target. If it ranges between 1 and 2, let's say, it would start at 1, zoom to 1.999, then zoom again to 1.001. This would affect the focal frame in the way that it is always *just too big* or *just too small*.
 
-- [ ] UnitDetail Window
-- [ ] Switchable with Button.Y / Key.C
-
 - [x] Unit CO loaded
 - [ ] CO loaded state affects adjacent board tiles.
 - [ ] BoardPlayer.CoUnit : filter units => unit.coLoaded == true
@@ -82,8 +79,6 @@ More observations:
 - [ ] Because path arrows do not disappear when dropping, the game has special icon arrows to indicate a drop tile.
 - These drop-tile icons appear above units, path arrows, etc. Do I need a second UI layer?
 
-- [ ] Force UnitDetail open and right side during shop menu
-
 - [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
 
 - [ ] Global controller proxy.
@@ -106,8 +101,8 @@ More observations:
 - [ ] Refactor InfoWindowSystem
 - [x] Instant move InfoWindowSystem on turn change.
 - [x] Instant move InfoWindowSystem on return from MoveCamera state.
-- [ ] Instant move InfoWindowSystem on FactoryShop menu open.
-- [ ] Force open UnitDetail
+- [x] Instant move InfoWindowSystem on FactoryShop menu open.
+- [x] Force open UnitDetail
 - [ ] Move camera to show base tile between shop menu and detail window?
 
 - [ ] Refactor TurnStates to take advantage of queueing:
