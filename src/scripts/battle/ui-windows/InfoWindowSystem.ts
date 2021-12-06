@@ -187,9 +187,14 @@ export class InfoWindowSystem {
   }
 
   inspectTile(square: Square, unit?: UnitObject) {
-    this.windows.terrainInfo.inspectTerrain(square.terrain, unit || square.unit);
-    this.windows.unitInfo.inspectUnit(square.unit);
-    this.windows.detailedInfo.inspectTile(square.terrain, unit || square.unit);
+    const inspectUnit =
+      unit ||
+      (square.unit?.visibleToPlayer(this.players.current))
+        ? square.unit
+        : undefined;
+    this.windows.terrainInfo.inspectTerrain(square.terrain, inspectUnit);
+    this.windows.unitInfo.inspectUnit(inspectUnit);
+    this.windows.detailedInfo.inspectTile(square.terrain, inspectUnit);
   }
 
   /** Updates player info window metrics. */

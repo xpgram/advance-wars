@@ -520,6 +520,11 @@ export abstract class UnitObject {
     }
     private _hiding = false;
 
+    /** Whether this unit is visible to the given player object. */
+    visibleToPlayer(player: BoardPlayer) {
+        return (this.faction === player.faction || !this.hiding);
+    }
+
     /** Returns true if this unit has some applied status condition. */
     get statusApplied() { return this.statusTextures.length > 0; }
 

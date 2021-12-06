@@ -7,7 +7,6 @@ import { ShowUnitAttackRange } from "./ShowUnitAttackRange";
 import { MoveCamera } from "./MoveCamera";
 import { FieldMenu } from "./FieldMenu";
 import { FactoryMenu } from "./FactoryMenu";
-import { CommandMenu } from "./CommandMenu";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 
 export class IssueOrderStart extends TurnState {
@@ -26,10 +25,7 @@ export class IssueOrderStart extends TurnState {
     const types = scenario.spawnMap.map( map => map.type );
     const spawnType = types.includes(tile.terrain.type);
 
-    if (spawnType && allied && empty)
-      mapCursor.mode = 'build';
-    else
-      mapCursor.mode = 'point';
+    mapCursor.mode = (spawnType && allied && empty) ? 'build' : 'point';
   }
 
   configureScene() {
@@ -87,7 +83,7 @@ export class IssueOrderStart extends TurnState {
       
       // Allied unit to move
       const orderableAlly = (unit?.orderable && unit?.faction === player.faction);
-      const examinableEnemy = (unit?.faction !== player.faction);
+      const examinableEnemy = (unit?.faction !== player.faction && !unit?.hiding);
       if (unit && (orderableAlly || examinableEnemy)) {
         instruction.place = unit.boardLocation;
         this.advance(MoveUnit, RatifyIssuedOrder);
@@ -108,7 +104,9 @@ export class IssueOrderStart extends TurnState {
 
     // On press B, show unit attack range or initiate move camera mode.
     else if (B.pressed) {
-      if (square.unit) {
+      const allied = square.unit?.faction === player.faction;
+      const notHiding = !square.unit?.hiding;
+      if (square.unit && (allied || notHiding)) {
         instruction.place = new Point(mapCursor.pos);
         this.advance(ShowUnitAttackRange);
       } else
