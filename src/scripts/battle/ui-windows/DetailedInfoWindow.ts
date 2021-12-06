@@ -3,7 +3,7 @@ import { fonts } from "./DisplayInfo";
 import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
 import { TerrainObject } from "../map/TerrainObject";
-import { ArmorTypeString, MoveTypeString, UnitClass } from "../EnumTypes";
+import { ArmorType, ArmorTypeString, MoveTypeString, UnitClass } from "../EnumTypes";
 import { UnitObject } from "../UnitObject";
 import { Point } from "../../Common/Point";
 import { BitmapText } from "@pixi/text-bitmap";
@@ -12,6 +12,7 @@ import { Slider } from "../../Common/Slider";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { Game } from "../../..";
 import { TerrainProperties } from "../map/Terrain";
+import { Common } from "../../CommonUtils";
 
 
 /**  */
@@ -42,7 +43,9 @@ export class DetailedInfoWindow extends SlidingWindow {
     shape: v => (this.unit) ? v+1 : 0,
   });
 
-  // Objects
+  // UI Elements
+
+  // Terrain
   private header = new Header(new Point(5, 4));
   private illustration = new Illustration(new Point(8, 18));
   private description = new Description(new Point(8, 62), this.width - 16);
@@ -55,7 +58,7 @@ export class DetailedInfoWindow extends SlidingWindow {
   );
   private moveCostTable = new MoveCostTable(new Point(8, 130));
 
-
+  // Unit 1
   private unitMoveType = new IconText(
     new Point(8, 126),
     new PIXI.Sprite(this.sheet.textures['icon-stats-movetype.png'])
@@ -69,6 +72,16 @@ export class DetailedInfoWindow extends SlidingWindow {
   private unitMobility = new LabelValue(new Point(8,154), 'Mob');
   private unitVision = new LabelValue(new Point(46,138), 'Vis');
   private unitRange = new LabelRange(new Point(46,146), 'Rng');
+
+  // Unit 2
+  private damageHeuristicTable = new DamageHeuristicTable(
+    new Point(8, 62),
+    {
+      boost: this.sheet.textures[`icon-stats-boost.png`],
+      depress: this.sheet.textures[`icon-stats-depress.png`],
+      none: PIXI.Texture.EMPTY,
+    }
+  );
 
 
   constructor(options: SlidingWindowOptions) {
@@ -109,6 +122,8 @@ export class DetailedInfoWindow extends SlidingWindow {
         this.unitMobility,
         this.unitVision,
         this.unitRange,
+
+        this.damageHeuristicTable,
       ].map( e => e.container ),
     )
 
@@ -185,6 +200,13 @@ export class DetailedInfoWindow extends SlidingWindow {
     this.description.container.visible = !showingUnit2;
 
     /* Unit2 Details */
+    this.damageHeuristicTable.setHeuristics(unit);
+
+    [  // Set visibility
+      this.damageHeuristicTable,
+    ].forEach(
+      e => e.container.visible = showingUnit2
+    );
 
   }
 }
@@ -284,6 +306,60 @@ class IconText extends TextComponent {
     );
     this.elem.anchor.set(.5,0);
     this.container.addChild(icon);
+  }
+}
+
+class DamageHeuristic extends TextComponent {
+
+  private textures: {boost: PIXI.Texture, depress: PIXI.Texture, none: PIXI.Texture};
+  private value = new PIXI.Sprite();
+
+  constructor(p: Point, label: string, textures: {boost: PIXI.Texture, depress: PIXI.Texture, none: PIXI.Texture}) {
+    super(p, fonts.list);
+    this.elem.text = label;
+    this.value.position.set(33, 0);
+    this.value.anchor.set(1,0);
+    this.container.addChild(this.value);
+
+    this.textures = textures;
+  }
+
+  setHeuristic(v: number) {
+    v = Common.clamp(v, 0, 2);
+    const { boost, depress, none } = this.textures;
+    this.value.texture = [none, depress, boost][v];
+  }
+}
+
+class DamageHeuristicTable extends UiComponent {
+  private elems: StringDictionary<DamageHeuristic> = {};
+
+  constructor(p: Point, textureSet: {boost: PIXI.Texture, depress: PIXI.Texture, none: PIXI.Texture}) {
+    super(p);
+    const { Infantry, Vehicle, Air, Heli, Ship, Sub } = ArmorType;
+    [Infantry, Vehicle, Ship, Air, Heli, Sub]
+      .map( armor => ArmorTypeString(armor) )
+      .forEach( (key, idx) => {
+        const split = 3;
+        const pos = new Point(
+          (idx >= split) ? 36 : 0,                // Odd, I know.
+          (idx >= split) ? (idx-split)*8 : idx*8  // Just creates a 2x3 table.
+        );
+        this.elems[key] = new DamageHeuristic(pos, key, textureSet);
+        this.container.addChild(this.elems[key].container);
+      });
+  }
+
+  setHeuristics(unit?: UnitObject) {
+    if (!unit)
+      return;
+
+    const { Infantry, Vehicle, Air, Heli, Ship, Sub } = ArmorType;
+    [Infantry, Vehicle, Ship, Air, Heli, Sub]
+      .forEach( armorType => {
+        const key = ArmorTypeString(armorType);
+        this.elems[key].setHeuristic(unit.couldTarget(armorType) ? 2 : 0);
+      });
   }
 }
 
