@@ -22,6 +22,7 @@ import { MapData } from '../../../battle-maps/MapData';
 // TODO Temporary map data for map loading.
 import { data as o1_mapData } from "../../../battle-maps/bean-island";
 import { data as o2_mapData } from "../../../battle-maps/greyfield-strikes";
+import { BoardPlayer } from '../BoardPlayer';
 
 /** Error for map data could not validate. */
 export class MapValidationError extends Error {
@@ -655,14 +656,14 @@ export class Map {
     }
 
     /** Given a unit, shows the nearby squares reachable by movement. */
-    generateMovementMap(unit: UnitObject) {
+    generateMovementMap(unit: UnitObject, player: BoardPlayer) {
         this.generateColorMap(unit);
 
         let rect = this.squareOfInfluence(unit);
         for (let y = 0; y < rect.height; y++)
         for (let x = 0; x < rect.width; x++) {
-            let square = this.squareAt({x: x + rect.x, y: y + rect.y});
-            if (!square.attackable(unit))
+            let square = this.squareAt(new Point(x+rect.x, y+rect.y));
+            if (!square.attackable(unit) || !square.unit?.visibleToPlayer(player, square.neighbors))
                 square.attackFlag = false;
         }
     }
