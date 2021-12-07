@@ -81,6 +81,10 @@ export class InfoWindowSystem {
   /** Which side of the screen the window system should appear on. */
   screenSide: 'left' | 'right' | 'auto' = 'auto';
 
+  /** Last known setting of the visiblity of the entire window system. */
+  private _visible = false;
+
+
   constructor(settings: InfoWindowSystemSettings) {
     this.gamepad = settings.gamepad;
     this.cursor = settings.cursor;
@@ -134,12 +138,19 @@ export class InfoWindowSystem {
 
   /** Hides the window-system's graphics from the screen. */
   hide(): void {
+    this._visible = false;
     this.setWindowVisibility(false);
   }
 
   /** Reveals the window-system's graphics on the screen. */
   show(): void {
+    this._visible = true;
     this.setWindowVisibility(true);
+  }
+
+  /** Reaffirms window visibility settings; useful after inspect update. */
+  retriggerWindowVisibility() {
+    this.setWindowVisibility(this._visible);
   }
 
   update() {
@@ -195,6 +206,7 @@ export class InfoWindowSystem {
     this.windows.terrainInfo.inspectTerrain(square.terrain, inspectUnit);
     this.windows.unitInfo.inspectUnit(inspectUnit);
     this.windows.detailedInfo.inspectTile(square.terrain, inspectUnit);
+    this.retriggerWindowVisibility();   // For UnitInfo, basically
   }
 
   /** Updates player info window metrics. */

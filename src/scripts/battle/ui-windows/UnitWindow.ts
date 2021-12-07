@@ -188,7 +188,6 @@ export class UnitWindow extends SlidingWindow {
   /** Updates window UI elements with details from the given unit object. */
   inspectUnit(unit?: UnitObject) {
     this.unitToDisplay = Boolean(unit);
-    this.setVisible();
 
     if (!unit)
       return;
