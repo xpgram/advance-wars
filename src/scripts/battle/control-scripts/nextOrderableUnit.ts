@@ -83,6 +83,7 @@ export class NextOrderableUnit extends ControlScript {
       granularity: 1,
       looping: true,
     });
+
     // Gets a list of point objects for remaining orderable units + bases.
     this.unitLocations = player.units
       .filter( u => u.orderable && u.onMap )
@@ -96,20 +97,24 @@ export class NextOrderableUnit extends ControlScript {
   }
 
   protected updateScript(): void {
-    if (this.nextUnitButton.pressed && this.unitLocations.length !== 0) {
-      this.cursor.teleport(this.unitLocations[this.unitSelect.output]);
-      this.unitSelect.increment();
-      this.holdPulsar.start();
-    }
-    if (this.nextBaseButton.pressed && this.baseLocations.length !== 0) {
-      this.cursor.teleport(this.baseLocations[this.baseSelect.output]);
-      this.baseSelect.increment();
-      this.holdPulsar.start();
-    }
+    const { cursor, nextUnitButton, nextBaseButton, holdPulsar } = this;
+    const { unitLocations, unitSelect, baseLocations, baseSelect } = this;
 
-    if (this.holdPulsar.active)
-      if (this.nextUnitButton.up && this.nextBaseButton.up)
-        this.holdPulsar.stop();
+    function triggerMoveCursor (button: Button, locations: Point[], slider: Slider) {
+      const location = () => locations[slider.output];
+      if (!button.pressed || locations.length === 0 || holdPulsar.active)
+        return;
+
+      const cursorAtLocation = location().equal(cursor.pos);
+      slider.increment( Number(cursorAtLocation) );
+      cursor.teleport(location());
+      holdPulsar.start();
+    }
+    triggerMoveCursor(nextUnitButton, unitLocations, unitSelect);
+    triggerMoveCursor(nextBaseButton, baseLocations, baseSelect);
+
+    if (holdPulsar.active && nextUnitButton.up && nextBaseButton.up)
+      holdPulsar.stop();
   }
 
   protected disableScript(): void {

@@ -1,5 +1,9 @@
 # Next Big Objectives
 
+- [ ] DropUnit/AttackTarget clockwise picker: -x up is clockwise, +x up is counter.
+  - If we right a Point method called 'radial force' or something that returns -1 for counter 1 for clock, we could probably solve the awkwardness of the clockwise picker.
+  - [ ] press determines the radial direction, holdPulsar maintains it
+
 - [ ] Multi-controller support.
   - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.
   - [ ] Controller Proxy's context is switched to the new controller on turn change.
