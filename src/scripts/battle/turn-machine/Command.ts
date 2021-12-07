@@ -252,6 +252,8 @@ export module Command {
       const { boardEvents } = data.assets;
       const { actor } = data;
 
+      Command.Move.scheduleEvents();
+
       boardEvents.schedule(new GenericRatifyEvent({
         location: actor.boardLocation,
         ratify: () => {
@@ -261,8 +263,6 @@ export module Command {
           // unit or not. I mean, it does that anyway.
         }
       }));
-
-      Command.Move.scheduleEvents();
     }
   }
 
