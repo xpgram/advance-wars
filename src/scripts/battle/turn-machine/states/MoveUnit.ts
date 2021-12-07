@@ -58,11 +58,15 @@ export class MoveUnit extends TurnState {
     // Generate movement map
     map.generateMovementMap(actor, players.perspective);
 
-    // Enable control shortcuts
-    scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
-
     // Trigger cursor mode (and whatever)
     this.updateUiSystems();
+
+    // Skip any further instructions if the turn player is examining an enemy unit.
+    if (actor.faction !== players.current.faction)
+      return;
+
+    // Enable control shortcuts
+    scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
   }
 
   update() {
