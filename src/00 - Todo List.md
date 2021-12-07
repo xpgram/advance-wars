@@ -1,8 +1,5 @@
 # Next Big Objectives
 
-- [ ] I've introduced a bug where UnitInfo is visible while units move.
-  I would guess has something to do with some aggressive update schedule I put in while working of FactoryMenu.
-
 - [ ] Multi-controller support.
   - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.
   - [ ] Controller Proxy's context is switched to the new controller on turn change.
