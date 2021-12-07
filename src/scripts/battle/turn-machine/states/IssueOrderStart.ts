@@ -82,9 +82,10 @@ export class IssueOrderStart extends TurnState {
     if (A.pressed) {
       
       // Allied unit to move
+      const visible = (unit?.visibleToPlayer(players.perspective, square.neighbors));
       const orderableAlly = (unit?.orderable && unit?.faction === player.faction);
-      const examinableEnemy = (unit?.visibleToPlayer(players.perspective, square.neighbors));
-      if (unit && (orderableAlly || examinableEnemy)) {
+      const examinableEnemy = (unit?.faction !== player.faction);
+      if (unit && (orderableAlly || (visible && examinableEnemy))) {
         instruction.place = unit.boardLocation;
         this.advance(MoveUnit, RatifyIssuedOrder);
       }
