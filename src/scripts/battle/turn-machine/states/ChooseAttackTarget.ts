@@ -72,7 +72,7 @@ export class ChooseAttackTarget extends TurnState {
     // Sort points clockwise-style, farthest first
     function sortAngle(p: Point) {
       const v = p.subtract(goal);
-      const rad = -v.rotateByVector(0,1).angle();
+      const rad = -v.rotateByVector(0,1).polarAngle();
       const mag = v.magnitude();
       return rad*1000 + mag;
     }

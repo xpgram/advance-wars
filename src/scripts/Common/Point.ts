@@ -1,3 +1,4 @@
+import { Common } from "../CommonUtils";
 
 /** A point in 2-dimensional space.
  * @deprecated ImmutablePointPrimitive is preffered. */
@@ -123,6 +124,18 @@ export class Point {
     );
   }
 
+  /** Returns the dot product between this and the given vector. */
+  dot(b: ImmutablePointPrimitive) {
+    const a = this;
+    return a.x * b.x + a.y * b.y;
+  }
+
+  /** Returns the z-coordinate of the cross product between this and the given vector. */
+  crossZ(b: ImmutablePointPrimitive) {
+    const a = this;
+    return a.x * b.y - a.y * b.x;
+  }
+
   /** Gets the integer grid-distance between this point and a given point primitive or coords set.
    * y is assumed equal to x unless given. */
   manhattanDistance(x: number | ImmutablePointPrimitive, y?: number): number {
@@ -148,13 +161,37 @@ export class Point {
     return this.multiply(1 / mag);
   }
 
-  /** Returns this vector's counter-clockwise angle from the positive x-axis in radians. */
+  /** Returns this vector's counter-clockwise angle from the positive x-axis in radians.
+   * Ranges between -pi and pi */
   angle() {
-    const { x, y } = this;
-    const negative = y < 0;
-    const raw = Math.acos(x / this.magnitude());
-    const rad = raw * Number(!negative) + (2 * Math.PI - raw) * Number(negative);
-    return rad;
+    const sign = Math.sign(this.crossZ(Point.Right));
+    return Math.acos(this.x / this.magnitude()) * sign;
+  }
+
+  /** Returns this vector's counter-clockwise angle from the positive x-axis in radians.
+   * Ranges between 0 and 2*pi */
+  polarAngle() {
+    const tau = 2*Math.PI;
+    return (tau - this.angle()) % tau;
+  }
+
+  /** Returns the angle difference from this to the given vector. */
+  angleDifference(b: Point) {
+    const a = this;
+    return Math.acos( a.dot(b) / (a.magnitude() * b.magnitude()) );
+  }
+
+  /** Returns the angle translation of vector a to b. */
+  angleTo(b: Point) {
+    const sign = Math.sign(this.crossZ(b));
+    return this.angleDifference(b) * sign;
+  }
+
+  /** Returns an integer between -1 and 1 indicating the clockwise spin in
+   * the direction of the shortest angle distance between this vector and
+   * the given one. */
+  clockDirectionTo(b: Point) {
+    return -Math.sign(this.crossZ(b));
   }
 
   /** Returns a Point object equivalent to this rotated by the angle of the given vector. */
