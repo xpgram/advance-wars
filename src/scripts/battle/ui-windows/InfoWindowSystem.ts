@@ -189,7 +189,7 @@ export class InfoWindowSystem {
   inspectTile(square: Square, unit?: UnitObject) {
     const inspectUnit =
       unit ||
-      (square.unit?.visibleToPlayer(this.players.current, square.neighbors))
+      (square.unit?.visibleToPlayer(this.players.perspective, square.neighbors))
         ? square.unit
         : undefined;
     this.windows.terrainInfo.inspectTerrain(square.terrain, inspectUnit);

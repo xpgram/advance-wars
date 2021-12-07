@@ -11,6 +11,7 @@ export class CheckBoardState extends TurnState {
   protected configureScene(): void {
     const { map, players } = this.assets;
     const player = players.current;
+    const perspective = players.perspective;
 
     // TODO Check players for win conditions, etc.
     // The purpose here is to check game conditions between orders; if a unit captures
@@ -29,7 +30,7 @@ export class CheckBoardState extends TurnState {
       const terrain = square.terrain;
 
       // Determine visibility
-      const notAllied = (unit.faction !== player.faction);
+      const notAllied = (unit.faction !== perspective.faction);
       const adjacentToAllied = (neighbors.orthogonals.some( s => s.unit && s.unit.faction === player.faction ));
       square.hideUnit = (unit.hiding && notAllied && !adjacentToAllied);
     });
