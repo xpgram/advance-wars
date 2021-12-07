@@ -68,7 +68,7 @@ export class SpeechBubbleEvent extends TileEvent {
     this.image.scale.set(this.MaxScale);
     this.image.alpha = 0;
 
-    this.timer.start();
+    this.timer.startReset();
 
     if (message === 'repair') this.ratifyRepair();
     if (message === 'supply') this.ratifySupply();

@@ -4,6 +4,8 @@ import { Game } from "../..";
  * the timer has fully elapsed. An expired timer can be restarted by simply calling start(). */
 export class Timer {
 
+  private _started = false;
+
   private elapsedTime: number = 0;
   private timerLength: number = 0;
   private callback: (() => void) | undefined;
@@ -11,15 +13,24 @@ export class Timer {
   constructor(seconds: number, cb?: () => void) {
     this.timerLength = seconds;
     this.callback = cb;
-  }
-
-  start() {
-    this.reset();
     Game.scene.ticker.add(this.update, this);
   }
 
-  stop() {
+  destroy() {
     Game.scene.ticker.remove(this.update, this);
+  }
+
+  start() {
+    this._started = true;
+  }
+
+  startReset() {
+    this.reset();
+    this.start();
+  }
+
+  stop() {
+    this._started = false;
   }
 
   reset() {
@@ -39,6 +50,9 @@ export class Timer {
   }
 
   private update() {
+    if (!this._started)
+      return;
+
     if (this.finished) {
       if (this.callback)
         this.callback();

@@ -26,7 +26,7 @@ export class VirtualGamepad {
     }
 
     /** A collection of this controller's buttons. */
-    button = {
+    readonly button = {
         B: new Button(new ButtonMap(DefaultControllerMap.B, null, DefaultKeyboardMap.X, null)),
         A: new Button(new ButtonMap(DefaultControllerMap.A, null, DefaultKeyboardMap.Z, null)),
         Y: new Button(new ButtonMap(DefaultControllerMap.Y, null, DefaultKeyboardMap.V, null)),
@@ -44,6 +44,14 @@ export class VirtualGamepad {
         dpadLeft: new Button(new ButtonMap(DefaultControllerMap.dpadLeft, null, DefaultKeyboardMap.LeftArrow, null)),
         dpadRight: new Button(new ButtonMap(DefaultControllerMap.dpadRight, null, DefaultKeyboardMap.RightArrow, null))
     };
+
+    /** A list containing all four dpad button objects. */
+    readonly dpadButtons = [
+        this.button.dpadUp,
+        this.button.dpadDown,
+        this.button.dpadLeft,
+        this.button.dpadRight,
+    ];
 
     constructor(/*portNumber: number*/) {
         this.controllerPortNumber = 0;  // = portNumber;

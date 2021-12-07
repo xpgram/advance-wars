@@ -115,6 +115,11 @@ export class Point {
     )
   }
 
+  /** Returns this point's coordinates as a sum. */
+  sumCoords() {
+    return this.x + this.y;
+  }
+
   /** Returns a new vector: the scalar product of this vector and some scalar coefficient. */
   multiply(scalar: number | ImmutablePointPrimitive, yscalar?: number) {
     const p = convertArgsToPoint(scalar, yscalar);
@@ -139,20 +144,26 @@ export class Point {
   /** Gets the integer grid-distance between this point and a given point primitive or coords set.
    * y is assumed equal to x unless given. */
   manhattanDistance(x: number | ImmutablePointPrimitive, y?: number): number {
-    let p = convertArgsToPoint(x, y);
-    return Math.abs(p.x - this.x) + Math.abs(p.y - this.y);
+    const v = convertArgsToPoint(x, y).subtract(this);
+    return v.manhattanMagnitude();
   }
 
   /** Gets the real distance between this point and a given point primitive or coords set.
    * y is assumed equal to x unless given. */
   distance(x: number | ImmutablePointPrimitive, y?: number): number {
-    let p = convertArgsToPoint(x, y);
-    return Math.sqrt(Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2));
+    const v = convertArgsToPoint(x,y).subtract(this);
+    return v.magnitude();
   }
 
   /** Returns the length of this vector. */
   magnitude(): number {
-    return this.distance(new Point());
+    const { x, y } = this;
+    return Math.sqrt(x*x + y*y);
+  }
+
+  /** Returns this vector's manhattan distance from the origin. */
+  manhattanMagnitude() {
+    return this.abs().sumCoords();
   }
 
   /** Returns an identity vector in the same direction as this. */
