@@ -60,6 +60,9 @@ export class MoveUnit extends TurnState {
 
     // Enable control shortcuts
     scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
+
+    // Trigger cursor mode (and whatever)
+    this.updateUiSystems();
   }
 
   update() {
