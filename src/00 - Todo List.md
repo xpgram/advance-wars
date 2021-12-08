@@ -1,8 +1,8 @@
 # Next Big Objectives
 
-- [ ] DropUnit/AttackTarget clockwise picker: -x up is clockwise, +x up is counter.
-  - If we right a Point method called 'radial force' or something that returns -1 for counter 1 for clock, we could probably solve the awkwardness of the clockwise picker.
-  - [ ] press determines the radial direction, holdPulsar maintains it
+- ChooseTarget has been refactored for smoother controls.
+- [ ] Do the same for DropUnit.
+  - [ ] Extract the behavior to some RadialPointIncrementer class.
 
 - [ ] Multi-controller support.
   - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.
@@ -19,9 +19,9 @@
       - [ ] The player presses a button on a known controller, the system prompts for confirmation that this controller will be shared, and the user confirms. The controller is then bound to their player context.
       - [ ] The player presses a button on the keyboard and confirms they will not have a controller.
 
-- [ ] Subs can sink and hide from non-allied players, but hidden units are not reliably hidden.
-  - [ ] inspectCursor() still reports hidden units
-  - [ ] OrderStart still allows selection and ingress from hidden units
+- [x] Subs can sink and hide from non-allied players, but hidden units are not reliably hidden.
+  - [x] inspectCursor() still reports hidden units
+  - [x] OrderStart still allows selection and ingress from hidden units
 
 - [ ] Unit illustrations need to be smaller: no more than 2/3rds on either axis.
 - [ ] When terrain focused: terrain saturation up
