@@ -770,7 +770,12 @@ export class Map {
         }
 
         let lastIdx = inspector.path.length - 1;
-        let pathIndices = [lastIdx, (lastIdx - 1), 0];  // "Search from position" pattern: cur, prev, base
+        let pathIndices = [
+            lastIdx,
+            lastIdx - 1,
+            1,
+            0
+        ];  // "Search from position" pattern: cur, prev, 1, base
 
         //@ts-ignore The search-result container.
         let search: QueueSearch<TileInspector> = null;

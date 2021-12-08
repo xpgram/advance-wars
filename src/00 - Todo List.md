@@ -32,7 +32,8 @@
     - [ ] Write a python script to obtain color palettes, then use mogrify to operate for me.
     - [ ] Or I guess I could use a color-replace filter to do it live. Eh. I dunno. This would technically be better.
 
-- [ ] Can I get pathRecalculate() to prefer points similar to where path's current terminal is? Like, if you pass through a reef, which costs more movement points, but an alternative path could take you to the same terminal more efficiently, then we should check for path extensions to the target from *that path* before reverting to searching from the origin.
+- [x] Can I get pathRecalculate() to prefer points similar to where path's current terminal is? Like, if you pass through a reef, which costs more movement points, but an alternative path could take you to the same terminal more efficiently, then we should check for path extensions to the target from *that path* before reverting to searching from the origin.
+  - This is either fixed or impossible. I first tried setting the path find to try from halfway before going back to base and the damn thing felt like a slinky; waaay too much path drawing. It's set to try from 1 now, so it'll try to preserve whatever the first direction was, which will probably kind of do what I wanted without being weird and annoying.
 
 - [x] When selecting over a red tile, MoveUnit should call planPathFromPoint and provide the range map or whatever; I should already have the infrastructure for this.
 - [x] Pressing A in this context skips the command menu and assumes Path, Command.Attack: moves right on to Ratify.
