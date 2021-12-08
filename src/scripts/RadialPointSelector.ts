@@ -15,6 +15,8 @@ interface Options {
   points: Point[];
   /** Function to call any time the selection index is incremented. */
   onIncrement?: (p: Point) => void;
+  /** The context object with which to call the listener. */
+  context?: Object,
 }
 
 /** Handles the selection management of a list of points revolving about
@@ -26,6 +28,7 @@ export class RadialPointSelector {
 
   private gamepad: VirtualGamepad;
   private onIncrement: (p: Point) => void;
+  private context?: Object;
 
   private origin: Point;
   private points: Point[];
@@ -33,7 +36,7 @@ export class RadialPointSelector {
   private incrementDirection = 1;
 
   /** Used to preserve increment direction when quickly tapping. */
-  private fastTapTimer = new Timer(1.0);
+  private fastTapTimer = new Timer(.5);
   /** Which directional input's increment direction is being preserved. */
   private lastTapVector?: Point;
 
@@ -50,14 +53,14 @@ export class RadialPointSelector {
   /** Increments the points selector and calls the listener function. */
   private triggerIncrement() {
     this.index.increment(this.incrementDirection);
-    this.onIncrement(this.points[this.index.output]);
+    this.onIncrement.call(this.context, this.points[this.index.output]);
   }
 
   /** The current point selected. */
   get current() { return this.points[this.index.output]; }
 
   ////////////////////////////////////////
-  constructor({gamepad, origin, points, onIncrement}: Options) {
+  constructor({gamepad, origin, points, onIncrement, context}: Options) {
     if (points.length === 0)
       throw new Error(`Points list provided was length zero.`);
 
@@ -75,6 +78,7 @@ export class RadialPointSelector {
     this.origin = origin;
     this.points = points;
     this.onIncrement = onIncrement || (p => {});
+    this.context = context;
 
     // Build selector
     this.index = new Slider({
@@ -103,17 +107,17 @@ export class RadialPointSelector {
       const newInput = this.lastTapVector?.notEqual(framePoint);
       this.lastTapVector = framePoint;
 
-      if (!newInput)  // Reset timer on same dpad input
+      // Update CW/CCW increment direction
+      if (newInput || fastTapTimer.finished) {
+        const vector = this.current.subtract(this.origin);
+        const dir = vector.clockDirectionTo(point);
+        this.incrementDirection =
+          (dir !== 0) ? dir : Common.clamp(point.sumCoords(), -1, 1);
+      }
+
+      // Reset timer on same dpad input
+      if (!newInput)
         this.fastTapTimer.startReset();
-
-      if (fastTapTimer.ticking && !newInput)  // Skip update dir on same dpad input
-        return;
-
-      const vector = this.current.subtract(this.origin);
-      const dir = -vector.clockDirectionTo(point);
-
-      this.incrementDirection =
-        (dir !== 0) ? dir : Common.clamp(point.sumCoords(), -1, 1);
 
       this.triggerIncrement();
     }
