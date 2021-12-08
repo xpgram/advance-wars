@@ -26,7 +26,7 @@ export class ChooseAttackTarget extends TurnState {
   private incrementDirection = 1;
   private holdButton = new Pulsar(
     {
-      firstInterval: 15,
+      firstInterval: 20,
       interval: 6,
     },
     this.triggerCursorMove,
@@ -80,7 +80,7 @@ export class ChooseAttackTarget extends TurnState {
     // Sort points clockwise-style, farthest first
     function sortAngle(p: Point) {
       const v = p.subtract(goal);
-      const rad = -v.rotateByVector(0,1).polarAngle();
+      const rad = -v.rotateByVector(Point.Up).polarAngle();
       const mag = v.magnitude();
       return rad*1000 + mag;
     }
@@ -106,11 +106,10 @@ export class ChooseAttackTarget extends TurnState {
 
     const { A, B } = gamepad.button;
 
-    if (gamepad.axis.dpad.returned)
+    if (gamepad.dpadButtons.every( b => b.up ))
       this.holdButton.stop();
-    else if (gamepad.axis.dpad.changed) {
+    else if (gamepad.axis.dpad.changed)
       this.holdButton.startReset();
-    }
 
     const updateIncrementDir = () => {
       const { point, framePoint } = gamepad.axis.dpad;

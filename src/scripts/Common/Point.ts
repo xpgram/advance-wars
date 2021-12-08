@@ -176,7 +176,9 @@ export class Point {
    * Ranges between -pi and pi */
   angle() {
     const sign = Math.sign(this.crossZ(Point.Right));
-    return Math.acos(this.x / this.magnitude()) * sign;
+    let angle = Math.acos(this.x / this.magnitude()) * sign;
+    if (angle === 0) angle = ((this.x < 0) ? Math.PI : 0);
+    return angle;
   }
 
   /** Returns this vector's counter-clockwise angle from the positive x-axis in radians.
