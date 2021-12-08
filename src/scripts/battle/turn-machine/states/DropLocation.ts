@@ -80,6 +80,7 @@ export class DropLocation extends TurnState {
       gamepad,
       origin: goal,
       points: tiles.map( t => new Point(t.pos) ),
+      startingPoint: mapCursor.pos,
       onIncrement: p => mapCursor.moveTo(p),
     })
   }

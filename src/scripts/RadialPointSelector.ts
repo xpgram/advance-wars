@@ -13,6 +13,8 @@ interface Options {
   origin: Point;
   /** The list of points to select over. */
   points: Point[];
+  /** The point the selector mechanism should start on. */
+  startingPoint?: Point,
   /** Function to call any time the selection index is incremented. */
   onIncrement?: (p: Point) => void;
   /** The context object with which to call the listener. */
@@ -60,7 +62,7 @@ export class RadialPointSelector {
   get current() { return this.points[this.index.output]; }
 
   ////////////////////////////////////////
-  constructor({gamepad, origin, points, onIncrement, context}: Options) {
+  constructor({gamepad, origin, points, startingPoint, onIncrement, context}: Options) {
     if (points.length === 0)
       throw new Error(`Points list provided was length zero.`);
 
@@ -81,8 +83,14 @@ export class RadialPointSelector {
     this.context = context;
 
     // Build selector
+    let idx = (startingPoint)
+      ? points.findIndex( p => p.equal(startingPoint) )
+      : 0;
+    idx = (idx !== -1) ? idx : 0;
+
     this.index = new Slider({
       max: points.length,
+      track: idx,
       granularity: 1,
       looping: true,
     })
@@ -112,7 +120,7 @@ export class RadialPointSelector {
         const vector = this.current.subtract(this.origin);
         const dir = vector.clockDirectionTo(point);
         this.incrementDirection =
-          (dir !== 0) ? dir : Common.clamp(point.sumCoords(), -1, 1);
+          (dir !== 0) ? dir : this.incrementDirection;
       }
 
       this.triggerIncrement();
