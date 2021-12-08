@@ -7,8 +7,8 @@ ShowUnitAttackRange:
 
 - ChooseTarget has been refactored for smoother controls.
 - [x] Extract the behavior to some RadialPointIncrementer class.
-- [ ] AttackTarget uses the RadialIncrementer
-- [ ] DropUnit uses the RadialIncrementer
+- [x] AttackTarget uses the RadialIncrementer
+- [x] DropUnit uses the RadialIncrementer
 
 - [ ] Multi-controller support.
   - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.

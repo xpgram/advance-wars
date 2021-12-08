@@ -1,9 +1,6 @@
 import { CardinalDirection } from "../../../Common/CardinalDirection";
 import { Point } from "../../../Common/Point";
-import { Slider } from "../../../Common/Slider";
-import { Common } from "../../../CommonUtils";
-import { Pulsar } from "../../../timer/Pulsar";
-import { Square } from "../../map/Square";
+import { RadialPointSelector } from "../../../RadialPointSelector";
 import { CommandDropInstruction } from "../CommandInstruction";
 import { TurnState } from "../TurnState";
 
@@ -19,23 +16,7 @@ export class DropLocation extends TurnState {
     where?: Point,
   };
 
-  tiles!: Square[];
-  index!: Slider;
-
-  holdButton = new Pulsar(
-    {
-      firstInterval: 15,
-      interval: 6,
-    },
-    () => {
-      const { gamepad, mapCursor } = this.assets;
-      const { point } = gamepad.axis.dpad;
-      const dir = Common.clamp(point.x + point.y, -1, 1);
-      this.index.increment(dir);
-      mapCursor.moveTo(new Point(this.tiles[this.index.output]));
-    },
-    this
-  )
+  private radialPoints!: RadialPointSelector;
 
   onAdvance() {
     const { which } = this.data;
@@ -57,7 +38,7 @@ export class DropLocation extends TurnState {
   }
 
   configureScene() {
-    const { map, mapCursor, trackCar } = this.assets;
+    const { map, mapCursor, trackCar, gamepad } = this.assets;
     const { actor, path, goal, drop } = this.data;
 
     map.clearTileOverlay();
@@ -68,12 +49,12 @@ export class DropLocation extends TurnState {
     const toDrop = actor.loadedUnits[this.drop.which];
 
     const neighbors = map.neighborsAt(goal);
-    this.tiles = [neighbors.up, neighbors.right, neighbors.down, neighbors.left]
+    const tiles = neighbors.orthogonals
       .filter( tile => (tile.occupiable(toDrop) || tile.unit === actor )
         && !(drop.map( d => d.where ).some( p => p.equal(new Point(tile.pos)) )) );
-    this.tiles.forEach( tile => tile.moveFlag = true );
+    tiles.forEach( tile => tile.moveFlag = true );
 
-    if (!this.tiles.length)
+    if (!tiles.length)
       this.failTransition(`No locations to drop unit.`);
 
     if (!this.cursorMoved) {
@@ -89,39 +70,25 @@ export class DropLocation extends TurnState {
       ];
       const smartSet = dirSets[lastDir];
       const cursorDir = smartSet.find( s => map.squareAt(goal.add(s)).moveFlag );
-      const point = (cursorDir) ? cursorDir.add(goal) : new Point(this.tiles[0].pos);
+      const point = (cursorDir) ? cursorDir.add(goal) : new Point(tiles[0].pos);
 
       mapCursor.moveTo(point);
     }
 
-    // Setup slider
-    this.index = new Slider({
-      max: this.tiles.length,
-      track: this.tiles.findIndex( tile => new Point(mapCursor.pos).equal(tile) ) || 0,
-      granularity: 1,
-      looping: true,
-    });
+    // Setup selector
+    this.radialPoints = new RadialPointSelector({
+      gamepad,
+      origin: goal,
+      points: tiles.map( t => new Point(t.pos) ),
+      onIncrement: p => mapCursor.moveTo(p),
+    })
   }
 
   update() {
     const { map, mapCursor, gamepad } = this.assets;
 
-    // Cursor select
-    if (gamepad.button.dpadUp.pressed
-    || gamepad.button.dpadLeft.pressed) {
-      this.index.decrement();
-      mapCursor.moveTo(new Point(this.tiles[this.index.output]));
-      this.holdButton.start();
-    }
-    else if (gamepad.button.dpadDown.pressed
-    || gamepad.button.dpadRight.pressed) {
-      this.index.increment();
-      mapCursor.moveTo(new Point(this.tiles[this.index.output]));
-      this.holdButton.start();
-    }
-
     // On press B, revert state
-    else if (gamepad.button.B.pressed)
+    if (gamepad.button.B.pressed)
       this.regress();
 
     // On press A, advance to next state
@@ -133,13 +100,10 @@ export class DropLocation extends TurnState {
         this.advance();
       }
     }
-
-    if (gamepad.axis.dpad.returned)
-      this.holdButton.stop();
   }
 
   close() {
-    this.holdButton.stop();
+    this.radialPoints.destroy();
   }
 
   prev() {

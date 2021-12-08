@@ -36,7 +36,7 @@ export class RadialPointSelector {
   private incrementDirection = 1;
 
   /** Used to preserve increment direction when quickly tapping. */
-  private fastTapTimer = new Timer(.5);
+  private fastTapTimer = new Timer(.65);
   /** Which directional input's increment direction is being preserved. */
   private lastTapVector?: Point;
 
@@ -115,17 +115,15 @@ export class RadialPointSelector {
           (dir !== 0) ? dir : Common.clamp(point.sumCoords(), -1, 1);
       }
 
-      // Reset timer on same dpad input
-      if (!newInput)
-        this.fastTapTimer.startReset();
-
       this.triggerIncrement();
     }
 
     // Manage hold button behavior
-    if (gamepad.dpadButtons.every( b => b.up ))
+    if (gamepad.axis.dpad.returned) {
+      fastTapTimer.startReset();
       holdPulsar.stop();
-    else if (gamepad.axis.dpad.changed)
+    }
+    else if (gamepad.dpadButtons.some( b => b.pressed || b.released ))
       holdPulsar.startReset();
 
     // Manage tap button behavior

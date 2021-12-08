@@ -33,6 +33,11 @@ export class Timer {
     this._started = false;
   }
 
+  stopReset() {
+    this.reset();
+    this.stop();
+  }
+
   reset() {
     this.elapsedTime = 0;
   }
