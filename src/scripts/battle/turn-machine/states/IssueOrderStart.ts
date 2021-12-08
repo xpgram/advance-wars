@@ -77,6 +77,11 @@ export class IssueOrderStart extends TurnState {
         unit.gas = 1;
         unit.ammo = 0;
       }
+    if (Game.devController.pressed(Keys.R, 'Shift'))
+      if (unit && unit.faction === player.faction) {
+        unit.spent = false;
+        unit.orderable = true;
+      }
 
     // On press A, select an allied unit to give instruction to
     if (A.pressed) {
