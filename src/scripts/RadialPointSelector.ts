@@ -22,7 +22,7 @@ interface Options {
  * but directional inputs prefer to move the cursor in the selfsame direction
  * when possible: left will always attempt to move left-ward first.
  */
-export class RadialPointIncrementer {
+export class RadialPointSelector {
 
   private gamepad: VirtualGamepad;
   private onIncrement: (p: Point) => void;
