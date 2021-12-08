@@ -42,7 +42,7 @@ export class Timer {
   }
 
   get ticking() {
-    return (this.elapsedTime > 0 && this.elapsedTime < this.timerLength);
+    return (this._started && this.elapsedTime < this.timerLength);
   }
 
   get finished() {
