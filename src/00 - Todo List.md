@@ -1,8 +1,14 @@
 # Next Big Objectives
 
+ShowUnitAttackRange:
+- [ ] Allow camera movement
+- [ ] Return camera to previous position on close
+  - Probably just swap the focal target so BSM can let it move naturally.
+
 - ChooseTarget has been refactored for smoother controls.
-- [ ] Do the same for DropUnit.
-  - [ ] Extract the behavior to some RadialPointIncrementer class.
+- [x] Extract the behavior to some RadialPointIncrementer class.
+- [ ] AttackTarget uses the RadialIncrementer
+- [ ] DropUnit uses the RadialIncrementer
 
 - [ ] Multi-controller support.
   - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.
