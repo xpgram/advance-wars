@@ -10,8 +10,10 @@ export class ShowUnitAttackRange extends TurnState {
   get skipOnUndo(): boolean { return true; }
 
   protected configureScene(): void {
-    const { map, trackCar } = this.assets;
+    const { map, trackCar, scripts } = this.assets;
     const { placeTile, actor } = this.data;
+
+    scripts.manualMoveCamera.enable();
 
     if (actor.attackReady) {
       map.generateAttackRangeMap(actor);  // Prepare unit's attack range.

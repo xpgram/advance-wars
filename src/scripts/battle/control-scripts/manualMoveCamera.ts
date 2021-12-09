@@ -43,16 +43,19 @@ export class ManualMoveCamera extends ControlScript {
 
     // Confine the camera to the map space
     const size = Game.display.standardLength;
-    const min = Point.Origin;
-    const max = new Point(
+    const frame = camera.focalFrame;
+
+    let min = Point.Origin;
+    let max = new Point(
       map.width * size,
       map.height * size,
     )
-    min.subtract(camera.focalFrame);
-    max.subtract(
-      camera.focalFrame.width + size,
-      camera.focalFrame.height + size,
+    min = min.subtract(frame);
+    max = max.subtract(
+      frame.x + frame.width,  // TODO This is incorrect, but it's *almost*
+      frame.y + frame.height, // correct. Why? What am I missing?
     )
+
     camera.x = Common.clamp(camera.x, min.x, max.x);
     camera.y = Common.clamp(camera.y, min.y, max.y);
   }

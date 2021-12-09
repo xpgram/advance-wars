@@ -6,6 +6,10 @@ import { Common } from "../../../CommonUtils";
 
 const CAMERA_SPEED = 7;     // How many tiles the camera travels per 60 frames.
 
+// TODO Use manualMoveCamera and hideUnit
+// TODO Do that on ShowAttackRange too
+// TODO This turnstate needs to manage UI and cursor position itself, however.
+
 export class MoveCamera extends TurnState {
   get type() { return MoveCamera; }
   get name(): string { return "MoveCamera"; }
