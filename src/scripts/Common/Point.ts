@@ -169,7 +169,7 @@ export class Point {
   /** Returns an identity vector in the same direction as this. */
   unit(): Point {
     const mag = this.magnitude();
-    return this.multiply(1 / mag);
+    return (mag !== 0) ? this.multiply(1 / mag) : Point.Origin;
   }
 
   /** Returns this vector's counter-clockwise angle from the positive x-axis in radians.
