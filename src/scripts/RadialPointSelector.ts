@@ -112,15 +112,21 @@ export class RadialPointSelector {
     const onButtonTap = () => {
       const { point, framePoint } = gamepad.axis.dpad;
 
-      const newInput = this.lastTapVector?.notEqual(framePoint);
+      const newInput = (this.lastTapVector?.notEqual(framePoint));
+      const reverseInput = (this.lastTapVector?.add(framePoint).sumCoords() === 0) ? -1 : 1;
       this.lastTapVector = framePoint;
 
+      // TODO (I may never do this; it's kinda fine as-is)
+      // [ ] dir update (below) should maybe only happen on axis change. up/down vs left/right
+      // [ ] so long as the tap timer is active, axis directions should reflect each other.
+      //      so, if I press up a bunch, it doesn't matter where I am, when I press down the direction should flip, *always*.
+
       // Update CW/CCW increment direction
-      if (newInput || fastTapTimer.finished) {
+      if (newInput || !fastTapTimer.ticking) {
         const vector = this.current.subtract(this.origin);
         const dir = vector.clockDirectionTo(point);
         this.incrementDirection =
-          (dir !== 0) ? dir : this.incrementDirection;
+          (dir !== 0) ? dir : this.incrementDirection * reverseInput;
       }
 
       this.triggerIncrement();
