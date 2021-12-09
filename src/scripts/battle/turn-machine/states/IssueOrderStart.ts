@@ -8,6 +8,8 @@ import { MoveCamera } from "./MoveCamera";
 import { FieldMenu } from "./FieldMenu";
 import { FactoryMenu } from "./FactoryMenu";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
+import { Unit } from "../../Unit";
+import { Common } from "../../../CommonUtils";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -71,16 +73,27 @@ export class IssueOrderStart extends TurnState {
     const unit = square.unit;
 
     // TODO Remove — but not yet; I find it useful. Extract it to a control script, maybe.
-    // Dev insert to instantly empty unit resources
+    // Empty resources
     if (Game.devController.pressed(Keys.E, 'Shift'))
       if (unit) {
         unit.gas = 1;
         unit.ammo = 0;
       }
+    // Reactivate unit
     if (Game.devController.pressed(Keys.R, 'Shift'))
       if (unit && unit.faction === player.faction) {
         unit.spent = false;
         unit.orderable = true;
+      }
+    // Spawn unit
+    if (Game.devController.pressed(Keys.N, 'Shift'))
+      if (!unit) {
+        const possibleSpawns = Object.values(Unit).filter( type => square.occupiable(new type()) );
+        const newUnit = player.spawnUnit({
+          location: mapCursor.pos,
+          serial: Common.pick(possibleSpawns).serial,
+        })
+        newUnit.orderable = true;
       }
 
     // On press A, select an allied unit to give instruction to

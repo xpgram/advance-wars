@@ -13,6 +13,12 @@ export const Common = {
     return Array.from<any, T[]>(Array(rows), () => Array.from<any, T>(Array(columns), cb));
   },
 
+  /** Given a list of things, returns a random thing. */
+  pick<T>(list: T[]): T {
+    const { random, floor } = Math;
+    return list[ floor(random()*list.length) ];
+  },
+
   /** Confines n to the range [min, max] inclusive.
    * @deprecated clamp() is more descriptive. I think. */
   confine(n: number, min: number, max: number) {
