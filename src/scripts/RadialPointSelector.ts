@@ -38,7 +38,7 @@ export class RadialPointSelector {
   private incrementDirection = 1;
 
   /** Used to preserve increment direction when quickly tapping. */
-  private fastTapTimer = new Timer(.65);
+  private fastTapTimer = new Timer(.35);
   /** Which directional input's increment direction is being preserved. */
   private lastTapVector?: Point;
 
@@ -113,20 +113,19 @@ export class RadialPointSelector {
       const { point, framePoint } = gamepad.axis.dpad;
 
       const newInput = (this.lastTapVector?.notEqual(framePoint));
-      const reverseInput = (this.lastTapVector?.add(framePoint).sumCoords() === 0) ? -1 : 1;
+      const reverseInput = (this.lastTapVector?.add(framePoint).equal(Point.Origin)) ? -1 : 1;
       this.lastTapVector = framePoint;
 
-      // TODO (I may never do this; it's kinda fine as-is)
-      // [ ] dir update (below) should maybe only happen on axis change. up/down vs left/right
-      // [ ] so long as the tap timer is active, axis directions should reflect each other.
-      //      so, if I press up a bunch, it doesn't matter where I am, when I press down the direction should flip, *always*.
-
       // Update CW/CCW increment direction
-      if (newInput || !fastTapTimer.ticking) {
+      if (reverseInput === -1 && fastTapTimer.ticking)
+        this.incrementDirection *= -1;
+
+      else if (newInput || !fastTapTimer.ticking) {
+        const intuitiveReverse = fastTapTimer.ticking ? -1 : 1;
         const vector = this.current.subtract(this.origin);
         const dir = vector.clockDirectionTo(point);
         this.incrementDirection =
-          (dir !== 0) ? dir : this.incrementDirection * reverseInput;
+          (dir !== 0) ? dir : this.incrementDirection; // * intuitiveReverse;  // I can't decide about this.
       }
 
       this.triggerIncrement();
