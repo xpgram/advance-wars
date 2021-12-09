@@ -4,11 +4,7 @@ ShowUnitAttackRange:
 - [ ] Allow camera movement
 - [ ] Return camera to previous position on close
   - Probably just swap the focal target so BSM can let it move naturally.
-
-- ChooseTarget has been refactored for smoother controls.
-- [x] Extract the behavior to some RadialPointIncrementer class.
-- [x] AttackTarget uses the RadialIncrementer
-- [x] DropUnit uses the RadialIncrementer
+- [ ] This will require extracting the camera-move behavior to a control script.
 
 - [ ] Multi-controller support.
   - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.
