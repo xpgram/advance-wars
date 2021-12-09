@@ -1,23 +1,15 @@
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
-import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ControlScript } from "../../ControlScript";
 import { Pulsar } from "../../timer/Pulsar";
-import { Map } from "../map/Map";
-import { MapCursor } from "../map/MapCursor";
-import { TurnModerator } from "../TurnModerator";
 import { Button } from "../../controls/Button";
+import { BattleSceneControllers } from "../turn-machine/BattleSceneControllers";
 
 
 export class NextTargetableUnit extends ControlScript {
   defaultEnabled(): boolean { return false; }
 
-  private nextUnitButton: Button;
-  //gamepad: VirtualGamepad;  // Replace with gamepad proxy or whatever
-
-  map: Map;
-  cursor: MapCursor;
-  players: TurnModerator
+  private readonly nextUnitButton: Button;
 
   unitLocations!: Point[];
   unitSelect: Slider;
@@ -29,24 +21,27 @@ export class NextTargetableUnit extends ControlScript {
     () => {
       let point: Point | undefined;
 
-      if (this.nextUnitButton.down) {
+      const { mapCursor } = this.assets;
+      const { nextUnitButton } = this;
+
+      if (nextUnitButton.down) {
         point = this.unitLocations[this.unitSelect.output];
         this.unitSelect.increment();
       }
 
       if (point)
-        this.cursor.teleport(point);
+        mapCursor.teleport(point);
     },
     this
   );
 
-  constructor(gp: VirtualGamepad, map: Map, cursor: MapCursor, turnModerator: TurnModerator) {
-    super();
-    this.nextUnitButton = gp.button.leftBumper;
-    
-    this.map = map;
-    this.cursor = cursor;
-    this.players = turnModerator;
+
+  constructor(assets: BattleSceneControllers) {
+    super(assets);
+
+    const { gamepad } = this.assets;
+
+    this.nextUnitButton = gamepad.button.leftBumper;
     
     const tmpSlider = new Slider({
       max: 1,
@@ -57,9 +52,11 @@ export class NextTargetableUnit extends ControlScript {
   }
 
   protected enableScript(): void {
+    const { map, players } = this.assets;
+
     // Gets a list of point objects for targetable units.
-    this.unitLocations = this.players.allUnits
-      .filter( u => u.onMap && this.map.squareAt(u.boardLocation).attackFlag )
+    this.unitLocations = players.allUnits
+      .filter( u => u.onMap && map.squareAt(u.boardLocation).attackFlag )
       .map( u => u.boardLocation );
     this.unitSelect = new Slider({
       max: this.unitLocations.length,
@@ -70,15 +67,18 @@ export class NextTargetableUnit extends ControlScript {
   }
 
   protected updateScript(): void {
-    if (this.nextUnitButton.pressed && this.unitLocations.length !== 0) {
-      this.cursor.teleport(this.unitLocations[this.unitSelect.output]);
-      this.unitSelect.increment();
-      this.holdPulsar.start();
+    const { mapCursor } = this.assets;
+    const { unitSelect, unitLocations, holdPulsar, nextUnitButton } = this;
+
+    if (nextUnitButton.pressed && unitLocations.length !== 0) {
+      mapCursor.teleport(unitLocations[unitSelect.output]);
+      unitSelect.increment();
+      holdPulsar.start();
     }
 
-    if (this.holdPulsar.active)
-      if (this.nextUnitButton.up)
-        this.holdPulsar.stop();
+    if (holdPulsar.active)
+      if (nextUnitButton.up)
+        holdPulsar.stop();
   }
 
   protected disableScript(): void {

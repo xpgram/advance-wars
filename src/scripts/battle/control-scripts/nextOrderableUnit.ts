@@ -1,26 +1,16 @@
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
-import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ControlScript } from "../../ControlScript";
 import { Pulsar } from "../../timer/Pulsar";
-import { Map } from "../map/Map";
-import { MapCursor } from "../map/MapCursor";
-import { TurnModerator } from "../TurnModerator";
-import { UnitSpawnMap } from "../UnitSpawnMap";
 import { Button } from "../../controls/Button";
+import { BattleSceneControllers } from "../turn-machine/BattleSceneControllers";
 
 
 export class NextOrderableUnit extends ControlScript {
   defaultEnabled(): boolean { return false; }
 
-  private nextUnitButton: Button;
-  private nextBaseButton: Button;
-  //gamepad: VirtualGamepad;  // Replace with gamepad proxy or whatever
-
-  map: Map;
-  cursor: MapCursor;
-  players: TurnModerator;
-  spawnMap: UnitSpawnMap[];
+  private readonly nextUnitButton: Button;
+  private readonly nextBaseButton: Button;
 
   unitLocations!: Point[];
   baseLocations!: Point[];
@@ -34,30 +24,31 @@ export class NextOrderableUnit extends ControlScript {
     () => {
       let point: Point | undefined;
 
-      if (this.nextUnitButton.down) {
+      const { mapCursor } = this.assets;
+      const { nextUnitButton, nextBaseButton } = this;
+
+      if (nextUnitButton.down) {
         point = this.unitLocations[this.unitSelect.output];
         this.unitSelect.increment();
       }
-      else if (this.nextBaseButton.down) {
+      else if (nextBaseButton.down) {
         point = this.baseLocations[this.baseSelect.output];
         this.baseSelect.increment();
       }
 
       if (point)
-        this.cursor.teleport(point);
+        mapCursor.teleport(point);
     },
     this
   );
 
-  constructor(gp: VirtualGamepad, map: Map, cursor: MapCursor, turnModerator: TurnModerator, spawnMap: UnitSpawnMap[]) {
-    super();
-    this.nextUnitButton = gp.button.leftBumper;
-    this.nextBaseButton = gp.button.rightBumper;
-    
-    this.map = map;
-    this.cursor = cursor;
-    this.players = turnModerator;
-    this.spawnMap = spawnMap;
+  constructor(assets: BattleSceneControllers) {
+    super(assets);
+
+    const { gamepad } = this.assets;
+
+    this.nextUnitButton = gamepad.button.leftBumper;
+    this.nextBaseButton = gamepad.button.rightBumper;
     
     const tmpSlider = new Slider({
       max: 1,
@@ -69,14 +60,16 @@ export class NextOrderableUnit extends ControlScript {
   }
 
   protected enableScript(): void {
-    const player = this.players.current;
-    const spawnTypes = Object.values(this.spawnMap).map( spawnMap => spawnMap.type );
+    const { map, players, scenario } = this.assets;
+
+    const player = players.current;
+    const spawnTypes = Object.values(scenario.spawnMap).map( spawnMap => spawnMap.type );
 
     // Gets a list of point objects for captured, unoccupied bases.
     this.baseLocations = player.capturePoints
       .filter( p =>
-        spawnTypes.includes(this.map.squareAt(p).terrain.type)
-        && (!this.map.squareAt(p).unit || this.map.squareAt(p).unit?.orderable) );
+        spawnTypes.includes(map.squareAt(p).terrain.type)
+        && (!map.squareAt(p).unit || map.squareAt(p).unit?.orderable) );
     this.baseSelect = new Slider({
       max: this.baseLocations.length,
       track: this.baseSelect?.track || 0,
@@ -97,7 +90,8 @@ export class NextOrderableUnit extends ControlScript {
   }
 
   protected updateScript(): void {
-    const { cursor, nextUnitButton, nextBaseButton, holdPulsar } = this;
+    const { mapCursor } = this.assets;
+    const { nextUnitButton, nextBaseButton, holdPulsar } = this;
     const { unitLocations, unitSelect, baseLocations, baseSelect } = this;
 
     function triggerMoveCursor (button: Button, locations: Point[], slider: Slider) {
@@ -105,9 +99,9 @@ export class NextOrderableUnit extends ControlScript {
       if (!button.pressed || locations.length === 0 || holdPulsar.active)
         return;
 
-      const cursorAtLocation = location().equal(cursor.pos);
+      const cursorAtLocation = location().equal(mapCursor.pos);
       slider.increment( Number(cursorAtLocation) );
-      cursor.teleport(location());
+      mapCursor.teleport(location());
       holdPulsar.start();
     }
     triggerMoveCursor(nextUnitButton, unitLocations, unitSelect);

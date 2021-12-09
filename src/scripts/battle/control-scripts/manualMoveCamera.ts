@@ -1,21 +1,14 @@
 import { Game } from "../../..";
-import { Camera } from "../../Camera";
 import { Point } from "../../Common/Point";
 import { TransformContainer } from "../../CommonTypes";
 import { Common } from "../../CommonUtils";
-import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ControlScript } from "../../ControlScript";
-import { Map } from "../map/Map";
 
 const CAMERA_SPEED = 7;   // How many tiles the camera travels per 60 frames (per second).
 
 /** Enables directional-input control over the camera. */
 export class ManualMoveCamera extends ControlScript {
   defaultEnabled(): boolean { return false; }
-
-  private gamepad: VirtualGamepad;
-  private camera: Camera;
-  private map: Map;
 
   private followTargetSwap: TransformContainer | Point | null = null;
 
@@ -27,15 +20,8 @@ export class ManualMoveCamera extends ControlScript {
   readonly initialCameraPosition = Point.Origin;
 
 
-  constructor(gamepad: VirtualGamepad, camera: Camera, map: Map) {
-    super();
-    this.gamepad = gamepad;
-    this.camera = camera;
-    this.map = map;
-  }
-
   protected enableScript(): void {
-    const { camera } = this;
+    const { camera } = this.assets;
     // Save old camera configuration — disable the camera's follow algorithm
     this.initialCameraPosition.set(camera.pos);
     this.followTargetSwap = camera.followTarget;
@@ -43,7 +29,7 @@ export class ManualMoveCamera extends ControlScript {
   }
 
   protected updateScript(): void {
-    const { camera, map, gamepad } = this;
+    const { camera, map, gamepad } = this.assets;
     const { dpad } = gamepad.axis;
 
     // Update last axis input, if any were given.
@@ -72,7 +58,7 @@ export class ManualMoveCamera extends ControlScript {
   }
 
   protected disableScript(): void {
-    const { camera } = this;
+    const { camera } = this.assets;
     camera.followTarget = this.followTargetSwap;
   }
   

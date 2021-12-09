@@ -27,6 +27,8 @@ import { UnitShopMenuGUI } from "../../system/gui-menu-components/UnitShopMenuGU
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
 import { BoardEventSchedule } from "../map/tile-effects/BoardEventSchedule";
 import { NextTargetableUnit } from "../control-scripts/nextTargetableUnit";
+import { ManualMoveCamera } from "../control-scripts/manualMoveCamera";
+import { HideUnits } from "../control-scripts/hideUnits";
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -121,6 +123,8 @@ export class BattleSceneControllers {
     cameraZoom: CameraZoom,
     nextOrderableUnit: NextOrderableUnit,
     nextTargetableUnit: NextTargetableUnit,
+    manualMoveCamera: ManualMoveCamera,
+    hideUnits: HideUnits,
   }
 
   // TODO I think I want to extract turn management to a class object.
@@ -219,9 +223,11 @@ export class BattleSceneControllers {
     // Setup control scripts
     // TODO Above: scripts = {cameraZoom: CameraZoom} (ScriptType); Here: this.scripts.map( s => new s(this) );
     this.scripts = {
-      cameraZoom: new CameraZoom(this.gamepad, this.camera),
-      nextOrderableUnit: new NextOrderableUnit(this.gamepad, this.map, this.mapCursor, this.players, this.scenario.spawnMap),
-      nextTargetableUnit: new NextTargetableUnit(this.gamepad, this.map, this.mapCursor, this.players),
+      cameraZoom: new CameraZoom(this),
+      nextOrderableUnit: new NextOrderableUnit(this),
+      nextTargetableUnit: new NextTargetableUnit(this),
+      manualMoveCamera: new ManualMoveCamera(this),
+      hideUnits: new HideUnits(this),
     }
 
     // Add the control script iterator to the ticker.

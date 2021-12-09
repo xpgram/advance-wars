@@ -1,3 +1,4 @@
+import { BattleSceneControllers } from "./battle/turn-machine/BattleSceneControllers";
 
 /** Generic inheritable. A pattern script which is dis/enablable, the contents of
  * which must be written into an abstract inherited method. */
@@ -5,10 +6,18 @@ export abstract class ControlScript {
     /** Whether this script updates. */
     private active: boolean;
 
-    // TODO All scripts will hold a reference to assets.
-    // This makes construction less fucking dumb.
-    constructor() {
+    /** Reference to game assets for fine-tuning. */
+    protected assets: BattleSceneControllers;
+
+    
+    constructor(assets: BattleSceneControllers) {
+        this.assets = assets;
         this.active = this.defaultEnabled();
+    }
+
+    destroy() {
+        //@ts-expect-error
+        this.assets = undefined;
     }
 
     /** Updates or runs the main script. Will not run even if called if the script is disabled. */

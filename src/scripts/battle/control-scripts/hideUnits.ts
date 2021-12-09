@@ -8,10 +8,6 @@ export class HideUnits extends ControlScript {
   // props
 
 
-  constructor() {
-    super();
-  }
-
   protected enableScript(): void {
     // TODO This script takes the other half of the MoveCamera factor-out op I'm doing.
   }
