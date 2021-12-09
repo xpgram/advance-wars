@@ -1,50 +1,43 @@
+import { Game } from "../../..";
 import { Camera } from "../../Camera";
 import { Point } from "../../Common/Point";
 import { TransformContainer } from "../../CommonTypes";
+import { Common } from "../../CommonUtils";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ControlScript } from "../../ControlScript";
-import { TurnModerator } from "../TurnModerator";
+import { Map } from "../map/Map";
 
 const CAMERA_SPEED = 7;   // How many tiles the camera travels per 60 frames (per second).
 
-/**  */
+/** Enables directional-input control over the camera. */
 export class ManualMoveCamera extends ControlScript {
   defaultEnabled(): boolean { return false; }
 
-  private camera: Camera;
   private gamepad: VirtualGamepad;
+  private camera: Camera;
+  private map: Map;
 
-  private lastMoveDir = Point.Origin;
   private followTargetSwap: TransformContainer | Point | null = null;
-  private players: TurnModerator;
+
+  /** The last cumulative input direction to move the camera in.
+   * Pressing down *then* right records the same as pressing down *and* right. */
+  readonly lastInput = Point.Origin;
+
+  /** The position of the camera before this script took focus (during enable). */
+  readonly initialCameraPosition = Point.Origin;
 
 
-  constructor(gamepad: VirtualGamepad, camera: Camera, players: TurnModerator) {
+  constructor(gamepad: VirtualGamepad, camera: Camera, map: Map) {
     super();
     this.gamepad = gamepad;
     this.camera = camera;
-    this.players = players;
-  }
-
-  /** Sets all units' transparency flag to the given value. */
-  private setUnitTransparency(show: boolean) {
-    const { gamepad, players } = this;
-
-    const showUnits = (gamepad.button.leftTrigger.down);
-    const showStatusUnits = (gamepad.button.rightTrigger.down);
-
-    players.allUnits.forEach( unit => {
-      const statusUnit = (unit.faction === players.current.faction && unit.statusApplied);
-      unit.transparent = !show && !showUnits && !(showStatusUnits && statusUnit);
-    });
+    this.map = map;
   }
 
   protected enableScript(): void {
-    const { gamepad, camera } = this;
-
-    this.setUnitTransparency(false);
-
+    const { camera } = this;
     // Save old camera configuration — disable the camera's follow algorithm
+    this.initialCameraPosition.set(camera.pos);
     this.followTargetSwap = camera.followTarget;
     camera.followTarget = null;
   }
@@ -54,20 +47,32 @@ export class ManualMoveCamera extends ControlScript {
     const { dpad } = gamepad.axis;
 
     // Update last axis input, if any were given.
-    if (dpad.point.x !== 0) this.lastMoveDir.x = dpad.point.x;
-    if (dpad.point.y !== 0) this.lastMoveDir.y = dpad.point.y;
+    if (dpad.point.x !== 0) this.lastInput.x = dpad.point.x;
+    if (dpad.point.y !== 0) this.lastInput.y = dpad.point.y;
 
+    // Move the camera
     const dirPoint = dpad.point.unit();
     const travelPoint = dirPoint.multiply(CAMERA_SPEED);
     camera.pos = camera.pos.add(travelPoint);
 
     // Confine the camera to the map space
-    // TODO
+    const size = Game.display.standardLength;
+    const min = Point.Origin;
+    const max = new Point(
+      map.width * size,
+      map.height * size,
+    )
+    min.subtract(camera.focalFrame);
+    max.subtract(
+      camera.focalFrame.width + size,
+      camera.focalFrame.height + size,
+    )
+    camera.x = Common.clamp(camera.x, min.x, max.x);
+    camera.y = Common.clamp(camera.y, min.y, max.y);
   }
 
   protected disableScript(): void {
     const { camera } = this;
-    this.setUnitTransparency(true);
     camera.followTarget = this.followTargetSwap;
   }
   
