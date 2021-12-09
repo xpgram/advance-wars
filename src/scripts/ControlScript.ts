@@ -5,6 +5,8 @@ export abstract class ControlScript {
     /** Whether this script updates. */
     private active: boolean;
 
+    // TODO All scripts will hold a reference to assets.
+    // This makes construction less fucking dumb.
     constructor() {
         this.active = this.defaultEnabled();
     }
