@@ -36,12 +36,6 @@ ShowUnitAttackRange:
     - [ ] Write a python script to obtain color palettes, then use mogrify to operate for me.
     - [ ] Or I guess I could use a color-replace filter to do it live. Eh. I dunno. This would technically be better.
 
-- [x] Can I get pathRecalculate() to prefer points similar to where path's current terminal is? Like, if you pass through a reef, which costs more movement points, but an alternative path could take you to the same terminal more efficiently, then we should check for path extensions to the target from *that path* before reverting to searching from the origin.
-  - This is either fixed or impossible. I first tried setting the path find to try from halfway before going back to base and the damn thing felt like a slinky; waaay too much path drawing. It's set to try from 1 now, so it'll try to preserve whatever the first direction was, which will probably kind of do what I wanted without being weird and annoying.
-
-- [x] When selecting over a red tile, MoveUnit should call planPathFromPoint and provide the range map or whatever; I should already have the infrastructure for this.
-- [x] Pressing A in this context skips the command menu and assumes Path, Command.Attack: moves right on to Ratify.
-
 - [x] It is possible to trick BSM into thinking the map-cursor isn't in view if you zoom out and move the cursor to one of the side extremes.
 - [ ] This is some kind of off-by-one error that was fixed by adding a small amount of padding around the default camera view frame. I suspect this has to do with how zoom is kind of awkwardly implemented: it only affected the top-side (and maybe left, I didn't check), only after zoom, and the default zoom state that worked flawlessly exhibits the same problem after zooming in again.
   - [ ] Specifically, I wonder if the zoom-scale-slider never actually reaches its target. If it ranges between 1 and 2, let's say, it would start at 1, zoom to 1.999, then zoom again to 1.001. This would affect the focal frame in the way that it is always *just too big* or *just too small*.
