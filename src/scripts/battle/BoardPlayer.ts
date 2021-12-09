@@ -210,8 +210,14 @@ export class BoardPlayer {
     this.map.placeUnit(unit, location);
     this.units.push(unit);
 
-    // Other spawn settings // TODO Complete unit spawn settings
+    // Other spawn settings
     (unit as UnitObject).spent = settings.spent || false;
+
+    // TODO Complete unit spawn settings
+    // Units have (had) a state and condition number which describes their HP,
+    // their ammo, their capture progress, etc.
+    // It isn't comprehensive, because I'm lazy, but those numbers are at least
+    // the *main* way I should be serializing unit state for save/load.
 
     return unit;
   }

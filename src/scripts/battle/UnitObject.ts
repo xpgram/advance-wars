@@ -255,8 +255,12 @@ export abstract class UnitObject {
     };
 
 
-    /* Left blank so that units can be instantiated as reference material without building expensive graphic objects, etc. */
-    constructor() { }
+    /* Left mostly blank so that units can be instantiated as reference material
+     * without building expensive graphic objects, etc. */
+    constructor() {
+        this.x = -1;    // Indicate this unit is not "on map"
+        this.y = -1;
+    }
 
     /** Must be called before use. Builds unit graphics, configures important stats. */
     init(options: {boardPlayer: BoardPlayer, faction: Faction}) {

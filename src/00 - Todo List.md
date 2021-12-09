@@ -1,6 +1,6 @@
 # Next Big Objectives
 
-- [ ] Units spawned by a player somehow interact with the 0,0 space; units already there possibly get destroyed——or worse, they don't.
+- [x] Units spawned by a player somehow interact with the 0,0 space; units already there possibly get destroyed——or worse, they don't.
 
 ShowUnitAttackRange:
 - [ ] Allow camera movement
