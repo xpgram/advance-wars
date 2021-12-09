@@ -5,19 +5,31 @@ import { ControlScript } from "../../ControlScript";
 export class HideUnits extends ControlScript {
   defaultEnabled(): boolean { return false; }
 
-  // props
+  private setUnitsTransparent(hide: boolean) {
+    const { gamepad, allInPlayUnits, players } = this.assets;
 
+    const showUnits = (gamepad.button.leftTrigger.down);
+    const showStatusUnits = (gamepad.button.rightTrigger.down);
+
+    allInPlayUnits.forEach( unit => {
+      const statusUnit = unit.faction === players.current.faction && unit.statusApplied;
+      unit.transparent = hide && !showUnits && !(showStatusUnits && statusUnit);
+    });
+  }
 
   protected enableScript(): void {
-    // TODO This script takes the other half of the MoveCamera factor-out op I'm doing.
+    this.setUnitsTransparent(true);
   }
 
   protected updateScript(): void {
-    
+    const { gamepad } = this.assets;
+    const { leftTrigger, rightTrigger } = gamepad.button;
+    if (leftTrigger.changed || rightTrigger.changed)
+      this.setUnitsTransparent(true);
   }
 
   protected disableScript(): void {
-    
+    this.setUnitsTransparent(false);
   }
   
 }
