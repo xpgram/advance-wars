@@ -2,10 +2,19 @@ import os
 from sys import argv
 from PIL import Image
 
-working_directory = os.path.dirname(os.path.realpath(__file__))
-
 def path(filename):
-  return os.path.join(working_directory, filename)
+  # There are some strange consequences to how this actually works, but w/e.
+  # Technically '../.././/Home/deivalko' => '/Home/deivalko'
+
+  working_directory = os.path.dirname(os.path.realpath(__file__))
+  while filename[0:3] == '../':
+    working_directory = os.path.dirname(working_directory)
+    filename = filename[3:]
+  if filename[0:2] == './':
+    filename = filename[2:]
+  if filename[0] != '/':
+    filename = os.path.join(working_directory, filename)
+  return filename
 
 file1 = argv[1]
 file2 = argv[2]
