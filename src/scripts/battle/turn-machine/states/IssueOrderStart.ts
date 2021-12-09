@@ -95,6 +95,10 @@ export class IssueOrderStart extends TurnState {
         })
         newUnit.orderable = true;
       }
+    // Capture property
+    if (Game.devController.pressed(Keys.C, 'Shift'))
+      if (square.terrain.building)
+        square.terrain.faction = player.faction;
 
     // On press A, select an allied unit to give instruction to
     if (A.pressed) {
