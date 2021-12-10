@@ -316,7 +316,7 @@ class Illustration {
       unitIllustration.x = (leftSide)
         ? unitIllustration.width * 2 / 3 + 4
         : unitIllustration.width / 3 - 4;
-      unitIllustration.y = unitIllustration.height * 1 / 3 - 2;
+      unitIllustration.y = unitIllustration.height * 1 / 3 - 1;
       unitIllustration.scale.set(
         .65*unitIllustration.scale.x,
         .65
