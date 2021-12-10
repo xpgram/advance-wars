@@ -180,7 +180,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"lazurian-black-sub.png":
+"lazurian-black-submarine.png":
 {
 	"frame": {"x":441,"y":386,"w":68,"h":40},
 	"rotated": false,
@@ -396,7 +396,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"lazurian-blue-sub.png":
+"lazurian-blue-submarine.png":
 {
 	"frame": {"x":1,"y":501,"w":68,"h":40},
 	"rotated": false,
@@ -612,7 +612,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"lazurian-red-sub.png":
+"lazurian-red-submarine.png":
 {
 	"frame": {"x":1,"y":585,"w":68,"h":40},
 	"rotated": false,
@@ -828,7 +828,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"lazurian-yellow-sub.png":
+"lazurian-yellow-submarine.png":
 {
 	"frame": {"x":441,"y":638,"w":68,"h":40},
 	"rotated": false,
@@ -1062,7 +1062,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"rubinelle-black-sub.png":
+"rubinelle-black-submarine.png":
 {
 	"frame": {"x":319,"y":299,"w":68,"h":39},
 	"rotated": false,
@@ -1296,7 +1296,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"rubinelle-blue-sub.png":
+"rubinelle-blue-submarine.png":
 {
 	"frame": {"x":184,"y":338,"w":68,"h":39},
 	"rotated": false,
@@ -1530,7 +1530,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"rubinelle-red-sub.png":
+"rubinelle-red-submarine.png":
 {
 	"frame": {"x":317,"y":340,"w":68,"h":39},
 	"rotated": false,
@@ -1764,7 +1764,7 @@
 	"sourceSize": {"w":72,"h":40},
 	"anchor": {"x":0,"y":0}
 },
-"rubinelle-yellow-sub.png":
+"rubinelle-yellow-submarine.png":
 {
 	"frame": {"x":441,"y":345,"w":68,"h":39},
 	"rotated": false,
@@ -1807,6 +1807,6 @@
 	"format": "RGBA5551",
 	"size": {"w":511,"h":1015},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:907280f34bfdb2952a842df50bcc01a7:fc883f70000cad794a0e9e7f298c345f:6228a711823c27fb0e38059a10f1e6a6$"
+	"smartupdate": "$TexturePacker:SmartUpdate:4df4a9e7f4a4c70259a771b46e2a03a0:fc883f70000cad794a0e9e7f298c345f:6228a711823c27fb0e38059a10f1e6a6$"
 }
 }
