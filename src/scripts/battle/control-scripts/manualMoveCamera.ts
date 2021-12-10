@@ -44,7 +44,11 @@ export class ManualMoveCamera extends ControlScript {
 
     // Setup no-input target details
     const view = new Point(camera.viewFrame);
-    const nearestTile = view.multiply(1/size).round().multiply(size);
+    const nearestTile = view
+      // .add(this.lastInput.multiply(.5))    // This will be infinite movement
+      .multiply(1/size)
+      .round()
+      .multiply(size);
     const vector = nearestTile.subtract(view);
 
     if (Game.devController.pressed(Keys.K))
