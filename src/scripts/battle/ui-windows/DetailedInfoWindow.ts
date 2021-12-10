@@ -277,13 +277,18 @@ class Illustration {
     contrast: 1.3,
     saturation: 1.2,
   })
+
+  private landUnpopFilter = new PixiFilters.AdjustmentFilter({
+    gamma: .85,
+    contrast: 1.15,
+    saturation: 1.1,
+  })
   
   get focusUnit() { return this.unit.alpha === 1; }
   set focusUnit(b) { 
     // this.unit.alpha = (b) ? 1 : .3;
     this.unit.filters = (b) ? [this.popfilter] : null;
-    this.land.tint = (b) ? 0xDDDDDD : 0xFFFFFF;
-    this.land.filters = (b) ? null : [this.popfilter];
+    this.land.filters = (b) ? [this.landUnpopFilter] : [this.popfilter];
   }
 
   get spendUnit() { return this.unit.tint === 0x888888; }
@@ -311,7 +316,7 @@ class Illustration {
       unitIllustration.x = (leftSide)
         ? unitIllustration.width * 2 / 3 + 4
         : unitIllustration.width / 3 - 4;
-      unitIllustration.y = unitIllustration.height * 1 / 3;
+      unitIllustration.y = unitIllustration.height * 1 / 3 - 2;
       unitIllustration.scale.set(
         .65*unitIllustration.scale.x,
         .65
