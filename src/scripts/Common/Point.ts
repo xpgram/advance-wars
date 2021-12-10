@@ -115,6 +115,14 @@ export class Point {
     )
   }
 
+  /** Returns a new vector: this vector's rounded coordinates. */
+  round(): Point {
+    return this.clone().set(
+      Math.round(this.x),
+      Math.round(this.y),
+    )
+  }
+
   /** Returns this point's coordinates as a sum. */
   sumCoords() {
     return this.x + this.y;

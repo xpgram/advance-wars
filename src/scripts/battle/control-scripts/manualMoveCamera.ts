@@ -22,7 +22,7 @@ export class ManualMoveCamera extends ControlScript {
 
   protected enableScript(): void {
     const { camera } = this.assets;
-    // Save old camera configuration — disable the camera's follow algorithm
+    this.lastInput.set(0,0);
     this.initialCameraPosition.set(camera.pos);
     this.followTargetSwap = camera.followTarget;
     camera.followTarget = null;
@@ -32,17 +32,32 @@ export class ManualMoveCamera extends ControlScript {
     const { camera, map, gamepad } = this.assets;
     const { dpad } = gamepad.axis;
 
+    // TODO Pick closest tile *in the direction of last input*
+    // TODO 
+
+    const size = Game.display.standardLength;
+    const noInput = dpad.point.equal(Point.Origin);
+
     // Update last axis input, if any were given.
     if (dpad.point.x !== 0) this.lastInput.x = dpad.point.x;
     if (dpad.point.y !== 0) this.lastInput.y = dpad.point.y;
 
+    // Setup no-input target details
+    const view = new Point(camera.viewFrame);
+    const nearestTile = view.multiply(1/size).round().multiply(size);
+    const vector = nearestTile.subtract(view);
+
+    // Setup direction to be moved in
+    const travelPoint = (noInput)
+      ? vector.unit().multiply( Math.min(CAMERA_SPEED, vector.magnitude()) )
+      : dpad.point.unit().multiply(CAMERA_SPEED);
+
+    console.log(travelPoint.toString());
+
     // Move the camera
-    const dirPoint = dpad.point.unit();
-    const travelPoint = dirPoint.multiply(CAMERA_SPEED);
     camera.pos = camera.pos.add(travelPoint);
 
     // Confine the camera to the map space
-    const size = Game.display.standardLength;
     const frame = camera.focalFrame;
 
     let min = Point.Origin;

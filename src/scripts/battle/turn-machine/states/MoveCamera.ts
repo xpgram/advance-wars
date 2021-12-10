@@ -40,8 +40,8 @@ export class MoveCamera extends TurnState {
       const frame = camera.viewFrame;
 
       // .add() extra padding as well (bandaid the snapping)
-      const topLeft = new Point(frame).add(size, size);
-      const bottomRight = topLeft.add(frame.width, frame.height).subtract(3*size, 2*size);
+      const topLeft = new Point(frame);
+      const bottomRight = topLeft.add(frame.width, frame.height).subtract(size, size);
 
       const worldPos = mapCursor.transform.pos.clone();
       if (lastInput.x !== 0)
