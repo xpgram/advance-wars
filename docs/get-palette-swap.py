@@ -31,13 +31,13 @@ if (len(pixels_source) != len(pixels_match)):
 palette = {}
 
 def rgba_to_hexStr(rgba):
-  return '0x' + ('%02x%02x%02x%02x' % rgba).upper()
+  return ('"#%02x%02x%02x%02x"' % rgba).upper()
 
 for i in range(0,len(pixels_source)):
   def colorMatch(a, b):
     def match(c1, c2):
-      return (abs(c1-c2) / 255) <= (16 / 255)
-    return all([match(c1,c2) for c1,c2 in zip(a,b)])
+      return c1 == c2
+    return all([match(c1,c2) for c1,c2 in zip(a,b)]) and a[3] == 0xFF and b[3] == 0xFF
 
   source = pixels_source[i]
   match = pixels_match[i]
@@ -46,4 +46,4 @@ for i in range(0,len(pixels_source)):
     palette[rgba_to_hexStr(source)] = rgba_to_hexStr(match)
 
 for key in palette:
-  print(key, ' → ', palette[key])
+  print('-fill', palette[key], '-opaque', key, '`')

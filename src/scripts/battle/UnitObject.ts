@@ -137,9 +137,9 @@ export abstract class UnitObject {
 
         const name = this.name.replace(' ','').replace('-','').toLowerCase();
         const nationality = this.boardPlayer.officer.nationality;
-        const color = FactionColors[this.boardPlayer.faction];  // TODO Missing assets for blue/yellow/black
+        const color = FactionColors[this.boardPlayer.faction];
 
-        const sprite = new PIXI.Sprite(sheet.textures[`${nationality}-red-${name}.png`]);
+        const sprite = new PIXI.Sprite(sheet.textures[`${nationality}-${color}-${name}.png`]);
         sprite.scale.x = this.reverseFacing ? 1 : -1;
         sprite.x = this.reverseFacing ? 0 : sprite.width;
 

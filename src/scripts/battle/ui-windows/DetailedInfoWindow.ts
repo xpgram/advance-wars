@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import * as PixiFilters from "pixi-filters";
 import { fonts } from "./DisplayInfo";
 import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
@@ -174,8 +175,9 @@ export class DetailedInfoWindow extends SlidingWindow {
     
     this.header.text = (unit && showingUnit) ? unit.name : terrain.name;
     this.description.text = (unit && showingUnit) ? unit.description : terrain.description;
-    this.illustration.setIllustration(terrain, unit, showingUnit);
+    this.illustration.setIllustration(terrain, unit, showingUnit, );
     this.illustration.focusUnit = showingUnit;
+    this.illustration.spendUnit = unit?.spent || false;
 
     /* Terrain Details */
 
@@ -268,14 +270,26 @@ class Description extends TextComponent {
 
 class Illustration {
   container = new PIXI.Container();
+  private land = new PIXI.Container();
   private unit = new PIXI.Container();
+
+  private popfilter = new PixiFilters.AdjustmentFilter({
+    contrast: 1.3,
+    saturation: 1.2,
+  })
   
-  get focusUnit() { return this._focusUnit; }
+  get focusUnit() { return this.unit.alpha === 1; }
   set focusUnit(b) { 
-    this._focusUnit = b;
-    this.unit.alpha = (this._focusUnit) ? 1 : .3;
+    // this.unit.alpha = (b) ? 1 : .3;
+    this.unit.filters = (b) ? [this.popfilter] : null;
+    this.land.tint = (b) ? 0xDDDDDD : 0xFFFFFF;
+    this.land.filters = (b) ? null : [this.popfilter];
   }
-  private _focusUnit = false;
+
+  get spendUnit() { return this.unit.tint === 0x888888; }
+  set spendUnit(b) {
+    this.unit.tint = (b) ? 0xBBBBBB : 0xFFFFFF;
+  }
 
   constructor(p: Point) {
     this.container.position.set(p.x, p.y);
@@ -290,14 +304,30 @@ class Illustration {
 
     const nullIllustration = new PIXI.Container();
     const unitIllustration = (airUnit && !showAirUnit) ? nullIllustration : unit?.illustration || nullIllustration;
+
+    // TODO Remove; assets aren't complete, I just wanted to see them as they'd sorta eventually look.
+    if (unitIllustration !== nullIllustration) {
+      const leftSide = unitIllustration.scale.x === -1;
+      unitIllustration.x = (leftSide) ? unitIllustration.width * 2 / 3 : unitIllustration.width / 3;
+      unitIllustration.y = unitIllustration.height * 1 / 3;
+      unitIllustration.scale.set(
+        .65*unitIllustration.scale.x,
+        .65
+      );
+    }
+
+
     // TODO It's weird that air units aren't visible.
     // I want to put a line at the top that indicates there's something high up.
 
+    this.land = landscape;
     this.unit = unitIllustration;
     this.focusUnit = false;
+    this.spendUnit = false;
 
     this.container.removeChildren();
-    this.container.addChild(landscape, this.unit);
+    this.container.addChild(this.land, this.unit);
+
     return this;
   }
 }
