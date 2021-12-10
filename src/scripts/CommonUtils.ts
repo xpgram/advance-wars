@@ -59,6 +59,19 @@ export const Common = {
     return Common.inRange(n, 0, length-1);
   },
 
+  /** Returns -1 if n is less than min, 1 if more than max, and 0 if between.
+   * The range [min, max] is inclusive. */
+  rangeDisplacementSide(n: number, min: number, max: number): number {
+    return -1*Number(n < min) + Number(n > max);
+  },
+
+  /** Returns the relative distance n is from the inclusive range [min, max].
+   * Returned number's range is [-distance, 0, +distance] */
+  displacementFromRange(n: number, min: number, max: number): number {
+    return (n - min)*Number(n < min) +
+           (n - max)*Number(n > max);
+  }
+
   /** Given a list of objects with a weight property, returns a copy of
    * that list sorted by that property in ascending order. */
   sortByWeight(li: {weight: number}[]) {
