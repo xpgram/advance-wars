@@ -2,6 +2,7 @@ import { Game } from "../../..";
 import { Point } from "../../Common/Point";
 import { TransformContainer } from "../../CommonTypes";
 import { Common } from "../../CommonUtils";
+import { Keys } from "../../controls/KeyboardObserver";
 import { ControlScript } from "../../ControlScript";
 
 const CAMERA_SPEED = 7;   // How many tiles the camera travels per 60 frames (per second).
@@ -29,11 +30,10 @@ export class ManualMoveCamera extends ControlScript {
   }
 
   protected updateScript(): void {
-    const { camera, map, gamepad } = this.assets;
+    const { camera, map, mapCursor, gamepad } = this.assets;
     const { dpad } = gamepad.axis;
 
     // TODO Pick closest tile *in the direction of last input*
-    // TODO 
 
     const size = Game.display.standardLength;
     const noInput = dpad.point.equal(Point.Origin);
@@ -47,12 +47,18 @@ export class ManualMoveCamera extends ControlScript {
     const nearestTile = view.multiply(1/size).round().multiply(size);
     const vector = nearestTile.subtract(view);
 
+    if (Game.devController.pressed(Keys.K))
+      console.log(
+        mapCursor.transform.pos.toString(),
+        view.toString(),
+        nearestTile.toString(),
+        vector.toString(),
+      )
+
     // Setup direction to be moved in
     const travelPoint = (noInput)
       ? vector.unit().multiply( Math.min(CAMERA_SPEED, vector.magnitude()) )
       : dpad.point.unit().multiply(CAMERA_SPEED);
-
-    console.log(travelPoint.toString());
 
     // Move the camera
     camera.pos = camera.pos.add(travelPoint);

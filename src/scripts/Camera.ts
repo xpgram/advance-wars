@@ -221,8 +221,8 @@ function borderedScreenPush(camera: Camera) {
     // TODO Softcode these somewhere, or at least meaningfully hardcode them.
     let tileSize = 16;
     let border = tileSize*2;
-    let subjectInclusionBorder = 2;     // ← This is a bandaid for something I *kind of* understand.
-    let maxDist = tileSize*.5;          //   It prevents .subjectInView() from giving false negatives.
+    let subjectInclusionBorder = 0; // 2; // ← This is a bandaid for something I *kind of* understand.
+    let maxDist = tileSize*.5;            //   It prevents .subjectInView() from giving false negatives.
 
     // TODO This is obviously broken implementation.
     //@ts-ignore
@@ -230,7 +230,7 @@ function borderedScreenPush(camera: Camera) {
 
     borderRect.x = border + 8 - subjectInclusionBorder;
     borderRect.y = border - subjectInclusionBorder;
-    borderRect.width = camera.worldFrame.width - 2*border - 8 + 2*subjectInclusionBorder;
+    borderRect.width = camera.worldFrame.width - 2*border - 16 + 2*subjectInclusionBorder;
     borderRect.height = camera.worldFrame.height - 2*border + 2*subjectInclusionBorder;
 
     let focal = camera.getFocalPoint();
