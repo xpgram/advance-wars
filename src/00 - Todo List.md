@@ -7,6 +7,7 @@
   - [ ] It is possible to trick the camera out of a quantized position by fast-tapping the enable and dpad buttons. This is barely a problem, however.
     - [ ] The follow algorithm should probably target a quantized point whenever the cursor is in view. This would virtually solve this problem, wouldn't it?
 - [ ] Refactor camera follow algorithm to be more sophisticated (an object with an update() that can hold things in memory)
+- [ ] Give camera a .mode() getter for safer behavior transitions (swapping the followAlgorithm out and back in without knowing what they be broke the camera once in AnimateEvents)
 
 - [x] Units spawned by a player somehow interact with the 0,0 space; units already there possibly get destroyed——or worse, they don't.
 
