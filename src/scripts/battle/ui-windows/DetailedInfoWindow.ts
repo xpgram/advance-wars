@@ -308,7 +308,9 @@ class Illustration {
     // TODO Remove; assets aren't complete, I just wanted to see them as they'd sorta eventually look.
     if (unitIllustration !== nullIllustration) {
       const leftSide = unitIllustration.scale.x === -1;
-      unitIllustration.x = (leftSide) ? unitIllustration.width * 2 / 3 : unitIllustration.width / 3;
+      unitIllustration.x = (leftSide)
+        ? unitIllustration.width * 2 / 3 + 4
+        : unitIllustration.width / 3 - 4;
       unitIllustration.y = unitIllustration.height * 1 / 3;
       unitIllustration.scale.set(
         .65*unitIllustration.scale.x,
@@ -316,9 +318,9 @@ class Illustration {
       );
     }
 
-
     // TODO It's weird that air units aren't visible.
     // I want to put a line at the top that indicates there's something high up.
+    // Or a shadow, silly as that would be in real life.
 
     this.land = landscape;
     this.unit = unitIllustration;
