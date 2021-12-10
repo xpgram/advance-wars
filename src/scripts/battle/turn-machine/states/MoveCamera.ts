@@ -15,120 +15,47 @@ export class MoveCamera extends TurnState {
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return true; }
 
-  private followTargetSwap!: TransformContainer | Point | null;
-  private lastMoveDir = new Point();  // The last axis input to the camera driver.
-
   configureScene(): void {
-    const { gamepad, camera } = this.assets;
-
-    // Fade units to reveal map
-    if (gamepad.button.leftTrigger.up)
-      this.setUnitTransparency();
-
-    // Save old camera configuration — disable the camera's follow algorithm
-    this.followTargetSwap = camera.followTarget;
-    camera.followTarget = null;
+    const { scripts } = this.assets;
+    scripts.hideUnits.enable();
+    scripts.manualMoveCamera.enable();
   }
 
   update(): void {
-    const { camera, map, gamepad } = this.assets;
+    const { gamepad } = this.assets;
 
     // On release B, revert to previous state.
     if (gamepad.button.B.up)
       this.regress();
-
-    // Otherwise, move the camera according to movement axis.
-    else {
-      // Get directional axis
-      const dirPoint = gamepad.axis.dpad.point;
-
-      // Update last axis input if any were given.
-      if (dirPoint.x != 0) this.lastMoveDir.x = dirPoint.x;
-      if (dirPoint.y != 0) this.lastMoveDir.y = dirPoint.y;
-
-      // Correct diagonal distance to some line of length ~1.
-      if (Math.abs(dirPoint.x) == Math.abs(dirPoint.y)) {
-        dirPoint.x *= .71;  // Ratio of 1 to sqrt(2)
-        dirPoint.y *= .71;
-      }
-
-      // Adjust axis by intended camera speed
-      dirPoint.x *= CAMERA_SPEED;
-      dirPoint.y *= CAMERA_SPEED;
-
-      // Move the camera
-      camera.x += dirPoint.x;
-      camera.y += dirPoint.y;
-
-      // Confine the camera to the map space
-      const size = Game.display.standardLength;
-      const min = new Point();
-      const max = new Point(map.width * size, map.height * size);
-
-      min.x -= camera.focalFrame.x;
-      min.y -= camera.focalFrame.y;
-      max.x -= camera.focalFrame.width + size;  // tile origins are in the top left
-      max.y -= camera.focalFrame.height + size; // so size brings our limit to the bottom right
-
-      camera.x = Common.clamp(camera.x, min.x, max.x);
-      camera.y = Common.clamp(camera.y, min.y, max.y);
-    }
-
-    // Allow triggers to reveal units during camera movement.
-    const { leftTrigger, rightTrigger } = gamepad.button;
-    if (leftTrigger.changed || rightTrigger.changed)
-      this.setUnitTransparency();
   }
 
   prev(): void {
-    const { camera, mapCursor, uiSystem } = this.assets;
+    const { camera, mapCursor, uiSystem, scripts } = this.assets;
 
     const size = Game.display.standardLength;
-
-    // Opaquify units to resume gameplay
-    this.setUnitTransparency(true);
+    const lastInput = scripts.manualMoveCamera.lastInput;
 
     // Move mapCursor somewhere appropriate
-    // TODO Camera view border should be extracted from camera itself.
-    if (this.lastMoveDir.notEqual(Point.Origin)) {
-      // x-coord placement set to cursor or camera view edge
-      let x = mapCursor.transform.x;
-      if (this.lastMoveDir.x < 0) x = camera.x + 3 * size;
-      if (this.lastMoveDir.x > 0) x = camera.x + camera.width - 4 * size;
+    if (lastInput.notEqual(Point.Origin)) {
+      const frame = camera.viewFrame;
 
-      // y-coord placement set to cursor or camera view edge
-      let y = mapCursor.transform.y;
-      if (this.lastMoveDir.y < 0) y = camera.y + 2 * size;
-      if (this.lastMoveDir.y > 0) y = camera.y + camera.height - 3 * size;
+      // .add() extra padding as well (bandaid the snapping)
+      const topLeft = new Point(frame).add(size, size);
+      const bottomRight = topLeft.add(frame.width, frame.height).subtract(3*size, 2*size);
 
-      // Pare down values to board coordinates
-      let place = new Point(
-        Math.floor(x / size),
-        Math.floor(y / size)
-      );
+      const worldPos = mapCursor.transform.pos.clone();
+      if (lastInput.x !== 0)
+        worldPos.x = (lastInput.x < 0) ? topLeft.x : bottomRight.x;
+      if (lastInput.y !== 0)
+        worldPos.y = (lastInput.y < 0) ? topLeft.y : bottomRight.y;
 
-      // Final move order
-      mapCursor.teleport(place);
+      const mapPos = worldPos.multiply(1 / size).floor();
+
+      mapCursor.teleport(mapPos);
     }
-
-    // Reconfigure old camera
-    camera.followTarget = this.followTargetSwap;
 
     // Fix UI after cursor movement.
     uiSystem.skipAnimations();
   }
 
-  /** Sets all units' transparency flag to the given value. */
-  private setUnitTransparency(show: boolean = false) {
-    const { gamepad, allInPlayUnits, players } = this.assets;
-    const player = players.current;
-
-    const showUnits = (gamepad.button.leftTrigger.down);
-    const showStatusUnits = (gamepad.button.rightTrigger.down);
-
-    allInPlayUnits.forEach( unit => {
-      const statusUnit = unit.faction === player.faction && unit.statusApplied;
-      unit.transparent = !show && !showUnits && !(showStatusUnits && statusUnit);
-    });
-  }
 }
