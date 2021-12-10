@@ -1,12 +1,17 @@
 # Next Big Objectives
 
+- [ ] Manual Camera Movement should pick a target position and travel to that.
+  - [ ] On dpad.point.notEqual(Origin): this target is the unit vector times camera speed; always chasing the dragon.
+  - [ ] On dpad.point.returned: this target is a half-tile projection of that last movement vector quantized to its nearest tile.
+  - [ ] If camera.pos == targetPos: stop updating (bulk); just look for inputs
+
 - [x] Units spawned by a player somehow interact with the 0,0 space; units already there possibly get destroyed——or worse, they don't.
 
 ShowUnitAttackRange:
-- [ ] Allow camera movement
-- [ ] Return camera to previous position on close
+- [x] Allow camera movement
+- [x] Return camera to previous position on close
   - Probably just swap the focal target so BSM can let it move naturally.
-- [ ] This will require extracting the camera-move behavior to a control script.
+- [x] This will require extracting the camera-move behavior to a control script.
 
 - [ ] Multi-controller support.
   - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.
