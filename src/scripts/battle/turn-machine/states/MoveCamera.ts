@@ -39,7 +39,6 @@ export class MoveCamera extends TurnState {
     if (lastInput.notEqual(Point.Origin)) {
       const frame = camera.viewFrame;
 
-      // .add() extra padding as well (bandaid the snapping)
       const topLeft = new Point(frame);
       const bottomRight = topLeft.add(frame.width, frame.height).subtract(size, size);
 
