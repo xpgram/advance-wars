@@ -70,7 +70,7 @@ export const Common = {
   displacementFromRange(n: number, min: number, max: number): number {
     return (n - min)*Number(n < min) +
            (n - max)*Number(n > max);
-  }
+  },
 
   /** Given a list of objects with a weight property, returns a copy of
    * that list sorted by that property in ascending order. */
