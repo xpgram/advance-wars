@@ -12,7 +12,7 @@ export const QuantizedScreenPush = {
   target: Point.Origin,
   updateTarget: true,
   lastTravelVector: Point.Origin,
-  quanta: Game.display.standardLength,
+  quanta: 16, // Game.display.standardLength,
   
   update(camera: Camera) {
     const { floor, round } = Math;
