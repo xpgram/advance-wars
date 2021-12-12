@@ -20,20 +20,22 @@ export class MoveCamera extends TurnState {
   }
 
   update(): void {
-    const { gamepad } = this.assets;
+    const { gamepad, camera, scripts } = this.assets;
 
     // On release B, revert to previous state.
-    if (gamepad.button.B.up)
+    if (gamepad.button.B.up) {
+      scripts.manualMoveCamera.disable();
       this.regress();
+    }
   }
 
-  prev(): void {
+  close(): void {
     const { camera, mapCursor, uiSystem, scripts } = this.assets;
 
     const size = Game.display.standardLength;
     const lastInput = scripts.manualMoveCamera.lastInput;
 
-    // Move mapCursor somewhere appropriate
+    // Move mapCursor somewhere convenient
     if (lastInput.notEqual(Point.Origin)) {
       const frame = camera.viewFrame;
 
@@ -46,7 +48,7 @@ export class MoveCamera extends TurnState {
       if (lastInput.y !== 0)
         worldPos.y = (lastInput.y < 0) ? topLeft.y : bottomRight.y;
 
-      const mapPos = worldPos.multiply(1 / size).floor();
+      const mapPos = worldPos.multiply(1 / size).round();
 
       mapCursor.teleport(mapPos);
     }

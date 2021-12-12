@@ -39,9 +39,9 @@ export class Point {
   }
 
   /** Given a point primitive or a set of coords, copies the described point by value.
-   * y is assumed equal to x unless given. */
+   * y is assumed equal to x unless given. Returns self. */
   set(x: number | ImmutablePointPrimitive, y?: number) {
-    let p = convertArgsToPoint(x, y);
+    const p = convertArgsToPoint(x, y);
     this.x = p.x;
     this.y = p.y;
     return this;
@@ -49,79 +49,66 @@ export class Point {
 
   /** Returns a new vector: a value copy of this vector. */
   clone(): Point {
-    return new Point().add(this);
+    return new Point().set(this);
   }
 
   /** Returns true if this point and the given point primitive or coords set are equal by value. */
   equal(x: number | ImmutablePointPrimitive, y?: number): boolean {
-    let p = convertArgsToPoint(x, y);
-    return (this.x == p.x && this.y == p.y);
+    const p = convertArgsToPoint(x, y);
+    return (this.x === p.x && this.y === p.y);
   }
 
   /** Returns true if this point and the given point primitive or coords set are not equal by value. */
   notEqual(x: number | ImmutablePointPrimitive, y?: number): boolean {
-    let p = convertArgsToPoint(x, y);
-    return (this.x != p.x || this.y != p.y);
+    const p = convertArgsToPoint(x, y);
+    return (this.x !== p.x || this.y !== p.y);
   }
 
   /** Returns a new vector: the sum of this and the given vector or vector coords.
    * y is assumed equal to x unless given. */
   add(x: number | ImmutablePointPrimitive, y?: number): Point {
-    let p = convertArgsToPoint(x, y);
-    p.set(p.x + this.x, p.y + this.y);
-    return p;
+    const p = convertArgsToPoint(x, y);
+    return p.set(p.x + this.x, p.y + this.y);
   }
 
   /** Sums all points given with this one and returns the final vector as a point. */
   addAll(points: Point[]): Point {
-    let list = [this, ...points];
-    let final = list.reduce((sum, vector) => sum.add(vector));
-    return final;
+    const list = [this, ...points];
+    return list.reduce((sum, vector) => sum.add(vector));
   }
 
   /** Returns a new vector: the difference between this and the given vector or vector coords.
    * y is assumed equal to x unless given. */
   subtract(x: number | ImmutablePointPrimitive, y?: number): Point {
-    let p = convertArgsToPoint(x, y);
+    const p = convertArgsToPoint(x, y);
     return this.add(p.negative());
   }
-
-  /** Returns a new vector: this vector's additive inverse. */
-  negative(): Point {
-    return new Point(-this.x, -this.y);
-  }
-
-  /** Returns a new vector: this vector's absolute coordinates. */
-  abs(): Point {
+  
+  /** Returns a new vector: the result of applying the given function on each vector component. */
+  apply(f: (x: number) => number) {
     return this.clone().set(
-      Math.abs(this.x),
-      Math.abs(this.y)
+      f(this.x),
+      f(this.y),
     );
   }
 
+  /** Returns a new vector: this vector's additive inverse. */
+  negative(): Point { return this.apply(x => -x); }
+
+  /** Returns a new vector: this vector's absolute coordinates. */
+  abs(): Point { return this.apply(Math.abs); }
+
   /** Returns a new vector: this vector's up-rounded coordinates. */
-  ceil(): Point {
-    return this.clone().set(
-      Math.ceil(this.x),
-      Math.ceil(this.y),
-    )
-  }
+  ceil(): Point { return this.apply(Math.ceil); }
 
   /** Returns a new vector: this vector's down-rounded coordinates. */
-  floor(): Point {
-    return this.clone().set(
-      Math.floor(this.x),
-      Math.floor(this.y),
-    )
-  }
+  floor(): Point { return this.apply(Math.floor); }
 
   /** Returns a new vector: this vector's rounded coordinates. */
-  round(): Point {
-    return this.clone().set(
-      Math.round(this.x),
-      Math.round(this.y),
-    )
-  }
+  round(): Point { return this.apply(Math.round); }
+
+  /** Returns a new vector: this vector's truncated coordinates. */
+  trunc(): Point { return this.apply(Math.trunc); }
 
   /** Returns this point's coordinates as a sum. */
   sumCoords() {
@@ -174,14 +161,15 @@ export class Point {
     return this.abs().sumCoords();
   }
 
-  /** Returns an identity vector in the same direction as this. */
+  /** Returns an identity vector in the same direction as this.
+   * If this vector has no length, the returned vector will be the origin <0,0>. */
   unit(): Point {
     const mag = this.magnitude();
     return (mag !== 0) ? this.multiply(1 / mag) : Point.Origin;
   }
 
   /** Returns this vector's counter-clockwise angle from the positive x-axis in radians.
-   * Ranges between -pi and pi */
+   * Ranges between -pi and pi. At pi radians, only returns +pi. */
   angle() {
     const sign = Math.sign(this.crossZ(Point.Right));
     let angle = Math.acos(this.x / this.magnitude()) * sign;
@@ -196,21 +184,20 @@ export class Point {
     return (tau - this.angle()) % tau;
   }
 
-  /** Returns the angle difference from this to the given vector. */
+  /** Returns the absolute angle difference from this to the given vector. */
   angleDifference(b: Point) {
     const a = this;
     return Math.acos( a.dot(b) / (a.magnitude() * b.magnitude()) );
   }
 
-  /** Returns the angle translation of vector a to b. */
+  /** Returns the angle rotation of vector a to b. */
   angleTo(b: Point) {
     const sign = Math.sign(this.crossZ(b));
     return this.angleDifference(b) * sign;
   }
 
-  /** Returns an integer between -1 and 1 indicating the clockwise spin in
-   * the direction of the shortest angle distance between this vector and
-   * the given one. */
+  /** Returns an integer between -1 and 1 indicating the clockwise spin of the shortest
+   * rotational difference between this vector and the given one. 1 is clockwise. */
   clockDirectionTo(b: Point) {
     return -Math.sign(this.crossZ(b));
   }

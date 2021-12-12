@@ -1,5 +1,6 @@
 import { Game } from "../../../..";
 import { Camera } from "../../../Camera";
+import { FollowAlgorithm } from "../../../CameraFollowAlgorithms";
 import { Point } from "../../../Common/Point";
 import { Slider } from "../../../Common/Slider";
 import { AttackMethod, UnitClass } from "../../EnumTypes";
@@ -21,6 +22,7 @@ export class BattleDamageEvent extends TileEvent {
 
   protected options: BattleDamageEventOptions;
   private vfx!: PIXI.AnimatedSprite;
+  private cameraFollowAlgorithmSwap: FollowAlgorithm | null = null;
 
   private cameraPoint!: Point;
   private screenShakeSlider = new Slider({
@@ -54,7 +56,9 @@ export class BattleDamageEvent extends TileEvent {
 
     // Configure camera for shake
     this.cameraPoint = camera.pos;
-    camera.followTarget = null;
+    if (camera.followAlgorithm)
+      this.cameraFollowAlgorithmSwap = camera.followAlgorithm;
+    camera.followAlgorithm = null;
 
     // Null case
     if (damageDealt === 0) {
@@ -114,10 +118,11 @@ export class BattleDamageEvent extends TileEvent {
   }
 
   protected destroy(): void {
-    const { camera, mapCursor } = this.options.assets;
+    const { camera } = this.options.assets;
 
     camera.pos = this.cameraPoint;
-    camera.followTarget = mapCursor;
+    if (this.cameraFollowAlgorithmSwap)
+      camera.followAlgorithm = this.cameraFollowAlgorithmSwap;
 
     this.vfx?.destroy();
     this.vfx = undefined;

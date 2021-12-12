@@ -218,6 +218,8 @@ export class Camera {
     }
 }
 
+
+
 function borderedScreenPush(camera: Camera) {
     // TODO Softcode these somewhere, or at least meaningfully hardcode them.
     let tileSize = 16;
