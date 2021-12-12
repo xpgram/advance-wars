@@ -11,6 +11,9 @@ The camera stuff is sort of done. But the camera sucks. As it always has. Foreve
 
   I think this will be *easier* when I get about maintaining an ideal view bounds and deriving the real camera position from that, instead of the other way around, but I'm not sure if *easier* means *possible*.
 
+  It might also help to let camera handle the zoom transition.
+  Then it would know where it's trying to get to (and I guess at what speed, to preserve script control) and the followAlg could simply re-quantize to whatever the new zoom level *will be* instead of all the intermediary stages.
+
 ShowUnitAttackRange:
 - [x] Allow camera movement
 - [x] Return camera to previous position on close
