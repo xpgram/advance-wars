@@ -1,21 +1,22 @@
 # Next Big Objectives
 
-- [ ] Manual Camera Movement should pick a target position and travel to that.
-  - [ ] On dpad.point.notEqual(Origin): this target is the unit vector times camera speed; always chasing the dragon.
-  - [ ] On dpad.point.returned: this target is a half-tile projection of that last movement vector quantized to its nearest tile.
-  - [ ] If camera.pos == targetPos: stop updating (bulk); just look for inputs
-  - [ ] It is possible to trick the camera out of a quantized position by fast-tapping the enable and dpad buttons. This is barely a problem, however.
-    - [ ] The follow algorithm should probably target a quantized point whenever the cursor is in view. This would virtually solve this problem, wouldn't it?
-- [ ] Refactor camera follow algorithm to be more sophisticated (an object with an update() that can hold things in memory)
-- [ ] Give camera a .mode() getter for safer behavior transitions (swapping the followAlgorithm out and back in without knowing what they be broke the camera once in AnimateEvents)
-
-- [x] Units spawned by a player somehow interact with the 0,0 space; units already there possibly get destroyed——or worse, they don't.
+The camera stuff is sort of done. But the camera sucks. As it always has. Forever.
+- [ ] There's a todo list inside Camera.ts
+- [ ] Figure out why zoom is broken. More than usual, I mean.
+  - [ ] Does zoom use the center of the mapCursor? ... No. Actually I'm pretty sure it doesn't. It shouldn't. Only because it causes unnecessary headaches. The bottom right corner of the map will zoom a little differently than the top left because the cursor anchor can't be flush with it, but that's fine and probably not really noticeable.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement
 - [x] Return camera to previous position on close
   - Probably just swap the focal target so BSM can let it move naturally.
 - [x] This will require extracting the camera-move behavior to a control script.
+- [ ] Does it actually make sense to maintain the position of the map cursor? It's confusing how it has the same behavior as a normal camera move but then snaps back.
+  - [ ] This would be annoying to implement, but if I had the track car turn into a bubble that floated around the periphery of your screen whenever it wasn't in view, that would probably help.
+    - [ ] Bubble graphic
+    - [ ] Visible only when focal is at least half out-of-view
+    - [ ] New track car built from actor is a child of bubble graphic
+    - [ ] Bubble graphic is a member of the screen-ui layer
+    - [ ] Bubble floats around the edges, intersecting the line between the camera's center and the actor's position.
 
 - [ ] Multi-controller support.
   - [ ] Board Players, or some association, knows the boardplayer-to-controller mappings.
