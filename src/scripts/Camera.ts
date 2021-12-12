@@ -22,7 +22,10 @@ import { FollowAlgorithm, QuantizedScreenPush } from "./CameraFollowAlgorithms";
 //   If I need rectangles with more functions, I can write my own class which extends Pixi's.
 //   Maybe updating any property on viewFrame calls a listener which resyncs all camera frames.
 // TODO focalFrame has 0 references, refactor viewFrame => focalFrame; the name is more clear.
-// 
+// TODO Maintain an ideal 1:1 zoom rectangle. When camera needs to figure where the stage should be placed, extrapolate from
+//   the ideal rectangle to the zoom-level rectangle; currently we're doing it the other way.
+// TODO Zoom does not maintain a zoom number, it is only inferrable from the effects it has caused. This isn't *wrong*
+//   but it feels really weird. And we can never calc-correct.
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
@@ -74,8 +77,8 @@ export class Camera {
         const { x: fx, y: fy, width: fw, height: fh } = this.frameRect;
         const { x: bx, y: by, width: bw, height: bh } = this.borderRect;
         return {
-            get x() { return (bx + fx); },
-            get y() { return (by + fy); },
+            get x() { return fx + bx; },
+            get y() { return fy + by; },
             get width() { return bw; },
             get height() { return bh; },
         };
@@ -169,6 +172,13 @@ export class Camera {
     set zoom(n: number) {
         // Get the focal point to zoom in on.
         let focal = this.getFocalPoint();
+
+        // For future reference: the below formula does this:
+        //      get real distance (focal.x - this.x)
+        //      get unzoomed distance (dist * zoom)
+        //      get new distance (unzoom / n)
+        //      place camera new distance from focal (focal.x - new)
+        // This formula apparently confuses the fuck outta me, so.
 
         // Adjust camera coords to new coords that keep the focal point in the same screen position.
         this.x = focal.x - ((focal.x - this.x) * this.zoom / n);

@@ -4,6 +4,12 @@ The camera stuff is sort of done. But the camera sucks. As it always has. Foreve
 - [ ] There's a todo list inside Camera.ts
 - [ ] Figure out why zoom is broken. More than usual, I mean.
   - [ ] Does zoom use the center of the mapCursor? ... No. Actually I'm pretty sure it doesn't. It shouldn't. Only because it causes unnecessary headaches. The bottom right corner of the map will zoom a little differently than the top left because the cursor anchor can't be flush with it, but that's fine and probably not really noticeable.
+  Ohhh, okay. Zoom implementation is whack, but it works; we know 'cause it did.
+  The reason it's more whack now is because when the camera zooms out, the camera's y coordinate moves, it moves out of alignment with the follow alg's quantize. Follow picks a new quantized target, but this target is ~elsewhere~.
+  I'm not sure how we could blend the old zoom behavior with an alg I just wrote to specifically allow only certain camera positions.
+  I mean, with infinite precision a few divisions and such would be fine. Like, we *should* be able to derive the quantized position from the ideal zoom level even when our real zoom be different.
+
+  I think this will be *easier* when I get about maintaining an ideal view bounds and deriving the real camera position from that, instead of the other way around, but I'm not sure if *easier* means *possible*.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement
