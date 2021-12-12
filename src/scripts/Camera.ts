@@ -7,7 +7,22 @@ import { Common } from "./CommonUtils";
 import { FollowAlgorithm, QuantizedScreenPush } from "./CameraFollowAlgorithms";
 
 // TODO Camera should offer convenient data structures, like Points and Rectangles. Stuff that doesn't need any finessing, you know?
+// TODO Case in point: worldFrame *uses a rectangle* but obstinately refuses to return it as-is; stop that.
 // TODO Camera needs a getter for the on-screen tile size. Game.display.standard*zoom. Easy.
+// TODO A lot of this was written to "cleverly" compartmentalize properties into handy getters.
+//   I think this actually indicates a need for more sophisticated data structures. It probably always did, but I'm stubborn.
+//   Here's the capital problem:
+//     camera.x yields the camera's position
+//     camera.center.x yields the camera-center's position
+//     both are linked and update at the same time, literally the same instant
+//     both are settable, their setting instantly affects the other
+//     so, center, viewFrame, etc. are relational shortcuts to the standard camera properties.
+//   Getting 'x' from the worldFrame is more clear.
+//   Setting 'x' from the viewFrame is done a lot anyway, so provide a shortcut.
+//   If I need rectangles with more functions, I can write my own class which extends Pixi's.
+//   Maybe updating any property on viewFrame calls a listener which resyncs all camera frames.
+// TODO focalFrame has 0 references, refactor viewFrame => focalFrame; the name is more clear.
+// 
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
@@ -59,10 +74,10 @@ export class Camera {
         const { x: fx, y: fy, width: fw, height: fh } = this.frameRect;
         const { x: bx, y: by, width: bw, height: bh } = this.borderRect;
         return {
-            get x() { return bx + fx; },
-            get y() { return by + fy; },
+            get x() { return (bx + fx); },
+            get y() { return (by + fy); },
             get width() { return bw; },
-            get height() { return bh; }
+            get height() { return bh; },
         };
     }
 
@@ -102,6 +117,7 @@ export class Camera {
     }
     set stage(object) {
         // Assign the new 'stage' to the camera.
+        //@ts-expect-error
         this.stageTransform.object = object;
     }
 
@@ -121,14 +137,14 @@ export class Camera {
 
     /** The length in pixels (as game-world units of distance) of the camera's width. */
     get width() { return this.worldFrame.width; }
-    set width(num) {
+    private set width(num) {
         this.frameRect.width = num;
         this._center.x = num / 2;
     }
 
     /** The length in pixels (as game-world units of distance) of the camera's height. */
     get height() { return this.worldFrame.height; }
-    set height(num) {
+    private set height(num) {
         this.frameRect.height = num;
         this._center.y = num / 2;
     }
