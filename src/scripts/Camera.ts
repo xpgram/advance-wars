@@ -6,6 +6,9 @@ import { Point } from "./Common/Point";
 import { Common } from "./CommonUtils";
 import { FollowAlgorithm, QuantizedScreenPush } from "./CameraFollowAlgorithms";
 
+// TODO Camera should offer convenient data structures, like Points and Rectangles. Stuff that doesn't need any finessing, you know?
+// TODO Camera needs a getter for the on-screen tile size. Game.display.standard*zoom. Easy.
+
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
  * to simulate camera movement and other camera features.
