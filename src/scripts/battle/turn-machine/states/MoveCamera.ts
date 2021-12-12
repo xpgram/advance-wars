@@ -39,16 +39,21 @@ export class MoveCamera extends TurnState {
     if (lastInput.notEqual(Point.Origin)) {
       const frame = camera.viewFrame;
 
+      // Picks a truncate style for x based on the directional bias of dx.
+      const biasTrunc = (x: number, dx: number) => [Math.floor, Math.round, Math.ceil][Math.sign(dx) + 1](x);
+
       const topLeft = new Point(frame);
-      const bottomRight = topLeft.add(frame.width, frame.height);
+      topLeft.x = biasTrunc(topLeft.x / size, lastInput.x);
+      topLeft.y = biasTrunc(topLeft.y / size, lastInput.y);
 
-      const worldPos = mapCursor.transform.pos.clone();
-      if (lastInput.x !== 0)
-        worldPos.x = (lastInput.x < 0) ? topLeft.x : bottomRight.x;
-      if (lastInput.y !== 0)
-        worldPos.y = (lastInput.y < 0) ? topLeft.y : bottomRight.y;
+      const bottomRight = topLeft.add(
+        biasTrunc(frame.width / size, -lastInput.x),
+        biasTrunc(frame.height / size, -lastInput.y),
+      );
 
-      const mapPos = worldPos.multiply(1 / size).round();
+      const mapPos = mapCursor.pos.clone();
+      mapPos.x = [topLeft.x, mapPos.x, bottomRight.x][Math.sign(lastInput.x) + 1];
+      mapPos.y = [topLeft.y, mapPos.y, bottomRight.y][Math.sign(lastInput.y) + 1];
 
       mapCursor.teleport(mapPos);
     }

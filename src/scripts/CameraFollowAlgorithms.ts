@@ -1,4 +1,3 @@
-
 import { Game } from "..";
 import { Camera } from "./Camera";
 import { Point } from "./Common/Point";
@@ -12,7 +11,6 @@ export interface FollowAlgorithm {
 
 export class QuantizedScreenPush {
   private target = Point.Origin;
-  private updateTargetFlag = true;
   private lastTravelVector = Point.Origin;
   private quanta = Game.display.standardLength;
 
@@ -22,39 +20,38 @@ export class QuantizedScreenPush {
   }
 
   /**  */
+  // TODO This should be a service offered by camera, honestly.
   private getTileSize(zoom: number) {
-    if (Game.devController.pressed(Keys.K))
-      console.log(this.quanta * zoom);
     return this.quanta * zoom;
   }
 
   /**  */
   private updateTarget(camera: Camera) {
+    const { floor, ceil, sign } = Math;
+    const self = (n: number) => n;
+
     const tileSize = this.getTileSize(camera.zoom);
     const focal = camera.getFocalPoint();
+    const { viewFrame } = camera;
 
-    if (!camera.subjectInView) {
-      this.target.set(focal);
-      this.updateTargetFlag = true;
+    // Returns either the focal point or a quantized target point in the direction of bias.
+    function getAxis(focal: number, bias: number, camX: number, camW: number) {
+      const left = camX;
+      const right = camX + camW;
+      
+      if (!Common.within(focal, left, right))
+        return focal;
+
+      const trunc = [floor, self, ceil][sign(bias) + 1];
+      const cameraSide = (bias < 0) ? left : right;
+      return trunc(cameraSide / tileSize) * tileSize;
     }
-    
-    else if (this.updateTargetFlag) {
-      this.updateTargetFlag = false;
 
-      const { viewFrame } = camera;
-
-      // Truncates an integer x or x+w in the directional bias of vx.
-      const func = (x: number, vx: number, w: number) => {
-        const trunc = [Math.floor, Math.round, Math.ceil][Math.sign(vx) + 1];
-        return trunc((x + Number(vx > 0)*w) / tileSize) * tileSize;
-      }
-
-      // Set the target point to the nearest map tile in the direction of last travel.
-      this.target.set(
-        func(viewFrame.x, this.lastTravelVector.x, viewFrame.width),
-        func(viewFrame.y, this.lastTravelVector.y, viewFrame.height),
-      )
-    }
+    // Quantize the camera lead axis-independently.
+    this.target.set(
+      getAxis(focal.x, this.lastTravelVector.x, viewFrame.x, viewFrame.width),
+      getAxis(focal.y, this.lastTravelVector.y, viewFrame.y, viewFrame.height),
+    );
   }
 
   /**  */
@@ -75,7 +72,10 @@ export class QuantizedScreenPush {
 
     // Move the camera.
     camera.pos = camera.pos.add(travelVector);
-    this.lastTravelVector.set(travelVector);
+    this.lastTravelVector.set(
+      travelVector.x !== 0 ? travelVector.x : this.lastTravelVector.x,
+      travelVector.y !== 0 ? travelVector.y : this.lastTravelVector.y,
+    );
   }
 
   /**  */
