@@ -4,6 +4,7 @@ import { TransformContainer } from "./CommonTypes";
 import { Game } from "..";
 import { Point } from "./Common/Point";
 import { Common } from "./CommonUtils";
+import { FollowAlgorithm, QuantizedScreenPush } from "./CameraFollowAlgorithms";
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
@@ -75,7 +76,7 @@ export class Camera {
     followTarget: TransformContainer | Point | null = null;
 
     /** Called on every update; determines how the camera should move to keep the follow target in frame. */
-    followAlgorithm: ((camera: Camera) => void) | null = null;
+    followAlgorithm: FollowAlgorithm | null = null;
 
     /**
      * @param stage The 'world' container the camera will manipulate to pan, rotate and zoom.
@@ -84,7 +85,7 @@ export class Camera {
         this.stage = stage;
         this.width = this.baseDimensions.width;
         this.height = this.baseDimensions.height;
-        this.followAlgorithm = borderedScreenPush; // Defined at the bottom, outside the class.
+        this.followAlgorithm = new QuantizedScreenPush();
         
         Game.scene.ticker.add(this.update, this, -1);
         // I presume priority -1 means this update happens last.
@@ -174,14 +175,14 @@ export class Camera {
     getFocalPoint() {
         let focal;
 
-        let isPoint = (p: any): p is Point => {
-            return typeof p.x === 'number' && typeof p.y === 'number';
+        let isTransform = (p: any): p is TransformContainer => {
+            return p.transform instanceof LowResTransform;
         }
 
         if (this.followTarget) {
             focal = {
-                x: isPoint(this.followTarget) ? this.followTarget.x : this.followTarget.transform.exact.x,
-                y: isPoint(this.followTarget) ? this.followTarget.y : this.followTarget.transform.exact.y
+                x: isTransform(this.followTarget) ? this.followTarget.transform.exact.x : this.followTarget.x,
+                y: isTransform(this.followTarget) ? this.followTarget.transform.exact.y : this.followTarget.y
             }
         }
         else {
@@ -190,7 +191,7 @@ export class Camera {
                 y: this.center.y
             }
         }
-        return focal;
+        return new Point(focal);
     }
 
     /** True if the camera's focal point is inside the view bounds. */
@@ -206,7 +207,7 @@ export class Camera {
     private update() {
         // Follow the focused object, if an algorithm for doing so exists.
         if (this.followAlgorithm)
-            this.followAlgorithm(this);
+            this.followAlgorithm.update(this);
 
         // Adjust the stage to fit the camera — (Coordinates are un-zoomed to correctly translate to unmodified 2D space.)
         this.stageTransform.x = Math.round(-this.x * this.zoom);

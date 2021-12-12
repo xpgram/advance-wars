@@ -1,8 +1,6 @@
 import { TurnState } from "../TurnState";
-import { TransformContainer } from "../../../CommonTypes";
 import { Point } from "../../../Common/Point";
 import { Game } from "../../../..";
-import { Common } from "../../../CommonUtils";
 
 const CAMERA_SPEED = 7;     // How many tiles the camera travels per 60 frames.
 
@@ -40,7 +38,7 @@ export class MoveCamera extends TurnState {
       const frame = camera.viewFrame;
 
       const topLeft = new Point(frame);
-      const bottomRight = topLeft.add(frame.width, frame.height).subtract(size, size);
+      const bottomRight = topLeft.add(frame.width, frame.height);
 
       const worldPos = mapCursor.transform.pos.clone();
       if (lastInput.x !== 0)

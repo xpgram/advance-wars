@@ -12,6 +12,7 @@ export class ManualMoveCamera extends ControlScript {
   defaultEnabled(): boolean { return false; }
 
   private followTargetSwap: TransformContainer | Point | null = null;
+  private cameraLead = Point.Origin;
 
   /** The last cumulative input direction to move the camera in.
    * Pressing down *then* right records the same as pressing down *and* right. */
@@ -25,64 +26,40 @@ export class ManualMoveCamera extends ControlScript {
     const { camera } = this.assets;
     this.lastInput.set(0,0);
     this.initialCameraPosition.set(camera.pos);
+
+    this.cameraLead.set(camera.center);
     this.followTargetSwap = camera.followTarget;
-    camera.followTarget = null;
+    camera.followTarget = this.cameraLead;
   }
 
   protected updateScript(): void {
-    const { camera, map, mapCursor, gamepad } = this.assets;
+    const { camera, map, gamepad } = this.assets;
     const { dpad } = gamepad.axis;
 
-    // TODO Pick closest tile *in the direction of last input*
+    // Update last travel input
 
-    const size = Game.display.standardLength;
-    const noInput = dpad.point.equal(Point.Origin);
+    this.lastInput.set(
+      (dpad.point.x !== 0) ? dpad.point.x : this.lastInput.x,
+      (dpad.point.y !== 0) ? dpad.point.y : this.lastInput.y,
+    );
 
-    // Update last axis input, if any were given.
-    if (dpad.point.x !== 0) this.lastInput.x = dpad.point.x;
-    if (dpad.point.y !== 0) this.lastInput.y = dpad.point.y;
+    // Move the camera lead to a point outside the camera's viewframe, unless no input.
 
-    // Setup no-input target details
-    const view = new Point(camera.viewFrame);
-    const nearestTile = view
-      // .add(this.lastInput.multiply(.5))    // This will be infinite movement
-      .multiply(1/size)
-      .round()
-      .multiply(size);
-    const vector = nearestTile.subtract(view);
-
-    if (Game.devController.pressed(Keys.K))
-      console.log(
-        mapCursor.transform.pos.toString(),
-        view.toString(),
-        nearestTile.toString(),
-        vector.toString(),
-      )
-
-    // Setup direction to be moved in
-    const travelPoint = (noInput)
-      ? vector.unit().multiply( Math.min(CAMERA_SPEED, vector.magnitude()) )
-      : dpad.point.unit().multiply(CAMERA_SPEED);
-
-    // Move the camera
-    camera.pos = camera.pos.add(travelPoint);
+    this.cameraLead.set(
+      camera.center.x + (camera.width/2 + CAMERA_SPEED)*dpad.point.x,
+      camera.center.y + (camera.height/2 + CAMERA_SPEED)*dpad.point.y,
+    )
 
     // Confine the camera to the map space
-    const frame = camera.focalFrame;
 
-    let min = Point.Origin;
-    let max = new Point(
-      map.width * size,
-      map.height * size,
-    )
-    min = min.subtract(frame);
-    max = max.subtract(
-      frame.x + frame.width,  // TODO This is incorrect, but it's *almost*
-      frame.y + frame.height, // correct. Why? What am I missing?
-    )
+    const max = new Point()
+      .add(
+        (map.width - 1) * 16,
+        (map.height - 1) * 16,
+      )
 
-    camera.x = Common.clamp(camera.x, min.x, max.x);
-    camera.y = Common.clamp(camera.y, min.y, max.y);
+    this.cameraLead.x = Common.clamp(this.cameraLead.x, 0, max.x);
+    this.cameraLead.y = Common.clamp(this.cameraLead.y, 0, max.y);
   }
 
   protected disableScript(): void {

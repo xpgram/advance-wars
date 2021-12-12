@@ -66,16 +66,28 @@ export class DevController {
     return button;
   }
 
-  /** Returns true if the given keyId was pressed this frame.
-   * If altMode is provided, only returns true given the keyId if the specified alt key is also down. */
-  pressed(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt'): boolean {
+  getKeyModifier(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt') {
     const button = this.get(keyId);
     let modifier: Button | undefined;
     if (altMode) {
       const modId = {'Shift': Keys.Shift, 'Ctrl': Keys.Ctrl, 'Alt': Keys.Alt}[altMode];
       modifier = Object.values(this.button).find( button => button.map.key1 === modId );
     }
+    return {button, modifier};
+  }
+
+  /** Returns true if the given keyId was pressed this frame.
+   * If altMode is provided, only returns true given the keyId if the specified alt key is also down. */
+  pressed(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt'): boolean {
+    const { button, modifier } = this.getKeyModifier(keyId, altMode);
     return button.pressed && (!modifier || modifier.down);
+  }
+
+  /** Returns true if the given keyId is down this frame.
+   * If altMode is provided, only returns true given the keyId if the specified alt key is also down. */
+  down(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt'): boolean {
+    const { button, modifier } = this.getKeyModifier(keyId, altMode);
+    return button.down && (!modifier || modifier.down);
   }
 
   /** Updates the state of this virtual controller by polling the keyboard status. */
