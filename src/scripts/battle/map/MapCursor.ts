@@ -7,13 +7,13 @@ import { MapLayer } from "./MapLayers";
 import { Pulsar } from "../../timer/Pulsar";
 import { Slider } from "../../Common/Slider";
 import { Point } from "../../Common/Point";
-import { Observable } from "../../Observable";
+import { ObservableObject } from "../../Observable";
 import { AnimatedSprite } from "@pixi/sprite-animated";
 
 /**
  * @author Dei Valko
  */
-export class MapCursor extends Observable {
+export class MapCursor extends ObservableObject {
   static readonly spritesheet = 'UISpritesheet';
 
   /** Cursor animation settings. */

@@ -25,8 +25,13 @@ function convertArgsToPoint(x: number | ImmutablePointPrimitive, y?: number) {
 
 /** A point in 2-dimensional space. */
 export class Point {
-  x: number = 0;
-  y: number = 0;
+  get x() { return this._x; }
+  set x(n) { this._x = n; }
+  protected _x: number = 0;
+
+  get y() { return this._y; }
+  set y(n) { this._y = n; }
+  protected _y: number = 0;
 
   constructor(x?: number | ImmutablePointPrimitive, y?: number) {
     if (isImmutablePointPrimitive(x)) {
