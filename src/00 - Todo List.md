@@ -1,5 +1,11 @@
 # Next Big Objectives
 
+- [ ] I have vaguely decided to redesign the camera API.
+  - [ ] Instead of camera.center.x =, use camera.move(p: Point, mode?: 'center' | 'world' | 'frame')
+    - [ ] In this function, all relevant coordinates are updated at once.
+    - [ ] Those coordinates are readonly, naturally.
+  - [ ] Instead of camera.zoom =, use camera.zoom(factor: number); all functions now.
+
 The camera stuff is sort of done. But the camera sucks. As it always has. Forever.
 - [ ] There's a todo list inside Camera.ts
 - [ ] Figure out why zoom is broken. More than usual, I mean.
