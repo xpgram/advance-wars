@@ -1,5 +1,10 @@
 import { LowResTransform } from "./LowResTransform"
 
+/** Captures any object-constructing class type. */
+type Constructable = {
+    new (...args: any[]): object;
+}
+
 /** Captures generic classes. */
 type Class<T> = {
     new (...args: any[]): T
