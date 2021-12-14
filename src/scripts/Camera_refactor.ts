@@ -105,6 +105,10 @@ export class Camera {
     this.idealFrame.height / 2
   );
 
+  getFrame(which: 'world' | 'focal', zoom: 'current' | 'final' = 'current') {
+    
+  }
+
   /** A rectangle in world-space representing what the camera can see. */
   worldFrame(): PIXI.Rectangle {
     const { idealFrame, zoom, center } = this;
