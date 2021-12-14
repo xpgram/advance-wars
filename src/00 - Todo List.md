@@ -14,6 +14,16 @@ The camera stuff is sort of done. But the camera sucks. As it always has. Foreve
   It might also help to let camera handle the zoom transition.
   Then it would know where it's trying to get to (and I guess at what speed, to preserve script control) and the followAlg could simply re-quantize to whatever the new zoom level *will be* instead of all the intermediary stages.
 
+  What if I added a new followAlgrithm that zoom could switch to?
+  HoldFocal
+  Whatever the distance... % screen position, of the focal point in view is, it is maintained forever. The control script would switch to this whenever it's adjusting.
+
+  Would this be better than letting camera handle zoom and quantizing to whatever its new rect *would* be, though?
+
+  I think... I like the idea of updating world frame to the new zoom level immediately, and using that to quantize.
+
+  Getting all of camera's properties to be readable/settable when they're all interwoven is really annoying.
+
 ShowUnitAttackRange:
 - [x] Allow camera movement
 - [x] Return camera to previous position on close
