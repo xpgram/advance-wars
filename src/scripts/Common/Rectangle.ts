@@ -18,12 +18,14 @@ export class Rectangle {
   get bottomleft() { return new Point(this.left, this.bottom); }
   get bottomright() { return new Point(this.right, this.bottom); }
 
+  get center() { return this.getPointByProportion(new Point(.5)); }
+
 
   constructor(x?: number | Rectangle | Point, y?: number, width?: number, height?: number) {
     this.set(x, y, width, height);
   }
 
-  /** Sets this rectangles propertes to those given. */
+  /** Sets this rectangles properties to those given. */
   set(x?: number | Rectangle | Point, y?: number, width?: number, height?: number): Rectangle {
     const o = x;
     if (o instanceof Rectangle) {
@@ -38,8 +40,7 @@ export class Rectangle {
     return this;
   }
 
-  /** Sets this rectangle's properties such that its edges are equivalent to
-   * the ones given. */
+  /** Sets this rectangle's properties such that its edges are equivalent to the ones given. */
   setEdges(left: number, right: number, top: number, bottom: number): Rectangle {
     const { max, min } = Math;
     this.x = min(left, right);
@@ -49,8 +50,7 @@ export class Rectangle {
     return this;
   }
 
-  /** Returns a new rectangle equivalent to this one after applying the
-   * given function to its properties. */
+  /** Returns a new rectangle with all its properties a product of this one's after applying the given function. */
   apply(f: (n: number) => number) {
     return new Rectangle(
       f(this.x),
@@ -60,12 +60,23 @@ export class Rectangle {
     )
   }
 
+  /** Returns a new rectangle with all its side-coordinates a product of this one's after applying the given function. */
+  applyEdges(f: (n: number) => number) {
+    const x = f(this.x);
+    const y = f(this.y);
+    return new Rectangle(
+      x, y,
+      f(this.right) - x,
+      f(this.bottom) - y,
+    )
+  }
+
   /** Returns a new Rectangle with the same properties as this one. */
   clone(): Rectangle {
     return new Rectangle(this);
   }
 
-  /** Returns true if this rectangle is equivalent to the given one. */
+  /** Returns true if this rectangle's properties are the same as the given one. */
   equal(rect: Rectangle): boolean {
     return (
       this.x === rect.x
@@ -75,17 +86,15 @@ export class Rectangle {
     )
   }
 
-  /** Returns true if this rectangle is not equivalent to the given one. */
+  /** Returns true if this rectangle's properties are the same as the given one. */
   notEqual(rect: Rectangle): boolean {
     return !this.equal(rect);
   }
 
   /** Grows (or shrinks with -n) the bounds of the rectangle by a set amount.
    * yPad is assumed to be the same as xPad unless specified.
-   * Preserves the position of the coordinate at the anchor point, which is
-   * by default the center.
-   * A rectangle cannot shrink more than its own axis length; a resulting
-   * width or height cannot be < 0. */
+   * Preserves the position of the coordinate at the anchor point, which is by default the center.
+   * A rectangle cannot shrink more than its own axis length; a resulting width or height cannot be < 0. */
   pad(xPad: number, yPad?: number, anchor?: Point): Rectangle {
     const { max } = Math;
 
@@ -103,11 +112,11 @@ export class Rectangle {
     );
   }
 
-  /** Returns a new Rectangle which shares all its edges with the most
-   * extreme coordinates given in the list of objects to bound. */
+  /** Returns a new Rectangle which shares all its edges with the most extreme coordinates given in the
+   * list of objects to bound. */
   fit(...objects: (Rectangle | Point)[]): Rectangle {
     const { max, min } = Math;
-    const rects = objects.map( r => new Rectangle(r) );   // Affirms all objects as Rectangles
+    const rects = objects.map( r => new Rectangle(r) );   // Affirms all objects are Rectangles
     const x      = min(...rects.map(r => r.left));
     const width  = max(...rects.map(r => r.right)) - x;
     const y      = min(...rects.map(r => r.top));
@@ -115,14 +124,13 @@ export class Rectangle {
     return new Rectangle(x, y, width, height);
   }
 
-  /** Returns a new Rectangle extended from this one such that no edge
-   * disincludes any area or point contained within the objects given. */
+  /** Returns a new Rectangle extended from this one such that no edge disincludes any area or point
+   * contained within the objects given. */
   enlarge(...objects: (Rectangle | Point)[]): Rectangle {
     return this.fit(this, ...objects);
   }
 
-  /** Returns true if this rectangle wholly encloses the given rectangle's
-   * coordinate-space area within its bounds. */
+  /** Returns true if this rectangle wholly encloses the given rectangle's coordinate-space. */
   contains(other: Rectangle | Point): boolean {
     const rect = new Rectangle(other);
     return (
@@ -138,8 +146,7 @@ export class Rectangle {
     return this.width / this.height;
   }
 
-  /** Returns a new rectangle with a width proportional to its height by
-   * the given ratio. */
+  /** Returns a new rectangle with a width proportional to its height by the given ratio. */
   setWidthByAR(ratio: number) {
     return new Rectangle(
       this.x,
@@ -149,8 +156,7 @@ export class Rectangle {
     );
   }
 
-  /** Returns a new rectangle with a height proportional to its width by
-   * the given ratio. */
+  /** Returns a new rectangle with a height proportional to its width by the given ratio. */
   setHeightByAR(ratio: number) {
     return new Rectangle(
       this.x,
@@ -165,8 +171,7 @@ export class Rectangle {
     return this.width * this.height;
   }
 
-  /** Returns a new rectangle with coordinates truncated to include the
-   * largest area. */
+  /** Returns a new rectangle with coordinates truncated to include the largest area. */
   truncateOut() {
     const { floor, ceil } = Math;
     return new Rectangle(
@@ -177,8 +182,7 @@ export class Rectangle {
     );
   }
 
-  /** Returns a new rectangle with coordinates truncated to include the
-   * smallest area. */
+  /** Returns a new rectangle with coordinates truncated to include the smallest area. */
   truncateIn() {
     const { floor, ceil } = Math;
     return new Rectangle(
@@ -189,15 +193,13 @@ export class Rectangle {
     );
   }
 
-  /** Returns true if this and the given rectangle have areas which share
-   * a coordinate space. */
+  /** Returns true if this and the given rectangle have areas which share a coordinate space. */
   intersects(rect: Rectangle): boolean {
     const intersection = this.getIntersection(rect);
     return intersection.equal(Rectangle.Empty);
   }
 
-  /** Returns the position and area of the coordinate space shared by
-   * this and the given rectangle as a new Rectangle object.
+  /** Returns the rectangle defined by the cross-section of this and the given rectangle.
    * Rectangles are not considered intersecting if they merely share a side.
    * If this and the given rect are not intersecting, returns an Empty rectangle. */
   getIntersection(rect: Rectangle): Rectangle {
@@ -211,8 +213,16 @@ export class Rectangle {
       : Rectangle.Empty;
   }
 
-  /** Returns the minimum distance of a point to one of this rectangle's edges
-   * or vertices. */
+  /** Returns a coordinate relative to this rectangle's top-left corner and proportional to its width/height
+   * by the given anchor point. Ex: anchor=(.8, .8) returns a point in the lower-right rectangle quadrant. */
+  getPointByProportion(anchor: Point) {
+    return new Point(
+      this.left + anchor.x*this.width,
+      this.top + anchor.y*this.height,
+    )
+  }
+
+  /** Returns the minimum distance of a point to one of this rectangle's edges or vertices. */
   minimumDistanceTo(p: Point): number {   // TODO Include Rects as options too
     const { abs } = Math;
     const { left, right, top, bottom } = this;
