@@ -1,10 +1,10 @@
 import * as PIXI from "pixi.js";
-import { LowResTransform } from "./LowResTransform";
-import { TransformContainer } from "./CommonTypes";
-import { Game } from "..";
-import { Point } from "./Common/Point";
-import { Common } from "./CommonUtils";
-import { FollowAlgorithm, QuantizedScreenPush } from "./CameraFollowAlgorithms";
+import { LowResTransform } from "../LowResTransform";
+import { TransformContainer } from "../CommonTypes";
+import { Game } from "../..";
+import { Point } from "../Common/Point";
+import { Common } from "../CommonUtils";
+import { FollowAlgorithm, QuantizedScreenPush } from "../CameraFollowAlgorithms";
 
 // TODO Camera should offer convenient data structures, like Points and Rectangles. Stuff that doesn't need any finessing, you know?
 // TODO Case in point: worldFrame *uses a rectangle* but obstinately refuses to return it as-is; stop that.
@@ -108,6 +108,18 @@ export class Camera {
   getFrame(which: 'world' | 'focal', zoom: 'current' | 'final' = 'current') {
     
   }
+
+
+  /*
+  
+  camera.getFrame('world');
+  camera.getFrame('world', 'final')
+
+  camera.worldFrame.x  .y  .width  .height
+  camera.worldFrame.left  .right  .top  .bottom
+  
+  
+  */
 
   /** A rectangle in world-space representing what the camera can see. */
   worldFrame(): PIXI.Rectangle {
