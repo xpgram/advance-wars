@@ -1,34 +1,8 @@
 # Next Big Objectives
 
-- [ ] I have vaguely decided to redesign the camera API.
-  - [ ] Instead of camera.center.x =, use camera.move(p: Point, mode?: 'center' | 'world' | 'frame')
-    - [ ] In this function, all relevant coordinates are updated at once.
-    - [ ] Those coordinates are readonly, naturally.
-  - [ ] Instead of camera.zoom =, use camera.zoom(factor: number); all functions now.
-
-The camera stuff is sort of done. But the camera sucks. As it always has. Forever.
-- [ ] There's a todo list inside Camera.ts
-- [ ] Figure out why zoom is broken. More than usual, I mean.
-  - [ ] Does zoom use the center of the mapCursor? ... No. Actually I'm pretty sure it doesn't. It shouldn't. Only because it causes unnecessary headaches. The bottom right corner of the map will zoom a little differently than the top left because the cursor anchor can't be flush with it, but that's fine and probably not really noticeable.
-  Ohhh, okay. Zoom implementation is whack, but it works; we know 'cause it did.
-  The reason it's more whack now is because when the camera zooms out, the camera's y coordinate moves, it moves out of alignment with the follow alg's quantize. Follow picks a new quantized target, but this target is ~elsewhere~.
-  I'm not sure how we could blend the old zoom behavior with an alg I just wrote to specifically allow only certain camera positions.
-  I mean, with infinite precision a few divisions and such would be fine. Like, we *should* be able to derive the quantized position from the ideal zoom level even when our real zoom be different.
-
-  I think this will be *easier* when I get about maintaining an ideal view bounds and deriving the real camera position from that, instead of the other way around, but I'm not sure if *easier* means *possible*.
-
-  It might also help to let camera handle the zoom transition.
-  Then it would know where it's trying to get to (and I guess at what speed, to preserve script control) and the followAlg could simply re-quantize to whatever the new zoom level *will be* instead of all the intermediary stages.
-
-  What if I added a new followAlgrithm that zoom could switch to?
-  HoldFocal
-  Whatever the distance... % screen position, of the focal point in view is, it is maintained forever. The control script would switch to this whenever it's adjusting.
-
-  Would this be better than letting camera handle zoom and quantizing to whatever its new rect *would* be, though?
-
-  I think... I like the idea of updating world frame to the new zoom level immediately, and using that to quantize.
-
-  Getting all of camera's properties to be readable/settable when they're all interwoven is really annoying.
+- [ ] Camera refactor: two rects
+  - [ ] Desired view rect
+  - [ ] Actual view rect, follows Desired
 
 ShowUnitAttackRange:
 - [x] Allow camera movement

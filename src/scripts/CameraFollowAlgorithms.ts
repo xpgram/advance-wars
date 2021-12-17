@@ -5,6 +5,8 @@ import { Rectangle } from "./Common/Rectangle";
 import { Common } from "./CommonUtils";
 import { Keys } from "./controls/KeyboardObserver";
 
+// TODO [x] FollowAlgorithm (rename?) for following targets
+// TODO [ ] TravelAlgorithm for approaching camera ViewRect
 export interface FollowAlgorithm {
   update(camera: Camera): void;
 }
@@ -58,15 +60,6 @@ export class QuantizedScreenPush {
       getAxis(focal.x, this.lastTravelVector.x, viewFrame.x, viewFrame.width),
       getAxis(focal.y, this.lastTravelVector.y, viewFrame.y, viewFrame.height),
     );
-
-    if (Game.devController.down(Keys.K))
-      console.log(`
-  tile ${tileSize}
-  focal ${focal.toString()}
-  view ${new Rectangle(viewFrame).toString()}
-  tx ${this.target.x}
-  ty ${this.target.y}
-      `)
 
     // Update tracker for zoom detection
     this.lastZoom = camera.zoom;

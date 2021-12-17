@@ -6,35 +6,15 @@ import { Point } from "../Common/Point";
 import { Common } from "../CommonUtils";
 import { FollowAlgorithm, QuantizedScreenPush } from "../CameraFollowAlgorithms";
 
-// TODO Camera should offer convenient data structures, like Points and Rectangles. Stuff that doesn't need any finessing, you know?
-// TODO Case in point: worldFrame *uses a rectangle* but obstinately refuses to return it as-is; stop that.
-// TODO Camera needs a getter for the on-screen tile size. Game.display.standard*zoom. Easy.
-// TODO A lot of this was written to "cleverly" compartmentalize properties into handy getters.
-//   I think this actually indicates a need for more sophisticated data structures. It probably always did, but I'm stubborn.
-//   Here's the capital problem:
-//     camera.x yields the camera's position
-//     camera.center.x yields the camera-center's position
-//     both are linked and update at the same time, literally the same instant
-//     both are settable, their setting instantly affects the other
-//     so, center, viewFrame, etc. are relational shortcuts to the standard camera properties.
-//   Getting 'x' from the worldFrame is more clear.
-//   Setting 'x' from the viewFrame is done a lot anyway, so provide a shortcut.
-//   If I need rectangles with more functions, I can write my own class which extends Pixi's.
-//   Maybe updating any property on viewFrame calls a listener which resyncs all camera frames.
-// TODO focalFrame has 0 references, refactor viewFrame => focalFrame; the name is more clear.
-// TODO Maintain an ideal 1:1 zoom rectangle. When camera needs to figure where the stage should be placed, extrapolate from
-//   the ideal rectangle to the zoom-level rectangle; currently we're doing it the other way.
-// TODO Zoom does not maintain a zoom number, it is only inferrable from the effects it has caused. This isn't *wrong*
-//   but it feels really weird. And we can never calc-correct.
-
-// TODO I want all coordinate setting to happen via the camera's center.
-//   Any others are abstractions from this one real coordinate.
-//   center > baseRect > worldRect
-// The problem I'm fixing is that the topleft coordinates move on zoom which confuses the fuck
-// out of the follow alg's quantizer. I need to build a vector or target position from the focal
-// point, not the topleft.
-// So, center coords won't fix this; I think I'd still like to have them, though. ... I think.
-// Anyway, this refactor is fine, but... it's fine. I should just fix the follow alg rn first though.
+// TODO Camera, among a few other things, whatever they be, has three ViewRects.
+// Transforms:
+//  1- ideal: The ideal camera coordinates and settings: where cam *should* be.
+//  2- actual: The real camera coordinates and settings: where cam *is*; read only.
+//  3- offset: Camera coordinates and settings relative to actual; for screen shake.
+// Movement patterns:
+//  1- Position alg: Sets a state for the camera to aim to transition to.
+//  2- Approach alg: Sets a method of actual to ideal state travel.
+//  3- Relative alg: Sets a method of motion relative to its cur (screen shake).
 
 /**
  * Takes control of a PIXI container, usually the global stage, and manipulates it
