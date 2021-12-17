@@ -143,7 +143,7 @@ export class Rectangle {
     return this.fit(this, ...objects);
   }
 
-  /** Returns true if this rectangle wholly encloses the given rectangle's coordinate-space. */
+  /** Returns true if this rectangle wholly encloses the given object's coordinate-space. */
   contains(other: Rectangle | Point): boolean {
     const rect = new Rectangle(other);
     return (

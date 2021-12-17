@@ -1,58 +1,97 @@
-import { Rectangle } from "pixi.js";
 import { Game } from "../..";
+import { Camera } from "../Camera";
+import { ValueError } from "../Common/ErrorTypes";
 import { Point } from "../Common/Point";
+import { Rectangle } from "../Common/Rectangle";
 
+/** Describes a transform for a Camera object. */
 export class ViewRect {
 
-  // This class describes a camera transform. Simple as.
+  private camera: Camera;
 
-  center: Point = new Point();
-  get width() { return Game.display.renderWidth * this.zoom; }
-  get height() { return Game.display.renderHeight * this.zoom; }
-  get x()  { return this.center.x - 0.5*this.width; }
-  set x(n) { this.center.x = n + 0.5*this.width; }
-  get y()  { return this.center.y - 0.5*this.height; }
-  set y(n) { this.center.y = n + 0.5*this.height; }
-  horizontalBorder: number = 0;
-  verticalBorder: number = 0;
-  zoom: number = 1;
-  rotation: number = 0;
+  private baseWidth = Game.display.renderWidth;
+  private baseHeight = Game.display.renderHeight;
 
-  /**  */
+  private position = new Point();
+  private zoom: number = 1;
+
+  /** Describes the subject view bounds within the view rect.
+   * All positive integers here are biased towards the center from the side they describe. */
+  border = {
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  }
+
+  /** Whether zoom-scale affects the in-frame border. */
+  applyZoomToBorder = false;
+
+  /** Whether the camera's subject of focus is in frame or not. Always true if the camera
+   * has no subject. */
+  get subjectInFrame(): boolean {
+    const srect = this.subjectRect();
+    const focal = this.camera.focal;
+    return !focal || srect.contains(focal);
+  }
+
+
+  constructor(ref: Camera) {
+    this.camera = ref;
+  }
+
+  destroy() {
+    //@ts-expect-error
+    this.camera = undefined;
+  }
+
+
+  /** Returns a Rectangle corrosponding to the in-world coordinates of what this
+   * ViewRect considers seeable. */
   worldRect() {
+    const { position, baseWidth, baseHeight, zoom } = this;
     return new Rectangle(
-      this.x,
-      this.y,
-      this.width,
-      this.height,
+      position.x, position.y,
+      baseWidth / zoom,
+      baseHeight / zoom,
     )
   }
 
-  /**  */
+  /** Returns a Rectangle corrosponding to the in-world coordinates of what this
+   * ViewRect considers in-frame. */
   subjectRect() {
-    const { x, y, width, height, horizontalBorder, verticalBorder } = this;
+    let { left, right, top, bottom } = this.border;
+    const wrect = this.worldRect();
+
+    if (this.applyZoomToBorder)
+      [left, right, top, bottom] = [left, right, top, bottom].map( b => b / this.zoom );
+
     return new Rectangle(
-      x + horizontalBorder,
-      y + verticalBorder,
-      width - 2*horizontalBorder,
-      height - 2*verticalBorder,
+      wrect.x + left, wrect.y + top,
+      wrect.width - right,
+      wrect.height - bottom,
     )
   }
 
-  /**  */
-  idealRect() {
-    const { center } = this;
-    const { renderWidth, renderHeight } = Game.display;
-    return new Rectangle(
-      center.x - .5*renderWidth,
-      center.y - .5*renderHeight,
-      renderWidth,
-      renderHeight,
-    )
-  }
+  /** Sets this ViewRect's zoom factor with respect to the given anchor point.
+   * Anchor is a real-world coordinate, not proportional to this rect's dimensions.
+   * Anchor is by default the ViewRect's center. */
+  setZoom(n: number, anchor?: Point) {
+    if (n <= 0)
+      throw new ValueError(`Cannot set property 'zoom' to 0.`);
 
+    anchor = anchor || this.worldRect().center;
+    const last = this.zoom;
+    const next = n;
+    this.zoom = next;
 
-  constructor() {
-    
+    // reposition coordinates with respect to anchor point
+    const { x, y } = this.position;
+    const { x: ax, y: ay } = anchor;
+    this.position.set(
+      ax - ((ax - x) * last / next),  // Forumula resizes the distance from x,y to
+      ay - ((ay - y) * last / next),  // anchor according to new zoom factor.
+    );
   }
+ 
 }
