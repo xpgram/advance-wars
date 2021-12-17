@@ -1,6 +1,18 @@
 import { Common } from "../CommonUtils";
 import { Point } from "./Point";
 
+export type RectanglePrimitive = {
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+}
+
+function isRectangle(o: any): o is RectanglePrimitive {
+  const {x,y,width,height} = o;
+  return [x,y,width,height].every( prop => typeof prop === 'number');
+}
+
 /** A rectangle in 2-dimensional space. */
 export class Rectangle {
   x: number = 0;
@@ -21,14 +33,15 @@ export class Rectangle {
   get center() { return this.getPointByProportion(new Point(.5)); }
 
 
-  constructor(x?: number | Rectangle | Point, y?: number, width?: number, height?: number) {
+  constructor(x?: number | RectanglePrimitive | Point, y?: number, width?: number, height?: number) {
     this.set(x, y, width, height);
   }
 
   /** Sets this rectangles properties to those given. */
-  set(x?: number | Rectangle | Point, y?: number, width?: number, height?: number): Rectangle {
+  set(x?: number | RectanglePrimitive | Point, y?: number, width?: number, height?: number): Rectangle {
     const o = x;
-    if (o instanceof Rectangle) {
+    // TODO I broke instanceof; I need an eval function
+    if (isRectangle(o)) {
       const { x, y, width, height } = o;
       Object.assign(this, {x, y, width, height});
     } else if (o instanceof Point) {
@@ -231,6 +244,12 @@ export class Rectangle {
       abs(Common.displacementFromRange(p.y, top, bottom)),
     );
     return vector.magnitude();
+  }
+
+  /** Returns a string representation of this rectangle's properties. */
+  toString() {
+    const { x, y, width, height } = this;
+    return `[${x} ${y} ${width}w ${height}h]`;
   }
 
 
