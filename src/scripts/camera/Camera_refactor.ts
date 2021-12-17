@@ -10,7 +10,10 @@ import { FollowAlgorithm, QuantizedScreenPush } from "../CameraFollowAlgorithms"
 // Transforms:
 //  1- ideal: The ideal camera coordinates and settings: where cam *should* be.
 //  2- actual: The real camera coordinates and settings: where cam *is*; read only.
-//  3- offset: Camera coordinates and settings relative to actual; for screen shake.
+//  2- (last): The real camera ... from last frame; private.
+//  3- vector: The difference between this and last frame's actual transform.
+//  4- offset: Camera coordinates and settings relative to actual; for screen shake.
+//  5- (render): actual + offset, used for next draw(); private.
 // Movement patterns:
 //  1- Position alg: Sets a state for the camera to aim to transition to.
 //  2- Approach alg: Sets a method of actual to ideal state travel.
