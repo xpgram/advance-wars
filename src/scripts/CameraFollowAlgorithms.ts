@@ -1,6 +1,7 @@
 import { Game } from "..";
 import { Camera } from "./Camera";
 import { Point } from "./Common/Point";
+import { Rectangle } from "./Common/Rectangle";
 import { Common } from "./CommonUtils";
 import { Keys } from "./controls/KeyboardObserver";
 
@@ -13,6 +14,7 @@ export class QuantizedScreenPush {
   private target = Point.Origin;
   private lastTravelVector = Point.Origin;
   private quanta = Game.display.standardLength;
+  private lastZoom = -1;
 
   update(camera: Camera) {
     this.updateTarget(camera);
@@ -30,20 +32,24 @@ export class QuantizedScreenPush {
     const { floor, ceil, sign } = Math;
     const self = (n: number) => n;
 
+    // Suspend grid-snapping flag — tmp until I finish camera refactor
+    const zooming = (this.lastZoom !== camera.zoom);
+
     const tileSize = this.getTileSize(camera.zoom);
-    const focal = camera.getFocalPoint();
-    const { viewFrame } = camera;
+    const focal = camera.getFocalPoint().multiply(camera.zoom);
+    const viewFrame = this.getViewFrame(camera);
 
     // Returns either the focal point or a quantized target point in the direction of bias.
     function getAxis(focal: number, bias: number, camX: number, camW: number) {
       const left = camX;
       const right = camX + camW;
       
-      if (!Common.within(focal, left, right))
+      if (!Common.within(focal, left, right) || zooming)
         return focal;
 
       const trunc = [floor, self, ceil][sign(bias) + 1];
       const cameraSide = (bias < 0) ? left : right;
+
       return trunc(cameraSide / tileSize) * tileSize;
     }
 
@@ -52,6 +58,18 @@ export class QuantizedScreenPush {
       getAxis(focal.x, this.lastTravelVector.x, viewFrame.x, viewFrame.width),
       getAxis(focal.y, this.lastTravelVector.y, viewFrame.y, viewFrame.height),
     );
+
+    if (Game.devController.down(Keys.K))
+      console.log(`
+  tile ${tileSize}
+  focal ${focal.toString()}
+  view ${new Rectangle(viewFrame).toString()}
+  tx ${this.target.x}
+  ty ${this.target.y}
+      `)
+
+    // Update tracker for zoom detection
+    this.lastZoom = camera.zoom;
   }
 
   /**  */

@@ -4,7 +4,7 @@ import { Game } from "../../..";
 
 export class CameraZoom extends ControlScript {
 
-    readonly zoomOutMaxAdditionalTiles = 10;
+    readonly zoomOutMaxAdditionalTiles = 12;
 
     private zoomSlider = new Slider({
         track: 'max',
