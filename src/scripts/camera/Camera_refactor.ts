@@ -33,23 +33,25 @@ import { ViewRect } from "./ViewRect";
  */
 export class Camera {
 
-  /** A container for a set of transform objects which describe different aspects
-   * of this camera's position. */
-  transform = {
-    ideal: new ViewRect(this),
-    offset: new ViewRect(this),
-  }
+  /** The target state this camera aspires to. Set state here and let the follow algorithms do the rest. */
+  readonly targetTransform = new ViewRect(this);
+
+  /** Returns a readonly-purpose copy of this Camera's current transform. */
+  currentTransform() { return this.hiddenTransforms.actual.clone(); }
+
+  /** Returns a readonly-purpose copy of this Camera's render transform (includes offset changes/relative behavior). */
+  renderTransform() { return this.hiddenTransforms.render.clone(); }
 
   /** A container for a set of not publically accessible transform objects which
-   * describe different aspects of this camera's position.
-   */
+   * describe different aspects of this camera's position. */
   private hiddenTransforms = {
-    actual: new ViewRect(this),
-    lastFrame: new ViewRect(this),
-    vector: new ViewRect(this),
-    render: new ViewRect(this),
+    actual: new ViewRect(this),     // Current state
+    offset: new ViewRect(this),     // Relative-to-current state
+    lastFrame: new ViewRect(this),  // Last-frame's state
+    vector: new ViewRect(this),     // Vector from last-to-current state
+    render: new ViewRect(this),     // Composition state (actual+offset) used for rendering
   }
 
-  get realTransform() { return this.hiddenTransforms.actual.clone(); }
+  // ...
   
 }
