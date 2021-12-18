@@ -1,8 +1,8 @@
 import { Game } from "../..";
-import { Camera } from "../Camera";
 import { ValueError } from "../Common/ErrorTypes";
 import { Point } from "../Common/Point";
 import { Rectangle } from "../Common/Rectangle";
+import { Camera } from "./Camera_refactor";
 
 /** Describes a transform for a Camera object. */
 export class ViewRect {
@@ -73,6 +73,18 @@ export class ViewRect {
     )
   }
 
+  /** Sets this rect's coordinates using its top-left corner as the origin. */
+  setPosition(pos: Point) {
+    this.position = pos;
+  }
+
+  /** Sets this rect's coordinates using its center as the origin. */
+  setCenter(pos: Point) {
+    const rect = this.worldRect();
+    pos = pos.subtract(rect.width*0.5, rect.height*0.5);
+    this.setPosition(pos);
+  }
+
   /** Sets this ViewRect's zoom factor with respect to the given anchor point.
    * Anchor is a real-world coordinate, not proportional to this rect's dimensions.
    * Anchor is by default the ViewRect's center. */
@@ -92,6 +104,16 @@ export class ViewRect {
       ax - ((ax - x) * last / next),  // Forumula resizes the distance from x,y to
       ay - ((ay - y) * last / next),  // anchor according to new zoom factor.
     );
+  }
+
+  /** Returns a copy of this ViewRect as a new object. */
+  clone(): ViewRect {
+    
+  }
+
+  /** Returns a delta-ViewRect holding the difference in properties from 'from' to self. */
+  produceVector(from: ViewRect): ViewRect {
+
   }
  
 }
