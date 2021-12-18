@@ -7,10 +7,10 @@ import { Camera } from "./Camera_refactor";
 /** Describes a transform for a Camera object. */
 export class ViewRect {
 
-  private camera: Camera;
+  private readonly camera: Camera;
 
-  private baseWidth = Game.display.renderWidth;
-  private baseHeight = Game.display.renderHeight;
+  private readonly baseWidth = Game.display.renderWidth;
+  private readonly baseHeight = Game.display.renderHeight;
 
   private position = new Point();
   private zoom: number = 1;
@@ -31,7 +31,7 @@ export class ViewRect {
    * has no subject. */
   get subjectInFrame(): boolean {
     const srect = this.subjectRect();
-    const focal = this.camera.focal;
+    const focal = this.camera.focalPoint;
     return !focal || srect.contains(focal);
   }
 
@@ -108,12 +108,18 @@ export class ViewRect {
 
   /** Returns a copy of this ViewRect as a new object. */
   clone(): ViewRect {
-    
+    const view = new ViewRect(this.camera);
+    view.position.set(this.position);
+    view.zoom = this.zoom;
+    view.border = {...this.border};
+    view.applyZoomToBorder = this.applyZoomToBorder;
+    return view;
   }
 
-  /** Returns a delta-ViewRect holding the difference in properties from 'from' to self. */
+  /** Returns a delta-ViewRect holding the difference in properties from 'from' to self.
+   * @notimplemented */
   produceVector(from: ViewRect): ViewRect {
-
+    throw new Error(`Not implemented`);
   }
  
 }

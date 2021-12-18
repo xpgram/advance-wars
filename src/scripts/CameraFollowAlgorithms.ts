@@ -11,6 +11,9 @@ export interface FollowAlgorithm {
   update(camera: Camera): void;
 }
 
+export class NullAlgorithm {
+  update(camera: Camera) { }
+}
 
 export class QuantizedScreenPush {
   private target = Point.Origin;
