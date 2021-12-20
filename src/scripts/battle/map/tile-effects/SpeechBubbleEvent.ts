@@ -1,6 +1,6 @@
 import { Spritesheet } from "pixi.js";
 import { Game } from "../../../..";
-import { Camera } from "../../../Camera";
+import { Camera } from "../../../camera/Camera_refactor";
 import { Point } from "../../../Common/Point";
 import { Slider } from "../../../Common/Slider";
 import { Timer } from "../../../timer/Timer";
@@ -54,7 +54,8 @@ export class SpeechBubbleEvent extends TileEvent {
 
     const boardPos = actor.boardLocation;
     const worldPos = boardPos.multiply(tileSize);
-    const leftsideViewport = (camera.center.x > worldPos.x);
+    const view = camera.targetTransform.worldRect();
+    const leftsideViewport = (view.center.x > worldPos.x);
 
     const sheet = Game.scene.resources['UISpritesheet'].spritesheet as Spritesheet;
     const tex = sheet.textures[`bubble-${message}-${leftsideViewport ? 'right' : 'left'}.png`];

@@ -3,6 +3,15 @@ import { ValueError } from "../Common/ErrorTypes";
 import { Point } from "../Common/Point";
 import { Rectangle } from "../Common/Rectangle";
 import { Camera } from "./Camera_refactor";
+import { ViewRectBorder } from "./ViewRectBorder";
+
+
+/** Describes relative changes to or from a ViewRect. */
+export class ViewRectVector {
+  position = new Point();
+  zoom = 0;
+  border = new ViewRectBorder();
+}
 
 /** Describes a transform for a Camera object. */
 export class ViewRect {
@@ -12,17 +21,15 @@ export class ViewRect {
   private readonly baseWidth = Game.display.renderWidth;
   private readonly baseHeight = Game.display.renderHeight;
 
-  private position = new Point();
-  private zoom: number = 1;
+  get position() { return this._position.clone(); }
+  private _position = new Point();
+
+  get zoom() { return this._zoom; }
+  private _zoom: number = 1;
 
   /** Describes the subject view bounds within the view rect.
    * All positive integers here are biased towards the center from the side they describe. */
-  border = {
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  }
+  border = new ViewRectBorder();
 
   /** Whether zoom-scale affects the in-frame border. */
   applyZoomToBorder = false;
@@ -49,7 +56,7 @@ export class ViewRect {
   /** Returns a Rectangle corrosponding to the in-world coordinates of what this
    * ViewRect considers seeable. */
   worldRect() {
-    const { position, baseWidth, baseHeight, zoom } = this;
+    const { _position: position, baseWidth, baseHeight, _zoom: zoom } = this;
     return new Rectangle(
       position.x, position.y,
       baseWidth / zoom,
@@ -64,7 +71,7 @@ export class ViewRect {
     const wrect = this.worldRect();
 
     if (this.applyZoomToBorder)
-      [left, right, top, bottom] = [left, right, top, bottom].map( b => b / this.zoom );
+      [left, right, top, bottom] = [left, right, top, bottom].map( b => b / this._zoom );
 
     return new Rectangle(
       wrect.x + left, wrect.y + top,
@@ -75,7 +82,7 @@ export class ViewRect {
 
   /** Sets this rect's coordinates using its top-left corner as the origin. */
   setPosition(pos: Point) {
-    this.position = pos;
+    this._position = pos;
   }
 
   /** Sets this rect's coordinates using its center as the origin. */
@@ -93,15 +100,15 @@ export class ViewRect {
       throw new ValueError(`Cannot set property 'zoom' to 0.`);
 
     anchor = anchor || this.worldRect().center;
-    const last = this.zoom;
+    const last = this._zoom;
     const next = n;
-    this.zoom = next;
+    this._zoom = next;
 
     // reposition coordinates with respect to anchor point
-    const { x, y } = this.position;
+    const { x, y } = this._position;
     const { x: ax, y: ay } = anchor;
-    this.position.set(
-      ax - ((ax - x) * last / next),  // Forumula resizes the distance from x,y to
+    this._position.set(
+      ax - ((ax - x) * last / next),  // Formula resizes the distance from topleft to
       ay - ((ay - y) * last / next),  // anchor according to new zoom factor.
     );
   }
@@ -109,17 +116,41 @@ export class ViewRect {
   /** Returns a copy of this ViewRect as a new object. */
   clone(): ViewRect {
     const view = new ViewRect(this.camera);
-    view.position.set(this.position);
-    view.zoom = this.zoom;
-    view.border = {...this.border};
+    view._position.set(this._position);
+    view._zoom = this._zoom;
+    view.border = this.border;
     view.applyZoomToBorder = this.applyZoomToBorder;
     return view;
   }
 
-  /** Returns a delta-ViewRect holding the difference in properties from 'from' to self.
-   * @notimplemented */
-  produceVector(from: ViewRect): ViewRect {
-    throw new Error(`Not implemented`);
+  /** Returns true if the given ViewRect is equivalent to this one. */
+  equal(other: ViewRect) {
+    const sameRects = this.worldRect().equal(other.worldRect());
+    const sameZoom = this.zoom === other.zoom;
+    const sameBorder = this.border.equal(other.border);
+    return sameRects && sameZoom && sameBorder;
+  }
+
+  /** Returns a delta-ViewRect holding the difference in properties from 'from' to self. */
+  produceVector(from: ViewRect): ViewRectVector {
+    const rectA = this.worldRect();
+    const rectB = from.worldRect();
+
+    const vector = new ViewRectVector();
+    vector.position = rectA.topleft.subtract(rectB.topleft);
+    vector.zoom = this.zoom - from.zoom;
+    vector.border = this.border.subtract(from.border);
+
+    return vector;
+  }
+
+  /** Returns a new ViewRect with properties combined from this and the given ViewRectVector. */
+  addVector(vector: ViewRectVector): ViewRect {
+    const view = this.clone();
+    view._position = view._position.add(vector.position);
+    view._zoom += vector.zoom;
+    view.border = view.border.add(vector.border);
+    return view;
   }
  
 }

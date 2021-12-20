@@ -57,7 +57,8 @@ export class FactoryMenu extends TurnState {
     shopMenu.show();
     uiSystem.show();
 
-    const onLeftSide = (mapCursor.transform.x > camera.center.x - 16);
+    const view = camera.targetTransform.worldRect();
+    const onLeftSide = (mapCursor.transform.x > view.center.x - 16);
 
     shopMenu.gui.position.set(
       (onLeftSide)

@@ -1,12 +1,11 @@
 import { Game } from "..";
 import { Camera } from "./Camera";
 import { Point } from "./Common/Point";
-import { Rectangle } from "./Common/Rectangle";
 import { Common } from "./CommonUtils";
-import { Keys } from "./controls/KeyboardObserver";
 
-// TODO [x] FollowAlgorithm (rename?) for following targets
-// TODO [ ] TravelAlgorithm for approaching camera ViewRect
+
+
+
 export interface FollowAlgorithm {
   update(camera: Camera): void;
 }

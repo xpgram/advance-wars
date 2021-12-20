@@ -5,6 +5,7 @@ import { UnitObject } from "../scripts/battle/UnitObject";
 import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSceneControllers";
 import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystemManager";
 import { updateUniforms } from "../scripts/filters/TileSpotlight";
+import { Point } from "../scripts/Common/Point";
 
 /**
  * @author Dei Valko
@@ -104,22 +105,28 @@ export class BattleScene extends Scene {
         // Stage centering when stage is too smol
         // This, uh... don't look at it.
         // TODO Don't look at it.
+        
+        const { camera, map } = this.controllers;
+        const view = camera.targetTransform.worldRect();
 
-        if (this.controllers.camera.width >= this.controllers.map.width*16 + 80 && this.controllers.camera.height >= this.controllers.map.height*16 + 64)
-            this.controllers.camera.followTarget = {
-                x: this.controllers.map.width*8,
-                y: this.controllers.map.height*8
-            }
-        else if (this.controllers.camera.width >= this.controllers.map.width*16 + 80)
-            this.controllers.camera.followTarget = ((scene: BattleScene) => { return {
-                x: this.controllers.map.width*8,
-                get y() { return scene.controllers.mapCursor.transform.exact.y; }
-            }})(this);
-        else if (this.controllers.camera.height >= this.controllers.map.height*16 + 64)
-            this.controllers.camera.followTarget = ((scene: BattleScene) => { return {
-                get x() { return scene.controllers.mapCursor.transform.exact.x; },
-                y: this.controllers.map.height*8
-            }})(this);
+        // TODO This was middle-snapping for small maps.
+        // This needs to be handled somewhere else.
+
+        // if (view.width >= map.width*16 + 80 && view.height >= map.height*16 + 64)
+        //     camera.focalPoint = new Point(
+        //         this.controllers.map.width*8,
+        //         this.controllers.map.height*8
+        //     );
+        // else if (view.width >= map.width*16 + 80)
+        //     camera.focalPoint = ((scene: BattleScene) => { return {
+        //         x: this.controllers.map.width*8,
+        //         get y() { return scene.controllers.mapCursor.transform.exact.y; }
+        //     }})(this);
+        // else if (this.controllers.camera.height >= this.controllers.map.height*16 + 64)
+        //     this.controllers.camera.followTarget = ((scene: BattleScene) => { return {
+        //         get x() { return scene.controllers.mapCursor.transform.exact.x; },
+        //         y: this.controllers.map.height*8
+        //     }})(this);
         //   Here's what the above block is doing and what to focus on when refactoring:
         // As *soon* as the map is too small not to fit neatly inside the camera frame,
         // the x or y (or both) coordinate that we're 'following' snaps to the middle of

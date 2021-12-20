@@ -1,33 +1,20 @@
-import * as PIXI from "pixi.js";
-import { LowResTransform } from "../LowResTransform";
-import { TransformContainer } from "../CommonTypes";
-import { Game } from "../..";
 import { Point } from "../Common/Point";
-import { Common } from "../CommonUtils";
-import { FollowAlgorithm, NullAlgorithm, QuantizedScreenPush } from "../CameraFollowAlgorithms";
-import { ViewRect } from "./ViewRect";
+import { ViewRect, ViewRectVector } from "./ViewRect";
+import { Game } from "../..";
+import { UpdatePriority } from "../Common/UpdatePriority";
+import { PositionalAlgorithm } from "./PositionalAlgorithms";
+import { TravelAlgorithm } from "./TravelAlgorithms";
+import { DisplacementAlgorithm } from "./DisplacementAlgorithms";
+import { ViewRectBorder } from "./ViewRectBorder";
 
-// TODO Camera, among a few other things, whatever they be, has three ViewRects.
-// Transforms:
-//  1- ideal: The ideal camera coordinates and settings: where cam *should* be.
-//  2- actual: The real camera coordinates and settings: where cam *is*; read only.
-//  2- (last): The real camera ... from last frame; private.
-//  3- vector: The difference between this and last frame's actual transform.
-//  4- offset: Camera coordinates and settings relative to actual; for screen shake.
-//  5- (render): actual + offset, used for next draw(); private.
-// Movement patterns:
-//  1- Position alg: Sets a state for the camera to aim to transition to.
-//  2- Approach alg: Sets a method of actual to ideal state travel.
-//  3- Relative alg: Sets a method of motion relative to its cur (screen shake).
-
-// TODO Because transform.actual is private, but is also how the camera actually moves,
-// FollowAlgorithms will need to take a ViewRect and a focal point|undefined as inputs
-// instead. This is probably more Functional anyway.
 
 type AlgorithmSet = {
-  destination: FollowAlgorithm;
-  travel: FollowAlgorithm;
-  displacement: FollowAlgorithm;
+  /** The method by which the camera will choose transform targets. */
+  destination?: PositionalAlgorithm;
+  /** The method by which the camera will approach its current transform target. */
+  travel?: TravelAlgorithm;
+  /** A method by which the camera will mix additional behaviors into its normal behavior. */
+  displacement?: DisplacementAlgorithm;
 }
 
 /**
@@ -45,6 +32,18 @@ export class Camera {
   /** The target state this camera aspires to. Set state here and let the follow algorithms do the rest. */
   readonly targetTransform = new ViewRect(this);
 
+  /** True if this camera's focal point is inside its view bounds. */
+  get subjectInView(): boolean {
+    const viewRect = this.hiddenTransforms.actual.subjectRect();
+    const focal = this.getFocalPoint();
+    return viewRect.contains(focal);
+  }
+
+  /** True if this camera's actual frame-rect is equal to its target frame-rect. */
+  get doneTraveling(): boolean {
+    return this.hiddenTransforms.actual.equal(this.targetTransform);
+  }
+
   /** Returns a readonly-purpose copy of this Camera's current transform. */
   currentTransform() { return this.hiddenTransforms.actual.clone(); }
 
@@ -55,23 +54,66 @@ export class Camera {
    * describe different aspects of this camera's position. */
   private hiddenTransforms = {
     actual: new ViewRect(this),     // Current state
-    offset: new ViewRect(this),     // Relative-to-current state
+    offset: new ViewRectVector(),   // Relative-to-current state
     lastFrame: new ViewRect(this),  // Last-frame's state
-    // vector: new ViewRect(this),  // Vector from last-to-current state
     render: new ViewRect(this),     // Composition state (actual+offset) used for rendering
   }
 
   /** A container for a set of behavioral algorithms which describe the camera's
    * frame-by-frame movement. */
-  algorithm: AlgorithmSet = {
-    /** The method by which the camera will choose transform targets. */
-    destination: new NullAlgorithm(),   // := target
-    /** The method by which the camera will approach its current transform target. */
-    travel: new NullAlgorithm(),        // actual → target
-    /** A method by which the camera will mix additional behaviors into its normal behavior. */
-    displacement: new NullAlgorithm(),  // := offset, actual+offset => render
+  algorithm: AlgorithmSet = { }
+
+  /** The graphical object manipulated by this camera. */
+  private stage: PIXI.Container;
+
+  
+  constructor(stage: PIXI.Container) {
+    this.stage = stage;
+    Game.scene.ticker.add(this.update, this, UpdatePriority.Camera);
   }
 
-  // ...
+  destroy() {
+    Game.scene.ticker.remove(this.update, this);
+  }
+
+  update() {
+    const { destination, travel, displacement } = this.algorithm;
+    const transforms = this.hiddenTransforms;
+
+    // Update transforms
+    destination?.update(
+      this.targetTransform,
+      this.focalPoint || transforms.actual.worldRect().center,
+    )
+    travel?.update(
+      transforms.actual,
+      this.targetTransform,
+    )
+    transforms.offset = displacement?.get() || new ViewRectVector();
+    transforms.render = transforms.actual.addVector(transforms.offset);
+
+    // Modify stage to reflect render transform
+    const viewRect = transforms.render.worldRect();
+    const zoom = transforms.render.zoom;
+
+    this.stage.position.set(
+      -viewRect.x * zoom,
+      -viewRect.y * zoom,
+    );
+    this.stage.scale.set(zoom);
+      // this.stage.rotation = transforms.render.
+  }
+
+  /** Returns a point corresponding either to the target of focus or the center of the camera's view. */
+  getFocalPoint(): Point {
+    return this.focalPoint || this.hiddenTransforms.actual.worldRect().center;
+  }
+
+  // TODO I don't like this solution, I just need something during prototyping.
+  /** Sets border to all relevant transforms. */
+  setBorder(border: ViewRectBorder) {
+    this.targetTransform.border = border;
+    this.hiddenTransforms.actual.border = border;
+  }
   
 }

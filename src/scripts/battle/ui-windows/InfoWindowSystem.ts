@@ -4,7 +4,6 @@ import { UnitWindow } from "./UnitWindow";
 import { COWindow } from "./COWindow";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { MapCursor } from "../map/MapCursor";
-import { Camera } from "../../Camera";
 import { Square } from "../map/Square";
 import { Map } from "../map/Map";
 import { DetailedInfoWindow } from "./DetailedInfoWindow";
@@ -12,6 +11,7 @@ import { Slider } from "../../Common/Slider";
 import { TurnModerator } from "../TurnModerator";
 import { BattleForecast } from "../DamageScript";
 import { UnitObject } from "../UnitObject";
+import { Camera } from "../../camera/Camera_refactor";
 
 type InfoWindowSystemSettings = {
   gamepad: VirtualGamepad,
@@ -158,7 +158,9 @@ export class InfoWindowSystem {
     // trigger lines depending on which side the windows are already on.
     const tileSize = Game.display.standardLength;
     const offsetFromCenter = (this.windows.terrainInfo.showOnLeftSide) ? -3 : 2;
-    const triggerLine = Math.floor(this.camera.center.x / tileSize) + offsetFromCenter;
+
+    const view = this.camera.targetTransform.worldRect();
+    const triggerLine = Math.floor(view.center.x / tileSize) + offsetFromCenter;
 
     // Set show flags
     const showDetailWindow = (this.gamepad.button.rightTrigger.down);

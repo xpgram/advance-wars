@@ -83,10 +83,11 @@ export class CommandMenu extends TurnState {
     // Position cmdMenu on screen
     const tileSize = Game.display.standardLength;
     const location = goal.multiply(tileSize).add(new Point(1.25*tileSize, 0));
-    if (camera.center.x < location.x)
+    const view = camera.targetTransform.worldRect();
+    if (view.center.x < location.x)
       location.x = goal.x*tileSize - 0.25*tileSize - cmdMenu.menuGui.width;
-    if (location.y + cmdMenu.gui.height + 4 > camera.y + camera.height)
-      location.y -= location.y + cmdMenu.gui.height + 4 - camera.y - camera.height;
+    if (location.y + cmdMenu.gui.height + 4 > view.y + view.height)
+      location.y -= location.y + cmdMenu.gui.height + 4 - view.y - view.height;
     cmdMenu.gui.position.set(location.x, location.y);
     cmdMenu.gui.zIndex = 1000;
 

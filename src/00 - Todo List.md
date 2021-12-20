@@ -1,5 +1,7 @@
 # Next Big Objectives
 
+- [ ] I never actually really implemented middle-snapping for small battle maps. Somewhere in the update step, maybe camera's algs somehow, the camera needs to snap its center to the center of the map (by axis) for maps with lengths less than the axis-length of subjectRect().
+
 - [ ] Camera refactor: two rects
   - [ ] Desired view rect
   - [ ] Actual view rect, follows Desired

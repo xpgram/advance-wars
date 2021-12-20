@@ -44,7 +44,7 @@ export class IssueOrderStart extends TurnState {
     uiSystem.inspectPlayers();
 
     // Configure camera to follow cursor
-    camera.followTarget = this.assets.mapCursor;
+    camera.focalPoint = this.assets.mapCursor.transform.pos;
 
     // Reset command instruction to new.
     this.assets.resetCommandInstruction();

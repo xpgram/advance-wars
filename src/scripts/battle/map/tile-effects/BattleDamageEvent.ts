@@ -1,5 +1,4 @@
 import { Game } from "../../../..";
-import { Camera } from "../../../Camera";
 import { FollowAlgorithm } from "../../../CameraFollowAlgorithms";
 import { Point } from "../../../Common/Point";
 import { Slider } from "../../../Common/Slider";

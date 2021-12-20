@@ -10,7 +10,7 @@ export class FieldMenu extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { fieldMenu, camera } = this.assets;
+    const { fieldMenu } = this.assets;
 
     // TODO Instead of an enum, value could easily be the state to advance to.
     fieldMenu.setListItems([

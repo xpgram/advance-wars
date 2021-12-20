@@ -1,6 +1,5 @@
 import { MapCursor } from "../map/MapCursor";
 import { Map } from "../map/Map";
-import { Camera } from "../../Camera";
 import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
@@ -29,6 +28,10 @@ import { BoardEventSchedule } from "../map/tile-effects/BoardEventSchedule";
 import { NextTargetableUnit } from "../control-scripts/nextTargetableUnit";
 import { ManualMoveCamera } from "../control-scripts/manualMoveCamera";
 import { HideUnits } from "../control-scripts/hideUnits";
+import { Camera } from "../../camera/Camera_refactor";
+import { ViewRectBorder } from "../../camera/ViewRectBorder";
+import { ScreenPush } from "../../camera/PositionalAlgorithms";
+import { LinearApproach } from "../../camera/TravelAlgorithms";
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -136,6 +139,8 @@ export class BattleSceneControllers {
     // The objective here is to build a complete battle scene given scenario options.
     // Then it is to start the turn engine.
 
+    const tileSize = Game.display.standardLength;
+
     //@ts-expect-error  // Build the instruction literal
     this.instruction = {};
     this.resetCommandInstruction();
@@ -175,6 +180,17 @@ export class BattleSceneControllers {
 
     // Setup Camera
     this.camera = new Camera(Game.stage);
+    this.camera.setBorder(new ViewRectBorder({
+      left: tileSize*2.5,
+      right: tileSize*2.5,
+      top: tileSize*2,
+      bottom: tileSize*2,
+    }));
+    this.camera.focalPoint = this.mapCursor.transform.pos;
+    this.camera.algorithm = {
+      destination: new ScreenPush(),
+      travel: new LinearApproach(),
+    };
 
     let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
     MapLayer('bottom').filterArea = cameraView;
