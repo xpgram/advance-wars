@@ -1,4 +1,5 @@
 import { Point } from "../../Common/Point";
+import { PositionContainer } from "../../CommonTypes";
 import { Common } from "../../CommonUtils";
 import { ControlScript } from "../../ControlScript";
 
@@ -8,7 +9,7 @@ const CAMERA_SPEED = 7;   // How many tiles the camera travels per 60 frames (pe
 export class ManualMoveCamera extends ControlScript {
   defaultEnabled(): boolean { return false; }
 
-  private focalSwap?: Point;
+  private focalSwap?: PositionContainer;
   private cameraLead = Point.Origin;
 
   /** The last cumulative input direction to move the camera in.
@@ -26,8 +27,8 @@ export class ManualMoveCamera extends ControlScript {
     const rect = camera.targetTransform.worldRect();
     this.initialCameraPosition.set(new Point(rect));
     this.cameraLead.set(rect.center);
-    this.focalSwap = camera.focalPoint;
-    camera.focalPoint = this.cameraLead;
+    this.focalSwap = camera.focalTarget;
+    camera.focalTarget = {position: this.cameraLead};
   }
 
   protected updateScript(): void {
@@ -63,7 +64,7 @@ export class ManualMoveCamera extends ControlScript {
 
   protected disableScript(): void {
     const { camera } = this.assets;
-    camera.focalPoint = this.focalSwap;
+    camera.focalTarget = this.focalSwap;
   }
   
 }

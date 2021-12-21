@@ -38,7 +38,7 @@ export class ViewRect {
    * has no subject. */
   get subjectInFrame(): boolean {
     const srect = this.subjectRect();
-    const focal = this.camera.focalPoint;
+    const focal = this.camera.focalTarget;
     return !focal || srect.contains(focal);
   }
 

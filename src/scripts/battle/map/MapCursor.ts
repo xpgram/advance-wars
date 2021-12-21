@@ -280,7 +280,7 @@ export class MapCursor extends Observable() {
       );
 
     // Assign
-    this.transform.pos = pos;
+    this.transform.position = pos;
   }
 
   /** Moves the cursor's actual position while updating any listeners about this change. */

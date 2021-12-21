@@ -6,6 +6,7 @@ import { PositionalAlgorithm } from "./PositionalAlgorithms";
 import { TravelAlgorithm } from "./TravelAlgorithms";
 import { DisplacementAlgorithm } from "./DisplacementAlgorithms";
 import { ViewRectBorder } from "./ViewRectBorder";
+import { PositionContainer } from "../CommonTypes";
 
 
 type AlgorithmSet = {
@@ -27,7 +28,7 @@ type AlgorithmSet = {
 export class Camera {
 
   /** The point, if present, which the camera will try to keep in frame. */
-  focalPoint?: Point;
+  focalTarget?: PositionContainer;
 
   /** The target state this camera aspires to. Set state here and let the follow algorithms do the rest. */
   readonly targetTransform = new ViewRect(this);
@@ -83,7 +84,7 @@ export class Camera {
     // Update transforms
     destination?.update(
       this.targetTransform,
-      this.focalPoint || transforms.actual.worldRect().center,
+      this.focalTarget || transforms.actual.worldRect().center,
     )
     travel?.update(
       transforms.actual,
@@ -106,7 +107,7 @@ export class Camera {
 
   /** Returns a point corresponding either to the target of focus or the center of the camera's view. */
   getFocalPoint(): Point {
-    return this.focalPoint || this.hiddenTransforms.actual.worldRect().center;
+    return this.focalTarget || this.hiddenTransforms.actual.worldRect().center;
   }
 
   // TODO I don't like this solution, I just need something during prototyping.

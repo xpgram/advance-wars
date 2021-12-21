@@ -18,7 +18,7 @@ export class LowResTransform {
     private _scale: PIXI.ObservablePoint = new PIXI.ObservablePoint(this.updateObjectScale, this, 1,1);
 
     constructor(pos?: Point, object?: Transformable) {
-        this.pos = pos || Point.Origin;
+        this.position = pos || Point.Origin;
         this.object = object || null;
     }
 
@@ -72,10 +72,10 @@ export class LowResTransform {
     }
 
     /** A point which represents the transform's position in 2D space. */
-    get pos(): Point {
+    get position(): Point {
         return new Point(this._pos);
     }
-    set pos(point) {
+    set position(point) {
         this._pos.set(point.x, point.y);
     }
 

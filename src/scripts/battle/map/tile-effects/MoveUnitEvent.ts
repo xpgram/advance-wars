@@ -1,5 +1,6 @@
 import { CardinalDirection, SumCardinalsToVector } from "../../../Common/CardinalDirection";
 import { Point } from "../../../Common/Point";
+import { PositionContainer } from "../../../CommonTypes";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { RatificationError } from "../../turn-machine/Command";
 import { Unit } from "../../Unit";
@@ -17,7 +18,7 @@ interface MoveUnitEventOptions {
 export class MoveUnitEvent extends TileEvent {
 
   protected options: MoveUnitEventOptions;
-  private focalSwap?: Point;
+  private focalSwap?: PositionContainer;
 
   constructor(options: MoveUnitEventOptions) {
     super(options.target || options.actor.boardLocation);
@@ -51,8 +52,8 @@ export class MoveUnitEvent extends TileEvent {
       mapCursor.show();
     }
 
-    this.focalSwap = camera.focalPoint;
-    camera.focalPoint = trackCar.transform.pos;
+    this.focalSwap = camera.focalTarget;
+    camera.focalTarget = trackCar.transform;
 
     trackCar.buildNewAnimation(actor);
     trackCar.directions = path;
@@ -79,7 +80,7 @@ export class MoveUnitEvent extends TileEvent {
       mapCursor.hide();
     }
 
-    camera.focalPoint = this.focalSwap;
+    camera.focalTarget = this.focalSwap;
     trackCar.reset();
     trackCar.hide();
     actor.visible = true;

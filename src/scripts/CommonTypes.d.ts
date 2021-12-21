@@ -1,3 +1,4 @@
+import { Point } from "./Common/Point";
 import { LowResTransform } from "./LowResTransform"
 
 /** Captures any object-constructing class type. */
@@ -25,7 +26,11 @@ type Transformable = {
 }
 
 type TransformContainer = {
-    transform: LowResTransform
+    transform: Transformable,
+}
+
+type PositionContainer = {
+    position: {x: number, y: number},
 }
 
 /** Represents a point in 3D space. */
