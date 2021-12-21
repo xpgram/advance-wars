@@ -107,7 +107,7 @@ export class Camera {
 
     // Logging
     const thisFrame = transforms.actual.clone();
-    const vector = thisFrame.produceVector(lastFrame);
+    const vector = thisFrame.vectorFrom(lastFrame);
     if (Game.devController.down(Keys.K))
       console.log(`pos ${vector.position.toString()}` +
         `zoom ${vector.zoom}` +

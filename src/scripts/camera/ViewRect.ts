@@ -34,6 +34,22 @@ export class ViewRect {
   }
   private _zoom: number = 1;
 
+  /** Sets this view's zoom factor with respect to the given focal point.
+   * Focal is a real-world coordinate, not proportional to this rect's dimensions. */
+   zoomToPoint(n: number, focal: Point) {
+    const last = this._zoom;
+    const next = n;
+    this._zoom = next;
+
+    // reposition coordinates with respect to focal point
+    const { x,     y,    } = this.position;
+    const { x: ax, y: ay } = focal;
+    this.position.set(
+      ax - ((ax - x) * last / next),  // Formula resizes the distance from topleft to
+      ay - ((ay - y) * last / next),  // anchor according to new zoom factor.
+    );
+  }
+
   /** Describes the subject view bounds within the view rect.
    * All positive integers here are biased towards the center from the side they describe. */
   border = new ViewRectBorder();
@@ -87,22 +103,6 @@ export class ViewRect {
     )
   }
 
-  /** Sets this view's zoom factor with respect to the given focal point.
-   * Focal is a real-world coordinate, not proportional to this rect's dimensions. */
-  zoomToPoint(n: number, focal: Point) {
-    const last = this.zoom;
-    const next = n;
-    this.zoom = next;
-
-    // reposition coordinates with respect to focal point
-    const { x,     y,    } = this.position;
-    const { x: ax, y: ay } = focal;
-    this.position.set(
-      ax - ((ax - x) * last / next),  // Formula resizes the distance from topleft to
-      ay - ((ay - y) * last / next),  // anchor according to new zoom factor.
-    );
-  }
-
   /** Returns a copy of this ViewRect as a new object. */
   clone(): ViewRect {
     const view = new ViewRect(this.camera);
@@ -122,14 +122,14 @@ export class ViewRect {
   }
 
   /** Returns a delta-ViewRect holding the difference in properties from 'from' to self. */
-  produceVector(from: ViewRect): ViewRectVector {
+  vectorFrom(other: ViewRect): ViewRectVector {
     const rectA = this.worldRect();
-    const rectB = from.worldRect();
+    const rectB = other.worldRect();
 
     const vector = new ViewRectVector();
     vector.position = rectA.topleft.subtract(rectB.topleft);
-    vector.zoom = this.zoom - from.zoom;
-    vector.border = this.border.subtract(from.border);
+    vector.zoom = this.zoom - other.zoom;
+    vector.border = this.border.subtract(other.border);
 
     return vector;
   }
