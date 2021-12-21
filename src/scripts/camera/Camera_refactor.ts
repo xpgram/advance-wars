@@ -113,11 +113,14 @@ export class Camera {
     // Logging
     const thisFrame = transforms.actual.clone();
     const vector = thisFrame.vectorFrom(lastFrame);
+    const { position: opos, border: oborder, zoom: ozoom } = transforms.offset;
     if (Game.devController.down(Keys.K))
       console.log(
         `${transforms.actual.zoom}z` +
         `\nsbj ${transforms.actual.subjectRect().toString()}` +
-        `\nwrl ${transforms.actual.worldRect().toString()}`);
+        `\nwrl ${transforms.actual.worldRect().toString()}` +
+        `\noffset ${opos.toString()} ${oborder.toString()} ${ozoom}z` +
+        `\nrnd ${transforms.render.worldRect().toString()}`);
 
     // Modify stage to reflect render transform
     const viewRect = transforms.render.worldRect();

@@ -25,12 +25,13 @@ export class ViewRect {
   position = new Point();
 
   /** This view's zoom factor. A value of 1 is in parity with the view's base dimensions.
-   * Setting zoom directly implicitly sets the focus to the view's center. Use zoomToPoint()
+   * Setting zoom directly implicitly sets the focus to the topleft corner. Use zoomToPoint()
    * to specify a point-of-focus. */
   get zoom() { return this._zoom; }
   set zoom(n) {
     if (n <= 0) throw new ValueError(`Cannot set property 'zoom' to <= 0.`);
-    this.zoomToPoint(n, this.worldRect().center);
+    this._zoom = n;
+    // this.zoomToPoint(n, this.worldRect().center);
   }
   private _zoom: number = 1;
 
