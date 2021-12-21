@@ -84,7 +84,7 @@ export class Camera {
     // Update transforms
     destination?.update(
       this.targetTransform,
-      this.focalTarget || transforms.actual.worldRect().center,
+      this.getFocalPoint(),
     )
     travel?.update(
       transforms.actual,
@@ -107,7 +107,7 @@ export class Camera {
 
   /** Returns a point corresponding either to the target of focus or the center of the camera's view. */
   getFocalPoint(): Point {
-    return this.focalTarget || this.hiddenTransforms.actual.worldRect().center;
+    return new Point(this.focalTarget?.position || this.hiddenTransforms.actual.worldRect().center);
   }
 
   // TODO I don't like this solution, I just need something during prototyping.
