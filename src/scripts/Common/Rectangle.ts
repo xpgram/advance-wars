@@ -248,8 +248,8 @@ export class Rectangle {
 
   /** Returns a string representation of this rectangle's properties. */
   toString() {
-    const { x, y, width, height } = this;
-    return `[${x} ${y} ${width}w ${height}h]`;
+    const { left, top, right, bottom, width, height } = this;
+    return `[${left},${top} ${right},${bottom} (${width}w ${height}h)]`;
   }
 
 
