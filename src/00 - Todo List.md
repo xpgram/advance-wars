@@ -2,9 +2,17 @@
 
 - [ ] I never actually really implemented middle-snapping for small battle maps. Somewhere in the update step, maybe camera's algs somehow, the camera needs to snap its center to the center of the map (by axis) for maps with lengths less than the axis-length of subjectRect().
 
-- [ ] Camera refactor: two rects
-  - [ ] Desired view rect
-  - [ ] Actual view rect, follows Desired
+- [x] Camera refactor: two rects
+  - [x] Desired view rect
+  - [x] Actual view rect, follows Desired
+  - This feels weird.
+  - [ ] No target: just camera.transform
+  - [ ] transform.x is workable and usable
+  - [x] Programmer will know transform.x has a delay based on the travelAlg
+  - [ ] Get rid of camera.setBorder, just transform.border
+  - [ ] I think the refactor loses its focal point.
+    - This is probably because Points are mostly functional
+    - [ ] Mod Transformable to be some kind of position or transform having object, then pass in MapCursor instead of it's point. This solution worked well.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement
