@@ -112,23 +112,25 @@ export class BattleScene extends Scene {
         // TODO This was middle-snapping for small maps.
         // This needs to be handled somewhere else.
 
-        const camTarget = {position: {x:0,y:0}};
-        if (view.width >= map.width*16 + 80 && view.height >= map.height*16 + 64)
-            camTarget.position = new Point(
-                map.width*8,
-                map.height*8
-            );
-        else if (view.width >= map.width*16 + 80)
-            camTarget.position = (() => { return {
-                x: map.width*8,
-                get y() { return mapCursor.transform.exact.y; }
-            }})();
-        else if (view.height >= map.height*16 + 64)
-            camTarget.position = (() => { return {
-                get x() { return mapCursor.transform.exact.x; },
-                y: map.height*8
-            }})();
-        camera.focalTarget = camTarget;
+        // const camTarget = {position: {x:0,y:0}};
+        // if (view.width <= map.width*16 + 80 && view.height <= map.height*16 + 64)
+        //     camTarget.position = new Point(
+        //         map.width*8,
+        //         map.height*8
+        //     );
+        // else if (view.width >= map.width*16 + 80)
+        //     camTarget.position = (() => { return {
+        //         x: map.width*8,
+        //         get y() { return mapCursor.transform.exact.y; }
+        //     }})();
+        // else if (view.height >= map.height*16 + 64)
+        //     camTarget.position = (() => { return {
+        //         get x() { return mapCursor.transform.exact.x; },
+        //         y: map.height*8
+        //     }})();
+        // console.log(`${camTarget.position.x} ${camTarget.position.y}`);
+        // camera.focalTarget = camTarget;
+        
         //   Here's what the above block is doing and what to focus on when refactoring:
         // As *soon* as the map is too small not to fit neatly inside the camera frame,
         // the x or y (or both) coordinate that we're 'following' snaps to the middle of

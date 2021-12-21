@@ -182,9 +182,9 @@ export class BattleSceneControllers {
     this.camera = new Camera(Game.stage);
     this.camera.transform.border = new ViewRectBorder({
       left: tileSize*2.5,
-      right: tileSize*2.5,
+      right: tileSize*3.5,
       top: tileSize*2,
-      bottom: tileSize*2,
+      bottom: tileSize*3,
     });
     this.camera.focalTarget = this.mapCursor.transform;
     this.camera.algorithm = {

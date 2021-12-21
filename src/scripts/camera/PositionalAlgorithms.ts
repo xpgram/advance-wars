@@ -5,7 +5,7 @@ import { ViewRect } from "./ViewRect";
 
 /** Accepts a ViewRect and a focal target: target and subject. */
 export interface PositionalAlgorithm {
-  /** Alters ViewRect to keep focal in view. */
+  /** Returns a ViewRect which keeps focal in view. */
   update(rect: ViewRect, focal: Point): ViewRect;
 }
 

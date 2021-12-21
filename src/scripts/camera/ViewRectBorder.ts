@@ -40,4 +40,9 @@ export class ViewRectBorder {
       bottom: this.bottom - b.bottom,
     });
   }
+
+  toString() {
+    const { top, left, bottom, right} = this;
+    return `${left} ${top} ${right} ${bottom}`;
+  }
 }

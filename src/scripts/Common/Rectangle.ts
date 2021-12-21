@@ -247,9 +247,10 @@ export class Rectangle {
   }
 
   /** Returns a string representation of this rectangle's properties. */
-  toString() {
+  toString(decimals: number = 0) {
     const { top, left, bottom, right, width, height } = this;
-    return `[${left} ${top} ${right} ${bottom}, ${width}w ${height}h]`;
+    const [t, l, b, r, w, h] = [top, left, bottom, right, width, height].map( n => n.toFixed(decimals) );
+    return `[${l} ${t} ${r} ${b}, ${w}w ${h}h]`;
   }
 
 

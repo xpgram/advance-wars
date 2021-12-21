@@ -14,7 +14,7 @@ export class LinearApproach implements TravelAlgorithm {
   update(actual: ViewRect, target: ViewRect): ViewRect {
     const tileSize = Game.display.standardLength;
     const maxDist = Math.floor(tileSize*.5);
-    const maxZoomDiff = .1;
+    const maxZoomDiff = .025;
 
     const tVector = new Point(target.worldRect())
       .subtract(new Point(actual.worldRect()))

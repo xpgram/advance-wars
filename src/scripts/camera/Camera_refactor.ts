@@ -5,7 +5,6 @@ import { UpdatePriority } from "../Common/UpdatePriority";
 import { PositionalAlgorithm } from "./PositionalAlgorithms";
 import { TravelAlgorithm } from "./TravelAlgorithms";
 import { DisplacementAlgorithm } from "./DisplacementAlgorithms";
-import { ViewRectBorder } from "./ViewRectBorder";
 import { PositionContainer } from "../CommonTypes";
 import { Keys } from "../controls/KeyboardObserver";
 
@@ -29,7 +28,13 @@ type AlgorithmSet = {
 export class Camera {
 
   /** The point, if present, which the camera will try to keep in frame. */
-  focalTarget?: PositionContainer;
+  private _focalTarget?: PositionContainer;
+  get focalTarget() { return this._focalTarget; }
+  set focalTarget(v) {
+    this._focalTarget = v;
+    // console.log(v);
+  }
+
 
   /** The transform state this camera aspires to. Instantly moves the camera, or begins approaching
    * if a travel algorithm is set. */
@@ -109,10 +114,10 @@ export class Camera {
     const thisFrame = transforms.actual.clone();
     const vector = thisFrame.vectorFrom(lastFrame);
     if (Game.devController.down(Keys.K))
-      console.log(`vpos ${vector.position.toString()}` +
-        `\nvzoom ${vector.zoom}` +
-        `\nfocal ${this.getFocalPoint().toString()}` +
-        `\ntarget ${this.transform.worldRect().toString()}`);
+      console.log(
+        `${transforms.actual.zoom}z` +
+        `\nsbj ${transforms.actual.subjectRect().toString()}` +
+        `\nwrl ${transforms.actual.worldRect().toString()}`);
 
     // Modify stage to reflect render transform
     const viewRect = transforms.render.worldRect();

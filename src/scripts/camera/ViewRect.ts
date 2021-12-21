@@ -98,8 +98,8 @@ export class ViewRect {
 
     return new Rectangle(
       wrect.x + left, wrect.y + top,
-      wrect.width - right,
-      wrect.height - bottom,
+      wrect.width - left - right,
+      wrect.height - top - bottom,
     )
   }
 
