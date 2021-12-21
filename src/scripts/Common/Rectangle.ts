@@ -248,8 +248,10 @@ export class Rectangle {
 
   /** Returns a string representation of this rectangle's properties. */
   toString() {
-    const { left, top, right, bottom, width, height } = this;
-    return `[${left},${top} ${right},${bottom} (${width}w ${height}h)]`;
+    const { top, left, bottom, right, width, height } = this;
+    return `[${left} ${top} → ${right} ${bottom}, ${width}w ${height}h]`;
+
+    // [32 -28 → 144 197, 112w 225h]
   }
 
 
