@@ -1,10 +1,9 @@
 # Next Big Objectives
 
-- [ ] I never actually really implemented middle-snapping for small battle maps. Somewhere in the update step, maybe camera's algs somehow, the camera needs to snap its center to the center of the map (by axis) for maps with lengths less than the axis-length of subjectRect().
-
 - [ ] Camera refactor: bugs and integration
   - [x] It loses mapCursor focus somehow.
-    - [ ] I unset the map squeezer, which I should do anyway, and which was breaking for mystery(??) reasons. Naturally, there is no map squeezer. All it did was ignore axii on focalTarget when maps were smaller than the camera dimensions. This was actually incomplete anyway and was why zoom would zoom out to weird-ass places.
+    - [ ] I unset the map squeezer, which I should do anyway, and which was breaking for mystery(??) reasons.
+    All it did was ignore axii on focalTarget when maps were smaller than the camera dimensions. What I need is a camera lock to axis center which overwrites any supposed changes after the camera does its algs. Should camera have a pre-render callback? Then BattleScene could set it like it did...
   - [ ] Cursor vibrates on push. Could be update order, could be LowResT. Pretty sure I unspecified LowResT from a few things during this transition.
   - [x] Zoom is broken.
   - [ ] Quantize was removed for being confusing. We still need it, though. It's mostly irrelevant, but on zoom and manualMove it picks a tile coord to settle on.
