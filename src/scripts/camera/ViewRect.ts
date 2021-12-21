@@ -21,10 +21,17 @@ export class ViewRect {
   private readonly baseWidth = Game.display.renderWidth;
   private readonly baseHeight = Game.display.renderHeight;
 
-  get position() { return this._position.clone(); }
-  private _position = new Point();
+  /** This view's coordinate position in-world. */
+  position = new Point();
 
+  /** This view's zoom factor. A value of 1 is in parity with the view's base dimensions.
+   * Setting zoom directly implicitly sets the focus to the view's center. Use zoomToPoint()
+   * to specify a point-of-focus. */
   get zoom() { return this._zoom; }
+  set zoom(n) {
+    if (n <= 0) throw new ValueError(`Cannot set property 'zoom' to <= 0.`);
+    this.zoomToPoint(n, this.worldRect().center);
+  }
   private _zoom: number = 1;
 
   /** Describes the subject view bounds within the view rect.
@@ -39,7 +46,7 @@ export class ViewRect {
   get subjectInFrame(): boolean {
     const srect = this.subjectRect();
     const focal = this.camera.focalTarget;
-    return !focal || srect.contains(focal);
+    return !focal || srect.contains(focal.position);
   }
 
 
@@ -56,7 +63,7 @@ export class ViewRect {
   /** Returns a Rectangle corrosponding to the in-world coordinates of what this
    * ViewRect considers seeable. */
   worldRect() {
-    const { _position: position, baseWidth, baseHeight, _zoom: zoom } = this;
+    const { position: position, baseWidth, baseHeight, zoom: zoom } = this;
     return new Rectangle(
       position.x, position.y,
       baseWidth / zoom,
@@ -71,7 +78,7 @@ export class ViewRect {
     const wrect = this.worldRect();
 
     if (this.applyZoomToBorder)
-      [left, right, top, bottom] = [left, right, top, bottom].map( b => b / this._zoom );
+      [left, right, top, bottom] = [left, right, top, bottom].map( b => b / this.zoom );
 
     return new Rectangle(
       wrect.x + left, wrect.y + top,
@@ -80,34 +87,17 @@ export class ViewRect {
     )
   }
 
-  /** Sets this rect's coordinates using its top-left corner as the origin. */
-  setPosition(pos: Point) {
-    this._position = pos;
-  }
-
-  /** Sets this rect's coordinates using its center as the origin. */
-  setCenter(pos: Point) {
-    const rect = this.worldRect();
-    pos = pos.subtract(rect.width*0.5, rect.height*0.5);
-    this.setPosition(pos);
-  }
-
-  /** Sets this ViewRect's zoom factor with respect to the given anchor point.
-   * Anchor is a real-world coordinate, not proportional to this rect's dimensions.
-   * Anchor is by default the ViewRect's center. */
-  setZoom(n: number, anchor?: Point) {
-    if (n <= 0)
-      throw new ValueError(`Cannot set property 'zoom' to 0.`);
-
-    anchor = anchor || this.worldRect().center;
-    const last = this._zoom;
+  /** Sets this view's zoom factor with respect to the given focal point.
+   * Focal is a real-world coordinate, not proportional to this rect's dimensions. */
+  zoomToPoint(n: number, focal: Point) {
+    const last = this.zoom;
     const next = n;
-    this._zoom = next;
+    this.zoom = next;
 
-    // reposition coordinates with respect to anchor point
-    const { x, y } = this._position;
-    const { x: ax, y: ay } = anchor;
-    this._position.set(
+    // reposition coordinates with respect to focal point
+    const { x,     y,    } = this.position;
+    const { x: ax, y: ay } = focal;
+    this.position.set(
       ax - ((ax - x) * last / next),  // Formula resizes the distance from topleft to
       ay - ((ay - y) * last / next),  // anchor according to new zoom factor.
     );
@@ -116,8 +106,8 @@ export class ViewRect {
   /** Returns a copy of this ViewRect as a new object. */
   clone(): ViewRect {
     const view = new ViewRect(this.camera);
-    view._position.set(this._position);
-    view._zoom = this._zoom;
+    view.position.set(this.position);
+    view.zoom = this.zoom;
     view.border = this.border;
     view.applyZoomToBorder = this.applyZoomToBorder;
     return view;
@@ -147,8 +137,8 @@ export class ViewRect {
   /** Returns a new ViewRect with properties combined from this and the given ViewRectVector. */
   addVector(vector: ViewRectVector): ViewRect {
     const view = this.clone();
-    view._position = view._position.add(vector.position);
-    view._zoom += vector.zoom;
+    view.position = view.position.add(vector.position);
+    view.zoom += vector.zoom;
     view.border = view.border.add(vector.border);
     return view;
   }

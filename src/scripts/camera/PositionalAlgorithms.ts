@@ -17,7 +17,7 @@ export class ScreenPush implements PositionalAlgorithm {
       Common.displacementFromRange(focal.y, view.top, view.bottom),
     );
 
-    rect.setPosition(rect.position.add(travelVector));
+    rect.position = rect.position.add(travelVector);
     return rect;
   }
 }

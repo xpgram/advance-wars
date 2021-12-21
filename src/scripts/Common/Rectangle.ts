@@ -1,5 +1,5 @@
 import { Common } from "../CommonUtils";
-import { Point } from "./Point";
+import { Point, ImmutablePointPrimitive, isPointPrimitive } from "./Point";
 
 export type RectanglePrimitive = {
   x: number,
@@ -30,21 +30,21 @@ export class Rectangle {
   get bottomleft() { return new Point(this.left, this.bottom); }
   get bottomright() { return new Point(this.right, this.bottom); }
 
-  get center() { return this.getPointByProportion(new Point(.5)); }
+  get center() { return this.getImmutablePointPrimitiveByProportion(new Point(.5)); }
 
 
-  constructor(x?: number | RectanglePrimitive | Point, y?: number, width?: number, height?: number) {
+  constructor(x?: number | RectanglePrimitive | ImmutablePointPrimitive, y?: number, width?: number, height?: number) {
     this.set(x, y, width, height);
   }
 
   /** Sets this rectangles properties to those given. */
-  set(x?: number | RectanglePrimitive | Point, y?: number, width?: number, height?: number): Rectangle {
+  set(x?: number | RectanglePrimitive | ImmutablePointPrimitive, y?: number, width?: number, height?: number): Rectangle {
     const o = x;
     // TODO I broke instanceof; I need an eval function
     if (isRectangle(o)) {
       const { x, y, width, height } = o;
       Object.assign(this, {x, y, width, height});
-    } else if (o instanceof Point) {
+    } else if (isPointPrimitive(o)) {
       const { x, y } = o;
       Object.assign(this, {x, y});
     } else {
@@ -106,9 +106,9 @@ export class Rectangle {
 
   /** Grows (or shrinks with -n) the bounds of the rectangle by a set amount.
    * yPad is assumed to be the same as xPad unless specified.
-   * Preserves the position of the coordinate at the anchor point, which is by default the center.
+   * Preserves the position of the coordinate at the anchor immutablepointprimitive, which is by default the center.
    * A rectangle cannot shrink more than its own axis length; a resulting width or height cannot be < 0. */
-  pad(xPad: number, yPad?: number, anchor?: Point): Rectangle {
+  pad(xPad: number, yPad?: number, anchor?: ImmutablePointPrimitive): Rectangle {
     const { max } = Math;
 
     yPad = yPad || xPad;
@@ -127,7 +127,7 @@ export class Rectangle {
 
   /** Returns a new Rectangle which shares all its edges with the most extreme coordinates given in the
    * list of objects to bound. */
-  fit(...objects: (Rectangle | Point)[]): Rectangle {
+  fit(...objects: (Rectangle | ImmutablePointPrimitive)[]): Rectangle {
     const { max, min } = Math;
     const rects = objects.map( r => new Rectangle(r) );   // Affirms all objects are Rectangles
     const x      = min(...rects.map(r => r.left));
@@ -137,14 +137,14 @@ export class Rectangle {
     return new Rectangle(x, y, width, height);
   }
 
-  /** Returns a new Rectangle extended from this one such that no edge disincludes any area or point
+  /** Returns a new Rectangle extended from this one such that no edge disincludes any area or immutablepointprimitive
    * contained within the objects given. */
-  enlarge(...objects: (Rectangle | Point)[]): Rectangle {
+  enlarge(...objects: (Rectangle | ImmutablePointPrimitive)[]): Rectangle {
     return this.fit(this, ...objects);
   }
 
   /** Returns true if this rectangle wholly encloses the given object's coordinate-space. */
-  contains(other: Rectangle | Point): boolean {
+  contains(other: Rectangle | ImmutablePointPrimitive): boolean {
     const rect = new Rectangle(other);
     return (
       this.left <= rect.left
@@ -227,16 +227,16 @@ export class Rectangle {
   }
 
   /** Returns a coordinate relative to this rectangle's top-left corner and proportional to its width/height
-   * by the given anchor point. Ex: anchor=(.8, .8) returns a point in the lower-right rectangle quadrant. */
-  getPointByProportion(anchor: Point) {
+   * by the given anchor immutablepointprimitive. Ex: anchor=(.8, .8) returns a immutablepointprimitive in the lower-right rectangle quadrant. */
+  getImmutablePointPrimitiveByProportion(anchor: ImmutablePointPrimitive) {
     return new Point(
       this.left + anchor.x*this.width,
       this.top + anchor.y*this.height,
     )
   }
 
-  /** Returns the minimum distance of a point to one of this rectangle's edges or vertices. */
-  minimumDistanceTo(p: Point): number {   // TODO Include Rects as options too
+  /** Returns the minimum distance of a immutablepointprimitive to one of this rectangle's edges or vertices. */
+  minimumDistanceTo(p: ImmutablePointPrimitive): number {   // TODO Include Rects as options too
     const { abs } = Math;
     const { left, right, top, bottom } = this;
     const vector = new Point(

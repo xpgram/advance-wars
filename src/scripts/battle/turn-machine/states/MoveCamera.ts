@@ -37,7 +37,7 @@ export class MoveCamera extends TurnState {
 
     // Move mapCursor somewhere convenient
     if (lastInput.notEqual(Point.Origin)) {
-      const frame = camera.targetTransform.subjectRect();
+      const frame = camera.transform.subjectRect();
 
       // Picks a truncate style for x based on the directional bias of dx.
       const biasTrunc = (x: number, dx: number) => [Math.floor, Math.round, Math.ceil][Math.sign(dx) + 1](x);

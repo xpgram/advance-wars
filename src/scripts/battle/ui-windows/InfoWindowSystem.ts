@@ -159,7 +159,7 @@ export class InfoWindowSystem {
     const tileSize = Game.display.standardLength;
     const offsetFromCenter = (this.windows.terrainInfo.showOnLeftSide) ? -3 : 2;
 
-    const view = this.camera.targetTransform.worldRect();
+    const view = this.camera.transform.worldRect();
     const triggerLine = Math.floor(view.center.x / tileSize) + offsetFromCenter;
 
     // Set show flags

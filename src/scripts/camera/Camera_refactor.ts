@@ -7,6 +7,7 @@ import { TravelAlgorithm } from "./TravelAlgorithms";
 import { DisplacementAlgorithm } from "./DisplacementAlgorithms";
 import { ViewRectBorder } from "./ViewRectBorder";
 import { PositionContainer } from "../CommonTypes";
+import { Keys } from "../controls/KeyboardObserver";
 
 
 type AlgorithmSet = {
@@ -30,8 +31,9 @@ export class Camera {
   /** The point, if present, which the camera will try to keep in frame. */
   focalTarget?: PositionContainer;
 
-  /** The target state this camera aspires to. Set state here and let the follow algorithms do the rest. */
-  readonly targetTransform = new ViewRect(this);
+  /** The transform state this camera aspires to. Instantly moves the camera, or begins approaching
+   * if a travel algorithm is set. */
+  transform = new ViewRect(this);
 
   /** True if this camera's focal point is inside its view bounds. */
   get subjectInView(): boolean {
@@ -42,7 +44,7 @@ export class Camera {
 
   /** True if this camera's actual frame-rect is equal to its target frame-rect. */
   get doneTraveling(): boolean {
-    return this.hiddenTransforms.actual.equal(this.targetTransform);
+    return this.hiddenTransforms.actual.equal(this.transform);
   }
 
   /** Returns a readonly-purpose copy of this Camera's current transform. */
@@ -56,7 +58,6 @@ export class Camera {
   private hiddenTransforms = {
     actual: new ViewRect(this),     // Current state
     offset: new ViewRectVector(),   // Relative-to-current state
-    lastFrame: new ViewRect(this),  // Last-frame's state
     render: new ViewRect(this),     // Composition state (actual+offset) used for rendering
   }
 
@@ -81,40 +82,51 @@ export class Camera {
     const { destination, travel, displacement } = this.algorithm;
     const transforms = this.hiddenTransforms;
 
+    // ViewRects are semi-functional, which means they're intended to
+    // be cloned() in the update algs but it isn't necessarily enforced.
+    // Be careful out there, yo.
+
+    // Logging setup
+    const lastFrame = transforms.actual.clone();
+
     // Update transforms
-    destination?.update(
-      this.targetTransform,
-      this.getFocalPoint(),
-    )
-    travel?.update(
-      transforms.actual,
-      this.targetTransform,
-    )
+    this.transform = (destination)
+      ? destination.update(
+          this.transform,
+          this.getFocalPoint(),
+        )
+      : this.transform;
+    transforms.actual = (travel)
+      ? travel.update(
+          transforms.actual,
+          this.transform,
+        )
+      : this.transform.clone();
     transforms.offset = displacement?.get() || new ViewRectVector();
     transforms.render = transforms.actual.addVector(transforms.offset);
 
+    // Logging
+    const thisFrame = transforms.actual.clone();
+    const vector = thisFrame.produceVector(lastFrame);
+    if (Game.devController.down(Keys.K))
+      console.log(`pos ${vector.position.toString()}` +
+        `zoom ${vector.zoom}` +
+        `focal ${this.getFocalPoint().toString()}`);
+
     // Modify stage to reflect render transform
     const viewRect = transforms.render.worldRect();
-    const zoom = transforms.render.zoom;
+    const { zoom } = transforms.render;
 
     this.stage.position.set(
       -viewRect.x * zoom,
       -viewRect.y * zoom,
     );
     this.stage.scale.set(zoom);
-      // this.stage.rotation = transforms.render.
   }
 
   /** Returns a point corresponding either to the target of focus or the center of the camera's view. */
   getFocalPoint(): Point {
     return new Point(this.focalTarget?.position || this.hiddenTransforms.actual.worldRect().center);
-  }
-
-  // TODO I don't like this solution, I just need something during prototyping.
-  /** Sets border to all relevant transforms. */
-  setBorder(border: ViewRectBorder) {
-    this.targetTransform.border = border;
-    this.hiddenTransforms.actual.border = border;
   }
   
 }

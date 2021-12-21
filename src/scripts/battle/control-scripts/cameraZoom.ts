@@ -33,7 +33,7 @@ export class CameraZoom extends ControlScript {
     const w2 = w1 + additionalTiles * tileSize;
     const widthsRatio = w1 / w2;  // Ratio between the two desired pixel-width views of the map.
 
-    camera.targetTransform.setZoom(widthsRatio);
+    camera.transform.setZoom(widthsRatio);
   }
 
   protected disableScript(): void {

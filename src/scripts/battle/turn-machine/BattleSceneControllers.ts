@@ -180,12 +180,12 @@ export class BattleSceneControllers {
 
     // Setup Camera
     this.camera = new Camera(Game.stage);
-    this.camera.setBorder(new ViewRectBorder({
+    this.camera.transform.border = new ViewRectBorder({
       left: tileSize*2.5,
       right: tileSize*2.5,
       top: tileSize*2,
       bottom: tileSize*2,
-    }));
+    });
     this.camera.focalTarget = this.mapCursor.transform;
     this.camera.algorithm = {
       destination: new ScreenPush(),

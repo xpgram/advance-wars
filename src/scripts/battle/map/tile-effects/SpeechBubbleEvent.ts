@@ -54,7 +54,7 @@ export class SpeechBubbleEvent extends TileEvent {
 
     const boardPos = actor.boardLocation;
     const worldPos = boardPos.multiply(tileSize);
-    const view = camera.targetTransform.worldRect();
+    const view = camera.transform.worldRect();
     const leftsideViewport = (view.center.x > worldPos.x);
 
     const sheet = Game.scene.resources['UISpritesheet'].spritesheet as Spritesheet;

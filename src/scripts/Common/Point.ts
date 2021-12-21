@@ -13,6 +13,12 @@ export type ImmutablePointPrimitive = {
   readonly y: number
 }
 
+/** Returns true if the given object is interpretable as a point primitive.
+ * The object's properties are assumed to be immutable to force style. */
+export function isPointPrimitive(o: any): o is ImmutablePointPrimitive {
+  return (typeof o.x === 'number' && typeof o.y === 'number');
+}
+
 /** Returns true if p is of the ImmutablePointPrimitive type. */
 function isImmutablePointPrimitive(p: undefined | number | ImmutablePointPrimitive): p is ImmutablePointPrimitive {
   return (typeof p == 'object');  // ImmutablePointPrimitive is confirmed implicitly

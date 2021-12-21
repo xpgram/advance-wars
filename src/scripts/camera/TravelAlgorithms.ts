@@ -16,18 +16,16 @@ export class LinearApproach implements TravelAlgorithm {
     const maxDist = Math.floor(tileSize*.5);
     const maxZoomDiff = .1;
 
-    const aView = actual.worldRect();
-    const tView = target.worldRect();
-
-    const tVector = new Point(tView)
-      .subtract(new Point(aView))
+    const tVector = new Point(target.worldRect())
+      .subtract(new Point(actual.worldRect()))
       .apply(x => Common.clamp(x, -maxDist, maxDist));
     const zVector = Common.clamp(
       target.zoom - actual.zoom, -maxZoomDiff, maxZoomDiff);
-    // bVector => border
 
-    actual.setPosition( actual.position.add(tVector) );
-    actual.setZoom( actual.zoom + zVector );
+    actual.position = actual.position.add(tVector);
+    actual.zoom += zVector;
+    actual.border = target.border;  // Vector is instant
+    
     return actual;
   }
 }

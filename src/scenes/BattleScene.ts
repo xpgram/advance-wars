@@ -107,7 +107,7 @@ export class BattleScene extends Scene {
         // TODO Don't look at it.
         
         const { camera, map, mapCursor } = this.controllers;
-        const view = camera.targetTransform.worldRect();
+        const view = camera.transform.worldRect();
 
         // TODO This was middle-snapping for small maps.
         // This needs to be handled somewhere else.

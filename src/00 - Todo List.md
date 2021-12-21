@@ -6,10 +6,10 @@
   - [x] Desired view rect
   - [x] Actual view rect, follows Desired
   - This feels weird.
-  - [ ] No target: just camera.transform
-  - [ ] transform.x is workable and usable
+  - [x] No target: just camera.transform
+  - [x] transform.x is workable and usable
   - [x] Programmer will know transform.x has a delay based on the travelAlg
-  - [ ] Get rid of camera.setBorder, just transform.border
+  - [x] Get rid of camera.setBorder, just transform.border
   - [ ] I think the refactor loses its focal point.
     - This is probably because Points are mostly functional
     - [ ] Mod Transformable to be some kind of position or transform having object, then pass in MapCursor instead of it's point. This solution worked well.
