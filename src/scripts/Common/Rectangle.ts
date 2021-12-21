@@ -249,7 +249,7 @@ export class Rectangle {
   /** Returns a string representation of this rectangle's properties. */
   toString() {
     const { top, left, bottom, right, width, height } = this;
-    return `[${left} ${top} → ${right} ${bottom}, ${width}w ${height}h]`;
+    return `[${left} ${top} ${right} ${bottom}, ${width}w ${height}h]`;
   }
 
 
