@@ -250,8 +250,6 @@ export class Rectangle {
   toString() {
     const { top, left, bottom, right, width, height } = this;
     return `[${left} ${top} → ${right} ${bottom}, ${width}w ${height}h]`;
-
-    // [32 -28 → 144 197, 112w 225h]
   }
 
 
