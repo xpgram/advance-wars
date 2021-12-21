@@ -12,7 +12,7 @@
   - [x] Get rid of camera.setBorder, just transform.border
   - [ ] I think the refactor loses its focal point.
     - This is probably because Points are mostly functional
-    - [ ] Mod Transformable to be some kind of position or transform having object, then pass in MapCursor instead of it's point. This solution worked well.
+    - [x] Mod Transformable to be some kind of position or transform having object, then pass in MapCursor instead of it's point. This solution worked well.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement

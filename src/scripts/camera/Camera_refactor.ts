@@ -109,9 +109,10 @@ export class Camera {
     const thisFrame = transforms.actual.clone();
     const vector = thisFrame.vectorFrom(lastFrame);
     if (Game.devController.down(Keys.K))
-      console.log(`pos ${vector.position.toString()}` +
-        `zoom ${vector.zoom}` +
-        `focal ${this.getFocalPoint().toString()}`);
+      console.log(`vpos ${vector.position.toString()}` +
+        `vzoom ${vector.zoom}` +
+        `focal ${this.getFocalPoint().toString()}` +
+        `target ${this.transform.worldRect().toString()}`);
 
     // Modify stage to reflect render transform
     const viewRect = transforms.render.worldRect();
