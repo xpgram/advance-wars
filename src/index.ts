@@ -227,23 +227,21 @@ class App {
             this.scene.init();
 
         // Suspend frame updates injection
+        if (this.devController.pressed(Keys.Enter))
+            this.suspend = !this.suspend;
         if (this.suspend && !this.devController.pressed(Keys.Space))
             return;
 
         // Update
         this.updateDelta();
         this.developmentScripts();
-        this.globalTicker.update(delta);
-        this.scene.update(delta);
+        this.globalTicker.update(this.delta);
+        this.scene.update(this.delta);
         this.workOrders.close();
         this.textureLibrary.flush();
         this._frameCount++;
 
         this.renderer.render(this.container);
-
-        // Toggle frame updates suspension
-        if (this.devController.pressed(Keys.Enter))
-            this.suspend = !this.suspend;
     }
 
     /** Unbuilds the current scene and switches context to the given scene object. */

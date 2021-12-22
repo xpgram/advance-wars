@@ -5,6 +5,8 @@
 - [x] Add pause and frame incrementer
   - [ ] Now I'm just concerned it breaks something.
   - [ ] MapCursor still doesn't play nice.
+    - [ ] Because Game.scene.ticker get started() and this makes it independent of the main loop. I can make it part of the main loop by moving the update() call to scene's update step, but this makes the app reeaally slow for some reason. Iunno.
+    I'm leaving it be for now.
 
 - [ ] Camera refactor: bugs and integration
   - [x] It loses mapCursor focus somehow.

@@ -41,8 +41,10 @@ export abstract class Scene {
     /** Initialize step sets up the scene and readies it for the game-loop. */
     init() {
         if (this.state == Scene.UNBUILT) {
-            this._ticker = new PIXI.Ticker();
-            this.ticker.start();
+            this._ticker = new PIXI.Ticker({
+                autoStart: false,
+            });
+            this.ticker.start();    // TODO Frame suspension
             this.load(); // → setup → ready
         }
         else
@@ -85,6 +87,7 @@ export abstract class Scene {
 
     /** Update step describes frame-by-frame events. */
     update(delta: number) {
+        // this._ticker.update(delta);  // TODO Frame suspension
         if (this.state == Scene.READY)
             this.updateStep(delta);
     }
