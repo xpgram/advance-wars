@@ -30,7 +30,7 @@ export class Rectangle {
   get bottomleft() { return new Point(this.left, this.bottom); }
   get bottomright() { return new Point(this.right, this.bottom); }
 
-  get center() { return this.getImmutablePointPrimitiveByProportion(new Point(.5)); }
+  get center() { return this.getPointByProportion(new Point(.5)); }
 
 
   constructor(x?: number | RectanglePrimitive | ImmutablePointPrimitive, y?: number, width?: number, height?: number) {
@@ -228,7 +228,7 @@ export class Rectangle {
 
   /** Returns a coordinate relative to this rectangle's top-left corner and proportional to its width/height
    * by the given anchor immutablepointprimitive. Ex: anchor=(.8, .8) returns a immutablepointprimitive in the lower-right rectangle quadrant. */
-  getImmutablePointPrimitiveByProportion(anchor: ImmutablePointPrimitive) {
+  getPointByProportion(anchor: ImmutablePointPrimitive) {
     return new Point(
       this.left + anchor.x*this.width,
       this.top + anchor.y*this.height,

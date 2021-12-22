@@ -10,6 +10,9 @@ import { Keys } from "../controls/KeyboardObserver";
 
 
 type AlgorithmSet = {
+  /** A function callback for correcting the target frame after the destination algorithm,
+   * such as for confining it to some set of bounds. */
+  destinationCorrection?: (target: ViewRect) => ViewRect;
   /** The method by which the camera will choose transform targets. */
   destination?: PositionalAlgorithm;
   /** The method by which the camera will approach its current transform target. */
@@ -84,7 +87,7 @@ export class Camera {
   }
 
   update() {
-    const { destination, travel, displacement } = this.algorithm;
+    const { destinationCorrection, destination, travel, displacement } = this.algorithm;
     const transforms = this.hiddenTransforms;
 
     // ViewRects are semi-functional, which means they're intended to
@@ -100,6 +103,9 @@ export class Camera {
           this.transform,
           this.getFocalPoint(),
         )
+      : this.transform;
+    this.transform = (destinationCorrection)
+      ? destinationCorrection(this.transform)
       : this.transform;
     transforms.actual = (travel)
       ? travel.update(

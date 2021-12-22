@@ -6,6 +6,7 @@ import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSce
 import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystemManager";
 import { updateUniforms } from "../scripts/filters/TileSpotlight";
 import { Point } from "../scripts/Common/Point";
+import { ViewRect } from "../scripts/camera/ViewRect";
 
 /**
  * @author Dei Valko
@@ -80,6 +81,38 @@ export class BattleScene extends Scene {
         // Unit-spent tint:        0x888888
         // Unit-right is unit-left with scale.x = -1
         // MovementRailcar does ~not~ pause animation once it reaches its destination. It is just usually too fast to notice this.
+
+
+        // TODO This is awful. Kinda. I dunno, clean it up.
+        // Add small-map camera squeezing.
+        const { camera, map } = this.controllers;
+        camera.algorithm.destinationCorrection = (transform: ViewRect) => {
+            const tileSize = Game.display.standardLength;
+            const mapWidth = map.width * tileSize;
+            const mapHeight = map.height * tileSize;
+
+            const subject = transform.subjectRect();
+            const world = transform.worldRect();
+            const viewCenter = world.center;
+
+            // Bounding
+            if (subject.left < 0)
+                transform.position.x = -transform.border.left;
+            if (subject.right > mapWidth)
+                transform.position.x = mapWidth - subject.width - transform.border.right;
+            if (subject.top < 0)
+                transform.position.y = -transform.border.top;
+            if (subject.bottom > mapHeight)
+                transform.position.y = mapHeight - subject.height - transform.border.bottom;
+
+            // Centering
+            if (subject.width >= mapWidth)
+                transform.position.x = .5*mapWidth - viewCenter.x + world.x;
+            if (subject.height >= mapHeight)
+                transform.position.y = .5*mapHeight - viewCenter.y + world.y;
+            
+            return transform;
+        }
     }
 
     updateStep(delta: number): void {
@@ -96,49 +129,6 @@ export class BattleScene extends Scene {
             let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
             MapLayer('bottom').filterArea = cameraView;
         }
-
-        // TODO Move this to... Camera.update()..?
-        // I might actually make this a ControlScript that defaults to on.
-        // It doesn't need to be toggleable, so... I dunno, but any other place
-        // would seem odd.
-
-        // Stage centering when stage is too smol
-        // This, uh... don't look at it.
-        // TODO Don't look at it.
-        
-        const { camera, map, mapCursor } = this.controllers;
-        const view = camera.transform.worldRect();
-
-        // TODO This was middle-snapping for small maps.
-        // This needs to be handled somewhere else.
-
-        // const camTarget = {position: {x:0,y:0}};
-        // if (view.width <= map.width*16 + 80 && view.height <= map.height*16 + 64)
-        //     camTarget.position = new Point(
-        //         map.width*8,
-        //         map.height*8
-        //     );
-        // else if (view.width >= map.width*16 + 80)
-        //     camTarget.position = (() => { return {
-        //         x: map.width*8,
-        //         get y() { return mapCursor.transform.exact.y; }
-        //     }})();
-        // else if (view.height >= map.height*16 + 64)
-        //     camTarget.position = (() => { return {
-        //         get x() { return mapCursor.transform.exact.x; },
-        //         y: map.height*8
-        //     }})();
-        // console.log(`${camTarget.position.x} ${camTarget.position.y}`);
-        // camera.focalTarget = camTarget;
-        
-        //   Here's what the above block is doing and what to focus on when refactoring:
-        // As *soon* as the map is too small not to fit neatly inside the camera frame,
-        // the x or y (or both) coordinate that we're 'following' snaps to the middle of
-        // the map, and at that point, zooming out just means zoomin out evenly from the center.
-        //   Another note: The cursor has a draw order issue with the camera that I haven't
-        // kinked out yet. The camera needs to shift the stage (or itself) *after* the cursor
-        // has moved, but *before* draw has been called. Otherwise you get mom's massage head
-        // as a tile selector.
     }
 
     destroyStep(): void {
