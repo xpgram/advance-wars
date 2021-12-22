@@ -11,6 +11,8 @@ export interface PositionalAlgorithm {
 
 export class ScreenPush implements PositionalAlgorithm {
   update(rect: ViewRect, focal: Point): ViewRect {
+    // TODO Quantize targets
+
     const view = rect.subjectRect();
     const travelVector = new Point(
       Common.displacementFromRange(focal.x, view.left, view.right),
