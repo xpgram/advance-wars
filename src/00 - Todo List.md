@@ -1,5 +1,11 @@
 # Next Big Objectives
 
+- [ ] Scene has a property called 'resources' which should be equivalent to Game.loader.resources, but I never use it. I think I never use it.
+
+- [x] Add pause and frame incrementer
+  - [ ] Now I'm just concerned it breaks something.
+  - [ ] MapCursor still doesn't play nice.
+
 - [ ] Camera refactor: bugs and integration
   - [x] It loses mapCursor focus somehow.
     - [ ] I unset the map squeezer, which I should do anyway, and which was breaking for mystery(??) reasons.

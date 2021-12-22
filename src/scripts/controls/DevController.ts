@@ -76,6 +76,9 @@ export class DevController {
     return {button, modifier};
   }
 
+  // TODO C, Shift+C and Shift+Ctrl+C are distinct. Create a method getAltState()
+  // which reflects the down/up state of all modifier keys.
+
   /** Returns true if the given keyId was pressed this frame.
    * If altMode is provided, only returns true given the keyId if the specified alt key is also down. */
   pressed(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt'): boolean {

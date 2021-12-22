@@ -116,7 +116,7 @@ export class MapCursor extends Observable() {
     this.controller = gp;
 
     // Set up the cursor's imagery
-    let sheet = Game.app.loader.resources[MapCursor.spritesheet].spritesheet as PIXI.Spritesheet;
+    let sheet = Game.loader.resources[MapCursor.spritesheet].spritesheet as PIXI.Spritesheet;
 
     // Collect all cursor-variation textures
     this.cursorGraphics = {

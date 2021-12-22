@@ -253,7 +253,7 @@ export abstract class TerrainObject {
         container.filters = [whitemask];
 
         // Texture generation
-        const tex = Game.app.renderer.generateTexture(
+        const tex = Game.renderer.generateTexture(
             container,
             {
                 scaleMode: PIXI.SCALE_MODES.NEAREST,
@@ -275,7 +275,7 @@ export abstract class TerrainObject {
         sprite.texture = TerrainObject.whitemasks.get(key);
         sprite.filters = [tileSpotlight];
 
-        const tex = Game.app.renderer.generateTexture(  // TODO Use render texture? I guess that was always a workaround.
+        const tex = Game.renderer.generateTexture(  // TODO Use render texture? I guess that was always a workaround.
             sprite,
             {
                 scaleMode: PIXI.SCALE_MODES.NEAREST, 

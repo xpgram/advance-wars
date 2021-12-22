@@ -15,8 +15,8 @@ import { Unit } from "../Unit";
 export const TerrainProperties = {
     tileset: 'NormalMapTilesheet',
     landImageset: 'NormalMapLandscapeSheet',
-    get sheet(): PIXI.Spritesheet { return Game.app.loader.resources[ TerrainProperties.tileset ].spritesheet; },
-    get infoPortraitSheet(): PIXI.Spritesheet { return Game.app.loader.resources[ TerrainProperties.landImageset ].spritesheet; },
+    get sheet(): PIXI.Spritesheet { return Game.loader.resources[ TerrainProperties.tileset ].spritesheet; },
+    get infoPortraitSheet(): PIXI.Spritesheet { return Game.loader.resources[ TerrainProperties.landImageset ].spritesheet; },
 }
 
 /**

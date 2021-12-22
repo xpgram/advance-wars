@@ -264,7 +264,7 @@ export abstract class UnitObject {
 
     /** Must be called before use. Builds unit graphics, configures important stats. */
     init(options: {boardPlayer: BoardPlayer, faction: Faction}) {
-        let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
+        let sheet = Game.loader.resources['UnitSpritesheet'].spritesheet as PIXI.Spritesheet;
         // TODO If spritesheet is undefined... what happens?
 
         // TODO faction is known by boardplayer...

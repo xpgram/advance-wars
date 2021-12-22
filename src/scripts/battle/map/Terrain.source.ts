@@ -11,7 +11,7 @@ import { NeighborMatrix } from "../../NeighborMatrix";
  */
 export const Terrain = {
     tileset: 'NormalMapTilesheet',
-    get sheet(): PIXI.Spritesheet { return Game.app.loader.resources[ Terrain.tileset ].spritesheet; },
+    get sheet(): PIXI.Spritesheet { return Game.loader.resources[ Terrain.tileset ].spritesheet; },
 
     Void: class VoidTile extends TerrainObject {
         // Not for nothin', but these properties are all technically condensible into one 64-bit value.

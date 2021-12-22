@@ -65,16 +65,16 @@ export const TerrainMethods = {
     /** Initiates the shoreline animation ticker and adds the color-swap filter to the bottom texture layer. */
     startPaletteAnimation: () => {
         // Pixi defaults to low resolutions for filters, undo that.
-        TerrainMethods.shorelineFilter.resolution = Game.app.renderer.resolution;
+        TerrainMethods.shorelineFilter.resolution = Game.renderer.resolution;
 
         MapLayer('bottom').filters = [TerrainMethods.shorelineFilter];
-        Game.app.ticker.add( TerrainMethods.animateShoreline );
+        Game.scene.ticker.add( TerrainMethods.animateShoreline );
     },
 
     /** Stops the shoreline animation ticker, and removes the color filter. */
     stopPaletteAnimation: () => {
         MapLayer('bottom').filters = [];
-        Game.app.ticker.remove( TerrainMethods.animateShoreline );  // TODO Does this work?
+        Game.scene.ticker.remove( TerrainMethods.animateShoreline );  // TODO Does this work?
     },
 
     /** Adds an animated, background sea layer to the overall map image.

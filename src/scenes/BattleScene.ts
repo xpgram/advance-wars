@@ -52,7 +52,7 @@ export class BattleScene extends Scene {
 
         // Testing unit sprites
         // let unitName = 'seeker/red/idle';
-        // let sheet = Game.app.loader.resources['UnitSpritesheet'].spritesheet;
+        // let sheet = Game.loader.resources['UnitSpritesheet'].spritesheet;
         // let frames = sheet.animations[unitName];
         // frames.push(frames[1]);                     // This has to be done when the sheet is loaded, and so should be done in json, I guess; asking the units to do it causes muy problemas (too many frames.)
         // for (let i = 0; i < 5; i++) {

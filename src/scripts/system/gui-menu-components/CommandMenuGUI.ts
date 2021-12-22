@@ -204,7 +204,7 @@ export class CommandMenuGUI<Y> {
       g.endFill();
 
       // Save texture
-      return Game.app.renderer.generateTexture(g, {
+      return Game.renderer.generateTexture(g, {
         scaleMode: PIXI.SCALE_MODES.NEAREST
       });
     }

@@ -84,7 +84,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
     g.endFill();
 
     // Generate texture
-    const item = Game.app.renderer
+    const item = Game.renderer
       .generateTexture(g, {
         scaleMode: PIXI.SCALE_MODES.NEAREST
       });
@@ -100,7 +100,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
     g.drawRect(fill.x, element.y + capBezel, fill.width, capHeight - capBezel);
 
     // Generate texture
-    const topCap = Game.app.renderer
+    const topCap = Game.renderer
       .generateTexture(g, {
         scaleMode: PIXI.SCALE_MODES.NEAREST
       });
@@ -115,7 +115,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
     g.drawRect(fill.x, element.y, fill.width, capHeight - capBezel);
 
     // Generate texture
-    const bottomCap = Game.app.renderer
+    const bottomCap = Game.renderer
       .generateTexture(g, {
         scaleMode: PIXI.SCALE_MODES.NEAREST
       });

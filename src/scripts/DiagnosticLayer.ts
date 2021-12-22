@@ -72,7 +72,7 @@ import { Keys } from "./controls/KeyboardObserver";
         this._container.addChild(this.pointText);
 
         // Add update method to global ticker
-        Game.app.ticker.add(this.update, this);
+        Game.globalTicker.add(this.update, this);
 
         // Visual layer is always hidden by default. Enable with dev controls.
         this._container.visible = false;
@@ -82,7 +82,7 @@ import { Keys } from "./controls/KeyboardObserver";
         this.clock += delta;
         if (this.clock > 10) {
             this.clock -= 8;
-            this.fpsText.text = `${Math.floor(Game.app.ticker.FPS)}`
+            this.fpsText.text = `${Math.floor(Game.globalTicker.FPS)}`
         }
 
         // Toggle DevUI control

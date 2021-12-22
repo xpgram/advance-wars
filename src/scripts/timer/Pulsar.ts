@@ -62,12 +62,12 @@ export class Pulsar {
     this.firstInterval = options.firstInterval || this._interval;
     this.action = action;
     this.context = context || null;
-    Game.app.ticker.add(this.update, this);
+    Game.scene.ticker.add(this.update, this);
   }
 
   /** Stops this pulsar from pulsing by removing its integration with the Game's main ticker. */
   destroy() {
-    Game.app.ticker.remove(this.update, this);
+    Game.scene.ticker.remove(this.update, this);
   }
 
   /** Updates the internal clock, and emits a function call to self.action on pulse interval. */

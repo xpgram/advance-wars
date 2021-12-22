@@ -31,16 +31,19 @@ class App {
      * Be careful not to overlap controls with any others set. */
     readonly devController = new DevController({enable: this.debugMode});
 
-    /** Scripts which  */
+    /** Scripts which describe development control behavior. */
     private readonly devControls = [
         function toggleStageScaling() {
             const dc = Game.devController;
             if (dc.get(Keys.Shift).down && dc.get(Keys.iRow1).pressed) {
                 Game.devSettings.limitStageScaling = !Game.devSettings.limitStageScaling;
-                Game.display.resize(Game.app);
+                Game.display.resize(Game.renderer, Game.container);
             }
         },
     ];
+
+    /** Halts the update step when true. */
+    private suspend = false;
 
     /** Runs debug scripts when in debug mode. */
     private developmentScripts() {
@@ -48,6 +51,12 @@ class App {
             return;
         this.devControls.forEach( script => script() );
     }
+
+    /** Independent ticker which handles inter-scene processes.
+     * Think twice about using. */
+    readonly globalTicker = new PIXI.Ticker({
+        autoStart: false,
+    });
 
     /** A graphics-container for solid-panel images adding character to blank scenes. */
     readonly backdrop = new PIXI.Container();
@@ -72,9 +81,12 @@ class App {
     private _lastCycleTimestamp: number = Number.MAX_SAFE_INTEGER;
     /** Updates delta to reflect the time since the last updateDelta call. */
     private updateDelta() {
-        let timestamp = Date.now();
+        const timestamp = Date.now();
         this._delta = (timestamp - this._lastCycleTimestamp) / 1000;
         this._lastCycleTimestamp = timestamp;
+
+        // Simulates typical frame-delta when update is suspended.
+        if (this.suspend) this._delta = 1 / 60;
     }
 
     /** A repository for delayed function calls. */
@@ -123,8 +135,8 @@ class App {
         scale: 1,
 
         /** Callback function which resizes the canvas to the containing div element on window resize. */
-        resize: function(app: PIXI.Application) {
-            let parentNode = app.view.parentNode;
+        resize: function(renderer: PIXI.Renderer, container: PIXI.Container) {
+            let parentNode = renderer.view.parentNode;
             if (parentNode instanceof HTMLDivElement) {
                 const wRatio = parentNode.offsetWidth / this.renderWidth;
                 // TODO This fixes the too-tall problem, but .9 shouldn't be ~here~.
@@ -135,13 +147,19 @@ class App {
             // Scaling the stage less than the view allows the user to see beyond the render viewport.
             const stageScaling = (Game.devSettings.limitStageScaling) ? this.scale * .65 : this.scale;
 
-            app.renderer.resize(this.width, this.height);
-            app.stage.scale.x = app.stage.scale.y = stageScaling;
+            renderer.resize(this.width, this.height);
+            container.scale.x = container.scale.y = stageScaling;
         }
     };
 
-    /** Reference to the PIXI.App renderer. */
-    readonly app = new PIXI.Application({
+    /** System stage container equivalent to app.stage. */
+    private readonly container = new PIXI.Container();
+
+    /** System ticker equivalent to app.ticker. */
+    private readonly systemTicker = new PIXI.Ticker();
+
+    /** System renderer equivalent to app.renderer. */
+    readonly renderer = new PIXI.Renderer({
         width: this.display.width,
         height: this.display.height,
         backgroundColor: 0x1099bb,
@@ -150,27 +168,30 @@ class App {
         // resizeTo: document.querySelector('#gameframe'),
     });
 
+    /** System asset loader equivalent to app.loader. */
+    readonly loader = new PIXI.Loader();
+
     /** Game initializer. Adds canvas to given DOM element, and sets up the game loop. */
     init() {
         //@ts-ignore : Property is readonly but not set initially.
         this.contextElement = document.querySelector('#gameframe');    // TODO Allow init() to accept different frame ID's?
         if (this.contextElement) {
-            this.contextElement.appendChild(this.app.view);
+            this.contextElement.appendChild(this.renderer.view);
             this.contextElement.tabIndex = '0';
         } // TODO What if it can't find the context element?
         
         // First screen resize + add a listener to update on window resize.
-        this.display.resize(this.app);
-        window.addEventListener( 'resize', () => { this.display.resize(this.app)} );
+        this.display.resize(this.renderer, this.container);
+        window.addEventListener( 'resize', () => { this.display.resize(this.renderer, this.container)} );
 
         // Set entry point for the game (the first scene)
         this.switchScene(this.gameScenes.battleScene);
 
         // Add this game's visual layers to PIXI's app.stage
-        this.app.stage.addChild(this.backdrop);
-        this.app.stage.addChild(this.stage);
-        this.app.stage.addChild(this.hud);
-        this.app.stage.addChild(this.debugHud);
+        this.container.addChild(this.backdrop);
+        this.container.addChild(this.stage);
+        this.container.addChild(this.hud);
+        this.container.addChild(this.debugHud);
         
         // Preload game-wide resources, start the game on completion.
         this.preload( () => {
@@ -179,20 +200,21 @@ class App {
             this.diagnosticLayer = new DiagnosticLayer({enable: this.debugMode});
             this.debugHud.addChild(this.diagnosticLayer.container);
             
-            // Add the main loop to PIXI's ticker.
-            this.app.ticker.add( (delta: number) => {this.loop(delta)} );
+            // Add the main loop to global system ticker.
+            this.systemTicker.add(this.loop, this);
+            this.systemTicker.start();
         });
     }
 
     /** Loads assets into memory, then calls the callback function when completed. */
     private preload(callback?: Function) {
         // Move these to another file if they get massive big.
-        this.app.loader.add('TecTacRegular', 'assets/TecTacRegular.xml');
+        this.loader.add('TecTacRegular', 'assets/TecTacRegular.xml');
         
         // Final loader call
-        this.app.loader.load().onComplete.once( () => {
+        this.loader.load().onComplete.once( () => {
             //@ts-ignore    This is the first/only globalResources assignment.
-            this.globalResources = this.app.loader.resources;
+            this.globalResources = this.loader.resources;
             if (callback)
                 callback();
         })
@@ -200,15 +222,28 @@ class App {
 
     /** Main update loop. A state-machine implementing the Scene pattern. */
     loop(delta: number) {
-        this.updateDelta();
+        this.devController.update();
         if (this.scene.mustInitialize)
             this.scene.init();
-        this.devController.update();
+
+        // Suspend frame updates injection
+        if (this.suspend && !this.devController.pressed(Keys.Space))
+            return;
+
+        // Update
+        this.updateDelta();
         this.developmentScripts();
+        this.globalTicker.update(delta);
         this.scene.update(delta);
         this.workOrders.close();
         this.textureLibrary.flush();
         this._frameCount++;
+
+        this.renderer.render(this.container);
+
+        // Toggle frame updates suspension
+        if (this.devController.pressed(Keys.Enter))
+            this.suspend = !this.suspend;
     }
 
     /** Unbuilds the current scene and switches context to the given scene object. */
