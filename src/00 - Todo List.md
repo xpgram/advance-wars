@@ -7,7 +7,8 @@
   - [ ] Cursor vibrates on push. Could be update order, could be LowResT. Pretty sure I unspecified LowResT from a few things during this transition.
   - [x] Zoom is broken.
   - [ ] Quantize was removed for being confusing. We still need it, though. It's mostly irrelevant, but on zoom and manualMove it picks a tile coord to settle on.
-  - [ ] Investigate relationship between actual and target on zoom; weird jumpin' around when it should be a smooth, linear transition.
+  - [x] Investigate relationship between actual and target on zoom; weird jumpin' around when it should be a smooth, linear transition.
+    - [ ] The problem is that TravelAlg doesn't plan a smooth vector transition between actual and target.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement

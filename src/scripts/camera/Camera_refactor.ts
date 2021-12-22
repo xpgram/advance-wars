@@ -105,6 +105,7 @@ export class Camera {
       ? travel.update(
           transforms.actual,
           this.transform,
+          this.getFocalPoint(),
         )
       : this.transform.clone();
     transforms.offset = displacement?.get() || new ViewRectVector();
@@ -117,10 +118,8 @@ export class Camera {
     if (Game.devController.down(Keys.K))
       console.log(
         `${transforms.actual.zoom}z` +
-        `\nsbj ${transforms.actual.subjectRect().toString()}` +
-        `\nwrl ${transforms.actual.worldRect().toString()}` +
-        `\noffset ${opos.toString()} ${oborder.toString()} ${ozoom}z` +
-        `\nrnd ${transforms.render.worldRect().toString()}`);
+        `\n actual ${transforms.actual.worldRect().toString()}` +
+        `\n target ${this.transform.worldRect().toString()}`);
 
     // Modify stage to reflect render transform
     const viewRect = transforms.render.worldRect();
