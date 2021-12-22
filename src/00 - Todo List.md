@@ -6,10 +6,8 @@
     All it did was ignore axii on focalTarget when maps were smaller than the camera dimensions. What I need is a camera lock to axis center which overwrites any supposed changes after the camera does its algs. Should camera have a pre-render callback? Then BattleScene could set it like it did...
   - [ ] Cursor vibrates on push. Could be update order, could be LowResT. Pretty sure I unspecified LowResT from a few things during this transition.
   - [x] Zoom is broken.
+    - [ ] Moving the cursor beyond the zoomed-in border when zoomed out and then intiating zoom twerks out at the end of the transition: the zoomed-in borders require a small amount of movement, which is currently set to disable until zoom has finished.
   - [ ] Quantize was removed for being confusing. We still need it, though. It's mostly irrelevant, but on zoom and manualMove it picks a tile coord to settle on.
-  - [x] Investigate relationship between actual and target on zoom; weird jumpin' around when it should be a smooth, linear transition.
-    - [x] The problem is that TravelAlg doesn't plan a smooth vector transition between actual and target.
-    - [ ] But now I've confused its travel vector; it always be 0,0. The zoom op, however, is brilliant. Perfectly smooth. Mostly perfectly smooth.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement
