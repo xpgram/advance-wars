@@ -1,3 +1,4 @@
+import { Slider } from "../Common/Slider";
 import { ViewRectVector } from "./ViewRect";
 
 
@@ -7,13 +8,19 @@ export interface DisplacementAlgorithm {
   get(): ViewRectVector;
 }
 
+
 export class ScreenShake implements DisplacementAlgorithm {
-  private dir = -1;
+  private screenShakeSlider = new Slider({
+    max: 4,
+    track: 'max',
+    granularity: 1/4,
+    shape: v => Math.ceil(((v % 2 === 0) ? v : -v)*.5),
+  });
 
   get() {
-    this.dir = -this.dir;
     const vector = new ViewRectVector();
-    vector.position.y = 2 * this.dir;
+    vector.position.y = this.screenShakeSlider.output;
+    this.screenShakeSlider.decrement();
     return vector;
   }
 }

@@ -31,13 +31,7 @@ type AlgorithmSet = {
 export class Camera {
 
   /** The point, if present, which the camera will try to keep in frame. */
-  private _focalTarget?: PositionContainer;
-  get focalTarget() { return this._focalTarget; }
-  set focalTarget(v) {
-    this._focalTarget = v;
-    // console.log(v);
-  }
-
+  focalTarget?: PositionContainer;
 
   /** The transform state this camera aspires to. Instantly moves the camera, or begins approaching
    * if a travel algorithm is set. */
@@ -71,7 +65,7 @@ export class Camera {
 
   /** A container for a set of behavioral algorithms which describe the camera's
    * frame-by-frame movement. */
-  algorithm: AlgorithmSet = { }
+  algorithms: AlgorithmSet = { }
 
   /** The graphical object manipulated by this camera. */
   private stage: PIXI.Container;
@@ -87,17 +81,14 @@ export class Camera {
   }
 
   update() {
-    const { destinationCorrection, destination, travel, displacement } = this.algorithm;
+    const { destinationCorrection, destination, travel, displacement } = this.algorithms;
     const transforms = this.hiddenTransforms;
 
     // ViewRects are semi-functional, which means they're intended to
     // be cloned() in the update algs but it isn't necessarily enforced.
     // Be careful out there, yo.
 
-    // Logging setup
-    const lastFrame = transforms.actual.clone();
-
-    // Update transforms
+    // Set target transform
     this.transform = (destination)
       ? destination.update(
           this.transform,
@@ -108,6 +99,8 @@ export class Camera {
     this.transform = (destinationCorrection)
       ? destinationCorrection(this.transform)
       : this.transform;
+
+    // Move actual transform
     transforms.actual = (travel)
       ? travel.update(
           transforms.actual,
@@ -115,23 +108,14 @@ export class Camera {
           this.getFocalPoint(),
         )
       : this.transform.clone();
+
+    // Get behavior and set final transform
     transforms.offset = displacement?.get() || new ViewRectVector();
     transforms.render = transforms.actual.addVector(transforms.offset);
-
-    // Logging
-    const thisFrame = transforms.actual.clone();
-    const vector = thisFrame.vectorFrom(lastFrame);
-    const { position: opos, border: oborder, zoom: ozoom } = transforms.offset;
-    if (Game.devController.down(Keys.K))
-      console.log(
-        `${transforms.actual.zoom}z` +
-        `\n actual ${transforms.actual.worldRect().toString()}` +
-        `\n target ${this.transform.worldRect().toString()}`);
 
     // Modify stage to reflect render transform
     const viewRect = transforms.render.worldRect();
     const { zoom } = transforms.render;
-
     this.stage.position.set(
       -viewRect.x * zoom,
       -viewRect.y * zoom,

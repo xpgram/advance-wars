@@ -17,8 +17,10 @@
     - [x] Moving the cursor beyond the zoomed-in border when zoomed out and then intiating zoom twerks out at the end of the transition: the zoomed-in borders require a small amount of movement, which is currently set to disable until zoom has finished.
   - [x] Quantize was removed for being confusing. We still need it, though. It's mostly irrelevant, but on zoom and manualMove it picks a tile coord to settle on.
   I think it works.
-  - [ ] Screen shake is not re-implemented in DamageEvent.
+  - [x] Screen shake is not re-implemented in DamageEvent.
   - [x] manualMove never ceases.
+  - [x] Remove logs from camera class
+  - [ ] Remove _refactor from filename
 
 ShowUnitAttackRange:
 - [x] Allow camera movement

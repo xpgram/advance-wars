@@ -1,7 +1,5 @@
 import { Game } from "../../../..";
-import { FollowAlgorithm } from "../../../CameraFollowAlgorithms";
-import { Point } from "../../../Common/Point";
-import { Slider } from "../../../Common/Slider";
+import { ScreenShake } from "../../../camera/DisplacementAlgorithms";
 import { AttackMethod, UnitClass } from "../../EnumTypes";
 import { TrackCar } from "../../TrackCar";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
@@ -21,15 +19,8 @@ export class BattleDamageEvent extends TileEvent {
 
   protected options: BattleDamageEventOptions;
   private vfx!: PIXI.AnimatedSprite;
-  private cameraFollowAlgorithmSwap: FollowAlgorithm | null = null;
+  private selfSetCameraAlg = false;
 
-  private cameraPoint!: Point;
-  private screenShakeSlider = new Slider({
-    max: 4,
-    track: 'max',
-    granularity: 1/4,
-    shape: v => Math.ceil(((v % 2 === 0) ? v : -v)*.5),
-  });
 
   constructor(options: BattleDamageEventOptions) {
     super(options.defender.boardLocation);
@@ -53,11 +44,10 @@ export class BattleDamageEvent extends TileEvent {
         attacker.rank += 1;
     }
 
-    // Configure camera for shake
-    this.cameraPoint = camera.pos;
-    if (camera.followAlgorithm)
-      this.cameraFollowAlgorithmSwap = camera.followAlgorithm;
-    camera.followAlgorithm = null;
+    // Configure camera for shake ­— unless already done by a different controller
+    this.selfSetCameraAlg = camera.algorithms.displacement === undefined;
+    if (this.selfSetCameraAlg)
+      camera.algorithms.displacement = new ScreenShake();
 
     // Null case
     if (damageDealt === 0) {
@@ -98,18 +88,11 @@ export class BattleDamageEvent extends TileEvent {
   }
 
   protected update(): void {
-    const { camera } = this.options.assets;
-
     // Update VFX settings
     const lastidx = this.vfx.textures.length - 1;
     const curidx = this.vfx.currentFrame;
     const progress = curidx / lastidx;
     this.vfx.alpha = 1-Math.max(progress-.5, 0)/.65;
-
-    // Update camera settings
-    const curPoint = this.cameraPoint.add(0, this.screenShakeSlider.output);
-    camera.pos = curPoint;
-    this.screenShakeSlider.decrement();
 
     // Signal finish
     if (curidx === lastidx)
@@ -119,9 +102,8 @@ export class BattleDamageEvent extends TileEvent {
   protected destroy(): void {
     const { camera } = this.options.assets;
 
-    camera.pos = this.cameraPoint;
-    if (this.cameraFollowAlgorithmSwap)
-      camera.followAlgorithm = this.cameraFollowAlgorithmSwap;
+    if (this.selfSetCameraAlg)  // Protection against double-events unsetting shake immediately
+      camera.algorithms.displacement = undefined;
 
     this.vfx?.destroy();
     this.vfx = undefined;

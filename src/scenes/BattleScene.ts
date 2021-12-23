@@ -86,7 +86,7 @@ export class BattleScene extends Scene {
         // TODO This is awful. Kinda. I dunno, clean it up.
         // Add small-map camera squeezing.
         const { camera, map } = this.controllers;
-        camera.algorithm.destinationCorrection = (transform: ViewRect) => {
+        camera.algorithms.destinationCorrection = (transform: ViewRect) => {
             const tileSize = Game.display.standardLength;
             const mapWidth = (map.width - 1) * tileSize;    // Tile origin in topleft corner means
             const mapHeight = (map.height - 1) * tileSize;  // last tileSize isn't considered.

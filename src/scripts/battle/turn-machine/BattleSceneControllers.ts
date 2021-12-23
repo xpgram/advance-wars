@@ -187,7 +187,7 @@ export class BattleSceneControllers {
       bottom: tileSize*3,
     });
     this.camera.focalTarget = this.mapCursor.transform;
-    this.camera.algorithm = {
+    this.camera.algorithms = {
       destination: new ScreenPush(),
       travel: new LinearApproach(),
     };
