@@ -34,22 +34,23 @@ export class ScreenPush implements PositionalAlgorithm {
     );
     rect.position = rect.position.add(travelVector);
 
-    // TODO Lets solve the vibrating cursor first
     // Quantize
-    // if (subjectInView && actual === target) ?
-    // if (focal.apply(floor).equal(focal)) {
-    //   rect.position.set(
-    //     this.quantize(rect.position.x, this.lastTravelVector.x),
-    //     this.quantize(rect.position.y, this.lastTravelVector.y),
-    //   )
-    // }
+    const cursorIsSettled = focal.apply(floor).equal(focal);
+    const subjectInView = rect.worldRect().contains(focal);
+    // const notTransitioning = rect.equal(actual)
+    if (cursorIsSettled && !subjectInView) {
+      rect.position.set(
+        this.quantize(rect.position.x, this.lastTravelVector.x),
+        this.quantize(rect.position.y, this.lastTravelVector.y),
+      )
+    }
 
     // Set new quantize parameters for next update
-    // const vector = rect.vectorFrom(last);
-    // this.lastTravelVector.set(
-    //   vector.position.x !== 0 ? vector.position.x : this.lastTravelVector.x,
-    //   vector.position.y !== 0 ? vector.position.y : this.lastTravelVector.y,
-    // );
+    const vector = rect.vectorFrom(last);
+    this.lastTravelVector.set(
+      vector.position.x !== 0 ? vector.position.x : this.lastTravelVector.x,
+      vector.position.y !== 0 ? vector.position.y : this.lastTravelVector.y,
+    );
 
     return rect;
   }

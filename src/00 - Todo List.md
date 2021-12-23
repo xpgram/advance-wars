@@ -15,8 +15,10 @@
   - [x] Cursor vibrates on push. Could be update order, could be LowResT. Pretty sure I unspecified LowResT from a few things during this transition.
   - [x] Zoom is broken.
     - [x] Moving the cursor beyond the zoomed-in border when zoomed out and then intiating zoom twerks out at the end of the transition: the zoomed-in borders require a small amount of movement, which is currently set to disable until zoom has finished.
-  - [ ] Quantize was removed for being confusing. We still need it, though. It's mostly irrelevant, but on zoom and manualMove it picks a tile coord to settle on.
+  - [x] Quantize was removed for being confusing. We still need it, though. It's mostly irrelevant, but on zoom and manualMove it picks a tile coord to settle on.
+  I think it works.
   - [ ] Screen shake is not re-implemented in DamageEvent.
+  - [ ] manualMove never ceases.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement
