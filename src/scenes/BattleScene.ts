@@ -88,8 +88,8 @@ export class BattleScene extends Scene {
         const { camera, map } = this.controllers;
         camera.algorithm.destinationCorrection = (transform: ViewRect) => {
             const tileSize = Game.display.standardLength;
-            const mapWidth = map.width * tileSize;
-            const mapHeight = map.height * tileSize;
+            const mapWidth = (map.width - 1) * tileSize;    // Tile origin in topleft corner means
+            const mapHeight = (map.height - 1) * tileSize;  // last tileSize isn't considered.
 
             const subject = transform.subjectRect();
             const world = transform.worldRect();
