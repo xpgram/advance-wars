@@ -20,7 +20,12 @@
   - [x] Screen shake is not re-implemented in DamageEvent.
   - [x] manualMove never ceases.
   - [x] Remove logs from camera class
-  - [ ] Remove _refactor from filename
+  - [ ] Remove _refactor from filename and delete old classes
+  - [ ] Add conveniences to new camera class
+    - [ ] private position: Point;
+    - [ ] set x(n) => position.x
+    - [ ] center: PointOperator; (x, y, set())
+    - [ ] set center.x(n) => position.x
 
 ShowUnitAttackRange:
 - [x] Allow camera movement
