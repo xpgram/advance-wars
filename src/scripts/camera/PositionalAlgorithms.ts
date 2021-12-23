@@ -1,13 +1,20 @@
 import { Game } from "../..";
 import { Point } from "../Common/Point";
 import { Common } from "../CommonUtils";
+import { Camera } from "./Camera_refactor";
 import { ViewRect } from "./ViewRect";
 
+// TODO I wanted to confine PositionalAlg to returning target ViewRects only,
+// but I need the full camera sometimes to answer questions.
+// So, what then is the difference between Positional and Travel?
+// How do I force devs to return two different-purpose views in either alg?
+// Will my father ever come home?
+// I can answer the first two if I think about them really hard, but I won't.
 
 /** Accepts a ViewRect and a focal target: target and subject. */
 export interface PositionalAlgorithm {
   /** Returns a ViewRect which keeps focal in view. */
-  update(rect: ViewRect, focal: Point): ViewRect;
+  update(rect: ViewRect, focal: Point, camera: Camera): ViewRect;
 }
 
 export class ScreenPush implements PositionalAlgorithm {
@@ -21,7 +28,7 @@ export class ScreenPush implements PositionalAlgorithm {
     return trunc(x / size) * size;
   }
   
-  update(rect: ViewRect, focal: Point): ViewRect {
+  update(rect: ViewRect, focal: Point, camera: Camera): ViewRect {
     const { floor } = Math;
 
     const last = rect.clone();
@@ -35,15 +42,18 @@ export class ScreenPush implements PositionalAlgorithm {
     rect.position = rect.position.add(travelVector);
 
     // Quantize
-    const cursorIsSettled = focal.apply(floor).equal(focal);
-    const subjectInView = rect.worldRect().contains(focal);
-    // const notTransitioning = rect.equal(actual)
-    if (cursorIsSettled && !subjectInView) {
-      rect.position.set(
-        this.quantize(rect.position.x, this.lastTravelVector.x),
-        this.quantize(rect.position.y, this.lastTravelVector.y),
-      )
-    }
+    const srect = rect.subjectRect();
+    const asrect = camera.currentTransform().subjectRect();
+    const border = rect.border;
+
+    const qx = (Common.within(focal.x, asrect.left, asrect.right))
+      ? this.quantize(srect.x, this.lastTravelVector.x) - border.left
+      : rect.position.x;
+    const qy = (Common.within(focal.y, asrect.top, asrect.bottom))
+      ? this.quantize(srect.y, this.lastTravelVector.y) - border.top
+      : rect.position.y;
+
+    rect.position.set(qx, qy);
 
     // Set new quantize parameters for next update
     const vector = rect.vectorFrom(last);

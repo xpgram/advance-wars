@@ -18,7 +18,7 @@
   - [x] Quantize was removed for being confusing. We still need it, though. It's mostly irrelevant, but on zoom and manualMove it picks a tile coord to settle on.
   I think it works.
   - [ ] Screen shake is not re-implemented in DamageEvent.
-  - [ ] manualMove never ceases.
+  - [x] manualMove never ceases.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement

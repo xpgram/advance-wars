@@ -44,7 +44,7 @@ export class ManualMoveCamera extends ControlScript {
 
     // Move the camera lead to a point outside the camera's viewframe, unless no input.
     
-    const rect = camera.transform.worldRect();
+    const rect = camera.currentTransform().worldRect();
     this.cameraLead.set(
       rect.center.x + (rect.width/2 + CAMERA_SPEED)*dpad.point.x,
       rect.center.y + (rect.height/2 + CAMERA_SPEED)*dpad.point.y,

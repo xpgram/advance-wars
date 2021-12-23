@@ -102,6 +102,7 @@ export class Camera {
       ? destination.update(
           this.transform,
           this.getFocalPoint(),
+          this,
         )
       : this.transform;
     this.transform = (destinationCorrection)
