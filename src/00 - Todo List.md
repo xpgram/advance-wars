@@ -1,5 +1,8 @@
 # Next Big Objectives
 
+- [ ] Dev pause mechanic fails to update controls. I think controls are in... actually, they might be in globalTicker, which would kinda explain the frame-perfect thing you need for it to actually work.
+- [ ] The dev controller is separate from the virtual gamepads, but I'm not sure if it's different enough. If I moved the VGp update to scene, but left DevKb update in global... I'm not even sure I ~can~ do that.
+
 - [ ] Scene has a property called 'resources' which should be equivalent to Game.loader.resources, but I never use it. I think I never use it.
 
 - [x] Add pause and frame incrementer

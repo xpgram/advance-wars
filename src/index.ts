@@ -87,6 +87,8 @@ class App {
 
         // Simulates typical frame-delta when update is suspended.
         if (this.suspend) this._delta = 1 / 60;
+
+        // TODO Verify 1 / 60 meaningfully simulates timestamp / 1000.
     }
 
     /** A repository for delayed function calls. */
@@ -227,16 +229,26 @@ class App {
             this.scene.init();
 
         // Suspend frame updates injection
-        if (this.devController.pressed(Keys.Enter))
+        if (this.devController.pressed(Keys.Enter)) {
             this.suspend = !this.suspend;
-        if (this.suspend && !this.devController.pressed(Keys.Space))
-            return;
+            (this.suspend)
+                ? this.scene.ticker.stop()
+                : this.scene.ticker.start();
+        }
+
+        // Single frame pass-thru
+        if (this.suspend) {
+            if (!this.devController.pressed(Keys.Space))
+                return;
+            // Must update scene manually on single-frame passthru
+            this.scene.ticker.update(delta);
+        }
 
         // Update
         this.updateDelta();
         this.developmentScripts();
-        this.globalTicker.update(this.delta);
-        this.scene.update(this.delta);
+        this.globalTicker.update(delta);
+        this.scene.update(delta);
         this.workOrders.close();
         this.textureLibrary.flush();
         this._frameCount++;

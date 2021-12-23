@@ -44,7 +44,7 @@ export abstract class Scene {
             this._ticker = new PIXI.Ticker({
                 autoStart: false,
             });
-            this.ticker.start();    // TODO Frame suspension
+            this.ticker.start();
             this.load(); // → setup → ready
         }
         else
@@ -87,7 +87,6 @@ export abstract class Scene {
 
     /** Update step describes frame-by-frame events. */
     update(delta: number) {
-        // this._ticker.update(delta);  // TODO Frame suspension
         if (this.state == Scene.READY)
             this.updateStep(delta);
     }
