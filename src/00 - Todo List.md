@@ -8,30 +8,11 @@
     - [ ] Because Game.scene.ticker get started() and this makes it independent of the main loop. I can make it part of the main loop by moving the update() call to scene's update step, but this makes the app reeaally slow for some reason. Iunno.
     I'm leaving it be for now.
 
-- [ ] Camera refactor: bugs and integration
-  - [x] It loses mapCursor focus somehow.
-    - [x] Reset the map squeezer
-    - [x] Travel alg handles zoom then move: camera can zoom out to weird places, even though final target never does.
-  - [x] Cursor vibrates on push. Could be update order, could be LowResT. Pretty sure I unspecified LowResT from a few things during this transition.
-  - [x] Zoom is broken.
-    - [x] Moving the cursor beyond the zoomed-in border when zoomed out and then intiating zoom twerks out at the end of the transition: the zoomed-in borders require a small amount of movement, which is currently set to disable until zoom has finished.
-  - [x] Quantize was removed for being confusing. We still need it, though. It's mostly irrelevant, but on zoom and manualMove it picks a tile coord to settle on.
-  I think it works.
-  - [x] Screen shake is not re-implemented in DamageEvent.
-  - [x] manualMove never ceases.
-  - [x] Remove logs from camera class
-  - [ ] Remove _refactor from filename and delete old classes
-  - [ ] Add conveniences to new camera class
-    - [ ] private position: Point;
-    - [ ] set x(n) => position.x
-    - [ ] center: PointOperator; (x, y, set())
-    - [ ] set center.x(n) => position.x
+- [x] Camera refactor: bugs and integration
+- [ ] manualMove can't move the camera's target transform fewer than 2 tile spaces away, for some reason.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement
-- [x] Return camera to previous position on close
-  - Probably just swap the focal target so BSM can let it move naturally.
-- [x] This will require extracting the camera-move behavior to a control script.
 - [ ] Does it actually make sense to maintain the position of the map cursor? It's confusing how it has the same behavior as a normal camera move but then snaps back.
   - [ ] This would be annoying to implement, but if I had the track car turn into a bubble that floated around the periphery of your screen whenever it wasn't in view, that would probably help.
     - [ ] Bubble graphic
@@ -67,10 +48,6 @@ ShowUnitAttackRange:
   - [ ] Unit refelcts player color
     - [ ] Write a python script to obtain color palettes, then use mogrify to operate for me.
     - [ ] Or I guess I could use a color-replace filter to do it live. Eh. I dunno. This would technically be better.
-
-- [x] It is possible to trick BSM into thinking the map-cursor isn't in view if you zoom out and move the cursor to one of the side extremes.
-- [ ] This is some kind of off-by-one error that was fixed by adding a small amount of padding around the default camera view frame. I suspect this has to do with how zoom is kind of awkwardly implemented: it only affected the top-side (and maybe left, I didn't check), only after zoom, and the default zoom state that worked flawlessly exhibits the same problem after zooming in again.
-  - [ ] Specifically, I wonder if the zoom-scale-slider never actually reaches its target. If it ranges between 1 and 2, let's say, it would start at 1, zoom to 1.999, then zoom again to 1.001. This would affect the focal frame in the way that it is always *just too big* or *just too small*.
 
 - [x] Unit CO loaded
 - [ ] CO loaded state affects adjacent board tiles.
@@ -123,11 +100,6 @@ More observations:
   - The game shows you every standby phase event in sequential order. You probably won't have 100 resupplies to see, but if you did...
 
 - [ ] Add dummy IssueOrderConfirm step, which would get approval from the server.
-
-- [x] The camera needs to emit an event when it stops moving. Or maybe it just has a getter that responds true whenever its target is in focus. This is less sophisticated, but I think it would suffice.
-- [ ] Camera can use this signal itself, too. Whenever its object *is* in focus, it should pick the nearest map-tile point quantized to its zoom ratio or whatever and move there, I suppose at a speed that also scales with zoom to avoid weird staircase zoom effects.
-- [ ] Hold B to move fast: camera focal point needs to move to whichever edge or corner your dpad is curretnly pointing in. This will make zoom a little smoother.
-- [ ] Hold B to move fast: never goes beyond a few tiles of the map. But you can zoom-trick the camera further. And then tapping B will snap that camera. That's bad.
 
 - [ ] Dev button for grid: top and left edges, over bottom layer
 

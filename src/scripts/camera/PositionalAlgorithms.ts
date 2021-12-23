@@ -29,8 +29,6 @@ export class ScreenPush implements PositionalAlgorithm {
   }
   
   update(rect: ViewRect, focal: Point, camera: Camera): ViewRect {
-    const { floor } = Math;
-
     const last = rect.clone();
 
     // Find new target position
@@ -41,7 +39,7 @@ export class ScreenPush implements PositionalAlgorithm {
     );
     rect.position = rect.position.add(travelVector);
 
-    // Quantize
+    // Quantize axis if not being pushed by focal point.
     const srect = rect.subjectRect();
     const asrect = camera.currentTransform().subjectRect();
     const border = rect.border;

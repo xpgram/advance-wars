@@ -1,9 +1,9 @@
+import { Game } from "../../..";
 import { Point } from "../../Common/Point";
 import { PositionContainer } from "../../CommonTypes";
 import { Common } from "../../CommonUtils";
 import { ControlScript } from "../../ControlScript";
 
-const CAMERA_SPEED = 7;   // How many tiles the camera travels per 60 frames (per second).
 
 /** Enables directional-input control over the camera. */
 export class ManualMoveCamera extends ControlScript {
@@ -34,28 +34,27 @@ export class ManualMoveCamera extends ControlScript {
   protected updateScript(): void {
     const { camera, map, gamepad } = this.assets;
     const { dpad } = gamepad.axis;
+    const tileSize = Game.display.standardLength;
 
     // Update last travel input
-
     this.lastInput.set(
       (dpad.point.x !== 0) ? dpad.point.x : this.lastInput.x,
       (dpad.point.y !== 0) ? dpad.point.y : this.lastInput.y,
     );
 
     // Move the camera lead to a point outside the camera's viewframe, unless no input.
-    
+    const leadDist = 2;
     const rect = camera.currentTransform().worldRect();
     this.cameraLead.set(
-      rect.center.x + (rect.width/2 + CAMERA_SPEED)*dpad.point.x,
-      rect.center.y + (rect.height/2 + CAMERA_SPEED)*dpad.point.y,
+      rect.center.x + (rect.width/2 + leadDist)*dpad.point.x,
+      rect.center.y + (rect.height/2 + leadDist)*dpad.point.y,
     )
 
     // Confine the camera to the map space
-
     const max = new Point()
       .add(
-        (map.width - 1) * 16,
-        (map.height - 1) * 16,
+        (map.width - 1) * tileSize,
+        (map.height - 1) * tileSize,
       )
 
     this.cameraLead.x = Common.clamp(this.cameraLead.x, 0, max.x);
