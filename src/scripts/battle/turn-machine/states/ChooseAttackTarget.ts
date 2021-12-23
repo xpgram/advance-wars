@@ -20,7 +20,7 @@ export class ChooseAttackTarget extends TurnState {
     const { map, mapCursor, uiSystem, players } = this.assets;
     const { actor, goal, seed } = this.data;
 
-    const focalTile = map.squareAt(mapCursor.pos);
+    const focalTile = map.squareAt(mapCursor.boardLocation);
     const focalUnit = focalTile.unit;
     if (focalUnit && focalUnit.faction !== players.current.faction) {
       const damage = DamageScript.NormalAttack(map, actor, goal, focalUnit, seed);

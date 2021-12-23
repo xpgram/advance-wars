@@ -16,7 +16,7 @@ export class TurnEnd extends TurnState {
       u.spent = false;
       u.orderable = false;
     });
-    player.lastCursorPosition = new Point(mapCursor.pos);
+    player.lastCursorPosition = new Point(mapCursor.boardLocation);
     this.advance(TurnChange);
   }
 

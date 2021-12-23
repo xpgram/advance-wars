@@ -19,7 +19,7 @@ export class MoveUnit extends TurnState {
     const { actor, place, seed } = this.data;
 
     // Change cursor mode
-    const tile = map.squareAt(mapCursor.pos);
+    const tile = map.squareAt(mapCursor.boardLocation);
     const unit = tile.unit;
     const boardable = unit?.boardable(actor);
     const mergeable = unit?.mergeable(actor);
@@ -84,22 +84,22 @@ export class MoveUnit extends TurnState {
     // Request a recalc of the travel path on cursor move.
     // *None of this* can be a listener callback on mapCursor because I don't want
     // any discrepancy between recalc and A button presses.
-    if (this.lastCursorPos.notEqual(mapCursor.pos)) {
-      this.lastCursorPos = mapCursor.pos;
+    if (this.lastCursorPos.notEqual(mapCursor.boardLocation)) {
+      this.lastCursorPos = mapCursor.boardLocation;
 
       // Determine whether smart, range-map pathfinding is necessary.
-      const selectingOverTarget = (map.squareAt(mapCursor.pos).attackFlag);
+      const selectingOverTarget = (map.squareAt(mapCursor.boardLocation).attackFlag);
       const rangeMap = (selectingOverTarget)
         ? actor.rangeMap
         : undefined;
 
-      map.recalculatePathToPoint(actor, mapCursor.pos, rangeMap);
+      map.recalculatePathToPoint(actor, mapCursor.boardLocation, rangeMap);
       this.updateUiSystems();
     }
 
     // On press A and viable location, advance state
     else if (gamepad.button.A.pressed) {
-      const square = map.squareAt(mapCursor.pos);
+      const square = map.squareAt(mapCursor.boardLocation);
       const underneath = square.unit;
 
       // TODO Some of this is the same as Join.trigger() and other commands.
@@ -121,7 +121,7 @@ export class MoveUnit extends TurnState {
         // TODO Doesn't (or shouldn't) this transition to a confirm state first?
         instruction.path = map.pathFrom(place);
         instruction.action = Command.Attack.serial;
-        instruction.focal = mapCursor.pos;
+        instruction.focal = mapCursor.boardLocation;
         this.advance();
       }
     }

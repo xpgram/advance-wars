@@ -99,7 +99,7 @@ export class NextOrderableUnit extends ControlScript {
       if (!button.pressed || locations.length === 0 || holdPulsar.active)
         return;
 
-      const cursorAtLocation = location().equal(mapCursor.pos);
+      const cursorAtLocation = location().equal(mapCursor.boardLocation);
       slider.increment( Number(cursorAtLocation) );
       mapCursor.teleport(location());
       holdPulsar.start();

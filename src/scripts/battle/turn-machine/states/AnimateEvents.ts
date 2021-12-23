@@ -12,7 +12,7 @@ export class AnimateEvents extends TurnState {
 
   configureScene(): void {
     const { mapCursor, trackCar } = this.assets;
-    this.cursorPosSwap = mapCursor.pos;
+    this.cursorPosSwap = mapCursor.boardLocation;
 
     if (trackCar.started)   // Show acting unit if this is the 2nd standby event.
       trackCar.show();
@@ -22,9 +22,9 @@ export class AnimateEvents extends TurnState {
     const { boardEvents, mapCursor, camera } = this.assets;
 
     if (boardEvents.eventsInQueue) {
-      const location = boardEvents.boardLocation || mapCursor.pos;
+      const location = boardEvents.boardLocation || mapCursor.boardLocation;
 
-      if (mapCursor.pos.notEqual(location))
+      if (mapCursor.boardLocation.notEqual(location))
         mapCursor.teleport(new Point(location));
 
       if (camera.subjectInView && !boardEvents.batchPlaying && !boardEvents.batchFinished)

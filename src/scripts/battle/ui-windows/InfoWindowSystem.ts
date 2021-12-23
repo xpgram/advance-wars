@@ -166,7 +166,7 @@ export class InfoWindowSystem {
     const showDetailWindow = (this.gamepad.button.rightTrigger.down);
     const showCOwindows = (this.gamepad.button.leftTrigger.down);
 
-    const autoLeftSide = (this.cursor.pos.x > triggerLine);
+    const autoLeftSide = (this.cursor.boardLocation.x > triggerLine);
     const showWindowsOnLeft =
       (this.screenSide === 'auto')
       ? autoLeftSide
@@ -193,7 +193,7 @@ export class InfoWindowSystem {
   inspectListenerCallback() {
     Game.workOrders.send(() => {
       if (this.windows.terrainInfo.refreshable) {
-        this.inspectTile(this.map.squareAt(this.cursor.pos));
+        this.inspectTile(this.map.squareAt(this.cursor.boardLocation));
         return true;
       }
     }, this);
@@ -237,7 +237,7 @@ export class InfoWindowSystem {
   /** Positions the window UI where it moving to instantly. */
   skipAnimations() {
     this.update();  // Get new positions, etc.
-    this.inspectTile(this.map.squareAt(this.cursor.pos));
+    this.inspectTile(this.map.squareAt(this.cursor.boardLocation));
     this.allWindows.forEach( window => window.positionWindow({skip: true}) );
   }
 

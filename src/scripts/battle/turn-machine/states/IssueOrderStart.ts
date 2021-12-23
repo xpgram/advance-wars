@@ -20,7 +20,7 @@ export class IssueOrderStart extends TurnState {
   changeCursorMode() {
     const { map, mapCursor, players, scenario } = this.assets;
 
-    const tile = map.squareAt(mapCursor.pos);
+    const tile = map.squareAt(mapCursor.boardLocation);
     const allied = tile.terrain.faction === players.current.faction;
     const empty = !tile.unit;
 
@@ -44,7 +44,7 @@ export class IssueOrderStart extends TurnState {
     uiSystem.inspectPlayers();
 
     // Configure camera to follow cursor
-    camera.focalTarget = this.assets.mapCursor.transform;
+    camera.focalTarget = this.assets.mapCursor;
 
     // Reset command instruction to new.
     this.assets.resetCommandInstruction();
@@ -55,7 +55,7 @@ export class IssueOrderStart extends TurnState {
 
     // Configure map cursor to update pointer graphic over certain terrains
     mapCursor.on('move', this.changeCursorMode, this);
-    mapCursor.teleport(mapCursor.pos);  // Trigger cursor mode.
+    mapCursor.teleport(mapCursor.boardLocation);  // Trigger cursor mode.
   }
 
   close() {
@@ -69,7 +69,7 @@ export class IssueOrderStart extends TurnState {
     const player = players.current;
     const { A, B, start } = gamepad.button;
 
-    const square = map.squareAt(mapCursor.pos);
+    const square = map.squareAt(mapCursor.boardLocation);
     const unit = square.unit;
 
     // TODO Remove — but not yet; I find it useful. Extract it to a control script, maybe.
@@ -90,7 +90,7 @@ export class IssueOrderStart extends TurnState {
       if (!unit) {
         const possibleSpawns = Object.values(Unit).filter( type => square.occupiable(new type()) );
         const newUnit = player.spawnUnit({
-          location: mapCursor.pos,
+          location: mapCursor.boardLocation,
           serial: Common.pick(possibleSpawns).serial,
         })
         newUnit.orderable = true;
@@ -130,7 +130,7 @@ export class IssueOrderStart extends TurnState {
       const allied = square.unit?.faction === player.faction;
       const visibleToSelf = square.unit?.visibleToPlayer(players.perspective, square.neighbors);
       if (square.unit && (allied || visibleToSelf)) {
-        instruction.place = new Point(mapCursor.pos);
+        instruction.place = new Point(mapCursor.boardLocation);
         this.advance(ShowUnitAttackRange);
       } else
         this.advance(MoveCamera);

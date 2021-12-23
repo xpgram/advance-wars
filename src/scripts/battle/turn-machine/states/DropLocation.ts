@@ -80,7 +80,7 @@ export class DropLocation extends TurnState {
       gamepad,
       origin: goal,
       points: tiles.map( t => new Point(t.pos) ),
-      startingPoint: mapCursor.pos,
+      startingPoint: mapCursor.boardLocation,
       onIncrement: p => mapCursor.moveTo(p),
     })
   }
@@ -94,9 +94,9 @@ export class DropLocation extends TurnState {
 
     // On press A, advance to next state
     else if (gamepad.button.A.pressed) {
-      const tile = map.squareAt(mapCursor.pos);
+      const tile = map.squareAt(mapCursor.boardLocation);
       if (tile.moveFlag) {
-        this.drop.where = new Point(mapCursor.pos);
+        this.drop.where = new Point(mapCursor.boardLocation);
         this.data.drop.push(this.drop as CommandDropInstruction);
         this.advance();
       }

@@ -77,17 +77,22 @@ export class MapCursor extends Observable() {
   /** Whether the cursor should listen for input from a controller. */
   private controlsEnabled = true;
 
-  /** Where this cursor exists on the map it is selecting over. */
-  get pos() {
-    return this._pos.clone();
+  /** World position as a point object. Not editable. */
+  get position() { 
+    return new Point(this.transform.exact);
   }
-  private _pos = new Point();
+
+  /** Where this cursor exists on the map it is selecting over. */
+  get boardLocation() {
+    return this._boardLocation.clone();
+  }
+  private _boardLocation = new Point();
 
   /** Where this cursor was last. */
   private lastPos = new Point();
 
   /** Where this cursor exists graphically in the game world. */
-  transform = new LowResTransform(new Point(this.pos));
+  transform = new LowResTransform(new Point(this.boardLocation));
 
   /** A reference to the map object we are selecting over.
    * This is 'needed' so that this cursor knows where it can and can not be. */
@@ -244,8 +249,8 @@ export class MapCursor extends Observable() {
     }
 
     // QoL check: Reset move handler if held-dir intends to move beyond the movement map.
-    const square = this.map.squareAt(this._pos);
-    const nextSquare = this.map.squareAt(this._pos.add(dpad.point));
+    const square = this.map.squareAt(this._boardLocation);
+    const nextSquare = this.map.squareAt(this._boardLocation.add(dpad.point));
     const beyondMovementMap = (square.moveFlag && !nextSquare.moveFlag);
     const heldInput = this.movementPulsar.firstIntervalComplete;
     if (beyondMovementMap && heldInput)
@@ -260,18 +265,18 @@ export class MapCursor extends Observable() {
 
   /** Calculates the cursor's game world position and updates it as such. */
   private updateGameWorldPosition() {
-    if (this.pos.equal(this.lastPos))
+    if (this.boardLocation.equal(this.lastPos))
       return;
 
     if (this.slideAnimSlider.track != this.slideAnimSlider.max)
       this.slideAnimSlider.increment();
     else
-      this.lastPos.set(this.pos); // Force skips in future calls.
+      this.lastPos.set(this.boardLocation); // Force skips in future calls.
 
     // Calculate intermediary distance between last position and current position.
     let tileSize = Game.display.standardLength;
 
-    const pos = this.pos
+    const pos = this.boardLocation
       .subtract(this.lastPos)
       .multiply(tileSize)
       .multiply(this.slideAnimSlider.output)
@@ -285,21 +290,21 @@ export class MapCursor extends Observable() {
 
   /** Moves the cursor's actual position while updating any listeners about this change. */
   private setCursorLocation(p: Point) {
-    this._pos.set(p);
+    this._boardLocation.set(p);
     this.updateListeners('move');
-    Game.diagnosticLayer.cursorPos = this._pos.toString();
+    Game.diagnosticLayer.cursorPos = this._boardLocation.toString();
   }
 
   /** Moves this cursor's position on the game map relative to its current position.
    * Invokes cursor animation when new location is close enough. */
   move(dir: Point) {
     // Get new position and clamp it to board width and height.
-    let newPos = this._pos.add(dir);
+    let newPos = this._boardLocation.add(dir);
     newPos.x = Common.clamp(newPos.x, 0, this.map.width - 1);
     newPos.y = Common.clamp(newPos.y, 0, this.map.height - 1);
 
     // Get the distance between the current position and new.
-    let distance = this._pos.distance(newPos);
+    let distance = this._boardLocation.distance(newPos);
 
     // These are the same point, skip.
     if (distance == 0)
@@ -321,7 +326,7 @@ export class MapCursor extends Observable() {
   /** Moves this cursor's position directly to some other position on the game map.
    * Invokes cursor animation when new location is close enough. */
   moveTo(place: Point) {
-    let relativePos = new Point(place).subtract(this.pos);
+    let relativePos = new Point(place).subtract(this.boardLocation);
     this.move(relativePos);
   }
 

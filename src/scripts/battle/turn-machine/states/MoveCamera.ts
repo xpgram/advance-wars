@@ -51,7 +51,7 @@ export class MoveCamera extends TurnState {
         biasTrunc(frame.height / size, -lastInput.y),
       );
 
-      const mapPos = mapCursor.pos.clone();
+      const mapPos = mapCursor.boardLocation.clone();
       mapPos.x = [topLeft.x, mapPos.x, bottomRight.x][Math.sign(lastInput.x) + 1];
       mapPos.y = [topLeft.y, mapPos.y, bottomRight.y][Math.sign(lastInput.y) + 1];
 

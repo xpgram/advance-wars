@@ -20,7 +20,7 @@ export class FactoryMenu extends TurnState {
 
     this.tempUnitLast?.destroy();
 
-    const square = map.squareAt(mapCursor.pos);
+    const square = map.squareAt(mapCursor.boardLocation);
     const serial = shopMenu.menu.selectedValue;
     const unitType = Object.values(Unit).find( type => type.serial === serial );
     this.tempUnitLast = new unitType().init({boardPlayer: players.current, faction: players.current.faction});
@@ -31,7 +31,7 @@ export class FactoryMenu extends TurnState {
     const { players, map, mapCursor, shopMenu, camera, uiSystem } = this.assets;
     const { menu } = shopMenu;
 
-    const location = new Point(mapCursor.pos);
+    const location = new Point(mapCursor.boardLocation);
     const square = map.squareAt(location);
     const player = players.current;
 
@@ -101,7 +101,7 @@ export class FactoryMenu extends TurnState {
       const unitSerial = option.value;
 
       if (!option.disabled) {
-        instruction.place = new Point(this.assets.mapCursor.pos);
+        instruction.place = new Point(this.assets.mapCursor.boardLocation);
         instruction.action = Command.SpawnUnit.serial;
         instruction.which = unitSerial;
 
