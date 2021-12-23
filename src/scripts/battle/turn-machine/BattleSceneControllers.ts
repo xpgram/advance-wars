@@ -28,7 +28,7 @@ import { BoardEventSchedule } from "../map/tile-effects/BoardEventSchedule";
 import { NextTargetableUnit } from "../control-scripts/nextTargetableUnit";
 import { ManualMoveCamera } from "../control-scripts/manualMoveCamera";
 import { HideUnits } from "../control-scripts/hideUnits";
-import { Camera } from "../../camera/Camera_refactor";
+import { Camera } from "../../camera/Camera";
 import { ViewRectBorder } from "../../camera/ViewRectBorder";
 import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { LinearApproach } from "../../camera/TravelAlgorithms";

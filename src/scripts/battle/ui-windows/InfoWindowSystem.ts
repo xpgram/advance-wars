@@ -11,7 +11,7 @@ import { Slider } from "../../Common/Slider";
 import { TurnModerator } from "../TurnModerator";
 import { BattleForecast } from "../DamageScript";
 import { UnitObject } from "../UnitObject";
-import { Camera } from "../../camera/Camera_refactor";
+import { Camera } from "../../camera/Camera";
 
 type InfoWindowSystemSettings = {
   gamepad: VirtualGamepad,

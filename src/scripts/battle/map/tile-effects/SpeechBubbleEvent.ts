@@ -1,6 +1,6 @@
 import { Spritesheet } from "pixi.js";
 import { Game } from "../../../..";
-import { Camera } from "../../../camera/Camera_refactor";
+import { Camera } from "../../../camera/Camera";
 import { Point } from "../../../Common/Point";
 import { Slider } from "../../../Common/Slider";
 import { Timer } from "../../../timer/Timer";

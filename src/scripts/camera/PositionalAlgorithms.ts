@@ -1,7 +1,7 @@
 import { Game } from "../..";
 import { Point } from "../Common/Point";
 import { Common } from "../CommonUtils";
-import { Camera } from "./Camera_refactor";
+import { Camera } from "./Camera";
 import { ViewRect } from "./ViewRect";
 
 // TODO I wanted to confine PositionalAlg to returning target ViewRects only,

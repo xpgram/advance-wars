@@ -2,7 +2,7 @@ import { Game } from "../..";
 import { ValueError } from "../Common/ErrorTypes";
 import { Point } from "../Common/Point";
 import { Rectangle } from "../Common/Rectangle";
-import { Camera } from "./Camera_refactor";
+import { Camera } from "./Camera";
 import { ViewRectBorder } from "./ViewRectBorder";
 
 
@@ -37,7 +37,7 @@ export class ViewRect {
 
   /** Sets this view's zoom factor with respect to the given focal point.
    * Focal is a real-world coordinate, not proportional to this rect's dimensions. */
-   zoomToPoint(n: number, focal: Point) {
+  zoomToPoint(n: number, focal: Point) {
     const last = this._zoom;
     const next = n;
     this._zoom = next;
