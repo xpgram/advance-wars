@@ -2,10 +2,6 @@ import { TurnState } from "../TurnState";
 import { Point } from "../../../Common/Point";
 import { Game } from "../../../..";
 
-const CAMERA_SPEED = 7;     // How many tiles the camera travels per 60 frames.
-
-// TODO Use manualMoveCamera and hideUnit
-// TODO Use manualMoveCamera.lastInput to place UI and map cursor.
 
 export class MoveCamera extends TurnState {
   get type() { return MoveCamera; }
