@@ -4,6 +4,10 @@
 - [ ] Music
 - [ ] Control indicators
 
+There be stuff to do, but I think the next major update has to be online play.
+Everything else in battle mode is just polish, pretty much. I'm missing things like COs and such, but nothing *big,* you know? My brain needs a big new project to work on.
+Plus, I need the online system so I can start developing it alongside the game's other features; keep the designs consistent and orderly.
+
 - [ ] Dev pause mechanic fails to update controls. I think controls are in... actually, they might be in globalTicker, which would kinda explain the frame-perfect thing you need for it to actually work.
 - [ ] The dev controller is separate from the virtual gamepads, but I'm not sure if it's different enough. If I moved the VGp update to scene, but left DevKb update in global... I'm not even sure I ~can~ do that.
 
