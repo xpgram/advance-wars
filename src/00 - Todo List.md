@@ -1,5 +1,9 @@
 # Next Big Objectives
 
+- [ ] Multiplayer
+- [ ] Music
+- [ ] Control indicators
+
 - [ ] Dev pause mechanic fails to update controls. I think controls are in... actually, they might be in globalTicker, which would kinda explain the frame-perfect thing you need for it to actually work.
 - [ ] The dev controller is separate from the virtual gamepads, but I'm not sure if it's different enough. If I moved the VGp update to scene, but left DevKb update in global... I'm not even sure I ~can~ do that.
 
@@ -38,19 +42,6 @@ ShowUnitAttackRange:
       - [ ] The player presses a button on an unknown controller and binds it to their player context.
       - [ ] The player presses a button on a known controller, the system prompts for confirmation that this controller will be shared, and the user confirms. The controller is then bound to their player context.
       - [ ] The player presses a button on the keyboard and confirms they will not have a controller.
-
-- [x] Subs can sink and hide from non-allied players, but hidden units are not reliably hidden.
-  - [x] inspectCursor() still reports hidden units
-  - [x] OrderStart still allows selection and ingress from hidden units
-
-- [ ] Unit illustrations need to be smaller: no more than 2/3rds on either axis.
-- [ ] When terrain focused: terrain saturation up
-- [ ] When unit focused: unit saturation up
-  - [ ] When unit spent: unit darkened
-  - [x] Unit reflects player facing
-  - [ ] Unit refelcts player color
-    - [ ] Write a python script to obtain color palettes, then use mogrify to operate for me.
-    - [ ] Or I guess I could use a color-replace filter to do it live. Eh. I dunno. This would technically be better.
 
 - [x] Unit CO loaded
 - [ ] CO loaded state affects adjacent board tiles.
