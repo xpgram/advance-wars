@@ -10,6 +10,13 @@ Plus, I need the online system so I can start developing it alongside the game's
 
 - [ ] Dev pause mechanic fails to update controls. I think controls are in... actually, they might be in globalTicker, which would kinda explain the frame-perfect thing you need for it to actually work.
 - [ ] The dev controller is separate from the virtual gamepads, but I'm not sure if it's different enough. If I moved the VGp update to scene, but left DevKb update in global... I'm not even sure I ~can~ do that.
+- [ ] The Pixi tickers seem to be more effective when invoked automatically. Or started(), rather.
+  - [x] Game.scene.ticker
+  - [ ] Game.globalTicker
+  - [ ] (private) Game.mainTicker
+  - mainTicker handles system-level things. Mainly, the meta-operation of scene.ticker and global. When Game.suspend() is invoked (by main) then scene and global are stopped() until started() again.
+  - Frame incrementing happens through a boolean mechanism which starts() and stops() tickers for one iteration.
+  - Pixi AnimatedSprites I think use the shared ticker... which can't be paused. Unless it can. If mainTicker still operates without shared, then we fine.
 
 - [ ] Scene has a property called 'resources' which should be equivalent to Game.loader.resources, but I never use it. I think I never use it.
 
