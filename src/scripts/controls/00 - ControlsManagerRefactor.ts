@@ -56,6 +56,11 @@ class Button {
     /** Records in millis the time of the last state change. */
     private timestamp = 0;
 
+    /** Records the last input event's source controller. Useful for identifying controller
+     * changes from one kind to another; say, a gamepad to the keyboard. */
+    // TODO Prolly make this an enum
+    private inputSource: 'playstation' | 'nintendo' | 'standard' | 'keyboard' = 'keyboard'; 
+
     /** The time window (seconds) in which logical-AND-mapped button signals must coincide
      * to trigger this one. This only matters for certain configurations. */
     private multipressWindow = 0.08;

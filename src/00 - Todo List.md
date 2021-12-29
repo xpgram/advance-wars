@@ -3,6 +3,9 @@
 - [ ] Multiplayer
 - [ ] Music
 - [ ] Control indicators
+  - [ ] GamepadObserver for each gamepad
+    - [ ] VGP uses intent buttons mapped to GamepadObserver
+  - [ ] Controls map and proxy
 
 There be stuff to do, but I think the next major update has to be online play.
 Everything else in battle mode is just polish, pretty much. I'm missing things like COs and such, but nothing *big,* you know? My brain needs a big new project to work on.

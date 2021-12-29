@@ -70,11 +70,11 @@ export class VirtualGamepad {
 
     /** Updates the state of this virtual controller by polling a connected controller for its state. */
     update() {
-        let gamepad = this.getNthGamepad(this.controllerPortNumber);
+        const gamepad = this.getNthGamepad(this.controllerPortNumber);
 
         // Update all virtual buttons
-        for (let buttonProp in this.button) {
-            let button = (this.button as StringDictionary<Button>)[buttonProp];
+        for (const buttonProp in this.button) {
+            const button = (this.button as StringDictionary<Button>)[buttonProp];
             let down = false; // False unless any of the button's mappable inputs can be considered 'down'
 
             // If either mapped gamepad button is down
@@ -94,17 +94,19 @@ export class VirtualGamepad {
         }
 
         // Update D-Pad axis
-        let y = (this.button.dpadDown.down ? 1 : 0) - (this.button.dpadUp.down ? 1 : 0);
-        let x = (this.button.dpadRight.down ? 1 : 0) - (this.button.dpadLeft.down ? 1 : 0);
+        const y = (this.button.dpadDown.down ? 1 : 0) - (this.button.dpadUp.down ? 1 : 0);
+        const x = (this.button.dpadRight.down ? 1 : 0) - (this.button.dpadLeft.down ? 1 : 0);
         this.axis.dpad.update(new Point(x,y));
 
         // Update axes
         if (gamepad) {
-            if (gamepad.axes.length == 2)
-                this.axis.leftStick.update(new Point(gamepad.axes[0], gamepad.axes[1]));
-            else if (gamepad.axes.length >= 4) {
-                this.axis.leftStick.update(new Point(gamepad.axes[0], gamepad.axes[1]));
-                this.axis.rightStick.update(new Point(gamepad.axes[2], gamepad.axes[3]));
+            if (gamepad.axes.length == 2) {
+                const [lx, ly] = gamepad.axes;
+                this.axis.leftStick.update(new Point(lx,ly));
+            } else if (gamepad.axes.length >= 4) {
+                const [lx, ly, rx, ry] = gamepad.axes;
+                this.axis.leftStick.update(new Point(lx,ly));
+                this.axis.rightStick.update(new Point(rx,ry));
             }
             // As of writing, browsers only support the gamepad 'Standard Layout'
             // If different controllers report axes in different ways, they're only
@@ -152,6 +154,7 @@ enum DefaultControllerMap {
     dpadRight
 }
 
+// TODO Keys of KeyboardObserver.ts is more thicc, this is deprecated
 // This should be converted to ButtonConfig at some point.
 enum DefaultKeyboardMap {
     X = 88,
