@@ -80,11 +80,14 @@ class Button {
     private priority = 1;
 
     /** List of button names this button nullifies. This happens before priority sorting:
-     * priority 2 may override priority 1 despite occuring with lower precedence. */
+     * priority 1 may override priority 2 despite occuring with lower precedence. */
     private overrides: ""[] = [];
 
     /** A list of IKeys which operate this button.
      * IKeys are string signifiers for key or button codes. IK_C, IK_Pad_DigitUp, IK_LeftBracket, etc. */
+    // TODO Keys, Buttons and Axes, which yield numbers, should be sufficient.
+    // TODO Keys.? will conflict with some Buttons.? though since they don't share ordinal space.
+    // TODO Buttons.? will conflict with Buttons.? from two different gamepads. Hm.
     private inputs: ""[] = [];
 
     /** Returns the number of taps that have occurred in succession. */
