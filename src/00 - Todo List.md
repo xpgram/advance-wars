@@ -1,5 +1,24 @@
 # Next Big Objectives
 
+Todo List cleanup: (some easy ones)
+- [ ] Terrain.landscape → Terrain.illustration (consistency)
+- [ ] Unit.infoPortrait (or w/e) → Unit.illustration
+- [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
+- [x]? Units are missing the CO-Boarded badge.
+
+- [ ] Command.Move calculates ambushes
+- [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
+
+- [x] Unit CO loaded
+- [ ] CO loaded state affects (internally) adjacent board tiles.
+  Either:
+  - [ ] The board reflects nearby-CO status
+  - [ ] The BoardPlayer can return a boolean that a map point is CO-affected.
+- [ ] BoardPlayer.CoUnit : filter units => unit.coLoaded == true
+
+
+
+
 - [ ] Multiplayer
 - [ ] Music
 - [ ] Control indicators
@@ -57,13 +76,6 @@ ShowUnitAttackRange:
       - [ ] The player presses a button on a known controller, the system prompts for confirmation that this controller will be shared, and the user confirms. The controller is then bound to their player context.
       - [ ] The player presses a button on the keyboard and confirms they will not have a controller.
 
-- [x] Unit CO loaded
-- [ ] CO loaded state affects adjacent board tiles.
-- [ ] BoardPlayer.CoUnit : filter units => unit.coLoaded == true
-
-- [ ] Command.Move calculates ambushes
-- [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
-
 - [ ] COAffectedTiles
   - [ ] Do some drafting to confirm visual style before implementation.
   - Source game does *not* show all player's CO ranges. I would like to change this, I think. But with caveats:
@@ -79,15 +91,11 @@ ShowUnitAttackRange:
   - The visual effect, if in the overlay layer, could also be maintained by the board player.
 
 - [ ] Target Reticle around Battleships.
-- [x] Enable move and attack.
 
 - [ ] COAffectedFlag needs to be open to multiple players.
   Naturally, because you should be able to see your opponent's ranges.
   - [ ] COAffected overlays should be color tinted then, huh.
   - [ ] Instead of tints, why not use a (non-obnoxious) variant of the area-target reticle that Silos and Battleships use?
-  - [ ] Units are missing the CO-Boarded badge.
-
-- [ ] Plasma Textures: Second frame, I believe.
 
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
@@ -97,35 +105,9 @@ More observations:
 - Dropping TCopters, it's impossible to know which is which. Can I fix this in mine? Can I link UnitWindow to the cursor selection?
   - [ ] On ListMenu.cursorMove => inspectUnit(actor.loadedUnits[command.input])
 - [ ] Because path arrows do not disappear when dropping, the game has special icon arrows to indicate a drop tile.
-- These drop-tile icons appear above units, path arrows, etc. Do I need a second UI layer?
-
-- [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
-
-- [ ] Global controller proxy.
-  InfoWindowSystem should ask if the showDetailWindow button is down, not specifically the right trigger. Changing that shit is annoying af.
-
-- Source Game observations:
-  - The game shows you every standby phase event in sequential order. You probably won't have 100 resupplies to see, but if you did...
-
-- [ ] Add dummy IssueOrderConfirm step, which would get approval from the server.
-
-- [ ] Dev button for grid: top and left edges, over bottom layer
+- These drop-tile icons appear above units, path arrows, etc. Do I need a second UI layer?         
 
 - [ ] Alternate road preference for vertical or horizontal based on oddness of tile position. Sounds fun. I like complicated roads. The function which figures this out, though, only knows what *types* its neighbors are, not their location.
-
-- [ ] Refactor InfoWindowSystem
-- [x] Instant move InfoWindowSystem on turn change.
-- [x] Instant move InfoWindowSystem on return from MoveCamera state.
-- [x] Instant move InfoWindowSystem on FactoryShop menu open.
-- [x] Force open UnitDetail
-- [ ] Move camera to show base tile between shop menu and detail window?
-
-- [ ] Refactor TurnStates to take advantage of queueing:
-  - [x] Expand IssueOrderStart to MoveUnit,CommandMenu,Confirm,Animate,Ratify
-  - [x] Expand CommandMenu to DropLocation,CommandMenu
-  - [x] Expand Animate to AnimateMove,AnimateDrop,AnimateBattle,AnimateStandbyEvents
-  - [ ] Expand CommandMenu(Silo) to PickBoardTarget
-  - [ ] Expand CoPower to PickBoardTarget
 
 - [ ] Refactor instruction set to be a list of incremental changes.
   - Instead of {place, path, action, focal, drop, ... }
@@ -217,53 +199,10 @@ More observations:
     - [ ] login IDs are only required for online play. Local matches are fine, there's just a bit of controller matching.
     - [ ] Trying to ingress from the Online menu button (to the menu with options: Create Room, Join Room, etc.) prompts an unidentified user for login information (sign in, sign up)
 
-
-- [ ] Refactor to use reducers? Approximate the pattern, anyway.
-  I want: ratifyInstruction(boardState, action) => boardState
-  I don't know how feasible this would really be... I'd have to do a big, BIG refactor
-  of the Map class. Hm.
-  [9/19] This functional style would be good for board resyncing.
-  The DB would prefer to have initial or periodic board states and a series of state-
-  change orders and the functional style simplifies the applification process.
-  State changes would look like:
-    (3,7) rm
-    (3,10) u inf,8,87,0,0
-  These two instructions indicate an infantry unit moving from one location to another.
-  The details of what the unit can and cannot do are left up to the client, I guess,
-  but the board state is very simply implemented.
-
-- [ ] Re-rip the plasma textures: some of them are clipped by 1px.
+- [ ] Re-rip the plasma textures: some of them are clipped by 1px. It's the second frame, I believe.
 - [ ] Sea looks nicer, I think, but my frame-animation skills are a teense lacking. Update it.
-- [ ] Setup unit-portraits image spritesheet.
-  - [x] Unit.exhibit → Unit.infoPortrait
-  - [ ] Terrain.landscape → Terrain.illustration (consistency)
-  - [ ] Unit.infoPortrait (or w/e) → Unit.illustration
 
-- [ ] Z-Ordering and UI Properties refactor  
-  Currently, each UI element defines these in their class scripts—in their constructors, actually. I can confirm MenuWindow and MapCursor do. This will be messy later on.
-  - [ ] Introduce one place to define z-ordering relationships between layers and layer elements, and extend that for other inter-UI properties as well, if such properties are useful.
+- [ ] Z-Ordering and UI Objects — No standard.
+  MapCursor, MenuWindow, TrackCar (probably), etc. define in their constructors their z-order place. This makes changes widespread and difficult to manage; these settings should be consolidated or somehow automatic.
 
-- [ ] The cursor behavior settings used by MapCursor and MenuWindow are defined separately and far away from each other, but behave similarly. This might be a good candidate for globalization.
-- [ ] ListMenu also has similar control settings which are defined seperately. The frequency of animation pulses, the length of first held-button interval time, the frequency of held-button retrigger pulses; these should all be consistent and tweakable from one place.
-
-- [ ] MoveUnit step: if square under cursor is an attackable target, change to target reticle.
-  - [x] Cursor graphic switching infrastructure
-  - [x] Add missing target reticle graphics to spritesheet
-  - [x] Cursor graphics change-logic in relevant turn-states
-  - [x] Graphics change-logic is written in MapCursor.ts, enable switches are given to turn states to configure behaviour.
-    - [ ] mapCursor.mode is defined, it's just lacking a 'target' or 'actionable' mode.
-  - [x] Cursor over base and base is uninhabited → wrench icon
-  - [x] Cursor over attackable target square → target reticle
-  - [ ] TurnState == DestroyUnits → ban icon / 'X' icon
-  - [x] Reset cursor switches to default cursor graphics
-
-- [ ] Add "Choose Attack Target" step to turn structure in two steps:
-  - [x] Active step:
-  - [x] Within the affective range, build a list of all targetable units in the order left-to-right, top-to-bottom.
-  - [x] Controls: Up/Left ascends the list, Down/Right descends the list. List loops.
-    - Slider objects, I believe, have range-loop as a mode setting.
-  - [x] MapCursor is shown, its controls are disabled.
-    - [x] TurnState handles controls as it handles the list.
-  - [ ] Passive step (during 'Move' step):
-  - [ ] Use recalcPathToPoint() (whatever it's called) to adjust the unit's travel destination to the nearest position within range of the target.
-    - The source game ignores this rule if the actionable unit is a battleship and only recalcs the path on formally choosing a target, prefering not a similar path to the one drawn but the shortest path to some point within range. I can't think of a technical reason for this; it is probably just a convenience assumed for the player since just-in-range is typically desirable for indirect units.
+- [ ] The cursor-control settings (such as trigger-movement frequency) used by MapCursor and ListMenu are similar but defined separately. Perhaps these details should have elevated scope?
