@@ -117,7 +117,7 @@ export class BattleScene extends Scene {
         }
     }
 
-    updateStep(delta: number): void {
+    updateStep(): void {
 
         // TODO Move this to the game's main update loop / ticker / something.
         this.controllers.gamepad.update();

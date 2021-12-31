@@ -88,9 +88,9 @@ export abstract class Scene {
   }
 
   /** Update step describes frame-by-frame events. */
-  update(delta: number) {
+  update() {
     if (!this.halted && this.state == Scene.READY)
-      this.updateStep(delta);
+      this.updateStep();
   }
 
   /** Stops this scene's update mechanisms.
@@ -109,6 +109,6 @@ export abstract class Scene {
 
   protected abstract loadStep(): void;
   protected abstract setupStep(): void;
-  protected abstract updateStep(delta: number): void;
+  protected abstract updateStep(): void;
   protected abstract destroyStep(): void;
 }

@@ -12,7 +12,7 @@ export class BlankScene extends Scene {
     protected setupStep(): void {
     }
 
-    protected updateStep(delta: number): void {
+    protected updateStep(): void {
     }
 
     protected destroyStep(): void {

@@ -78,7 +78,7 @@ import { Keys } from "./controls/KeyboardObserver";
         this._container.visible = false;
     }
 
-    private update(delta: number) {
+    private update() {
         this.fpsText.text = `${Math.round(Game.FPS)}`
 
         // Show/Hide layer

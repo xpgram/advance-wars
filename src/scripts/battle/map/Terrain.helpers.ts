@@ -38,9 +38,9 @@ export const TerrainMethods = {
 
     animTime: 0,
     animFrame: 0,
-    animateShoreline: (delta: number) => {
+    animateShoreline: () => {
         // Collect time, update every nth frame.
-        TerrainMethods.animTime += delta;
+        TerrainMethods.animTime += Game.delta;
         if (TerrainMethods.animTime > 6) {
             TerrainMethods.animTime -= 6;
             

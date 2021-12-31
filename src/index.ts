@@ -105,9 +105,9 @@ class App {
     private _delta = 0;
 
     /** Updates delta to reflect the time since the last updateDelta call. */
-    private updateDelta(delta: number) {
+    private updateDelta(newDelta: number) {
         if (!this.devSettings.suspend)    // During suspend, assume last real-delta as sim-delta.
-            this._delta = delta;
+            this._delta = newDelta;
     }
 
     /** The game's frames-per-second. */
@@ -264,8 +264,8 @@ class App {
         if (this.scene.mustInitialize)
             this.scene.init();
 
-        this.globalTicker.update(this.delta);   // TODO Should this be started/stopped or manually updated? How do I get my own delta in there?
-        this.scene.update(this.delta);
+        this.globalTicker.update();   // TODO Should this be started/stopped or manually updated? How do I get my own delta in there?
+        this.scene.update();
         this.workOrders.close();
         this.textureLibrary.flush();
         this._frameCount++;

@@ -71,7 +71,7 @@ export class Pulsar {
   }
 
   /** Updates the internal clock, and emits a function call to self.action on pulse interval. */
-  private update(delta: number) {
+  private update() {
     if (!this.active)
       return;
 
@@ -80,7 +80,7 @@ export class Pulsar {
       : this.firstInterval;
 
     // Handle time
-    this.clock += delta;
+    this.clock += Game.delta;
     if (this.clock > effectiveInterval) {
       this.clock -= effectiveInterval;
       this._firstIntervalComplete = true;
