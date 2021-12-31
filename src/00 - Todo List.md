@@ -4,14 +4,7 @@
 - [x] FPS is also broken. Probably NaN from the delta changes.
 - [x] Pixi's delta is... really small. Unusably small. Why is it so small?
 - [ ] Some animations ignore the update suspension
-  - [x] Battle Units
-    These never bypassed——it's because their frames are synced to frameCount, isn't it?
-  - [ ] Camera shake on BattleDamage event.
-    Are Timers/Pulsars synced to Game.delta?
-    This problem is in either the ScreenShake or BoardEvent timer systems.
-  - [ ] Tink and Explosion on BattleDamage event.
-  - [ ] Sea tiles frame-update whenever they want.
-    I'm pretty sure I don't inject AnimatedSprite suspension anywhere; they use the shared ticker, don't they?
+  - [ ] AnimatedSprites automatically add themselves to the shared ticker, or some other I don't deliberately control. This affects all AnimatedSprites as well as some BoardEvents which signal finish() after a sprite plays.
 
 Todo List cleanup: (some easy ones)
 - [ ] Terrain.landscape → Terrain.illustration (consistency)
