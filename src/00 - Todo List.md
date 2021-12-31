@@ -2,7 +2,7 @@
 
 - [x] Show Dev Overlay (e.g. FPS) button works infrequently for some reason.
 - [x] FPS is also broken. Probably NaN from the delta changes.
-- [ ] Pixi's delta is... really small. Unusably small. Why is it so small?
+- [x] Pixi's delta is... really small. Unusably small. Why is it so small?
 - [ ] Some animations ignore the update suspension
   - [x] Battle Units
     These never bypassed——it's because their frames are synced to frameCount, isn't it?
