@@ -1,16 +1,11 @@
 # Next Big Objectives
 
-- [x] Show Dev Overlay (e.g. FPS) button works infrequently for some reason.
-- [x] FPS is also broken. Probably NaN from the delta changes.
-- [x] Pixi's delta is... really small. Unusably small. Why is it so small?
-- [ ] Some animations ignore the update suspension
-  - [ ] AnimatedSprites automatically add themselves to the shared ticker, or some other I don't deliberately control. This affects all AnimatedSprites as well as some BoardEvents which signal finish() after a sprite plays.
-
 Todo List cleanup: (some easy ones)
 - [ ] Terrain.landscape → Terrain.illustration (consistency)
 - [ ] Unit.infoPortrait (or w/e) → Unit.illustration
 - [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
 - [x]? Units are missing the CO-Boarded badge.
+- [ ] Camera shake only goes up, and only twice? It's just odd.
 
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).

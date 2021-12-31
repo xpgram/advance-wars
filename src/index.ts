@@ -248,9 +248,11 @@ class App {
 
         // Suspend frame updates mechanism
         if (this.devSettings.suspend && !this.devSettings.suspendBypass) {
+            PIXI.Ticker.shared.stop();
             this.scene.halt();
         }
         else {
+            PIXI.Ticker.shared.start();
             this.scene.unhalt();
             this.gameLoop();
         }
