@@ -1,5 +1,17 @@
 # Next Big Objectives
 
+- [ ] Show Dev Overlay (e.g. FPS) button works infrequently for some reason.
+- [ ] FPS is also broken. Probably NaN from the delta changes.
+- [ ] Some animations ignore the update suspension
+  - [x] Battle Units
+    These never bypassed——it's because their frames are synced to frameCount, isn't it?
+  - [ ] Camera shake on BattleDamage event.
+    Are Timers/Pulsars synced to Game.delta?
+    This problem is in either the ScreenShake or BoardEvent timer systems.
+  - [ ] Tink and Explosion on BattleDamage event.
+  - [ ] Sea tiles frame-update whenever they want.
+    I'm pretty sure I don't inject AnimatedSprite suspension anywhere; they use the shared ticker, don't they?
+
 Todo List cleanup: (some easy ones)
 - [ ] Terrain.landscape → Terrain.illustration (consistency)
 - [ ] Unit.infoPortrait (or w/e) → Unit.illustration

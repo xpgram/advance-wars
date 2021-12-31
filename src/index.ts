@@ -234,11 +234,6 @@ class App {
         this.devController.update();
         this.developmentScripts();
 
-        // Delta checking
-        if (this.devController.down(Keys.K)) {
-            console.log(`pΔ ${delta}\ngΔ ${this.delta}`);
-        }
-
         // Suspend frame updates mechanism
         if (this.devSettings.suspend && !this.devSettings.suspendBypass) {
             this.scene.halt();
@@ -248,7 +243,7 @@ class App {
             this.gameLoop();
         }
 
-        // Reset suspension for next frame.
+        // Unset bypass for next frame.
         this.devSettings.suspendBypass = false;
     }
 
