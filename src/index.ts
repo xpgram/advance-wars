@@ -40,10 +40,19 @@ class App {
                 Game.display.resize(Game.renderer, Game.container);
             }
         },
-    ];
+        function toggleGameSuspension() {
+            const dc = Game.devController;
+            const dset = Game.devSettings;
 
-    /** Halts the update step when true. */
-    private suspend = false;
+            if (dc.pressed(Keys.Enter)) {
+                dset.suspend = !dset.suspend;
+                dset.suspendBypass = false;
+            }
+            else if (dc.pressed(Keys.Space) && dset.suspend) {
+                dset.suspendBypass = true;
+            }
+        },
+    ];
 
     /** Runs debug scripts when in debug mode. */
     private developmentScripts() {
@@ -77,18 +86,10 @@ class App {
     get delta() { return (this._delta >= 0) ? this._delta : 0; }
     private _delta = 0;
 
-    // Setting this to MAX_INT ensures the first-frame delta call returns 0 as the first calc is always negative.
-    private _lastCycleTimestamp: number = Number.MAX_SAFE_INTEGER;
     /** Updates delta to reflect the time since the last updateDelta call. */
-    private updateDelta() {
-        const timestamp = Date.now();
-        this._delta = (timestamp - this._lastCycleTimestamp) / 1000;
-        this._lastCycleTimestamp = timestamp;
-
-        // Simulates typical frame-delta when update is suspended.
-        if (this.suspend) this._delta = 1 / 60;
-
-        // TODO Verify 1 / 60 meaningfully simulates timestamp / 1000.
+    private updateDelta(delta: number) {
+        if (!this.devSettings.suspend)    // During suspend, assume last real-delta as sim-delta.
+            this._delta = delta;
     }
 
     /** A repository for delayed function calls. */
@@ -114,6 +115,10 @@ class App {
     readonly devSettings = {
         /** Set to true to scale the view and stage separately, allowing you to see beyond the intended viewport. */
         limitStageScaling: false,
+        /** A dev mechanism for whether to update the game loop. */
+        suspend: false,
+        /** A dev mechanism for whether to update a single frame while suspended. */
+        suspendBypass: false,
     }
 
     /** Object containing various display constants. */
@@ -203,7 +208,8 @@ class App {
             this.debugHud.addChild(this.diagnosticLayer.container);
             
             // Add the main loop to global system ticker.
-            this.systemTicker.add(this.loop, this);
+            this.systemTicker.add(this.systemLoop, this);
+            // this.systemTicker.add(this.gameLoop, this, 0);
             this.systemTicker.start();
         });
     }
@@ -222,33 +228,37 @@ class App {
         })
     }
 
-    /** Main update loop. A state-machine implementing the Scene pattern. */
-    loop(delta: number) {
+    /** Any configurations relevant to the function of the main update loop are performed here. */
+    private systemLoop(delta: number) {
+        this.updateDelta(delta);
         this.devController.update();
+        this.developmentScripts();
+
+        // Delta checking
+        if (this.devController.down(Keys.K)) {
+            console.log(`pΔ ${delta}\ngΔ ${this.delta}`);
+        }
+
+        // Suspend frame updates mechanism
+        if (this.devSettings.suspend && !this.devSettings.suspendBypass) {
+            this.scene.halt();
+        }
+        else {
+            this.scene.unhalt();
+            this.gameLoop();
+        }
+
+        // Reset suspension for next frame.
+        this.devSettings.suspendBypass = false;
+    }
+
+    /** Main update loop. A state-machine implementing the Scene pattern. */
+    private gameLoop() {
         if (this.scene.mustInitialize)
             this.scene.init();
 
-        // Suspend frame updates injection
-        if (this.devController.pressed(Keys.Enter)) {
-            this.suspend = !this.suspend;
-            (this.suspend)
-                ? this.scene.ticker.stop()
-                : this.scene.ticker.start();
-        }
-
-        // Single frame pass-thru
-        if (this.suspend) {
-            if (!this.devController.pressed(Keys.Space))
-                return;
-            // Must update scene manually on single-frame passthru
-            this.scene.ticker.update(delta);
-        }
-
-        // Update
-        this.updateDelta();
-        this.developmentScripts();
-        this.globalTicker.update(delta);
-        this.scene.update(delta);
+        this.globalTicker.update(this.delta);
+        this.scene.update(this.delta);
         this.workOrders.close();
         this.textureLibrary.flush();
         this._frameCount++;
