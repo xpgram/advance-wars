@@ -31,6 +31,18 @@ class App {
      * Be careful not to overlap controls with any others set. */
     readonly devController = new DevController({enable: this.debugMode});
 
+    /** Development settings container which affects various Game systems. */
+    readonly devSettings = {
+        /** Set to true to scale the view and stage separately, allowing you to see beyond the intended viewport. */
+        limitStageScaling: false,
+        /** A dev mechanism for whether to update the game loop. */
+        suspend: false,
+        /** A dev mechanism for whether to update a single frame while suspended. */
+        suspendBypass: false,
+        /** Whether to show the game metrics overlay. (FPS, etc.) */
+        showDiagnosticLayer: false,
+    }
+
     /** Scripts which describe development control behavior. */
     private readonly devControls = [
         function toggleStageScaling() {
@@ -52,6 +64,12 @@ class App {
                 dset.suspendBypass = true;
             }
         },
+        function toggleDiagnosticLayer() {
+            const dc = Game.devController;
+            const dset = Game.devSettings;
+            if (dc.pressed(Keys.GraveAccent, 'Shift'))
+                dset.showDiagnosticLayer = !dset.showDiagnosticLayer;
+        }
     ];
 
     /** Runs debug scripts when in debug mode. */
@@ -92,6 +110,10 @@ class App {
             this._delta = delta;
     }
 
+    /** The game's frames-per-second. */
+    // TODO This should be shared.FPS, no?
+    get FPS() { return this.systemTicker.FPS; }
+
     /** A repository for delayed function calls. */
     readonly workOrders = new WorkOrderHandler();
 
@@ -110,16 +132,6 @@ class App {
 
     /** type {GameState} Reference to the game's current scene. */
     scene: Scene = this.gameScenes.blankScene;
-
-    /** Development settings container which affects various Game systems. */
-    readonly devSettings = {
-        /** Set to true to scale the view and stage separately, allowing you to see beyond the intended viewport. */
-        limitStageScaling: false,
-        /** A dev mechanism for whether to update the game loop. */
-        suspend: false,
-        /** A dev mechanism for whether to update a single frame while suspended. */
-        suspendBypass: false,
-    }
 
     /** Object containing various display constants. */
     readonly display = {
@@ -252,7 +264,7 @@ class App {
         if (this.scene.mustInitialize)
             this.scene.init();
 
-        this.globalTicker.update(this.delta);
+        this.globalTicker.update(this.delta);   // TODO Should this be started/stopped or manually updated? How do I get my own delta in there?
         this.scene.update(this.delta);
         this.workOrders.close();
         this.textureLibrary.flush();

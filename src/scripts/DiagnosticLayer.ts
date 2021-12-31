@@ -79,18 +79,10 @@ import { Keys } from "./controls/KeyboardObserver";
     }
 
     private update(delta: number) {
-        this.clock += delta;
-        if (this.clock > 10) {
-            this.clock -= 8;
-            this.fpsText.text = `${Math.floor(Game.globalTicker.FPS)}`
-        }
+        this.fpsText.text = `${Math.round(Game.FPS)}`
 
-        // Toggle DevUI control
-        if (!DiagnosticLayer.suppressDiagnostics) {
-            const contr = Game.devController;
-            if (contr.get(Keys.Shift).down && contr.get(Keys.GraveAccent).pressed) {
-                this._container.visible = !this._container.visible;
-            }
-        }
+        // Show/Hide layer
+        if (!DiagnosticLayer.suppressDiagnostics)
+            this._container.visible = Game.devSettings.showDiagnosticLayer;
     }
  }
