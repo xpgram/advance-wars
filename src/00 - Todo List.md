@@ -5,7 +5,6 @@ Todo List cleanup: (some easy ones)
 - [ ] Unit.infoPortrait (or w/e) → Unit.illustration
 - [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
 - [x]? Units are missing the CO-Boarded badge.
-- [ ] Camera shake only goes up, and only twice? It's just odd.
 
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).

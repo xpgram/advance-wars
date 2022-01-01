@@ -13,8 +13,9 @@ export class ScreenShake implements DisplacementAlgorithm {
   private screenShakeSlider = new Slider({
     max: 4,
     track: 'max',
-    granularity: 1/4,
-    shape: v => Math.ceil(((v % 2 === 0) ? v : -v)*.5),
+    granularity: 1/3,
+    shape: v => Math.ceil(.33*v) * ((Math.ceil(v) % 2 === 0) ? 1 : -1),
+    // shape: v => Math.round(Math.cos(2*v*Math.PI) * .75*v),
   });
 
   get() {
