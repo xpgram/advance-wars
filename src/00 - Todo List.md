@@ -1,7 +1,6 @@
 # Next Big Objectives
 
 Todo List cleanup: (some easy ones)
-- [ ] MessageEvents are broken.
 - [ ] Terrain.landscape → Terrain.illustration (consistency)
 - [ ] Unit.infoPortrait (or w/e) → Unit.illustration
 - [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
