@@ -100,18 +100,20 @@ class App {
     readonly globalResources!: PIXI.IResourceDictionary;
 
     /** The number of seconds which have passed since the last loop cycle. Always >= 0. */
-    // Preventing negative values is a protection against user-modified system time.
-    get delta() { return (this._delta >= 0) ? this._delta : 0; }
-    private _delta = 0;
+    get delta() {
+        return (!this.devSettings.suspend)
+            ? this.systemTicker.deltaTime
+            : 1;    // this.systemTicker.speed  ??
+    }
 
-    /** Updates delta to reflect the time since the last updateDelta call. */
-    private updateDelta(newDelta: number) {
-        if (!this.devSettings.suspend)    // During suspend, assume last real-delta as sim-delta.
-            this._delta = newDelta;
+    /** The number of milliseconds which have passed since the last loop cycle. Always >= 0. */
+    get deltaMS() {
+        return (!this.devSettings.suspend)
+            ? this.systemTicker.deltaMS
+            : 16.66; // Target FPS of 60
     }
 
     /** The game's frames-per-second. */
-    // TODO This should be shared.FPS, no?
     get FPS() { return this.systemTicker.FPS; }
 
     /** A repository for delayed function calls. */
@@ -241,8 +243,7 @@ class App {
     }
 
     /** Any configurations relevant to the function of the main update loop are performed here. */
-    private systemLoop(delta: number) {
-        this.updateDelta(delta);
+    private systemLoop() {
         this.devController.update();
         this.developmentScripts();
 

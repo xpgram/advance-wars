@@ -1,5 +1,7 @@
 import { Game } from "../..";
 
+const MILLIS = 1000;
+
 /** A single-pulse timer which calls a callback (if one is given) one time after
  * the timer has fully elapsed. An expired timer can be restarted by simply calling start(). */
 export class Timer {
@@ -11,7 +13,7 @@ export class Timer {
   private callback: (() => void) | undefined;
 
   constructor(seconds: number, cb?: () => void) {
-    this.timerLength = seconds;
+    this.timerLength = seconds * MILLIS;
     this.callback = cb;
     Game.scene.ticker.add(this.update, this);
   }
@@ -64,7 +66,7 @@ export class Timer {
       this.stop();
     }
     else {
-      this.elapsedTime += Game.delta;
+      this.elapsedTime += Game.deltaMS;
     }
   }
 }
