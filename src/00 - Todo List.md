@@ -18,7 +18,6 @@ Todo List cleanup: (some easy ones)
 
 
 
-
 - [ ] Multiplayer
 - [ ] Music
 - [ ] Control indicators
@@ -60,6 +59,12 @@ ShowUnitAttackRange:
       - [ ] The player presses a button on an unknown controller and binds it to their player context.
       - [ ] The player presses a button on a known controller, the system prompts for confirmation that this controller will be shared, and the user confirms. The controller is then bound to their player context.
       - [ ] The player presses a button on the keyboard and confirms they will not have a controller.
+
+- [ ] CO Loadable when unit is parked over a terrain it could spawn from
+  - [ ] And from HQ?
+  - [ ] Not loadable the turn after CO unit is destroyed
+- This rule allows units to move, move onto a base, and then load CO
+- but it preserves the difficulty in CO-unit spamming since it still takes two turns to get one out.
 
 - [ ] COAffectedTiles
   - [ ] Do some drafting to confirm visual style before implementation.
