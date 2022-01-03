@@ -99,7 +99,8 @@ class App {
 
     readonly globalResources!: PIXI.IResourceDictionary;
 
-    /** The number of seconds which have passed since the last loop cycle. Always >= 0. */
+    /** The scale deviation from the ideal FPS, I think.
+     * I dunno, you'd have to ask Pixi. Always >= 0, usually ±0.1 from 1.0. */
     get delta() {
         return (!this.devSettings.suspend)
             ? this.systemTicker.deltaTime

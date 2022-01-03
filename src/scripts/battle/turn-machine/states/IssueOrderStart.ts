@@ -99,6 +99,10 @@ export class IssueOrderStart extends TurnState {
     if (Game.devController.pressed(Keys.C, 'Shift'))
       if (square.terrain.building)
         square.terrain.faction = player.faction;
+    // CO
+    if (Game.devController.pressed(Keys.O, 'Shift'))
+      if (square.unit)
+        square.unit.CoOnBoard = true;
 
     // On press A, select an allied unit to give instruction to
     if (A.pressed) {

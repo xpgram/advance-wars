@@ -493,6 +493,7 @@ export abstract class UnitObject {
     set CoOnBoard(b: boolean) {
         let n = Number(b);
         this.conditionInfo = Common.writeBits(this.conditionInfo, n, coOnBoardBits.length, coOnBoardBits.shift);
+        this.rebuildStatusIcons();
     }
 
     /** Whether this unit has carried out its order. */
@@ -624,6 +625,7 @@ export abstract class UnitObject {
         let color = FactionColors[this.faction];
 
         this.statusTextures = [];
+        if (this.CoOnBoard) this.statusTextures.push( sheet.textures[`icon-co-onboard.png`] );
         if (this.rank > 0) this.statusTextures.push( sheet.textures[`icon-level-${this.rank}.png`] );
         if (this.lowGas) this.statusTextures.push( sheet.textures[`icon-low-gas-${color}.png`] );
         if (this.materialsInsteadOfAmmo) {
