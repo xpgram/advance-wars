@@ -38,7 +38,8 @@ export class BattleDamageEvent extends TileEvent {
     if (attacker && attacker.hp > 0) {  // TODO !attacker.destroyed: boolean
       if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
         attacker.ammo -= 1;
-      if (map.squareAt(attacker.boardLocation).COAffectedFlag)
+      // TODO Swap this for attacker.boardPlayer.withinCoRange(attacker.boardLocation)
+      if (map.squareAt(attacker.boardLocation).COAffectedFlag || attacker.CoOnBoard)
         attacker.boardPlayer.increasePowerMeter(damageDealt);
       if (defender.hp === 0)
         attacker.rank += 1;
@@ -80,6 +81,8 @@ export class BattleDamageEvent extends TileEvent {
 
     // Configure unit settings
     if (defender.hp === 0) {
+      if (defender.CoOnBoard)
+        defender.boardPlayer.CoUnitDestroyedCallback();
       defender.destroy();
       trackCar?.hide();
     }

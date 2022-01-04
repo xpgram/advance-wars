@@ -360,27 +360,29 @@ export module Command {
     },
   }
 
-  /**  */
+  /** Unit becomes special 'CO' unit. */
   export const LoadCO: CommandObject<number> = {
     name: "CO",
     serial: generateSerial(),
     input: 0,
-    weight: Weight.Tertiary,
+    weight: Weight.Bottom,
     triggerInclude() {
       const { players, scenario } = data.assets;
       const { actor, goalTerrain } = data;
 
+      // TODO UnitClass? How could you get Seaplanes COed otherwise?
+      // Probably temp ports aren't CO board points.
       const spawnMap = scenario.spawnMap.find( sm => sm.type === goalTerrain.type );
       const spawnableTerrain = (spawnMap?.units.includes( actor.type ) || false);
       const isHQ = (goalTerrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
       const terrainAllied = (goalTerrain.faction === actor.faction);
       const actorAllied = (players.current.faction === actor.faction);
-      // const playerCanProduceCO = players.current.canProduceCo
+      const canSpawnCO = (players.current.canSpawnCO);
 
-      return (actorAllied && terrainAllied && (spawnableTerrain || isHQ));
+      return (actorAllied && terrainAllied && canSpawnCO && (spawnableTerrain || isHQ));
     },
     scheduleEvents() {
-      const { boardEvents, players } = data.assets;
+      const { boardEvents } = data.assets;
       const { actor } = data;
 
       Command.Move.scheduleEvents();
@@ -390,10 +392,6 @@ export module Command {
         ratify: () => {
           actor.CoOnBoard = true;
           actor.rank = 3;
-          // players.current.resetCoTurnCount; ??
-          // TODO players.current cannot produce a CO the turn after the last one
-          // was destroyed; this is to prevent spamming.
-          // TODO players.current also can only have 1 CO unit
         }
       }));
     },

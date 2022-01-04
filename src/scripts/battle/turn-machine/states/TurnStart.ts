@@ -18,6 +18,7 @@ export class TurnStart extends TurnState {
 
     // Update player stuff
     player.collectFunds();
+    player.CoUnitTurnDelay--;
 
     // Move Cursor
     if (player.units.length)

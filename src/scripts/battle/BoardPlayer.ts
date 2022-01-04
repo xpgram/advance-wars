@@ -78,6 +78,14 @@ export class BoardPlayer {
   units: UnitObject[] = [];         // List of units under control.
   lastCursorPosition: Point;
 
+  /** The number of turns a player must wait to spawn another CO unit. */
+  get CoUnitTurnDelay() { return this._CoUnitTurnDelay; }
+  set CoUnitTurnDelay(n) {
+    this._CoUnitTurnDelay = (n > 0) ? n : 0;
+  }
+  private _CoUnitTurnDelay: number = 0;
+
+
   constructor(options: BoardPlayerOptions) {
     this.map = options.map;
     this.scenario = options.scenario;
@@ -256,6 +264,23 @@ export class BoardPlayer {
   expendFunds(amt: number) {
     this.funds -= amt;
     this.funds = Math.max(this.funds, 0);
+  }
+
+  /** Returns this player's CO unit or undefined. */
+  getCoUnit() {
+    return this.units.find( u => u.CoOnBoard );
+  }
+
+  /** True if this player is ready to spawn a CO unit. */
+  get canSpawnCO() {
+    return (!this.getCoUnit() && this.CoUnitTurnDelay <= 0);
+  }
+
+  /** Conducts operations relevant to this player after their CO unit has
+   * been destroyed. Note: this method does not actually destroy the unit. */
+  CoUnitDestroyedCallback() {
+    this.CoUnitTurnDelay = 2; // 2 for this, 1 for next.
+    this.powerMeter.track = 'min';
   }
 
   /** Increases this player's power meter by an amount proportional to
