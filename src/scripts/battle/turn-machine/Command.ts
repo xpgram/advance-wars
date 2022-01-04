@@ -1,5 +1,6 @@
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
+import { Terrain } from "../map/Terrain";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
@@ -356,6 +357,45 @@ export module Command {
       const { actor, assets } = data;
 
       boardEvents.schedule( new DropHeldUnitEvent({actor, drop, assets}));
+    },
+  }
+
+  /**  */
+  export const LoadCO: CommandObject<number> = {
+    name: "CO",
+    serial: generateSerial(),
+    input: 0,
+    weight: Weight.Tertiary,
+    triggerInclude() {
+      const { players, scenario } = data.assets;
+      const { actor, goalTerrain } = data;
+
+      const spawnMap = scenario.spawnMap.find( sm => sm.type === goalTerrain.type );
+      const spawnableTerrain = (spawnMap?.units.includes( actor.type ) || false);
+      const isHQ = (goalTerrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
+      const terrainAllied = (goalTerrain.faction === actor.faction);
+      const actorAllied = (players.current.faction === actor.faction);
+      // const playerCanProduceCO = players.current.canProduceCo
+
+      return (actorAllied && terrainAllied && (spawnableTerrain || isHQ));
+    },
+    scheduleEvents() {
+      const { boardEvents, players } = data.assets;
+      const { actor } = data;
+
+      Command.Move.scheduleEvents();
+
+      boardEvents.schedule(new GenericRatifyEvent({
+        location: actor.boardLocation,
+        ratify: () => {
+          actor.CoOnBoard = true;
+          actor.rank = 3;
+          // players.current.resetCoTurnCount; ??
+          // TODO players.current cannot produce a CO the turn after the last one
+          // was destroyed; this is to prevent spamming.
+          // TODO players.current also can only have 1 CO unit
+        }
+      }));
     },
   }
 

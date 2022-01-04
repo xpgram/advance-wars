@@ -467,7 +467,9 @@ export abstract class UnitObject {
 
     /** The unit's acquired rank or experience level through battle. */
     get rank(): number {
-        return Common.readBits(this.conditionInfo, rankBits.length, rankBits.shift);
+        return (this.CoOnBoard)
+            ? UnitObject.MaxRank
+            : Common.readBits(this.conditionInfo, rankBits.length, rankBits.shift);
     }
     set rank(num) {
         num = Common.confine(num, 0, UnitObject.MaxRank);
@@ -621,22 +623,52 @@ export abstract class UnitObject {
 
     /** Status icons are a list of icon textures as frames in an animated sprite. This method includes only the icons relevant to this unit's condition. */
     private rebuildStatusIcons() {
-        let sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
-        let color = FactionColors[this.faction];
+        const sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
+        const color = FactionColors[this.faction];
 
-        this.statusTextures = [];
-        if (this.CoOnBoard) this.statusTextures.push( sheet.textures[`icon-co-onboard.png`] );
-        if (this.rank > 0) this.statusTextures.push( sheet.textures[`icon-level-${this.rank}.png`] );
-        if (this.lowGas) this.statusTextures.push( sheet.textures[`icon-low-gas-${color}.png`] );
-        if (this.materialsInsteadOfAmmo) {
-            if (this.lowAmmo) this.statusTextures.push( sheet.textures[`icon-low-material-${color}.png`] );
-        } else {
-            if (this.lowAmmo) this.statusTextures.push( sheet.textures[`icon-low-ammo-${color}.png`] );
-        }
-        if (this.capturing) this.statusTextures.push( sheet.textures[`icon-capturing-${color}.png`] );
-        if (this._loadedUnits.length > 0) this.statusTextures.push( sheet.textures[`icon-boarded-${color}.png`] );
-        if (this.hiding) this.statusTextures.push( sheet.textures[`icon-hidden-${color}.png`] );
+        // Icon conditions of inclusion
+        const iconLabels = [
+            {
+                name: `icon-co-onboard.png`,
+                condition: (this.CoOnBoard),
+            },
+            {
+                name: `icon-level-${this.rank}.png`,
+                condition: (this.rank > 0 && !this.CoOnBoard),
+            },
+            {
+                name: `icon-low-gas-${color}.png`,
+                condition: (this.lowGas),
+            },
+            {
+                name: `icon-low-ammo-${color}.png`,
+                condition: (this.lowAmmo && !this.materialsInsteadOfAmmo),
+            },
+            {
+                name: `icon-low-material-${color}.png`,
+                condition: (this.lowAmmo && this.materialsInsteadOfAmmo),
+            },
+            {
+                name: `icon-capturing-${color}.png`,
+                condition: (this.capturing),
+            },
+            {
+                name: `icon-boarded-${color}.png`,
+                condition: (this._loadedUnits.length > 0),
+            },
+            {
+                name: `icon-hidden-${color}.png`,
+                condition: (this.hiding),
+            },
+        ];
 
+        // Filter to applied icons only
+        const iconSet = iconLabels
+            .filter( i => i.condition )
+            .map( i => sheet.textures[i.name] );
+
+        // Set and construct
+        this.statusTextures = iconSet;
         this.setCurrentStatusIcon();
     }
 

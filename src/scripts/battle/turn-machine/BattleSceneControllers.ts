@@ -77,6 +77,7 @@ export type Scenario = {
   acquireHqOnCapture: boolean,
   CoUnits: boolean,
   CoPowers: boolean,
+  CoLoadableFromHQ: boolean,
   rigsInfiniteGas: boolean,
 
   spawnMap: UnitSpawnMap[],
@@ -97,6 +98,7 @@ const Default_Scenario: Scenario = {
   acquireHqOnCapture: false,
   CoUnits: true,
   CoPowers: true,
+  CoLoadableFromHQ: true,
   rigsInfiniteGas: true,
 
   spawnMap: defaultUnitSpawnMap,
