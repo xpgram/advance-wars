@@ -8,6 +8,7 @@ import { Terrain } from "./map/Terrain";
 import { CommandingOfficerObject } from "./CommandingOfficerObject";
 import { Unit } from "./Unit";
 import { Scenario } from "./turn-machine/BattleSceneControllers";
+import { CommonRangesRetriever } from "./unit-actions/RegionMap";
 
 /**  */
 export type UnitSpawnSettings = {
@@ -281,6 +282,19 @@ export class BoardPlayer {
   CoUnitDestroyedCallback() {
     this.CoUnitTurnDelay = 2; // 2 for this, 1 for next.
     this.powerMeter.track = 'min';
+  }
+
+  /** Returns true if the given board location is within this player's CO range,
+   * the region affected by CO effects. */
+  withinCoRange(location: Point) {
+    const CoUnit = this.getCoUnit();
+    if (!CoUnit)
+      return false;
+
+    const max = this.officer.CoZone + this.powerMeterLevel;
+    const rangeMap = CommonRangesRetriever({min: 0, max});
+    const vector = location.subtract(CoUnit.boardLocation);
+    return rangeMap.get(vector);
   }
 
   /** Increases this player's power meter by an amount proportional to

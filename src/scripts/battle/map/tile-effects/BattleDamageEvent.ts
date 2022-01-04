@@ -36,11 +36,12 @@ export class BattleDamageEvent extends TileEvent {
     defender.hp -= damage;
 
     if (attacker && attacker.hp > 0) {  // TODO !attacker.destroyed: boolean
+      const player = attacker.boardPlayer;
+
       if (attacker.attackMethodFor(defender) === AttackMethod.Primary)
         attacker.ammo -= 1;
-      // TODO Swap this for attacker.boardPlayer.withinCoRange(attacker.boardLocation)
-      if (map.squareAt(attacker.boardLocation).COAffectedFlag || attacker.CoOnBoard)
-        attacker.boardPlayer.increasePowerMeter(damageDealt);
+      if (player.withinCoRange(attacker.boardLocation))
+        player.increasePowerMeter(damageDealt);
       if (defender.hp === 0)
         attacker.rank += 1;
     }

@@ -11,6 +11,8 @@ export const CommandingOfficer = {
     readonly name = 'Void';
     readonly allegiance = 'None';
     readonly nationality = 'rubinelle';
+
+    readonly CoZone = 0;
   },
 
   None: class NoneCO extends CommandingOfficerObject {
@@ -20,6 +22,8 @@ export const CommandingOfficer = {
     readonly name = 'None';
     readonly allegiance = 'None';
     readonly nationality = 'rubinelle';
+
+    readonly CoZone = 0;
   },
 
   Will: class WillCO extends CommandingOfficerObject {
@@ -30,7 +34,7 @@ export const CommandingOfficer = {
     readonly allegiance = '13th Battalion';
     readonly nationality = 'rubinelle';
 
-    // CO Zone = 2      // Gets +1 for every CO bar filled, so max is 4
+    readonly CoZone = 2;
 
     init() {
       super.init();
@@ -61,6 +65,8 @@ export const CommandingOfficer = {
     readonly name = 'Brenner';
     readonly allegiance = '13th Battalion';
     readonly nationality = 'rubinelle';
+
+    readonly CoZone = 3;
   },
 
   Lin: class LinCO extends CommandingOfficerObject {
@@ -70,6 +76,8 @@ export const CommandingOfficer = {
     readonly name = 'Lin';
     readonly allegiance = '13th Battalion';
     readonly nationality = 'rubinelle';
+
+    readonly CoZone = 1;
   },
 
   Isabella: class IsabellaCO extends CommandingOfficerObject {
@@ -79,6 +87,8 @@ export const CommandingOfficer = {
     readonly name = 'Isabella';
     readonly allegiance = '13th Battalion';
     readonly nationality = 'rubinelle';
+
+    readonly CoZone = 2;
   },
 
   // readonly allegiance = 'Lazuria';

@@ -47,6 +47,9 @@ export abstract class CommandingOfficerObject {
   abstract readonly allegiance: string;
   abstract readonly nationality: 'rubinelle' | 'lazurian';
 
+  /** How far from the CO unit the CO's effects can be felt. */
+  abstract readonly CoZone: number;
+
   get illustration() { return this._illustration; }
   private _illustration!: PIXI.Sprite;
 
