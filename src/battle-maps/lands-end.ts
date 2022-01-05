@@ -1,10 +1,10 @@
 import { Terrain } from "../scripts/battle/map/Terrain";
 import { Unit } from "../scripts/battle/Unit";
 
-const { Plain, Sea, Wood, Mountain, Road, City, Factory, Airport, Port, Beach, RoughSea, Reef, HQ} = Terrain;
-const Ttypes = [ Plain, Sea, Wood, Mountain, Road, City, Factory, Airport, Port, Beach, RoughSea, Reef, HQ ];
+const { Plain, Sea, Wood, Mountain, Road, City, Factory, Airport, Port, Beach, RoughSea, Reef, ComTower, HQ} = Terrain;
+const Ttypes = [ Plain, Sea, Wood, Mountain, Road, City, Factory, Airport, Port, Beach, RoughSea, Reef, ComTower, HQ ];
 const Tserials = Ttypes.map( t => t.serial );
-const [ pln, sea, wod, mtn, rod, cty, fct, apt, prt, bch, rgh, ref, hq ] = Tserials;
+const [ pln, sea, wod, mtn, rod, cty, fct, apt, prt, bch, rgh, ref, com, hq ] = Tserials;
 
 const { Infantry, Mech, Bike, Rig, Flare, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, Fighter, BCopter, TCopter, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine } = Unit;
 const Utypes = [ Infantry, Mech, Bike, Rig, Flare, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, Fighter, BCopter, TCopter, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine ];
