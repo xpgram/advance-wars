@@ -52,6 +52,10 @@ export abstract class CommandingOfficerObject {
    * to be applied within the CO Zone. */
   abstract getBonusStats(unit: UnitObject): UnitStats;
 
+  /** Whether this officer is in CO Power state.
+   * Toggleable from without, but a useful reference for returning bonus stat modifiers. */
+  CoPowerInEffect = false;
+
   /** Initializes object for use.
    * If overriding, must call super.init() as first line; consider this like
    * you would a constructor. */

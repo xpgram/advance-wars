@@ -48,8 +48,13 @@ export const CommandingOfficer = {
     getBonusStats(unit: UnitObject): UnitStats {
       const stats = universalStatsBonus();
 
-      if (unit.isDirectOnly && unit.unitClass === UnitClass.Ground)
+      if (unit.isDirectOnly && unit.unitClass === UnitClass.Ground) {
         stats.attack += 20;
+        
+        if (this.CoPowerInEffect)
+          stats.move += 2;
+          // TODO UnitObject needs to reference its CO when returning movement range
+      }
 
       return stats;
     }
