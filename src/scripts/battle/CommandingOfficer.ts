@@ -1,6 +1,7 @@
-import { CommandingOfficerObject } from "./CommandingOfficerObject";
+import { CommandingOfficerObject, UnitStats, universalStatsBonus } from "./CommandingOfficerObject";
 import { UnitClass } from "./EnumTypes";
 import { Unit } from "./Unit";
+import { UnitObject } from "./UnitObject";
 
 /**  */
 export const CommandingOfficer = {
@@ -13,6 +14,10 @@ export const CommandingOfficer = {
     readonly nationality = 'rubinelle';
 
     readonly CoZone = 0;
+
+    getBonusStats(unit: UnitObject): UnitStats {
+      return universalStatsBonus();
+    }
   },
 
   None: class NoneCO extends CommandingOfficerObject {
@@ -24,6 +29,10 @@ export const CommandingOfficer = {
     readonly nationality = 'rubinelle';
 
     readonly CoZone = 0;
+
+    getBonusStats(unit: UnitObject): UnitStats {
+      return universalStatsBonus();
+    }
   },
 
   Will: class WillCO extends CommandingOfficerObject {
@@ -36,25 +45,13 @@ export const CommandingOfficer = {
 
     readonly CoZone = 2;
 
-    init() {
-      super.init();
+    getBonusStats(unit: UnitObject): UnitStats {
+      const stats = universalStatsBonus();
 
-      this.setUnitStats({
-        attack: 20,
-      },
-        // All direct ground units
-        ...Object.values(Unit)
-          .filter( type => {
-            const u = new type();
-            return u.isDirectOnly && u.unitClass === UnitClass.Ground;
-          })
-          .map( type => new type().name )
-      )
+      if (unit.isDirectOnly && unit.unitClass === UnitClass.Ground)
+        stats.attack += 20;
 
-      // TODO Stats for CO power? ++Move for instance.
-      // TODO I forget, do Rigs and such get the movement boost on CO Power?
-
-      return this;
+      return stats;
     }
   },
 
@@ -67,6 +64,12 @@ export const CommandingOfficer = {
     readonly nationality = 'rubinelle';
 
     readonly CoZone = 3;
+
+    getBonusStats(unit: UnitObject): UnitStats {
+      const stats = universalStatsBonus();
+      stats.defense += 20;
+      return stats;
+    }
   },
 
   Lin: class LinCO extends CommandingOfficerObject {
@@ -78,6 +81,15 @@ export const CommandingOfficer = {
     readonly nationality = 'rubinelle';
 
     readonly CoZone = 1;
+
+    getBonusStats(unit: UnitObject): UnitStats {
+      const stats = universalStatsBonus();
+      if (unit.unitClass === UnitClass.Ground) {
+        stats.attack += 20;
+        stats.defense += 20;
+      }
+      return stats;
+    }
   },
 
   Isabella: class IsabellaCO extends CommandingOfficerObject {
@@ -89,6 +101,13 @@ export const CommandingOfficer = {
     readonly nationality = 'rubinelle';
 
     readonly CoZone = 2;
+
+    getBonusStats(unit: UnitObject): UnitStats {
+      const stats = universalStatsBonus();
+      stats.attack += 10;
+      stats.defense += 10;
+      return stats;
+    }
   },
 
   // readonly allegiance = 'Lazuria';

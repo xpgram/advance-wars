@@ -5,8 +5,8 @@ import { Square } from "./map/Square";
 import { Point } from "../Common/Point";
 
 export type BattleForecast = {
-    damage: number,
-    counter: number,
+  damage: number,
+  counter: number,
 }
 
 /**
@@ -14,95 +14,111 @@ export type BattleForecast = {
  */
 export class DamageScript {
 
-    /** Initializes .Random() with a new PRNG using the given seed. */
-    private static SetSeed(seed: number) {
-        function mulberry32() {
-            var t = seed += 0x6D2B79F5;
-            t = Math.imul(t ^ t >>> 15, t | 1);
-            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-            return ((t ^ t >>> 14) >>> 0) / 4294967296;
-        }
-        DamageScript.Random = mulberry32;
+  /** Initializes .Random() with a new PRNG using the given seed. */
+  private static SetSeed(seed: number) {
+    // TODO Does this not.. return the same number each and every time?
+    // When do we affect the seed?
+    // It's not a generator.
+    function mulberry32() {
+      var t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
+    DamageScript.Random = mulberry32;
+  }
 
-    /**  */
-    private static Random = function () {
-        Debug.error('Called DamageScript.Random() without .SetSeed()');
-        return 0;
-    }
+  /**  */
+  private static Random = function () {
+    Debug.error('Called DamageScript.Random() without .SetSeed()');
+    return 0;
+  }
 
-    /**  */
-    private static NormalAttackFormula(A: CombatState, B: CombatState, rand: number) {
-        const ceil = Math.ceil;
+  /**  */
+  private static NormalAttackFormula(A: CombatState, B: CombatState, rand: number) {
+    const ceil = Math.ceil;
 
-        // Unit Rank 0: 0/0, I: +5/0, II: +10/0, V: +20/+20
-        // Terrain Stars 0/+1 per star per 1 HP
-        // CO Zone +10/+10, and +10/0 and 0/+10 per attack and defense stars per unit type
-        // COM Towers +5/+5 per count
-        // Sandstorm -30/0
-        // Luck +LCK/0, where LCK is range 0 to ceil(attackerHP / 10)
+    // Constants
+    const ComTowerBonus = 5;
 
-        // TODO Implement CO stuff
-        const atkOfficer = A.unit.boardPlayer.officer;
-        const defOfficer = B.unit.boardPlayer.officer;
+    // Unit Rank 0: 0/0, I: +5/0, II: +10/0, V: +20/+20
+    // Terrain Stars 0/+1 per star per 1 HP
+    // CO Zone +10/+10, and +10/0 and 0/+10 per attack and defense stars per unit type
+    // COM Towers +5/+5 per count
+    // Sandstorm -30/0
+    // Luck +LCK/0, where LCK is range 0 to ceil(attackerHP / 10)
 
-        const atkRankBoosts = [0,5,10,20];                      // TODO What if rank is 4?! Irrelevant. It'll never happen.
-        const atkRank = atkRankBoosts[A.unit.rank];
-        const atkCOZone = (A.square.COAffectedFlag) ? 10 : 0;   // TODO Which CO?
-        const luck = ceil(rand * ceil(A.HP / 10 + 1)) - 1;
+    const playerA = A.unit.boardPlayer;
+    const playerB = B.unit.boardPlayer;
 
-        const attackStat = 100 + atkRank + atkCOZone + luck;
+    // Get attacker's stat bonuses
+    const atkStrength = ceil(A.HP / 10) / 10;       // A 1-sig decimal number ranged 0 to 1
+    const atkRank = [0, 5, 10, 20][A.unit.rank];    // TODO What if rank is 4?! Irrelevant. It'll never happen.
+    const luck = ceil(rand * ceil(A.HP / 10 + 1)) - 1;
+    const atkComTower = playerA.comTowerCount * ComTowerBonus;
+    const atkCoZone = playerA.withinCoRange(A.unit.boardLocation)
+      ? playerA.officer.getBonusStats(A.unit).attack
+      : 0;
 
-        const defRank = (B.unit.rank == 3) ? 20 : 0;
-        const defCOZone = (B.square.COAffectedFlag) ? 10 : 0;
-        const terrain = B.square.terrain.defenseRating * ceil(B.HP / 10);
+    // Get defender's stat bonuses
+    const defRank = (B.unit.rank == 3) ? 20 : 0;
+    const terrain = B.square.terrain.defenseRating * ceil(B.HP / 10);
+    const defComTower = playerB.comTowerCount * ComTowerBonus;
+    const defCoZone = playerB.withinCoRange(B.unit.boardLocation)
+      ? playerB.officer.getBonusStats(B.unit).defense
+      : 0;
 
-        const defenseStat = 100 + defRank + defCOZone + terrain;
+    // Get attacker/defender power advantage
+    const attackStat = 100 + atkRank + atkCoZone + luck + atkComTower;
+    const defenseStat = 100 + defRank + defCoZone + terrain + defComTower;
+    const powerRatio = attackStat / defenseStat;
 
-        return A.unit.baseDamage(B.unit) * ceil(A.HP / 10) / 10 * attackStat / defenseStat;
-    }
-    
-    /**  */
-    static NormalAttack(map: Map, attacker: UnitObject, from: Point, defender: UnitObject, seed: number) {
-        DamageScript.SetSeed(seed);
-        const formula = DamageScript.NormalAttackFormula;
-        
-        const attackState = new CombatState(map, attacker, from);
-        const defenseState = new CombatState(map, defender);
-        const estimateState = new CombatState(map, defender);
+    // Return final damage
+    const baseDamage = A.unit.baseDamage(B.unit);
+    return baseDamage * atkStrength * powerRatio;
+  }
 
-        const LCK1 = DamageScript.Random();
-        const LCK2 = DamageScript.Random();
+  /**  */
+  static NormalAttack(map: Map, attacker: UnitObject, from: Point, defender: UnitObject, seed: number) {
+    DamageScript.SetSeed(seed);
+    const formula = DamageScript.NormalAttackFormula;
 
-        const damageEst = formula(attackState, defenseState, .5);
-        const damage = formula(attackState, defenseState, LCK1);
+    const attackState = new CombatState(map, attacker, from);
+    const defenseState = new CombatState(map, defender);
+    const estimateState = new CombatState(map, defender);
 
-        const canCounter = defenseState.unit.canCounterAttack(attackState.unit, from);
+    const LCK1 = DamageScript.Random();
+    const LCK2 = DamageScript.Random();
 
-        estimateState.HP = Math.max(estimateState.HP - damageEst, 0);
-        const counterEst = formula(estimateState, attackState, .5) * Number(canCounter);
+    const damageEst = formula(attackState, defenseState, .5);
+    const damage = formula(attackState, defenseState, LCK1);
 
-        defenseState.HP = Math.max(defenseState.HP - damage, 0);
-        const counter = formula(defenseState, attackState, LCK2) * Number(canCounter);
+    const canCounter = defenseState.unit.canCounterAttack(attackState.unit, from);
 
-        return {
-            damage: damage,
-            counter: counter,
-            estimate: {
-                damage: damageEst,
-                counter: counterEst
-            }
-        };
-    }
+    estimateState.HP = Math.max(estimateState.HP - damageEst, 0);
+    const counterEst = formula(estimateState, attackState, .5) * Number(canCounter);
+
+    defenseState.HP = Math.max(defenseState.HP - damage, 0);
+    const counter = formula(defenseState, attackState, LCK2) * Number(canCounter);
+
+    return {
+      damage: damage,
+      counter: counter,
+      estimate: {
+        damage: damageEst,
+        counter: counterEst
+      }
+    };
+  }
 }
 
 class CombatState {
-    unit: UnitObject;
-    square: Square;
-    HP: number;
-    constructor(map: Map, unit: UnitObject, from?: Point) {
-        this.unit = unit;
-        this.square = map.squareAt(from || unit.boardLocation);
-        this.HP = unit.hp;
-    }
+  unit: UnitObject;
+  square: Square;
+  HP: number;
+  constructor(map: Map, unit: UnitObject, from?: Point) {
+    this.unit = unit;
+    this.square = map.squareAt(from || unit.boardLocation);
+    this.HP = unit.hp;
+  }
 }

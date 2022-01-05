@@ -1,7 +1,8 @@
 import { Game } from "../..";
 import { StringDictionary } from "../CommonTypes";
+import { UnitObject } from "./UnitObject";
 
-type UnitStats = {
+export type UnitStats = {
   attack: number,
   defense: number,
   range: number,
@@ -9,28 +10,14 @@ type UnitStats = {
   vision: number,
 }
 
-type UnitStatsPartial = {
-  attack?: number,
-  defense?: number,
-  range?: number,
-  move?: number,
-  vision?: number,
-}
-
-const UNIVERSAL_CO_ATK_DEF_BOOST: UnitStats = {
-  attack: 20,
-  defense: 20,
-  range: 0,
-  move: 0,
-  vision: 0,
-}
-
-const DEFAULT_STATS: UnitStats = {
-  attack: 0,
-  defense: 0,
-  range: 0,
-  move: 0,
-  vision: 0,
+export function universalStatsBonus(): UnitStats {
+  return {
+    attack: 10,
+    defense: 10,
+    range: 0,
+    move: 0,
+    vision: 0,
+  }
 }
 
 export interface CommandingOfficerType {
@@ -61,24 +48,9 @@ export abstract class CommandingOfficerObject {
 
   readonly unitStatTable: StringDictionary<UnitStats> = {};
 
-  /** Returns an entry from the unit stats table.
-   * All element names are acceptable; any non-entries will assume default values. */
-  getUnitStats(name: string): UnitStats {
-    const coUnit = (name === 'CO');
-
-    let stats = this.unitStatTable[name] || DEFAULT_STATS;
-    if (coUnit) stats = {...stats, ...UNIVERSAL_CO_ATK_DEF_BOOST};
-    return stats;
-  }
-
-  /** Sets only the described fields for all given element names on the unit stats table. */
-  protected setUnitStats(stats: UnitStatsPartial, ...names: string[]) {
-    names.forEach( name => {
-      const oldStats = this.unitStatTable[name] || {};
-      stats = {...DEFAULT_STATS, ...oldStats, ...stats};
-      this.unitStatTable[name] = stats as UnitStats;
-    })
-  }
+  /** For a given unit object, returns a UnitStats container for stat changes
+   * to be applied within the CO Zone. */
+  abstract getBonusStats(unit: UnitObject): UnitStats;
 
   /** Initializes object for use.
    * If overriding, must call super.init() as first line; consider this like

@@ -168,6 +168,11 @@ export class BoardPlayer {
     return this.capturePoints.filter( p => this.map.squareAt(p).terrain.generatesIncome ).length;
   }
 
+  /** The number of properties which are Com Towers, which by count affect allied unit stats. */
+  get comTowerCount(): number {
+    return this.capturePoints.filter( p => this.map.squareAt(p).terrain.type === Terrain.ComTower ).length;
+  }
+
   /** The number of deployed units owned by this player. */
   get deployCount(): number {
     return this.units.length;
