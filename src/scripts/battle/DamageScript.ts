@@ -56,7 +56,7 @@ export class DamageScript {
     const atkRank = [0, 5, 10, 20][A.unit.rank];    // TODO What if rank is 4?! Irrelevant. It'll never happen.
     const luck = ceil(rand * ceil(A.HP / 10 + 1)) - 1;
     const atkComTower = playerA.comTowerCount * ComTowerBonus;
-    const atkCoZone = playerA.withinCoRange(A.unit.boardLocation)
+    const atkCoZone = (A.unit.withinCoZone)
       ? playerA.officer.getBonusStats(A.unit).attack
       : 0;
 
@@ -64,7 +64,7 @@ export class DamageScript {
     const defRank = (B.unit.rank == 3) ? 20 : 0;
     const terrain = B.square.terrain.defenseRating * ceil(B.HP / 10);
     const defComTower = playerB.comTowerCount * ComTowerBonus;
-    const defCoZone = playerB.withinCoRange(B.unit.boardLocation)
+    const defCoZone = (B.unit.withinCoZone)
       ? playerB.officer.getBonusStats(B.unit).defense
       : 0;
 

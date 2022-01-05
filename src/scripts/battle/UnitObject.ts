@@ -498,6 +498,11 @@ export abstract class UnitObject {
         this.rebuildStatusIcons();
     }
 
+    /** True if this unit is located inside the CO Zone of its commanding officer. */
+    get withinCoZone(): boolean {
+        return this.boardPlayer.withinCoRange(this.boardLocation);
+    }
+
     /** Whether this unit has carried out its order. */
     get spent(): boolean {
         let n = Common.readBits(this.conditionInfo, orderableBits.length, orderableBits.shift);
@@ -871,4 +876,5 @@ export abstract class UnitObject {
         this.rebuildStatusIcons();
         return u;
     }
+
 }
