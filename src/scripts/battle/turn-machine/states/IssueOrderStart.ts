@@ -97,8 +97,10 @@ export class IssueOrderStart extends TurnState {
       }
     // Capture property
     if (Game.devController.pressed(Keys.C, 'Shift'))
-      if (square.terrain.building)
+      if (square.terrain.building) {
         square.terrain.faction = player.faction;
+        player.scanCapturedProperties();
+      }
     // CO
     if (Game.devController.pressed(Keys.O, 'Shift'))
       if (square.unit)
