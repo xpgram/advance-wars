@@ -4,7 +4,9 @@ Todo List cleanup: (some easy ones)
 - [ ] Terrain.landscape → Terrain.illustration (consistency)
 - [ ] Unit.infoPortrait (or w/e) → Unit.illustration
 - [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
-- [x]? Units are missing the CO-Boarded badge.
+- [x] The CO Zone disappears when a CO infantry boards a Rig
+- [ ] It does this by being at -1,-1 or something. Does the top-left have a CO Zone then?
+- [ ] Do BoardPlayers correctly update their shit when a CO infantry is killed on-board a Rig? (No.)
 
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
