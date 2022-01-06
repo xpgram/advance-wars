@@ -335,7 +335,7 @@ export abstract class UnitObject {
     }
 
     /** Unlinks this objects references and connections. */
-    destroy() { 
+    destroy() {
         this._loadedUnits.forEach( u => u.destroy() );
         
         this.boardPlayer.unspawnUnit(this);

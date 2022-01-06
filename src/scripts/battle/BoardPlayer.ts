@@ -241,6 +241,8 @@ export class BoardPlayer {
   unspawnUnit(unit: UnitObject): UnitObject {
     this.units = this.units.filter( u => u !== unit );
     this.map.removeUnit(unit.boardLocation);
+    if (unit.CoOnBoard)
+      this.handleCoUnitDestroyed();
     return unit;
   }
 
@@ -274,7 +276,8 @@ export class BoardPlayer {
 
   /** Returns this player's CO unit or undefined. */
   getCoUnit() {
-    return this.units.find( u => u.CoOnBoard );
+    const unit = this.units.find( u => u.CoOnBoard );
+    return (unit?.onMap) ? unit : undefined;
   }
 
   /** True if this player is ready to spawn a CO unit. */
@@ -284,7 +287,7 @@ export class BoardPlayer {
 
   /** Conducts operations relevant to this player after their CO unit has
    * been destroyed. Note: this method does not actually destroy the unit. */
-  CoUnitDestroyedCallback() {
+  private handleCoUnitDestroyed() {
     this.CoUnitTurnDelay = 2; // 2 for this, 1 for next.
     this.powerMeter.track = 'min';
   }
@@ -307,6 +310,8 @@ export class BoardPlayer {
    * an allied unit within the CO Zone. This may be attack or counter-
    * attack damage. */
   increasePowerMeter(damage: number) {
+    // const points = Math.ceil(damage); // This accounts for odd HP rounding.
+    console.log(`increasing ${damage}`);
     this.powerMeter.increment(damage);
   }
 

@@ -81,8 +81,6 @@ export class BattleDamageEvent extends TileEvent {
 
     // Configure unit settings
     if (defender.hp === 0) {
-      if (defender.CoOnBoard)
-        defender.boardPlayer.CoUnitDestroyedCallback();
       defender.destroy();
       trackCar?.hide();
     }

@@ -36,7 +36,7 @@ export class DamageScript {
 
   /**  */
   private static NormalAttackFormula(A: CombatState, B: CombatState, rand: number) {
-    const ceil = Math.ceil;
+    const { ceil } = Math;
 
     // Constants
     const ComTowerBonus = 5;
@@ -56,7 +56,7 @@ export class DamageScript {
     const atkRank = [0, 5, 10, 20][A.unit.rank];    // TODO What if rank is 4?! Irrelevant. It'll never happen.
     const luck = ceil(rand * ceil(A.HP / 10 + 1)) - 1;
     const atkComTower = playerA.comTowerCount * ComTowerBonus;
-    const atkCoZone = (A.unit.withinCoZone)
+    const atkCoZone = (playerA.withinCoRange(A.from))
       ? playerA.officer.getBonusStats(A.unit).attack
       : 0;
 
@@ -64,7 +64,7 @@ export class DamageScript {
     const defRank = (B.unit.rank == 3) ? 20 : 0;
     const terrain = B.square.terrain.defenseRating * ceil(B.HP / 10);
     const defComTower = playerB.comTowerCount * ComTowerBonus;
-    const defCoZone = (B.unit.withinCoZone)
+    const defCoZone = (playerB.withinCoRange(B.from))
       ? playerB.officer.getBonusStats(B.unit).defense
       : 0;
 
@@ -75,7 +75,10 @@ export class DamageScript {
 
     // Return final damage
     const baseDamage = A.unit.baseDamage(B.unit);
-    return baseDamage * atkStrength * powerRatio;
+    const finalDamage = baseDamage * atkStrength * powerRatio;
+
+    // [!] Unit HP cannot be stored as a decimal.
+    return ceil(finalDamage);
   }
 
   /**  */
@@ -114,11 +117,13 @@ export class DamageScript {
 
 class CombatState {
   unit: UnitObject;
+  from: Point;
   square: Square;
   HP: number;
   constructor(map: Map, unit: UnitObject, from?: Point) {
     this.unit = unit;
-    this.square = map.squareAt(from || unit.boardLocation);
+    this.from = from || unit.boardLocation;
+    this.square = map.squareAt(this.from);
     this.HP = unit.hp;
   }
 }
