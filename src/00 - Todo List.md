@@ -1,27 +1,10 @@
 # Next Big Objectives
 
 Todo List cleanup: (some easy ones)
-- [x] Terrain.landscape → Terrain.illustration (consistency)
-- [x] Unit.infoPortrait (or w/e) → Unit.illustration
-- [x] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
-- [x] Removed deprecated CoAffected flags from Square
-- [x] Unified bit read/write/generate methods
-- [x] The CO Zone disappears when a CO infantry boards a Rig
-- [x] It does this by being at 255,255. Does the bottom-right have a CO Zone then?
-- [x] Do BoardPlayers correctly update their shit when a CO infantry is killed on-board a Rig? (No.)
-- [x] Killing an entire infantry with a tank somehow doesn't grant 2 COP bars? How didn't we just do 10 damage?
-- [x] Forecasts don't use correct position (CO Zone) when approx. damage.
-
+- [ ] On-screen icon indicates when there are un-instructed units
+- [ ] On-screen icon indicates when there are un-utilized bases
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
-
-- [x] Unit CO loaded
-- [x] CO loaded state affects (internally) adjacent board tiles.
-  Either:
-  - [-] The board reflects nearby-CO status
-  - [x] The BoardPlayer can return a boolean that a map point is CO-affected.
-- [x] BoardPlayer.CoUnit : filter units => unit.coLoaded == true
-
 
 
 - [ ] Multiplayer
