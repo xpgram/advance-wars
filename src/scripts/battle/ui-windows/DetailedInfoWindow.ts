@@ -305,7 +305,7 @@ class Illustration {
     const skyLandscape = new PIXI.Sprite(sheet.textures['sky-landscape.png']);
 
     const airUnit = (unit && unit.unitClass === UnitClass.Air);
-    const landscape = (airUnit && showAirUnit) ? skyLandscape : terrain.landscape;
+    const landscape = (airUnit && showAirUnit) ? skyLandscape : terrain.illustration;
 
     const nullIllustration = new PIXI.Container();
     const unitIllustration = (airUnit && !showAirUnit) ? nullIllustration : unit?.illustration || nullIllustration;

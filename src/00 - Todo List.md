@@ -2,7 +2,7 @@
 
 Todo List cleanup: (some easy ones)
 - [ ] Terrain.landscape → Terrain.illustration (consistency)
-- [ ] Unit.infoPortrait (or w/e) → Unit.illustration
+- [x] Unit.infoPortrait (or w/e) → Unit.illustration
 - [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
 - [x] Removed deprecated CoAffected flags from Square
 - [x] Unified bit read/write/generate methods

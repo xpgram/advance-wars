@@ -63,7 +63,7 @@ export const Terrain = {
         get type() { return PlainTile; }
         static readonly serial = 0;
         get serial() { return 0; }
-        get landscape(): PIXI.Sprite {
+        get illustration(): PIXI.Sprite {
             if (this.variation == 1)
                 return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-meteor-landscape.png'] );
             else if (this.variation == 2)
@@ -488,7 +488,7 @@ export const Terrain = {
         get type() { return RoughSeaTile; }
         static readonly serial = 10;
         get serial() { return 10; }
-        get landscape(): PIXI.Sprite {
+        get illustration(): PIXI.Sprite {
             return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
         }
         get landTile() { return false; }
@@ -546,7 +546,7 @@ export const Terrain = {
         get type() { return MistTile; }
         static readonly serial = 11;
         get serial() { return 11; }
-        get landscape(): PIXI.Sprite {
+        get illustration(): PIXI.Sprite {
             return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
         }
         get landTile() { return false; }
@@ -640,7 +640,7 @@ export const Terrain = {
         get type() { return FireTile; }
         static readonly serial = 13;
         get serial() { return 13; }
-        get landscape(): PIXI.AnimatedSprite {
+        get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
@@ -685,7 +685,7 @@ export const Terrain = {
         get type() { return MeteorTile; }
         static readonly serial = 14;
         get serial() { return 14; }
-        get landscape(): PIXI.AnimatedSprite {
+        get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
@@ -749,7 +749,7 @@ export const Terrain = {
         get type() { return PlasmaTile; }
         static readonly serial = 15;
         get serial() { return 15; }
-        get landscape(): PIXI.AnimatedSprite {
+        get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
@@ -1047,7 +1047,7 @@ export const Terrain = {
         get type() { return SiloTile; }
         static readonly serial = 22;
         get serial() { return 22; }
-        get landscape(): PIXI.Sprite {
+        get illustration(): PIXI.Sprite {
             if (this.value == 1)
                 return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['silo-unused-landscape.png'] );
             else

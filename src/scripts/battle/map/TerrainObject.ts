@@ -102,7 +102,7 @@ export abstract class TerrainObject {
     }
 
     /** Returns an 'establishing shot' image of this terrain type as a sprite. */
-    get landscape(): PIXI.Sprite {
+    get illustration(): PIXI.Sprite {
         let name = this.name.replace(' ', '').toLowerCase();
         return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures[`${name}-landscape.png`] );
     }
