@@ -4,6 +4,8 @@ Todo List cleanup: (some easy ones)
 - [ ] Terrain.landscape → Terrain.illustration (consistency)
 - [ ] Unit.infoPortrait (or w/e) → Unit.illustration
 - [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
+- [x] Removed deprecated CoAffected flags from Square
+- [x] Unified bit read/write/generate methods
 - [x] The CO Zone disappears when a CO infantry boards a Rig
 - [x] It does this by being at 255,255. Does the bottom-right have a CO Zone then?
 - [x] Do BoardPlayers correctly update their shit when a CO infantry is killed on-board a Rig? (No.)

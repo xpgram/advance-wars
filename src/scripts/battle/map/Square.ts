@@ -12,6 +12,7 @@ import { DiagnosticLayer } from "../../DiagnosticLayer";
 import { CardinalDirection } from "../../Common/CardinalDirection";
 import { Common } from "../../CommonUtils";
 import { ArmorType, MoveType } from "../EnumTypes";
+import { BitIO, BitMask } from "../../Common/BitIncrementer";
 
 /**
  * Used by Map only. Maybe.
@@ -62,25 +63,23 @@ export class Square {
     /** A 32-bit number representing all or most of Square's relevant information. */
     private displayInfo = 0;
 
-    // Constants/accessor-values for displayInfo —— Any way to make these numbers
-    // auto-configurable, by the way, would be wonderful.
-    private static readonly moveableShift = 0;
-    private static readonly attackableShift = 1;
-    private static readonly dangerousShift = 2;
-    private static readonly COEffectedShift = 3;
-    private static readonly hiddenShift = 4;
-    private static readonly hideUnitShift = 5;
-    private static readonly arrowFromShift = 6;
-    private static readonly arrowToShift = 9;
-    private static readonly xCoordShift = 12;
-    private static readonly yCoordShift = 19;
-    private static readonly tempShift = 26;
-    private static readonly tempFlagShift = 30;
-    
-    private static readonly boolLength = 1;
+    // Constants/accessor-values for displayInfo
     private static readonly directionLength = 3;
     private static readonly coordinateLength = 7;
     private static readonly tempLength = 4;
+    private static readonly bitmask = Common.freezeObject({
+        moveable   : BitIO.Generate(1,0),
+        attackable : BitIO.Generate(1),
+        dangerous  : BitIO.Generate(1),
+        hidden     : BitIO.Generate(1),
+        hideUnit   : BitIO.Generate(1),
+        arrowFrom  : BitIO.Generate(Square.directionLength),
+        arrowTo    : BitIO.Generate(Square.directionLength),
+        xCoord     : BitIO.Generate(Square.coordinateLength),
+        yCoord     : BitIO.Generate(Square.coordinateLength),
+        temp       : BitIO.Generate(Square.tempLength),
+        tempFlag   : BitIO.Generate(1),
+    });
 
     static readonly Max_Coords = Math.pow(2, Square.coordinateLength);
 
@@ -88,6 +87,12 @@ export class Square {
         this.setCoords(x,y);
         this.terrain = new Terrain.Void();
         this.map = map;
+
+        console.log(
+            this.displayInfo.toString(2),
+            Square.bitmask.hidden,
+            this.hiddenFlag,
+        )
     }
 
     /** Destroys this object and its children. */
@@ -148,16 +153,6 @@ export class Square {
         this.updateHighlight();
     }
 
-    /**
-     * Retrieves bits from the object's information number. All JS numbers are 64-bit.
-     * @param length The length of the bit-mask.
-     * @param shift How far left the bit-mask is applied.
-     */
-    private displayInfoGet(length: number, shift: number) {
-        let mask = Math.pow(2,length) - 1;  // Get us a series of 1 bits.
-        return (this.displayInfo >> shift & mask);
-    }
-
     // TODO Use Common.writeBits() instead
     /**
      * Writes bits to the object's information number. All JS numbers are 64-bit.
@@ -165,100 +160,112 @@ export class Square {
      * @param shift How far left the bit-mask is applied.
      * @param value The value to write into info (overages are not possible; mask is applied to value, too).
      */
-    private displayInfoSet(length: number, shift: number, value: number) {
-        let mask = Math.pow(2,length) - 1;  // Get us a series of 1 bits.
-        this.displayInfo = this.displayInfo & ~(mask << shift);
-        this.displayInfo += (value & mask) << shift;
+    private displayInfoSet(value: number, bitmask: BitMask) {
+        this.displayInfo = BitIO.WriteBits(this.displayInfo, value, bitmask);
         this.updateHighlight();
         this.updateArrows();
     }
 
     /** Whether this tile is reachable by a traveling unit. */
     get moveFlag(): boolean {
-        return 1 == this.displayInfoGet(Square.boolLength, Square.moveableShift);
+        const bitmask = Square.bitmask.moveable;
+        return BitIO.GetBoolean(this.displayInfo, bitmask);
     }
     /** Whether this tile is attackable by a unit. */
     get attackFlag(): boolean {
-        return 1 == this.displayInfoGet(Square.boolLength, Square.attackableShift);
+        const bitmask = Square.bitmask.attackable;
+        return BitIO.GetBoolean(this.displayInfo, bitmask);
     }
     /** Whether this tile is attackable by enemy troops. */
     get dangerFlag(): boolean {
-        return 1 == this.displayInfoGet(Square.boolLength, Square.dangerousShift);
-    }
-    /** Whether this tile is affected by CO Unit influence. */
-    get COAffectedFlag(): boolean {
-        return 1 == this.displayInfoGet(Square.boolLength, Square.COEffectedShift);
+        const bitmask = Square.bitmask.dangerous;
+        return BitIO.GetBoolean(this.displayInfo, bitmask);
     }
     /** Whether this tile's contents are obscured by Fog of War. */
     get hiddenFlag(): boolean {
-        return 1 == this.displayInfoGet(Square.boolLength, Square.hiddenShift);
+        const bitmask = Square.bitmask.hidden;
+        return BitIO.GetBoolean(this.displayInfo, bitmask);
     }
     /** Whether this square should hide its unit if one is present. */
     get hideUnit(): boolean {
-        return 1 == this.displayInfoGet(Square.boolLength, Square.hideUnitShift);
+        const bitmask = Square.bitmask.hideUnit;
+        return BitIO.GetBoolean(this.displayInfo, bitmask);
     }
     /** The from direction of the movement arrow splice. Range 0–4: none, up, right, down, left. */
     get arrowFrom(): number {
-        return this.displayInfoGet(Square.directionLength, Square.arrowFromShift);
+        const bitmask = Square.bitmask.arrowFrom;
+        return BitIO.ReadBits(this.displayInfo, bitmask);
     }
     /** The to direction of the movement arrow splice. Range 0–4: none, up, right, down, left. */
     get arrowTo(): number {
-        return this.displayInfoGet(Square.directionLength, Square.arrowToShift);
+        const bitmask = Square.bitmask.arrowTo;
+        return BitIO.ReadBits(this.displayInfo, bitmask);
     }
     /** Represents this square's x-coordinate on the map. */
     get x(): number {
-        return this.displayInfoGet(Square.coordinateLength, Square.xCoordShift);
+        const bitmask = Square.bitmask.xCoord;
+        return BitIO.ReadBits(this.displayInfo, bitmask);
     }
     /** Represents this square's y-coordinate on the map. */
     get y(): number {
-        return this.displayInfoGet(Square.coordinateLength, Square.yCoordShift);
+        const bitmask = Square.bitmask.yCoord;
+        return BitIO.ReadBits(this.displayInfo, bitmask);
     }
     /** A point object representing this square's positional coordinates on the map. */
-    get pos(): PointPrimitive {
-        return {x: this.x, y: this.y};
+    get pos(): Point {
+        return new Point(this.x, this.y);
     }
     /** Temporary store: A 4-bit number (value range -1–14) useful in search algorithms. */
     get value(): number {
-        return this.displayInfoGet(Square.tempLength, Square.tempShift) - 1;    // -1 corrects the shifted range as it was stored
+        const bitmask = Square.bitmask.temp;
+        return BitIO.ReadBits(this.displayInfo, bitmask) - 1;  // -1 modifies the numeric range to allow for -1 as a value.
     }
     /** Temporary store: A boolean value useful in search algorithms. */
     get flag(): boolean {
-        return 1 == this.displayInfoGet(Square.boolLength, Square.tempFlagShift);
+        const bitmask = Square.bitmask.tempFlag;
+        return BitIO.GetBoolean(this.displayInfo, bitmask);
     }
 
     set moveFlag(value) {
-        this.displayInfoSet(Square.boolLength, Square.moveableShift, ~~value);
+        const bitmask = Square.bitmask.moveable;
+        this.displayInfoSet(~~value, bitmask);
     }
     set attackFlag(value) {
-        this.displayInfoSet(Square.boolLength, Square.attackableShift, ~~value);
+        const bitmask = Square.bitmask.attackable;
+        this.displayInfoSet(~~value, bitmask);
     }
     set dangerFlag(value) {
-        this.displayInfoSet(Square.boolLength, Square.dangerousShift, ~~value);
-    }
-    set COAffectedFlag(value) {
-        this.displayInfoSet(Square.boolLength, Square.COEffectedShift, ~~value);
+        const bitmask = Square.bitmask.dangerous;
+        this.displayInfoSet(~~value, bitmask);
     }
     set hiddenFlag(value) {
-        this.displayInfoSet(Square.boolLength, Square.hiddenShift, ~~value);
+        const bitmask = Square.bitmask.hidden;
+        this.displayInfoSet(~~value, bitmask);
     }
     set hideUnit(value) {
-        this.displayInfoSet(Square.boolLength, Square.hideUnitShift, ~~value);
+        const bitmask = Square.bitmask.hideUnit;
+        this.displayInfoSet(~~value, bitmask);
     }
     set arrowFrom(value) {
-        this.displayInfoSet(Square.directionLength, Square.arrowFromShift, value);
+        const bitmask = Square.bitmask.arrowFrom;
+        this.displayInfoSet(value, bitmask);
     }
     set arrowTo(value) {
-        this.displayInfoSet(Square.directionLength, Square.arrowToShift, value);
+        const bitmask = Square.bitmask.arrowTo;
+        this.displayInfoSet(value, bitmask);
     }
     private setCoords(x: number, y: number) {
-        this.displayInfoSet(Square.coordinateLength, Square.xCoordShift, x);
-        this.displayInfoSet(Square.coordinateLength, Square.yCoordShift, y);
+        const { xCoord, yCoord } = Square.bitmask;
+        this.displayInfoSet(x, xCoord);
+        this.displayInfoSet(y, yCoord);
     }
     set value(n: number) {
-        this.displayInfoSet(Square.tempLength, Square.tempShift, n + 1);    // +1 shifts the range to -1 through 14
+        const bitmask = Square.bitmask.temp;
+        this.displayInfoSet(n + 1, bitmask);  // +1 unmodifies the numeric range to allow for -1 as a value.
     }
     set flag(b: boolean) {
-        this.displayInfoSet(Square.boolLength, Square.tempFlagShift, ~~b);
+        const bitmask = Square.bitmask.tempFlag;
+        this.displayInfoSet(~~b, bitmask);
     }
 
     /** Updates the tile overlay to reflect whatever UI state the tile is in. */
@@ -298,8 +305,6 @@ export class Square {
             setColor(colors.maroon);
         else if (this.hiddenFlag)
             setColor(colors.darkgrey);
-        else if (this.COAffectedFlag)
-            setColor(colors.grey);
 
         // First frame texture gather.
         this.updateOverlayPanelTexture();

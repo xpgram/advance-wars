@@ -7,6 +7,12 @@ import { Debug } from "./DebugUtils";
  */
 export const Common = {
 
+  /** Freezes the given object and returns it. */
+  freezeObject<T>(obj: T): T {
+    Object.freeze(obj);
+    return obj;
+  },
+
   /** Returns a two-dimensional array filled with sleep. // TODO */
   Array2D<T>(rows: number, columns: number, fill: (() => T) | T): T[][] {
     let cb = (fill instanceof Function) ? fill : () => fill;
@@ -92,6 +98,7 @@ export const Common = {
    * @param length The length of the bit-mask.
    * @param shift How far left the bit-mask is applied.
    * @return A number equivalent to the bits retrieved from the given store value.
+   * @deprecated Use BitIO
    */
   readBits(store: number, length: number, shift: number) {
     let mask = Math.pow(2, length) - 1;  // Get us a series of 1 bits.
@@ -105,6 +112,7 @@ export const Common = {
    * @param value The value to write into info (overages are not possible; mask is applied to value, too).
    * @param length The length of the bit-mask.
    * @param shift How far left the bit-mask is applied.
+   * @deprecated Use BitIO
    */
   writeBits(store: number, value: number, length: number, shift: number) {
     let mask = Math.pow(2, length) - 1;  // Get us a series of 1 bits.

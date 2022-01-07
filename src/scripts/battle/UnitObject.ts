@@ -13,6 +13,7 @@ import { BoardPlayer } from "./BoardPlayer";
 import { TerrainObject } from "./map/TerrainObject";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { Square } from "./map/Square";
+import { BitIO } from "../Common/BitIncrementer";
 
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
@@ -24,27 +25,22 @@ export interface UnitType {
 }
 
 // Write bit-masking constants: length and shift amount
-let shift = 0;
-function genBitmask(length: number) {
-    let mask = {shift: shift, length: length};
-    shift += length;
-    Debug.assert(shift < 32, `UnitObject.info cannot make use of more than 32 bits of information.`);
-    return mask;
-}
-const hpBits = genBitmask(7);
-const ammoBits = genBitmask(4);
-const captureBits = genBitmask(5);
-const gasBits = genBitmask(7);
-const rankBits = genBitmask(2);
-const orderableBits = genBitmask(1);
-const coOnBoardBits = genBitmask(1);
+const BITMASK = Common.freezeObject({
+    HP:         BitIO.Generate(7, 0),
+    ammo:       BitIO.Generate(4),
+    capture:    BitIO.Generate(5),
+    gas:        BitIO.Generate(7),
+    rank:       BitIO.Generate(2),
+    orderable:  BitIO.Generate(1),
+    CoOnBoard:  BitIO.Generate(1),
 
-shift = 0;
-const typeBits = genBitmask(6);
-const factionBits = genBitmask(3);
-const xCoordBits = genBitmask(8);
-const yCoordBits = genBitmask(8);
-const reverseFacingBits = genBitmask(1);
+    type:       BitIO.Generate(6, 0),
+    faction:    BitIO.Generate(3),
+    xCoord:     BitIO.Generate(8),
+    yCoord:     BitIO.Generate(8),
+    reverseFacing:  BitIO.Generate(1),
+});
+
 
 /**
  * This class is a container for unit variable-stat information.
@@ -315,7 +311,7 @@ export abstract class UnitObject {
         // TODO Use Army to fill in this unit object's faction, player orientation (player 2 always faces left), etc.
 
         // Configure basic stats.
-        this.stateInfo = Common.writeBits(this.stateInfo, this.serial, typeBits.length, typeBits.shift);
+        this.stateInfo = BitIO.WriteBits(this.stateInfo, this.serial, BITMASK.type);
         this.hp = 100;
         this.ammo = this.maxAmmo;
         this.gas = this.maxGas;
@@ -347,27 +343,21 @@ export abstract class UnitObject {
         Game.scene.ticker.remove(this.update, this);
     }
 
-    /** Emits an event to this unit's board player that it is to be destroyed.
-     * Use this instead of destroy() to signal an intent to animate. */
-    destruct() {
-        // TODO stub
-    }
-
     /** The unit's team-assocation. */
     get faction(): number {
-        return Common.readBits(this.stateInfo, factionBits.length, factionBits.shift);
+        return BitIO.ReadBits(this.stateInfo, BITMASK.faction);
     }
     set faction(faction: number) {
-        this.stateInfo = Common.writeBits(this.stateInfo, faction, factionBits.length, factionBits.shift);
+        this.stateInfo = BitIO.WriteBits(this.stateInfo, faction, BITMASK.faction);
     }
 
     /** The unit's remaining health. */
     get hp(): number {
-        return Common.readBits(this.conditionInfo, hpBits.length, hpBits.shift);
+        return BitIO.ReadBits(this.conditionInfo, BITMASK.HP);
     }
     set hp(num) {
-        num = Common.confine(num, 0, UnitObject.MaxHp);
-        this.conditionInfo = Common.writeBits(this.conditionInfo, num, hpBits.length, hpBits.shift);
+        num = Common.clamp(num, 0, UnitObject.MaxHp);
+        this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.HP);
         
         // Update unit's UI layer
         if (this.hp <= 90)
@@ -388,11 +378,11 @@ export abstract class UnitObject {
 
     /** The unit's remaining ammo. */
     get ammo(): number {
-        return Common.readBits(this.conditionInfo, ammoBits.length, ammoBits.shift);
+        return BitIO.ReadBits(this.conditionInfo, BITMASK.ammo);
     }
     set ammo(num) {
-        num = Common.confine(num, 0, this.maxAmmo);
-        this.conditionInfo = Common.writeBits(this.conditionInfo, num, ammoBits.length, ammoBits.shift);
+        num = Common.clamp(num, 0, this.maxAmmo);
+        this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.ammo);
         this.rebuildStatusIcons();
     }
 
@@ -436,11 +426,11 @@ export abstract class UnitObject {
 
     /** The unit's progress toward capturing a building. */
     get capture(): number {
-        return Common.readBits(this.conditionInfo, captureBits.length, captureBits.shift);
+        return BitIO.ReadBits(this.conditionInfo, BITMASK.capture);
     }
     set capture(num) {
-        num = Common.confine(num, 0, UnitObject.MaxCapture);
-        this.conditionInfo = Common.writeBits(this.conditionInfo, num, captureBits.length, captureBits.shift);
+        num = Common.clamp(num, 0, UnitObject.MaxCapture);
+        this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.capture);
         this.rebuildStatusIcons();
     }
 
@@ -451,11 +441,11 @@ export abstract class UnitObject {
 
     /** The unit's remaining gas or movement points. */
     get gas(): number {
-        return Common.readBits(this.conditionInfo, gasBits.length, gasBits.shift);
+        return BitIO.ReadBits(this.conditionInfo, BITMASK.gas);
     }
     set gas(num) {
-        num = Common.confine(num, 0, this.maxGas);
-        this.conditionInfo = Common.writeBits(this.conditionInfo, num, gasBits.length, gasBits.shift);
+        num = Common.clamp(num, 0, this.maxGas);
+        this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.gas);
         this.rebuildStatusIcons();
     }
 
@@ -469,32 +459,28 @@ export abstract class UnitObject {
     get rank(): number {
         return (this.CoOnBoard)
             ? UnitObject.MaxRank
-            : Common.readBits(this.conditionInfo, rankBits.length, rankBits.shift);
+            : BitIO.ReadBits(this.conditionInfo, BITMASK.rank);
     }
     set rank(num) {
-        num = Common.confine(num, 0, UnitObject.MaxRank);
-        this.conditionInfo = Common.writeBits(this.conditionInfo, num, rankBits.length, rankBits.shift);
+        num = Common.clamp(num, 0, UnitObject.MaxRank);
+        this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.rank);
         this.rebuildStatusIcons();
     }
 
     /** Whether this unit is capable of receiving commands. */
     get orderable(): boolean {
-        let n = Common.readBits(this.conditionInfo, orderableBits.length, orderableBits.shift);
-        return n == 1;
+        return BitIO.GetBoolean(this.conditionInfo, BITMASK.orderable);
     }
     set orderable(b: boolean) {
-        let n = Number(b);
-        this.conditionInfo = Common.writeBits(this.conditionInfo, n, orderableBits.length, orderableBits.shift);
+        this.conditionInfo = BitIO.WriteBits(this.conditionInfo, ~~b, BITMASK.orderable);
     }
 
     /** Whether this unit is considered a CO unit. */
     get CoOnBoard(): boolean {
-        let n = Common.readBits(this.conditionInfo, coOnBoardBits.length, coOnBoardBits.shift);
-        return n == 1;
+        return BitIO.GetBoolean(this.conditionInfo, BITMASK.CoOnBoard);
     }
     set CoOnBoard(b: boolean) {
-        let n = Number(b);
-        this.conditionInfo = Common.writeBits(this.conditionInfo, n, coOnBoardBits.length, coOnBoardBits.shift);
+        this.conditionInfo = BitIO.WriteBits(this.conditionInfo, ~~b, BITMASK.CoOnBoard);
         this.rebuildStatusIcons();
     }
 
@@ -505,8 +491,7 @@ export abstract class UnitObject {
 
     /** Whether this unit has carried out its order. */
     get spent(): boolean {
-        let n = Common.readBits(this.conditionInfo, orderableBits.length, orderableBits.shift);
-        return (n !== 1 && this.sprite.tint === UnitObject.TintShade);
+        return (!this.orderable && this.sprite.tint === UnitObject.TintShade);
     }
     set spent(b: boolean) {
         // Visually indicate un-orderable-ness.
@@ -547,18 +532,18 @@ export abstract class UnitObject {
 
     /** The unit's x-coordinate on the game board. */
     private get x(): number {
-        return Common.readBits(this.stateInfo, xCoordBits.length, xCoordBits.shift);
+        return BitIO.ReadBits(this.stateInfo, BITMASK.xCoord);
     }
     private set x(num) {
-        this.stateInfo = Common.writeBits(this.stateInfo, num, xCoordBits.length, xCoordBits.shift);
+        this.stateInfo = BitIO.WriteBits(this.stateInfo, num, BITMASK.xCoord);
     }
 
     /** The unit's y-coordinate on the game board. */
     private get y(): number {
-        return Common.readBits(this.stateInfo, yCoordBits.length, yCoordBits.shift);
+        return BitIO.ReadBits(this.stateInfo, BITMASK.yCoord);
     }
     private set y(num) {
-        this.stateInfo = Common.writeBits(this.stateInfo, num, yCoordBits.length, yCoordBits.shift);
+        this.stateInfo = BitIO.WriteBits(this.stateInfo, num, BITMASK.yCoord);
     }
 
     /** This unit's position on the game board. This is *not* the unit-graphic's position in the game-world, though it does affect that. */
@@ -602,12 +587,10 @@ export abstract class UnitObject {
     }
 
     get reverseFacing() {
-        let n = Common.readBits(this.stateInfo, reverseFacingBits.length, reverseFacingBits.shift);
-        return Boolean(n);
+        return BitIO.GetBoolean(this.stateInfo, BITMASK.reverseFacing);
     }
     set reverseFacing(b: boolean) {
-        let n = Number(b);
-        this.stateInfo = Common.writeBits(this.stateInfo, n, reverseFacingBits.length, reverseFacingBits.shift);
+        this.stateInfo = BitIO.WriteBits(this.stateInfo, ~~b, BITMASK.reverseFacing);
     }
 
     /** Callback function used to update this unit's internal state. */
