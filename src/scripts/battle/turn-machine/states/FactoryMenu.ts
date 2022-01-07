@@ -23,6 +23,10 @@ export class FactoryMenu extends TurnState {
     const square = map.squareAt(mapCursor.boardLocation);
     const serial = shopMenu.menu.selectedValue;
     const unitType = Object.values(Unit).find( type => type.serial === serial );
+
+    if (unitType === undefined)
+      throw new Error(`Serial for unit type ${serial} not found.`);
+
     this.tempUnitLast = new unitType().init({boardPlayer: players.current, faction: players.current.faction});
     uiSystem.inspectTile(square, this.tempUnitLast);
   }
@@ -60,12 +64,12 @@ export class FactoryMenu extends TurnState {
     const view = camera.transform.worldRect();
     const onLeftSide = (mapCursor.transform.x > view.center.x - 16);
 
-    shopMenu.gui.position.set(
+    shopMenu.setPosition( new Point(
       (onLeftSide)
         ? 16
-        : Game.display.renderWidth - 16 - shopMenu.gui.width,
+        : Game.display.renderWidth - 16 - shopMenu.graphicalWidth,
       40,
-    );
+    ));
     shopMenu.menu.on('move-cursor', this.updateUnitInfo, this);
     shopMenu.menu.on('change-page', this.updateUnitInfo, this);
 

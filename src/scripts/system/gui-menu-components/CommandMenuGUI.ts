@@ -1,6 +1,7 @@
 import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
+import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
 import { Color } from "../../CommonUtils";
 import { ListMenu } from "./ListMenu";
@@ -91,6 +92,8 @@ export class CommandMenuGUI<Y> {
     this.buildTextures();
     this.buildListItems();
 
+    this.gui.zIndex = 1000;
+
     Game.scene.ticker.add(this.update, this);
   }
 
@@ -119,6 +122,21 @@ export class CommandMenuGUI<Y> {
   hide() {
     this.fadeInSlider.incrementFactor = -1;
     this.menu.disableInput();
+  }
+
+  /** Changes the GUI coordinate location so that its top-left corner is p. */
+  setPosition(p: Point) {
+    this.gui.position.set(p.x, p.y);
+  }
+
+  /** Returns this GUI's graphical width. */
+  get graphicalWidth() {
+    return this.gui.width;
+  }
+
+  /** Returns this GUI's graphical height. */
+  get graphicalHeight() {
+    return this.gui.height;
   }
 
   /** Whether this menu is invisible and uninteractable. */

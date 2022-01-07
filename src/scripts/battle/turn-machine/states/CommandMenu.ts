@@ -85,11 +85,10 @@ export class CommandMenu extends TurnState {
     const location = goal.multiply(tileSize).add(new Point(1.25*tileSize, 0));
     const view = camera.transform.worldRect();
     if (view.center.x < location.x)
-      location.x = goal.x*tileSize - 0.25*tileSize - cmdMenu.menuGui.width;
-    if (location.y + cmdMenu.gui.height + 4 > view.y + view.height)
-      location.y -= location.y + cmdMenu.gui.height + 4 - view.y - view.height;
-    cmdMenu.gui.position.set(location.x, location.y);
-    cmdMenu.gui.zIndex = 1000;
+      location.x = goal.x*tileSize - 0.25*tileSize - cmdMenu.graphicalWidth;
+    if (location.y + cmdMenu.graphicalHeight + 4 > view.y + view.height)
+      location.y -= location.y + cmdMenu.graphicalHeight + 4 - view.y - view.height;
+    cmdMenu.setPosition(location);
 
     // Sort ui layer
     MapLayer('ui').sortChildren();

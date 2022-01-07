@@ -1,9 +1,9 @@
 # Next Big Objectives
 
 Todo List cleanup: (some easy ones)
-- [ ] Terrain.landscape → Terrain.illustration (consistency)
+- [x] Terrain.landscape → Terrain.illustration (consistency)
 - [x] Unit.infoPortrait (or w/e) → Unit.illustration
-- [ ] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
+- [x] Write a goddamn method to tell menuGUI where the fuck to be. Jesus.
 - [x] Removed deprecated CoAffected flags from Square
 - [x] Unified bit read/write/generate methods
 - [x] The CO Zone disappears when a CO infantry boards a Rig

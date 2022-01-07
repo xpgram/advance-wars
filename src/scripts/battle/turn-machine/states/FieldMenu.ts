@@ -1,4 +1,5 @@
 import { Game } from "../../../..";
+import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOption";
 import { TurnState } from "../TurnState";
 import { TurnEnd } from "./TurnEnd";
@@ -25,11 +26,10 @@ export class FieldMenu extends TurnState {
     fieldMenu.menu.resetCursor();
     
     fieldMenu.show();
-    //@ts-expect-error
-    fieldMenu.gui.position.set(
-      0.5*Game.display.renderWidth - 0.5*fieldMenu.gui.width,
+    fieldMenu.setPosition( new Point(
+      0.5*Game.display.renderWidth - 0.5*fieldMenu.graphicalWidth,
       56,
-    );
+    ));
   }
 
   update() {
