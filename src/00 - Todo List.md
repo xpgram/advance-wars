@@ -185,3 +185,101 @@ More observations:
   MapCursor, MenuWindow, TrackCar (probably), etc. define in their constructors their z-order place. This makes changes widespread and difficult to manage; these settings should be consolidated or somehow automatic.
 
 - [ ] The cursor-control settings (such as trigger-movement frequency) used by MapCursor and ListMenu are similar but defined separately. Perhaps these details should have elevated scope?
+
+
+
+CO Unit Effects:
+- Make CO units more interesting.
+- Vary unit-type choices (I mean, hopefully; I dunno).
+- Another vector to balance COs over.
+
+Mechanics:
+- CO Zones give a base +10/10 to all units.
+- CO Zones expand on every 6 segments.
+- CO Power expands the CO Zone to the whole map, and has a special effect.
+- CO Unit Effect is a special effect only for the commanding unit. This is introduced to hopefully include a little variancy in the CO unit choices. Maybe Gage is best on an indirect? Maybe Will on a 4-Movement Infantry is useful early on?
+
+  Will
+COP  +2 Movement to Direct Ground forces.
+COZ  2Z. +20 ATK to Direct Ground forces.
+CUE  +1 Movement if Direct Ground unit.
+
+  Brenner 
+COP  +3 HP to all forces.
+COZ  3Z. +20 DEF to all forces.
+CUE  +1 HP per turn on turn start.
+
+  Lin
+COP  Rainy weather. +2 Vision to all forces. See into hidden tiles.
+COZ  1Z. +20 ATK/DEF to all forces.
+CUE  +2 Vision.
+  Creating FoW allows her bonuses to be useful anywhere. I wonder if her aggressive (1Z) meter-build style jives with that, though.
+
+  Isabella  —  Inexperienced; latent clone power?
+COP  +2 Movement, +2 Range to all forces.   (Yeesh. Overpowered.)
+COZ  2Z.
+CUE  
+  I want to ++Luck, but how. And also why.
+
+  Gage  —  Cool, calculated sniper.
+COP  +2 Range to all indirect forces.
+COZ  2Z. +10 ATK to all Indirect forces.
+CUE  +1 Range? Is this too boring?
+
+  Tasha  —  Fiery commander; rules from the skies.
+COP  +2 Movement to all Air forces.
+COZ  1Z. +30 ATK, +10 DEF to all Air forces.
+CUE  
+
+  Forsythe  —  Would never sink subs because ambushes are dishonorable.
+COP  None.
+COZ  5Z. No bar.
+CUE  I wanted to invert, but. He only +10.
+
+  Waylon
+  Coward, pretends to be invincible.
+COP  +270 DEF to all Air forces.
+COZ  2Z. +20 ATK, +30 DEF to all Air forces.
+CUE  
+
+  Greyfield
+COP  Replenish all resources.
+COZ  3Z. +40 DEF to all Naval, Copter and Seaplanes.
+CUE  
+  I want to give him Snow, like uh... what's his name.
+  +Resources is just meeehh without something to make them matter.
+
+  Penny
+COP  Random weather for 3 days.
+COZ  3Z. All forces are immune to weather effects. (Only in COZ?)
+CUE  
+  Penny always felt like an after thought.
+  I'm gonna give her Sandstorm, because Caulder's industry be ruinous.
+  I guess maybe she should change the map to Wasteland then.
+  ...
+  What effect would Wasteland have?
+  I'll have to think about it.
+  Sandstorm + immunity to Sandstorm is kinda like +270 DEF. They're not functionally different. I guess her weather lasts longer. Hm.
+
+  Tabitha
+COP  5-Diamond meteor attack (6HP).
+COZ  0Z. +50 ATK/DEF.
+CUE  None. 0Z is the same thing.
+  I think 8 HP damage is extreme. Maybe... that's fine. I dunno. 6 seems okay to me. She got a double-silo, basically. Silos have the same AoE, so really.
+  Also, maybe her zone shouldn't grow?
+  She has a *big* boost, and her power, especially if I've nerfed it, doesn't really justify the massive opportunity cost of going back to 0Z.
+  Maybe the opp cost is fine actually. I might bring it back to 8 HP.
+  I feel the player should get... well... the player should get to pick where the missile drops, but maybe they should do 6 HP then. The challenge is to make her more useful, not to buff her.
+  Ooooh, I forgot that COPs also expand the COZ to the whole field for a turn.
+  6 HP damage, and all units have 160/160? That kinda crazy.
+
+  Caulder
+COP  None.
+COZ  3Z. +50 ATK/DEF to all forces.  +5 HP every day, all units. (wtf)
+CUE  
+  So. We gotta nerf him. But we gotta retain the spirit of the dogged persuit of unmitigated, raw power. But from a science angle. I want Sturm back, too, so we gotta differentiate.
+
+  Sturm
+COP  5-Diamond meteor attack (8HP). (Units travel unmitigated?)
+COZ  2Z. 
+CUE  ?
