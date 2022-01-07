@@ -6,6 +6,13 @@ Todo List cleanup: (some easy ones)
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 
+- [ ] CO Board does not spend unit.
+- [ ] CO Board probs should be on turn start then, before movement.
+  - [ ] Desperately need hollow medal icon.
+
+- [ ] CO Powers are triggerable from the CO Unit Command Menu. Probs doesn't spend the unit.
+- [ ] Alt: CO Powers are triggerable from the Field Menu.
+
 
 - [ ] Multiplayer
 - [ ] Music
@@ -49,12 +56,6 @@ ShowUnitAttackRange:
       - [ ] The player presses a button on a known controller, the system prompts for confirmation that this controller will be shared, and the user confirms. The controller is then bound to their player context.
       - [ ] The player presses a button on the keyboard and confirms they will not have a controller.
 
-- [ ] CO Loadable when unit is parked over a terrain it could spawn from
-  - [ ] And from HQ?
-  - [ ] Not loadable the turn after CO unit is destroyed
-- This rule allows units to move, move onto a base, and then load CO
-- but it preserves the difficulty in CO-unit spamming since it still takes two turns to get one out.
-
 - [ ] COAffectedTiles
   - [ ] Do some drafting to confirm visual style before implementation.
   - Source game does *not* show all player's CO ranges. I would like to change this, I think. But with caveats:
@@ -70,11 +71,6 @@ ShowUnitAttackRange:
   - The visual effect, if in the overlay layer, could also be maintained by the board player.
 
 - [ ] Target Reticle around Battleships.
-
-- [ ] COAffectedFlag needs to be open to multiple players.
-  Naturally, because you should be able to see your opponent's ranges.
-  - [ ] COAffected overlays should be color tinted then, huh.
-  - [ ] Instead of tints, why not use a (non-obnoxious) variant of the area-target reticle that Silos and Battleships use?
 
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
