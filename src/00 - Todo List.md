@@ -6,6 +6,8 @@ Todo List cleanup: (some easy ones)
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 
+- [ ] Travel Car checks after each completed tile move if its current position is hidden, adjusts visibility accordingly.
+
 - [ ] CO Board does not spend unit.
 - [ ] CO Board probs should be on turn start then, before movement.
   - [ ] Desperately need hollow medal icon.
