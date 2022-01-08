@@ -1,5 +1,12 @@
 # Next Big Objectives
 
+- [ ] Essays: Emphasize how I designed everything about the turn and event system to be easy to write. That's ++ design philosophy, dawg.
+I was going through the source for awdor.com and I realized his turn engine is just an enum. There is sooo much middle management happening.
+Granted, I don't know that system. Maybe there are benefits.
+If you close the browser and come back, is it easier to assign the correct turn state? I haven't gotten that far in mine yet.
+Although, I suspect if my player closed the browser, I wouldn't really care about whether they came back to a movement selection, you know? That seems needlessly granular.
+But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
+
 Todo List cleanup: (some easy ones)
 - [ ] On-screen icon indicates when there are un-instructed units
 - [ ] On-screen icon indicates when there are un-utilized bases
