@@ -15,6 +15,7 @@ export class TurnEnd extends TurnState {
     player.units.forEach(u => {
       u.spent = false;
       u.orderable = false;
+      u.CoCouldBoard = false;
     });
     player.lastCursorPosition = new Point(mapCursor.boardLocation);
     this.advance(TurnChange);

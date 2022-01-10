@@ -14,7 +14,10 @@ Todo List cleanup: (some easy ones)
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 - [ ] Dive/Surface appears below Wait
-- [ ] CO can-board icon
+- [x] CO can-board icon
+- [ ] I need CO can-board to be a little more subtle.
+  - Giving it the faction status-color might help.
+  - Focusing on an outline-style design might help, too. Filling doesn't have to disappear.
 - [ ] CO animation zoom-shrinks to proper status icon size.
   - [ ] CO Scheduled Event — Does the zoom
   - [ ] Afterward, sets the status

@@ -45,6 +45,8 @@ export class TurnStart extends TurnState {
       let repairHp = 0, repairCost = 0;
       let destroyed = false;
 
+      // TODO Set CoCouldBoard here so it doesn't blink into existence after camera move.
+
       let expendMaintainanceGas = true;
 
       // Repair unit HP and resupply from properties

@@ -484,6 +484,14 @@ export abstract class UnitObject {
         this.rebuildStatusIcons();
     }
 
+    /** Whether this unit could potentially be a CO unit; a UI convenience. */
+    get CoCouldBoard() { return this._CoCouldBoard; };
+    set CoCouldBoard(b) {
+        this._CoCouldBoard = b;
+        this.rebuildStatusIcons();
+    }
+    private _CoCouldBoard = false;
+
     /** True if this unit is located inside the CO Zone of its commanding officer. */
     get withinCoZone(): boolean {
         return this.boardPlayer.withinCoRange(this.boardLocation);
@@ -619,6 +627,11 @@ export abstract class UnitObject {
             {
                 name: `icon-co-onboard.png`,
                 condition: (this.CoOnBoard),
+            },
+            {
+                name: `icon-co-onboard-hollow.png`,
+                condition: (this.CoCouldBoard),
+                blink: true,
             },
             {
                 name: `icon-level-${this.rank}.png`,

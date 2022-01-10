@@ -8,5 +8,4 @@ export const fonts = {
     menu: {fontName: 'font-menu', fontSize: 12},            // I don't know the correct fontSize for this one
     dayCounter: {fontName: 'font-day-ui', fontSize: 24},
     tectac: {fontName: 'TecTacRegular', fontSize: 8},
-
 }

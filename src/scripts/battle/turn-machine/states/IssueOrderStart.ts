@@ -10,6 +10,7 @@ import { FactoryMenu } from "./FactoryMenu";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 import { Unit } from "../../Unit";
 import { Common } from "../../../CommonUtils";
+import { Terrain } from "../../map/Terrain";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -31,7 +32,7 @@ export class IssueOrderStart extends TurnState {
   }
 
   configureScene() {
-    const { mapCursor, uiSystem, camera, scripts, players, instruction, scenario } = this.assets;
+    const { map, mapCursor, uiSystem, camera, scripts, players, instruction, scenario } = this.assets;
 
     // Reveal UI systems
     mapCursor.show();
@@ -56,6 +57,23 @@ export class IssueOrderStart extends TurnState {
     // Configure map cursor to update pointer graphic over certain terrains
     mapCursor.on('move', this.changeCursorMode, this);
     mapCursor.teleport(mapCursor.boardLocation);  // Trigger cursor mode.
+
+    // Configure units to indicate whether they are CO-boardable.
+    // TODO Logic copied from Command.ts; extract this to a function.
+    // TODO Probably to BoardPlayer, actually.
+    players.current.units.forEach( u => {
+      const square = map.squareAt(u.boardLocation);
+      const spawnMap = scenario.spawnMap.find( sm => sm.type === square.terrain.type );
+      const spawnableTerrain = (spawnMap?.units.includes( u.type ) || false);
+      const isHQ = (square.terrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
+      const actorOrderable = (u.orderable);
+      const actorAllied = (players.current.faction === u.faction);
+      const terrainAllied = (square.terrain.faction === u.faction);
+      const canSpawnCo = (players.current.canSpawnCO);
+
+      const showIcon = (actorOrderable && actorAllied && terrainAllied && canSpawnCo && (spawnableTerrain || isHQ));
+      u.CoCouldBoard = showIcon;
+    });
   }
 
   close() {

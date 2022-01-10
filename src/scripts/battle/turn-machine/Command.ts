@@ -368,14 +368,14 @@ export module Command {
     weight: Weight.Bottom,
     triggerInclude() {
       const { players, scenario } = data.assets;
-      const { actor, goalTerrain } = data;
+      const { actor, placeTerrain } = data;
 
       // TODO UnitClass? How could you get Seaplanes COed otherwise?
       // Probably temp ports aren't CO board points.
-      const spawnMap = scenario.spawnMap.find( sm => sm.type === goalTerrain.type );
+      const spawnMap = scenario.spawnMap.find( sm => sm.type === placeTerrain.type );
       const spawnableTerrain = (spawnMap?.units.includes( actor.type ) || false);
-      const isHQ = (goalTerrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
-      const terrainAllied = (goalTerrain.faction === actor.faction);
+      const isHQ = (placeTerrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
+      const terrainAllied = (placeTerrain.faction === actor.faction);
       const actorAllied = (players.current.faction === actor.faction);
       const canSpawnCO = (players.current.canSpawnCO);
 
@@ -386,6 +386,7 @@ export module Command {
       const { actor } = data;
 
       Command.Move.scheduleEvents();
+      // TODO Load CO can't move. Also, how do I confirm an order without spending the unit?
 
       boardEvents.schedule(new GenericRatifyEvent({
         location: actor.boardLocation,

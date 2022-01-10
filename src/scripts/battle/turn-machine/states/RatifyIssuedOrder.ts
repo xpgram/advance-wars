@@ -15,12 +15,15 @@ export class RatifyIssuedOrder extends TurnState {
   }
 
   protected configureScene(): void {
-    const { instruction, map, trackCar, boardEvents } = this.assets;
+    const { instruction, map, players, trackCar, boardEvents } = this.assets;
     const { action, placeTile } = this.data;
 
     map.clearMovementMap();           // Remnant from turnstate ingress.
     placeTile.hideUnit = false;       // Automatic, but not when unit doesn't move.
     // trackCar.reset();                 // TODO Doesn't this get built again right after? By the Command.Move event.
+    players.current.units             // Removes CO indicator.
+      .forEach( u => { u.CoCouldBoard = false });
+
 
     // Retrieve and execute command
     const command = getCommandObject(action);
