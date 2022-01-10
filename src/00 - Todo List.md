@@ -6,6 +6,7 @@ Granted, I don't know that system. Maybe there are benefits.
 If you close the browser and come back, is it easier to assign the correct turn state? I haven't gotten that far in mine yet.
 Although, I suspect if my player closed the browser, I wouldn't really care about whether they came back to a movement selection, you know? That seems needlessly granular.
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
+- One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
 Todo List cleanup: (some easy ones)
 - [ ] DisplayInfo.ts → Typefaces.ts or something, jfc
@@ -14,6 +15,7 @@ Todo List cleanup: (some easy ones)
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 - [ ] Dive/Surface appears below Wait
+- [x] Extract CO-can-board to BoardPlayer
 - [x] CO can-board icon
 - [ ] I need CO can-board to be a little more subtle.
   - Giving it the faction status-color might help.

@@ -19,6 +19,7 @@ export class TurnStart extends TurnState {
     // Update player stuff
     player.collectFunds();
     player.CoUnitTurnDelay--;
+    players.perspectivesTurn?.setCoBoardableIndicators();
 
     // Move Cursor
     if (player.units.length)
@@ -44,8 +45,6 @@ export class TurnStart extends TurnState {
       let repaired = false;
       let repairHp = 0, repairCost = 0;
       let destroyed = false;
-
-      // TODO Set CoCouldBoard here so it doesn't blink into existence after camera move.
 
       let expendMaintainanceGas = true;
 

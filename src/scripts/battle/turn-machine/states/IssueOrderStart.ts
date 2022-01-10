@@ -40,6 +40,7 @@ export class IssueOrderStart extends TurnState {
 
     // Update player metrics
     players.all.forEach(player => player.scanCapturedProperties());
+    players.perspectivesTurn?.setCoBoardableIndicators();
 
     // Update player window metrics
     uiSystem.inspectPlayers();
@@ -57,23 +58,6 @@ export class IssueOrderStart extends TurnState {
     // Configure map cursor to update pointer graphic over certain terrains
     mapCursor.on('move', this.changeCursorMode, this);
     mapCursor.teleport(mapCursor.boardLocation);  // Trigger cursor mode.
-
-    // Configure units to indicate whether they are CO-boardable.
-    // TODO Logic copied from Command.ts; extract this to a function.
-    // TODO Probably to BoardPlayer, actually.
-    players.current.units.forEach( u => {
-      const square = map.squareAt(u.boardLocation);
-      const spawnMap = scenario.spawnMap.find( sm => sm.type === square.terrain.type );
-      const spawnableTerrain = (spawnMap?.units.includes( u.type ) || false);
-      const isHQ = (square.terrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
-      const actorOrderable = (u.orderable);
-      const actorAllied = (players.perspective.faction === u.faction);
-      const terrainAllied = (square.terrain.faction === u.faction);
-      const canSpawnCo = (players.perspective.canSpawnCO);
-
-      const showIcon = (actorOrderable && actorAllied && terrainAllied && canSpawnCo && (spawnableTerrain || isHQ));
-      u.CoCouldBoard = showIcon;
-    });
   }
 
   close() {

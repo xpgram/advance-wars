@@ -93,6 +93,10 @@ export module Command {
       const { boardEvents, instruction } = data.assets;
       const { place, path, goal, actor, assets } = data;
 
+      // This has to be here because any formal turn will unset this property,
+      // and the status icon should be unset immediately to prevent flickering.
+      actor.CoCouldBoard = false;
+
       // TODO Scan path tiles for ambush interruptions
 
       // TODO It would be nice if Command.Attack could specify this itself.
@@ -367,32 +371,19 @@ export module Command {
     input: 0,
     weight: Weight.Bottom,
     triggerInclude() {
-      const { players, scenario } = data.assets;
-      const { actor, placeTerrain } = data;
-
-      // TODO UnitClass? How could you get Seaplanes COed otherwise?
-      // Probably temp ports aren't CO board points.
-      const spawnMap = scenario.spawnMap.find( sm => sm.type === placeTerrain.type );
-      const spawnableTerrain = (spawnMap?.units.includes( actor.type ) || false);
-      const isHQ = (placeTerrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
-      const terrainAllied = (placeTerrain.faction === actor.faction);
-      const actorAllied = (players.current.faction === actor.faction);
-      const canSpawnCO = (players.current.canSpawnCO);
-
-      return (actorAllied && terrainAllied && canSpawnCO && (spawnableTerrain || isHQ));
+      const { actor, plansToMove } = data;
+      return (actor.CoCouldBoard && !plansToMove);
     },
     scheduleEvents() {
-      const { boardEvents } = data.assets;
+      const { boardEvents, players } = data.assets;
       const { actor } = data;
-
-      Command.Move.scheduleEvents();
-      // TODO Load CO can't move. Also, how do I confirm an order without spending the unit?
 
       boardEvents.schedule(new GenericRatifyEvent({
         location: actor.boardLocation,
         ratify: () => {
           actor.CoOnBoard = true;
           actor.rank = 3;
+          players.perspectivesTurn?.setCoBoardableIndicators();
         }
       }));
     },

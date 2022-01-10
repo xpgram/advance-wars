@@ -3,7 +3,7 @@ import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
 import { ImmutablePointPrimitive, Point } from "../Common/Point";
 import { CommandingOfficer } from "./CommandingOfficer";
-import { Faction, FactionColors } from "./EnumTypes";
+import { Faction, FactionColors, UnitClass } from "./EnumTypes";
 import { Terrain } from "./map/Terrain";
 import { CommandingOfficerObject } from "./CommandingOfficerObject";
 import { Unit } from "./Unit";
@@ -283,6 +283,35 @@ export class BoardPlayer {
   /** True if this player is ready to spawn a CO unit. */
   get canSpawnCO() {
     return (!this.getCoUnit() && this.CoUnitTurnDelay <= 0);
+  }
+
+  /** Sets the unit-status indicating a CO could board for all faction units. */
+  setCoBoardableIndicators() {
+    const { map, scenario } = this;
+
+    this.units.forEach( u => {
+      const square = map.squareAt(u.boardLocation);
+      const spawnMap = scenario.spawnMap.find( tile => tile.type === square.terrain.type );
+
+      const spawnableTerrain = (spawnMap?.units.includes( u.type ) || false);
+      const terrainAllied = (square.terrain.faction === this.faction);
+      
+      const terrainIsHQ = (square.terrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
+      const unitIsGroundClass = (u.unitClass === UnitClass.Ground);
+      const spawnableFromHQ = (terrainIsHQ && unitIsGroundClass);
+
+      const spawnableLocation = (terrainAllied && (spawnableTerrain || spawnableFromHQ));
+      const unitOrderable = (u.orderable);
+      const canSpawnCo = (this.canSpawnCO);
+
+      const showIcon = (unitOrderable && canSpawnCo && spawnableLocation);
+      u.CoCouldBoard = showIcon;
+    });
+  }
+
+  /** Unsets the unit-status indicating a CO could board for all faction units. */
+  clearCoBoardableIndicators() {
+    this.units.forEach( u => u.CoCouldBoard = false );
   }
 
   /** Conducts operations relevant to this player after their CO unit has

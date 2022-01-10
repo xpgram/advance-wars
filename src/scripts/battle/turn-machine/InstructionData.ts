@@ -133,6 +133,9 @@ export module instructionData {
     get focalTile()    { return get(dump.focalTile,    `tile at target location`      ) },
     get focalTerrain() { return get(dump.focalTerrain, `terrain at target location`   ) },
     get target()       { return get(dump.target,       `target object`                ) },
+
+    // Common questions
+    get plansToMove()     { return this.place.notEqual(this.goal) },
   }
 
 }

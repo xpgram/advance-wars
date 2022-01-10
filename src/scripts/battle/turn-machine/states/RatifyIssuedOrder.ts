@@ -21,9 +21,6 @@ export class RatifyIssuedOrder extends TurnState {
     map.clearMovementMap();           // Remnant from turnstate ingress.
     placeTile.hideUnit = false;       // Automatic, but not when unit doesn't move.
     // trackCar.reset();                 // TODO Doesn't this get built again right after? By the Command.Move event.
-    players.current.units             // Removes CO indicator.
-      .forEach( u => { u.CoCouldBoard = false });
-
 
     // Retrieve and execute command
     const command = getCommandObject(action);
@@ -31,7 +28,7 @@ export class RatifyIssuedOrder extends TurnState {
 
     Command.Drop.scheduleEvents();
 
-    if (placeTile.unit) // if (command.spendsUnit)
+    if (placeTile.unit) // TODO if (command.spendsUnit)
       boardEvents.schedule(new SpendActorEvent({actor: placeTile.unit}));
 
     // Update cursor position.
