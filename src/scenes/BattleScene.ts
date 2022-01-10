@@ -36,6 +36,7 @@ export class BattleScene extends Scene {
         this.linker.push({name: 'font-table-header', url: 'assets/font-table-header.xml'});
         this.linker.push({name: 'font-title', url: 'assets/font-title.xml'});
         this.linker.push({name: 'font-label', url: 'assets/font-label.xml'});
+        this.linker.push({name: 'font-day-ui', url: 'assets/font-day-ui.xml'});
     }
 
     setupStep(): void {

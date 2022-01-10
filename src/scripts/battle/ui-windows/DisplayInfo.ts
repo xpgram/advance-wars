@@ -6,5 +6,7 @@ export const fonts = {
     script: {fontName: 'font-script', fontSize: 10},
     list: {fontName: 'font-table-header', fontSize: 6},
     menu: {fontName: 'font-menu', fontSize: 12},            // I don't know the correct fontSize for this one
-    tectac: {fontName: 'TecTacRegular', fontSize: 8}
+    dayCounter: {fontName: 'font-day-ui', fontSize: 24},
+    tectac: {fontName: 'TecTacRegular', fontSize: 8},
+
 }

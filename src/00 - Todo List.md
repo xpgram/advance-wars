@@ -8,6 +8,7 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 
 Todo List cleanup: (some easy ones)
+- [ ] DisplayInfo.ts → Typefaces.ts or something, jfc
 - [ ] On-screen icon indicates when there are un-instructed units
 - [ ] On-screen icon indicates when there are un-utilized bases
 - [ ] Command.Move calculates ambushes
