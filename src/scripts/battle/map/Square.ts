@@ -87,12 +87,6 @@ export class Square {
         this.setCoords(x,y);
         this.terrain = new Terrain.Void();
         this.map = map;
-
-        console.log(
-            this.displayInfo.toString(2),
-            Square.bitmask.hidden,
-            this.hiddenFlag,
-        )
     }
 
     /** Destroys this object and its children. */

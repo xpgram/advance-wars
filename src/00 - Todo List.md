@@ -26,9 +26,11 @@ Todo List cleanup: (some easy ones)
 - [ ] Keep the can't re-board CO on kill. ... Same turn, at least.
 - [x] Terrain/Unit/Battle tab icons
 - [ ] Make them nice, tho
-- [ ] Day counter 29424A D 012
-  - [ ] Connect new font font-day-ui.xml
-  - [ ] Characters are designed to take up the full width/height of the background
+- [x] Day counter 29424A D 012
+  - [x] Connect new font font-day-ui.xml
+  - [x] Characters are designed to take up the full width/height of the background
+  - [ ] Reposition it to the right of CO window.
+  - [ ] When the HudPane slides to the other side, the HudIndicators slide against the left edge of the screen. When the HudPane comes back, it pushes the HudIndicators rightward again.
 - [ ] Aircraft have a different explosion animation. ... Wtf. I specifically asked!
 - [ ] DisplayInfo.ts → Typefaces.ts or something, jfc
 

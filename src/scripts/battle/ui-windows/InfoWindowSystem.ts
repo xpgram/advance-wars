@@ -12,6 +12,7 @@ import { TurnModerator } from "../TurnModerator";
 import { BattleForecast } from "../DamageScript";
 import { UnitObject } from "../UnitObject";
 import { Camera } from "../../camera/Camera";
+import { HudIndicators } from "./HudIndicators";
 
 type InfoWindowSystemSettings = {
   gamepad: VirtualGamepad,
@@ -73,6 +74,7 @@ export class InfoWindowSystem {
     detailedInfo: new DetailedInfoWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     unitInfo: new UnitWindow({...WindowSettings.AlwaysShow, verticalDistance: 142}),
     terrainInfo: new TerrainWindow({...WindowSettings.AlwaysShow, verticalDistance: 167}),
+    hudIndicators: new HudIndicators({...WindowSettings.AlwaysShow, verticalDistance: 34}),
   }
 
   /** Whether the details window should be on-screen regardless of reveal-button state. */
@@ -208,6 +210,7 @@ export class InfoWindowSystem {
     this.windows.terrainInfo.inspectTerrain(square.terrain, inspectUnit);
     this.windows.unitInfo.inspectUnit(inspectUnit);
     this.windows.detailedInfo.inspectTile(square.terrain, inspectUnit);
+    // TODO Update hud indicators?
     this.retriggerWindowVisibility();   // For UnitInfo, basically
   }
 
@@ -232,6 +235,11 @@ export class InfoWindowSystem {
       const yPos = (idx === 0) ? 1 : 33 + 30*(idx - 1);
       window.displayContainer.y = yPos;
     });
+  }
+
+  /** Sets day number for the day-count ui component. */
+  setDayCounter(n: number) {
+    this.windows.hudIndicators.dayCounter.count = n;
   }
 
   /** Positions the window UI where it moving to instantly. */

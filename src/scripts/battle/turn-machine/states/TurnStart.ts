@@ -28,6 +28,7 @@ export class TurnStart extends TurnState {
 
     // Move UI Windows
     uiSystem.skipAnimations();
+    uiSystem.setDayCounter(players.day);
 
     // Pretend-spend player funds on repairs so we know what their limit is.
     let remainingFunds = player.funds;
