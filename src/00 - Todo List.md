@@ -24,7 +24,8 @@ Todo List cleanup: (some easy ones)
     - [ ] Sets the status show to the CO icon.
     - Actually... I forget how the incrementer works. Probably depends on framecount or something, but since the CO badge is always the first assigned its also the the zeroth frame. I can work with that.
 - [ ] Keep the can't re-board CO on kill. ... Same turn, at least.
-- [ ] Terrain/Unit/Battle tab icons
+- [x] Terrain/Unit/Battle tab icons
+- [ ] Make them nice, tho
 - [ ] Day counter 29424A D 012
   - [ ] Connect new font font-day-ui.xml
   - [ ] Characters are designed to take up the full width/height of the background

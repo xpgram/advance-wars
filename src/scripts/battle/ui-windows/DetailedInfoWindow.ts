@@ -62,10 +62,11 @@ export class DetailedInfoWindow extends SlidingWindow {
 
   // UI Elements
 
-  // TODO Positions
-  private tabIconTerrain = new TabIcon(new Point(80-4-6-6, 10), this.sheet.textures['icon-panel-terrain.png']);
-  private tabIconUnit    = new TabIcon(new Point(80-4-6, 10), this.sheet.textures['icon-panel-unit.png']);
-  private tabIconBattle  = new TabIcon(new Point(80-4, 10), this.sheet.textures['icon-panel-battle.png']);
+    // TODO Positions
+    // TODO This should be, like, one component
+  private tabIconTerrain = new TabIcon(new Point(80-4-7-7, 11), this.sheet.textures['icon-panel-terrain.png']);
+  private tabIconUnit    = new TabIcon(new Point(80-4-7, 11), this.sheet.textures['icon-panel-unit.png']);
+  private tabIconBattle  = new TabIcon(new Point(80-4, 11), this.sheet.textures['icon-panel-battle.png']);
 
   // Terrain
   private header = new Header(new Point(5, 4));
