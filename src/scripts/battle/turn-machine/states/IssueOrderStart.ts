@@ -67,9 +67,9 @@ export class IssueOrderStart extends TurnState {
       const spawnableTerrain = (spawnMap?.units.includes( u.type ) || false);
       const isHQ = (square.terrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
       const actorOrderable = (u.orderable);
-      const actorAllied = (players.current.faction === u.faction);
+      const actorAllied = (players.perspective.faction === u.faction);
       const terrainAllied = (square.terrain.faction === u.faction);
-      const canSpawnCo = (players.current.canSpawnCO);
+      const canSpawnCo = (players.perspective.canSpawnCO);
 
       const showIcon = (actorOrderable && actorAllied && terrainAllied && canSpawnCo && (spawnableTerrain || isHQ));
       u.CoCouldBoard = showIcon;
