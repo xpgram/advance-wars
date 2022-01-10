@@ -56,6 +56,8 @@ export type CommandObject<T> = {
   input: T,
   /** Sort order value. */
   weight: number,
+  /** True if this command's execution leaves the actor unable to take further action. */
+  spendsUnit: boolean,
   /** Returns true if this command should be included in a ListMenu. */
   triggerInclude: () => boolean,
   /** Effects changes on the board. */
@@ -71,6 +73,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Quaternary,
+    spendsUnit: true,
     triggerInclude() {
       const { actor, goalTile } = data;
       return goalTile.occupiable(actor);
@@ -86,6 +89,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.None,
+    spendsUnit: true,
     triggerInclude: function () {
       return false;
     },
@@ -115,6 +119,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Primary,
+    spendsUnit: true,
     triggerInclude() {
       const { map } = data.assets;
       const { actor, place, goal } = data;
@@ -160,6 +165,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Secondary,
+    spendsUnit: true,
     triggerInclude() {
       const { actor, goalTerrain } = data;
 
@@ -183,6 +189,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Secondary,
+    spendsUnit: true,
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal } = data;
@@ -221,6 +228,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Unpreferred,
+    spendsUnit: true,
     triggerInclude() {
       const { actor } = data;
       return !actor.hiding && actor.type === Unit.Submarine;
@@ -249,6 +257,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Unpreferred,
+    spendsUnit: true,
     triggerInclude() {
       const { actor } = data;
       return actor.hiding && actor.type === Unit.Submarine;
@@ -277,6 +286,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Tertiary,
+    spendsUnit: true,
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal } = data;
@@ -309,6 +319,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Tertiary,
+    spendsUnit: true,
     triggerInclude() {
       const { actor, goalTile } = data;
       return goalTile.unit?.boardable(actor) || false;
@@ -327,6 +338,7 @@ export module Command {
     serial: generateSerial(),
     input: -1,
     weight: Weight.Secondary,
+    spendsUnit: true,
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal, drop } = data;
@@ -370,6 +382,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.Unpreferred,
+    spendsUnit: false,
     triggerInclude() {
       const { actor, plansToMove } = data;
       return (actor.CoCouldBoard && !plansToMove);
@@ -395,6 +408,7 @@ export module Command {
     serial: generateSerial(),
     input: 0,
     weight: Weight.None,
+    spendsUnit: true,
     triggerInclude() {
       return false;
     },
