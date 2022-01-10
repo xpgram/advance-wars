@@ -62,6 +62,11 @@ export class DetailedInfoWindow extends SlidingWindow {
 
   // UI Elements
 
+  // TODO Positions
+  private tabIconTerrain = new TabIcon(new Point(80-4-6-6, 10), this.sheet.textures['icon-panel-terrain.png']);
+  private tabIconUnit    = new TabIcon(new Point(80-4-6, 10), this.sheet.textures['icon-panel-unit.png']);
+  private tabIconBattle  = new TabIcon(new Point(80-4, 10), this.sheet.textures['icon-panel-battle.png']);
+
   // Terrain
   private header = new Header(new Point(5, 4));
   private illustration = new Illustration(new Point(8, 18));
@@ -125,6 +130,10 @@ export class DetailedInfoWindow extends SlidingWindow {
       background,
       this.mask,
       ...[
+        this.tabIconTerrain,
+        this.tabIconUnit,
+        this.tabIconBattle,
+
         this.illustration,
         this.header,
         this.description,
@@ -171,8 +180,14 @@ export class DetailedInfoWindow extends SlidingWindow {
     const showingUnit = (tabSlider.output > 0);
     const showingUnit2 = (tabSlider.output === 2);
 
-    /* Main */
+    /* Window Tabs */
+
+    this.tabIconTerrain.active = !this.useShopTabSlider;
+    this.tabIconUnit.active = Boolean(unit);
+    this.tabIconBattle.active = Boolean(unit);
     
+    /* Main */
+
     this.header.text = (unit && showingUnit) ? unit.name : terrain.name;
     this.description.text = (unit && showingUnit) ? unit.description : terrain.description;
     this.illustration.setIllustration(terrain, unit, showingUnit, );
@@ -250,6 +265,23 @@ abstract class TextComponent extends UiComponent {
     super(p);
     this.elem = new BitmapText('', font);
     this.container.addChild(this.elem as BitmapText);
+  }
+}
+
+class TabIcon extends UiComponent {
+  // TODO Selectable state √
+  // TODO Focused state
+  // TODO Background for way more seeable
+  private icon = new PIXI.Sprite();
+  private readonly darkTint = 0x888888;
+  constructor(p: Point, tex: PIXI.Texture) {
+    super(p);
+    this.icon.texture = tex;
+    this.container.addChild(this.icon);
+  }
+  get active() { return this.icon.tint === this.darkTint; }
+  set active(b) {
+    this.icon.tint = (b) ? 0xFFFFFF : this.darkTint;
   }
 }
 

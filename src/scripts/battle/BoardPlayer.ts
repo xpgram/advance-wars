@@ -290,12 +290,17 @@ export class BoardPlayer {
     const { map, scenario } = this;
 
     this.units.forEach( u => {
+      if (!u.onMap) {
+        u.CoCouldBoard = false;
+        return;
+      }
+
       const square = map.squareAt(u.boardLocation);
       const spawnMap = scenario.spawnMap.find( tile => tile.type === square.terrain.type );
 
       const spawnableTerrain = (spawnMap?.units.includes( u.type ) || false);
       const terrainAllied = (square.terrain.faction === this.faction);
-      
+
       const terrainIsHQ = (square.terrain.type === Terrain.HQ && scenario.CoLoadableFromHQ);
       const unitIsGroundClass = (u.unitClass === UnitClass.Ground);
       const spawnableFromHQ = (terrainIsHQ && unitIsGroundClass);
