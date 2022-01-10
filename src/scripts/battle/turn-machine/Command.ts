@@ -42,7 +42,7 @@ enum Weight {
   Secondary,  // Unit specific special actions.
   Tertiary,   // Contextual, global actions.
   Quaternary, // -
-  Bottom,     // Last in list: Wait
+  Unpreferred,// Last in list: Wait
   None,       // Not sequentially, but indicates an item whose sort is irrelevant.
 }
 
@@ -70,7 +70,7 @@ export module Command {
     name: "Wait",
     serial: generateSerial(),
     input: 0,
-    weight: Weight.Bottom,
+    weight: Weight.Quaternary,
     triggerInclude() {
       const { actor, goalTile } = data;
       return goalTile.occupiable(actor);
@@ -216,11 +216,11 @@ export module Command {
   }
 
   /** Unit sinks into water, hiding itself from other players. */
-  export const Sink: CommandObject<number> = {
-    name: "Sink",
+  export const Dive: CommandObject<number> = {
+    name: "Dive",
     serial: generateSerial(),
     input: 0,
-    weight: Weight.Secondary,
+    weight: Weight.Unpreferred,
     triggerInclude() {
       const { actor } = data;
       return !actor.hiding && actor.type === Unit.Submarine;
@@ -248,7 +248,7 @@ export module Command {
     name: "Surface",
     serial: generateSerial(),
     input: 0,
-    weight: Weight.Secondary,
+    weight: Weight.Unpreferred,
     triggerInclude() {
       const { actor } = data;
       return actor.hiding && actor.type === Unit.Submarine;
@@ -369,7 +369,7 @@ export module Command {
     name: "CO",
     serial: generateSerial(),
     input: 0,
-    weight: Weight.Bottom,
+    weight: Weight.Unpreferred,
     triggerInclude() {
       const { actor, plansToMove } = data;
       return (actor.CoCouldBoard && !plansToMove);
