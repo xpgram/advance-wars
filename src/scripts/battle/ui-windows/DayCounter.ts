@@ -40,12 +40,15 @@ export class DayCounter {
     this.createBackground(this.labelBack, this.label);
   }
 
-  private createBackground(g: PIXI.Graphics, dim: {width: number, height: number}) {
+  private createBackground(g: PIXI.Graphics, t: PIXI.BitmapText) {
     const color = 0x29424A;
     const shadow = 0x000000;
+  
+    const xoff = (t.text[0] === '1') ? 1 : 0;
 
-    const width = Math.max(dim.width, 15);
-    const height = dim.height;
+    t.position.set(1+xoff,0);
+    const width = Math.max(t.width, 13)+2+xoff;
+    const height = t.height;
 
     g.clear();
 

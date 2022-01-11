@@ -67,6 +67,7 @@ export class IssueOrderStart extends TurnState {
 
   update() {
     const { players, map, mapCursor, instruction, gamepad, scenario } = this.assets;
+    const { uiSystem } = this.assets;
 
     const player = players.current;
     const { A, B, start } = gamepad.button;
@@ -107,6 +108,8 @@ export class IssueOrderStart extends TurnState {
     if (Game.devController.pressed(Keys.O, 'Shift'))
       if (square.unit)
         square.unit.CoOnBoard = true;
+    if (Game.devController.pressed(Keys.I))
+      uiSystem.windows.hudIndicators.dayCounter.count += 1
 
     // On press A, select an allied unit to give instruction to
     if (A.pressed) {
