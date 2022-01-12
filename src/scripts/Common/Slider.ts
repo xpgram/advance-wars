@@ -147,7 +147,7 @@ export class Slider {
      * Increases the track-value by +1 granules by default. You may set incrementFactor as a substitute to (or in addition
      * to) setting the times parameter. */
     increment(times: number = 1) {
-        this.tracknum = this.granularity * this.incrementFactor * times;
+        this.tracknum += this.granularity * this.incrementFactor * times;
     }
 
     /** Decrements the slider the given number of times by the slider's granularity (use negative numbers to increment.)
