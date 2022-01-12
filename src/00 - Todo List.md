@@ -29,8 +29,30 @@ Todo List cleanup: (some easy ones)
 - [x] Day counter 29424A D 012
   - [x] Connect new font font-day-ui.xml
   - [x] Characters are designed to take up the full width/height of the background
-  - [ ] Reposition it to the right of CO window.
-  - [ ] When the HudPane slides to the other side, the HudIndicators slide against the left edge of the screen. When the HudPane comes back, it pushes the HudIndicators rightward again.
+  - [x] Reposition it to the right of CO window.
+  - [x] When the HudPane slides to the other side, the HudIndicators slide against the left edge of the screen. When the HudPane comes back, it pushes the HudIndicators rightward again.
+  - [ ] Needs to hide during Shop
+- [ ] Related to my difficulties with the DayCounter: refactor IWS.
+  I'll need to do some thinking about the ideal implementation.
+  - [ ] Slotting new widgets in should be easy.
+  - [ ] Windows don't slide independently, why are we treating them as such?
+  - [ ] I need a kind of cascading system.
+    - HudBar
+    - Pushed HudPanel
+    - SlidingPanel
+      - Terrain Info
+      - Unit Info
+        - Damage Forecast
+      - Details (DrawerPanel; gets side from parent)
+      - Player Cards (gets side from parent)
+        - Player Card (DrawerPanel; always open)
+        - Player Card (DrawerPanel; gets side from parent)
+        - Player Card (DrawerPanel; gets side from parent)
+        - Player Card (DrawerPanel; gets side from parent)
+  - [ ] A settable state for IWS configures which widgets it does and does not show.
+    - [ ] Normal: All
+    - [ ] Shop: Details (forced open), Terrain; or by convenience, All - hud
+    - [ ] Hidden: None
 - [ ] Aircraft have a different explosion animation. ... Wtf. I specifically asked!
 - [ ] DisplayInfo.ts → Typefaces.ts or something, jfc
 
