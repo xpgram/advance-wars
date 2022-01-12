@@ -274,10 +274,10 @@ export class BoardPlayer {
     this.funds = Math.max(this.funds, 0);
   }
 
-  /** Returns this player's CO unit or undefined. */
+  /** Returns this player's CO unit or undefined.
+   * CO unit may not be 'on map,' so be careful out there. */
   getCoUnit() {
-    const unit = this.units.find( u => u.CoOnBoard );
-    return (unit?.onMap) ? unit : undefined;
+    return this.units.find( u => u.CoOnBoard );
   }
 
   /** True if this player is ready to spawn a CO unit. */
