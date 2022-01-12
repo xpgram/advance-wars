@@ -100,6 +100,13 @@ export class Slider {
         this._track = Common.confine(this._track, this.min, this.max);// Limit range to slider min/max.
     }
 
+    /** A number-only alias for this.track.
+     * this.track never returns a string, this property is just for Typescript typing. */
+    get tracknum() { return this._track; }
+    set tracknum(n: number) {
+        this.track = n;
+    }
+
     /** The value of the slider's tracked position as a decimal normalized between 0 and 1. */
     decimal() {
         return (this.range !== 0) ? (this._track - this.min) / this.range : 0;
@@ -121,6 +128,15 @@ export class Slider {
         this._track = this.max;
     }
 
+    /** Sets this slider's tracked position to whichever numeric extreme it
+     * is incrementing toward. */
+    setToExtreme() {
+        if (this.incrementFactor === 0)
+            return;
+        const extreme = (Math.sign(this.incrementFactor) < 0) ? 'min' : 'max';
+        this.track = extreme;
+    }
+
     /** Sets the track position to some ratio of its range within its boundaries.
      * @deprecated by setDecimal(), I think. */
     setByProportion(n: number) {
@@ -131,14 +147,14 @@ export class Slider {
      * Increases the track-value by +1 granules by default. You may set incrementFactor as a substitute to (or in addition
      * to) setting the times parameter. */
     increment(times: number = 1) {
-        this.track += this.granularity * this.incrementFactor * times;
+        this.tracknum = this.granularity * this.incrementFactor * times;
     }
 
     /** Decrements the slider the given number of times by the slider's granularity (use negative numbers to increment.)
      * Decreases the track-value by 1 granules by default. You may set incrementFactor as a substitute to (or in addition
      * to) setting the times parameter. */
     decrement(times: number = 1) {
-        this.track -= this.granularity * this.incrementFactor * times;
+        this.tracknum -= this.granularity * this.incrementFactor * times;
     }
 
     /** Rounds the given number v to the nearest multiple of the number 'grain.'

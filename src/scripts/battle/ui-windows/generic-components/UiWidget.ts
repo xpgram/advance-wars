@@ -1,4 +1,6 @@
+import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
+import { Slider } from "../../../Common/Slider";
 
 export type WidgetSettings = {
   position: Point,
@@ -10,21 +12,69 @@ const DefaultWidgetSettings = {
 }
 
 /** Essentially, a PIXI.Container with constructor settings. */
-export class UiWidget { // extends Fadable ← But move to this folder first.
+export abstract class UiWidget {
 
   readonly container = new PIXI.Container();
+
+  readonly position: Point;
+  readonly origin: Point;
+
+  transparency = new Slider({
+    granularity: 1/3,
+    track: 'min',
+    incrementFactor: -1,
+  });
+
 
   constructor(options: WidgetSettings) {
     options = {...DefaultWidgetSettings, ...options};
     const { position, origin } = options;
 
-    // Containers don't have anchors/origins. I don't think pivot works, but I guess it's worth asking.
-    // In any case, I think I'll have to private container and force update position/anchor myself whenever
-    // children are updated or whatever.
-    // Can I add a listener to a Container?
-    this.container.position.set(position.x, position.y);
-    this.container.on('childAdded', () => {}, this);  // width/height may have changed
-    this.container.on('removedFrom', () => {}, this); // width/height may have changed
+    this.position = position as Point;
+    this.origin = origin as Point;
+    this.repositionWidget();
+
+    this.container.on('childAdded', this.repositionWidget, this);
+    this.container.on('removedFrom', this.repositionWidget, this);
+
+    Game.scene.ticker.add(this.updateTransparency, this);
+  }
+
+  destroy() {
+    this.container.destroy({children: true});
+    Game.scene.ticker.remove(this.updateTransparency, this);
+  }
+
+  /** Callback to maintain position from element origin on dimension changes. */
+  private repositionWidget() {
+    const { width, height } = this.container;
+    const { position, origin } = this;
+    this.container.position.set(
+      position.x - width*origin.x,
+      position.y - height*origin.y,
+    );
+  }
+
+  /** Update step which gradually changes element transparency. */
+  private updateTransparency() {
+    this.transparency.increment();
+    this.container.alpha = this.transparency.output;
+  }
+
+  /** Set this element to visible. */
+  show() {
+    this.transparency.incrementFactor = 1;
+  }
+
+  /** Set this element to invisible. */
+  hide() {
+    this.transparency.incrementFactor = -1;
+  }
+
+  /** Skips incremental animation changes, setting the widget to whatever its ideal state is.
+   * Overridable, but call super.skipAnimation() to capture all procedures. */
+  skipAnimation() {
+    this.transparency.setToExtreme();
   }
 
 }
