@@ -14,6 +14,10 @@ Todo List cleanup: (some easy ones)
 - [ ] Orderable units/bases icons (visual test)
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
+- CO unit icon variants
+  - [x] CO unit
+  - [x] CO unit is loadable
+  - [ ] CO unit is being held by this unit (landers, rigs, tcopters, etc.)
 - [ ] I need CO can-board to be a little more subtle.
   - Giving it the faction status-color might help.
   - Focusing on an outline-style design might help, too. Filling doesn't have to disappear.
