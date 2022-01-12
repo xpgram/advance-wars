@@ -322,7 +322,7 @@ export class BoardPlayer {
   /** Conducts operations relevant to this player after their CO unit has
    * been destroyed. Note: this method does not actually destroy the unit. */
   private handleCoUnitDestroyed() {
-    this.CoUnitTurnDelay = 2; // 2 for this, 1 for next.
+    this.CoUnitTurnDelay = 1;   // '1' merely prevents reboarding the turn you get your own unit blown
     this.powerMeter.track = 'min';
   }
 

@@ -25,15 +25,10 @@ Todo List cleanup: (some easy ones)
     - Actually... I forget how the incrementer works. Probably depends on framecount or something, but since the CO badge is always the first assigned its also the the zeroth frame. I can work with that.
 - [ ] Keep the can't re-board CO on kill. ... Same turn, at least.
 - [x] Terrain/Unit/Battle tab icons
-- [ ] Make them nice, tho
-- [x] Day counter 29424A D 012
-  - [x] Connect new font font-day-ui.xml
-  - [x] Characters are designed to take up the full width/height of the background
-  - [x] Reposition it to the right of CO window.
-  - [x] When the HudPane slides to the other side, the HudIndicators slide against the left edge of the screen. When the HudPane comes back, it pushes the HudIndicators rightward again.
-  - [ ] Needs to hide during Shop
-- [ ] Related to my difficulties with the DayCounter: refactor IWS.
-  I'll need to do some thinking about the ideal implementation.
+  - [ ] Make them nice, tho
+- [ ] Hide day counter during Shop
+  - [ ] Related: refactor IWS.
+        I'll need to do some thinking about the ideal implementation.
   - [ ] Slotting new widgets in should be easy.
   - [ ] Windows don't slide independently, why are we treating them as such?
   - [ ] I need a kind of cascading system.
