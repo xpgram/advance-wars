@@ -16,7 +16,6 @@ export class DayCounter {
     this.labelBack.addChild(this.label);
     this.textBack.addChild(this.text);
     this.container.addChild(this.textBack, this.labelBack);
-    this.textBack.y = this.labelBack.height;
 
     this.container.scale.set(.5);
     
@@ -38,6 +37,7 @@ export class DayCounter {
   private rebuildGraphics() {
     this.createBackground(this.textBack, this.text);
     this.createBackground(this.labelBack, this.label);
+    this.textBack.y = this.labelBack.height - 2;
   }
 
   private createBackground(g: PIXI.Graphics, t: PIXI.BitmapText) {

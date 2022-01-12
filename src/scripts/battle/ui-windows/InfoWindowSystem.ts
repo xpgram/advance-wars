@@ -74,8 +74,10 @@ export class InfoWindowSystem {
     detailedInfo: new DetailedInfoWindow({...WindowSettings.DefaultHide, verticalDistance: 1}),
     unitInfo: new UnitWindow({...WindowSettings.AlwaysShow, verticalDistance: 142}),
     terrainInfo: new TerrainWindow({...WindowSettings.AlwaysShow, verticalDistance: 167}),
-    hudIndicators: new HudIndicators({...WindowSettings.AlwaysShow, verticalDistance: 34}),
   }
+
+  /** A dashboard of sorts where icons and buttons go, or whatever. */
+  hudIndicators = new HudIndicators();
 
   /** Whether the details window should be on-screen regardless of reveal-button state. */
   forceOpenDetailWindow = false;
@@ -118,7 +120,8 @@ export class InfoWindowSystem {
 
   destroy() {
     // FIXME Destruction not implemented
-    this.windows.detailedInfo.destroy();
+    this.allWindows.forEach( w => w.destroy() );
+    this.hudIndicators.destroy();
   }
 
   resetSettings() {
@@ -128,7 +131,10 @@ export class InfoWindowSystem {
 
   /** Returns a list of all known SlidingWindows from all window categories. */
   private get allWindows() {
-    return [...Object.values(this.windows), ...this.playerInfo.windows];
+    return [
+      ...Object.values(this.windows),
+      ...this.playerInfo.windows
+    ];
   }
 
   /** Helper which sets all window visibility to the given boolean. */
@@ -142,12 +148,14 @@ export class InfoWindowSystem {
   hide(): void {
     this._visible = false;
     this.setWindowVisibility(false);
+    this.hudIndicators.hide();
   }
 
   /** Reveals the window-system's graphics on the screen. */
   show(): void {
     this._visible = true;
     this.setWindowVisibility(true);
+    this.hudIndicators.show();
   }
 
   /** Reaffirms window visibility settings; useful after inspect update. */
@@ -189,6 +197,8 @@ export class InfoWindowSystem {
       const triggerValues = [0.00, 0.10, 0.45, 1.0];
       window.show = (this.commandersSlider.output >= triggerValues[idx])
     });
+
+    this.pushHudIndicators();
   }
 
   /** Calls inspectTile on cursor position change. */
@@ -239,7 +249,7 @@ export class InfoWindowSystem {
 
   /** Sets day number for the day-count ui component. */
   setDayCounter(n: number) {
-    this.windows.hudIndicators.dayCounter.count = n;
+    this.hudIndicators.dayCounter.count = n;
   }
 
   /** Positions the window UI where it moving to instantly. */
@@ -247,6 +257,18 @@ export class InfoWindowSystem {
     this.update();  // Get new positions, etc.
     this.inspectTile(this.map.squareAt(this.cursor.boardLocation));
     this.allWindows.forEach( window => window.positionWindow({skip: true}) );
+  }
+
+  /**  */
+  private pushHudIndicators() {
+    const pushBox = this.windows.terrainInfo.displayContainer;
+    const hudX = (this.windows.terrainInfo.onLeftSide)
+      ? pushBox.x + pushBox.width + 1
+      : 1;
+    this.hudIndicators.container.position.set(
+      hudX,  // 100,
+      1
+    );
   }
 
 }

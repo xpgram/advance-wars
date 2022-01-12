@@ -109,7 +109,7 @@ export class IssueOrderStart extends TurnState {
       if (square.unit)
         square.unit.CoOnBoard = true;
     if (Game.devController.pressed(Keys.I))
-      uiSystem.windows.hudIndicators.dayCounter.count += 1
+      uiSystem.hudIndicators.dayCounter.count += 1
 
     // On press A, select an allied unit to give instruction to
     if (A.pressed) {
