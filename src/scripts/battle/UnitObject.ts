@@ -714,11 +714,12 @@ export abstract class UnitObject {
 
     /** Chooses a status icon to display on the unit's UI box. */
     private setCurrentStatusIcon() {
+        const updateFrequency = 1.2 * 60;   // desired seconds * fps
+        const intervalCount = Math.floor(Game.frameCount / updateFrequency);
+        const frameIdx = intervalCount % this.statusTextures.length;
+
         if (this.statusTextures.length > 0) {
-            let updateFrequency = 1.2 * 60;   // desired seconds * fps
-            let intervalCount = Math.floor(Game.frameCount / updateFrequency);
-            let frameIdx = intervalCount % this.statusTextures.length;
-            let frame = this.statusTextures[frameIdx];
+            const frame = this.statusTextures[frameIdx];
             this.statusIcons.texture = frame;
             this.previewStatusIcons.texture = frame;
         }
@@ -728,6 +729,12 @@ export abstract class UnitObject {
             //@ts-expect-error
             this.previewStatusIcons.texture = null;
         }
+
+        // Blink the HP meter (preview) so we can see the unit underneath.
+        const intervalRaw = Game.frameCount / updateFrequency - intervalCount;
+        const alpha = (intervalRaw <= .5) ? 1 : 0;
+        // this.previewStatusIcons.alpha = alpha;
+        this.previewHpMeter.alpha = alpha;
     }
 
     /** Increments the unit's transparency toward one of the slider's extremes, depending on the unit's transparency state. */
