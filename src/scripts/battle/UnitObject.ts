@@ -307,10 +307,6 @@ export abstract class UnitObject {
         //this.sprite.scale.x = (team.playerNumber % 2 == 0) ? 1 : -1;
         this.reverseFacing = (this.faction % 2 == 1);
         // TODO Make this more permenant. LowResT just erases it.
-        
-        // TODO Square.placeUnit() already does this. Is this step necessary?
-        const row = MapLayerFunctions.RowLayerFromWorldPosition(this.boardLocation);
-        MapLayer('top', row, 'unit').addChild(this.sprite);
 
         // Build UI elements.
         this.uiBox = new PIXI.Container();
@@ -623,12 +619,7 @@ export abstract class UnitObject {
         }
 
         UnitObject.transform.object = null;
-
-        // Recalculate z-index
-        // if (has y position changed?)
-        //   MapLayer('top', 'unit').addChild(this.sprite);
-        //   MapLayerFunctions.SortBatchLayerIntoPartitions();
-        // this.sprite.zIndex = Map.calculateZIndex(point, 'unit');
+        
         this.uiBox.zIndex = -1; // Below the cursor, menus etc.
     }
 
