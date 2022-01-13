@@ -492,6 +492,20 @@ export abstract class UnitObject {
     }
     private _CoCouldBoard = false;
 
+    /** True if one of this unit's held units (recursive) is a CO unit. */
+    get CoUnitIsCargo(): boolean {
+        if (this._loadedUnits.length === 0)
+            return false;
+        return this._loadedUnits.some( u => u.CoOnBoard || u.CoUnitIsCargo );
+    }
+
+    /** True if at least one of this unit's held units (non-recursive) is not a CO unit. */
+    get nonCoUnitIsCargo(): boolean {
+        if (this._loadedUnits.length === 0)
+            return false;
+        return this._loadedUnits.some( u => !u.CoOnBoard ); // No recursion
+    }
+
     /** True if this unit is located inside the CO Zone of its commanding officer. */
     get withinCoZone(): boolean {
         return this.boardPlayer.withinCoRange(this.boardLocation);
@@ -631,7 +645,10 @@ export abstract class UnitObject {
             {
                 name: `icon-co-onboard-hollow.png`,
                 condition: (this.CoCouldBoard),
-                blink: true,
+            },
+            {
+                name: `icon-co-unit-loaded.png`,
+                condition: (this.CoUnitIsCargo),
             },
             {
                 name: `icon-level-${this.rank}.png`,
@@ -655,7 +672,7 @@ export abstract class UnitObject {
             },
             {
                 name: `icon-boarded-${color}.png`,
-                condition: (this._loadedUnits.length > 0),
+                condition: (this._loadedUnits.length > 0 && this.nonCoUnitIsCargo),
             },
             {
                 name: `icon-hidden-${color}.png`,
