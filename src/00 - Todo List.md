@@ -11,7 +11,6 @@ But anyway, yeah. There is constant state checking because his system never just
 Todo List cleanup: (some easy ones)
 - [ ] On-screen icon indicates when there are un-instructed units
 - [ ] On-screen icon indicates when there are un-utilized bases
-- [ ] Orderable units/bases icons (visual test)
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 - [ ] CO animation zoom-shrinks to proper status icon size.
