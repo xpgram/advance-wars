@@ -5,7 +5,7 @@ import { TranslationFunctions } from "./TranslationFunctions";
 import { ViewSide } from "./UiEnums";
 import { UiWidget } from "./UiWidget";
 
-type DrawerWidgetOptions {
+type DrawerWidgetOptions = {
   position: Point,
   origin?: Point,
   button: Button,
