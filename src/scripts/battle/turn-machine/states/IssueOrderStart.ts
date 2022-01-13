@@ -79,8 +79,9 @@ export class IssueOrderStart extends TurnState {
     // Empty resources
     if (Game.devController.pressed(Keys.E, 'Shift'))
       if (unit) {
-        unit.gas = 1;
+        unit.gas = 10;
         unit.ammo = 0;
+        unit.hp = 50;
       }
     // Reactivate unit
     if (Game.devController.pressed(Keys.R, 'Shift'))
@@ -89,15 +90,20 @@ export class IssueOrderStart extends TurnState {
         unit.orderable = true;
       }
     // Spawn unit
-    if (Game.devController.pressed(Keys.N, 'Shift'))
-      if (!unit) {
-        const possibleSpawns = Object.values(Unit).filter( type => square.occupiable(new type()) );
-        const newUnit = player.spawnUnit({
-          location: mapCursor.boardLocation,
-          serial: Common.pick(possibleSpawns).serial,
-        })
-        newUnit.orderable = true;
-      }
+    if (Game.devController.pressed(Keys.N, 'Shift')) {
+      if (unit)
+        unit.destroy();
+      const possibleSpawns = Object.values(Unit).filter( type => square.occupiable(new type()) );
+      const newUnit = player.spawnUnit({
+        location: mapCursor.boardLocation,
+        serial: Common.pick(possibleSpawns).serial,
+      })
+      newUnit.orderable = true;
+    }
+    // Destroy unit
+    if (Game.devController.pressed(Keys.M, 'Shift'))
+      if (unit)
+        unit.destroy();
     // Capture property
     if (Game.devController.pressed(Keys.C, 'Shift'))
       if (square.terrain.building) {
