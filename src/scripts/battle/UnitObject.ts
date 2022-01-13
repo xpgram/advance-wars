@@ -14,6 +14,7 @@ import { TerrainObject } from "./map/TerrainObject";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { Square } from "./map/Square";
 import { BitIO } from "../Common/BitIncrementer";
+import { PixiUtils } from "../Common/PixiUtils";
 
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
@@ -75,7 +76,9 @@ export abstract class UnitObject {
     private _sprite!: PIXI.AnimatedSprite;
     private uiBox!: PIXI.Container;
     private hpMeter!: PIXI.BitmapText;
+    private previewHpMeter!: PIXI.BitmapText;
     private statusIcons!: PIXI.Sprite;
+    private previewStatusIcons!: PIXI.Sprite;
     private statusTextures: PIXI.Texture[] = []
 
     transparent = false;
@@ -106,8 +109,25 @@ export abstract class UnitObject {
     }
 
     /** A 16x16 thumbnail image for this unit object. Must be initiated. */
+    // TODO unit.preview is not modifiable without first putting it in another
+    // container: is this getter then misleading? I think so.
     get preview(): PIXI.Sprite {
         return this.shopPreview(this.faction);
+    }
+
+    /** A 16x16 thumbnail image for this unit object which includes status
+     * information. Must be initiated. */
+    get cargoPreview(): PIXI.Sprite {
+        const sprite = this.preview;
+        sprite.addChild(
+            this.previewStatusIcons,
+            this.previewHpMeter,
+        );
+        return sprite;
+        // TODO How do I know GC eventually collects preview?
+        // I could have a dedicated preview sprite. Hm.
+        // If I could measure the memory impact of this implementation, I'd know
+        // if it was even an issue.
     }
 
     /** A 16x16 thumbnail image for this unit type. */
@@ -301,9 +321,17 @@ export abstract class UnitObject {
         this.hpMeter.y = 18; // Font height adjustment
         this.uiBox.addChild(this.hpMeter);
 
+        this.previewHpMeter = new PIXI.BitmapText('', fonts.smallScriptOutlined);
+        this.previewHpMeter.anchor = 1;
+        this.previewHpMeter.x = 15;
+        this.previewHpMeter.y = 18;
+
         this.statusIcons = new PIXI.Sprite(); // Empty
         this.statusIcons.y = 8;    // middle left of the unit box (texture anchor is top left)
         this.uiBox.addChild(this.statusIcons);
+
+        this.previewStatusIcons = new PIXI.Sprite(); // Empty
+        this.previewStatusIcons.y = 8;
 
         MapLayer('ui').addChild(this.uiBox);
         
@@ -360,10 +388,13 @@ export abstract class UnitObject {
         this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.HP);
         
         // Update unit's UI layer
-        if (this.hp <= 90)
+        if (this.hp <= 90) {
             this.hpMeter.text = this.displayHP.toString();
-        else
+            this.previewHpMeter.text = this.displayHP.toString();
+        } else {
             this.hpMeter.text = '';
+            this.previewHpMeter.text = '';
+        }
     }
 
     /** Returns true if this object has anything less than maximum HP. */
@@ -696,11 +727,15 @@ export abstract class UnitObject {
             let updateFrequency = 1.2 * 60;   // desired seconds * fps
             let intervalCount = Math.floor(Game.frameCount / updateFrequency);
             let frameIdx = intervalCount % this.statusTextures.length;
-            this.statusIcons.texture = this.statusTextures[frameIdx];
+            let frame = this.statusTextures[frameIdx];
+            this.statusIcons.texture = frame;
+            this.previewStatusIcons.texture = frame;
         }
         else {      // Nothing to set, so empty.
-            //@ts-ignore
+            //@ts-expect-error
             this.statusIcons.texture = null;
+            //@ts-expect-error
+            this.previewStatusIcons.texture = null;
         }
     }
 

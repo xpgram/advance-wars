@@ -66,7 +66,7 @@ export class CommandMenu extends TurnState {
         {
           // This is bad, but it's fine-bad.
           icon: (command.name === 'Drop' && command.input >= 0)
-            ? actor.loadedUnits[command.input].preview
+            ? actor.loadedUnits[command.input].cargoPreview
             : undefined,
           title: command.name
         },
