@@ -32,13 +32,15 @@ export class JoinUnitEvent extends MoveUnitEvent {
     players.current.funds += returnedFunds;
 
     const highestRank = Math.max(actor.rank, other.rank);
+    const CoOnBoard = actor.CoOnBoard || other.CoOnBoard;
 
     other.hp = newHp;
     other.gas += gas;
     other.ammo += ammo;
     other.rank = highestRank;
+    other.CoOnBoard = CoOnBoard;
 
-    actor.destroy();
+    actor.destroy();    // Note: this does cascade-call player.handleCoUnitDestroyed()
     other.spent = true;
   }
 

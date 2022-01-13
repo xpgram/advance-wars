@@ -14,20 +14,11 @@ Todo List cleanup: (some easy ones)
 - [ ] Orderable units/bases icons (visual test)
 - [ ] Command.Move calculates ambushes
 - [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
-- CO unit icon variants
-  - [x] CO unit
-  - [x] CO unit is loadable
-  - [ ] CO unit is being held by this unit (landers, rigs, tcopters, etc.)
-- [ ] I need CO can-board to be a little more subtle.
-  - Giving it the faction status-color might help.
-  - Focusing on an outline-style design might help, too. Filling doesn't have to disappear.
-  - Even just giving it back that black outline could help.
 - [ ] CO animation zoom-shrinks to proper status icon size.
   - [ ] CO Scheduled Event — Does the zoom
   - [ ] Afterward, sets the status
     - [ ] Sets the status show to the CO icon.
     - Actually... I forget how the incrementer works. Probably depends on framecount or something, but since the CO badge is always the first assigned its also the the zeroth frame. I can work with that.
-- [ ] Keep the can't re-board CO on kill. ... Same turn, at least.
 - [x] Terrain/Unit/Battle tab icons
   - [ ] Make them nice, tho
 - [ ] Hide day counter during Shop
@@ -56,10 +47,6 @@ Todo List cleanup: (some easy ones)
 - [ ] DisplayInfo.ts → Typefaces.ts or something, jfc
 
 - [ ] Travel Car checks after each completed tile move if its current position is hidden, adjusts visibility accordingly.
-
-- [ ] CO Board does not spend unit.
-- [ ] CO Board probs should be on turn start then, before movement.
-  - [ ] Desperately need hollow medal icon.
 
 - [ ] CO Powers are triggerable from the CO Unit Command Menu. Probs doesn't spend the unit.
 - [ ] Alt: CO Powers are triggerable from the Field Menu.
