@@ -664,15 +664,16 @@ export abstract class UnitObject {
         // Icon conditions of inclusion
         const iconLabels = [
             {
-                name: `icon-co-onboard.png`,
+                name: `icon-co-badge.png`,
                 condition: (this.CoOnBoard),
             },
             {
-                name: `icon-co-onboard-hollow.png`,
+                name: `icon-co-badge-faded.png`,
                 condition: (this.CoCouldBoard),
+                // blink: true,
             },
             {
-                name: `icon-co-unit-loaded.png`,
+                name: `icon-co-badge-folded.png`,
                 condition: (this.CoUnitIsCargo),
             },
             {
@@ -697,7 +698,7 @@ export abstract class UnitObject {
             },
             {
                 name: `icon-boarded-${color}.png`,
-                condition: (this._loadedUnits.length > 0 && this.nonCoUnitIsCargo),
+                condition: (this._loadedUnits.length > 0 && !this.CoUnitIsCargo),
             },
             {
                 name: `icon-hidden-${color}.png`,
@@ -706,9 +707,11 @@ export abstract class UnitObject {
         ];
 
         // Filter to applied icons only
-        const iconSet = iconLabels
-            .filter( i => i.condition )
-            .map( i => sheet.textures[i.name] );
+        const iconValids = iconLabels.filter( i => i.condition );
+        const iconSet = iconValids.map( i => sheet.textures[i.name] );
+
+        if (iconValids.length === 1 && iconValids[0].blink)
+            iconSet.push(PIXI.Texture.EMPTY);
 
         // Set and construct
         this.statusTextures = iconSet;
@@ -717,7 +720,7 @@ export abstract class UnitObject {
 
     /** Chooses a status icon to display on the unit's UI box. */
     private setCurrentStatusIcon() {
-        const updateFrequency = 1.2 * 60;   // desired seconds * fps
+        const updateFrequency = 50; // frames
         const intervalCount = Math.floor(Game.frameCount / updateFrequency);
         const frameIdx = intervalCount % this.statusTextures.length;
 
@@ -733,11 +736,12 @@ export abstract class UnitObject {
             this.previewStatusIcons.texture = null;
         }
 
+        // TODO Keep or remove?
         // Blink the HP meter (preview) so we can see the unit underneath.
-        const intervalRaw = Game.frameCount / updateFrequency - intervalCount;
-        const alpha = (intervalRaw <= .5) ? 1 : 0;
+        // const intervalRaw = Game.frameCount / updateFrequency - intervalCount;
+        // const alpha = (intervalCount % 3 === 0) ? 1 : 0;
         // this.previewStatusIcons.alpha = alpha;
-        this.previewHpMeter.alpha = alpha;
+        // this.previewHpMeter.alpha = alpha;
     }
 
     /** Increments the unit's transparency toward one of the slider's extremes, depending on the unit's transparency state. */

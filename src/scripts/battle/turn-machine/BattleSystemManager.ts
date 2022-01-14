@@ -84,7 +84,7 @@ export class BattleSystemManager {
    * transition requests. */
   private update() {
     // Dev stack trace
-    if (Game.devController.get(Keys.P).pressed)
+    if (Game.devController.pressed(Keys.P))
       Debug.ping(this.getStackTrace());
 
     // Wait for the camera before doing anything.

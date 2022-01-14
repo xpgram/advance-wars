@@ -24,6 +24,9 @@ export class DevController {
   /** Reference to the keyboard this controller is listening to. */
   static readonly keyboard = KeyboardObserver;
 
+  /** Neutral button object assumed when DevController is disabled. */
+  static readonly default_button = new Button(new ButtonMap(null, null, null, null));
+
   /** Whether this controller should observe and respond to keyboard events. */
   private enabled: boolean;
 
@@ -60,10 +63,8 @@ export class DevController {
   /** Accessor method which returns a Button according to the Key value it's associated with.
    * Usage: devController.get(Keys.A), where Keys is the ID map obtained from KeyboardObserver. */
   get(keyId: number): Button {
-    const button = Object.values(this.button).find( button => button.map.key1 === keyId );
-    if (button === undefined)
-      throw new Error(`Cannot access keyId ${keyId}: does not exist.`);
-    return button;
+    let button = Object.values(this.button).find( button => button.map.key1 === keyId );
+    return (button !== undefined) ? button : DevController.default_button;
   }
 
   getKeyModifier(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt') {
