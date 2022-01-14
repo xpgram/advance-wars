@@ -8,12 +8,28 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
-Todo List cleanup: (some easy ones)
+
 - [ ] CMD → Drop → CMD ∴ Status and HP are missing, but only if place === goal.
   - There is an update discrepancy between CmdMenu and IWS. Only one of them can have the preview objects as children, so when IWS wins (for whatever reason) CmdMenu's icons are left blank.
-  I think the solution here is to give both containers unique children, not to solve the discrepancy.
-- [ ] IWS cannot refresh while transparency sliding.
+  I think the solution here is to give both containers unique children, not to solve the discrepancy. I need to retain animation control, however. And I can't let a list of roaming sprite objects grow without limit.
+  Either:
+  - Lent objects get destroyed when no longer necessary. Would Cmd do this? Would TurnState.close()?
+  - A dictionary of preview containers are kept and updated, and named for their purpose. The system would request either 'terrain-info' or 'cmdmenu' then.
 
+- [x] IWS cannot refresh while transparency sliding.
+- [ ] Problem's not fixed, though.
+  This is about flickering when an indirect destroys another unit.
+  Logs indicating what happens:
+  - (frame 1)
+  - cursor move (indirect)    [by animation step]
+  - cursor move (target)      [probably by DamageEvent]
+  - target destroy            [by DamageEvent]
+  - (frame 2)
+  - inspect tile              [by workorders; target is obviously gone by now]
+  - inspect tile              [by workorders]
+  The reason I move the cursor around is to manage the camera. I move it around invisibly. I could, I suppose, swap in a focal point instead.
+
+Todo List cleanup: (some easy ones)
 - [ ] On-screen icon indicates when there are un-instructed units
 - [ ] On-screen icon indicates when there are un-utilized bases
 - [ ] Command.Move calculates ambushes
