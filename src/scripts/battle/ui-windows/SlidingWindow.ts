@@ -145,12 +145,15 @@ export class SlidingWindow {
 
     /** Returns true if the window is in a pleasant position to refresh its display, i.e., not switching screen sides. */
     get refreshable() {
-        let deadZone = 0.1;
-        let offscreen = (this.sideChangeSlider.output < deadZone && this.sideChangeSlider.output > -deadZone);
-        let onLeftSide = (this.sideChangeSlider.track == this.sideChangeSlider.min && this.showOnLeftSide);
-        let onRightSide = (this.sideChangeSlider.track == this.sideChangeSlider.max && !this.showOnLeftSide);
+        const deadZone = 0.1;
+        const offscreen = (this.sideChangeSlider.output < deadZone && this.sideChangeSlider.output > -deadZone);
+        const onLeftSide = (this.sideChangeSlider.track == this.sideChangeSlider.min && this.showOnLeftSide);
+        const onRightSide = (this.sideChangeSlider.track == this.sideChangeSlider.max && !this.showOnLeftSide);
 
-        return offscreen || onLeftSide || onRightSide;
+        const settled = (onLeftSide || onRightSide);
+        const notFading = (this.opacitySlider.equalsBoundary());
+
+        return offscreen || settled && notFading;
     }
 
     /** Returns true if the window is actually on the left side of the screen currently. */
