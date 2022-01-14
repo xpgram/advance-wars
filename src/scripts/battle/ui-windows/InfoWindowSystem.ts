@@ -257,6 +257,7 @@ export class InfoWindowSystem {
     this.update();  // Get new positions, etc.
     this.inspectTile(this.map.squareAt(this.cursor.boardLocation));
     this.allWindows.forEach( window => window.positionWindow({skip: true}) );
+    this.pushHudIndicators();
   }
 
   /**  */
