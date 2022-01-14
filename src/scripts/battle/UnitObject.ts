@@ -664,16 +664,16 @@ export abstract class UnitObject {
         // Icon conditions of inclusion
         const iconLabels = [
             {
-                name: `icon-co-onboard.png`,
+                name: `icon-co-badge.png`,
                 condition: (this.CoOnBoard),
             },
             {
-                name: `icon-co-onboard-hollow.png`,
+                name: `icon-co-badge-faded.png`,
                 condition: (this.CoCouldBoard),
                 // blink: true,
             },
             {
-                name: `icon-co-unit-loaded.png`,
+                name: `icon-co-badge-folded.png`,
                 condition: (this.CoUnitIsCargo),
             },
             {

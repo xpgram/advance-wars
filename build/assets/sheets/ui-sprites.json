@@ -171,7 +171,7 @@
 	"sourceSize": {"w":8,"h":8},
 	"anchor": {"x":0,"y":0}
 },
-"icon-co-onboard-hollow.png":
+"icon-co-badge-faded.png":
 {
 	"frame": {"x":360,"y":45,"w":6,"h":8},
 	"rotated": false,
@@ -180,7 +180,7 @@
 	"sourceSize": {"w":8,"h":8},
 	"anchor": {"x":0,"y":0}
 },
-"icon-co-onboard.png":
+"icon-co-badge-folded.png":
 {
 	"frame": {"x":330,"y":55,"w":8,"h":8},
 	"rotated": false,
@@ -189,7 +189,7 @@
 	"sourceSize": {"w":8,"h":8},
 	"anchor": {"x":0,"y":0}
 },
-"icon-co-unit-loaded.png":
+"icon-co-badge.png":
 {
 	"frame": {"x":340,"y":45,"w":8,"h":8},
 	"rotated": false,
@@ -1433,6 +1433,6 @@
 	"format": "RGBA5555",
 	"size": {"w":496,"h":64},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:1b3186d2a4a9ee4e4dbaae6bbf99e4c5:6c1fcbcd10f1d29764459261d6b4d189:7703082df9e3e5b4cde32d891be0eb71$"
+	"smartupdate": "$TexturePacker:SmartUpdate:2edaf472752fe0acb65335d75a15afb6:a66e86ecce28693c0b7fb77c62ba7db3:7703082df9e3e5b4cde32d891be0eb71$"
 }
 }
