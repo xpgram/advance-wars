@@ -21,7 +21,7 @@ But anyway, yeah. There is constant state checking because his system never just
   This is about flickering when an indirect destroys another unit.
   Logs indicating what happens:
   - (frame 1)
-  - cursor move (indirect)    [by animation step]
+  - cursor move (indirect)    [by animation step; maybe by MoveEvent]
   - cursor move (target)      [probably by DamageEvent]
   - target destroy            [by DamageEvent]
   - (frame 2)
