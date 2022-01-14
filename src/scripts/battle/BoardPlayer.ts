@@ -346,8 +346,6 @@ export class BoardPlayer {
    * an allied unit within the CO Zone. This may be attack or counter-
    * attack damage. */
   increasePowerMeter(damage: number) {
-    // const points = Math.ceil(damage); // This accounts for odd HP rounding.
-    console.log(`increasing ${damage}`);
     this.powerMeter.increment(damage);
   }
 
