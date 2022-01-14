@@ -123,6 +123,7 @@ export abstract class UnitObject {
             this.previewStatusIcons,
             this.previewHpMeter,
         );
+
         return sprite;
         // TODO How do I know GC eventually collects preview?
     }

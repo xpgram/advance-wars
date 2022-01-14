@@ -9,7 +9,9 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
 Todo List cleanup: (some easy ones)
-- [ ] CMD → Drop → CDM ∴ Status and HP are missing.
+- [ ] CMD → Drop → CMD ∴ Status and HP are missing, but only if place === goal.
+  - There is an update discrepancy between CmdMenu and IWS. Only one of them can have the preview objects as children, so when IWS wins (for whatever reason) CmdMenu's icons are left blank.
+  I think the solution here is to give both containers unique children, not to solve the discrepancy.
 - [ ] IWS cannot refresh while transparency sliding.
 
 - [ ] On-screen icon indicates when there are un-instructed units

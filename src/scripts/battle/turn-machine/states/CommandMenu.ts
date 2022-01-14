@@ -90,24 +90,7 @@ export class CommandMenu extends TurnState {
       location.y -= location.y + cmdMenu.graphicalHeight + 4 - view.y - view.height;
     cmdMenu.setPosition(location);
 
-    // Sort ui layer
-    MapLayer('ui').sortChildren();
     cmdMenu.show();
-
-    // TODO .sortChildren() should not be here.
-
-    // TODO unit.commands should be how the selectables are determined.
-    // Maybe commands returns a name/script pair? value = script.
-    // Then, the units themselves can codify how many options they have,
-    // when they present themselves, and what they do after selection.
-    //
-    // Units have a reference to map, don't they? They might not.
-    // I guess they will.
-    //
-    // Problem: 'Supply' also triggers animations. Under the system just
-    // described, how would it? I could queue animations and play them
-    // during a generic animation state, but that's some work, yo.
-    // Not sure I wanna do that right now.
   }
 
   update(): void {
