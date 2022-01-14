@@ -47,7 +47,7 @@ class App {
     private readonly devControls = [
         function toggleStageScaling() {
             const dc = Game.devController;
-            if (dc.get(Keys.Shift).down && dc.get(Keys.iRow1).pressed) {
+            if (dc.pressed(Keys.iRow1, 'Shift')) {
                 Game.devSettings.limitStageScaling = !Game.devSettings.limitStageScaling;
                 Game.display.resize(Game.renderer, Game.container);
             }
