@@ -252,7 +252,7 @@ export class InfoWindowSystem {
     this.hudIndicators.dayCounter.count = n;
   }
 
-  /** Positions the window UI where it moving to instantly. */
+  /** Positions the window UI where it's moving to instantly. */
   skipAnimations() {
     this.update();  // Get new positions, etc.
     this.inspectTile(this.map.squareAt(this.cursor.boardLocation));
