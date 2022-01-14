@@ -68,7 +68,7 @@ export class Slider {
 
     /** Returns true if this slider is set to either of its extremes. */
     equalsBoundary() {
-        return this.equalsMax() && this.equalsMin();
+        return this.equalsMax() || this.equalsMin();
     }
 
     /** The value of the slider's tracked position. Between slider.min and .max by definition. */
