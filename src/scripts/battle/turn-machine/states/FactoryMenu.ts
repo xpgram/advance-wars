@@ -93,6 +93,15 @@ export class FactoryMenu extends TurnState {
     uiSystem.skipAnimations();
     this.tempUnitLast?.destroy();
     this.tempUnitLast = undefined;
+
+    const delayTimestamp = Game.frameCount + 2;
+    // TODO Suspend uiSystem refresh
+    Game.workOrders.send( () => {
+      if (Game.frameCount === delayTimestamp) {
+        // TODO Un-suspend uiSystem refresh 
+        return true;
+      }
+    });
   }
 
   update() {
