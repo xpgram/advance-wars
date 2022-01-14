@@ -81,6 +81,12 @@ export const FactionColors = [
   'black',
 ]
 
+/** Simple Left/Right differentation. */
+export enum Facing {
+  Left,
+  Right,
+}
+
 /** The terrain tileset to use for visually constructing maps. */
 export enum TerrainTileSet {
   Normal,

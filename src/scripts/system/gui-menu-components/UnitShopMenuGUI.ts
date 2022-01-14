@@ -177,14 +177,15 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
       if (idx >= objects.length)
         return;
       const object = objects[idx] as PIXI.Sprite;
+      const [ unitPreview, nameText, priceText ] = object.children;
       if (item.disabled) {
-        object.children[0].tint = 0x888888;
-        object.children[1].alpha = 0.35;
-        object.children[2].alpha = 0.35;
+        unitPreview.children[0].tint = 0x888888;
+        nameText.alpha = 0.35;
+        priceText.alpha = 0.35;
       } else {
-        object.children[0].tint = 0xFFFFFF;
-        object.children[1].alpha = 1;
-        object.children[2].alpha = 1;
+        unitPreview.children[0].tint = 0xFFFFFF;
+        nameText.alpha = 1;
+        priceText.alpha = 1;
       }
     });
   }

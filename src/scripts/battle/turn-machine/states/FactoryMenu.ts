@@ -46,7 +46,7 @@ export class FactoryMenu extends TurnState {
     const listItems = unitTypes.map(type => {
       const unit = new type();
       const key = {
-        icon: unit.shopPreview(player.faction),
+        icon: unit.shopPreview(player.faction, player.armyFacing),
         title: unit.name,
         cost: unit.cost,
       }

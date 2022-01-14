@@ -1,7 +1,7 @@
 import { Common } from "../CommonUtils";
 import { LowResTransform } from "../LowResTransform";
 import { Game } from "../..";
-import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod } from "./EnumTypes";
+import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod, Facing } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
 import { fonts } from "./ui-windows/DisplayInfo";
 import { MapLayer, MapLayerFunctions } from "./map/MapLayers";
@@ -111,13 +111,13 @@ export abstract class UnitObject {
     /** A 16x16 thumbnail image for this unit object. Must be initiated. */
     // TODO unit.preview is not modifiable without first putting it in another
     // container: is this getter then misleading? I think so.
-    get preview(): PIXI.Sprite {
+    get preview(): PIXI.Container {
         return this.shopPreview(this.faction);
     }
 
     /** A 16x16 thumbnail image for this unit object which includes status
      * information. Must be initiated. */
-    get cargoPreview(): PIXI.Sprite {
+    get cargoPreview(): PIXI.Container {
         const sprite = this.preview;
         sprite.addChild(
             this.previewStatusIcons,
@@ -125,13 +125,10 @@ export abstract class UnitObject {
         );
         return sprite;
         // TODO How do I know GC eventually collects preview?
-        // I could have a dedicated preview sprite. Hm.
-        // If I could measure the memory impact of this implementation, I'd know
-        // if it was even an issue.
     }
 
     /** A 16x16 thumbnail image for this unit type. */
-    shopPreview(faction: Faction): PIXI.Sprite {
+    shopPreview(faction: Faction, facing?: Facing): PIXI.Container {
         // TODO This process, identifying the filepath, asking about soldier sprites because they're different, is common. Encapsulate it somewhere.
         let name = this.name.replace(' ','').replace('-','').toLowerCase();
         let color = FactionColors[faction];
@@ -142,8 +139,15 @@ export abstract class UnitObject {
             sprite = new PIXI.Sprite(UnitProperties.sheet.textures[`${name}/${army}/${color}/idle-1.png`]);
         else
             sprite = new PIXI.Sprite(UnitProperties.sheet.textures[`${name}/${color}/idle-1.png`]);
+        
+        if (this.reverseFacing || facing === Facing.Left) {
+            sprite.anchor.x = 1;
+            sprite.scale.x = -1;
+        }
 
-        return sprite;
+        let container = new PIXI.Container();
+        container.addChild(sprite);
+        return container;
     }
 
     // TODO Rename this; 'exhibit' is stupid, I'm tired of reading it.
@@ -304,9 +308,8 @@ export abstract class UnitObject {
             this._sprite = new PIXI.AnimatedSprite(sheet.animations[`${name}/${country}/${color}/idle`]);
         else
             this._sprite = new PIXI.AnimatedSprite(sheet.animations[`${name}/${color}/idle`]);
-        //this.sprite.scale.x = (team.playerNumber % 2 == 0) ? 1 : -1;
-        this.reverseFacing = (this.faction % 2 == 1);
-        // TODO Make this more permenant. LowResT just erases it.
+
+        this.reverseFacing = (this.boardPlayer.armyFacing === Facing.Left);
 
         // Build UI elements.
         this.uiBox = new PIXI.Container();

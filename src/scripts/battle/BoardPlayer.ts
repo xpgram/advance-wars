@@ -3,7 +3,7 @@ import { Slider } from "../Common/Slider";
 import { Map } from "./map/Map";
 import { ImmutablePointPrimitive, Point } from "../Common/Point";
 import { CommandingOfficer } from "./CommandingOfficer";
-import { Faction, FactionColors, UnitClass } from "./EnumTypes";
+import { Facing, Faction, FactionColors, UnitClass } from "./EnumTypes";
 import { Terrain } from "./map/Terrain";
 import { CommandingOfficerObject } from "./CommandingOfficerObject";
 import { Unit } from "./Unit";
@@ -78,6 +78,7 @@ export class BoardPlayer {
   armyDeployed: boolean;            // Whether this player has had an army yet. Prevents match loss before unit purchase.
   units: UnitObject[] = [];         // List of units under control.
   lastCursorPosition: Point;
+  armyFacing: Facing;
 
   /** The number of turns a player must wait to spawn another CO unit. */
   get CoUnitTurnDelay() { return this._CoUnitTurnDelay; }
@@ -98,6 +99,7 @@ export class BoardPlayer {
     // Validate player number.
     if (false) // TODO stub
       throw new BoardPlayerConstructionError(`Cannot set player number to ${this.playerNumber}: invalid link number.`);
+    this.armyFacing = (this.playerNumber % 2 === 0) ? Facing.Right : Facing.Left;
 
     // Validate faction setting.
     const validFactions = [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black];
