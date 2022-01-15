@@ -18,7 +18,7 @@ But anyway, yeah. There is constant state checking because his system never just
 
 - [x] IWS cannot refresh while transparency sliding.
 - [ ] Problem's not fixed, though.
-  This is about flickering when an indirect destroys another unit.
+  This is about flickering when an indirect destroys another unit. (flickering of Details, not UnitInfo)
   Logs indicating what happens:
   - (frame 1)
   - cursor move (indirect)    [by animation step; maybe by MoveEvent]

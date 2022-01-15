@@ -2,13 +2,17 @@
 
 TODO Picture of rand gen?
 
-The Map is the object which defines the game board and board interface. It's an abstraction layer above essentially a plane of MapTiles, shown to the right.
+The Map is the object which defines the game board and board interface.
 
-MapTiles themselves are responsible for tile-specific properties, which cover various referential details such as its Defense Boost value, whether it has been marked 'Attackable' or 'Traversable', and which Battle Unit if any is present within it.
+It has three main jobs:
 
-The Map's domain is inter-tile behavior, with methods for retrieving a particular MapTile at some location, or for marking all tiles within range of some Battle Unit as actionable according to the present set of circumstances.
+1. Coordinate the initial instantiation and setup of the board.
+2. Provide a few convenient inter-tile algorithms.
+3. Provide references to individual tile objects.
 
-## MapTiles
+We're talking about the first two here.
+
+## Tile Properties
 
 [Pic of lone Mountain]
 
@@ -16,21 +20,45 @@ Let's describe what they are, first.
 
 ## Building The Game World
 
-The map system in Advance Wars is dynamic. For any map, it reads a list of terrain-type instructions in the form of serial numbers, then builds one large, seamless map image for the players to play on. Aside of the very board-gamey nature of this map, the players shouldn't be able to tell it's discretely constructed.
+The map system in Advance Wars is dynamic. All it needs is a grid of serial numbers and the rest is auto-configured at run time. Nearly any map conceivable is also playable.
 
-This dynamic nature greatly simplifies the overhead in the level design process, but it also means the map system has to accommodate virtually every conceivable configuration of tiles. There can't be any holes in the process if there can't also be any guiding hands to ease around them.
+The tilesets used for these maps, though, include [a lot of] borders and pairings to smooth over its grid-like appearance. Which means, for them to look good we need a system that knows which tiles can be matched together and how.
 
-So, from serials, the map constructs the board graphics in multiple stages:
+This all happens in multiple stages.
 
-### Object Assembly
+**Map Initialization**
+a
 
+**Map Contents**
+a
 
+**Preliminary Configuration**
+a
 
-### Tile Auto-Configuration
+**Tile Auto-Configuration**
+a
 
+**Draw Optimization**
+a
 
+**Stage Shader Animations**
+a
 
-### Step Third, Whatever It Was
+Map is validated for basic details, like every player having an HQ
+
+Map is constructed with a neighbor-safe perimeter
+
+Map converts the grid of serials into MapTile objects with TerrainObject children.
+
+Tile legalities are enforced. This is a holdover from when maps were auto-generated, but it's important. Beach needs certain things to be true in order to display.
+
+MapTiles are configured. This has to do with visual effects like shallow seas.
+
+MapTiles are initialized, which is where the tileset juice happens.
+
+MapLayers optimizes the map for draw speed.
+
+Shader animations are started.
 
 
 
@@ -40,11 +68,3 @@ I should probably pin down what I actually want to cover.
 - How the Map is initialized, what phases it goes through.
   - How does a tile know how to match its surroundings?
 - The sprite optimizations made to speed up draw()
-
-So, the first thing I ought to do is set up the problem that Map solves.
-
-
-
-1. Basic description of Map
-2. The problems the game needs solving
-3. How Map solves them, step-by-step
