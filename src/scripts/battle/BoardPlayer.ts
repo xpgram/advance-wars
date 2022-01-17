@@ -310,9 +310,9 @@ export class BoardPlayer {
       const spawnableLocation = (terrainAllied && (spawnableTerrain || spawnableFromHQ));
       const unitOrderable = (u.orderable);
       const canSpawnCo = (this.canSpawnCO);
+      const unitAffordable = (u.cost <= this.funds);
 
-      const showIcon = (unitOrderable && canSpawnCo && spawnableLocation);
-      u.CoCouldBoard = showIcon;
+      u.CoCouldBoard = (unitOrderable && unitAffordable && canSpawnCo && spawnableLocation);
     });
   }
 

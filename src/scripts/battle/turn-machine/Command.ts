@@ -397,6 +397,7 @@ export module Command {
           actor.CoOnBoard = true;
           actor.rank = 3;
           players.perspectivesTurn?.setCoBoardableIndicators();
+          players.current.expendFunds(actor.cost);
         }
       }));
     },
