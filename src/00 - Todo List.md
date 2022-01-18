@@ -84,6 +84,10 @@ Everything else in battle mode is just polish, pretty much. I'm missing things l
 Plus, I need the online system so I can start developing it alongside the game's other features; keep the designs consistent and orderly.
 
 
+- [x] CO units must be bought again (like double-summoned) to be produced.
+- [ ] Indicate somewhere on screen that the CO command will cost funds? This is easy to forget, otherwise. Players need full consent, yo.
+I don't even have the funds-cost-remaining widget written yet, so I guess we'll try to force it open whenever I do.
+
 - [ ] Scene has a property called 'resources' which should be equivalent to Game.loader.resources, but I never use it. I think I never use it.
 
 - [x] Camera refactor: bugs and integration
