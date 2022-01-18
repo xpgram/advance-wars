@@ -62,6 +62,7 @@ export class Map {
         // need to be extracted.
 
         MapLayerFunctions.Init();
+        MapLayer('ui').sortableChildren = true;     // TODO Enables z-sorting on child add; do I want this *here* though?
 
         // Pre-build check.
         if (!this.validateMapData(mapData))
