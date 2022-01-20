@@ -44,27 +44,20 @@ a
 **Stage Shader Animations**
 a
 
-Map is validated for basic details, like every player having an HQ
-
-Map is constructed with a neighbor-safe perimeter
-
-Map converts the grid of serials into MapTile objects with TerrainObject children.
-
-Tile legalities are enforced. This is a holdover from when maps were auto-generated, but it's important. Beach needs certain things to be true in order to display.
-
-MapTiles are configured. This has to do with visual effects like shallow seas.
-
-MapTiles are initialized, which is where the tileset juice happens.
-
-MapLayers optimizes the map for draw speed.
-
-Shader animations are started.
 
 
+I should probably focus on map's design.
+The initialization step is too granular. Nobody cares.
 
-I should probably pin down what I actually want to cover.
+Map is constructed via:
 
-- The Map API, probably; what is it capable of.
-- How the Map is initialized, what phases it goes through.
-  - How does a tile know how to match its surroundings?
-- The sprite optimizations made to speed up draw()
+- TerrainObjects: Properties and graphics for an individual tile.
+  Cover auto-configuration
+  Maybe cover the construction phases briefly. Serial→Object→Validating/Pruning→Configuration(shallow seas)→Graphics.
+  Cover overlay effects and the shader texture-caching trick.
+- MapLayers: Graphics-set hierarchy management.
+  Good segway: I use a different caching trick to massively reduce redraw on static map objects but which still allow dynamic z-ordering.
+- MapTiles and Algorithms: How moveable/attackable tiles are determined.
+  MapTiles are containers for objects and tile settings (visual, temporary values, etc).
+  Map uses these to figure out where units can move and such.
+  Neighbor matrix gotta get covered here, if not in TerrainObject. Mention how I made map boundaries safe during algs. (Mention how I would make it safer if rewritten (infinite plane)).
