@@ -29,7 +29,6 @@ export const Terrain = {
         // Not for nothin', but these properties are all technically condensible into one 64-bit value.
         get type() { return VoidTile; }
         static readonly serial = -1;
-        get serial() { return -1; }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -62,7 +61,6 @@ export const Terrain = {
     Plain: class PlainTile extends TerrainObject {
         get type() { return PlainTile; }
         static readonly serial = 0;
-        get serial() { return 0; }
         get illustration(): PIXI.Sprite {
             if (this.variation == 1)
                 return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-meteor-landscape.png'] );
@@ -107,7 +105,6 @@ export const Terrain = {
     Road: class RoadTile extends TerrainObject {
         get type() { return RoadTile; }
         static readonly serial = 1;
-        get serial() { return 1; }
 
         get name() { return "Road"; }
         get shortName() { return "Road"; }
@@ -146,7 +143,6 @@ export const Terrain = {
     Wood: class WoodTile extends TerrainObject {
         get type() { return WoodTile; }
         static readonly serial = 2;
-        get serial() { return 2; }
 
         get name() { return "Wood"; }
         get shortName() { return "Wood"; }
@@ -184,7 +180,6 @@ export const Terrain = {
     Mountain: class MountainTile extends TerrainObject {
         get type() { return MountainTile; }
         static readonly serial = 3;
-        get serial() { return 3; }
 
         get name() { return "Mountain"; }
         get shortName() { return "Mtn"; }
@@ -226,7 +221,6 @@ export const Terrain = {
     Wasteland: class WastelandTile extends TerrainObject {
         get type() { return WastelandTile; }
         static readonly serial = 4;
-        get serial() { return 4; }
 
         get name() { return "Wasteland"; }
         get shortName() { return "Wstlnd"; }
@@ -259,7 +253,6 @@ export const Terrain = {
     Ruins: class RuinsTile extends TerrainObject {
         get type() { return RuinsTile; }
         static readonly serial = 5;
-        get serial() { return 5; }
 
         get name() { return "Ruins"; }
         get shortName() { return "Ruins"; }
@@ -297,7 +290,6 @@ export const Terrain = {
     Bridge: class BridgeTile extends TerrainObject {
         get type() { return BridgeTile; }
         static readonly serial = 6;
-        get serial() { return 6; }
         readonly landTile: boolean;
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -357,7 +349,6 @@ export const Terrain = {
     River: class RiverTile extends TerrainObject {
         get type() { return RiverTile; }
         static readonly serial = 7;
-        get serial() { return 7; }
 
         get name() { return "River"; }
         get shortName() { return "River"; }
@@ -390,7 +381,6 @@ export const Terrain = {
     Sea: class SeaTile extends TerrainObject {
         get type() { return SeaTile; }
         static readonly serial = 8;
-        get serial() { return 8; }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -424,7 +414,6 @@ export const Terrain = {
     Beach: class BeachTile extends TerrainObject {
         get type() { return BeachTile; }
         static readonly serial = 9;
-        get serial() { return 9; }
         get landTile() { return false; }
 
         get name() { return "Beach"; }
@@ -487,7 +476,6 @@ export const Terrain = {
     RoughSea: class RoughSeaTile extends TerrainObject {
         get type() { return RoughSeaTile; }
         static readonly serial = 10;
-        get serial() { return 10; }
         get illustration(): PIXI.Sprite {
             return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
         }
@@ -545,7 +533,6 @@ export const Terrain = {
     Mist: class MistTile extends TerrainObject {
         get type() { return MistTile; }
         static readonly serial = 11;
-        get serial() { return 11; }
         get illustration(): PIXI.Sprite {
             return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
         }
@@ -588,7 +575,6 @@ export const Terrain = {
     Reef: class ReefTile extends TerrainObject {
         get type() { return ReefTile; }
         static readonly serial = 12;
-        get serial() { return 12; }
         get landTile() { return false; }
 
         get name() { return "Reef"; }
@@ -639,7 +625,6 @@ export const Terrain = {
     Fire: class FireTile extends TerrainObject {
         get type() { return FireTile; }
         static readonly serial = 13;
-        get serial() { return 13; }
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
@@ -684,7 +669,6 @@ export const Terrain = {
     Meteor: class MeteorTile extends TerrainObject {
         get type() { return MeteorTile; }
         static readonly serial = 14;
-        get serial() { return 14; }
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
@@ -748,7 +732,6 @@ export const Terrain = {
     Plasma: class PlasmaTile extends TerrainObject {
         get type() { return PlasmaTile; }
         static readonly serial = 15;
-        get serial() { return 15; }
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
@@ -809,7 +792,6 @@ export const Terrain = {
     Pipeline: class PipelineTile extends TerrainObject {
         get type() { return PipelineTile; }
         static readonly serial = 16;
-        get serial() { return 16; }
 
         get name() { return "Pipeline"; }
         get shortName() { return "Pipe"; }
@@ -853,7 +835,6 @@ export const Terrain = {
     PipeSeam: class PipeSeamTile extends TerrainObject {
         get type() { return PipeSeamTile; }
         static readonly serial = 17;
-        get serial() { return 17; }
 
         get name() { return "Pipe Seam"; }
         get shortName() { return "Pipe"; }
@@ -893,7 +874,6 @@ export const Terrain = {
     HQ: class HQTile extends TerrainBuildingObject {
         get type() { return HQTile; }
         static readonly serial = 18;
-        get serial() { return 18; }
 
         get name() { return "HQ"; }
         get shortName() { return "HQ"; }
@@ -934,7 +914,6 @@ export const Terrain = {
     City: class CityTile extends TerrainBuildingObject {
         get type() { return CityTile; }
         static readonly serial = 19;
-        get serial() { return 19; }
 
         get name() { return "City"; }
         get shortName() { return "City"; }
@@ -972,7 +951,6 @@ export const Terrain = {
     ComTower: class ComTowerTile extends TerrainBuildingObject {
         get type() { return ComTowerTile; }
         static readonly serial = 20;
-        get serial() { return 20; }
 
         get name() { return "Com Tower"; }
         get shortName() { return "Com T"; }
@@ -1009,7 +987,6 @@ export const Terrain = {
     Radar: class RadarTile extends TerrainBuildingObject {
         get type() { return RadarTile; }
         static readonly serial = 21;
-        get serial() { return 21; }
 
         get name() { return "Radar"; }
         get shortName() { return "Radar"; }
@@ -1046,7 +1023,6 @@ export const Terrain = {
     Silo: class SiloTile extends TerrainObject {
         get type() { return SiloTile; }
         static readonly serial = 22;
-        get serial() { return 22; }
         get illustration(): PIXI.Sprite {
             if (this.value == 1)
                 return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['silo-unused-landscape.png'] );
@@ -1095,7 +1071,6 @@ export const Terrain = {
     Factory: class FactoryTile extends TerrainBuildingObject {
         get type() { return FactoryTile; }
         static readonly serial = 23;
-        get serial() { return 23; }
 
         get name() { return "Factory"; }
         get shortName() { return "Fctry"; }
@@ -1133,7 +1108,6 @@ export const Terrain = {
     Airport: class AirportTile extends TerrainBuildingObject {
         get type() { return AirportTile; }
         static readonly serial = 24;
-        get serial() { return 24; }
 
         get name() { return "Airport"; }
         get shortName() { return "Airport"; }
@@ -1171,7 +1145,6 @@ export const Terrain = {
     Port: class PortTile extends TerrainBuildingObject {
         get type() { return PortTile; }
         static readonly serial = 25;
-        get serial() { return 25; }
         get landTile() { return false; }
 
         get name() { return "Port"; }
@@ -1211,7 +1184,6 @@ export const Terrain = {
     TempAirpt: class TempAirptTile extends TerrainBuildingObject {
         get type() { return TempAirptTile; }
         static readonly serial = 26;
-        get serial() { return 26; }
 
         get name() { return "Temp Airpt"; }
         get shortName() { return "T Air"; }
@@ -1248,7 +1220,6 @@ export const Terrain = {
     TempPort: class TempPortTile extends TerrainBuildingObject {
         get type() { return TempPortTile; }
         static readonly serial = 27;
-        get serial() { return 27; }
         get landTile() { return false; }
 
         get name() { return "Temp Port"; }

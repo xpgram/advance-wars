@@ -78,9 +78,6 @@ export abstract class TerrainObject {
     /** This terrain type's serial number. */
     static readonly serial: number = -1;
 
-    /** This terrain's numerical serialization. */
-    abstract get serial(): number;
-
     /** The serial number for this terrain's silhouette shape. */
     get shapeSerial() {
         return this._shapeSerial;
@@ -90,7 +87,7 @@ export abstract class TerrainObject {
     /** The identifier-key for this terrain's silhoette shape. */
     get shapeId() {
         return (this.shapeSerial !== '0' || this.building)
-            ? `${this.serial}:${this.shapeSerial}`
+            ? `${this.type.serial}:${this.shapeSerial}`
             : 'std';
     }
 
