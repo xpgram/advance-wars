@@ -136,6 +136,11 @@ export class Square {
             if (Game.frameCount % rate === 0) {
                 this.updateOverlayPanelTexture();
             }
+            // TODO When are these removed? Is self-remove a good strategy?
+            // Or do we not really care until the inevitable Game.scene.ticker.clear()?
+            // I think I might need to care if tiles can change mid-game.
+            //if (this.destroyed)
+            //  Game.scene.ticker.remove(func);     // func needs to be this anonymous function
         });
 
         // Arrow Layer
