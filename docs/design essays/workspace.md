@@ -30,14 +30,26 @@ Some tiles require a little extra information post-instantiation to determine ho
 In the case of Sea tiles, technically... this could be handled during orientation. Much of this system was developed very early on in the project, but even so, this step is technically sound if underutilized.
 
 **Orientation**
-Which tile / positioning
+The main purpose of the steps previous to this one was to setup *terrain information* unknowable until after placement. In retrospect, this could be refactored a bit: Bridges, which need to know whether they're over River or Sea tiles, should probably be composed of two different serials if that is how maps are saved.
 
-Explain NeighborMatrix and the tileset naming scheme.
+The convenience of merging the Bridge variants into one type, however, is that when replacing an existing terrain with a Bridge, it can infer which one it's supposed to be dynamically. Early on in this project, maps were randomly generated to spare me (temporarily) the trouble of designing a map read/write system, and this dynamic configuring was useful to that end.
+
+During the Orientation step, Terrain objects get a datatype describing their immediate neighbors, and use the fully configured terrain information to build themselves visually.
+
+The mechanism is quite simple, actually. The tileset follows an important naming scheme.
+
+Every variant of some terrain is named for its terrain type and its direction code.
+
+The direction code is simply a binary indicator for each of the four cardinal directions. Or two of them, in the case of Wood and Mountain which only pair up in horizontal lines.
+
+Terrain types which need to take advantage of this letter code system simply override the default tileset picker and define their own rules for when a direction code digit is triggered.
 
 **Overlayer Construction**
-The silhouette or 'whitemask', and the arrow, and I guess the drop arrow.
+The final step of the terrain's visual construction is to assemble its UI accessories.
 
-Cover whitemask shader optimization via TextureLibrary.
+Every MapTile has access to a white silhouette of the tileset image, known as a whitemask, and an arrow segment which is used for describing travel paths.
+
+The whitemask [something something shader, put in texture library, pulled by other terrains every frame]
 
 ------
 
