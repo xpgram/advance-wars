@@ -5,6 +5,7 @@ import { CheckBoardState } from "./CheckBoardState";
 import { UnitClass } from "../../EnumTypes";
 import { DestructEvent } from "../../map/tile-effects/DestructEvent";
 import { SpeechBubbleEvent } from "../../map/tile-effects/SpeechBubbleEvent";
+import { PlayerCard } from "./PlayerCard";
 
 export class TurnStart extends TurnState {
   get type() { return TurnStart; }
@@ -126,7 +127,7 @@ export class TurnStart extends TurnState {
     // Configure initial control script states
     scripts.nextOrderableUnit.resetIndex();
 
-    this.advance(CheckBoardState);
+    this.advance(PlayerCard, CheckBoardState);
   }
 
 }
