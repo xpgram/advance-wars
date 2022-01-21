@@ -51,6 +51,7 @@ export abstract class TurnState {
 
   readonly destroyed = false;
   destroy() {
+    this.onDestroy();
     //@ts-expect-error
     this.destroyed = true;
     //@ts-expect-error
@@ -99,6 +100,9 @@ export abstract class TurnState {
    * Raising an error of any kind in this step will be caught and reported by the
    * Battle System Manager, and this will be auto-reverted to the last stable game state. */
   protected abstract configureScene(): void;
+
+  /** Function called during destruction of the TurnState object. */
+  protected onDestroy() { };
 
   /** Function called before configuration only when this state is advanced to. */
   protected onAdvance() { };
