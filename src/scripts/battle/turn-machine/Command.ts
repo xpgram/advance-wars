@@ -236,10 +236,10 @@ export module Command {
     },
     scheduleEvents() {
       const { boardEvents } = data.assets;
-      const { actor } = data;
+      const { actor, place } = data;
 
       boardEvents.schedule(new GenericRatifyEvent({
-        location: actor.boardLocation,
+        location: place,
         ratify: () => {
           actor.hiding = true;
           // TODO Update actor vis; this will probs duplicate some code in TurnStart, so I need to extract.
@@ -265,12 +265,12 @@ export module Command {
     },
     scheduleEvents() {
       const { boardEvents } = data.assets;
-      const { actor } = data;
+      const { actor, goal } = data;
 
       Command.Move.scheduleEvents();
 
       boardEvents.schedule(new GenericRatifyEvent({
-        location: actor.boardLocation,
+        location: goal,
         ratify: () => {
           actor.hiding = false;
           // TODO Update actor vis; this will probs duplicate some code in TurnStart, so I need to extract.
