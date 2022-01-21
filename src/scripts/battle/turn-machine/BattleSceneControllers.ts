@@ -250,6 +250,9 @@ export class BattleSceneControllers {
 
     // Add the control script iterator to the ticker.
     Game.scene.ticker.add(this.updateControlScripts, this);
+
+    // Set all assets to default
+    this.hidePlayerSystems();
   }
 
   destroy() {

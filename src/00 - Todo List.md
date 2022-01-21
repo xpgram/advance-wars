@@ -9,6 +9,22 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
 
+- [ ] TurnStart schedules TurnStates:
+  - [ ] UpdatePerspective
+  - [ ] ShowPlayerCard
+  - [ ] StandbyPhase
+  - [ ] AnimateEvents
+  - [ ] CheckBoardState
+  TurnStart is the standby phase now; it's doing too much.
+
+- [x] Subs Dive before moving
+- [ ] Subs surface after moving
+
+- [ ] Cannot revert unrevertible state → infinite loop
+- [ ] Square.stealth is distinct from .hidden and .hideUnit
+  - [ ] In fact, .hidden is confusing and should be .obscuredByFog or something.
+  - [ ] .hideUnit, which could be .unitVisible, is whether the unit is seen on screen; it's a player perspective setting. .stealth and .fog are about board state and are both useful to AI in a way that .hideUnit simply isn't.
+
 - [ ] CMD → Drop → CMD ∴ Status and HP are missing, but only if place === goal.
   - There is an update discrepancy between CmdMenu and IWS. Only one of them can have the preview objects as children, so when IWS wins (for whatever reason) CmdMenu's icons are left blank.
   I think the solution here is to give both containers unique children, not to solve the discrepancy. I need to retain animation control, however. And I can't let a list of roaming sprite objects grow without limit.

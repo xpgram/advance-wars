@@ -3,6 +3,8 @@ import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
 
+
+/** Shows the current player's begin-turn animation sweep. */
 export class PlayerCard extends TurnState {
   get type() { return PlayerCard; }
   get name() { return 'PlayerCard'; }
