@@ -582,6 +582,8 @@ export const Unit = {
         get unitClass() { return UnitClass.Air; }
         get moveType() { return MoveType.Air; }
         get armorType() { return ArmorType.Air; }
+
+        get canHide() { return true; }
         
         get weapon() { return {
             primary: {
@@ -878,6 +880,8 @@ export const Unit = {
         get unitClass() { return UnitClass.Naval; }
         get moveType() { return MoveType.Ship; }
         get armorType() { return ArmorType.Sub; }
+
+        get canHide() { return true; }
         
         get weapon() { return {
             primary: {

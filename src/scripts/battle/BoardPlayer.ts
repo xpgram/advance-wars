@@ -226,8 +226,11 @@ export class BoardPlayer {
     this.map.placeUnit(unit, location);
     this.units.push(unit);
 
-    // Other spawn settings
-    (unit as UnitObject).spent = settings.spent || false;
+    // Spawn-new settings
+    (unit.canHide) && (unit.hiding = true);
+
+    // Load-in spawn settings
+    unit.spent = settings.spent || false;
 
     // TODO Complete unit spawn settings
     // Units have (had) a state and condition number which describes their HP,

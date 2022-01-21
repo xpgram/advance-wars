@@ -565,6 +565,7 @@ export abstract class UnitObject {
     }
 
     /** Whether this unit is hidden from any non-allied players. */
+    // TODO Shouldn't this be in stateInfo?
     get hiding() { return this._hiding; }
     set hiding(b: boolean) {
         this._hiding = b;
