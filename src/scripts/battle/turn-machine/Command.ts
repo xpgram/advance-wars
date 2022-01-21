@@ -154,7 +154,8 @@ export module Command {
 
       const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);
       events.push(getDamageEvent(actor, target, battleResults.damage));
-      events.push(getDamageEvent(target, actor, battleResults.counter, trackCar));
+      if (target.canCounterAttack(actor, goal))
+        events.push(getDamageEvent(target, actor, battleResults.counter, trackCar));
       boardEvents.schedule(events);
     }
   }
