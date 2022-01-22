@@ -22,8 +22,6 @@ import { defaultUnitSpawnMap, UnitSpawnMap } from "../UnitSpawnMap";
 import { CommandObject } from "./Command";
 import { IconTitle, ShopItemTitle } from "../../system/gui-menu-components/ListMenuTitleTypes";
 import { UnitShopMenuGUI } from "../../system/gui-menu-components/UnitShopMenuGUI";
-
-import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
 import { BoardEventSchedule } from "../map/tile-effects/BoardEventSchedule";
 import { NextTargetableUnit } from "../control-scripts/nextTargetableUnit";
 import { ManualMoveCamera } from "../control-scripts/manualMoveCamera";
@@ -32,6 +30,8 @@ import { Camera } from "../../camera/Camera";
 import { ViewRectBorder } from "../../camera/ViewRectBorder";
 import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { LinearApproach } from "../../camera/TravelAlgorithms";
+
+import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -44,10 +44,12 @@ export type ScenarioOptions = {
   /** How many days (turns) the battle will go on for before it is decided by player
    * standing. Set to < 1 for infinite. @default -1 */
   dayLimit?: number,
+  /** How many properties a player can capture to win the game. Set to < 1 for infinite. @default -1 */
+  propertiesToWin?: number,
   /** Funds granted to each player on their first turn. @default 0 */
   startingFunds?: number,
   /** Funds granted per fungible captured property on turn start. @default 1000 */
-  incomePerFungible?: number,
+  incomePerTaxableProperty?: number,
   /** AI play style: aggressive, defensive, balanced, etc. @default Balanced */
   // aiPlaystyle?: AIPlayStyle,
   /** Whether units get more powerful/experienced after defeating another unit. @default True */
@@ -66,9 +68,10 @@ export type Scenario = {
   fogOfWar: boolean,
   weather: Weather,
   terrainGraphics: TerrainTileSet,
-  dayLimit: number,
+  dayLimit: number,           // How many days happen before the leading player wins.
+  propertiesToWin: number,    // How many captured properties will win the game.
   startingFunds: number,
-  incomePerFungible: number,
+  incomePerTaxableProperty: number,
   // aiPlaystyle: AIPlayStyle,
   rankUp: boolean,
 
@@ -88,8 +91,9 @@ const Default_Scenario: Scenario = {
   weather: Weather.Clear,
   terrainGraphics: TerrainTileSet.Normal,
   dayLimit: -1,
+  propertiesToWin: -1,
   startingFunds: 0,
-  incomePerFungible: 1000,
+  incomePerTaxableProperty: 1000,
   // aiPlaystyle: AIPlayStyle.Balanced,
   rankUp: true,
 

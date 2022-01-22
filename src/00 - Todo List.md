@@ -15,6 +15,7 @@ But anyway, yeah. There is constant state checking because his system never just
 - [x] Subs surface after moving
 
 - [ ] Cannot revert unrevertible state → infinite loop
+
 - [ ] Square.stealth is distinct from .hidden and .hideUnit
   - [ ] In fact, .hidden is confusing and should be .obscuredByFog or something.
   - [ ] .hideUnit, which could be .unitVisible, is whether the unit is seen on screen; it's a player perspective setting. .stealth and .fog are about board state and are both useful to AI in a way that .hideUnit simply isn't.

@@ -96,11 +96,14 @@ export enum TerrainTileSet {
 }
 
 /** The weather conditions a battle might be subjected to. */
+// TODO Is this current weather or just scenario settings?
 export enum Weather {
-  Clear,
-  Snow,
-  Sandstorm,
-  FogOfWar,
+  Clear,        // No weather
+  Snow,         // -1 move || x2 fuel usage
+  Sandstorm,    // -30% attack || -1 mrange
+  Rain,         // ( 1 vis || -1 vis ) && FoW
+  FogOfWar,     // Normal FoW
+  Dynamic,      // Can change at any time
 }
 
 /** Indicates which global priority set an AI will exhibit. */
