@@ -1,3 +1,4 @@
+import { Point } from "../../../Common/Point";
 import { UnitObject } from "../../UnitObject";
 import { TileEvent } from "./TileEvent";
 
@@ -10,7 +11,11 @@ export class SpendActorEvent extends TileEvent {
   private options: SpendActorEventOptions;
 
   constructor(options: SpendActorEventOptions) {
-    super(options.actor.boardLocation);
+    super({
+      // Retrieves wherever the unit is *now*. // TODO This doesn't cause a circular reference, does it?
+      get x() { return options.actor.boardLocation.x; },
+      get y() { return options.actor.boardLocation.y; },
+    });
     this.options = options;
   }
 

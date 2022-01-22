@@ -38,15 +38,17 @@ export class Rectangle {
   }
 
   /** Sets this rectangles properties to those given. */
-  set(x?: number | RectanglePrimitive | ImmutablePointPrimitive, y?: number, width?: number, height?: number): Rectangle {
+  // TODO I think this accepts too many overloads. It's just confusing.
+  // Maybe fromRect and fromPoints would be better.
+  set(x: number | RectanglePrimitive | ImmutablePointPrimitive = 0, y: number = 0, width: number = 0, height: number = 0): Rectangle {
     const o = x;
     // TODO I broke instanceof; I need an eval function
     if (isRectangle(o)) {
       const { x, y, width, height } = o;
       Object.assign(this, {x, y, width, height});
     } else if (isPointPrimitive(o)) {
-      const { x, y } = o;
-      Object.assign(this, {x, y});
+      // This is mad confusing. It has to bump width←y and height←width.
+      Object.assign(this, {x: o.x, y: o.y, width: y, height: width});
     } else {
       Object.assign(this, {x, y, width, height});
     }
@@ -81,6 +83,24 @@ export class Rectangle {
       x, y,
       f(this.right) - x,
       f(this.bottom) - y,
+    )
+  }
+
+  /** Returns a new rectangle with both its x and y coordinates a product of this one's after applying the given function. */
+  applyCoordinates(f: (n: number) => number) {
+    return new Rectangle(
+      f(this.x), f(this.y),
+      this.width,
+      this.height,
+    )
+  }
+
+  /** Returns a new rectangle with both its width and height dimensions a product of this one's after applying the given function. */
+  applyDimensions(f: (n: number) => number) {
+    return new Rectangle(
+      this.x, this.y,
+      f(this.width),
+      f(this.height),
     )
   }
 
@@ -209,7 +229,7 @@ export class Rectangle {
   /** Returns true if this and the given rectangle have areas which share a coordinate space. */
   intersects(rect: Rectangle): boolean {
     const intersection = this.getIntersection(rect);
-    return intersection.equal(Rectangle.Empty);
+    return intersection.notEqual(Rectangle.Empty);
   }
 
   /** Returns the rectangle defined by the cross-section of this and the given rectangle.

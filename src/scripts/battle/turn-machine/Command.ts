@@ -109,7 +109,7 @@ export module Command {
         : undefined;
 
       if (place.notEqual(goal))
-        boardEvents.schedule(new MoveUnitEvent({actor, path, target, assets}));
+        boardEvents.schedule(new MoveUnitEvent({actor, path, goal, target, assets}));
     },
   }
 
