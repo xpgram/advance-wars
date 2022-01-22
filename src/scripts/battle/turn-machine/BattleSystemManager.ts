@@ -21,7 +21,8 @@ enum TransitionTo {
   Next,
   NextFromRegress,
   Previous,
-  PreviousOnFail
+  PreviousOnFail,
+  SystemFailure,
 }
 
 /** This class is responsible for starting and operating a battle.
@@ -87,6 +88,10 @@ export class BattleSystemManager {
     if (Game.devController.pressed(Keys.P))
       Debug.ping(this.getStackTrace());
 
+    // On major BSM failure, halt completely.
+    if (this.transitionIntent === TransitionTo.SystemFailure)
+      return;
+
     // Wait for the camera before doing anything.
     if (!this.controllers.camera.subjectInView)
       return;
@@ -135,6 +140,9 @@ export class BattleSystemManager {
       while (this.transitionIntent == TransitionTo.Previous
         || this.transitionIntent == TransitionTo.PreviousOnFail) {
 
+        // Failure looping check
+        if (this.stackFailureLoop())
+          throw new Error(`Infinite failure loop detected.`);
         if (this.currentState === this.NULL_STATE)
           throw new Error(`Cannot revert state from null.`);
         if (!this.currentState.revertible)
@@ -160,13 +168,10 @@ export class BattleSystemManager {
           this.transitionIntent = TransitionTo.NoneFromRegress;
           this.currentState.wake({ fromRegress: true });
         }
-
-        // Failure looping check
-        if (this.stackFailureLoop())
-          throw new Error(`Infinite failure loop detected.`);
       }
     } catch (e) {
       Debug.ping(this.getStackTrace());
+      this.transitionIntent = TransitionTo.SystemFailure;
       throw e;
     }
   }

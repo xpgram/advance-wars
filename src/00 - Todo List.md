@@ -14,11 +14,10 @@ But anyway, yeah. There is constant state checking because his system never just
   - [ ] Actually, animate the dive. Isn't that what we do?
 - [x] Subs surface after moving
 
-- [ ] Cannot revert unrevertible state → infinite loop
-
 - [ ] Square.stealth is distinct from .hidden and .hideUnit
   - [ ] In fact, .hidden is confusing and should be .obscuredByFog or something.
   - [ ] .hideUnit, which could be .unitVisible, is whether the unit is seen on screen; it's a player perspective setting. .stealth and .fog are about board state and are both useful to AI in a way that .hideUnit simply isn't.
+  - Do subs have their own hidden setting? For stealth. Do a little investigating before changing anything.
 
 - [ ] CMD → Drop → CMD ∴ Status and HP are missing, but only if place === goal.
   - There is an update discrepancy between CmdMenu and IWS. Only one of them can have the preview objects as children, so when IWS wins (for whatever reason) CmdMenu's icons are left blank.
