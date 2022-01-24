@@ -1,5 +1,5 @@
 
 export enum ViewSide {
-  Left,
-  Right,
+  Left = -1,
+  Right = 1,
 }
