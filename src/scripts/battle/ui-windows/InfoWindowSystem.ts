@@ -265,7 +265,7 @@ export class InfoWindowSystem {
     const pushBox = this.windows.terrainInfo.displayContainer;
     const hudX = (this.windows.terrainInfo.onLeftSide)
       ? pushBox.x + pushBox.width + 2
-      : 3;
+      : 2;
     this.hudIndicators.container.position.set(
       hudX,  // 100,
       1
