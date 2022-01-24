@@ -46,7 +46,7 @@ export abstract class UiWidget {
   }
 
   /** Callback to maintain position from element origin on dimension changes. */
-  private repositionWidget() {
+  protected repositionWidget() {
     const { width, height } = this.container;
     const { position, origin } = this;
     this.container.position.set(
@@ -56,7 +56,7 @@ export abstract class UiWidget {
   }
 
   /** Update step which gradually changes element transparency. */
-  private updateTransparency() {
+  protected updateTransparency() {
     this.transparency.increment();
     this.container.alpha = this.transparency.output;
   }
