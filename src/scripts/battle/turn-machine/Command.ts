@@ -1,3 +1,4 @@
+import { Point } from "../../Common/Point";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { Terrain } from "../map/Terrain";
@@ -327,9 +328,9 @@ export module Command {
     },
     scheduleEvents() {
       const { boardEvents } = data.assets;
-      const { actor, path, underneath, assets } = data;
+      const { actor, path, goal, underneath, assets } = data;
 
-      boardEvents.schedule(new LoadUnitEvent({actor, path, underneath, assets}));
+      boardEvents.schedule(new LoadUnitEvent({actor, path, goal, underneath, assets}));
     },
   }
 

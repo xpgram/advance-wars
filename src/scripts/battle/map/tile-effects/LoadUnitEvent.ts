@@ -1,4 +1,5 @@
 import { CardinalDirection } from "../../../Common/CardinalDirection";
+import { Point } from "../../../Common/Point";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { Unit } from "../../Unit";
 import { UnitObject } from "../../UnitObject";
@@ -7,6 +8,7 @@ import { MoveUnitEvent } from "./MoveUnitEvent";
 interface LoadUnitEventOptions {
   actor: UnitObject;
   path: CardinalDirection[];
+  goal: Point,
   underneath: UnitObject;
   assets: BattleSceneControllers;
 }

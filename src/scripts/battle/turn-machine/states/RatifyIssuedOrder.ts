@@ -28,8 +28,11 @@ export class RatifyIssuedOrder extends TurnState {
 
     Command.Drop.scheduleEvents();
 
-    if (placeTile.unit && command.spendsUnit)
-      boardEvents.schedule(new SpendActorEvent({actor: placeTile.unit}));
+    if (placeTile.unit && command.spendsUnit) {
+      const actor = placeTile.unit;
+      const location = this.data.goal;
+      boardEvents.schedule(new SpendActorEvent({actor, location}));
+    }
 
     // Update cursor position.
     if (instruction.path) {
