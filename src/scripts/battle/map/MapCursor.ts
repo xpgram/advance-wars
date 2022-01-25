@@ -10,6 +10,33 @@ import { Point } from "../../Common/Point";
 import { Observable } from "../../Observable";
 import { AnimatedSprite } from "@pixi/sprite-animated";
 
+
+// TODO Update discrepancy: MapCursor and ArrowPath
+// MapCursor updates its board position instantly, but not its graphical position.
+// ArrowPath, driven by MoveUnit (turnstate), sees this board position change
+// instantly and updates itself graphically before MapCursor's graphics can catch up.
+// This is fine, but occasionally looks weird; the arrow appears to lead the cursor
+// sometimes.
+//
+// To fix this, I need to add another layer to the MapCursor board position system.
+// MapCursor will need to know where it is going first and will update its listeners
+// and its public board position later.
+// 
+// My only concern is in introducing a race condition where an object might retrieve
+// the cursor position during a transition, pass some validation step which yields
+// control to a new state, which in turn misses the location update a few frames later,
+// retrieves the cursor position again and ends up with invalid data.
+// 
+// To be fair, I probably shouldn't retrieve MapCursor twice. Sensitive information
+// of that kind should be stored as a constant. I'm not certain my system doesn't
+// depend on multiple-access of the cursor, though.
+//
+// May the simplest solution is to add an aligned() check which returns true if
+// the cursor is ready for some kind of update? MoveUnit would have to reconfirm
+// the arrow-path on A-press to be certain it's frame correct, but that's a small
+// price, tbh.
+
+
 /**
  * @author Dei Valko
  */
