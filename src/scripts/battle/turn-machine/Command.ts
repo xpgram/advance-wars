@@ -241,6 +241,7 @@ export module Command {
 
       boardEvents.schedule(new GenericRatifyEvent({
         location: place,
+        time: .2,
         ratify: () => {
           actor.hiding = true;
           // TODO Update actor vis; this will probs duplicate some code in TurnStart, so I need to extract.

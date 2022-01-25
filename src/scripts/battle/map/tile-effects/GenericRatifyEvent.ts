@@ -6,6 +6,7 @@ interface GenericRatifyEventOptions {
   location: Point,
   ratify: () => void,
   context?: object,
+  time?: number,
 }
 
 /** Calls the given callback function under the given context and immediately advances to next.
@@ -14,11 +15,12 @@ interface GenericRatifyEventOptions {
 export class GenericRatifyEvent extends TileEvent {
   
   private options: GenericRatifyEventOptions;
-  private timer = new Timer(.2, () => { this.finish(); });
+  private timer: Timer;
 
   constructor(options: GenericRatifyEventOptions) {
     super(options.location);
     this.options = options;
+    this.timer = new Timer(options.time || 0, () => { this.finish(); });
   }
 
   protected create(): void {
