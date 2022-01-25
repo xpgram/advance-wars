@@ -9,10 +9,22 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
 
-- [ ] Camera animates by halting the TurnState entirely. This also stops MoveUnit.ts from updating the path arrow while MapCursor is pushing the camera.
-  - I could have a separate scene.update, scene.maintainance maybe, that runs ~outside~ of this camera halting thing, but that seems silly.
-  - I could assign a mapcursor.on('move') listener. This... is better than the above, but still feels incomplete.
-  The camera needs to interrupt certain mid-game events, like button presses, but not others, like path-arrow recalcs: how do I determine which are and aren't?
+- [ ] StartCards
+  - [ ] Implement Timer.tween(time: number, shape?: function, (Slider) => {-stuff-})
+    - shape? could also just be SliderOptions for more control.
+    - [ ] Timer does the tween, auto-deconstructs itself on finish.
+    - [ ] Timer is skippable (slider.setToExtreme())
+    - [ ] Timer is haltable
+    I was trying to think of a way I could add this to Slider, but... yeah, I dunno. I also wonder if I should bother trying to merge Timer and Pulsar. Eh.
+    I mean, conceivably, Slider.onTrackChange(()=>{}) and Slider.auto = true could do it. I guess my concern is really about domain and scope. *Should* Slider do that? I think updating Timer would be fine, especially since I don't really use it now.
+  - [ ] Timetable
+    - A new class which accepts a set of callbacks paired with time values that get called once each whenever their time schedule is met.
+    - [ ] Accepted callback-time-pairs can be a list of such so that painstaking, manual configuration of times can be handled by a shape function instead
+    - [ ] In fact, provide a time-shaper method which runs a callback on each item
+      - Timetable.timeshape( (time, last, cur): number => {} );
+      - for every scheduled item, pass in the total time count (first: 0), the last return value (first: 0) and the current value (if one was already set; sets up the possibility for a multi-pass kinda thing).
+    - [ ] Can be set to auto-deconstruct on finish.
+  - [ ] Use an Itinerary and Timer.tween() to create the slide in, wait, slide out effects.
 
 - [ ] Square.stealth is distinct from .hidden and .hideUnit
   - [ ] In fact, .hidden is confusing and should be .obscuredByFog or something.
