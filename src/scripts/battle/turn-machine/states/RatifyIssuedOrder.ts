@@ -15,7 +15,7 @@ export class RatifyIssuedOrder extends TurnState {
   }
 
   protected configureScene(): void {
-    const { instruction, map, players, trackCar, boardEvents } = this.assets;
+    const { instruction, map, boardEvents } = this.assets;
     const { action, placeTile } = this.data;
 
     map.clearMovementMap();           // Remnant from turnstate ingress.

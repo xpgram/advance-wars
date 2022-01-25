@@ -84,10 +84,8 @@ export module instructionData {
       d.placeTile = map.squareAt(d.place);
       d.placeTerrain = d.placeTile.terrain;
       d.actor = d.placeTile.unit;
-      if (d.path)
-        d.goal = SumCardinalsToVector(d.path).add(d.place);
-    }
-    if (d.goal) {
+      (!d.path) && (d.path = []);
+      d.goal = SumCardinalsToVector(d.path).add(d.place)
       d.goalTile = map.squareAt(d.goal);
       d.goalTerrain = d.goalTile.terrain;
       d.underneath = d.goalTile.unit;
