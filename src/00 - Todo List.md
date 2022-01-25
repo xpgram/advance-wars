@@ -8,6 +8,7 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
+
 - [ ] Camera animates by halting the TurnState entirely. This also stops MoveUnit.ts from updating the path arrow while MapCursor is pushing the camera.
   - I could have a separate scene.update, scene.maintainance maybe, that runs ~outside~ of this camera halting thing, but that seems silly.
   - I could assign a mapcursor.on('move') listener. This... is better than the above, but still feels incomplete.
@@ -237,6 +238,16 @@ More observations:
 - [ ] UI Event-Messaging System
   When online functions fail to authenticate, or whatever, a message should pop in
   from above to let the player know what's up.
+
+- Ideas for cmd 'Launch':
+  - [ ] Chainable instructions
+    - [{ action: Launch, which: 1 }, { action: Attack, focal: ... }]
+      'One' instruction gets sent as a list of atomized instructions, which all get executed in sequence.
+      This isn't how we're doing 'Launch' though; the additional instruction doesn't carry any unique meaning.
+  - [ ] Launch ingress strategy
+    - [ ] Instruction gets a depth parameter which refers to unit cargo.
+    - [ ] 'Launch' sets depth to child# + 1 and resets the instruction data. BSM is advanced to MoveUnit and proceeds as normal. On ratify, 'Move' uses depth > 0 to unload and retain a cargo unit and place it on an empty square.
+    - [ ] MoveUnit with depth > 0: on regress, ... I dunno. Maybe we push OrderStart again? The state stack probably regresses fine. MoveUnit might need a little tweaking, though.
 
 - [ ] For FoW, track car should be invisible when not in sight range, and vice versa.
   - [ ] When the sight map is generated, and every time it's updated, construct a giant mask from all the seeable tiles.
