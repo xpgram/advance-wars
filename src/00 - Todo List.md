@@ -264,6 +264,12 @@ More observations:
 
 - [ ] The cursor-control settings (such as trigger-movement frequency) used by MapCursor and ListMenu are similar but defined separately. Perhaps these details should have elevated scope?
 
+- [ ] Transition effects between scenes: Game.transition will be a settable class object with start() hold() and finish() steps.
+  - start() initates the transition. A callback or some other kind of signal indicates when the transition is ready for some kind of action (the scene change).
+  - hold() is an update step which allows for animation while a scene is loading or something. If a scene transition takes longer than expected for some reason, this step keeps the transition effect visually interesting.
+  - finish() initiates the final half of the transition. A callback or some other kind of signal (probably less used than start()'s) indicates when the transition is fully cleared and done animating.
+  As you can see, we're merely operating an attack-hold-decay-release pattern. Release isn't described, but the effect could theoretically declare itself done before it actually finishes animating, at which point it would destroy itself or something.
+
 
 
 CO Unit Effects:
