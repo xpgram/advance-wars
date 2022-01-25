@@ -69,13 +69,9 @@ export class MoveUnit extends TurnState {
     scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
   }
 
-  update() {
-    const { map, mapCursor, gamepad, players, instruction } = this.assets;
-    const { actor, place } = this.data;
-
-    // On press B, revert state
-    if (gamepad.button.B.pressed)
-      this.regress();
+  updateNonInterruptible() {
+    const { map, mapCursor, players } = this.assets;
+    const { actor } = this.data;
 
     // If the unit is not owned by current player, do nothing else
     if (players.current.faction !== actor.faction)
@@ -96,6 +92,19 @@ export class MoveUnit extends TurnState {
       map.recalculatePathToPoint(actor, mapCursor.boardLocation, rangeMap);
       this.updateUiSystems();
     }
+  }
+
+  update() {
+    const { map, mapCursor, gamepad, players, instruction } = this.assets;
+    const { actor, place } = this.data;
+
+    // On press B, revert state
+    if (gamepad.button.B.pressed)
+      this.regress();
+
+    // If the unit is not owned by current player, do nothing else
+    if (players.current.faction !== actor.faction)
+      return;
 
     // On press A and viable location, advance state
     else if (gamepad.button.A.pressed) {

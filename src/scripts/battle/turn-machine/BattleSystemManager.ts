@@ -92,10 +92,6 @@ export class BattleSystemManager {
     if (this.transitionIntent === TransitionTo.SystemFailure)
       return;
 
-    // Wait for the camera before doing anything.
-    if (!this.controllers.camera.subjectInView)
-      return;
-
     try {
       // nextState->new handler
       while (this.transitionIntent == TransitionTo.Next
@@ -133,8 +129,12 @@ export class BattleSystemManager {
 
       // nextState->none handler
       if (this.transitionIntent == TransitionTo.None
-        || this.transitionIntent == TransitionTo.NoneFromRegress)
-        this.currentState.update();
+        || this.transitionIntent == TransitionTo.NoneFromRegress) {
+
+        this.currentState.updateNonInterruptible();
+        if (this.controllers.camera.subjectInView)  //← Prevents action handling
+          this.currentState.update();               //  before camera is ready
+      }
 
       // nextState->previous handler
       while (this.transitionIntent == TransitionTo.Previous

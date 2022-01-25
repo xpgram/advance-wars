@@ -14,11 +14,6 @@ But anyway, yeah. There is constant state checking because his system never just
   - I could assign a mapcursor.on('move') listener. This... is better than the above, but still feels incomplete.
   The camera needs to interrupt certain mid-game events, like button presses, but not others, like path-arrow recalcs: how do I determine which are and aren't?
 
-- [x] Subs Dive before moving
-  - [-] Get rid of frame before movement where dive tag is visible.
-  - [ ] Actually, animate the dive. Isn't that what we do?
-- [x] Subs surface after moving
-
 - [ ] Square.stealth is distinct from .hidden and .hideUnit
   - [ ] In fact, .hidden is confusing and should be .obscuredByFog or something.
   - [ ] .hideUnit, which could be .unitVisible, is whether the unit is seen on screen; it's a player perspective setting. .stealth and .fog are about board state and are both useful to AI in a way that .hideUnit simply isn't.

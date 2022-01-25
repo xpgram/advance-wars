@@ -112,8 +112,13 @@ export abstract class TurnState {
 
   /** Frame-by-frame processing step for turn-engine's game state.
    * UI and UX player systems typically add themselves to the scene's ticker,
-   * so this is primarily used for state-observation and next-state triggering. */
+   * so this is primarily used for state-observation and next-state triggering.
+   * This step is sometimes suspended by higher-order systems. */
   update() { };
+
+  /** Frame-by-frame processing step for turn-engine's game state.
+   * This method is called before update() and is never suspended by higher-order systems. */
+  updateNonInterruptible() { };
 
   /** Generic close procedure called during any state transition. */
   close() { };
