@@ -1,4 +1,5 @@
 import { Point } from "../../../Common/Point";
+import { Timer } from "../../../timer/Timer";
 import { TileEvent } from "./TileEvent";
 
 interface GenericRatifyEventOptions {
@@ -13,6 +14,7 @@ interface GenericRatifyEventOptions {
 export class GenericRatifyEvent extends TileEvent {
   
   private options: GenericRatifyEventOptions;
+  private timer = new Timer(.2, () => { this.finish(); });
 
   constructor(options: GenericRatifyEventOptions) {
     super(options.location);
@@ -21,7 +23,7 @@ export class GenericRatifyEvent extends TileEvent {
 
   protected create(): void {
     this.options.ratify.call(this.options.context);
-    this.finish();
+    this.timer.start();
   }
 
   protected update(): void {}
@@ -29,5 +31,6 @@ export class GenericRatifyEvent extends TileEvent {
   protected destroy(): void {
     //@ts-expect-error
     this.options = undefined;
+    this.timer.destroy();
   }
 }
