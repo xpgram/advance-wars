@@ -1,6 +1,4 @@
 import { Game } from "../..";
-import { Slider } from "../Common/Slider";
-
 
 const TO_MILLIS = 1000;
 const TO_SECONDS = 0.001;
@@ -11,10 +9,12 @@ interface TimerEvent {
   context?: object;
 }
 
-/** Timer
+/**
  * Something something inspired by Lua.
  * 
  * // TODO Multiple tweens/everys? I mean, why not, right?
+ * 
+ * @author Dei Valko
  */
 export class Timer {
 
