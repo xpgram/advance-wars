@@ -8,6 +8,44 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
+new Timer(2)      // Timer is set to 2. (An implicit 'null' event is scheduled)
+  .at(1, ...)
+  .at(1.5, ...)
+  .at(3, ...)     // All timers 'end' after their last item, so this simply extends it to 3.
+  .at(4, () => {
+    const obj;
+    new Timer(2).tween({
+      f: slider => obj.x = slider.output
+    })
+  })
+By this way, we create an itinerary of operations. The timer auto-destructs once its over.
+If you want to save a reference, you can also halt it, or make it run every function it has
+planned.
+You can also do:
+new Timer(2).schedule([
+  {
+    time: 1,
+    f: () => obj.show(),
+  },
+  {
+    time: 2,
+    f: () => obj.hide(),
+  },
+  {
+    time: 3,
+    f: () => {
+      new Timer(2).tween({
+        f: slider => obj.x = slider.output * 64 + -32,
+      })
+      // Tweens, for simplicity, happen over the length of the timer *as it was when it was scheduled*. I think. Point is, be careful out there.
+      // Actually, they should probably just default to start=0, end=max(now) while allowing start and end to be set; I already need a system for .at()'s, I'm sure progressive tween calls won't be that big a goddamn deal. We can figure it out.
+    }
+  }
+])
+You can also do:
+new Timer(2, () => { stuff })   // Which is an implicit .at(); normally the function is just null
+You can aldo do:
+new Timer(2).every(3, () => {}) // Actually no, you can't do this. Pulsar's already do it pretty well, and I don't want to think about recurring events in a thing that's supposed to auto-destruct and blah blah blah blah blah. This is a distant feature, if that.
 
 - [ ] StartCards
   - [ ] Implement Timer.tween(time: number, shape?: function, (Slider) => {-stuff-})
