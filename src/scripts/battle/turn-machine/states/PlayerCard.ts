@@ -56,14 +56,14 @@ export class PlayerCard extends TurnState {
       .at(0, () => {
         Timer.tween(.3, n => {
           this.playerCard.x = 12*(1-n);
-          this.playerCard.y = 4*(1-n);
+          this.playerCard.y = 6*(1-n);
           this.playerCard.alpha = n;
         }).start()
       })
       .at(1.5, () => {
         Timer.tween(.3, n => {
           this.playerCard.x = -12*n;
-          this.playerCard.y = -4*n;
+          this.playerCard.y = -6*n;
           this.playerCard.alpha = 1-n;
         }).start()
       })
