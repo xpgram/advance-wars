@@ -45,6 +45,10 @@ export class Timer {
   /** Whether this object destroys itself after calling the last event. */
   private selfDestruct = true;
 
+  /** True if the timer has been dismantled and is no longer useable. */
+  get destroyed() { return this._destroyed; }
+  private _destroyed = false;
+
   /** True if the timer's clock should be ticking. */
   private started = false;
 
@@ -104,30 +108,37 @@ export class Timer {
     return this.lengthMillis * TO_SECONDS;
   }
 
-  /** Starts the timer's clock. */
+  /** Starts the timer's clock; returns this. */
   start() {
+    if (this.destroyed)
+      return this;
     this.sortEvents();
     this.started = true;
+    return this;
   }
 
-  /** Resets the timer's clock, then starts it. */
+  /** Resets the timer's clock, then starts it; returns this. */
   startReset() {
     this.reset();
     this.start();
+    return this;
   }
 
-  /** Stops the timer's clock. May be resumed with start(). */
+  /** Stops the timer's clock; returns this. May be resumed with start(). */
   stop() {
     this.started = false;
+    console.log('stopped');
+    return this;
   }
 
-  /** Stops and reset the timer's clock. */
+  /** Stops and reset the timer's clock; returns this. */
   stopReset() {
     this.reset();
     this.stop();
+    return this;
   }
 
-  /** Resets the timer's clock and scheduled event calls to initial. Does not stop the clock. */
+  /** Resets the timer's clock and scheduled event calls to initial; returns this. Does not stop the clock. */
   reset() {
     this.elapsedMillis = 0;
     this.eventIdx = 0;
@@ -135,6 +146,7 @@ export class Timer {
       ? this.everyEvent?.time || 0
       : 0;
     this.tweenFinished = false;
+    return this;
   }
 
   /** The timer's elapsed clock time in seconds. */
@@ -149,7 +161,7 @@ export class Timer {
 
   /** True if the timer has finished. */
   get finished() {
-    return (this.elapsedMillis >= this.length);
+    return (this.eventsExhausted);
   }
 
   /** True if all timer events have been called. */
@@ -180,15 +192,15 @@ export class Timer {
     this.handleEveryEvent();
     this.handleTweenEvent();
 
-    if (this.finished && this.selfDestruct)
+    if (this.eventsExhausted && this.selfDestruct)
       this.destroy();
   }
 
   /** Manages at-event calls. */
   private handleEvents() {
-    if (this.eventsExhausted)
-      return;
-    while (this.currentEvent.time <= this.elapsedMillis) {
+    const done = () => this.eventsExhausted;
+    const currentReady = () => this.currentEvent.time <= this.elapsedMillis;
+    while (!done() && currentReady()) {
       this.currentEvent.event.call(this.currentEvent.context);
       this.eventIdx++;
     }
@@ -210,7 +222,7 @@ export class Timer {
       return;
 
     const { min } = Math;
-    const timerProgress = min(this.elapsedMillis / this.length, 1);
+    const timerProgress = min(this.elapsedMillis / this.lengthMillis, 1);
     const n = this.tweenShape(timerProgress);
     this.tweenFunc.call(this.tweenContext, n);
 

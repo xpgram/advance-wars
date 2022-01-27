@@ -47,14 +47,14 @@ export class PlayerCard extends TurnState {
     this.playerCard.addChild(background);
     Game.hud.addChild(this.playerCard);
 
-    this.timer.startReset();
+    this.timer.start();
   }
 
   update() {
     const { gamepad } = this.assets;
 
     if (gamepad.button.A.pressed) {
-      this.timer.stopReset();
+      this.timer.destroy();
       this.advance();
     }
   }
