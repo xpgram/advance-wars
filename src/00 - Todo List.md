@@ -47,6 +47,12 @@ new Timer(2, () => { stuff })   // Which is an implicit .at(); normally the func
 You can aldo do:
 new Timer(2).every(3, () => {}) // Actually no, you can't do this. Pulsar's already do it pretty well, and I don't want to think about recurring events in a thing that's supposed to auto-destruct and blah blah blah blah blah. This is a distant feature, if that.
 
+This is kind of a lot. Or, I hope it isn't.
+But, theoretically, I could calculate the distance between two camera transforms, now
+and target, and then tween them. That would *easily* give me the speed up/down approach
+effect the actual game has. I guess I could also use a slider for this. The slider
+just has a more difficult translation to execution time.
+
 - [ ] StartCards
   - [ ] Implement Timer.tween(time: number, shape?: function, (Slider) => {-stuff-})
     - shape? could also just be SliderOptions for more control.
