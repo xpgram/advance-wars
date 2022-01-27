@@ -29,7 +29,11 @@ new Timer(2).schedule([
   },
   {
     time: 2,
-    f: () => obj.hide(),
+    until: 3,
+    event: () => obj.hide(),
+
+    interval: 1,
+    repeat: true, // .every make me nerv, but it won't be nested so it'll be easy to control.
   },
   {
     time: 3,

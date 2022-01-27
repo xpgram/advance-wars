@@ -1,3 +1,4 @@
+import { StringDictionary } from "./CommonTypes";
 import { Debug } from "./DebugUtils";
 
 /**
@@ -11,6 +12,24 @@ export const Common = {
   freezeObject<T>(obj: T): T {
     Object.freeze(obj);
     return obj;
+  },
+
+  /** Given a set of options and a set of defaults, returns an object  */
+  assignDefaults<T extends {}, Y extends {}>(options: T, defaults: Y): T & Y {
+    const res: StringDictionary<any> = {};
+    const A = options as StringDictionary<any>;   // Literally just to make TypeScript shut up.
+    const B = defaults as StringDictionary<any>;
+    Object.keys({...options, ...defaults})
+      .forEach( key => { res[key] = (A[key] !== undefined) ? A[key] : B[key] });
+    return res as T & Y;
+  },
+
+  /** Given an object, completely dismantles its assigned properties.
+   * This iterates over every property key, which may be a point of optimization.
+   * This does not offer any depth dismantling; members are forgotten but otherwise intact. */
+  destroyObject<T extends {}>(object: T): void {
+    const obj = object as StringDictionary<any>;
+    Object.keys(object).forEach( key => obj[key] = undefined);
   },
 
   /** Returns a two-dimensional array filled with sleep. // TODO */

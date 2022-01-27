@@ -1,58 +1,55 @@
 import { Game } from "../..";
+import { TransitionShapes } from "../Common/TransitionShapes";
+import { Common } from "../CommonUtils";
 
 const TO_MILLIS = 1000;
 const TO_SECONDS = 0.001;
 
+interface TimerEventOptions {
+  time: number;         // Start time.
+  until?: number;       // End time.
+  interval?: number,    // How long to wait after until to repeat; =time by default
+  repeat?: number,      // n<0 forever, n=0 single, n>0 specifies additional times
+  action: (n: number) => void;    // n is proportional to current time and start/end
+  shape?: (n: number) => number;  // shape function for the input to action()
+  context?: object;               // object context to call action() with
+}
+
 interface TimerEvent {
   time: number;
-  event: () => void;
+  until: number;
+  interval: number;
+  repeat: number;
+  completed: boolean;
+  action: (n: number) => void;
+  shape: (n: number) => number;
   context?: object;
 }
 
-function destroyTimerEvent(e?: TimerEvent) {
-  if (!e)
-    return;
-  //@ts-expect-error
-  e.event = undefined;
-  e.context = undefined;
+function createTimerEvent(e: TimerEventOptions): TimerEvent {
+  return Common.assignDefaults(e, {
+    until: e.time,
+    interval: e.time,
+    repeat: 0,
+    shape: TransitionShapes.linear,
+    completed: false,
+  });
 }
 
 /**
  * Something something inspired by Lua.
- * 
- * // TODO Multiple tweens/everys? I mean, why not, right?
- * // TODO skipToEnd()
- * // TODO .schedule(...events: TimerEvent[])
- * 
- * // TODO .at(3, Timer.tween(n => {}))   :: event: ((n: number) => void) | Timer
- * If events can be Timers, then I can more carefully maintain chronology.
- * I discovered with my first .tween() experiment (a success!) that I had to give
- * it a wide berth such that .advance()->.close() didn't destroy my graphics before
- * I was done with them.
- * // TODO What if you .at() a long timer inside a long timer?
- * A child timer needs to fit all its events into the global schedule.
- * I don't think... this is a cursory issue, I think I should consider Timer+Timer
- * concatenation. If you .at(2, timer) a timer, then all its events just get concatenated
- * into the schedule with a delay of 2.
- * Tweens are the problem, though. They are, by definition, the whole length. I guess
- * this means they can't be. At least not internally.
- * 
- * // TODO .wait(2, event, context) appends itself to the chain 2 seconds after last.
- * .at() is of marginal usefulness in long chains; I often care way more about duration
- * then timestamp.
- * 
  * @author Dei Valko
  */
 export class Timer {
 
-  /** NULL function which fills in missing event functions on new Timer() calls. */
-  static readonly NULL_EVENT = () => {};
+  /** NULL function which describes the default, no-effect event action. */
+  static readonly NULL_ACTION = () => {};
 
-  /** NULL object which allows schedule retrieval from a TimerEvents list to be safe. */
-  static readonly NULL_SCHEDULE: TimerEvent = {
+  /** NULL object which describes the default, no-effect timer event. */
+  static readonly NULL_EVENT = createTimerEvent({
     time: 0,
-    event: Timer.NULL_EVENT,
-  }
+    action: Timer.NULL_ACTION,
+  });
 
   /** Shortcut to new Timer().at(); returns a Timer object. */
   static at(time: number, event: () => void, context?: object) {
@@ -85,66 +82,51 @@ export class Timer {
   /** The list of scheduled event calls. */
   private events: TimerEvent[] = [];
 
-  /** The current index of the next chronological event waiting to be called. */
-  private eventIdx = 0;
+  /** The list of scheduled recurring event calls.
+   * Useful for Timer.every() without mutating the original schedule. */
+  private recurringEvents: TimerEvent[] = [];
 
-  /** True if the events list needs to be sorted. */
+  /** True if the events list needs to be sorted.
+   * @unused */
   private dirty = false;
-
-  /** An event called every iteration of some time interval. This interval is always from time=0. */
-  private everyEvent?: TimerEvent;
-
-  /** The next clock time the every-event will be called at. */
-  private everyNextCallTime = 0;
-
-  /** Whether time=0 should be included in the list of every-event pulses. */
-  private everyOnStart = false;
-
-  /** Update function for tween effects. */
-  private tweenFunc?: (n: number) => void;
-
-  /** Context for the tween function call. */
-  private tweenContext?: object;
-
-  /** Shape function for passed values to the tween update function. */
-  private tweenShape = (n: number) => n;
-
-  /** Flag signal that tween is done and can cease functioning.
-   * Used to ensure that a final tween=1.0 is called to complete the effect. */
-  private tweenFinished = false;  // TODO Roll this into something of higher scope?
 
 
   constructor(seconds?: number, event?: () => void, context?: object) {
-    this.at(seconds || 0, event || Timer.NULL_EVENT, context);
+    this.at(seconds || 0, event || Timer.NULL_ACTION, context);
     Game.scene.ticker.add(this.update, this);
   }
 
   destroy() {
     Game.scene.ticker.remove(this.update, this);
-    this.events.forEach( e => destroyTimerEvent(e) );
-    destroyTimerEvent(this.everyEvent);
-    this.tweenFunc = undefined;
-    this.tweenContext = undefined;
+    this.events.forEach( e => Common.destroyObject(e) );
+    this.recurringEvents = [];
     this._destroyed = true;
   }
 
-  /** The timer's elapse length in milliseconds. This is always reflective of the timestamp of the last scheduled event. */
-  private get lengthMillis() {
-    this.sortEvents();
-    return this.events[this.events.length-1].time;
+  /** Clears the timer's events so that it may be rescheduled.
+   * I don't know why you would bother, but you do you. */
+  clear() {
+    this.events.forEach( e => Common.destroyObject(e) );
+    this.events = [];
+    this.recurringEvents = [];
   }
 
-  /** The timer's elapse length in seconds. This is always reflective of the timestamp of the last scheduled event. */
+  /** The timer's full elapse length in milliseconds. This is reflective of the ending
+   * timestamp of the last chronological event in the schedule. */
+  private get lengthMillis() {
+    return Math.max(...this.events.map( e => e.until ));
+  }
+
+  /** The timer's full elapse length in seconds. This is reflective of the ending
+   * timestamp of the last chronological event in the schedule. */
   get length() {
     return this.lengthMillis * TO_SECONDS;
   }
 
   /** Starts the timer's clock; returns this. */
   start() {
-    if (this.destroyed)
-      return this;
-    this.sortEvents();
-    this.started = true;
+    if (!this.destroyed)
+      this.started = true;
     return this;
   }
 
@@ -171,11 +153,8 @@ export class Timer {
   /** Resets the timer's clock and scheduled event calls to initial; returns this. Does not stop the clock. */
   reset() {
     this.elapsedMillis = 0;
-    this.eventIdx = 0;
-    this.everyNextCallTime = (!this.everyOnStart)
-      ? this.everyEvent?.time || 0
-      : 0;
-    this.tweenFinished = false;
+    this.events.forEach( e => e.completed = false );
+    this.recurringEvents = [];
     return this;
   }
 
@@ -184,7 +163,7 @@ export class Timer {
     return this.elapsedMillis * TO_SECONDS;
   }
 
-  /** True if the timer is start and hasn't yet finished. */
+  /** True if the timer has started and hasn't yet finished. */
   get ticking() {
     return (this.started && this.elapsedMillis < this.lengthMillis);
   }
@@ -196,14 +175,7 @@ export class Timer {
 
   /** True if all timer events have been called. */
   private get eventsExhausted() {
-    return this.eventIdx >= this.events.length;
-  }
-
-  /** The current event the timer is waiting to call. */
-  private get currentEvent() {
-    return (this.eventIdx < this.events.length)
-      ? this.events[this.eventIdx]
-      : Timer.NULL_SCHEDULE;
+    return this.events.every( e => e.completed );
   }
 
   /** Handles timer management. */
@@ -211,63 +183,73 @@ export class Timer {
     if (!this.started)
       return;
 
-    this.elapsedMillis += Game.deltaMS;
-    
-    // Force chronological order — this goes through a 'dirty' check, so it shouldn't
-    // affect performance. It's just here to clean up during-runtime event additions.
-    this.sortEvents();
+    this.handleEvents(this.events);
+    this.handleEvents(this.recurringEvents);
+    this.cullRecurringEvents();
 
-    // Initiate event callbacks
-    this.handleEvents();
-    this.handleEveryEvent();
-    this.handleTweenEvent();
+    this.elapsedMillis += Game.deltaMS;
 
     if (this.eventsExhausted && this.selfDestruct)
       this.destroy();
   }
 
-  /** Manages at-event calls. */
-  private handleEvents() {
-    const done = () => this.eventsExhausted;
-    const currentReady = () => this.currentEvent.time <= this.elapsedMillis;
-    while (!done() && currentReady()) {
-      this.currentEvent.event.call(this.currentEvent.context);
-      this.eventIdx++;
-    }
+  /** Iterator for a list of timer events. */
+  private handleEvents(events: TimerEvent[]) {
+    const elapsed = this.elapsedMillis;
+    const nextOccurrences: TimerEvent[] = [];
+
+    events.forEach( e => {
+      if (elapsed < e.time || e.completed)
+        return;
+
+      const normal = (e.until > e.time)
+        ? Common.clamp((elapsed - e.time) / (e.until - e.time), 0, 1)
+        : 1;
+      e.action.call(e.context, e.shape(normal));
+
+      if (e.repeat !== 0)
+        this.extendRecurringEvent(e);
+      
+      // Flag completed events
+      if (normal === 1)
+        e.completed = true;
+    });
+
+    return nextOccurrences;
   }
 
-  /** Manages every-event calls. */
-  private handleEveryEvent() {
-    if (!this.everyEvent)
-      return;
-    while (this.elapsedMillis >= this.everyNextCallTime) {
-      this.everyEvent.event.call(this.everyEvent.context);
-      this.everyNextCallTime += this.everyEvent.time;
-    }
+  /** Creates a new (temp) timer event for the next occurrence of a repeatable. */
+  private extendRecurringEvent(e: TimerEvent) {
+    const { interval, action, shape, context } = e;
+
+    const time = e.until + e.interval;
+    const duration = e.until - e.time;
+    const until = time + duration;
+    const repeat = (e.repeat > 0) ? e.repeat - 1 : -1;
+
+    const next = createTimerEvent({
+      time, until, interval, repeat, action, shape, context
+    });
+    this.recurringEvents.push(next);
+      // ^ This can extend recurringEvents while it's being iterated over,
+      //   but I will assume this is a non-issue for now.
   }
 
-  /** Manages tween-event calls. */
-  private handleTweenEvent() {
-    if (!this.tweenFunc || this.tweenFinished)
-      return;
-
-    const { min } = Math;
-    const timerProgress = min(this.elapsedMillis / this.lengthMillis, 1);
-    const n = this.tweenShape(timerProgress);
-    this.tweenFunc.call(this.tweenContext, n);
-
-    if (timerProgress === 1)
-      this.tweenFinished = true;
+  /** Removes any completed repeatable events from consideration. */
+  private cullRecurringEvents() {
+    this.recurringEvents = this.recurringEvents.filter( e => !e.completed );
   }
 
   /** Mutates the events schedule to be in chronological order. If the clock was somehow
-   * started before the events were sorted, previously called events may be called again. */
-  sortEvents() {
+   * started before the events were sorted, previously called events may be called again.
+   * @unused */
+  private sortEvents() {
+    // Sorting is no longer feasible, especially since most events lists probably aren't that long.
+    // We now have a different strategy for queued and spent event handling, but
+    // I am reserving this space for future optimizations.
     if (!this.dirty)
       return this;
-    const cur = this.currentEvent;
     this.events.sort( (a,b) => a.time - b.time );
-    this.eventIdx = this.events.findIndex( e => e === cur );
     return this;
   }
 
@@ -276,6 +258,10 @@ export class Timer {
     this.selfDestruct = false;
     return this;
   }
+
+  // TODO Refactor .at(s,{}), .every(s,i,{}), .tween(s,e,{}) member and static
+  // TODO Write .after(i,{}), .tweenEvery(s,e,i,{}), .schedule(TimerEvent[])
+  //            .tweenAfter(i,ie,{})
 
   /** Schedules an event-call at some time value; returns this. */
   at(time: number, event: () => void, context?: object) {
