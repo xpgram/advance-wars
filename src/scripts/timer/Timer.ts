@@ -86,6 +86,10 @@ export class Timer {
    * Useful for Timer.every() without mutating the original schedule. */
   private recurringEvents: TimerEvent[] = [];
 
+  /** The time-occurrence of the last event scheduled.
+   * Used for determining .after() event placement. */
+  private lastScheduledEventTime = 0;
+
   /** True if the events list needs to be sorted.
    * @unused */
   private dirty = false;
@@ -262,6 +266,18 @@ export class Timer {
   // TODO Refactor .at(s,{}), .every(s,i,{}), .tween(s,e,{}) member and static
   // TODO Write .after(i,{}), .tweenEvery(s,e,i,{}), .schedule(TimerEvent[])
   //            .tweenAfter(i,ie,{})
+  // .after() and .tweenAfter() schedule themselves i-seconds after the last
+  // definite time call. So,
+  //   Timer
+  //     .at(8)
+  //     .at(2)
+  //     .after(1)
+  // places the after event at 3 seconds, not 9.
+  // Likewise,
+  // Timer.schedule([
+  //   {time: }
+  // ])
+  // Actually, I don't know how .schedule() should work here.
 
   /** Schedules an event-call at some time value; returns this. */
   at(time: number, event: () => void, context?: object) {
