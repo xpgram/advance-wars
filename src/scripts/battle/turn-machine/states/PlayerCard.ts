@@ -1,4 +1,5 @@
 import { Game } from "../../../..";
+import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
@@ -11,7 +12,7 @@ export class PlayerCard extends TurnState {
   get revertible() { return false; }
   get skipOnUndo() { return true; }
 
-  readonly timer = new Timer(1, () => { this.advance(); });
+  timer!: Timer;
   readonly playerCard = new PIXI.Container();
 
   configureScene() {
@@ -47,7 +48,29 @@ export class PlayerCard extends TurnState {
     this.playerCard.addChild(background);
     Game.hud.addChild(this.playerCard);
 
-    this.timer.start();
+    this.playerCard.alpha = 0;  // Beginning of animation state
+
+    const center = new Point(Game.display.renderWidth, Game.display.renderHeight).multiply(.5);
+
+    this.timer = new Timer()
+      .at(0, () => {
+        Timer.tween(.3, n => {
+          this.playerCard.x = 12*(1-n);
+          this.playerCard.y = 4*(1-n);
+          this.playerCard.alpha = n;
+        }).start()
+      })
+      .at(1.5, () => {
+        Timer.tween(.3, n => {
+          this.playerCard.x = -12*n;
+          this.playerCard.y = -4*n;
+          this.playerCard.alpha = 1-n;
+        }).start()
+      })
+      .at(2, () => {
+        this.advance();
+      })
+      .start();
   }
 
   update() {

@@ -21,6 +21,25 @@ function destroyTimerEvent(e?: TimerEvent) {
  * Something something inspired by Lua.
  * 
  * // TODO Multiple tweens/everys? I mean, why not, right?
+ * // TODO skipToEnd()
+ * // TODO .schedule(...events: TimerEvent[])
+ * 
+ * // TODO .at(3, Timer.tween(n => {}))   :: event: ((n: number) => void) | Timer
+ * If events can be Timers, then I can more carefully maintain chronology.
+ * I discovered with my first .tween() experiment (a success!) that I had to give
+ * it a wide berth such that .advance()->.close() didn't destroy my graphics before
+ * I was done with them.
+ * // TODO What if you .at() a long timer inside a long timer?
+ * A child timer needs to fit all its events into the global schedule.
+ * I don't think... this is a cursory issue, I think I should consider Timer+Timer
+ * concatenation. If you .at(2, timer) a timer, then all its events just get concatenated
+ * into the schedule with a delay of 2.
+ * Tweens are the problem, though. They are, by definition, the whole length. I guess
+ * this means they can't be. At least not internally.
+ * 
+ * // TODO .wait(2, event, context) appends itself to the chain 2 seconds after last.
+ * .at() is of marginal usefulness in long chains; I often care way more about duration
+ * then timestamp.
  * 
  * @author Dei Valko
  */
@@ -139,7 +158,6 @@ export class Timer {
   /** Stops the timer's clock; returns this. May be resumed with start(). */
   stop() {
     this.started = false;
-    console.log('stopped');
     return this;
   }
 
