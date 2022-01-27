@@ -9,6 +9,14 @@ interface TimerEvent {
   context?: object;
 }
 
+function destroyTimerEvent(e?: TimerEvent) {
+  if (!e)
+    return;
+  //@ts-expect-error
+  e.event = undefined;
+  e.context = undefined;
+}
+
 /**
  * Something something inspired by Lua.
  * 
@@ -94,7 +102,11 @@ export class Timer {
 
   destroy() {
     Game.scene.ticker.remove(this.update, this);
-    // TODO Deconstruct all event calls, too
+    this.events.forEach( e => destroyTimerEvent(e) );
+    destroyTimerEvent(this.everyEvent);
+    this.tweenFunc = undefined;
+    this.tweenContext = undefined;
+    this._destroyed = true;
   }
 
   /** The timer's elapse length in milliseconds. This is always reflective of the timestamp of the last scheduled event. */
