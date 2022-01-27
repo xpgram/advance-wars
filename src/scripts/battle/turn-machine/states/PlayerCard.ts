@@ -48,26 +48,29 @@ export class PlayerCard extends TurnState {
     this.playerCard.addChild(background);
     Game.hud.addChild(this.playerCard);
 
-    this.playerCard.alpha = 0;  // Beginning of animation state
-
+    // vv Practice shiz vv
     const center = new Point(Game.display.renderWidth, Game.display.renderHeight).multiply(.5);
+
+    this.playerCard.alpha = 0;  // Beginning of animation state
 
     this.timer = new Timer()
       .at(0, () => {
         Timer.tween(.3, n => {
-          this.playerCard.x = 12*(1-n);
-          this.playerCard.y = 6*(1-n);
-          this.playerCard.alpha = n;
+          const m = Math.sqrt(n);
+          this.playerCard.x = 16*(1-m);
+          this.playerCard.y = 8*(1-m);
+          this.playerCard.alpha = m;
         }).start()
       })
-      .at(1.5, () => {
+      .at(.8, () => {
         Timer.tween(.3, n => {
-          this.playerCard.x = -12*n;
-          this.playerCard.y = -6*n;
-          this.playerCard.alpha = 1-n;
+          const m = Math.sqrt(n);
+          this.playerCard.x = -16*m;
+          this.playerCard.y = -8*m;
+          this.playerCard.alpha = 1-m;
         }).start()
       })
-      .at(2, () => {
+      .at(1.3, () => {
         this.advance();
       })
       .start();
