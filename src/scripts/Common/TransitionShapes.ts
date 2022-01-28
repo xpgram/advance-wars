@@ -1,5 +1,8 @@
 
 /**  */
+export type ShapeFunction = (n: number) => number;
+
+/**  */
 export module TransitionShapes {
 
   /**  */

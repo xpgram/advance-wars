@@ -1,18 +1,21 @@
 import { Game } from "../..";
-import { TransitionShapes } from "../Common/TransitionShapes";
+import { ShapeFunction, TransitionShapes } from "../Common/TransitionShapes";
 import { Common } from "../CommonUtils";
 
 const TO_MILLIS = 1000;
 const TO_SECONDS = 0.001;
+
+/**  */
+type TweenFunction = (n: number) => void;
 
 interface TimerEventOptions {
   time: number;         // Start time.
   until?: number;       // End time.
   interval?: number,    // How long to wait after until to repeat; =time by default
   repeat?: number,      // n<0 forever, n=0 single, n>0 specifies additional times
-  action: (n: number) => void;    // n is proportional to current time and start/end
-  shape?: (n: number) => number;  // shape function for the input to action()
-  context?: object;               // object context to call action() with
+  action: TweenFunction;  // n is proportional to current time and start/end
+  shape?: ShapeFunction;  // shape function for the input to action()
+  context?: object;       // object context to call action() with
 }
 
 interface TimerEvent {
@@ -21,8 +24,8 @@ interface TimerEvent {
   interval: number;
   repeat: number;
   completed: boolean;
-  action: (n: number) => void;
-  shape: (n: number) => number;
+  action: TweenFunction;
+  shape: ShapeFunction;
   context?: object;
 }
 
@@ -38,6 +41,10 @@ function createTimerEvent(e: TimerEventOptions): TimerEvent {
 
 /**
  * Something something inspired by Lua.
+ * 
+ * Newly created timers are started by default. To stop them, call .stop() before
+ * their first assigned update step, like at the end of their schedule chain.
+ * 
  * @author Dei Valko
  */
 export class Timer {
@@ -52,18 +59,28 @@ export class Timer {
   });
 
   /** Shortcut to new Timer().at(); returns a Timer object. */
-  static at(time: number, event: () => void, context?: object) {
+  static at(time: number, event: TweenFunction, context?: object) {
     return new Timer().at(time, event, context);
   }
 
+  /** Shortcut to new Timer().after(); returns a Timer object. */
+  static after(wait: number, event: TweenFunction, context?: object) {
+    return new Timer().at(wait, event, context);
+  }
+
   /** Shortcut to new Timer().every(); returns a Timer object. */
-  static every(time: number, event: () => void, context?: object) {
-    return new Timer().every(time, event, context);
+  static every(time: number, interval: number, event: TweenFunction, context?: object) {
+    return new Timer().every(time, interval, event, context);
   }
 
   /** Shortcut to new Timer().tween(); returns a Timer object. */
-  static tween(time: number, event: (n: number) => void, context?: object, shape?: (n: number) => number) {
-    return new Timer(time).tween(event, context, shape);
+  static tween(time: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
+    return new Timer().tween(time, span, event, context, shape);
+  }
+
+  /** Shortcut to new Timer().tweenAfter(); returns a Timer object. */
+  static tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
+    return new Timer().tween(wait, span, event, context, shape);
   }
 
   /** Whether this object destroys itself after calling the last event. */
@@ -74,7 +91,7 @@ export class Timer {
   private _destroyed = false;
 
   /** True if the timer's clock should be ticking. */
-  private started = false;
+  private started = true;
 
   /** The current elapsed time in milliseconds. */
   private elapsedMillis: number = 0;
@@ -95,7 +112,7 @@ export class Timer {
   private dirty = false;
 
 
-  constructor(seconds?: number, event?: () => void, context?: object) {
+  constructor(seconds?: number, event?: TweenFunction, context?: object) {
     this.at(seconds || 0, event || Timer.NULL_ACTION, context);
     Game.scene.ticker.add(this.update, this);
   }
@@ -179,7 +196,7 @@ export class Timer {
 
   /** True if all timer events have been called. */
   private get eventsExhausted() {
-    return this.events.every( e => e.completed );
+    return this.events.every( e => e.completed ) && this.recurringEvents.every( e => e.completed );
   }
 
   /** Handles timer management. */
@@ -227,8 +244,8 @@ export class Timer {
     const { interval, action, shape, context } = e;
 
     const time = e.until + e.interval;
-    const duration = e.until - e.time;
-    const until = time + duration;
+    const span = e.until - e.time;
+    const until = time + span;
     const repeat = (e.repeat > 0) ? e.repeat - 1 : -1;
 
     const next = createTimerEvent({
@@ -263,69 +280,113 @@ export class Timer {
     return this;
   }
 
-  // TODO Refactor .at(s,{}), .every(s,i,{}), .tween(s,e,{}) member and static
-  // TODO Write .after(i,{}), .tweenEvery(s,e,i,{}), .schedule(TimerEvent[])
-  //            .tweenAfter(i,ie,{})
-  // .after() and .tweenAfter() schedule themselves i-seconds after the last
-  // definite time call. So,
-  //   Timer
-  //     .at(8)
-  //     .at(2)
-  //     .after(1)
-  // places the after event at 3 seconds, not 9.
-  // Likewise,
-  // Timer.schedule([
-  //   {time: }
-  // ])
-  // Actually, I don't know how .schedule() should work here.
+  /** Helper method which does some additional bookkeeping with each event pushed
+   * onto the schedule. */
+  private addEvent(event: TimerEvent) {
+    this.events.push(event);
+    this.lastScheduledEventTime = event.until;
+  }
 
   /** Schedules an event-call at some time value; returns this. */
-  at(time: number, event: () => void, context?: object) {
+  at(time: number, event: TweenFunction, context?: object) {
     time *= TO_MILLIS;
-    const timerEvent = {time, event, context};
-    this.events.push(timerEvent);
+    const e = createTimerEvent({
+      time,
+      action: event,
+      context,
+    });
+    this.addEvent(e);
     return this;
   }
 
-  // removeEvent(event: () => void, context?: object) { }
-  // TODO Should I?
-  // Seems easier to just have a positive-only construction style.
-  // Like, how much fiddling is reasonable?
-  // These are supposed to be set-and-forget, you know.
-
-  /** Schedules an event-call every 'time' seconds; returns this.
-   * Every-events are by nature infinite and must be destroyed manually. */
-  every(time: number, event: () => void, context?: object, onStart: boolean = false) {
-    time *= TO_MILLIS;
-    const timerEvent = {time, event, context};
-    this.everyEvent = timerEvent;
-    this.everyNextCallTime = timerEvent.time;
-    this.everyOnStart = onStart;
+  /** Schedules an event-call at some time value after the last one scheduled; returns this. */
+  after(wait: number, event: (n: number) => void, context?: object) {
+    const time = this.lastScheduledEventTime + wait*TO_MILLIS;
+    const e = createTimerEvent({
+      time,
+      action: event,
+      context,
+    })
+    this.addEvent(e);
     return this;
-
-    // TODO Timer.at(5, { Timer.every(3, {...}, onStart=true) })
-    // How does Timer.every() inside the Timer.at() get memory cleared?
-    // We literally can't interact with it.
-    // I think passing in Timers as children instead of event functions, like as an
-    // overload alternative, would allow child-timer management that could still
-    // interact with such things. I don't know, though.
-    //
-    // Timer.at(5, Timer.every(3, {...}));  ← Pulsar with delayed start. Ideally.
-    //
-    // Should every() force you to declare max calls?
-    // You could answer 'infinite', but I think psychologically this could enable
-    // the realization that infinite everys can't clean themselves up.
-    // Allowing Timers instead of void functions is great, but it doesn't stop
-    // people from writing an every() inside a void function.
   }
 
-  /** Schedules a progressive event call for the duration of the timer; returns this.
-   * Timer duration is always reflective of its last chronological event, so be mindful
-   * that Timer(time) is deliberate and knowingly overridden. */
-  tween(iter: (n: number) => void, context?: object, shape?: (n: number) => number) {
-    this.tweenFunc = iter;
-    this.tweenContext = context;
-    (shape) && (this.tweenShape = shape);
+  /** Schedules an event-call at 'time' and every 'interval' seconds after; returns this.
+   * Every-events are by nature infinite and prevent the timer from self-destructing. */
+  every(time: number, interval: number, event: TweenFunction, context?: object, occurrences?: number) {
+    time *= TO_MILLIS;
+    interval *= TO_MILLIS;
+    const e = createTimerEvent({
+      time,
+      interval,
+      repeat: (occurrences) ? occurrences - 1 : -1,
+      action: event,
+      context,
+    })
+    this.addEvent(e);
+    return this;
+  }
+
+  /** Schedules a progressive event-call at 'time' for 'span' seconds; returns this. */
+  tween(time: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
+    time *= TO_MILLIS;
+    const until = span*TO_MILLIS + time;
+    const e = createTimerEvent({
+      time,
+      until,
+      action: event,
+      shape,
+      context,
+    })
+    this.addEvent(e);
+    return this;
+  }
+
+  /** Schedules a progressive event-call at some time value after the last one scheduled
+   * and for 'span' seconds; returns this. */
+  tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
+    const time = this.lastScheduledEventTime + wait*TO_MILLIS;
+    const until = span*TO_MILLIS + time;
+    const e = createTimerEvent({
+      time,
+      until,
+      action: event,
+      shape,
+      context,
+    })
+    this.addEvent(e);
+    return this;
+  }
+
+  /**  */
+  // TODO Too many parameters. This *has* to be an options object.
+  // probably:
+  // tweenEvery(options: {blah blah blah}, event: TweenFunction, context?: object) { }
+  // shape?: is a contender for making this standard across the tween functions. I'll consider.
+  // I don't honestly know if shape is really worth it, though. Does it really simplify anything?
+  // Boys are gonna modify their input inside the tween anyway, and it's not like complicated shapes
+  // are cached between timer events; I don't even know how I would do that.
+  tweenEvery(time: number, span: number, interval: number, event: TweenFunction, context?: object, shape?: ShapeFunction, occurrences?: number) {
+    time *= TO_MILLIS;
+    const until = span*TO_MILLIS + time;
+    interval *= TO_MILLIS;
+    const e = createTimerEvent({
+      time,
+      until,
+      interval,
+      repeat: (occurrences) ? occurrences - 1 : -1,
+      action: event,
+      context,
+    })
+    this.addEvent(e);
+    return this;
+  }
+
+  /** Schedules a list of timer events described through timer-event-options objects; returns this. */
+  schedule(...events: TimerEventOptions[]) {
+    events.forEach( e => {
+      this.addEvent(createTimerEvent(e));
+    })
     return this;
   }
 
