@@ -84,8 +84,4 @@ export class PlayerCard extends TurnState {
     this.playerCard.destroy({children: true});
   }
 
-  onDestroy() {
-    this.timer.destroy();
-  }
-
 }

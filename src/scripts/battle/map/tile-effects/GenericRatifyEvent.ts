@@ -20,7 +20,11 @@ export class GenericRatifyEvent extends TileEvent {
   constructor(options: GenericRatifyEventOptions) {
     super(options.location);
     this.options = options;
-    this.timer = new Timer(options.time || 0, () => { this.finish(); });
+    this.timer = Timer
+      .at(options.time || 0, n => {
+        this.finish();
+      })
+      .stop();
   }
 
   protected create(): void {
@@ -33,6 +37,5 @@ export class GenericRatifyEvent extends TileEvent {
   protected destroy(): void {
     //@ts-expect-error
     this.options = undefined;
-    this.timer.destroy();
   }
 }

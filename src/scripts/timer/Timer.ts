@@ -58,29 +58,34 @@ export class Timer {
     action: Timer.NULL_ACTION,
   });
 
-  /** Shortcut to new Timer().at(); returns a Timer object. */
+  /** Helper for static Timer calls which auto-start timers by default. */
+  private static new() {
+    return new Timer().start();
+  }
+
+  /** Shortcut to new Timer().start().at(); returns a Timer object. */
   static at(time: number, event: TweenFunction, context?: object) {
-    return new Timer().at(time, event, context);
+    return Timer.new().at(time, event, context);
   }
 
-  /** Shortcut to new Timer().after(); returns a Timer object. */
+  /** Shortcut to new Timer().start().after(); returns a Timer object. */
   static after(wait: number, event: TweenFunction, context?: object) {
-    return new Timer().at(wait, event, context);
+    return Timer.new().at(wait, event, context);
   }
 
-  /** Shortcut to new Timer().every(); returns a Timer object. */
+  /** Shortcut to new Timer().start().every(); returns a Timer object. */
   static every(time: number, interval: number, event: TweenFunction, context?: object) {
-    return new Timer().every(time, interval, event, context);
+    return Timer.new().every(time, interval, event, context);
   }
 
-  /** Shortcut to new Timer().tween(); returns a Timer object. */
+  /** Shortcut to new Timer().start().tween(); returns a Timer object. */
   static tween(time: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
-    return new Timer().tween(time, span, event, context, shape);
+    return Timer.new().tween(time, span, event, context, shape);
   }
 
-  /** Shortcut to new Timer().tweenAfter(); returns a Timer object. */
+  /** Shortcut to new Timer().start().tweenAfter(); returns a Timer object. */
   static tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
-    return new Timer().tween(wait, span, event, context, shape);
+    return Timer.new().tween(wait, span, event, context, shape);
   }
 
   /** Whether this object destroys itself after calling the last event. */
@@ -91,7 +96,7 @@ export class Timer {
   private _destroyed = false;
 
   /** True if the timer's clock should be ticking. */
-  private started = true;
+  private started = false;
 
   /** The current elapsed time in milliseconds. */
   private elapsedMillis: number = 0;
@@ -120,7 +125,9 @@ export class Timer {
   destroy() {
     Game.scene.ticker.remove(this.update, this);
     this.events.forEach( e => Common.destroyObject(e) );
+    this.events = [];
     this.recurringEvents = [];
+    this.started = false;
     this._destroyed = true;
   }
 
@@ -201,7 +208,7 @@ export class Timer {
 
   /** Handles timer management. */
   private update() {
-    if (!this.started)
+    if (!this.started || this.destroyed)
       return;
 
     this.handleEvents(this.events);
@@ -217,8 +224,6 @@ export class Timer {
   /** Iterator for a list of timer events. */
   private handleEvents(events: TimerEvent[]) {
     const elapsed = this.elapsedMillis;
-    const nextOccurrences: TimerEvent[] = [];
-
     events.forEach( e => {
       if (elapsed < e.time || e.completed)
         return;
@@ -235,8 +240,6 @@ export class Timer {
       if (normal === 1)
         e.completed = true;
     });
-
-    return nextOccurrences;
   }
 
   /** Creates a new (temp) timer event for the next occurrence of a repeatable. */

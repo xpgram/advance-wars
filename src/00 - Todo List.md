@@ -8,54 +8,11 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
-new Timer(2)      // Timer is set to 2. (An implicit 'null' event is scheduled)
-  .at(1, ...)
-  .at(1.5, ...)
-  .at(3, ...)     // All timers 'end' after their last item, so this simply extends it to 3.
-  .at(4, () => {
-    const obj;
-    new Timer(2).tween({
-      f: slider => obj.x = slider.output
-    })
-  })
-By this way, we create an itinerary of operations. The timer auto-destructs once its over.
-If you want to save a reference, you can also halt it, or make it run every function it has
-planned.
-You can also do:
-new Timer(2).schedule([
-  {
-    time: 1,
-    f: () => obj.show(),
-  },
-  {
-    time: 2,
-    until: 3,
-    event: () => obj.hide(),
-
-    interval: 1,
-    repeat: true, // .every make me nerv, but it won't be nested so it'll be easy to control.
-  },
-  {
-    time: 3,
-    f: () => {
-      new Timer(2).tween({
-        f: slider => obj.x = slider.output * 64 + -32,
-      })
-      // Tweens, for simplicity, happen over the length of the timer *as it was when it was scheduled*. I think. Point is, be careful out there.
-      // Actually, they should probably just default to start=0, end=max(now) while allowing start and end to be set; I already need a system for .at()'s, I'm sure progressive tween calls won't be that big a goddamn deal. We can figure it out.
-    }
-  }
-])
-You can also do:
-new Timer(2, () => { stuff })   // Which is an implicit .at(); normally the function is just null
-You can aldo do:
-new Timer(2).every(3, () => {}) // Actually no, you can't do this. Pulsar's already do it pretty well, and I don't want to think about recurring events in a thing that's supposed to auto-destruct and blah blah blah blah blah. This is a distant feature, if that.
-
-This is kind of a lot. Or, I hope it isn't.
-But, theoretically, I could calculate the distance between two camera transforms, now
-and target, and then tween them. That would *easily* give me the speed up/down approach
-effect the actual game has. I guess I could also use a slider for this. The slider
-just has a more difficult translation to execution time.
+- [ ] Timer.update() sometimes runs after timer.destroy()
+  - This is kind of a non-issue; I'm pretty sure it happens when a TimerEvent triggers timer.destroy(), meaning from within the .update() step itself, which... shouldn't really happen? I don't really know what to say about that.
+  - [ ] Try Timer.at(1, n => timer.destroy()).at(2, Timer.NULL_EVENT)
+    This *should* still 'cause a problem, even though the timer hasn't ended yet.
+  - [ ] Possible fix: maybe .destroy() simply signals a safe-destroy to happen on next update? That probably makes the most sense. I may even do that even if it doesn't fix the bug.
 
 - [ ] StartCards
   - [ ] Implement Timer.tween(time: number, shape?: function, (Slider) => {-stuff-})
