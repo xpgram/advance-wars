@@ -13,23 +13,10 @@ But anyway, yeah. There is constant state checking because his system never just
   - [ ] Try Timer.at(1, n => timer.destroy()).at(2, Timer.NULL_EVENT)
     This *should* still 'cause a problem, even though the timer hasn't ended yet.
   - [ ] Possible fix: maybe .destroy() simply signals a safe-destroy to happen on next update? That probably makes the most sense. I may even do that even if it doesn't fix the bug.
-
-- [ ] StartCards
-  - [ ] Implement Timer.tween(time: number, shape?: function, (Slider) => {-stuff-})
-    - shape? could also just be SliderOptions for more control.
-    - [ ] Timer does the tween, auto-deconstructs itself on finish.
-    - [ ] Timer is skippable (slider.setToExtreme())
-    - [ ] Timer is haltable
-    I was trying to think of a way I could add this to Slider, but... yeah, I dunno. I also wonder if I should bother trying to merge Timer and Pulsar. Eh.
-    I mean, conceivably, Slider.onTrackChange(()=>{}) and Slider.auto = true could do it. I guess my concern is really about domain and scope. *Should* Slider do that? I think updating Timer would be fine, especially since I don't really use it now.
-  - [ ] Timetable
-    - A new class which accepts a set of callbacks paired with time values that get called once each whenever their time schedule is met.
-    - [ ] Accepted callback-time-pairs can be a list of such so that painstaking, manual configuration of times can be handled by a shape function instead
-    - [ ] In fact, provide a time-shaper method which runs a callback on each item
-      - Timetable.timeshape( (time, last, cur): number => {} );
-      - for every scheduled item, pass in the total time count (first: 0), the last return value (first: 0) and the current value (if one was already set; sets up the possibility for a multi-pass kinda thing).
-    - [ ] Can be set to auto-deconstruct on finish.
-  - [ ] Use an Itinerary and Timer.tween() to create the slide in, wait, slide out effects.
+- [ ] Timer is skippable (max time, order chronology by until?, run update once [complete all tweens])
+- [ ] Remove shape?: from method arguments; clutter.
+  n = EaseMethod.linear(n) does the just just fine.
+- [ ] Change after-context settings to first-argument options block; simplicity.
 
 - [ ] Square.stealth is distinct from .hidden and .hideUnit
   - [ ] In fact, .hidden is confusing and should be .obscuredByFog or something.
