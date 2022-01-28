@@ -8,17 +8,12 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
-- [ ] Add win-checking and a win card animation
-  - [ ] Two half-bars slide in from opposing screen edges
-  - [ ] WIN fades in (italic, so skew +5 degrees)
-  - [ ] Wait a bit
-  - [ ] WIN stretch-implodes vertically into its middle
-  - [ ] WIN also skews from its middle to +15 degrees
-
 - [ ] Timer is skippable (max time, order chronology by until?, run update once [complete all tweens])
 - [ ] Remove shape?: from method arguments; clutter.
   n = EaseMethod.linear(n) does the just just fine.
 - [ ] Change after-context settings to first-argument options block; simplicity.
+- [ ] tweenDuringLast (these names are cray, I gotta come up with something better) works like tweenAfter but doesn't use the ending time value
+  - [ ] Or maybe tweenAfter works using e.time, but .wait() sets the last timestamp to be the most recent event's until. I kinda like this idea.
 
 - [ ] Square.stealth is distinct from .hidden and .hideUnit
   - [ ] In fact, .hidden is confusing and should be .obscuredByFog or something.

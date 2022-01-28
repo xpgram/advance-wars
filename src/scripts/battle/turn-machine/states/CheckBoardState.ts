@@ -1,4 +1,7 @@
+import { Game } from "../../../..";
+import { Keys } from "../../../controls/KeyboardObserver";
 import { TurnState } from "../TurnState";
+import { GameWin } from "./GameWin";
 import { IssueOrderStart } from "./IssueOrderStart";
 
 /** A TurnState which confirms player loss/win state.
@@ -20,6 +23,9 @@ export class CheckBoardState extends TurnState {
     // TODO Check players for win conditions, etc.
     // The purpose here is to check game conditions between orders; if a unit captures
     // the other's HQ, the game should end immediately.
+
+    if (Game.devController.down(Keys.W))
+      this.advance(GameWin, IssueOrderStart);
 
     this.advance(IssueOrderStart);
   }
