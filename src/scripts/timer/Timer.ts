@@ -1,5 +1,5 @@
 import { Game } from "../..";
-import { ShapeFunction, TransitionShapes } from "../Common/TransitionShapes";
+import { EasingFunction, EaseMethod } from "../Common/EaseMethod";
 import { Common } from "../CommonUtils";
 
 const TO_MILLIS = 1000;
@@ -14,7 +14,7 @@ interface TimerEventOptions {
   interval?: number,    // How long to wait after until to repeat; =time by default
   repeat?: number,      // n<0 forever, n=0 single, n>0 specifies additional times
   action: TweenFunction;  // n is proportional to current time and start/end
-  shape?: ShapeFunction;  // shape function for the input to action()
+  shape?: EasingFunction;  // shape function for the input to action()
   context?: object;       // object context to call action() with
 }
 
@@ -25,7 +25,7 @@ interface TimerEvent {
   repeat: number;
   completed: boolean;
   action: TweenFunction;
-  shape: ShapeFunction;
+  shape: EasingFunction;
   context?: object;
 }
 
@@ -34,7 +34,7 @@ function createTimerEvent(e: TimerEventOptions): TimerEvent {
     until: e.time,
     interval: e.time,
     repeat: 0,
-    shape: TransitionShapes.linear,
+    shape: EaseMethod.linear,
     completed: false,
   });
 }
@@ -79,12 +79,12 @@ export class Timer {
   }
 
   /** Shortcut to new Timer().start().tween(); returns a Timer object. */
-  static tween(time: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
+  static tween(time: number, span: number, event: TweenFunction, context?: object, shape?: EasingFunction) {
     return Timer.new().tween(time, span, event, context, shape);
   }
 
   /** Shortcut to new Timer().start().tweenAfter(); returns a Timer object. */
-  static tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
+  static tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: EasingFunction) {
     return Timer.new().tween(wait, span, event, context, shape);
   }
 
@@ -331,7 +331,7 @@ export class Timer {
   }
 
   /** Schedules a progressive event-call at 'time' for 'span' seconds; returns this. */
-  tween(time: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
+  tween(time: number, span: number, event: TweenFunction, context?: object, shape?: EasingFunction) {
     time *= TO_MILLIS;
     const until = span*TO_MILLIS + time;
     const e = createTimerEvent({
@@ -347,7 +347,7 @@ export class Timer {
 
   /** Schedules a progressive event-call at some time value after the last one scheduled
    * and for 'span' seconds; returns this. */
-  tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: ShapeFunction) {
+  tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: EasingFunction) {
     const time = this.lastScheduledEventTime + wait*TO_MILLIS;
     const until = span*TO_MILLIS + time;
     const e = createTimerEvent({
@@ -369,7 +369,7 @@ export class Timer {
   // I don't honestly know if shape is really worth it, though. Does it really simplify anything?
   // Boys are gonna modify their input inside the tween anyway, and it's not like complicated shapes
   // are cached between timer events; I don't even know how I would do that.
-  tweenEvery(time: number, span: number, interval: number, event: TweenFunction, context?: object, shape?: ShapeFunction, occurrences?: number) {
+  tweenEvery(time: number, span: number, interval: number, event: TweenFunction, context?: object, shape?: EasingFunction, occurrences?: number) {
     time *= TO_MILLIS;
     const until = span*TO_MILLIS + time;
     interval *= TO_MILLIS;
