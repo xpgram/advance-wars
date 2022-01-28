@@ -1,9 +1,9 @@
 
 /**  */
-export type ShapeFunction = (n: number) => number;
+export type EasingFunction = (n: number) => number;
 
 /**  */
-export module TransitionShapes {
+export module EaseMethod {
 
   /**  */
   export function linear(n: number): number {
