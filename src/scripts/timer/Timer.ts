@@ -122,7 +122,13 @@ export class Timer {
     Game.scene.ticker.add(this.update, this);
   }
 
+  /** Signals self-destruction to happen on next safe opportunity. */
   destroy() {
+    this._destroyed = true;
+  }
+
+  /** Destruction method which is called at a time the timer is ready for. */
+  private _destroy() {
     Game.scene.ticker.remove(this.update, this);
     this.events.forEach( e => Common.destroyObject(e) );
     this.events = [];
@@ -181,7 +187,7 @@ export class Timer {
   /** Resets the timer's clock and scheduled event calls to initial; returns this. Does not stop the clock. */
   reset() {
     this.elapsedMillis = 0;
-    this.events.forEach( e => e.completed = false );
+    this.events.forEach( e => e.completed = false );  // TODO completedDir could be -1 | 1 to allow for bi-directional ticking.
     this.recurringEvents = [];
     return this;
   }
@@ -208,6 +214,8 @@ export class Timer {
 
   /** Handles timer management. */
   private update() {
+    if (this.destroyed)
+      this._destroy();
     if (!this.started || this.destroyed)
       return;
 
@@ -218,7 +226,7 @@ export class Timer {
     this.elapsedMillis += Game.deltaMS;
 
     if (this.eventsExhausted && this.selfDestruct)
-      this.destroy();
+      this._destroy();
   }
 
   /** Iterator for a list of timer events. */

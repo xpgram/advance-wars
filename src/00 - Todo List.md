@@ -8,11 +8,12 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
-- [ ] Timer.update() sometimes runs after timer.destroy()
-  - This is kind of a non-issue; I'm pretty sure it happens when a TimerEvent triggers timer.destroy(), meaning from within the .update() step itself, which... shouldn't really happen? I don't really know what to say about that.
-  - [ ] Try Timer.at(1, n => timer.destroy()).at(2, Timer.NULL_EVENT)
-    This *should* still 'cause a problem, even though the timer hasn't ended yet.
-  - [ ] Possible fix: maybe .destroy() simply signals a safe-destroy to happen on next update? That probably makes the most sense. I may even do that even if it doesn't fix the bug.
+- [ ] Add win-checking and a win card animation
+  - [ ] Two half-bars slide in from opposing screen edges
+  - [ ] WIN fades in (italic, so skew +5 degrees)
+  - [ ] Wait a bit
+  - [ ] WIN stretch-implodes vertically into its middle
+  - [ ] WIN also skews from its middle to +15 degrees
 
 - [ ] StartCards
   - [ ] Implement Timer.tween(time: number, shape?: function, (Slider) => {-stuff-})
