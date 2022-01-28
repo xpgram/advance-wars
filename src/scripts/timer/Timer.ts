@@ -1,49 +1,31 @@
 import { Game } from "../..";
-import { EasingFunction, EaseMethod } from "../Common/EaseMethod";
 import { Common } from "../CommonUtils";
+import { ProgressiveFunction, TEvent } from "./TimerEvent";
 
-const TO_MILLIS = 1000;
-const TO_SECONDS = 0.001;
-
-/**  */
-type TweenFunction = (n: number) => void;
-
-interface TimerEventOptions {
-  time: number;         // Start time.
-  until?: number;       // End time.
-  interval?: number,    // How long to wait after until to repeat; =time by default
-  repeat?: number,      // n<0 forever, n=0 single, n>0 specifies additional times
-  action: TweenFunction;  // n is proportional to current time and start/end
-  shape?: EasingFunction;  // shape function for the input to action()
-  context?: object;       // object context to call action() with
-}
-
-interface TimerEvent {
-  time: number;
-  until: number;
-  interval: number;
-  repeat: number;
-  completed: boolean;
-  action: TweenFunction;
-  shape: EasingFunction;
-  context?: object;
-}
-
-function createTimerEvent(e: TimerEventOptions): TimerEvent {
-  return Common.assignDefaults(e, {
-    until: e.time,
-    interval: e.time,
-    repeat: 0,
-    shape: EaseMethod.linear,
-    completed: false,
-  });
-}
+function millis(n: number) { return n * 1000; }
+function seconds(n: number) { return n * 0.001; }
 
 /**
- * Something something inspired by Lua.
+ * An event itinerary system developed because I saw someone do this in Lua and
+ * it was mad cool. Tweening, I mean.
  * 
- * Newly created timers are started by default. To stop them, call .stop() before
- * their first assigned update step, like at the end of their schedule chain.
+ * For simple time keeping, create a timer via object construction (new Timer(5)).
+ * Then call timer.start() at your leisure.
+ * 
+ * Timers created via the static class members (Timer.at(), etc.) are started by
+ * default. To stop them, call .stop() somewhere in their construction chain.
+ * 
+ * Scheduling animation changes over time is extremely easy via a construction chain.  
+ * 
+ * ```
+ * Timer  
+ *   .at(.25)       // moves the itinerary cursor
+ *   .do(n => {...})          // occurs at .25 seconds
+ *   .wait(.25)     // moves the cursor relatively
+ *   .tween(.25, n => {...})  // occurs from .50 to .75 seconds
+ *   .wait()        // skips to previous step's end time (.75 seconds)
+ *   ...
+ * ```
  * 
  * @author Dei Valko
  */
@@ -53,7 +35,7 @@ export class Timer {
   static readonly NULL_ACTION = () => {};
 
   /** NULL object which describes the default, no-effect timer event. */
-  static readonly NULL_EVENT = createTimerEvent({
+  static readonly NULL_EVENT = TEvent.createTimerEvent({
     time: 0,
     action: Timer.NULL_ACTION,
   });
@@ -64,28 +46,33 @@ export class Timer {
   }
 
   /** Shortcut to new Timer().start().at(); returns a Timer object. */
-  static at(time: number, event: TweenFunction, context?: object) {
-    return Timer.new().at(time, event, context);
+  static at(n: number) {
+    return Timer.new().at(n);
   }
 
-  /** Shortcut to new Timer().start().after(); returns a Timer object. */
-  static after(wait: number, event: TweenFunction, context?: object) {
-    return Timer.new().at(wait, event, context);
+  /** Shortcut to new Timer().start().wait(); returns a Timer object. */
+  static wait(n?: number) {
+    return Timer.at(n || 0);
+  }
+
+  /** Shortcut to new Timer().start().at(); returns a Timer object. */
+  static do(action: ProgressiveFunction, context?: object) {
+    return Timer.new().do(action, context);
   }
 
   /** Shortcut to new Timer().start().every(); returns a Timer object. */
-  static every(time: number, interval: number, event: TweenFunction, context?: object) {
-    return Timer.new().every(time, interval, event, context);
+  static every(interval: number, action: ProgressiveFunction, context?: object) {
+    return Timer.new().every(interval, action, context);
   }
 
   /** Shortcut to new Timer().start().tween(); returns a Timer object. */
-  static tween(time: number, span: number, event: TweenFunction, context?: object, shape?: EasingFunction) {
-    return Timer.new().tween(time, span, event, context, shape);
+  static tween(span: number, action: ProgressiveFunction, context?: object) {
+    return Timer.new().tween(span, action, context);
   }
 
   /** Shortcut to new Timer().start().tweenAfter(); returns a Timer object. */
-  static tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: EasingFunction) {
-    return Timer.new().tween(wait, span, event, context, shape);
+  static tweenEvery(span: number, interval: number, action: ProgressiveFunction, context?: object) {
+    return Timer.new().tweenEvery(span, interval, action, context);
   }
 
   /** Whether this object destroys itself after calling the last event. */
@@ -102,23 +89,28 @@ export class Timer {
   private elapsedMillis: number = 0;
 
   /** The list of scheduled event calls. */
-  private events: TimerEvent[] = [];
+  private events: TEvent.TimerEvent[] = [];
 
   /** The list of scheduled recurring event calls.
    * Useful for Timer.every() without mutating the original schedule. */
-  private recurringEvents: TimerEvent[] = [];
+  private recurringEvents: TEvent.TimerEvent[] = [];
 
-  /** The time-occurrence of the last event scheduled.
-   * Used for determining .after() event placement. */
-  private lastScheduledEventTime = 0;
+  /** The current time-position along the schedule track. Used for determing where
+   * time events get added to the itinerary. */
+  private timeCursor = 0;
+
+  /** The last timer event added to the schedule, for reference. */
+  private lastAdded?: TEvent.TimerEvent;
 
   /** True if the events list needs to be sorted.
    * @unused */
   private dirty = false;
 
 
-  constructor(seconds?: number, event?: TweenFunction, context?: object) {
-    this.at(seconds || 0, event || Timer.NULL_ACTION, context);
+  constructor(seconds?: number, action?: ProgressiveFunction, context?: object) {
+    action = action || Timer.NULL_ACTION;
+    (seconds) && this.at(seconds);
+    this.do(action, context);
     Game.scene.ticker.add(this.update, this);
   }
 
@@ -154,7 +146,7 @@ export class Timer {
   /** The timer's full elapse length in seconds. This is reflective of the ending
    * timestamp of the last chronological event in the schedule. */
   get length() {
-    return this.lengthMillis * TO_SECONDS;
+    return seconds(this.lengthMillis);
   }
 
   /** Starts the timer's clock; returns this. */
@@ -194,7 +186,7 @@ export class Timer {
 
   /** The timer's elapsed clock time in seconds. */
   get elapsed() {
-    return this.elapsedMillis * TO_SECONDS;
+    return seconds(this.elapsedMillis);
   }
 
   /** True if the timer has started and hasn't yet finished. */
@@ -230,7 +222,7 @@ export class Timer {
   }
 
   /** Iterator for a list of timer events. */
-  private handleEvents(events: TimerEvent[]) {
+  private handleEvents(events: TEvent.TimerEvent[]) {
     const elapsed = this.elapsedMillis;
     events.forEach( e => {
       if (elapsed < e.time || e.completed)
@@ -251,7 +243,7 @@ export class Timer {
   }
 
   /** Creates a new (temp) timer event for the next occurrence of a repeatable. */
-  private extendRecurringEvent(e: TimerEvent) {
+  private extendRecurringEvent(e: TEvent.TimerEvent) {
     const { interval, action, shape, context } = e;
 
     const time = e.until + e.interval;
@@ -259,7 +251,7 @@ export class Timer {
     const until = time + span;
     const repeat = (e.repeat > 0) ? e.repeat - 1 : -1;
 
-    const next = createTimerEvent({
+    const next = TEvent.createTimerEvent({
       time, until, interval, repeat, action, shape, context
     });
     this.recurringEvents.push(next);
@@ -291,17 +283,39 @@ export class Timer {
     return this;
   }
 
-  /** Helper method which does some additional bookkeeping with each event pushed
-   * onto the schedule. */
-  private addEvent(event: TimerEvent) {
-    this.events.push(event);
-    this.lastScheduledEventTime = event.until;
+  /** Moves the time cursor to a particular point in time (seconds).
+   * Cannot move to negative time values.
+   * Pass in 'end' to move the cursor to the timer's (as of now) final timestamp. */
+  at(time: number | 'end') {
+    time = (time === 'end')
+      ? this.lengthMillis
+      : millis(time);
+    this.timeCursor = Math.max(time, 0);
+    return this;
   }
 
-  /** Schedules an event-call at some time value; returns this. */
-  at(time: number, event: TweenFunction, context?: object) {
-    time *= TO_MILLIS;
-    const e = createTimerEvent({
+  /** Moves the time cursor to some time distance from its current position.
+   * Negative time values will move backward, but cannot move beyond time=0. */
+  wait(time?: number) {
+    time = (!time)
+      ? (this.lastAdded) ? TEvent.getSpan(this.lastAdded) : 0
+      : millis(time);
+    time = Math.max(time, 0);
+    this.timeCursor += time;
+    return this;
+  }
+
+  /** Helper method which does some additional bookkeeping with each event pushed
+   * onto the schedule. */
+   private addEvent(event: TEvent.TimerEvent) {
+    this.events.push(event);
+    this.lastAdded = event;
+  }
+
+  /** Schedules an event-call; returns this. */
+  do(event: ProgressiveFunction, context?: object) {
+    const time = this.timeCursor;
+    const e = TEvent.createTimerEvent({
       time,
       action: event,
       context,
@@ -310,82 +324,49 @@ export class Timer {
     return this;
   }
 
-  /** Schedules an event-call at some time value after the last one scheduled; returns this. */
-  after(wait: number, event: (n: number) => void, context?: object) {
-    const time = this.lastScheduledEventTime + wait*TO_MILLIS;
-    const e = createTimerEvent({
-      time,
-      action: event,
-      context,
-    })
-    this.addEvent(e);
-    return this;
-  }
-
   /** Schedules an event-call at 'time' and every 'interval' seconds after; returns this.
    * Every-events are by nature infinite and prevent the timer from self-destructing. */
-  every(time: number, interval: number, event: TweenFunction, context?: object, occurrences?: number) {
-    time *= TO_MILLIS;
-    interval *= TO_MILLIS;
-    const e = createTimerEvent({
+  // TODO options: {interval: number, max?: number}
+  every(interval: number, action: ProgressiveFunction, context?: object) {
+    const time = this.timeCursor;
+    interval = millis(interval);
+    const e = TEvent.createTimerEvent({
       time,
       interval,
-      repeat: (occurrences) ? occurrences - 1 : -1,
-      action: event,
+      repeat: -1,
+      action,
       context,
     })
     this.addEvent(e);
     return this;
   }
 
-  /** Schedules a progressive event-call at 'time' for 'span' seconds; returns this. */
-  tween(time: number, span: number, event: TweenFunction, context?: object, shape?: EasingFunction) {
-    time *= TO_MILLIS;
-    const until = span*TO_MILLIS + time;
-    const e = createTimerEvent({
+  /** Schedules a progressive event-call for 'span' seconds; returns this. */
+  // TODO options: {interval: number, shape?: EaseFunction}
+  tween(span: number, action: ProgressiveFunction, context?: object) {
+    const time = this.timeCursor;
+    const until = millis(span) + time;
+    const e = TEvent.createTimerEvent({
       time,
       until,
-      action: event,
-      shape,
+      action,
       context,
     })
     this.addEvent(e);
     return this;
   }
 
-  /** Schedules a progressive event-call at some time value after the last one scheduled
-   * and for 'span' seconds; returns this. */
-  tweenAfter(wait: number, span: number, event: TweenFunction, context?: object, shape?: EasingFunction) {
-    const time = this.lastScheduledEventTime + wait*TO_MILLIS;
-    const until = span*TO_MILLIS + time;
-    const e = createTimerEvent({
-      time,
-      until,
-      action: event,
-      shape,
-      context,
-    })
-    this.addEvent(e);
-    return this;
-  }
-
-  /**  */
-  // TODO Too many parameters. This *has* to be an options object.
-  // probably:
-  // tweenEvery(options: {blah blah blah}, event: TweenFunction, context?: object) { }
-  // shape?: is a contender for making this standard across the tween functions. I'll consider.
-  // I don't honestly know if shape is really worth it, though. Does it really simplify anything?
-  // Boys are gonna modify their input inside the tween anyway, and it's not like complicated shapes
-  // are cached between timer events; I don't even know how I would do that.
-  tweenEvery(time: number, span: number, interval: number, event: TweenFunction, context?: object, shape?: EasingFunction, occurrences?: number) {
-    time *= TO_MILLIS;
-    const until = span*TO_MILLIS + time;
-    interval *= TO_MILLIS;
-    const e = createTimerEvent({
+  /** Schedules a progressive event-call for 'span' seconds recurringly with
+   * 'interval'-seconds gaps; returns this; */
+  tweenEvery(span: number, interval: number, event: ProgressiveFunction, context?: object) {
+    const time = this.timeCursor;
+    const until = millis(span) + time;
+    interval = millis(interval);
+    const e = TEvent.createTimerEvent({
       time,
       until,
       interval,
-      repeat: (occurrences) ? occurrences - 1 : -1,
+      repeat: -1,
       action: event,
       context,
     })
@@ -394,9 +375,9 @@ export class Timer {
   }
 
   /** Schedules a list of timer events described through timer-event-options objects; returns this. */
-  schedule(...events: TimerEventOptions[]) {
+  schedule(...events: TEvent.TimerEventOptions[]) {
     events.forEach( e => {
-      this.addEvent(createTimerEvent(e));
+      this.addEvent(TEvent.createTimerEvent(e));
     })
     return this;
   }

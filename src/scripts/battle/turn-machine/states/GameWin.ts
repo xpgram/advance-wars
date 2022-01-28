@@ -38,23 +38,29 @@ export class GameWin extends TurnState {
     Game.hud.addChild(container);
 
     Timer
-      .tween(.15, .15, n => {
+      .at(.1)
+      .tween(.1, n => {
         barL.x = -width*(1-n);
       })
-      .tweenAfter(-.1, .15, n => {
+      .wait(.03)
+      .tween(.1, n => {
         barR.x = width*(1-n);
       })
-      .tweenAfter(-.1, .15, n => {
+      .wait(.03)
+      .tween(.1, n => {
         text.alpha = n;
       })
-      .tween(2.0, .15, n => {
+      .at(1.5)
+      .tween(.15, n => {
         container.scale.y = (1-n);
         text.skew.x = -n;
       })
-      .tweenAfter(-.05, .1, n => {
+      .wait(.1)
+      .tween(.1, n => {
         container.alpha = (1-n);
       })
-      .after(.15, n => {
+      .at('end')
+      .do(n => {
         container.destroy({children: true});
         this.advance();
       })

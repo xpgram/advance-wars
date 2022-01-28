@@ -54,19 +54,22 @@ export class PlayerCard extends TurnState {
     this.playerCard.alpha = 0;  // Beginning of animation state
 
     this.timer = Timer
-      .tweenAfter(.15, .25, n => {
+      .at(.15)
+      .tween(.25, n => {
         const m = Math.sqrt(n);
         this.playerCard.x = 16*(1-m);
         this.playerCard.y = 8*(1-m);
         this.playerCard.alpha = m;
       })
-      .tweenAfter(.5, .25, n => {
+      .wait(.75)
+      .tween(.25, n => {
         const m = Math.sqrt(n);
         this.playerCard.x = -16*m;
         this.playerCard.y = -8*m;
         this.playerCard.alpha = 1-m;
       })
-      .after(.15, n => {
+      .at('end')
+      .do(n => {
         this.advance();
       })
   }
