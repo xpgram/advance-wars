@@ -37,6 +37,11 @@ class EaseSet {
 /**  */
 export module EaseMethod {
 
+  // TODO EaseMethod.linear.out is meant to be passed in, but it requires context,
+  // which means it has to be bounded. I guess we have to fix that here. *sigh*
+  // Can I do a functional thing here? Maybe refactor the class up there out?
+  // I'd prefer not to have to worry about binding stuff.
+
   export const linear = new EaseSet({
     easeIn: n => n,
     easeOut: n => n,
