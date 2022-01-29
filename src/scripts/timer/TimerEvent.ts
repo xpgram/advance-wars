@@ -1,4 +1,4 @@
-import { EasingFunction, EaseMethod } from "../Common/EaseMethod";
+import { EaseFunction, EaseMethod } from "../Common/EaseMethod";
 import { Common } from "../CommonUtils";
 
 export type ProgressiveFunction = (n: number) => void;
@@ -15,7 +15,7 @@ export module TEvent {
     repeat: number;
     completed: boolean;
     action: ProgressiveFunction;
-    shape: EasingFunction;
+    shape: EaseFunction;
     context?: object;
   }
 
@@ -25,7 +25,7 @@ export module TEvent {
     interval?: number,    // How long to wait after until to repeat; =time by default
     repeat?: number,      // n<0 forever, n=0 single, n>0 specifies additional times
     action: ProgressiveFunction;  // n is proportional to current time and start/end
-    shape?: EasingFunction;  // shape function for the input to action()
+    shape?: EaseFunction;  // shape function for the input to action()
     context?: object;       // object context to call action() with
   }
 
