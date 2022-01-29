@@ -5,24 +5,22 @@ export type EaseFunction = (n: number) => number;
 
 /**  */
 class EaseSet {
-  shape: EaseFunction;
+  private easeIn: EaseFunction;
+  private easeOut: EaseFunction;
 
-  private inShape: EaseFunction;    // I guess this isn't as easy as I was hoping.
-  private outShape: EaseFunction;   // I think just these two should be fine.
-                                    // The reverse flipping is what was causing me problems.
-
-  constructor(shape: EaseFunction) {
-    this.shape = shape;
+  constructor(options: {easeIn: EaseFunction, easeOut: EaseFunction}) {
+    this.easeIn = options.easeIn;
+    this.easeOut = options.easeOut;
   }
 
   in(n: number): number {
     n = Common.clamp(n, 0, 1);
-    return -this.shape(n-1) + 1;
+    return this.easeIn(n);
   }
 
   out(n: number): number {
     n = Common.clamp(n, 0, 1);
-    return this.shape(n);
+    return this.easeOut(n);
   }
 
   inOut(n: number): number {
@@ -39,18 +37,63 @@ class EaseSet {
 /**  */
 export module EaseMethod {
 
-  export const linear = new EaseSet(n => n);
-  export const quad   = new EaseSet(n => n*n);
-  export const cubic  = new EaseSet(n => Math.pow(n, 3));
-  export const quart  = new EaseSet(n => Math.pow(n, 4));
-  export const quint  = new EaseSet(n => Math.pow(n, 5));
+  export const linear = new EaseSet({
+    easeIn: n => n,
+    easeOut: n => n,
+  });
 
-  export const sqrt   = new EaseSet(n => Math.sqrt(n));
-  export const cbrt   = new EaseSet(n => Math.cbrt(n));
-  export const qdrt   = new EaseSet(n => Math.sqrt(Math.sqrt(n)));
+  export const quad = new EaseSet({
+    easeIn: n => Math.pow(n, 2),
+    easeOut: n => 1 - Math.pow(n-1, 2),
+  });
+
+  export const cubic = new EaseSet({
+    easeIn: n => Math.pow(n, 3),
+    easeOut: n => 1 + Math.pow(n-1, 3),
+  });
+
+  export const quart = new EaseSet({
+    easeIn: n => Math.pow(n, 4),
+    easeOut: n => 1 - Math.pow(n-1, 4),
+  });
+
+  export const quint = new EaseSet({
+    easeIn: n => Math.pow(n, 5),
+    easeOut: n => 1 + Math.pow(n-1, 5),
+  });
+
+
+  export const sqrt = new EaseSet({
+    easeIn: n => 1 - Math.sqrt(-n + 1),
+    easeOut: n => Math.sqrt(n),
+  });
+
+  export const cbrt   = new EaseSet({
+    easeIn: n => 1 - Math.cbrt(-n + 1),
+    easeOut: n => Math.cbrt(n),
+  });
+
+  export const qdrt   = new EaseSet({
+    easeIn: n => 1 - Math.sqrt(Math.sqrt(-n + 1)),
+    easeOut: n => Math.sqrt(Math.sqrt(n)),
+  });
+
 
   // export const log    = new EaseSet(n => Math.l)
 
-  export const circ = new EaseSet(n => -Math.sqrt(1-n*n) + 1);
-  export const sine = new EaseSet(n => Math.sin(n * Math.PI * .5));
+  export const circ = new EaseSet({
+    easeIn: n => 1 - Math.sqrt(1 - Math.pow(n, 2)),
+    easeOut: n => Math.sqrt(1 - Math.pow(n-1, 2)),
+  });
+
+  export const cbcirc = new EaseSet({
+    easeIn: n => 1 - Math.cbrt(1 - Math.pow(n, 3)),
+    easeOut: n => Math.cbrt(1 + Math.pow(n-1, 3)),
+  })
+
+  
+  export const sine = new EaseSet({
+    easeIn: n => 1 - Math.cos(n * Math.PI * 0.5),
+    easeOut: n => Math.sin(n * Math.PI * 0.5),
+  });
 }

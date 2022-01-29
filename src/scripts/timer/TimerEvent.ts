@@ -34,7 +34,7 @@ export module TEvent {
       until: e.time,
       interval: e.time,
       repeat: 0,
-      shape: EaseMethod.linear,
+      shape: EaseMethod.linear.out,
       completed: false,
     });
   }
