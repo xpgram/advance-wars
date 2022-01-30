@@ -1,4 +1,5 @@
 import { Game } from "../../../..";
+import { EaseMethod } from "../../../Common/EaseMethod";
 import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
@@ -53,20 +54,33 @@ export class PlayerCard extends TurnState {
 
     this.playerCard.alpha = 0;  // Beginning of animation state
 
+    const slideTime = .4;
+    const waitTime = .8;
+    const xdist = 40;
+    const yrat = 0;
+    const float = 2;
+    const motion = EaseMethod.circ;
+    const fade = EaseMethod.sine;
+
     this.timer = Timer
       .at(.15)
-      .tween(.25, n => {
-        const m = Math.sqrt(n);
-        this.playerCard.x = 16*(1-m);
-        this.playerCard.y = 8*(1-m);
-        this.playerCard.alpha = m;
+      .tween(slideTime, n => {
+        const m = motion.out(n);
+        this.playerCard.x = xdist*(1-m) + float;
+        this.playerCard.y = xdist*yrat*(1-m) + float*yrat;
+        this.playerCard.alpha = fade.inOut(n);
       })
-      .wait(.75)
-      .tween(.25, n => {
-        const m = Math.sqrt(n);
-        this.playerCard.x = -16*m;
-        this.playerCard.y = -8*m;
-        this.playerCard.alpha = 1-m;
+      .wait()
+      .tween(waitTime, n => {
+        this.playerCard.x = 2*float*(1-n) - float;
+        this.playerCard.y = 2*float*yrat*(1-n) - float*yrat;
+      })
+      .wait()
+      .tween(slideTime, n => {
+        const m = motion.in(n);
+        this.playerCard.x = -xdist*m - float;
+        this.playerCard.y = -xdist*yrat*m - float*yrat;
+        this.playerCard.alpha = 1-fade.inOut(n);
       })
       .at('end')
       .do(n => {

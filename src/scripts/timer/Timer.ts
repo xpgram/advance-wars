@@ -291,23 +291,26 @@ export class Timer {
       ? this.lengthMillis
       : millis(time);
     this.timeCursor = Math.max(time, 0);
+    this.lastAdded = undefined;
     return this;
   }
 
   /** Moves the time cursor to some time distance from its current position.
    * Negative time values will move backward, but cannot move beyond time=0. */
   wait(time?: number) {
-    time = (!time)
-      ? (this.lastAdded) ? TEvent.getSpan(this.lastAdded) : 0
-      : millis(time);
-    time = Math.max(time, 0);
-    this.timeCursor += time;
+    if (!time)
+      time = TEvent.getSpan(this.lastAdded);
+    else
+      time = millis(time);
+
+    this.timeCursor += Math.max(time, 0);
+    this.lastAdded = undefined;
     return this;
   }
 
   /** Helper method which does some additional bookkeeping with each event pushed
    * onto the schedule. */
-   private addEvent(event: TEvent.TimerEvent) {
+  private addEvent(event: TEvent.TimerEvent) {
     this.events.push(event);
     this.lastAdded = event;
   }

@@ -37,26 +37,33 @@ export class GameWin extends TurnState {
 
     Game.hud.addChild(container);
 
+    const barInTime = .18;
+    const barInDelay = barInTime / 3;
+    const textInTime = barInTime - barInDelay;
+    const outTime = barInTime;
+    const showTime = 1.3;
+
     Timer
-      .at(.1)
-      .tween(.1, n => {
+      .at(.15)
+      .tween(barInTime, n => {
         barL.x = -width*(1-n);
       })
-      .wait(.03)
-      .tween(.1, n => {
+      .wait(barInDelay)
+      .tween(barInTime, n => {
         barR.x = width*(1-n);
       })
-      .wait(.03)
-      .tween(.1, n => {
+      .wait(barInDelay)
+      .tween(textInTime, n => {
         text.alpha = n;
       })
-      .at(1.5)
-      .tween(.15, n => {
+      .wait()
+      .wait(showTime)
+      .tween(outTime, n => {
         container.scale.y = (1-n);
         text.skew.x = -n;
       })
-      .wait(.1)
-      .tween(.1, n => {
+      .wait(barInDelay)
+      .tween(outTime, n => {
         container.alpha = (1-n);
       })
       .at('end')

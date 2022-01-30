@@ -39,8 +39,8 @@ export module TEvent {
     });
   }
 
-  export function getSpan(e: TimerEvent) {
-    return e.until - e.time;
+  export function getSpan(e: TimerEvent | undefined) {
+    return (e) ? e.until - e.time : 0;
   }
 
 }
