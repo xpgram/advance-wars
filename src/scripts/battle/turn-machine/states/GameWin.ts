@@ -1,4 +1,5 @@
 import { Game } from "../../../..";
+import { Ease } from "../../../Common/EaseMethod";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
@@ -37,34 +38,29 @@ export class GameWin extends TurnState {
 
     Game.hud.addChild(container);
 
-    const barInTime = .18;
-    const barInDelay = barInTime / 3;
-    const textInTime = barInTime - barInDelay;
-    const outTime = barInTime;
+    const transitionTime = .2;
+    const fadeDelay = .065;
+    const fadeTime = transitionTime - fadeDelay;
     const showTime = 1.3;
 
     Timer
-      .at(.15)
-      .tween(barInTime, n => {
+      .at(.15)          // Bar transition
+      .tween(transitionTime, n => {
+        n = Ease.sine.inOut(n);
         barL.x = -width*(1-n);
-      })
-      .wait(barInDelay)
-      .tween(barInTime, n => {
         barR.x = width*(1-n);
       })
-      .wait(barInDelay)
-      .tween(textInTime, n => {
+      .wait(fadeDelay)  // Text fade-in during bar transition
+      .tween(fadeTime, n => {
+        n = Ease.sine.inOut(n);
         text.alpha = n;
       })
       .wait()
-      .wait(showTime)
-      .tween(outTime, n => {
+      .wait(showTime)   // Scale-out transition w/ slight fade-out to complement
+      .tween(transitionTime, n => {
         container.scale.y = (1-n);
+        container.alpha = 1 - Ease.sine.inOut(n)*.3;
         text.skew.x = -n;
-      })
-      .wait(barInDelay)
-      .tween(outTime, n => {
-        container.alpha = (1-n);
       })
       .at('end')
       .do(n => {

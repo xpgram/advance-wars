@@ -1,5 +1,5 @@
 import { Game } from "../../../..";
-import { EaseMethod } from "../../../Common/EaseMethod";
+import { Ease } from "../../../Common/EaseMethod";
 import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
@@ -59,8 +59,8 @@ export class PlayerCard extends TurnState {
     const xdist = 40;
     const yrat = 0;
     const float = 2;
-    const motion = EaseMethod.circ;
-    const fade = EaseMethod.sine;
+    const motion = Ease.circ;
+    const fade = Ease.sine;
 
     this.timer = Timer
       .at(.15)

@@ -1,4 +1,4 @@
-import { EaseFunction, EaseMethod } from "../Common/EaseMethod";
+import { EaseFunction, Ease } from "../Common/EaseMethod";
 import { Common } from "../CommonUtils";
 
 export type ProgressiveFunction = (n: number) => void;
@@ -34,7 +34,7 @@ export module TEvent {
       until: e.time,
       interval: e.time,
       repeat: 0,
-      shape: (n: number) => EaseMethod.linear.out(n),
+      shape: Ease.linear.out,
       completed: false,
     });
   }
