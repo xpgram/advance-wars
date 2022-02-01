@@ -312,7 +312,7 @@ export module Command {
       if (other.type !== actor.type)
         throw new RatificationError(`units to join are not of same type`);
 
-      boardEvents.schedule(new JoinUnitEvent({actor, path, other, assets}));
+      boardEvents.schedule(new JoinUnitEvent({actor, path, goal, other, assets}));
     },
   }
 
