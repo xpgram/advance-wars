@@ -1,6 +1,7 @@
 import { Game } from "../../../..";
 import { Ease } from "../../../Common/EaseMethod";
-import { Point } from "../../../Common/Point";
+import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
+import { Rectangle } from "../../../Common/Rectangle";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
@@ -14,74 +15,146 @@ export class PlayerCard extends TurnState {
   get skipOnUndo() { return true; }
 
   timer!: Timer;
-  readonly playerCard = new PIXI.Container();
+  container!: PIXI.Container;
 
   configureScene() {
     const { players } = this.assets;
 
+    const { renderWidth: rw, renderHeight: rh } = Game.display;
+    const point = (x: number, y: number) => new Point(x,y);
+    const hide = -200;
+
     // Construct temp player card.
 
-    const width = 128;
-    const height = 64;
+    // Insig  - 1
+    const insignia = this.newRect({
+      g: new PIXI.Graphics(),
+      dim: point(96,96),
+      pos: point(rw*.75,rh*.5),
+    });
+    insignia.alpha = 0;
 
-    const nameText = new PIXI.BitmapText(`${players.current.officer.name}'s Turn`, fonts.title);
-    const playerText = new PIXI.BitmapText(`P${players.current.playerNumber + 1}`, fonts.title);
-    const background = new PIXI.Graphics();
+    // Day    - 1
+    const dayCard = this.newRect({
+      g: new PIXI.Graphics(),
+      dim: point(24,16),
+      pos: point(hide, rh*.25),
+    });
+    const dayText = new PIXI.BitmapText('Day', fonts.title);
+    dayText.anchor.set(.5);
+    dayText.position.set(dayCard.width/2, dayCard.height/2);
+    dayCard.addChild(dayText);
 
-    background.beginFill(0, .5);
-    background.drawRect(0,0, width, height);
-    background.endFill();
+    // #      - 2
+    const dayNumCard = this.newRect({
+      g: new PIXI.Graphics(),
+      dim: point(32,32),
+      pos: point(hide, rh*.425),
+    })
+    const dayNumText = new PIXI.BitmapText(`${players.day}`, fonts.title);
+    dayNumText.anchor.set(.5);
+    dayNumText.position.set(dayNumCard.width/2, dayNumCard.height/2);
+    dayNumCard.addChild(dayNumText);
 
-    nameText.position.set(
-      (width - nameText.width) / 2,
-      (height - nameText.height - playerText.height) / 2
-    )
-    playerText.position.set(
-      (width - playerText.width) / 2,
-      (height - nameText.height - playerText.height) / 2 + nameText.height
-    )
-    background.position.set(
-      (Game.display.renderWidth - width) / 2,
-      (Game.display.renderHeight - height) / 2,
-    )
+    // Map    - 1.5
+    const mapCard = this.newRect({
+      g: new PIXI.Graphics(),
+      dim: point(128,16),
+      pos: point(hide, rh*.625),
+    })
+    mapCard.pivot.x = 0;
+    const mapText = new PIXI.BitmapText(`Land's End`, fonts.script);
+    mapText.anchor.set(.5,.5);
+    mapText.position.set(mapCard.width*.65, mapCard.height/2);
+    mapCard.addChild(mapText);
 
-    background.addChild(nameText, playerText);
-    this.playerCard.addChild(background);
-    Game.hud.addChild(this.playerCard);
+    // Fight  - 3
+    const fightCard = this.newRect({
+      g: new PIXI.Graphics(),
+      dim: point(64,24),
+      pos: point(hide, rh*.8),
+    })
+    const fightText = new PIXI.BitmapText(`Fight!`, fonts.title);
+    fightText.anchor.set(.5);
+    fightText.position.set(fightCard.width/2, fightCard.height/2);
+    fightCard.addChild(fightText);
 
-    // vv Practice shiz vv
-    const center = new Point(Game.display.renderWidth, Game.display.renderHeight).multiply(.5);
+    // Left-side mover
+    const driftContainer = new PIXI.Container();
+    driftContainer.addChild(dayCard, dayNumCard, fightCard);
 
-    this.playerCard.alpha = 0;  // Beginning of animation state
+    // Destructable
+    this.container = new PIXI.Container();
+    this.container.addChild(insignia, mapCard, driftContainer);
 
-    const slideTime = .4;
-    const waitTime = .8;
-    const xdist = 40;
-    const yrat = 0;
-    const float = 2;
+    Game.hud.addChild(this.container);
+
+    // Define animation tweens
+
+    const slideTime = .35;
+    const delay = .5;
+    const waitTime = 1.0;
     const motion = Ease.circ;
-    const fade = Ease.sine;
+    const fade = Ease.sine.inOut;
 
     this.timer = Timer
       .at(.15)
+
+      .tween( (slideTime+delay*1.5)*1.5 + waitTime, n => {
+        driftContainer.x = rw*.2 + 16*n;
+      })
+
+      .tween(1.0, n => {
+        n = fade(n);
+        insignia.alpha = n;
+      })
       .tween(slideTime, n => {
-        const m = motion.out(n);
-        this.playerCard.x = xdist*(1-m) + float;
-        this.playerCard.y = xdist*yrat*(1-m) + float*yrat;
-        this.playerCard.alpha = fade.inOut(n);
+        n = motion.out(n);
+        dayCard.x = hide * (1-n);
       })
-      .wait()
-      .tween(waitTime, n => {
-        this.playerCard.x = 2*float*(1-n) - float;
-        this.playerCard.y = 2*float*yrat*(1-n) - float*yrat;
-      })
-      .wait()
+      .wait(delay/2)
       .tween(slideTime, n => {
-        const m = motion.in(n);
-        this.playerCard.x = -xdist*m - float;
-        this.playerCard.y = -xdist*yrat*m - float*yrat;
-        this.playerCard.alpha = 1-fade.inOut(n);
+        n = fade(n);
+        mapCard.x = hide * (1-n) - 8;
       })
+      .wait(delay/2)
+      .tween(slideTime, n => {
+        n = motion.out(n);
+        dayNumCard.x = hide * (1-n);
+      })
+      .wait(delay/2)
+      .tween(slideTime, n => {
+        n = motion.out(n);
+        fightCard.x = hide * (1-n);
+      })
+
+      .wait()
+      .wait(waitTime)
+
+      .tween(1.0, n => {
+        n = fade(n);
+        insignia.alpha = 1-n;
+      })
+      .tween(slideTime, n => {
+        n = motion.in(n);
+        dayCard.x = -hide*1.5 * n;
+      })
+      .tween(slideTime*1.5, n => {
+        mapCard.scale.y = 1-n;
+        mapCard.skew.x = -2*n;    // This conflicts with scale
+        mapCard.alpha = 1 - Ease.sine.in(n);
+      })
+      .wait(delay*.65)
+      .tween(slideTime, n => {
+        n = motion.in(n);
+        dayNumCard.x = -hide*1.5 * n;
+      })
+      .wait(delay/2*.65)
+      .tween(slideTime, n => {
+        n = motion.in(n);
+        fightCard.x = -hide*1.5 * n;
+      })
+
       .at('end')
       .do(n => {
         this.advance();
@@ -98,7 +171,23 @@ export class PlayerCard extends TurnState {
   }
 
   close() {
-    this.playerCard.destroy({children: true});
+    this.container.destroy({children: true});
+  }
+
+  // Temp
+  private newRect(o: {
+    g: PIXI.Graphics,
+    dim: ImmutablePointPrimitive,
+    pos: ImmutablePointPrimitive,
+  }) {
+    const {g, dim, pos} = o;
+
+    g.beginFill(0, .5);
+    g.drawRect(0, 0, dim.x, dim.y);
+    g.endFill();
+    g.position.set(pos.x, pos.y);
+    g.pivot.set(g.width/2, g.height/2);
+    return g;
   }
 
 }
