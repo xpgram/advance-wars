@@ -359,6 +359,15 @@ export class Timer {
     return this;
   }
 
+  private updateTween(object: object, start: object, end: object, n: number) {
+    // recursive for {obj: {obj: {x: 1}}}
+    // object[key] = (end[key] - start[key]) * n + start[key];
+    // can only tween numbers; throw error if not
+    // undefined properties are ignored (prevents breakage on destroyed objects)
+    // further protection can check if object.destroyed === true. This isn't
+    //   guaranteed to do anything, but it's a common pattern.
+  }
+
   /** Schedules a progressive event-call for 'span' seconds recurringly with
    * 'interval'-seconds gaps; returns this; */
   tweenEvery(span: number, interval: number, event: ProgressiveFunction, context?: object) {

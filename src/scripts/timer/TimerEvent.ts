@@ -19,6 +19,22 @@ export module TEvent {
     context?: object;
   }
 
+  interface TimerEventNew {
+    time: number;
+    until: number;
+    interval: number;
+    repeat: number;
+
+    completed: boolean;   // Whether this event is done calculating; for culling.
+
+    snapshot?: object;    // The start point from which tweens are calculating.
+    target?: object;      // The end point to which tweens are calculating.
+    ease?: EaseFunction;  // The shape by which snap is tweened to target. Default linear.
+
+    action?: ProgressiveFunction;   // Function callback, with added n for... no purpose.
+    context?: object;     // Object bound to action() call.
+  }
+
   export interface TimerEventOptions {
     time: number;         // Start time.
     until?: number;       // End time.
