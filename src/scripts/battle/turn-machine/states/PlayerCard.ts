@@ -91,20 +91,36 @@ export class PlayerCard extends TurnState {
 
     // Define animation tweens
 
+    const insigniaFadeTime = 1.0;
     const slideTime = .35;
-    const delay = .5;
+    const mapCardTime = .50;
+    const delay = .35;
     const waitTime = 1.0;
+    const driftTime = (slideTime + delay*1.5)*2 + waitTime;
     const motion = Ease.circ;
     const fade = Ease.sine.inOut;
+
+    //.tween(driftTime, driftContainer, {x: driftContainer.x + 16})
+    //.tween(slideTime, dayCard, {x: 0}, Ease.circ.out)
+
+    // TimerEvent.snapshot?: object;  // When a timer (tween) is run, if snapshot is undefined, it's filled in first.
+    // Wait, this isn't even hard. I could legit just deep-copy the entire object; only the given properties will be processed.
+    // 
+    // On timeDirectionChange, all timer events are snapshot cleared.
+    // I'll need to save their starting n values if they were mid-progress, though.
+    // I'm not worried about backwards time yet.
+
+    // timerC = timerA.concat(timerB);  => [A1,A2,A3,B1,B2,B3]
+    // timerC = timerA.merge(timerB);   => [A1,B1,A2,B2,B3,A3]
 
     this.timer = Timer
       .at(.15)
 
-      .tween( (slideTime+delay*1.5)*1.5 + waitTime, n => {
+      .tween(driftTime, n => {
         driftContainer.x = rw*.2 + 16*n;
       })
 
-      .tween(1.0, n => {
+      .tween(insigniaFadeTime, n => {
         n = fade(n);
         insignia.alpha = n;
       })
@@ -112,12 +128,11 @@ export class PlayerCard extends TurnState {
         n = motion.out(n);
         dayCard.x = hide * (1-n);
       })
-      .wait(delay/2)
-      .tween(slideTime, n => {
+      .tween(mapCardTime, n => {
         n = fade(n);
         mapCard.x = hide * (1-n) - 8;
       })
-      .wait(delay/2)
+      .wait(delay)
       .tween(slideTime, n => {
         n = motion.out(n);
         dayNumCard.x = hide * (1-n);
@@ -131,7 +146,7 @@ export class PlayerCard extends TurnState {
       .wait()
       .wait(waitTime)
 
-      .tween(1.0, n => {
+      .tween(insigniaFadeTime, n => {
         n = fade(n);
         insignia.alpha = 1-n;
       })
@@ -139,17 +154,17 @@ export class PlayerCard extends TurnState {
         n = motion.in(n);
         dayCard.x = -hide*1.5 * n;
       })
-      .tween(slideTime*1.5, n => {
+      .tween(mapCardTime, n => {
         mapCard.scale.y = 1-n;
         mapCard.skew.x = -2*n;    // This conflicts with scale
         mapCard.alpha = 1 - Ease.sine.in(n);
       })
-      .wait(delay*.65)
+      .wait(delay)
       .tween(slideTime, n => {
         n = motion.in(n);
         dayNumCard.x = -hide*1.5 * n;
       })
-      .wait(delay/2*.65)
+      .wait(delay/2)
       .tween(slideTime, n => {
         n = motion.in(n);
         fightCard.x = -hide*1.5 * n;
