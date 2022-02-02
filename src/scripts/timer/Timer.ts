@@ -363,7 +363,6 @@ export class Timer {
   }
 
   /** Tween-process method for objects using property style. */
-  // TODO Implement elsewhere
   private updateTween(object: Tweenable, start: Tweenable, end: Tweenable, n: number) {
     // Guards against 'destroyed' objects which flag themselves as such.
     if ((object as any).destroyed === true)

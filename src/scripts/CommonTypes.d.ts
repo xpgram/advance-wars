@@ -55,12 +55,6 @@ type Dictionary<T> = Iterable<T> & {
     [key: string | number]: T
 }
 
-/**  */
-type Destroyable = {
-    destroyed: boolean | undefined;
-    destroy(): void;        // Not on my tweens. Wat do.
-}
-
 /** Describes any object whose draw-to-screen is toggleable. */
 type RenderToggleable = {
     renderable: boolean,
