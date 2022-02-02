@@ -41,13 +41,24 @@ type Point3D = {
 }
 
 /** A dictionary-type which uses numbers as keys. */
-type NumericDictionary<T> = {
+type NumericDictionary<T> = Iterable<T> & {
     [key: number]: T
 }
 
 /** A dictionary-type which uses strings as keys. */
-type StringDictionary<T> = {
+type StringDictionary<T> = Iterable<T> & {
     [key: string]: T
+}
+
+/** An object which maintains a set of key-value pairs. */
+type Dictionary<T> = Iterable<T> & {
+    [key: string | number]: T
+}
+
+/**  */
+type Destroyable = {
+    destroyed: boolean | undefined;
+    destroy(): void;        // Not on my tweens. Wat do.
 }
 
 /** Describes any object whose draw-to-screen is toggleable. */

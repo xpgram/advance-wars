@@ -1,9 +1,12 @@
 import { Game } from "../..";
+import { Dictionary } from "../CommonTypes";
 import { Common } from "../CommonUtils";
 import { ProgressiveFunction, TEvent } from "./TimerEvent";
 
 function millis(n: number) { return n * 1000; }
 function seconds(n: number) { return n * 0.001; }
+
+type Tweenable = Dictionary<object | number | undefined>;
 
 /**
  * An event itinerary system developed because I saw someone do this in Lua and
@@ -359,13 +362,35 @@ export class Timer {
     return this;
   }
 
-  private updateTween(object: object, start: object, end: object, n: number) {
-    // recursive for {obj: {obj: {x: 1}}}
-    // object[key] = (end[key] - start[key]) * n + start[key];
-    // can only tween numbers; throw error if not
-    // undefined properties are ignored (prevents breakage on destroyed objects)
-    // further protection can check if object.destroyed === true. This isn't
-    //   guaranteed to do anything, but it's a common pattern.
+  /** Tween-process method for objects using property style. */
+  // TODO Implement elsewhere
+  private updateTween(object: Tweenable, start: Tweenable, end: Tweenable, n: number) {
+    // Guards against 'destroyed' objects which flag themselves as such.
+    if ((object as any).destroyed === true)
+      return;
+
+    for (const key in end) {
+      if (object[key] === undefined)
+        continue;
+
+      const keyType = typeof object[key];
+      
+      // Recursive action
+      if (keyType === 'object') {
+        const subs = [ object[key], start[key], end[key] ] as Tweenable[];
+        const [ subObject, subStart, subEnd ] = subs;
+        this.updateTween(subObject, subStart, subEnd, n);
+      }
+      // Tween action
+      else if (keyType === 'number') {
+        const subs = [ start[key], end[key] ] as number[];
+        const [ nStart, nEnd ] = subs;
+        object[key] = (nEnd - nStart) * n + nStart;
+      }
+      // Unexpected input error
+      else
+        throw new Error(`Property of object '${key}' was of type '${keyType}' but expected object or number.`);
+    }
   }
 
   /** Schedules a progressive event-call for 'span' seconds recurringly with
