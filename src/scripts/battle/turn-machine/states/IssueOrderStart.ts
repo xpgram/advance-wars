@@ -39,6 +39,7 @@ export class IssueOrderStart extends TurnState {
     uiSystem.show();
 
     // Update player metrics
+    players.all.forEach(player => player.scanCapturedProperties());
     players.perspectivesTurn?.setCoBoardableIndicators();
 
     // Update player window metrics
