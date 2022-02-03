@@ -1,6 +1,11 @@
 import { Point } from "./Common/Point";
 import { LowResTransform } from "./LowResTransform"
 
+/** Describes a partial object of type T where all children are also partial. */
+type PartialDeep<T> = T extends object ? {
+    [P in keyof T]?: PartialDeep<T[P]>;
+} : T;
+
 /** Captures any object-constructing class type. */
 type Constructable = {
     new (...args: any[]): object;

@@ -1,6 +1,6 @@
 import { Game } from "../..";
 import { Ease, EaseFunction } from "../Common/EaseMethod";
-import { Dictionary } from "../CommonTypes";
+import { Dictionary, PartialDeep } from "../CommonTypes";
 import { Common } from "../CommonUtils";
 import { ProgressiveFunction, TEvent } from "./TimerEvent";
 
@@ -82,12 +82,12 @@ export class Timer {
   }
 
   /** Shortcut to new Timer().start().tween(); returns a Timer object. */
-  static tween(span: number, object: object, target: object, ease?: EaseFunction) {
+  static tween<T extends object>(span: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
     return Timer.new().tween(span, object, target, ease);
   }
 
   /** Shortcut to new Timer().start().tweenEvery(); returns a Timer object. */
-  static tweenEvery(span: number, interval: number, object: object, target: object, ease?: EaseFunction) {
+  static tweenEvery<T extends object>(span: number, interval: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
     return Timer.new().tweenEvery(span, interval, object, target, ease);
   }
 
@@ -474,11 +474,7 @@ export class Timer {
   /** Schedules a prop-style tween event which modulates the given object's properties
    * from their occurrence-time values to the given target values. This only works for
    * numeric properties. If you need more specific control, use transition(). */
-  // TODO tween<T extends object, Y extends T>(..., object: T, target: Y)
-  // The above doesn't work. What I'm aiming for is a type Y which can have any
-  // member property T does, but no properties it doesn't. This isn't _important_,
-  // it would just be nice to have the auto-completer validate my targets.
-  tween(span: number, object: object, target: object, ease?: EaseFunction) {
+  tween<T extends object>(span: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
     ease = ease || Ease.linear.out;
     const time = this.timeCursor;
     const until = millis(span) + time;
@@ -498,7 +494,7 @@ export class Timer {
    * properties. If you need more specific control, use transitionEvery().
    * Interval wait time is counted from the tween's span-end time. */
   // TODO max occurences?
-  tweenEvery(span: number, interval: number, object: object, target: object, ease?: EaseFunction) {
+  tweenEvery<T extends object>(span: number, interval: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
     ease = ease || Ease.linear.out;
     const time = this.timeCursor;
     const until = millis(span) + time;
