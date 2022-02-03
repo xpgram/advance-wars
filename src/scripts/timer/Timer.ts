@@ -235,18 +235,20 @@ export class Timer {
       if (elapsed < e.time || e.completed)
         return;
 
+      // Instant actions and function-style tweens.
       const normal = (e.until > e.time)
         ? Common.clamp((elapsed - e.time) / (e.until - e.time), 0, 1)
         : 1;
       e.action.call(e.context, e.ease(normal));
 
-      // TODO Prop-style tweens are not possible with getters/setters
+      // Property-style tweens.
       if (e.object && e.target) {
         if (!e.snap)
           e.snap = this.createSnap(e.object, e.target);
         this.updateTween(e.object, e.snap as Tweenable, e.target, e.ease(normal));
       }
 
+      // Interval-repeating events.
       if (e.repeat !== 0)
         this.extendRecurringEvent(e);
       
@@ -261,18 +263,14 @@ export class Timer {
   /** Creates a shallow copy of the given object's state for the purpose
    * of tweening its values. As this only works with numeric properties,
    * naturally those are the only ones copied. */
-  // FIX obj.x is un-snappable if .x is a getter x() {return this._x}
-  // This has something to do with class-property enumerability and
-  // to-ES5 transpiling via Babel. This may be configurable.
   private createSnap(obj: Tweenable, numericProps: Tweenable) {
+    const result = {} as Tweenable;
+
     for (const key in numericProps) {
-      Object.defineProperty(obj, key, {enumerable: true});
-      // This, for some reason, unbreaks the NaN problem I was experiencing.
-      // The obj.x property I'm trying to copy is still undefined, however.
+      if (typeof numericProps[key] === 'number')
+          result[key] = obj[key]
     }
 
-    const result = {...obj} as Tweenable;
-    // -intermediary typeof obj[key] === 'number' steps removed
     return result;
   }
 
@@ -282,18 +280,9 @@ export class Timer {
     if ((object as any).destroyed === true)
       return;
 
-    // TODO Remove logline
-    console.log(`for object`, object);
-
     for (const key in end) {
-      // TODO Remove logline
-      console.log(`for ${key} = ${object[key]}`)
-
       if (object[key] === undefined)
         continue;
-
-      // TODO Remove logline
-      console.log(`processing`);
 
       const keyType = typeof object[key];
       
@@ -307,11 +296,7 @@ export class Timer {
       else if (keyType === 'number') {
         const subs = [ start[key], end[key] ] as number[];
         const [ nStart, nEnd ] = subs;
-        const last = object[key];
         object[key] = (nEnd - nStart) * n + nStart;
-
-        // TODO Remove logline
-        console.log(`${key} = ${last} => ${object[key]} from ${nStart} to ${nEnd}`);
       }
       // Unexpected input error
       else
@@ -454,10 +439,8 @@ export class Timer {
     return this;
   }
 
-  /** A prop-style tween instigator that doesn't work because the approach in Javascript
-   * is fundamentally flawed. This was meant to replace the standard .tween() method,
-   * while the current .tween() would be a legacy addition called .doFor() or something.
-   * @deprecated */
+  /** A prop-style tween instigator. Will replace the default .tween() and the current
+   * default .tween() will be kept as a legacy method called .doFor() or something. */
   tweenProps(span: number, object: object, target: object, ease?: EaseFunction) {
     ease = ease || Ease.linear.out;
     const time = this.timeCursor;

@@ -22,7 +22,7 @@ export class PlayerCard extends TurnState {
 
     const { renderWidth: rw, renderHeight: rh } = Game.display;
     const point = (x: number, y: number) => new Point(x,y);
-    const hide = -200;
+    const hide = 200;
 
     // Construct temp player card.
 
@@ -38,7 +38,7 @@ export class PlayerCard extends TurnState {
     const dayCard = this.newRect({
       g: new PIXI.Graphics(),
       dim: point(24,16),
-      pos: point(hide, rh*.25),
+      pos: point(-hide, rh*.25),
     });
     const dayText = new PIXI.BitmapText('Day', fonts.title);
     dayText.anchor.set(.5);
@@ -49,7 +49,7 @@ export class PlayerCard extends TurnState {
     const dayNumCard = this.newRect({
       g: new PIXI.Graphics(),
       dim: point(32,32),
-      pos: point(hide, rh*.425),
+      pos: point(-hide, rh*.425),
     })
     const dayNumText = new PIXI.BitmapText(`${players.day}`, fonts.title);
     dayNumText.anchor.set(.5);
@@ -60,7 +60,7 @@ export class PlayerCard extends TurnState {
     const mapCard = this.newRect({
       g: new PIXI.Graphics(),
       dim: point(128,16),
-      pos: point(hide, rh*.625),
+      pos: point(-hide, rh*.625),
     })
     mapCard.pivot.x = 0;
     const mapText = new PIXI.BitmapText(`Land's End`, fonts.script);
@@ -72,7 +72,7 @@ export class PlayerCard extends TurnState {
     const fightCard = this.newRect({
       g: new PIXI.Graphics(),
       dim: point(64,24),
-      pos: point(hide, rh*.8),
+      pos: point(-hide, rh*.8),
     })
     const fightText = new PIXI.BitmapText(`Fight!`, fonts.title);
     fightText.anchor.set(.5);
@@ -82,6 +82,7 @@ export class PlayerCard extends TurnState {
     // Left-side mover
     const driftContainer = new PIXI.Container();
     driftContainer.addChild(dayCard, dayNumCard, fightCard);
+    driftContainer.x = rw*.20;
 
     // Destructable
     this.container = new PIXI.Container();
@@ -98,83 +99,39 @@ export class PlayerCard extends TurnState {
     const waitTime = 1.0;
     const driftTime = (slideTime + delay*1.5)*2 + waitTime;
     const motion = Ease.circ;
-    const fade = Ease.sine.inOut;
-
-    //.tween(driftTime, driftContainer, {x: driftContainer.x + 16})
-    //.tween(slideTime, dayCard, {x: 0}, Ease.circ.out)
-
-    // TimerEvent.snapshot?: object;  // When a timer (tween) is run, if snapshot is undefined, it's filled in first.
-    // Wait, this isn't even hard. I could legit just deep-copy the entire object; only the given properties will be processed.
-    // 
-    // On timeDirectionChange, all timer events are snapshot cleared.
-    // I'll need to save their starting n values if they were mid-progress, though.
-    // I'm not worried about backwards time yet.
-
-    // timerC = timerA.concat(timerB);  => [A1,A2,A3,B1,B2,B3]
-    // timerC = timerA.merge(timerB);   => [A1,B1,A2,B2,B3,A3]
 
     this.timer = Timer
       .at(.15)
+      .tweenProps(driftTime, driftContainer, {x: driftContainer.x + 16})
+      .tweenProps(insigniaFadeTime, insignia, {alpha: 1}, Ease.sine.inOut)
+      .tweenProps(slideTime, dayCard, {x: 0}, motion.out)
+      .tweenProps(mapCardTime, mapCard, {x: -8}, Ease.sine.inOut)
 
-      // .tweenProps(driftTime, driftContainer, {x: driftContainer.x + 16})
-      .tween(driftTime, n => {
-        driftContainer.x = rw*.2 + 16*n;
-      })
-
-      .tween(insigniaFadeTime, n => {
-        n = fade(n);
-        insignia.alpha = n;
-      })
-      .tween(slideTime, n => {
-        n = motion.out(n);
-        dayCard.x = hide * (1-n);
-      })
-      .tween(mapCardTime, n => {
-        n = fade(n);
-        mapCard.x = hide * (1-n) - 8;
-      })
       .wait(delay)
-      .tween(slideTime, n => {
-        n = motion.out(n);
-        dayNumCard.x = hide * (1-n);
-      })
+      .tweenProps(slideTime, dayNumCard, {x: 0}, motion.out)
+
       .wait(delay/2)
-      .tween(slideTime, n => {
-        n = motion.out(n);
-        fightCard.x = hide * (1-n);
-      })
+      .tweenProps(slideTime, fightCard, {x: 0}, motion.out)
 
       .wait()
       .wait(waitTime)
-
-      .tween(insigniaFadeTime, n => {
-        n = fade(n);
-        insignia.alpha = 1-n;
-      })
-      .tween(slideTime, n => {
-        n = motion.in(n);
-        dayCard.x = -hide*1.5 * n;
-      })
+      .tweenProps(insigniaFadeTime, insignia, {alpha: 0}, Ease.sine.inOut)
+      .tweenProps(slideTime, dayCard, {x: hide*1.5}, motion.in)
       .tween(mapCardTime, n => {
+        // Oh shit. This is why I need depth=1.
         mapCard.scale.y = 1-n;
         mapCard.skew.x = -2*n;    // This conflicts with scale
         mapCard.alpha = 1 - Ease.sine.in(n);
       })
-      .wait(delay)
-      .tween(slideTime, n => {
-        n = motion.in(n);
-        dayNumCard.x = -hide*1.5 * n;
-      })
-      .wait(delay/2)
-      .tween(slideTime, n => {
-        n = motion.in(n);
-        fightCard.x = -hide*1.5 * n;
-      })
 
+      .wait(delay)
+      .tweenProps(slideTime, dayNumCard, {x: hide*1.5}, motion.in)
+
+      .wait(delay/2)
+      .tweenProps(slideTime, fightCard, {x: hide*1.5}, motion.in)
+      
       .at('end')
-      .do(n => {
-        this.advance();
-      })
+      .do(n => { this.advance(); })
   }
 
   update() {
