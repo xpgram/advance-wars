@@ -116,6 +116,7 @@ export class PlayerCard extends TurnState {
     this.timer = Timer
       .at(.15)
 
+      // .tweenProps(driftTime, driftContainer, {x: driftContainer.x + 16})
       .tween(driftTime, n => {
         driftContainer.x = rw*.2 + 16*n;
       })

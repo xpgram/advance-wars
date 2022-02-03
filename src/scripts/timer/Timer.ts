@@ -241,11 +241,11 @@ export class Timer {
       e.action.call(e.context, e.ease(normal));
 
       // TODO Prop-style tweens are not possible with getters/setters
-      // if (e.object && e.target) {
-      //   if (!e.snap)
-      //     e.snap = this.createSnap(e.object);
-      //   this.updateTween(e.object, e.snap as Tweenable, e.target, e.ease(normal));
-      // }
+      if (e.object && e.target) {
+        if (!e.snap)
+          e.snap = this.createSnap(e.object, e.target);
+        this.updateTween(e.object, e.snap as Tweenable, e.target, e.ease(normal));
+      }
 
       if (e.repeat !== 0)
         this.extendRecurringEvent(e);
@@ -264,9 +264,15 @@ export class Timer {
   // FIX obj.x is un-snappable if .x is a getter x() {return this._x}
   // This has something to do with class-property enumerability and
   // to-ES5 transpiling via Babel. This may be configurable.
-  private createSnap(obj: Tweenable) {
+  private createSnap(obj: Tweenable, numericProps: Tweenable) {
+    for (const key in numericProps) {
+      Object.defineProperty(obj, key, {enumerable: true});
+      // This, for some reason, unbreaks the NaN problem I was experiencing.
+      // The obj.x property I'm trying to copy is still undefined, however.
+    }
+
     const result = {...obj} as Tweenable;
-    // -intermediary steps removed
+    // -intermediary typeof obj[key] === 'number' steps removed
     return result;
   }
 
@@ -276,9 +282,18 @@ export class Timer {
     if ((object as any).destroyed === true)
       return;
 
+    // TODO Remove logline
+    console.log(`for object`, object);
+
     for (const key in end) {
+      // TODO Remove logline
+      console.log(`for ${key} = ${object[key]}`)
+
       if (object[key] === undefined)
         continue;
+
+      // TODO Remove logline
+      console.log(`processing`);
 
       const keyType = typeof object[key];
       
@@ -292,7 +307,11 @@ export class Timer {
       else if (keyType === 'number') {
         const subs = [ start[key], end[key] ] as number[];
         const [ nStart, nEnd ] = subs;
+        const last = object[key];
         object[key] = (nEnd - nStart) * n + nStart;
+
+        // TODO Remove logline
+        console.log(`${key} = ${last} => ${object[key]} from ${nStart} to ${nEnd}`);
       }
       // Unexpected input error
       else
