@@ -52,4 +52,17 @@ export class TurnModerator {
       this._day++;
     this.currentIdx.increment();
   }
+
+  playerWon(player: BoardPlayer) {
+    const playerStillIn = (!player.defeated);
+    const otherPlayersOut = this.players
+      .filter( p => p !== player )
+      .every( p => p.defeated );
+    return playerStillIn && otherPlayersOut;
+  }
+
+  playerLost(player: BoardPlayer) {
+    return player.defeated;
+  }
+
 }

@@ -155,9 +155,11 @@ export class BoardPlayer {
 
   /** Returns a list of map Squares corresponding to this player's HQ locations. */
   private get HQs() {
-    return this.capturePoints
+    const li = this.capturePoints
       .map( p => this.map.squareAt(p) )
       .filter( s => s.terrain.type === Terrain.HQ );
+    console.log(li.length);
+    return li;
   }
 
   /** The number of properties captured by this player. */
@@ -368,4 +370,5 @@ export class BoardPlayer {
   get powerMeterLevel() {
     return Math.floor(this.powerMeter.output / 50 / 6);
   }
+
 }

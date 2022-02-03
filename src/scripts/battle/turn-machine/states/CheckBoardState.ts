@@ -1,6 +1,7 @@
 import { Game } from "../../../..";
 import { Keys } from "../../../controls/KeyboardObserver";
 import { TurnState } from "../TurnState";
+import { GameLose } from "./GameLose";
 import { GameWin } from "./GameWin";
 import { IssueOrderStart } from "./IssueOrderStart";
 
@@ -24,8 +25,13 @@ export class CheckBoardState extends TurnState {
     // The purpose here is to check game conditions between orders; if a unit captures
     // the other's HQ, the game should end immediately.
 
-    if (Game.devController.down(Keys.W))
+    // Update property count in case HQ was captured
+    players.all.forEach(player => player.scanCapturedProperties());
+
+    if (players.playerWon(players.perspective))
       this.advance(GameWin, IssueOrderStart);
+    if (players.playerLost(players.perspective))
+      this.advance(GameLose, IssueOrderStart);
 
     this.advance(IssueOrderStart);
   }
