@@ -102,33 +102,32 @@ export class PlayerCard extends TurnState {
 
     this.timer = Timer
       .at(.15)
-      .tweenProps(driftTime, driftContainer, {x: driftContainer.x + 16})
-      .tweenProps(insigniaFadeTime, insignia, {alpha: 1}, Ease.sine.inOut)
-      .tweenProps(slideTime, dayCard, {x: 0}, motion.out)
-      .tweenProps(mapCardTime, mapCard, {x: -8}, Ease.sine.inOut)
+      .tween(driftTime, driftContainer, {x: driftContainer.x + 16})
+      .tween(insigniaFadeTime, insignia, {alpha: 1}, Ease.sine.inOut)
+      .tween(slideTime, dayCard, {x: 0}, motion.out)
+      .tween(mapCardTime, mapCard, {x: -8}, Ease.sine.inOut)
 
       .wait(delay)
-      .tweenProps(slideTime, dayNumCard, {x: 0}, motion.out)
+      .tween(slideTime, dayNumCard, {x: 0}, motion.out)
 
       .wait(delay/2)
-      .tweenProps(slideTime, fightCard, {x: 0}, motion.out)
+      .tween(slideTime, fightCard, {x: 0}, motion.out)
 
       .wait()
       .wait(waitTime)
-      .tweenProps(insigniaFadeTime, insignia, {alpha: 0}, Ease.sine.inOut)
-      .tweenProps(slideTime, dayCard, {x: hide*1.5}, motion.in)
-      .tween(mapCardTime, n => {
-        // Oh shit. This is why I need depth=1.
-        mapCard.scale.y = 1-n;
-        mapCard.skew.x = -2*n;    // This conflicts with scale
-        mapCard.alpha = 1 - Ease.sine.in(n);
+      .tween(insigniaFadeTime, insignia, {alpha: 0}, Ease.sine.inOut)
+      .tween(slideTime, dayCard, {x: hide*1.5}, motion.in)
+      .tween(mapCardTime, mapCard, {
+        scale: {y: 0},
+        skew: {x: -2},  // This conflicts with scale
       })
+      .tween(mapCardTime, mapCard, {alpha: 0}, Ease.sine.in)
 
       .wait(delay)
-      .tweenProps(slideTime, dayNumCard, {x: hide*1.5}, motion.in)
+      .tween(slideTime, dayNumCard, {x: hide*1.5}, motion.in)
 
       .wait(delay/2)
-      .tweenProps(slideTime, fightCard, {x: hide*1.5}, motion.in)
+      .tween(slideTime, fightCard, {x: hide*1.5}, motion.in)
       
       .at('end')
       .do(n => { this.advance(); })

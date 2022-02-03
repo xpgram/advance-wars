@@ -69,14 +69,24 @@ export class Timer {
     return Timer.new().every(interval, action, context);
   }
 
-  /** Shortcut to new Timer().start().tween(); returns a Timer object. */
-  static tween(span: number, action: ProgressiveFunction, context?: object) {
-    return Timer.new().tween(span, action, context);
+  /** Shortcut to new Timer().start().transition(); returns a Timer object. */
+  static transition(span: number, action: ProgressiveFunction, context?: object) {
+    return Timer.new().transition(span, action, context);
   }
 
-  /** Shortcut to new Timer().start().tweenAfter(); returns a Timer object. */
-  static tweenEvery(span: number, interval: number, action: ProgressiveFunction, context?: object) {
-    return Timer.new().tweenEvery(span, interval, action, context);
+  /** Shortcut to new Timer().start().transitionEvery(); returns a Timer object. */
+  static transitionEvery(span: number, interval: number, action: ProgressiveFunction, context?: object) {
+    return Timer.new().transitionEvery(span, interval, action, context);
+  }
+
+  /** Shortcut to new Timer().start().tween(); returns a Timer object. */
+  static tween(span: number, object: object, target: object, ease?: EaseFunction) {
+    return Timer.new().tween(span, object, target, ease);
+  }
+
+  /** Shortcut to new Timer().start().tweenEvery(); returns a Timer object. */
+  static tweenEvery(span: number, interval: number, object: object, target: object, ease?: EaseFunction) {
+    return Timer.new().tweenEvery(span, interval, object, target, ease);
   }
 
   /** Whether this object destroys itself after calling the last event. */
@@ -263,15 +273,36 @@ export class Timer {
   /** Creates a shallow copy of the given object's state for the purpose
    * of tweening its values. As this only works with numeric properties,
    * naturally those are the only ones copied. */
-  private createSnap(obj: Tweenable, numericProps: Tweenable) {
-    const result = {} as Tweenable;
+  // obj != self and depth > 0 and key in props are used to limit/prevent
+  // infinite loops, like through parent-child relationships. If there are
+  // problems, look there.
+  private createSnap(object: Tweenable, numericProps: Tweenable) {
+    const self = object;
 
-    for (const key in numericProps) {
-      if (typeof numericProps[key] === 'number')
-          result[key] = obj[key]
+    const snap = (obj: Tweenable, props: Tweenable, depth: number) => {
+      if (obj === null || depth === 0)
+        return;
+
+      if (Object.values(obj).some( v => v === self ))
+        return;
+
+      const snapObj = {} as Tweenable;
+      for (const key in props) {
+        const propType = typeof props[key];
+
+        if (propType === 'number')
+          snapObj[key] = obj[key]
+
+        if (propType === 'object') {
+          const subs = [ obj[key], props[key] ] as Tweenable[];
+          const [ subObj, subProps ] = subs;
+          snapObj[key] = snap(subObj, subProps, depth-1);
+        }
+      }
+      return snapObj;
     }
 
-    return result;
+    return snap(object, numericProps, 3);
   }
 
   /** Tween-process method for objects using property style. */
@@ -407,8 +438,7 @@ export class Timer {
   }
 
   /** Schedules a progressive event-call for 'span' seconds; returns this. */
-  // TODO options: {interval: number, ease?: EaseFunction}
-  tween(span: number, action: ProgressiveFunction, context?: object) {
+  transition(span: number, action: ProgressiveFunction, context?: object) {
     const time = this.timeCursor;
     const until = millis(span) + time;
     const e = TEvent.createTimerEvent({
@@ -423,7 +453,7 @@ export class Timer {
 
   /** Schedules a progressive event-call for 'span' seconds recurringly with
    * 'interval'-seconds gaps; returns this; */
-  tweenEvery(span: number, interval: number, event: ProgressiveFunction, context?: object) {
+  transitionEvery(span: number, interval: number, event: ProgressiveFunction, context?: object) {
     const time = this.timeCursor;
     const until = millis(span) + time;
     interval = millis(interval);
@@ -439,15 +469,42 @@ export class Timer {
     return this;
   }
 
-  /** A prop-style tween instigator. Will replace the default .tween() and the current
-   * default .tween() will be kept as a legacy method called .doFor() or something. */
-  tweenProps(span: number, object: object, target: object, ease?: EaseFunction) {
+  /** Schedules a prop-style tween event which modulates the given object's properties
+   * from their occurrence-time values to the given target values. This only works for
+   * numeric properties. If you need more specific control, use transition(). */
+  // TODO tween<T extends object, Y extends T>(..., object: T, target: Y)
+  // The above doesn't work. What I'm aiming for is a type Y which can have any
+  // member property T does, but no properties it doesn't. This isn't _important_,
+  // it would just be nice to have the auto-completer validate my targets.
+  tween(span: number, object: object, target: object, ease?: EaseFunction) {
     ease = ease || Ease.linear.out;
     const time = this.timeCursor;
     const until = millis(span) + time;
     const e = TEvent.createTimerEvent({
       time,
       until,
+      object,
+      target,
+      ease,
+    })
+    this.addEvent(e);
+    return this;
+  }
+
+  /** Schedules a reoccuring prop-style tween event that modulates the given object's properties
+   * from their occurrence-time values to the given target values. This only works for numeric
+   * properties. If you need more specific control, use transitionEvery().
+   * Interval wait time is counted from the tween's span-end time. */
+  // TODO max occurences?
+  tweenEvery(span: number, interval: number, object: object, target: object, ease?: EaseFunction) {
+    ease = ease || Ease.linear.out;
+    const time = this.timeCursor;
+    const until = millis(span) + time;
+    interval = millis(interval);
+    const e = TEvent.createTimerEvent({
+      time,
+      until,
+      interval,
       object,
       target,
       ease,

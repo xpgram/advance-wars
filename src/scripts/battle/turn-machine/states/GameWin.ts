@@ -43,29 +43,26 @@ export class GameWin extends TurnState {
     const fadeTime = transitionTime - fadeDelay;
     const showTime = 1.3;
 
+    const cleanup = () => {
+      container.destroy({children: true});
+      this.advance();
+    }
+
     Timer
       .at(.15)          // Bar transition
-      .tween(transitionTime, n => {
-        n = Ease.sine.inOut(n);
-        barL.x = -width*(1-n);
-        barR.x = width*(1-n);
-      })
+      .tween(transitionTime, barL, {x: 0}, Ease.sine.inOut)
+      .tween(transitionTime, barR, {x: 0}, Ease.sine.inOut)
+
       .wait(fadeDelay)  // Text fade-in during bar transition
-      .tween(fadeTime, n => {
-        n = Ease.sine.inOut(n);
-        text.alpha = n;
-      })
+      .tween(fadeTime, text, {alpha: 1}, Ease.sine.inOut)
+
       .wait()
       .wait(showTime)   // Scale-out transition w/ slight fade-out to complement
-      .tween(transitionTime, n => {
-        container.scale.y = (1-n);
-        container.alpha = 1 - Ease.sine.inOut(n)*.3;
-        text.skew.x = -n;
-      })
+      .tween(transitionTime, container, {alpha: 0.7}, Ease.sine.inOut)
+      .tween(transitionTime, container, {scale: {y: 0}})
+      .tween(transitionTime, text, {skew: {x: -1}})
+      
       .at('end')
-      .do(n => {
-        container.destroy({children: true});
-        this.advance();
-      })
+      .do(n => cleanup())
   }
 }
