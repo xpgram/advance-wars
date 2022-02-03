@@ -262,7 +262,8 @@ export class Timer {
    * of tweening its values. As this only works with numeric properties,
    * naturally those are the only ones copied. */
   // FIX obj.x is un-snappable if .x is a getter x() {return this._x}
-  // This has something to do with class-property enumerability.
+  // This has something to do with class-property enumerability and
+  // to-ES5 transpiling via Babel. This may be configurable.
   private createSnap(obj: Tweenable) {
     const result = {...obj} as Tweenable;
     // -intermediary steps removed
