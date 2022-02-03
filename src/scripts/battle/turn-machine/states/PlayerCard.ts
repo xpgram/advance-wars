@@ -102,7 +102,7 @@ export class PlayerCard extends TurnState {
 
     this.timer = Timer
       .at(.15)
-      .tween(driftTime, driftContainer, {x: driftContainer.x + 16})
+      .tween(driftTime, driftContainer, {x: driftContainer.x + 16}) //, Ease.quantize(Ease.linear.out, 16))
       .tween(insigniaFadeTime, insignia, {alpha: 1}, Ease.sine.inOut)
       .tween(slideTime, dayCard, {x: 0}, motion.out)
       .tween(mapCardTime, mapCard, {x: -8}, Ease.sine.inOut)

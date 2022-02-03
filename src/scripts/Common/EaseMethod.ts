@@ -30,10 +30,9 @@ function constructEaseSet(options: {easeIn: EaseFunction, easeOut: EaseFunction}
 /**  */
 export module Ease {
 
-  // TODO EaseMethod.linear.out is meant to be passed in, but it requires context,
-  // which means it has to be bounded. I guess we have to fix that here. *sigh*
-  // Can I do a functional thing here? Maybe refactor the class up there out?
-  // I'd prefer not to have to worry about binding stuff.
+  export function quantize(f: EaseFunction, qvalue: number): EaseFunction {
+    return (n: number) => Math.floor(f(n) * qvalue) / qvalue;
+  }
 
   export const linear = constructEaseSet({
     easeIn: n => n,
