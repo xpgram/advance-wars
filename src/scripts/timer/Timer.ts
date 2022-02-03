@@ -9,6 +9,8 @@ function seconds(n: number) { return n * 0.001; }
 
 export type Tweenable = Dictionary<object | number | undefined>;
 
+// TODO Update doc strings to reflect recent updates.
+
 /**
  * An event itinerary system developed because I saw someone do this in Lua and
  * it was mad cool. Tweening, I mean.
