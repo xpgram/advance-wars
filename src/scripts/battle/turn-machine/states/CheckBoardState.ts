@@ -28,10 +28,15 @@ export class CheckBoardState extends TurnState {
     // Update property count in case HQ was captured
     players.all.forEach(player => player.scanCapturedProperties());
 
-    if (players.playerWon(players.perspective))
+    if (players.playerWon(players.perspective)) {
       this.advance(GameWin, IssueOrderStart);
-    if (players.playerLost(players.perspective))
+      return;
+    }
+
+    if (players.playerLost(players.perspective)) {
       this.advance(GameLose, IssueOrderStart);
+      return;
+    }
 
     this.advance(IssueOrderStart);
   }
