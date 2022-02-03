@@ -292,7 +292,6 @@ export class Timer {
       else if (keyType === 'number') {
         const subs = [ start[key], end[key] ] as number[];
         const [ nStart, nEnd ] = subs;
-        console.log(`${key} = ${object[key]} from ${nStart} to ${nEnd}`);
         object[key] = (nEnd - nStart) * n + nStart;
       }
       // Unexpected input error
