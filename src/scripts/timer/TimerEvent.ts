@@ -1,5 +1,6 @@
 import { EaseFunction, Ease } from "../Common/EaseMethod";
 import { Common } from "../CommonUtils";
+import { Tweenable } from "./Timer";
 
 export type ProgressiveFunction = (n: number) => void;
 
@@ -13,26 +14,13 @@ export module TEvent {
     until: number;
     interval: number;
     repeat: number;
-    completed: boolean;
+    completed: boolean;   // Internal use
     action: ProgressiveFunction;
-    shape: EaseFunction;
     context?: object;
-  }
-
-  interface TimerEventNew {
-    time: number;
-    until: number;
-    interval: number;
-    repeat: number;
-
-    completed: boolean;   // Whether this event is done calculating; for culling.
-
-    snapshot?: object;    // The start point from which tweens are calculating.
-    target?: object;      // The end point to which tweens are calculating.
-    ease?: EaseFunction;  // The shape by which snap is tweened to target. Default linear.
-
-    action?: ProgressiveFunction;   // Function callback, with added n for... no purpose.
-    context?: object;     // Object bound to action() call.
+    object?: Tweenable;
+    snap?: Tweenable;     // Internal use
+    target?: Tweenable;
+    ease: EaseFunction;
   }
 
   export interface TimerEventOptions {
@@ -40,9 +28,11 @@ export module TEvent {
     until?: number;       // End time.
     interval?: number,    // How long to wait after until to repeat; =time by default
     repeat?: number,      // n<0 forever, n=0 single, n>0 specifies additional times
-    action: ProgressiveFunction;  // n is proportional to current time and start/end
-    shape?: EaseFunction;  // shape function for the input to action()
-    context?: object;       // object context to call action() with
+    action?: ProgressiveFunction; // n is proportional to current time and start/end
+    context?: object;     // object context to call action() with
+    object?: object;
+    target?: object;      // target properties to ease object to
+    ease?: EaseFunction;  // shape function for the input to action()
   }
 
   export function createTimerEvent(e: TimerEventOptions) {
@@ -50,8 +40,11 @@ export module TEvent {
       until: e.time,
       interval: e.time,
       repeat: 0,
-      shape: Ease.linear.out,
       completed: false,
+      action: () => {},
+      object: e.object as Tweenable,  // Shuts up Typescript
+      target: e.target as Tweenable,
+      ease: Ease.linear.out,
     });
   }
 

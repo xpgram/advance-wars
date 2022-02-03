@@ -1,4 +1,5 @@
 import { Game } from "../..";
+import { Ease, EaseFunction } from "../Common/EaseMethod";
 import { Dictionary } from "../CommonTypes";
 import { Common } from "../CommonUtils";
 import { ProgressiveFunction, TEvent } from "./TimerEvent";
@@ -6,7 +7,7 @@ import { ProgressiveFunction, TEvent } from "./TimerEvent";
 function millis(n: number) { return n * 1000; }
 function seconds(n: number) { return n * 0.001; }
 
-type Tweenable = Dictionary<object | number | undefined>;
+export type Tweenable = Dictionary<object | number | undefined>;
 
 /**
  * An event itinerary system developed because I saw someone do this in Lua and
@@ -182,7 +183,10 @@ export class Timer {
   /** Resets the timer's clock and scheduled event calls to initial; returns this. Does not stop the clock. */
   reset() {
     this.elapsedMillis = 0;
-    this.events.forEach( e => e.completed = false );  // TODO completedDir could be -1 | 1 to allow for bi-directional ticking.
+    this.events.forEach( e => {
+      e.completed = false;  // TODO completedDir could be -1 | 1 to allow for bi-directional ticking.
+      e.snap = undefined;
+    });
     this.recurringEvents = [];
     return this;
   }
@@ -234,20 +238,71 @@ export class Timer {
       const normal = (e.until > e.time)
         ? Common.clamp((elapsed - e.time) / (e.until - e.time), 0, 1)
         : 1;
-      e.action.call(e.context, e.shape(normal));
+      e.action.call(e.context, e.ease(normal));
+
+      // TODO Prop-style tweens are not possible with getters/setters
+      // if (e.object && e.target) {
+      //   if (!e.snap)
+      //     e.snap = this.createSnap(e.object);
+      //   this.updateTween(e.object, e.snap as Tweenable, e.target, e.ease(normal));
+      // }
 
       if (e.repeat !== 0)
         this.extendRecurringEvent(e);
       
       // Flag completed events
-      if (normal === 1)
+      if (normal === 1) {
         e.completed = true;
+        e.snap = undefined;
+      }
     });
+  }
+
+  /** Creates a shallow copy of the given object's state for the purpose
+   * of tweening its values. As this only works with numeric properties,
+   * naturally those are the only ones copied. */
+  // FIX obj.x is un-snappable if .x is a getter x() {return this._x}
+  // This has something to do with class-property enumerability.
+  private createSnap(obj: Tweenable) {
+    const result = {...obj} as Tweenable;
+    // -intermediary steps removed
+    return result;
+  }
+
+  /** Tween-process method for objects using property style. */
+  private updateTween(object: Tweenable, start: Tweenable, end: Tweenable, n: number) {
+    // Guards against 'destroyed' objects which flag themselves as such.
+    if ((object as any).destroyed === true)
+      return;
+
+    for (const key in end) {
+      if (object[key] === undefined)
+        continue;
+
+      const keyType = typeof object[key];
+      
+      // Recursive action
+      if (keyType === 'object') {
+        const subs = [ object[key], start[key], end[key] ] as Tweenable[];
+        const [ subObject, subStart, subEnd ] = subs;
+        this.updateTween(subObject, subStart, subEnd, n);
+      }
+      // Tween action
+      else if (keyType === 'number') {
+        const subs = [ start[key], end[key] ] as number[];
+        const [ nStart, nEnd ] = subs;
+        console.log(`${key} = ${object[key]} from ${nStart} to ${nEnd}`);
+        object[key] = (nEnd - nStart) * n + nStart;
+      }
+      // Unexpected input error
+      else
+        throw new Error(`Property of object '${key}' was of type '${keyType}' but expected object or number.`);
+    }
   }
 
   /** Creates a new (temp) timer event for the next occurrence of a repeatable. */
   private extendRecurringEvent(e: TEvent.TimerEvent) {
-    const { interval, action, shape, context } = e;
+    const { interval, action, context, object, target, ease } = e;
 
     const time = e.until + e.interval;
     const span = e.until - e.time;
@@ -255,7 +310,7 @@ export class Timer {
     const repeat = (e.repeat > 0) ? e.repeat - 1 : -1;
 
     const next = TEvent.createTimerEvent({
-      time, until, interval, repeat, action, shape, context
+      time, until, interval, repeat, action, context, object, target, ease,
     });
     this.recurringEvents.push(next);
       // ^ This can extend recurringEvents while it's being iterated over,
@@ -348,7 +403,7 @@ export class Timer {
   }
 
   /** Schedules a progressive event-call for 'span' seconds; returns this. */
-  // TODO options: {interval: number, shape?: EaseFunction}
+  // TODO options: {interval: number, ease?: EaseFunction}
   tween(span: number, action: ProgressiveFunction, context?: object) {
     const time = this.timeCursor;
     const until = millis(span) + time;
@@ -360,36 +415,6 @@ export class Timer {
     })
     this.addEvent(e);
     return this;
-  }
-
-  /** Tween-process method for objects using property style. */
-  private updateTween(object: Tweenable, start: Tweenable, end: Tweenable, n: number) {
-    // Guards against 'destroyed' objects which flag themselves as such.
-    if ((object as any).destroyed === true)
-      return;
-
-    for (const key in end) {
-      if (object[key] === undefined)
-        continue;
-
-      const keyType = typeof object[key];
-      
-      // Recursive action
-      if (keyType === 'object') {
-        const subs = [ object[key], start[key], end[key] ] as Tweenable[];
-        const [ subObject, subStart, subEnd ] = subs;
-        this.updateTween(subObject, subStart, subEnd, n);
-      }
-      // Tween action
-      else if (keyType === 'number') {
-        const subs = [ start[key], end[key] ] as number[];
-        const [ nStart, nEnd ] = subs;
-        object[key] = (nEnd - nStart) * n + nStart;
-      }
-      // Unexpected input error
-      else
-        throw new Error(`Property of object '${key}' was of type '${keyType}' but expected object or number.`);
-    }
   }
 
   /** Schedules a progressive event-call for 'span' seconds recurringly with
@@ -405,6 +430,25 @@ export class Timer {
       repeat: -1,
       action: event,
       context,
+    })
+    this.addEvent(e);
+    return this;
+  }
+
+  /** A prop-style tween instigator that doesn't work because the approach in Javascript
+   * is fundamentally flawed. This was meant to replace the standard .tween() method,
+   * while the current .tween() would be a legacy addition called .doFor() or something.
+   * @deprecated */
+  tweenProps(span: number, object: object, target: object, ease?: EaseFunction) {
+    ease = ease || Ease.linear.out;
+    const time = this.timeCursor;
+    const until = millis(span) + time;
+    const e = TEvent.createTimerEvent({
+      time,
+      until,
+      object,
+      target,
+      ease,
     })
     this.addEvent(e);
     return this;
