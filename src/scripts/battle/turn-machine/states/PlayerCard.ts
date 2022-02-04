@@ -1,8 +1,10 @@
+import { ColorOverlayFilter } from 'pixi-filters';
 import { Game } from "../../../..";
 import { Ease } from "../../../Common/EaseMethod";
 import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
-import { Rectangle } from "../../../Common/Rectangle";
+import { NumericDictionary } from "../../../CommonTypes";
 import { Timer } from "../../../timer/Timer";
+import { Faction } from "../../EnumTypes";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
 
@@ -20,18 +22,59 @@ export class PlayerCard extends TurnState {
   configureScene() {
     const { players } = this.assets;
 
+    // TODO This is confusing. I need... I want to say 'scene.spritesheets.UiGraphics' or something.
+    // Game.scene is vague, though; I think that's why I do it this way. Should I host it on assets, then?
+    const sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
+
     const { renderWidth: rw, renderHeight: rh } = Game.display;
     const point = (x: number, y: number) => new Point(x,y);
     const hide = 200;
 
+    const recolor = [
+      [ // Red
+        new ColorOverlayFilter(0xFF0000, .225),
+        (function() {
+          const f = new PIXI.filters.ColorMatrixFilter();
+          f.contrast(.15);
+          // f.brightness(.975);
+          return f;
+        })(),
+      ],
+      [ // Blue
+        new ColorOverlayFilter(0x0000FF, .20),
+        (function() {
+          const f = new PIXI.filters.ColorMatrixFilter();
+          f.contrast(.15);
+          // f.brightness(.975);
+          return f;
+        })(),
+      ],
+      [ // Yellow
+        new ColorOverlayFilter(0xFFDD00, .325),
+        (function() {
+          const f = new PIXI.filters.ColorMatrixFilter();
+          f.contrast(.20);  // TODO ..? No effect?
+          // f.brightness(.975);
+          return f;
+        })(),
+      ],
+      [ // Black
+        new ColorOverlayFilter(0x330022, .35),
+        (function() {
+          const f = new PIXI.filters.ColorMatrixFilter();
+          f.contrast(.20);
+          // f.brightness(.9);
+          return f;
+        })(),
+      ],
+    ]
+
     // Construct temp player card.
 
     // Insig  - 1
-    const insignia = this.newRect({
-      g: new PIXI.Graphics(),
-      dim: point(96,96),
-      pos: point(rw*.75,rh*.5),
-    });
+    const insignia = new PIXI.Sprite(players.current.officer.insigniaSplash);
+    insignia.filters = recolor[players.current.playerNumber];
+    insignia.position.set(rw*.75, rh*.5);
     insignia.alpha = 0;
 
     // Day    - 1
