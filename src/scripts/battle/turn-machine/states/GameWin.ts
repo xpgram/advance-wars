@@ -36,8 +36,25 @@ export class GameWin extends TurnState {
     text.alpha = 0;
     container.addChild(text);
 
-    Game.hud.addChild(container);
+    // TODO Whiteout should probably be a scene transition. I haven't made or
+    // thought of those yet. Perhaps soon.
+    const preWhiteout = new PIXI.Graphics();
+    preWhiteout.beginFill(0xEEEEEE);
+    preWhiteout.drawRect(0,0, width, height);
+    preWhiteout.endFill();
+    preWhiteout.alpha = 0;
+    preWhiteout.blendMode = PIXI.BLEND_MODES.ADD;
 
+    const whiteout = new PIXI.Graphics();
+    whiteout.beginFill(0xDDDDDD);
+    whiteout.drawRect(0,0, width, height);
+    whiteout.endFill();
+    whiteout.alpha = 0;
+    whiteout.blendMode = PIXI.BLEND_MODES.SCREEN;
+
+    Game.hud.addChild(container, preWhiteout, whiteout);
+
+    const whiteoutTime = 2.5;
     const transitionTime = .2;
     const fadeDelay = .065;
     const fadeTime = transitionTime - fadeDelay;
@@ -45,6 +62,8 @@ export class GameWin extends TurnState {
 
     const cleanup = () => {
       container.destroy({children: true});
+      preWhiteout.destroy();
+      whiteout.destroy();
       this.advance();
     }
 
@@ -61,8 +80,13 @@ export class GameWin extends TurnState {
       .tween(transitionTime, container, {alpha: 0.7}, Ease.sine.inOut)
       .tween(transitionTime, container, {scale: {y: 0}})
       .tween(transitionTime, text, {skew: {x: -1}})
-      
+
+      .at(1.25)
+      .tween(whiteoutTime, preWhiteout, {alpha: 1}, Ease.circ.in)
+      .tween(whiteoutTime, whiteout, {alpha: 1}, Ease.circ.in)
+
       .at('end')
+      .wait(.5)
       .do(n => cleanup())
   }
 }

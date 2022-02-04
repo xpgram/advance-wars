@@ -27,6 +27,16 @@ export class CheckBoardState extends TurnState {
     // Update property count in case HQ was captured
     players.all.forEach(player => player.scanCapturedProperties());
 
+    if (players.playerWon(players.perspective)) {
+      this.advance(GameWin, IssueOrderStart);
+      return;
+    }
+
+    if (players.playerLost(players.perspective)) {
+      this.advance(GameLose, IssueOrderStart);
+      return;
+    }
+
     // Schedule events for defeated players.
     // TODO Should I just pass into a PlayerLost turnstate?
     // I would need to specify which; I haven't really codified the
@@ -51,21 +61,7 @@ export class CheckBoardState extends TurnState {
 
       // TODO Convert HQ into city tile; retain faction if not self
       // TODO But don't do that if scenario allows for +1 multiple HQs.
-
-      // TODO Don't uncapture properties here; if the game is won, no
-      // board state changes other than HQ color should happen, we
-      // should just transition into the post-game stats.
     })
-
-    if (players.playerWon(players.perspective)) {
-      this.advance(GameWin, IssueOrderStart);
-      return;
-    }
-
-    if (players.playerLost(players.perspective)) {
-      this.advance(GameLose, IssueOrderStart);
-      return;
-    }
 
     // PlayerDefeated event where DestructEvents will be handled but
     // a 'Player Defeated' card is also shown and properties are uncaptured.
