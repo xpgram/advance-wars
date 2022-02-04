@@ -32,7 +32,7 @@ export class PlayerCard extends TurnState {
 
     const recolor = [
       [ // Red
-        new ColorOverlayFilter(0xFF0000, .225),
+        new ColorOverlayFilter(0xFF1400, .25),
         (function() {
           const f = new PIXI.filters.ColorMatrixFilter();
           f.contrast(.15);
@@ -41,7 +41,7 @@ export class PlayerCard extends TurnState {
         })(),
       ],
       [ // Blue
-        new ColorOverlayFilter(0x0000FF, .20),
+        new ColorOverlayFilter(0x1800FF, .20),
         (function() {
           const f = new PIXI.filters.ColorMatrixFilter();
           f.contrast(.15);
