@@ -21,6 +21,10 @@ Blu: Hue 200 Sat 40 Lit   0   Con 25 Bri -20 (Contrast)
 Yel: Hue  50 Sat 45 Lit  10   Con 15 Bri -10 (Contrast)   Whi Bal 20 Tint -20 (Warmth)
 Bla: Hue  90 Sat  0 Lit -20   Whi Bal 0 Tint 20 (Warmth)
 
+I'm not happy with the insignia colors...
+Hm.
+I wrote that color-map-detection script, maybe I could do that on them.
+
 - [ ] Timer is skippable (max time, order chronology by until?, run update once [complete all tweens])
 - [ ] Remove shape?: from method arguments; clutter.
   n = EaseMethod.linear(n) does the just just fine.
