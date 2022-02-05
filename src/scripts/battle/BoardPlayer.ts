@@ -158,7 +158,6 @@ export class BoardPlayer {
     const li = this.capturePoints
       .map( p => this.map.squareAt(p) )
       .filter( s => s.terrain.type === Terrain.HQ );
-    console.log(li.length);
     return li;
   }
 

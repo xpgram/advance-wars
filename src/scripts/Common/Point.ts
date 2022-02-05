@@ -236,4 +236,9 @@ export class Point {
   static get Left(): Point { return new Point(-1, 0); }
   /** Identity vector pointing conventionally right. */
   static get Right(): Point { return new Point(1, 0); }
+
+  /** All point vectors describing an axis direction. */
+  static get Cardinals(): Point[] {
+    return [Point.Up, Point.Right, Point.Down, Point.Left];
+  }
 }
