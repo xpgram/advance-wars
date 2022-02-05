@@ -25,6 +25,11 @@ I'm not happy with the insignia colors...
 Hm.
 I wrote that color-map-detection script, maybe I could do that on them.
 
+- [x] Range Reticle
+- [ ] Made an intergral feature of the MapCursor for easy access everywhere.
+- [ ] Applied to CoAffected tiles
+- [ ] Applied to Silos
+
 - [ ] Timer is skippable (max time, order chronology by until?, run update once [complete all tweens])
 - [ ] Timer.every() has max occurrences setting.
 
@@ -156,7 +161,6 @@ ShowUnitAttackRange:
   - COAffected could be obtained from the board players themselves. They would just have a rangeMap, just like units do.
   - The visual effect, if in the overlay layer, could also be maintained by the board player.
 
-- [ ] Target Reticle around Battleships.
 
 More observations:
 - Carriers *Launch* not *Drop*. The difference is Carriers can't move and release on the same turn, and also the one unit launched gets to *move and attack*. jfc.
