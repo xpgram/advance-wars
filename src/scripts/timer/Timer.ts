@@ -1,6 +1,6 @@
 import { Game } from "../..";
 import { Ease, EaseFunction } from "../Common/EaseMethod";
-import { Dictionary, PartialDeep } from "../CommonTypes";
+import { Dictionary, PartialDeep, StringDictionary } from "../CommonTypes";
 import { Common } from "../CommonUtils";
 import { ProgressiveFunction, TEvent } from "./TimerEvent";
 
@@ -117,6 +117,9 @@ export class Timer {
 
   /** The last timer event added to the schedule, for reference. */
   private lastAdded?: TEvent.TimerEvent;
+
+  /** A record of saved timestamp values; makes time navigating in long chains easier. */
+  private readonly timestampLabels = {} as StringDictionary<number>;
 
   /** True if the events list needs to be sorted.
    * @unused */
@@ -381,11 +384,19 @@ export class Timer {
   /** Moves the time cursor to a particular point in time (seconds).
    * Cannot move to negative time values.
    * Pass in 'end' to move the cursor to the timer's (as of now) final timestamp. */
-  at(time: number | 'end') {
-    time = (time === 'end')
-      ? this.lengthMillis
-      : millis(time);
-    this.timeCursor = Math.max(time, 0);
+  at(time: number | 'end' | string) {
+    if (time === 'end')
+      time = this.lengthMillis;
+    else if (typeof time === 'string') {
+      const timestamp = this.timestampLabels[time];
+      if (!timestamp)
+        throw new Error(`No label '${time}' exists among saved timestamps. Has it been recorded yet?`);
+      time = this.timestampLabels[time];
+    }
+    else 
+      time = millis(time);
+
+    this.timeCursor = Math.max(time as number, 0);
     this.lastAdded = undefined;
     return this;
   }
@@ -400,6 +411,17 @@ export class Timer {
 
     this.timeCursor += Math.max(time, 0);
     this.lastAdded = undefined;
+    return this;
+  }
+
+  /** Registers the current time cursor value as a named timestamp referenceable
+   * with .at(); returns this. Note that 'end' is a reserved label for the last
+   * time value on the current itinerary. Also note that reusing a label will
+   * overwrite the last value saved. */
+  label(name: string) {
+    if (name === 'end')
+      throw new Error(`Cannot save a timestamp label 'end'; reserved keyword.`);
+    this.timestampLabels[name] = this.timeCursor;
     return this;
   }
 

@@ -26,11 +26,7 @@ Hm.
 I wrote that color-map-detection script, maybe I could do that on them.
 
 - [ ] Timer is skippable (max time, order chronology by until?, run update once [complete all tweens])
-- [ ] Remove shape?: from method arguments; clutter.
-  n = EaseMethod.linear(n) does the just just fine.
-- [ ] Change after-context settings to first-argument options block; simplicity.
-- [ ] tweenDuringLast (these names are cray, I gotta come up with something better) works like tweenAfter but doesn't use the ending time value
-  - [ ] Or maybe tweenAfter works using e.time, but .wait() sets the last timestamp to be the most recent event's until. I kinda like this idea.
+- [ ] Timer.every() has max occurrences setting.
 
 - [ ] Square.stealth is distinct from .hidden and .hideUnit
   - [ ] In fact, .hidden is confusing and should be .obscuredByFog or something.
