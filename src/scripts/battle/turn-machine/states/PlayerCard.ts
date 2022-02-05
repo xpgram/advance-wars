@@ -32,29 +32,29 @@ export class PlayerCard extends TurnState {
 
     const recolor = [
       [ // Red
-        new ColorOverlayFilter(0xFF1400, .25),
+        new ColorOverlayFilter(0xFF1400, .235),
         (function() {
           const f = new PIXI.filters.ColorMatrixFilter();
-          f.contrast(.15);
-          // f.brightness(.975);
+          f.contrast(.20);
+          f.brightness(.9, true);
           return f;
         })(),
       ],
       [ // Blue
-        new ColorOverlayFilter(0x1800FF, .20),
+        new ColorOverlayFilter(0x1800FF, .15),
         (function() {
           const f = new PIXI.filters.ColorMatrixFilter();
           f.contrast(.15);
-          // f.brightness(.975);
+          f.brightness(.9, true);
           return f;
         })(),
       ],
       [ // Yellow
-        new ColorOverlayFilter(0xFFDD00, .325),
+        new ColorOverlayFilter(0xFFDD00, .35),
         (function() {
           const f = new PIXI.filters.ColorMatrixFilter();
-          f.contrast(.20);  // TODO ..? No effect?
-          // f.brightness(.975);
+          f.contrast(.30);  // TODO ..? No effect?
+          f.brightness(.8, true);
           return f;
         })(),
       ],
@@ -72,9 +72,21 @@ export class PlayerCard extends TurnState {
     // Construct temp player card.
 
     // Insig  - 1
-    const insignia = new PIXI.Sprite(players.current.officer.insigniaSplash);
-    insignia.filters = recolor[players.current.playerNumber];
-    insignia.position.set(rw*.75, rh*.5);
+    const insignia = new PIXI.Container();
+    
+    const splash = new PIXI.Sprite(players.current.officer.insigniaSplash);
+    splash.filters = recolor[players.current.playerNumber];
+    splash.position.set(rw*.75, rh*.5);
+
+    const splashShadow = new PIXI.Sprite(players.current.officer.insigniaSplash);
+    splashShadow.filters = [
+      new ColorOverlayFilter(0, 1),
+      new PIXI.filters.BlurFilter(8.0),
+    ];
+    splashShadow.position.set(splash.x, splash.y + 2);
+    splashShadow.alpha = .75;
+
+    insignia.addChild(splashShadow, splash);
     insignia.alpha = 0;
 
     // Day    - 1
