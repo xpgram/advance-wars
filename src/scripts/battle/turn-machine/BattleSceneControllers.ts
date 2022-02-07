@@ -265,8 +265,8 @@ export class BattleSceneControllers {
 
   /** Hides all UI and player-interface systems. */
   hidePlayerSystems() {
+    this.mapCursor.resetSettings();
     this.mapCursor.hide();
-    this.mapCursor.mode = 'point';
     this.trackCar.hide();
     this.uiSystem.resetSettings();
     this.uiSystem.hide();
@@ -276,9 +276,9 @@ export class BattleSceneControllers {
     this.fieldMenu.hide();
 
     // Reset all scripts
-    let scripts = this.scripts as StringDictionary<ControlScript>;
-    for (let name in scripts) {
-      let script = scripts[name];
+    const scripts = this.scripts as any as StringDictionary<ControlScript>;
+    for (const name in scripts) {
+      const script = scripts[name];
       if (script.defaultEnabled())
         script.enable();
       else

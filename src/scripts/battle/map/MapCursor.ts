@@ -9,6 +9,8 @@ import { Slider } from "../../Common/Slider";
 import { Point } from "../../Common/Point";
 import { Observable } from "../../Observable";
 import { AnimatedSprite } from "@pixi/sprite-animated";
+import { RegionMap } from "../unit-actions/RegionMap";
+import { buildBoundedRegionMapObject } from "../unit-actions/GraphicalRegionMap";
 
 
 // TODO Update discrepancy: MapCursor and ArrowPath
@@ -101,6 +103,29 @@ export class MapCursor extends Observable() {
   }
   private _mode: 'point' | 'build' | 'ban' | 'target' = 'point';
 
+  /** The map describing the area-of-effect surrounding the cursor. */
+  get areaOfEffectMap() { return this._areaReticle; }
+  set areaOfEffectMap(map) {
+    this._areaReticle = map;
+    
+    // Deconstruct the old map, if any
+    this.areaOfEffectLayer.removeChildren();
+    if (!this._areaReticle)
+      return;
+    
+    // Reconstruct the area map graphically
+    const length = Game.display.standardLength;
+    this.areaOfEffectLayer.addChild(
+      buildBoundedRegionMapObject(this._areaReticle, length)
+    );
+  }
+  private _areaReticle?: RegionMap;
+
+  /** Whether to render the cursor's surrounding AoE region map. True by
+   * default as null region maps cannot be rendered anyway. */
+  get showAreaOfEffectMap() { return this.areaOfEffectLayer.visible; }
+  set showAreaOfEffectMap(b) { this.areaOfEffectLayer.visible = b; }
+
   /** Whether the cursor should listen for input from a controller. */
   private controlsEnabled = true;
 
@@ -139,6 +164,9 @@ export class MapCursor extends Observable() {
 
   /** The tile-selector sprite object used over actionable locations in place of the cursor. */
   private reticleSprite: AnimatedSprite;
+
+  /** The drawn map indicating the area of effect surrounding the cursor's position. */
+  private areaOfEffectLayer = new PIXI.Container;
 
 
   constructor(map: Map, gp: VirtualGamepad) {
@@ -179,7 +207,8 @@ export class MapCursor extends Observable() {
     this.spriteLayer.addChild(
       this.cursorSprite,
       this.pointerSprite,
-      this.reticleSprite
+      this.reticleSprite,
+      this.areaOfEffectLayer,
     );
 
     // Add the created image layer to the relevant places
@@ -208,6 +237,13 @@ export class MapCursor extends Observable() {
     this.mapRef = null;
     //@ts-ignore
     this.controller = null;
+  }
+
+  /** Re-normalizes all cursor settings to their defaults. */
+  resetSettings() {
+    this.mode = 'point';
+    this.areaOfEffectMap = undefined;
+    this.showAreaOfEffectMap = true;
   }
 
   /** Hides the cursor's graphics and disables player controls. */

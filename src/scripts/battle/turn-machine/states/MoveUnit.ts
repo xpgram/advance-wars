@@ -4,7 +4,6 @@ import { Command } from "../Command";
 import { SumCardinalsToVector } from "../../../Common/CardinalDirection";
 import { CommandMenu } from "./CommandMenu";
 import { DamageScript } from "../../DamageScript";
-import { buildBoundedRegionMapObject } from "../../unit-actions/GraphicalRegionMap";
 
 
 export class MoveUnit extends TurnState {
@@ -14,9 +13,6 @@ export class MoveUnit extends TurnState {
   get skipOnUndo() { return false; }
 
   private lastCursorPos = new Point(-1, -1);
-
-  // TODO Move this to MapCursor
-  private reticle?: PIXI.Graphics;
 
   updateUiSystems() {
     const { map, mapCursor, players, uiSystem } = this.assets;
@@ -34,11 +30,7 @@ export class MoveUnit extends TurnState {
     const attackable = tile.attackFlag;
 
     mapCursor.mode = (actionable || attackable) ? 'target' : 'point';
-    // mapCursor.showReticle = (reachable);
-
-    // TODO Remove this once mapCursor is integrated with the range-reticle.
-    if (this.reticle)
-      this.reticle.alpha = (reachable) ? 1 : 0;
+    mapCursor.showAreaOfEffectMap = (reachable);
 
     // Update damage forecast
     if (unit && attackable && !sameFaction) {
@@ -72,10 +64,8 @@ export class MoveUnit extends TurnState {
 
     // Setup reticle
     // TODO This should... be a feature of the MapCursor, no? It okay, this just test.
-    if (actor.canMoveAndAttack && actor.isIndirect) {
-      this.reticle = buildBoundedRegionMapObject(actor.rangeMap, 16);
-      mapCursor.spriteLayer.addChild(this.reticle);
-    }
+    if (actor.canMoveAndAttack && actor.isIndirect)
+      mapCursor.areaOfEffectMap = actor.rangeMap;
 
     // Skip any further instructions if the turn player is examining an enemy unit.
     if (actor.faction !== players.current.faction)
@@ -160,10 +150,6 @@ export class MoveUnit extends TurnState {
     trackCar.hide();
     map.clearMovementMap();
     mapCursor.moveTo(place);
-  }
-
-  close() {
-    this.reticle?.destroy();
   }
 
 }
