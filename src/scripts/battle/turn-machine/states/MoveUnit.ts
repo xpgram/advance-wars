@@ -62,14 +62,13 @@ export class MoveUnit extends TurnState {
     // Trigger cursor mode (and whatever)
     this.updateUiSystems();
 
-    // Setup reticle
-    // TODO This should... be a feature of the MapCursor, no? It okay, this just test.
-    if (actor.canMoveAndAttack && actor.isIndirect)
-      mapCursor.areaOfEffectMap = actor.rangeMap;
-
     // Skip any further instructions if the turn player is examining an enemy unit.
     if (actor.faction !== players.current.faction)
       return;
+
+    // Setup AoE indicator
+    if (actor.canMoveAndAttack && actor.isIndirect)
+      mapCursor.areaOfEffectMap = actor.rangeMap;
 
     // Enable control shortcuts
     scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
