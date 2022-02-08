@@ -1,6 +1,8 @@
+import { CardinalVector, SumCardinalsToVector } from "../../Common/CardinalDirection";
 import { Point } from "../../Common/Point";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
+import { Square } from "../map/Square";
 import { Terrain } from "../map/Terrain";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
@@ -65,6 +67,13 @@ export type CommandObject<T> = {
   scheduleEvents: () => void,
 }
 
+/**  */
+// TODO Consider some kind of system for overwritable defaults?
+export type Interruptable = {
+  /** Filled in via some computable event. Probably schedule(). Default is 0 for success. */
+  interruptStatus: number,
+}
+
 /** Global container for Command objects and logic. */
 export module Command {
 
@@ -85,7 +94,7 @@ export module Command {
   }
 
   /** Moves a unit from one board location to another. */
-  export const Move: CommandObject<number> = {
+  export const Move: CommandObject<number> & Interruptable = {
     name: "Move",
     serial: generateSerial(),
     input: 0,
@@ -94,23 +103,53 @@ export module Command {
     triggerInclude: function () {
       return false;
     },
+    interruptStatus: 0,
     scheduleEvents: function () {
-      const { boardEvents, instruction } = data.assets;
+      const { map, boardEvents, camera, instruction } = data.assets;
       const { place, path, goal, actor, assets } = data;
 
       // This has to be here because any formal turn will unset this property,
       // and the status icon should be unset immediately to prevent flickering.
       actor.CoCouldBoard = false;
 
-      // TODO Scan path tiles for ambush interruptions
+      // TODO The ambush code is dummied out because
+      // Command.interruptionStatus is fundamentally broken.
+
+      // Scan path tiles for ambush interruptions and shorten the path
+      // to accomodate. + Schedule an ambush bubble.
+      const realPath = [] as typeof path;
+      let cursor = actor.boardLocation;
+      for (const p of path) {
+        const next = cursor.add(CardinalVector(p));
+        const tile = map.squareAt(next);
+
+        if (tile.unit?.faction !== actor.faction)
+          break;
+
+        realPath.push(p);
+        cursor = next;
+      }
+      // data.path = realPath; // TODO I need to make sure there is a fill() somewhere after this
+      const realGoal = SumCardinalsToVector(realPath).add(place);
+
+      const ambushed = (realPath.length !== path.length);
 
       // TODO It would be nice if Command.Attack could specify this itself.
+      // I'm suffering a bit from the like of overriding
+      // But also, I think I did this so that Command.???.schedule() could be done without incident.
       const target = (instruction.action === Command.Attack.serial)
         ? instruction.focal
         : undefined;
 
+      // if (place.notEqual(realGoal))
+        // boardEvents.schedule(new MoveUnitEvent({actor, path: realPath, goal: realGoal, target, assets}));
       if (place.notEqual(goal))
         boardEvents.schedule(new MoveUnitEvent({actor, path, goal, target, assets}));
+
+      // if (ambushed)
+      //   boardEvents.schedule(new SpeechBubbleEvent({actor, camera, message: "ambush"}));
+
+      // this.interruptStatus = (ambushed) ? -1 : 0;
     },
   }
 
@@ -144,6 +183,15 @@ export module Command {
     },
     scheduleEvents() {
       Command.Move.scheduleEvents();
+
+      // ... This seems like a lot of micro management.
+      // TODO How do we handle Command.Move.interruptionStatus?
+      // Do I really want to update *every command* that invokes Move
+      // to short-out their logic in the same tedious way?
+      // 
+      // I need some kind of logic insert.
+      // But I want to retain the feature of sequence arrangement; Dive
+      // can still happen before movement.
 
       const { map, trackCar, boardEvents } = data.assets;
       const { seed, actor, goal, target, assets } = data;

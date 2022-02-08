@@ -8,25 +8,9 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
-Insignia
-Red: Hue   0 Sat 35 Lit   0
-Blu: Hue 200 Sat 40 Lit   0   Con 25 Bri -20 (Contrast)
-Yel: Hue  50 Sat 45 Lit  10   Con 15 Bri -10 (Contrast)   Whi Bal 20 Tint -20 (Warmth)
-Bla: Hue  90 Sat  0 Lit -20   Whi Bal 0 Tint 20 (Warmth)
-  For Bla: Tin20 gives it a purple edge, -20 is green (Green Earth?), but I like purple
-
-Text  (Haven't figured out yet. I'm assuming the same values (maybe add more sat tho))
-Red: Hue   0 Sat 35 Lit   0
-Blu: Hue 200 Sat 40 Lit   0   Con 25 Bri -20 (Contrast)
-Yel: Hue  50 Sat 45 Lit  10   Con 15 Bri -10 (Contrast)   Whi Bal 20 Tint -20 (Warmth)
-Bla: Hue  90 Sat  0 Lit -20   Whi Bal 0 Tint 20 (Warmth)
-
-I'm not happy with the insignia colors...
-Hm.
-I wrote that color-map-detection script, maybe I could do that on them.
 
 - [x] Range Reticle
-- [ ] Made an intergral feature of the MapCursor for easy access everywhere.
+- [x] Made an integral feature of MapCursor for easy access everywhere.
 - [ ] Applied to CoAffected tiles
 - [ ] Applied to Silos
 
