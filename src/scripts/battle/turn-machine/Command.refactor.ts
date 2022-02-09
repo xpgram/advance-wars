@@ -24,6 +24,90 @@
  * a third-party scheduler somewhere. I'll think about it.
  */
 
-export abstract class CommandType {
-  
+/**  */
+enum ExitCode {
+  Success = 0,
+  Interrupted,
+}
+
+/** Names for sorting weight categories. */
+enum Weight {
+  Primary,    // First order abilities: Attack
+  Secondary,  // Unit specific special actions.
+  Tertiary,   // Contextual, global actions.
+  Quaternary, // -
+  Unpreferred,// Last in list: Wait
+  None,       // Not sequentially, but indicates an item whose sort is irrelevant.
+}
+
+/** Auto generates a new serial so I don't have to hardcode them manually. */
+function generateSerial() {
+  serialCount++;
+  return serialCount;
+}
+let serialCount = -1;
+
+export class RatificationError extends Error {
+  name = 'RatificationError';
+}
+
+/** Returns a CommandObject<number> corrosponding to the given serial number. */
+export function getCommandObject(serial: number): CommandObject<number> {
+  const command = Object.values(Command).find( c => c.serial === serial );
+  if (!command)
+    throw new Error(`could not retrieve command object for serial ${serial}`);
+  return command;
+}
+
+/**  */
+export abstract class CommandObject {
+  static type: CommandObject;
+  // TODO How do we... refer to types if they aren't remembered?
+  // Like, `if (typeof cmd === Command.N)`, what is N ?
+  // `if (typeof cmd === typeof Command.N)`? That would probably work, actually.
+  // I don't know if I could get typescript to play nicely, though.
+  // ...
+  // No, I could.
+  // `cmd as typeof Command.Move` would inherit all properties unique to Move.
+  // `cmd as Command.Move.type` would also work. Hm. Okay.
+  //
+  // Can I write a static class then?
+  // I want default, overridable behaviors.
+  // I want unique properties (inputs) to certain Commands, though I forget why.
+  // I want [move, this] or [move, attack] when attack is this to mean something.
+  // Maybe an abstract behavior that executes chain[i].schedule() until return != 0
+  // so that I don't have to write a manager thing somewhere.
+
+  abstract readonly name: string;
+  readonly serial = generateSerial();
+  abstract readonly weight: Weight;
+  abstract readonly spendsUnit: boolean;
+  abstract readonly chain: CommandObject[];
+
+
+  constructor(options:) {
+    this.name = options.name;
+    this.weight = options.weight;
+    this.spendsUnit = options.spendsUnit;
+    this.chain = options.chain;
+    this.triggerInclude = options.triggerInclude || (() => false);
+    this.scheduleEvents = options.scheduleEvents;
+  }
+
+  /**  */
+  triggerInclude() {
+    return false;
+  }
+
+  /**  */
+  scheduleEvents(): CommandExitCode {
+    return 0;
+  }
+
+}
+
+export module Command {
+
+  export const Move = new CommandType();
+
 }
