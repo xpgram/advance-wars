@@ -51,19 +51,26 @@ enum Weight {
 
 /** Interface all Commands must adhere to. */
 export type CommandObject<T> = {
+  /**  */
+  // TODO The effort here is to get rid of <T>, but I'm not sure what I'm doing yet.
+  readonly type: CommandObject<T>,
   /** Name string; use as menu option title. */
-  name: string,
+  readonly name: string,
   /** Command identification serial. */
-  serial: number,
+  readonly serial: number,
   /** Values for variant behavior. */
   input: T,
   /** Sort order value. */
-  weight: number,
+  readonly weight: number,
   /** True if this command's execution leaves the actor unable to take further action. */
-  spendsUnit: boolean,
+  readonly spendsUnit: boolean,
+  /**  */
+  // TODO Has to be get chain() because of declaration rules
+  readonly chain: CommandObject<any>[],
   /** Returns true if this command should be included in a ListMenu. */
   triggerInclude: () => boolean,
   /** Effects changes on the board. */
+  // TODO scheduleEvent, lose the 's'; the chain is the event-s now.
   scheduleEvents: () => void,
 }
 
@@ -155,11 +162,13 @@ export module Command {
 
   /** Unit attack target from location command. */
   export const Attack: CommandObject<number> = {
+    get type() { return Attack; },
     name: "Fire",
     serial: generateSerial(),
     input: 0,
     weight: Weight.Primary,
     spendsUnit: true,
+    get chain() { return [Move, Attack]; },   // TODO Do this. Makes the most sense.
     triggerInclude() {
       const { map } = data.assets;
       const { actor, place, goal } = data;

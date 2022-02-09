@@ -59,40 +59,18 @@ export function getCommandObject(serial: number): CommandObject<number> {
   return command;
 }
 
+export type CommandObjectClass = {
+  new (): CommandObject;
+}
+
 /**  */
 export abstract class CommandObject {
-  static type: CommandObject;
-  // TODO How do we... refer to types if they aren't remembered?
-  // Like, `if (typeof cmd === Command.N)`, what is N ?
-  // `if (typeof cmd === typeof Command.N)`? That would probably work, actually.
-  // I don't know if I could get typescript to play nicely, though.
-  // ...
-  // No, I could.
-  // `cmd as typeof Command.Move` would inherit all properties unique to Move.
-  // `cmd as Command.Move.type` would also work. Hm. Okay.
-  //
-  // Can I write a static class then?
-  // I want default, overridable behaviors.
-  // I want unique properties (inputs) to certain Commands, though I forget why.
-  // I want [move, this] or [move, attack] when attack is this to mean something.
-  // Maybe an abstract behavior that executes chain[i].schedule() until return != 0
-  // so that I don't have to write a manager thing somewhere.
-
+  abstract readonly type: CommandObjectClass;
   abstract readonly name: string;
   readonly serial = generateSerial();
   abstract readonly weight: Weight;
   abstract readonly spendsUnit: boolean;
-  abstract readonly chain: CommandObject[];
-
-
-  constructor(options:) {
-    this.name = options.name;
-    this.weight = options.weight;
-    this.spendsUnit = options.spendsUnit;
-    this.chain = options.chain;
-    this.triggerInclude = options.triggerInclude || (() => false);
-    this.scheduleEvents = options.scheduleEvents;
-  }
+  abstract get chain(): CommandObject[];
 
   /**  */
   triggerInclude() {
@@ -100,14 +78,40 @@ export abstract class CommandObject {
   }
 
   /**  */
-  scheduleEvents(): CommandExitCode {
-    return 0;
+  scheduleEvents(): ExitCode {
+    return ExitCode.Success;
   }
 
 }
 
 export module Command {
 
-  export const Move = new CommandType();
+  export const Move = new class Move extends CommandObject {
+    readonly type = Move;
+    readonly name = "Move";
+    readonly weight = Weight.None;
+    readonly spendsUnit = true;
+    get chain(): CommandObject[] { return [Command.Move]; }
+    
+    scheduleEvents(): ExitCode {
+      return ExitCode.Success;
+    }
+  }
+
+  export const Attack = new class Attack extends CommandObject {
+    readonly type = Attack;
+    readonly name = "Fire";
+    readonly weight = Weight.Primary;
+    readonly spendsUnit = true;
+    get chain(): CommandObject[] { return [Command.Move, Command.Attack]; }
+
+    static triggerInclude(): boolean {
+      return true;
+    }
+
+    static scheduleEvents(): ExitCode {
+      return ExitCode.Success;
+    }
+  }
 
 }
