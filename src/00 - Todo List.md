@@ -8,6 +8,8 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
+- [ ] Ambushes work, but I haven't forced ambushing units to be visible yet; I haven't decided how I want to do that.
+  - When moving a unit, all tiles it passes near are revealed on the sight map during FoW. Does this also apply to stealth units? i.e., should I roll this functionality into one big FoW update?
 
 - [x] Range Reticle
 - [x] Made an integral feature of MapCursor for easy access everywhere.
@@ -49,8 +51,6 @@ Todo List cleanup: (some easy ones)
   - I also learned a trick. Records don't feature auto-complete for direct property . access, but Record & {a:,b:} does, actually.
 - [ ] On-screen icon indicates when there are un-instructed units
 - [ ] On-screen icon indicates when there are un-utilized bases
-- [ ] Command.Move calculates ambushes
-- [ ] Command.Move has a way of reporting to callers when it has been interrupted (ambush).
 - [ ] CO animation zoom-shrinks to proper status icon size.
   - [ ] CO Scheduled Event — Does the zoom
   - [ ] Afterward, sets the status
