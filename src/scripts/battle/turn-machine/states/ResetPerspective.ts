@@ -1,4 +1,6 @@
+import { Point } from "../../../Common/Point";
 import { Square } from "../../map/Square";
+import { CommonRangesRetriever, RegionMap } from "../../unit-actions/RegionMap";
 import { TurnState } from "../TurnState";
 
 
@@ -13,11 +15,43 @@ export class ResetPerspective extends TurnState {
   configureScene() {
     const { map, players, scenario } = this.assets;
 
+    function revealRegion(loc: Point, region: RegionMap) {
+      region.points.forEach( p => {
+        const tilePoint = loc.add(p);
+        if (!map.validPoint(tilePoint))
+          return;
+
+        const tile = map.squareAt(tilePoint);
+        const deepSight = (loc.manhattanDistance(tilePoint) <= 1)
+          || players.perspective.officer.CoPowerInEffect; // TODO Which, specifically
+        const revealable = !tile.terrain.conceals || deepSight;
+        if (revealable)
+          tile.hiddenFlag = false;
+      });
+    }
+
     // update FoW
     if (scenario.fogOfWar) {
-      // map.every( tile => tile.hiddenFlag = true );
-      // players.perspective.units.forEach( unit => {reveal vis} );
-      // players.perspective.bases.forEach( base => {reveal vis} );
+      for (let x = 0; x < map.width; x++)
+      for (let y = 0; y < map.height; y++)
+        map.squareAt({x,y}).hiddenFlag = true;
+
+      // TODO Include shared sight maps
+
+      // Reveal vis from allied units
+      // if scenario.sharedSightMap include players.sameTeam(players.perspective)?
+      players.perspective.units.forEach( unit => {
+        const visRegion = CommonRangesRetriever({min: 0, max: unit.vision});
+        revealRegion(unit.boardLocation, visRegion);
+      });
+
+      // Reveal vis from allied bases
+      // if scenario.sharedSightMap include players.sameTeam(players.perspective)?
+      players.perspective.capturePoints.forEach( loc => {
+        const tile = map.squareAt(loc);
+        const visRegion = CommonRangesRetriever({min: 0, max: tile.terrain.vision});
+        revealRegion(loc, visRegion);
+      });
     }
 
     // Update unit hidden status

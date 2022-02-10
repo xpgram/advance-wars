@@ -9,6 +9,7 @@ import { GenericRatifyEvent } from "../map/tile-effects/GenericRatifyEvent";
 import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
 import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
 import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
+import { RevealNeighborsEvent } from "../map/tile-effects/RevealNeighborsEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
 import { Unit } from "../Unit";
@@ -88,17 +89,18 @@ export module Command {
         cursor = next;
       }
 
-      console.log(realPath, 'from', path);
-
       const ambushed = (realPath.length !== path.length);
       const target = instruction.focal;
       const realGoal = SumCardinalsToVector(realPath).add(place);
 
       // Schedule events
-      if (place.notEqual(realGoal))
-        boardEvents.schedule(new MoveUnitEvent({actor, path: realPath, goal: realGoal, target, assets}));
-      if (ambushed)
-        boardEvents.schedule(new SpeechBubbleEvent({actor, camera, message: "ambush"}));
+      if (place.notEqual(realGoal)) {
+        boardEvents.schedule(
+          new MoveUnitEvent({actor, path: realPath, goal: realGoal, target, assets}),
+          (ambushed) && new SpeechBubbleEvent({actor, camera, message: "ambush"}),
+          new RevealNeighborsEvent({location: realGoal, assets}),
+        );
+      }
 
       return (ambushed) ? ExitCode.Interrupted : ExitCode.Success;
     },

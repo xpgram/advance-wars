@@ -6,6 +6,7 @@ import { PositionContainer } from "../../../CommonTypes";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { CommandHelpers } from "../../turn-machine/Command.helpers";
 import { Unit } from "../../Unit";
+import { CommonRangesRetriever } from "../../unit-actions/RegionMap";
 import { UnitObject } from "../../UnitObject";
 import { TileEvent } from "./TileEvent";
 
@@ -48,8 +49,29 @@ export class MoveUnitEvent extends TileEvent {
     if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
       actor.gas -= map.travelCostForPath(place, path, actor.moveType);
 
-    // Make neighbors visible — (part of ambush animation)
-    map.neighborsAt(goal).orthogonals.forEach( square => square.hideUnit = false );
+    // TODO When skipping animations, this still needs to reveal all relevant places.
+    // I guess a second pass wouldn't really hurt anything.
+    // I'ma do this step first.
+
+    // TODO I jus realize this be identical to ResetPerspective.
+    // So. A feature of Map, then? I guess.
+
+    const visRegion = CommonRangesRetriever({min: 0, max: actor.vision});
+    for (let i = 0; i < path.length; i++) {
+      const loc = place.add(SumCardinalsToVector(path.slice(0,i+1)));
+      visRegion.points.forEach( p => {
+        const tilePoint = loc.add(p);
+        if (!map.validPoint(tilePoint))
+          return;
+        
+        const tile = map.squareAt(tilePoint);
+        const deepSight = (loc.manhattanDistance(tilePoint) <= 1)
+          || players.perspective.officer.CoPowerInEffect;
+        const revealable = !tile.terrain.conceals || deepSight;
+        if (revealable)
+          tile.hiddenFlag = false;
+      })
+    }
   }
 
   protected create(): void {
@@ -84,6 +106,8 @@ export class MoveUnitEvent extends TileEvent {
 
   protected update(): void {
     const { trackCar } = this.options.assets;
+
+    // TODO When trackCar moves from one tile to another, reveal that vis region.
 
     if (trackCar.finished) {
       this.ratifyMovement();

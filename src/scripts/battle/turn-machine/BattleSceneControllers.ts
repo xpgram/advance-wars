@@ -59,6 +59,8 @@ export type ScenarioOptions = {
 
   /** Whether an HQ tile remains an HQ on capture or becomes a City tile. @default False */
   acquireHqOnCapture?: boolean,
+  /** Whether allied players share FoW vision ranges. */
+  sharedSightMap?: boolean,
   /** The maximum number of deployed units a player may have on the board. @default 50 */
   unitLimit?: number,
   /** How much HP a unit will restore when starting a turn on a repairing tile. @default 20 */
@@ -80,6 +82,7 @@ export type Scenario = {
   unitLimit: number,      // TODO Why are there defaults if these aren't optional?
   repairHp: number,
   acquireHqOnCapture: boolean,
+  sharedSightMap: boolean,
   CoUnits: boolean,
   CoPowers: boolean,
   CoLoadableFromHQ: boolean,
@@ -89,7 +92,7 @@ export type Scenario = {
 }
 
 const Default_Scenario: Scenario = {
-  fogOfWar: false,
+  fogOfWar: true,
   weather: Weather.Clear,
   terrainGraphics: TerrainTileSet.Normal,
   dayLimit: -1,
@@ -102,6 +105,7 @@ const Default_Scenario: Scenario = {
   unitLimit: 50,
   repairHp: 20,
   acquireHqOnCapture: false,
+  sharedSightMap: false,
   CoUnits: true,
   CoPowers: true,
   CoLoadableFromHQ: true,

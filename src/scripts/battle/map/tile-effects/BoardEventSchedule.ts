@@ -40,11 +40,14 @@ export class BoardEventSchedule {
     return this.current?.every( e => e.finished ) || false;
   }
 
-  /** Add a new event(s) to the queue for playing. Submit events as a list object to indicate concurrency. */
-  schedule(...event: (TileEvent | TileEvent[])[]) {
+  /** Add a new event(s) to the queue for playing. Submit events as a list object to indicate concurrency.
+   * Optional events may be included via `(condition) && new Event({location})` which may yield false;
+   * 'false' values will be filtered out and ignored. */
+  schedule(...event: (TileEvent | TileEvent[] | false)[]) {
     const listEvents = event
+      .filter( e => e !== false )
       .map( e => Array.isArray(e) ? e : [e] )
-      .filter( e => e.length > 0 );
+      .filter( e => e.length > 0 ) as TileEvent[][];
     if (listEvents.length > 0)
       this.list.push(...listEvents);
   }

@@ -8,8 +8,9 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
-- [ ] Ambushes work, but I haven't forced ambushing units to be visible yet; I haven't decided how I want to do that.
-  - When moving a unit, all tiles it passes near are revealed on the sight map during FoW. Does this also apply to stealth units? i.e., should I roll this functionality into one big FoW update?
+- [ ] map.generateColorMap crawls from land to sea when sea tiles have hiddenFlag set. I think it's a combination of hiddenFlag + moveCostMatrix->0
+- [ ] HiddenFlag units are marked with AttackFlag, which is probably fine, but the culling process wherever it is doesn't clean this up.
+  - Located somewhere is a statement that removes attackFlag when hideUnit is true. Just gotta do the same for hiddenFlag.
 
 - [x] Range Reticle
 - [x] Made an integral feature of MapCursor for easy access everywhere.
