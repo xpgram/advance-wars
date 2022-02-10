@@ -37,7 +37,7 @@ export class MoveUnitEvent extends TileEvent {
   // A ratify() method makes all changes instantly, but if I wanted to subtract funds sequentially I'd need
   // to spread that instant change over time.
   protected ratifyMovement() {
-    const { map, scenario } = this.options.assets;
+    const { map, scenario, players } = this.options.assets;
     const { actor, path, goal } = this.options;
 
     const place = actor.boardLocation;
@@ -47,6 +47,9 @@ export class MoveUnitEvent extends TileEvent {
 
     if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
       actor.gas -= map.travelCostForPath(place, path, actor.moveType);
+
+    // Make neighbors visible — (part of ambush animation)
+    map.neighborsAt(goal).orthogonals.forEach( square => square.hideUnit = false );
   }
 
   protected create(): void {
