@@ -48,7 +48,7 @@ Todo List cleanup: (some easy ones)
 - [ ] Replace StringDictionary and NumericDictionary with Record and Iterable.
   - I didn't know I could do it, boss.
   - More importantly, I know which objects are Records ahead of time, but what I've been doing is casting them later. This is unsafe as there is nothing ensuring unity of types besides my own big brain. I think all the work might be too much for a complete migration, but declaring my Records as Records & Iterables (as relevant) at declaration is more rigorous and informative.
-  - I also learned a trick. Records don't feature auto-complete for direct property . access, but Record & {a:,b:} does, actually.
+  - I also learned a trick. Records don't feature auto-complete for direct property dot-access, but `Record & {a:,b:}` does, actually.
 - [ ] On-screen icon indicates when there are un-instructed units
 - [ ] On-screen icon indicates when there are un-utilized bases
 - [ ] CO animation zoom-shrinks to proper status icon size.
