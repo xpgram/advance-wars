@@ -357,17 +357,19 @@ export class Square {
 
     /** Returns true if the given unit may legally inhabit this square. */
     occupiable(unit: UnitObject): boolean {
-        let traversable = this.traversable(unit);
-        let empty = (!this.unit || this.unit === unit);  // Do not return 'inoccupiable' if the unit is already located there.
-        return traversable && empty;
+        const traversable = this.traversable(unit);
+        const empty = (!this.unit || this.unit === unit);  // Do not return 'inoccupiable' if the unit is already located there.
+        const obscured = this.hideUnit;
+        return traversable && (empty || obscured);
     }
 
     /** Returns true if the given unit object may legally pass through this square, false
      * only if this square presents an obstruction to the travelling unit. */
     traversable(unit: UnitObject): boolean {
-        let legalMovement = (this.terrain.getMovementCost(unit.moveType) > 0);              // Ships ≠ Land, Any ≠ Void Tiles
-        let unitAlliedOrEmpty = (!this.unit || this.unit.faction == unit.faction);   // Team ≠ not-Team
-        return legalMovement && unitAlliedOrEmpty;
+        const legalMovement = (this.terrain.getMovementCost(unit.moveType) > 0);              // Ships ≠ Land, Any ≠ Void Tiles
+        const unitAlliedOrEmpty = (!this.unit || this.unit.faction == unit.faction);   // Team ≠ not-Team
+        const obscured = this.hideUnit;
+        return legalMovement && (unitAlliedOrEmpty || obscured);
     }
 
     /** Returns true if the given unit can successfully target this square for attack. */
@@ -410,7 +412,7 @@ export class Square {
      * targetable by the given.
      */
     attackable(unit: UnitObject): boolean {
-        if (this.unit)
+        if (this.unit && !this.hideUnit)
             return unit.canTarget(this.unit);
         else
             return false;
