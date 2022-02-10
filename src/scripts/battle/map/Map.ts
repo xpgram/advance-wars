@@ -570,10 +570,11 @@ export class Map {
     /** Returns true if, via the given unit, the point observed by inspector is an efficient
      * and valid node from which to expand algorithmic search. */
     private travelEvaluationFunction(unit: UnitObject, inspector: TileInspector) {
-        let notVoidTerrain = inspector.square.terrain.type != Terrain.Void;
-        let enoughMP = inspector.movePoints >= 0;
-        let traversable = inspector.square.traversable(unit);
-        let betterEfficiency = inspector.square.value < inspector.movePoints;
+        const notVoidTerrain = inspector.square.terrain.type != Terrain.Void;
+        const enoughMP = inspector.movePoints >= 0;
+        const obscured = inspector.square.hiddenFlag || inspector.square.hideUnit;
+        const traversable = obscured || inspector.square.traversable(unit);
+        const betterEfficiency = inspector.square.value < inspector.movePoints;
 
         return (notVoidTerrain && enoughMP && traversable && betterEfficiency);
     }
