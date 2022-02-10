@@ -1,8 +1,9 @@
 import { TurnState } from "../TurnState";
 import { CheckBoardState } from "./CheckBoardState";
-import { Command, getCommandObject } from "../Command";
+import { Command } from "../Command";
 import { AnimateEvents } from "./AnimateEvents";
 import { SpendActorEvent } from "../../map/tile-effects/SpendActorEvent";
+import { CommandHelpers } from "../Command.helpers";
 
 export class RatifyIssuedOrder extends TurnState {
   get type() { return RatifyIssuedOrder; }
@@ -23,10 +24,10 @@ export class RatifyIssuedOrder extends TurnState {
     // trackCar.reset();                 // TODO Doesn't this get built again right after? By the Command.Move event.
 
     // Retrieve and execute command
-    const command = getCommandObject(action);
-    command.scheduleEvents();
+    const command = CommandHelpers.getCommandObject(action);
+    CommandHelpers.scheduleEvents(command);
 
-    Command.Drop.scheduleEvents();
+    Command.Drop.scheduleEvent();
 
     if (placeTile.unit && command.spendsUnit) {
       const actor = placeTile.unit;

@@ -19,7 +19,7 @@ import { TurnModerator } from "../TurnModerator";
 import { ListMenu } from "../../system/gui-menu-components/ListMenu";
 import { CommandMenuGUI } from "../../system/gui-menu-components/CommandMenuGUI";
 import { defaultUnitSpawnMap, UnitSpawnMap } from "../UnitSpawnMap";
-import { CommandObject } from "./Command";
+import { CommandHelpers } from "./Command.helpers";
 import { IconTitle, ShopItemTitle } from "../../system/gui-menu-components/ListMenuTitleTypes";
 import { UnitShopMenuGUI } from "../../system/gui-menu-components/UnitShopMenuGUI";
 import { BoardEventSchedule } from "../map/tile-effects/BoardEventSchedule";
@@ -32,6 +32,8 @@ import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { LinearApproach } from "../../camera/TravelAlgorithms";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
+
+type CommandObject = CommandHelpers.CommandObject;
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -117,7 +119,7 @@ export class BattleSceneControllers {
   map: Map;
   mapCursor: MapCursor;
   uiSystem: InfoWindowSystem;
-  cmdMenu: CommandMenuGUI<CommandObject<number>>;
+  cmdMenu: CommandMenuGUI<CommandObject>;
   shopMenu: UnitShopMenuGUI<number>;
   fieldMenu: CommandMenuGUI<number>;
   boardEvents = new BoardEventSchedule();
@@ -128,7 +130,7 @@ export class BattleSceneControllers {
   instruction!: CommandInstruction;
 
   /** A collection of scripts which, when enabled, control various systems of the battlefield. */
-  scripts: {
+  scripts: Record<string, ControlScript> & {
     cameraZoom: CameraZoom,
     nextOrderableUnit: NextOrderableUnit,
     nextTargetableUnit: NextTargetableUnit,
@@ -214,7 +216,7 @@ export class BattleSceneControllers {
     });
 
     // Setup menu window systems
-    const menuCmd = new ListMenu<IconTitle, CommandObject<number>>(this.gamepad);
+    const menuCmd = new ListMenu<IconTitle, CommandObject>(this.gamepad);
     this.cmdMenu = new CommandMenuGUI(menuCmd, MapLayer('ui'));
     const menuShop = new ListMenu<ShopItemTitle, number>(this.gamepad, {pageLength: 7});
     this.shopMenu = new UnitShopMenuGUI(menuShop, Game.hud);
@@ -298,9 +300,8 @@ export class BattleSceneControllers {
 
   /** Iterates through all control scripts and runs their update methods. */
   private updateControlScripts() {
-    let scripts = this.scripts as StringDictionary<ControlScript>;
-    for (let name in scripts) {
-      scripts[name].update();
+    for (const name in this.scripts) {
+      this.scripts[name].update();
     }
   }
 

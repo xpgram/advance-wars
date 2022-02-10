@@ -45,9 +45,9 @@ export class CommandMenu extends TurnState {
 
     // Get drop command instances and auto-end if all previously selected.
     const dropCommands = actor.loadedUnits
-      .map( (u, idx) => ({
+      .map( (u, index) => ({
         ...Command.Drop,
-        input: idx,
+        index,
       }))
       .filter( c => c.triggerInclude() );
     if (dropCommands.length === 0 && drop.length > 0) {
@@ -61,20 +61,21 @@ export class CommandMenu extends TurnState {
         .concat( (actor.unloadPosition(goalTerrain)) ? dropCommands : [] )
         .sort( (a,b) => a.weight - b.weight )
       : [Command.Join, Command.Load];
-    const options = commands.map( command =>
-      new ListMenuOption(
-        {
-          // This is bad, but it's fine-bad.
-          icon: (command.name === 'Drop' && command.input >= 0)
-            ? actor.loadedUnits[command.input].cargoPreview
-            : undefined,
-          title: command.name
-        },
-        command, {
-          triggerInclude: () => command.triggerInclude(),
-        }
-      )
-    );
+    
+    const options = commands.map( command => {
+      type Drop = typeof Command.Drop;
+
+      const title = command.name;
+      const icon = (command.type === Command.Drop && (command as Drop).index >= 0)
+        ? actor.loadedUnits[(command as Drop).index].cargoPreview
+        : undefined;
+
+      return new ListMenuOption(
+        {icon, title},
+        command,
+        {triggerInclude: () => command.triggerInclude()}
+      );
+    });
 
     // Set and build cmdMenu options
     cmdMenu.setListItems(options);
@@ -107,7 +108,8 @@ export class CommandMenu extends TurnState {
       if (commandValue == Command.Attack.serial)
         this.advance(ChooseAttackTarget);
       else if (commandValue === Command.Drop.serial) {
-        instruction.which = menu.selectedValue.input;
+        const drop = menu.selectedValue as typeof Command.Drop;
+        instruction.which = drop.index;
         this.advance(DropLocation, CommandMenu);
       } else {
         this.advance();

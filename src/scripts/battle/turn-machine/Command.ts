@@ -2,8 +2,6 @@ import { CardinalVector, SumCardinalsToVector } from "../../Common/CardinalDirec
 import { Point } from "../../Common/Point";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
-import { Square } from "../map/Square";
-import { Terrain } from "../map/Terrain";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
@@ -15,112 +13,64 @@ import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
 import { Unit } from "../Unit";
 import { UnitObject } from "../UnitObject";
+import { CommandHelpers } from "./Command.helpers";
 import { instructionData } from "./InstructionData";
 
 
 const { data } = instructionData;
 
-/** Auto generates a new serial so I don't have to hardcode them manually. */
-function generateSerial() {
-  serialCount++;
-  return serialCount;
-}
-let serialCount = -1;
+const { ExitCode, Weight, Serial, RatificationError } = CommandHelpers;
+type ExitCode = CommandHelpers.ExitCode;
+type Weight = CommandHelpers.Weight;
+type CommandObject = CommandHelpers.CommandObject;
 
-export class RatificationError extends Error {
-  name = 'RatificationError';
-}
-
-/** Returns a CommandObject<number> corrosponding to the given serial number. */
-export function getCommandObject(serial: number): CommandObject<number> {
-  const command = Object.values(Command).find( c => c.serial === serial );
-  if (!command)
-    throw new Error(`could not retrieve command object for serial ${serial}`);
-  return command;
-}
-
-/** Names for sorting weight categories. */
-enum Weight {
-  Primary,    // First order abilities: Attack
-  Secondary,  // Unit specific special actions.
-  Tertiary,   // Contextual, global actions.
-  Quaternary, // -
-  Unpreferred,// Last in list: Wait
-  None,       // Not sequentially, but indicates an item whose sort is irrelevant.
-}
-
-/** Interface all Commands must adhere to. */
-export type CommandObject<T> = {
-  /**  */
-  // TODO The effort here is to get rid of <T>, but I'm not sure what I'm doing yet.
-  readonly type: CommandObject<T>,
-  /** Name string; use as menu option title. */
-  readonly name: string,
-  /** Command identification serial. */
-  readonly serial: number,
-  /** Values for variant behavior. */
-  input: T,
-  /** Sort order value. */
-  readonly weight: number,
-  /** True if this command's execution leaves the actor unable to take further action. */
-  readonly spendsUnit: boolean,
-  /**  */
-  // TODO Has to be get chain() because of declaration rules
-  readonly chain: CommandObject<any>[],
-  /** Returns true if this command should be included in a ListMenu. */
-  triggerInclude: () => boolean,
-  /** Effects changes on the board. */
-  // TODO scheduleEvent, lose the 's'; the chain is the event-s now.
-  scheduleEvents: () => void,
-}
-
-/**  */
-// TODO Consider some kind of system for overwritable defaults?
-export type Interruptable = {
-  /** Filled in via some computable event. Probably schedule(). Default is 0 for success. */
-  interruptStatus: number,
+/** Default command object properties. */
+const cmdDefaults = {
+  spendsUnit: true,
+  triggerInclude() { return false; },
+  scheduleEvent() { return ExitCode.Success; },
 }
 
 /** Global container for Command objects and logic. */
 export module Command {
 
   /** Unit idle at location command. */
-  export const Wait: CommandObject<number> = {
+  export const Wait: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return Wait; },
+    get chain() { return [Move, Wait]; },
     name: "Wait",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Quaternary,
-    spendsUnit: true,
+
     triggerInclude() {
       const { actor, goalTile } = data;
       return goalTile.occupiable(actor);
     },
-    scheduleEvents() {
-      Command.Move.scheduleEvents();
-    },
   }
 
   /** Moves a unit from one board location to another. */
-  export const Move: CommandObject<number> & Interruptable = {
+  export const Move: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return Move; },
+    get chain() { return [Move]; },
     name: "Move",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.None,
-    spendsUnit: true,
-    triggerInclude: function () {
+
+    triggerInclude() {
       return false;
     },
-    interruptStatus: 0,
-    scheduleEvents: function () {
+    
+    scheduleEvent() {
       const { map, boardEvents, camera, instruction } = data.assets;
-      const { place, path, goal, actor, assets } = data;
+      const { place, path, actor, assets } = data;
 
-      // This has to be here because any formal turn will unset this property,
+      // This has to be here because any formal turn will unset this property anyway,
       // and the status icon should be unset immediately to prevent flickering.
       actor.CoCouldBoard = false;
-
-      // TODO The ambush code is dummied out because
-      // Command.interruptionStatus is fundamentally broken.
 
       // Scan path tiles for ambush interruptions and shorten the path
       // to accomodate. + Schedule an ambush bubble.
@@ -130,45 +80,40 @@ export module Command {
         const next = cursor.add(CardinalVector(p));
         const tile = map.squareAt(next);
 
-        if (tile.unit?.faction !== actor.faction)
+        // TODO tile.traversable or something, but it has to be irrespective of tile.hidden
+        if (tile.unit && tile.unit.faction !== actor.faction)
           break;
 
         realPath.push(p);
         cursor = next;
       }
-      // data.path = realPath; // TODO I need to make sure there is a fill() somewhere after this
-      const realGoal = SumCardinalsToVector(realPath).add(place);
+
+      console.log(realPath, 'from', path);
 
       const ambushed = (realPath.length !== path.length);
+      const target = instruction.focal;
+      const realGoal = SumCardinalsToVector(realPath).add(place);
 
-      // TODO It would be nice if Command.Attack could specify this itself.
-      // I'm suffering a bit from the like of overriding
-      // But also, I think I did this so that Command.???.schedule() could be done without incident.
-      const target = (instruction.action === Command.Attack.serial)
-        ? instruction.focal
-        : undefined;
+      // Schedule events
+      if (place.notEqual(realGoal))
+        boardEvents.schedule(new MoveUnitEvent({actor, path: realPath, goal: realGoal, target, assets}));
+      if (ambushed)
+        boardEvents.schedule(new SpeechBubbleEvent({actor, camera, message: "ambush"}));
 
-      // if (place.notEqual(realGoal))
-        // boardEvents.schedule(new MoveUnitEvent({actor, path: realPath, goal: realGoal, target, assets}));
-      if (place.notEqual(goal))
-        boardEvents.schedule(new MoveUnitEvent({actor, path, goal, target, assets}));
-
-      // if (ambushed)
-      //   boardEvents.schedule(new SpeechBubbleEvent({actor, camera, message: "ambush"}));
-
-      // this.interruptStatus = (ambushed) ? -1 : 0;
+      return (ambushed) ? ExitCode.Interrupted : ExitCode.Success;
     },
   }
 
   /** Unit attack target from location command. */
-  export const Attack: CommandObject<number> = {
+  export const Attack: CommandObject = {
+    ...cmdDefaults,
+
     get type() { return Attack; },
+    get chain() { return [Move, Attack]; },
     name: "Fire",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Primary,
-    spendsUnit: true,
-    get chain() { return [Move, Attack]; },   // TODO Do this. Makes the most sense.
+    
     triggerInclude() {
       const { map } = data.assets;
       const { actor, place, goal } = data;
@@ -190,18 +135,8 @@ export module Command {
       const hasNotMoved = (goal.equal(place));
       return targetableInRange && (canMove || hasNotMoved);
     },
-    scheduleEvents() {
-      Command.Move.scheduleEvents();
 
-      // ... This seems like a lot of micro management.
-      // TODO How do we handle Command.Move.interruptionStatus?
-      // Do I really want to update *every command* that invokes Move
-      // to short-out their logic in the same tedious way?
-      // 
-      // I need some kind of logic insert.
-      // But I want to retain the feature of sequence arrangement; Dive
-      // can still happen before movement.
-
+    scheduleEvent() {
       const { map, trackCar, boardEvents } = data.assets;
       const { seed, actor, goal, target, assets } = data;
       const events = [];
@@ -215,16 +150,21 @@ export module Command {
       if (target.canCounterAttack(actor, goal))
         events.push(getDamageEvent(target, actor, battleResults.counter, trackCar));
       boardEvents.schedule(events);
+
+      return ExitCode.Success;
     }
   }
 
   /** Unit capture property on board command. */
-  export const Capture: CommandObject<number> = {
+  export const Capture: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return Capture; },
+    get chain() { return [Move, Capture]; },
     name: "Capture",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Secondary,
-    spendsUnit: true,
+    
     triggerInclude() {
       const { actor, goalTerrain } = data;
 
@@ -232,23 +172,25 @@ export module Command {
       const notAllied = (actor.faction !== goalTerrain.faction);
       return readyToCapture && notAllied;
     },
-    scheduleEvents() {
-      Command.Move.scheduleEvents();
 
+    scheduleEvent() {
       const { boardEvents } = data.assets;
       const { actor, goalTerrain: terrain } = data;
-
       boardEvents.schedule(new CapturePropertyEvent({actor, terrain}));
+      return ExitCode.Success;
     },
   }
 
   /** Unit supplies resources to adjacent allies command. */
-  export const Supply: CommandObject<number> = {
+  export const Supply: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return Supply; },
+    get chain() { return [Move, Supply]; },
     name: "Supply",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Secondary,
-    spendsUnit: true,
+    
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal } = data;
@@ -258,9 +200,8 @@ export module Command {
         .orthogonals
         .some( square => square.unit && square.unit.resuppliable(actor) );
     },
-    scheduleEvents() {
-      Command.Move.scheduleEvents();
 
+    scheduleEvent() {
       const { map, camera, boardEvents } = data.assets;
       const { actor, goal } = data;
       const events: SpeechBubbleEvent[] = [];
@@ -278,21 +219,27 @@ export module Command {
           }
         });
       boardEvents.schedule(events);
+
+      return ExitCode.Success;
     }
   }
 
   /** Unit sinks into water, hiding itself from other players. */
-  export const Dive: CommandObject<number> = {
+  export const Dive: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return Dive; },
+    get chain() { return [Dive, Move]; },
     name: "Dive",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Unpreferred,
-    spendsUnit: true,
+
     triggerInclude() {
       const { actor } = data;
       return !actor.hiding && actor.type === Unit.Submarine;
     },
-    scheduleEvents() {
+
+    scheduleEvent() {
       const { boardEvents } = data.assets;
       const { actor, place } = data;
 
@@ -307,27 +254,28 @@ export module Command {
         }
       }));
 
-      Command.Move.scheduleEvents();
+      return ExitCode.Success;
     }
   }
 
   /** Unit sinks into water, hiding itself from other players. */
-  export const Surface: CommandObject<number> = {
+  export const Surface: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return Surface; },
+    get chain() { return [Move, Surface]; },
     name: "Surface",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Unpreferred,
-    spendsUnit: true,
+    
     triggerInclude() {
       const { actor } = data;
       return actor.hiding && actor.type === Unit.Submarine;
     },
-    scheduleEvents() {
+    
+    scheduleEvent() {
       const { boardEvents } = data.assets;
       const { actor, goal } = data;
-
-      Command.Move.scheduleEvents();
-
       boardEvents.schedule(new GenericRatifyEvent({
         location: goal,
         ratify: () => {
@@ -337,16 +285,20 @@ export module Command {
           // unit or not. I mean, it does that anyway.
         }
       }));
+      return ExitCode.Success;
     }
   }
 
   /** Unit combines with allied unit at goal command. */
-  export const Join: CommandObject<number> = {
+  export const Join: CommandObject = {
+    ...cmdDefaults,
+    
+    get type() { return Join; },
+    get chain() { return [Join]; },
     name: "Join",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Tertiary,
-    spendsUnit: true,
+    
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal } = data;
@@ -357,7 +309,8 @@ export module Command {
 
       return actor.mergeable(other);
     },
-    scheduleEvents() {
+    
+    scheduleEvent() {
       const { map, boardEvents } = data.assets;
       const { actor, path, goal, assets } = data;
 
@@ -370,84 +323,102 @@ export module Command {
         throw new RatificationError(`units to join are not of same type`);
 
       boardEvents.schedule(new JoinUnitEvent({actor, path, goal, other, assets}));
+      return ExitCode.Success;
     },
   }
 
   /** Unit load into boardable unit action. */
-  export const Load: CommandObject<number> = {
+  export const Load: CommandObject = {
+    ...cmdDefaults,
+    
+    get type() { return Load; },
+    get chain() { return [Load]; },
     name: "Load",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Tertiary,
-    spendsUnit: true,
+    
     triggerInclude() {
       const { actor, goalTile } = data;
       return goalTile.unit?.boardable(actor) || false;
     },
-    scheduleEvents() {
+    
+    scheduleEvent() {
       const { boardEvents } = data.assets;
       const { actor, path, goal, underneath, assets } = data;
 
       boardEvents.schedule(new LoadUnitEvent({actor, path, goal, underneath, assets}));
+      return ExitCode.Success;
     },
   }
 
+  type DropCommand = CommandObject & {index: number};
   /** Unit load into boardable unit action. */
-  export const Drop: CommandObject<number> = {
+  export const Drop: DropCommand = {
+    ...cmdDefaults,
+    
+    get type() { return Drop; },
+    get chain() { return [Move, Drop]; },
     name: "Drop",
-    serial: generateSerial(),
-    input: -1,
+    serial: Serial.next().value,
     weight: Weight.Secondary,
-    spendsUnit: true,
+    index: -1,
+    
     triggerInclude() {
       const { map } = data.assets;
       const { actor, goal, drop } = data;
 
-      if (this.input === -1)  // Null case
+      if (this.index === -1)  // Null case
         return false;
 
       if (actor.loadedUnits.length === 0) // Nothing to drop
         return false;
 
-      if (!Common.validIndex(this.input, actor.loadedUnits.length))
-        throw new RatificationError(`${this.name} → input ${this.input} does not correspond to a held unit.`);
+      if (!Common.validIndex(this.index, actor.loadedUnits.length))
+        throw new RatificationError(`${this.name} → input ${this.index} does not correspond to a held unit.`);
 
       const neighbors = map.neighborsAt(goal);
-      const unit = actor.loadedUnits[this.input];
+      const unit = actor.loadedUnits[this.index];
 
       const alreadyDropped = drop
         .map( d => d.which )
-        .includes( this.input );
+        .includes( this.index );
       const oneEmptySpace = neighbors.orthogonals
-          .some( tile => (tile.occupiable(unit) || tile.unit === actor)
-            && !drop.some( d => d.where.equal(tile.pos) ) );
+        .some( tile => (tile.occupiable(unit) || tile.unit === actor)
+          && !drop.some( d => d.where.equal(tile.pos) ) );
       return !alreadyDropped && oneEmptySpace;
     },
-    scheduleEvents() {
+    
+    scheduleEvent() {
       const { drop } = data;
 
       if (drop.length === 0)
-        return;
+        return ExitCode.Success;
 
       const { boardEvents } = data.assets;
       const { actor, assets } = data;
 
       boardEvents.schedule( new DropHeldUnitEvent({actor, drop, assets}));
+      return ExitCode.Success;
     },
   }
 
   /** Unit becomes special 'CO' unit. */
-  export const LoadCO: CommandObject<number> = {
+  export const LoadCO: CommandObject = {
+    ...cmdDefaults,
+    
+    get type() { return LoadCO; },
+    get chain() { return [LoadCO]; },
     name: "CO",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.Unpreferred,
     spendsUnit: false,
+    
     triggerInclude() {
       const { actor, plansToMove } = data;
       return (actor.CoCouldBoard && !plansToMove);
     },
-    scheduleEvents() {
+    
+    scheduleEvent() {
       const { boardEvents, players } = data.assets;
       const { actor } = data;
 
@@ -460,20 +431,26 @@ export module Command {
           players.current.expendFunds(actor.cost);
         }
       }));
+
+      return ExitCode.Success;
     },
   }
 
   /** Unit spawns at location action. */
-  export const SpawnUnit: CommandObject<number> = {
+  export const SpawnUnit: CommandObject = {
+    ...cmdDefaults,
+    
+    get type() { return SpawnUnit; },
+    get chain() { return [SpawnUnit]; },
     name: "SpawnUnit",
-    serial: generateSerial(),
-    input: 0,
+    serial: Serial.next().value,
     weight: Weight.None,
-    spendsUnit: true,
+    
     triggerInclude() {
       return false;
     },
-    scheduleEvents() {
+    
+    scheduleEvent() {
       const { players } = data.assets;
       const { which, place } = data;
 
@@ -483,6 +460,8 @@ export module Command {
         spent: true,
       });
       players.current.expendFunds(unit.cost);
+
+      return ExitCode.Success;
     },
   }
 

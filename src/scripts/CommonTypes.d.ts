@@ -45,17 +45,20 @@ type Point3D = {
     z: number
 }
 
-/** A dictionary-type which uses numbers as keys. */
+/** A dictionary-type which uses numbers as keys.
+ * @deprecated Record<Y,T> makes this obsolete. */
 type NumericDictionary<T> = Iterable<T> & {
     [key: number]: T
 }
 
-/** A dictionary-type which uses strings as keys. */
+/** A dictionary-type which uses strings as keys.
+ * @deprecated Record<Y,T> makes this obsolete. */
 type StringDictionary<T> = Iterable<T> & {
     [key: string]: T
 }
 
-/** An object which maintains a set of key-value pairs. */
+/** An object which maintains a set of key-value pairs.
+ * @deprecated Record<Y,T> & Iterable<T> makes this obsolete. */
 type Dictionary<T> = Iterable<T> & {
     [key: string | number]: T
 }

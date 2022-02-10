@@ -18,6 +18,15 @@ function get<T>(data: T | undefined, description: string): T {
   return data;
 }
 
+// TODO Once the container filling is done and the event scheduling
+// begins, filling shouldn't be possible anymore.
+// I don't think I can get the TypeScript linter to complain, but
+// I can get an error thrown if I try to modify shit mid-ratification.
+//
+// So, instructionData.freeze() sets a private boolean, all setters
+// (set actor(), set place(), etc.) should throw an error until
+// instructionData.reset() is called.
+
 export module instructionData {
 
   /** Container which holds commonly requested field information and object

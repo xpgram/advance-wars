@@ -4,11 +4,13 @@ import { Point } from "../../../Common/Point";
 import { Rectangle } from "../../../Common/Rectangle";
 import { PositionContainer } from "../../../CommonTypes";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
-import { RatificationError } from "../../turn-machine/Command";
+import { CommandHelpers } from "../../turn-machine/Command.helpers";
 import { Unit } from "../../Unit";
 import { UnitObject } from "../../UnitObject";
 import { TileEvent } from "./TileEvent";
 
+
+const { RatificationError } = CommandHelpers;
 
 interface MoveUnitEventOptions {
   actor: UnitObject;
