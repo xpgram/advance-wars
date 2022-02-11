@@ -1,5 +1,6 @@
 import { Point } from "../../../Common/Point";
 import { Square } from "../../map/Square";
+import { Terrain } from "../../map/Terrain";
 import { CommonRangesRetriever, RegionMap } from "../../unit-actions/RegionMap";
 import { TurnState } from "../TurnState";
 
@@ -15,7 +16,7 @@ export class ResetPerspective extends TurnState {
   configureScene() {
     const { map, players, scenario } = this.assets;
 
-    function revealRegion(loc: Point, region: RegionMap, allowDeepSight: boolean) {
+    function revealRegion(loc: Point, region: RegionMap, allowDeepSight?: boolean) {
       region.points.forEach( p => {
         const tilePoint = loc.add(p);
         if (!map.validPoint(tilePoint))
@@ -51,8 +52,17 @@ export class ResetPerspective extends TurnState {
       players.perspective.capturePoints.forEach( loc => {
         const tile = map.squareAt(loc);
         const visRegion = CommonRangesRetriever({min: 0, max: tile.terrain.vision});
-        revealRegion(loc, visRegion, false);
+        revealRegion(loc, visRegion);
       });
+
+      // Reveal from special terrain
+      const fireVisRegion = CommonRangesRetriever({min: 0, max: new Terrain.Fire().vision});
+      for (let x = 0; x < map.width; x++)
+      for (let y = 0; y < map.height; y++) {
+        const tile = map.squareAt({x,y});
+        if (tile.terrain.type === Terrain.Fire)
+          revealRegion(new Point(x,y), fireVisRegion);
+      }
     }
 
     // Update unit hidden status
