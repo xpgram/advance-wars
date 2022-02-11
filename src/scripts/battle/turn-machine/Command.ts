@@ -431,6 +431,8 @@ export module Command {
           actor.rank = 3;
           players.perspectivesTurn?.setCoBoardableIndicators();
           players.current.expendFunds(actor.cost);
+
+          // TODO Update sight map if CO unit has ++vision?
         }
       }));
 
@@ -453,7 +455,7 @@ export module Command {
     },
     
     scheduleEvent() {
-      const { players } = data.assets;
+      const { map, players } = data.assets;
       const { which, place } = data;
 
       const unit = players.current.spawnUnit({
@@ -462,6 +464,8 @@ export module Command {
         spent: true,
       });
       players.current.expendFunds(unit.cost);
+
+      map.revealSightMapLocation(place, players.perspective, unit);
 
       return ExitCode.Success;
     },

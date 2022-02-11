@@ -24,7 +24,7 @@ export class DropHeldUnitEvent extends TileEvent {
   }
 
   private ratifyDrop() {
-    const { map } = this.options.assets;
+    const { map, players } = this.options.assets;
     const { actor, drop } = this.options;
 
     if (drop.length === 0)
@@ -35,6 +35,7 @@ export class DropHeldUnitEvent extends TileEvent {
       .forEach( instruction => {
         const unit = actor.unloadUnit(instruction.which);
         map.placeUnit(unit, instruction.where);
+        map.revealSightMapLocation(instruction.where, players.perspective, unit);
         unit.spent = true;
       });
   }

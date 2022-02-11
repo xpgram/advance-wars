@@ -26,6 +26,8 @@ export class LoadUnitEvent extends MoveUnitEvent {
     const { map, scenario } = this.options.assets;
     const { actor, path, underneath } = this.options;
 
+    this.ratifySightMapChanges(actor.boardLocation, path);
+
     if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
       actor.gas -= map.travelCostForPath(actor.boardLocation, path, actor.moveType);
 

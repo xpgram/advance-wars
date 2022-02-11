@@ -33,10 +33,20 @@ export class MoveUnitEvent extends TileEvent {
     this.goalWorldPosition = options.goal.multiply(Game.display.standardLength);
   }
 
-  // TODO How should this work? This is already written by Command.Move.ratify, I could just pass it in.
-  // Granted, I hvae more control here if I'm allowed to break it up.
-  // A ratify() method makes all changes instantly, but if I wanted to subtract funds sequentially I'd need
-  // to spread that instant change over time.
+  /** Separate ratification for ratifying sight map changes along the travel
+   * path. Allows overriding of the movement replacement method without overriding
+   * this. */
+  protected ratifySightMapChanges(place: Point, path: CardinalDirection[]) {
+    const { map, players } = this.options.assets;
+    const { actor } = this.options;
+
+    // Reveal sight map along the given path.
+    for (let i = 0; i < path.length; i++) {
+      const loc = place.add(SumCardinalsToVector(path.slice(0,i+1)));
+      map.revealSightMapLocation(loc, players.perspective, actor);
+    }
+  }
+
   protected ratifyMovement() {
     const { map, scenario, players } = this.options.assets;
     const { actor, path, goal } = this.options;
@@ -49,11 +59,7 @@ export class MoveUnitEvent extends TileEvent {
     if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
       actor.gas -= map.travelCostForPath(place, path, actor.moveType);
 
-    // Reveal sight map along the given path.
-    for (let i = 0; i < path.length; i++) {
-      const loc = place.add(SumCardinalsToVector(path.slice(0,i+1)));
-      map.revealSightMapLocation(loc, players.perspective, actor);
-    }
+    this.ratifySightMapChanges(place, path);
   }
 
   protected create(): void {

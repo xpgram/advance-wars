@@ -23,7 +23,12 @@ export class JoinUnitEvent extends MoveUnitEvent {
 
   ratifyMovement() {
     const { players } = this.options.assets;
-    const { actor, other } = this.options;
+    const { actor, path, other } = this.options;
+
+    this.ratifySightMapChanges(actor.boardLocation, path);
+
+    // TODO Do I actually not subtract gas before combining gas? wtf
+    // I need more consistency between these MoveUnit descendents.
 
     function roundUp(n: number) { return Math.ceil(n * .10) * 10; }
 
