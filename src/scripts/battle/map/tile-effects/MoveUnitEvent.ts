@@ -49,29 +49,10 @@ export class MoveUnitEvent extends TileEvent {
     if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
       actor.gas -= map.travelCostForPath(place, path, actor.moveType);
 
-    // TODO When skipping animations, this still needs to reveal all relevant places.
-    // I guess a second pass wouldn't really hurt anything.
-    // I'ma do this step first.
-
-    // TODO I jus realize this be identical to ResetPerspective.
-    // So. A feature of Map, then? I guess.
-
-    const visRegion = CommonRangesRetriever({min: 0, max: actor.vision});
-    console.log(path);
+    // Reveal sight map along the given path.
     for (let i = 0; i < path.length; i++) {
       const loc = place.add(SumCardinalsToVector(path.slice(0,i+1)));
-      visRegion.points.forEach( p => {
-        const tilePoint = loc.add(p);
-        if (!map.validPoint(tilePoint))
-          return;
-        
-        const tile = map.squareAt(tilePoint);
-        const deepSight = (loc.manhattanDistance(tilePoint) <= 1)
-          || players.perspective.officer.CoPowerInEffect;
-        const revealable = !tile.terrain.conceals || deepSight;
-        if (revealable)
-          tile.hiddenFlag = false;
-      })
+      map.revealSightMapLocation(loc, players.perspective, actor);
     }
   }
 

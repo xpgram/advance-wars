@@ -16,22 +16,6 @@ export class ResetPerspective extends TurnState {
   configureScene() {
     const { map, players, scenario } = this.assets;
 
-    function revealRegion(loc: Point, region: RegionMap, allowDeepSight?: boolean) {
-      region.points.forEach( p => {
-        const tilePoint = loc.add(p);
-        if (!map.validPoint(tilePoint))
-          return;
-
-        const deepSightLimit = (allowDeepSight) ? 1 : 0;
-        const tile = map.squareAt(tilePoint);
-        const deepSight = (loc.manhattanDistance(tilePoint) <= deepSightLimit)
-          || players.perspective.officer.CoPowerInEffect; // TODO Which, specifically
-        const revealable = !tile.terrain.conceals || deepSight;
-        if (revealable)
-          tile.hiddenFlag = false;
-      });
-    }
-
     // update FoW
     if (scenario.fogOfWar) {
       for (let x = 0; x < map.width; x++)
@@ -43,25 +27,20 @@ export class ResetPerspective extends TurnState {
       // Reveal vis from allied units
       // if scenario.sharedSightMap include players.sameTeam(players.perspective)?
       players.perspective.units.forEach( unit => {
-        const visRegion = CommonRangesRetriever({min: 0, max: unit.vision});
-        revealRegion(unit.boardLocation, visRegion, true);
+        map.revealSightMapLocation(unit.boardLocation, players.perspective, unit);
       });
 
       // Reveal vis from allied bases
       // if scenario.sharedSightMap include players.sameTeam(players.perspective)?
       players.perspective.capturePoints.forEach( loc => {
-        const tile = map.squareAt(loc);
-        const visRegion = CommonRangesRetriever({min: 0, max: tile.terrain.vision});
-        revealRegion(loc, visRegion);
+        map.revealSightMapLocation(loc, players.perspective);
       });
 
       // Reveal from special terrain
-      const fireVisRegion = CommonRangesRetriever({min: 0, max: new Terrain.Fire().vision});
       for (let x = 0; x < map.width; x++)
       for (let y = 0; y < map.height; y++) {
-        const tile = map.squareAt({x,y});
-        if (tile.terrain.type === Terrain.Fire)
-          revealRegion(new Point(x,y), fireVisRegion);
+        if (map.squareAt({x,y}).terrain.type === Terrain.Fire)
+          map.revealSightMapLocation(new Point(x,y), players.perspective);
       }
     }
 

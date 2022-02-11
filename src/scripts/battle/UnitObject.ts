@@ -15,6 +15,7 @@ import { NeighborMatrix } from "../NeighborMatrix";
 import { Square } from "./map/Square";
 import { BitIO } from "../Common/BitIncrementer";
 import { PixiUtils } from "../Common/PixiUtils";
+import { Terrain } from "./map/Terrain";
 
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
@@ -222,6 +223,17 @@ export abstract class UnitObject {
 
     /** The distance this unit can see into fog of war conditions. */
     get vision() { return 2; }
+
+    /** Returns the vision stat after player or unit-specific bonuses have been calculated.
+     * General conditions, such as Weather, must be applied separately. */
+    appliedVision(square: Square) {
+        // TODO Should this be overridden by soldier class types?
+        const soldier = (this.soldierUnit);
+        const highVantage = (square.terrain.type === Terrain.Mountain);
+        const terrainBonus = (soldier && highVantage) ? 3 : 0;
+        const officerBonus = this.boardPlayer.officer.getBonusStats(this).vision;
+        return this.vision + terrainBonus + officerBonus;
+    }
 
     /** Returns a NumericRange describing this unit's distance-of-attack limits. */
     get range(): NumericRange { return {min: 1, max: 1}; }

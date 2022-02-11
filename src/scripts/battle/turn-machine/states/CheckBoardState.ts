@@ -61,6 +61,8 @@ export class CheckBoardState extends TurnState {
 
       // TODO Convert HQ into city tile; retain faction if not self
       // TODO But don't do that if scenario allows for +1 multiple HQs.
+      // TODO If scenario captures all bases on HQ capture, do it
+      // TODO Make sure captured bases also affect sight map during FoW
     })
 
     // PlayerDefeated event where DestructEvents will be handled but

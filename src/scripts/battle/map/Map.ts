@@ -567,6 +567,51 @@ export class Map {
         this.clearMapValues({tempVals: true, colorFlags: true, arrowPaths: true});
     }
 
+    /** Hides every tile on the map. Useful for establishing a base sight map to selectively reveal
+     * portions of according to a player's board state. */
+    hideSightMap() {
+        this.board.forEach( row => {
+            row.forEach( square => square.hiddenFlag = true )
+        })
+    }
+
+    /** Reveals a portion of the sight map according to the given perspective player's sight rules.
+     * If given a unit object, assumes the unit's vision range. Otherwise assumes the vision range
+     * of the terrain located at the given location. */
+    revealSightMapLocation(location: Point, player: BoardPlayer, unit?: UnitObject) {
+        const baseTile = this.squareAt(location);
+        const sightRange = unit?.appliedVision(baseTile) || baseTile.terrain.vision;
+        const deepSightRange = (unit) ? 1 : 0;
+        const deepSightCoPower = player.officer.CoPowerInEffect; // TODO Which CO power
+        const visRegion = CommonRangesRetriever({min: 0, max: sightRange});
+
+        visRegion.points.forEach( p => {
+            const tilePoint = location.add(p);
+            if (!this.validPoint(tilePoint))
+                return;
+            
+            const tile = this.squareAt(tilePoint);
+            const baseTileDistance = location.manhattanDistance(tilePoint);
+            const deepSight = (deepSightCoPower || baseTileDistance <= deepSightRange);
+            const revealable = !tile.terrain.conceals || deepSight;
+
+            if (revealable)
+                tile.hiddenFlag = false;
+        })
+    }
+
+    /** Hides a portion of the sight map. */
+    // TODO Lin's CO Power? Are there any rules about what does and
+    // does not get hidden? Do we also need a player to conform to?
+    hideSightMapRegion(location: Point, region: RegionMap) {
+        region.points.forEach( p => {
+            const loc = location.add(p);
+            if (!this.validPoint(loc))
+                return;
+            this.squareAt(loc).hiddenFlag = true;
+        });
+    }
+
     /** Returns true if, via the given unit, the point observed by inspector is an efficient
      * and valid node from which to expand algorithmic search. */
     private travelEvaluationFunction(unit: UnitObject, inspector: TileInspector) {

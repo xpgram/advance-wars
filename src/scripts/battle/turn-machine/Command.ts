@@ -177,8 +177,8 @@ export module Command {
 
     scheduleEvent() {
       const { boardEvents } = data.assets;
-      const { actor, goalTerrain: terrain } = data;
-      boardEvents.schedule(new CapturePropertyEvent({actor, terrain}));
+      const { actor, goalTerrain: terrain, assets } = data;
+      boardEvents.schedule(new CapturePropertyEvent({actor, terrain, assets}));
       return ExitCode.Success;
     },
   }
