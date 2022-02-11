@@ -10,6 +10,9 @@ But anyway, yeah. There is constant state checking because his system never just
 
 - [ ] Captured bases don't update the sight map on capture (Radar)
   - Command.Capture could do this. That's fine, I think. tile.terrain.capture probably doesn't have the references to do it itself; dev controls will just have to suffer. I want to standardize the implementation first, however. 3 different redundent definitions is a little much. (MoveUnitEvent and ResetPerspective)
+- [ ] Inf and Mech don't get +3 vis on mountains. Not even on TurnStart.
+  - [ ] +3 during ResetPerspective
+  - [ ] +3 during MoveUnit (has to be dynamic depending on projection tile from path)
 
 - [x] Range Reticle
 - [x] Made an integral feature of MapCursor for easy access everywhere.
