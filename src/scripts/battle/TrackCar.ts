@@ -159,6 +159,12 @@ export class TrackCar {
         if (this.moveSlider.track == this.moveSlider.max) {
             this.moveSlider.track = this.moveSlider.min;
             this.curPoint = this.curPoint.add(this.nextMove);
+            // TODO Get tile from map, set transparency to tile vis
+            // This will require a little finagling; tile.unitVisible() is a reflection
+            // of tile settings, but pre ratification, nothing has been set.
+            // this.car.visible = ?
+            //   tile.unitVisible === false && not adjacent to perspective player ally
+            //   unit.hiding (subs and stealth planes) && not adjacent to perspective player ally
             this.prepareNextInstruction();  // update this.nextMove
         }
 
