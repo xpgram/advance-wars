@@ -119,7 +119,7 @@ export class IssueOrderStart extends TurnState {
     if (A.pressed) {
       
       // Allied unit to move
-      const visible = (unit?.visibleToPlayer(players.perspective, square.neighbors));
+      const visible = (square.unitVisible());
       const orderableAlly = (unit?.orderable && unit?.faction === player.faction);
       const examinableEnemy = (unit?.faction !== player.faction);
       if (unit && (orderableAlly || (visible && examinableEnemy))) {
@@ -143,8 +143,8 @@ export class IssueOrderStart extends TurnState {
     // On press B, show unit attack range or initiate move camera mode.
     else if (B.pressed) {
       const allied = square.unit?.faction === player.faction;
-      const visibleToSelf = square.unit?.visibleToPlayer(players.perspective, square.neighbors);
-      if (square.unit && (allied || visibleToSelf)) {
+      const visible = square.unitVisible();
+      if (square.unit && (allied || visible)) {
         instruction.place = new Point(mapCursor.boardLocation);
         this.advance(ShowUnitAttackRange);
       } else

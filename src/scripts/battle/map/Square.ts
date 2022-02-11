@@ -13,6 +13,7 @@ import { CardinalDirection } from "../../Common/CardinalDirection";
 import { Common } from "../../CommonUtils";
 import { ArmorType, MoveType } from "../EnumTypes";
 import { BitIO, BitMask } from "../../Common/BitIncrementer";
+import { BoardPlayer } from "../BoardPlayer";
 
 /**
  * Used by Map only. Maybe.
@@ -312,7 +313,7 @@ export class Square {
         if (this.terrain instanceof TerrainBuildingObject)
             this.terrain.hidden = this.hiddenFlag;
         if (this.unit)
-            this.unit.visible = !this.hiddenFlag && !this.hideUnit;
+            this.unit.visible = this.unitVisible();
     }
 
     /** Updates the tile's arrow-path overlay to reflect its UI state.  */
@@ -359,7 +360,7 @@ export class Square {
     occupiable(unit: UnitObject): boolean {
         const traversable = this.traversable(unit);
         const empty = (!this.unit || this.unit === unit);  // Do not return 'inoccupiable' if the unit is already located there.
-        const obscured = this.hideUnit;
+        const obscured = !this.unitVisible();
         return traversable && (empty || obscured);
     }
 
@@ -368,7 +369,7 @@ export class Square {
     traversable(unit: UnitObject): boolean {
         const legalMovement = (this.terrain.getMovementCost(unit.moveType) > 0);              // Ships ≠ Land, Any ≠ Void Tiles
         const unitAlliedOrEmpty = (!this.unit || this.unit.faction == unit.faction);   // Team ≠ not-Team
-        const obscured = this.hideUnit;
+        const obscured = !this.unitVisible();
         return legalMovement && (unitAlliedOrEmpty || obscured);
     }
 
@@ -409,13 +410,18 @@ export class Square {
 
     /** Returns true if the given unit may launch an attack on a unit inhabiting this square.
      * Returns false if there is no inhabiting unit to attack, or if the inhabiting unit is not
-     * targetable by the given.
-     */
+     * targetable by the given. */
     attackable(unit: UnitObject): boolean {
-        if (this.unit && !this.hideUnit)
+        if (this.unit && this.unitVisible())
             return unit.canTarget(this.unit);
         else
             return false;
+    }
+
+    /** Returns true if the unit present here (if any) is hypothetically
+     * visible given current settings. */
+    unitVisible() {
+        return !this.hiddenFlag && !this.hideUnit;
     }
     
 }

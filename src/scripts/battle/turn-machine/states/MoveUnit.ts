@@ -57,7 +57,7 @@ export class MoveUnit extends TurnState {
     trackCar.show();
 
     // Generate movement map
-    map.generateMovementMap(actor, players.perspective);
+    map.generateMovementMap(actor);
 
     // Trigger cursor mode (and whatever)
     this.updateUiSystems();

@@ -212,11 +212,9 @@ export class InfoWindowSystem {
   }
 
   inspectTile(square: Square, unit?: UnitObject) {
-    const inspectUnit =
-      unit ||
-      ((square.unit?.visibleToPlayer(this.players.perspective, square.neighbors))
-        ? square.unit
-        : undefined);
+    const tileUnit = square.unitVisible() ? square.unit : undefined;
+    const inspectUnit = unit || tileUnit;
+    
     this.windows.terrainInfo.inspectTerrain(square.terrain, inspectUnit);
     this.windows.unitInfo.inspectUnit(inspectUnit);
     this.windows.detailedInfo.inspectTile(square.terrain, inspectUnit);

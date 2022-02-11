@@ -150,14 +150,14 @@ export class UnitWindow extends SlidingWindow {
     this.ammoMeter.texture = this.materialsIcon;
   }
 
-  private setFirstLoadUnit(img: PIXI.Sprite | null) {
+  private setFirstLoadUnit(img: PIXI.Container | null) {
     this.firstLoad.removeChildren();
     this.firstLoad.visible = Boolean(img);
     if (img)
       this.firstLoad.addChild(img);
   }
 
-  private setSecondLoadUnit(img: PIXI.Sprite | null) {
+  private setSecondLoadUnit(img: PIXI.Container | null) {
     this.secondLoad.removeChildren();
     this.secondLoad.visible = Boolean(img);
     if (img)

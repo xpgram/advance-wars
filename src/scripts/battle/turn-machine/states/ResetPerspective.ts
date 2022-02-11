@@ -15,14 +15,15 @@ export class ResetPerspective extends TurnState {
   configureScene() {
     const { map, players, scenario } = this.assets;
 
-    function revealRegion(loc: Point, region: RegionMap) {
+    function revealRegion(loc: Point, region: RegionMap, allowDeepSight: boolean) {
       region.points.forEach( p => {
         const tilePoint = loc.add(p);
         if (!map.validPoint(tilePoint))
           return;
 
+        const deepSightLimit = (allowDeepSight) ? 1 : 0;
         const tile = map.squareAt(tilePoint);
-        const deepSight = (loc.manhattanDistance(tilePoint) <= 1)
+        const deepSight = (loc.manhattanDistance(tilePoint) <= deepSightLimit)
           || players.perspective.officer.CoPowerInEffect; // TODO Which, specifically
         const revealable = !tile.terrain.conceals || deepSight;
         if (revealable)
@@ -42,7 +43,7 @@ export class ResetPerspective extends TurnState {
       // if scenario.sharedSightMap include players.sameTeam(players.perspective)?
       players.perspective.units.forEach( unit => {
         const visRegion = CommonRangesRetriever({min: 0, max: unit.vision});
-        revealRegion(unit.boardLocation, visRegion);
+        revealRegion(unit.boardLocation, visRegion, true);
       });
 
       // Reveal vis from allied bases
@@ -50,7 +51,7 @@ export class ResetPerspective extends TurnState {
       players.perspective.capturePoints.forEach( loc => {
         const tile = map.squareAt(loc);
         const visRegion = CommonRangesRetriever({min: 0, max: tile.terrain.vision});
-        revealRegion(loc, visRegion);
+        revealRegion(loc, visRegion, false);
       });
     }
 

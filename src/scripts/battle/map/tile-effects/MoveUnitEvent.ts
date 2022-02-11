@@ -57,6 +57,7 @@ export class MoveUnitEvent extends TileEvent {
     // So. A feature of Map, then? I guess.
 
     const visRegion = CommonRangesRetriever({min: 0, max: actor.vision});
+    console.log(path);
     for (let i = 0; i < path.length; i++) {
       const loc = place.add(SumCardinalsToVector(path.slice(0,i+1)));
       visRegion.points.forEach( p => {
@@ -106,8 +107,6 @@ export class MoveUnitEvent extends TileEvent {
 
   protected update(): void {
     const { trackCar } = this.options.assets;
-
-    // TODO When trackCar moves from one tile to another, reveal that vis region.
 
     if (trackCar.finished) {
       this.ratifyMovement();

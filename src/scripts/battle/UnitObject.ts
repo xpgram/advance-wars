@@ -573,7 +573,8 @@ export abstract class UnitObject {
     }
     private _hiding = false;
 
-    /** Whether this unit is visible to the given player object. */
+    /** Whether this unit is visible to the given player object.
+     * @deprecated (Unless this is a shortcut to adjacency checks) */
     visibleToPlayer(player: BoardPlayer, neighbors: NeighborMatrix<Square>) {
         const revealedByEnemy = neighbors && neighbors.orthogonals
             .some( square => square.unit?.faction === player.faction );

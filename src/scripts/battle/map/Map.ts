@@ -572,8 +572,7 @@ export class Map {
     private travelEvaluationFunction(unit: UnitObject, inspector: TileInspector) {
         const notVoidTerrain = inspector.square.terrain.type != Terrain.Void;
         const enoughMP = inspector.movePoints >= 0;
-        const obscured = inspector.square.hiddenFlag || inspector.square.hideUnit;
-        const traversable = obscured || inspector.square.traversable(unit);
+        const traversable = inspector.square.traversable(unit);
         const betterEfficiency = inspector.square.value < inspector.movePoints;
 
         return (notVoidTerrain && enoughMP && traversable && betterEfficiency);
@@ -658,14 +657,14 @@ export class Map {
     }
 
     /** Given a unit, shows the nearby squares reachable by movement. */
-    generateMovementMap(unit: UnitObject, player: BoardPlayer) {
+    generateMovementMap(unit: UnitObject) {
         this.generateColorMap(unit);
 
         let rect = this.squareOfInfluence(unit);
         for (let y = 0; y < rect.height; y++)
         for (let x = 0; x < rect.width; x++) {
             let square = this.squareAt(new Point(x+rect.x, y+rect.y));
-            if (!square.attackable(unit) || !square.unit?.visibleToPlayer(player, square.neighbors))
+            if (!square.attackable(unit) || !square.unitVisible())
                 square.attackFlag = false;
         }
     }
