@@ -10,6 +10,8 @@ But anyway, yeah. There is constant state checking because his system never just
 
 - [ ] TrackCar doesn't respect sight map yet.
 
+- [ ] Convert `player.units.forEach(u => { if (u.onMap)})` to `player.units.unitsOnMap.forEach(u => {})`
+
 - [x] Range Reticle
 - [x] Made an integral feature of MapCursor for easy access everywhere.
 - [ ] Applied to CoAffected tiles

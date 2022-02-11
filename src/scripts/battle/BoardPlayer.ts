@@ -161,6 +161,12 @@ export class BoardPlayer {
     return li;
   }
 
+  /** A list of all owned units which are placed on the map and not held inside
+   * another unit's cargo or some other nebulous space. */
+  get onMapUnits() {
+    return this.units.filter( u => u.onMap );
+  }
+
   /** The number of properties captured by this player. */
   get propertyCount(): number {
     return this.capturePoints.length;
