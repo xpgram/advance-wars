@@ -41,6 +41,11 @@ export class MoveUnitEvent extends TileEvent {
     const { actor } = this.options;
 
     // Reveal sight map along the given path.
+    // TODO This needs to be with adjacency reveal in UpdatePerspective,
+    // but the reason it's here is because I can't get the real, interrupted
+    // path there without rewriting the calc code.
+    // I guess I could make them both an event that is scheduled after the
+    // ambush bubble.
     for (let i = 0; i < path.length; i++) {
       const loc = place.add(SumCardinalsToVector(path.slice(0,i+1)));
       map.revealSightMapLocation(loc, players.perspective, actor);
