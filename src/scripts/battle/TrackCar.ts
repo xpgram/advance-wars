@@ -165,6 +165,9 @@ export class TrackCar {
             // this.car.visible = ?
             //   tile.unitVisible === false && not adjacent to perspective player ally
             //   unit.hiding (subs and stealth planes) && not adjacent to perspective player ally
+            // 
+            // I think this just needs a reference to map. I'm too brain tired to do it right
+            // now, though.
             this.prepareNextInstruction();  // update this.nextMove
         }
 
