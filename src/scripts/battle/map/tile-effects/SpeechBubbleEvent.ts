@@ -16,6 +16,8 @@ interface SpeechBubbleEventOptions {
   camera: Camera;
 }
 
+// TODO Tweens instead? Refactor for readability?
+
 export class SpeechBubbleEvent extends TileEvent {
   
   private options: SpeechBubbleEventOptions;
@@ -25,6 +27,8 @@ export class SpeechBubbleEvent extends TileEvent {
 
   private readonly MaxScale = 2.5;
   private readonly IntroFrames = 3;
+  private shake = false;
+  private position = new Point();
 
   private animSlider = new Slider({
     granularity: 1 / this.IntroFrames,
@@ -73,6 +77,9 @@ export class SpeechBubbleEvent extends TileEvent {
 
     if (message === 'repair') this.ratifyRepair();
     if (message === 'supply') this.ratifySupply();
+    if (message === 'ambush') this.shake = true;
+
+    this.position.set(this.image.position);
 
     MapLayer('ui').addChild(this.image);
   }
@@ -80,6 +87,11 @@ export class SpeechBubbleEvent extends TileEvent {
   protected update(): void {
     this.image.scale.set(this.MaxScale - this.animSlider.output*(this.MaxScale-1));
     this.image.alpha = this.animSlider.output;
+
+    if (this.shake && this.animSlider.equalsMax()) {
+      const x = Math.sign(Math.sin(this.timer.elapsed*16*Math.PI));
+      this.image.x = this.position.x + x;
+    }
 
     this.animSlider.increment();
 
