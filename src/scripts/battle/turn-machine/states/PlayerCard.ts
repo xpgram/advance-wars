@@ -151,7 +151,7 @@ export class PlayerCard extends TurnState {
       dim: point(24,16),
       pos: point(-hide, rh*.20),
     });
-    const dayText = new PIXI.BitmapText('Day', fonts.title);
+    const dayText = new PIXI.BitmapText('D', fonts.playerSplash);
     dayText.anchor.set(.5);
     dayText.position.set(dayCard.width/2, dayCard.height/2);
     dayCard.addChild(dayText);
@@ -162,7 +162,7 @@ export class PlayerCard extends TurnState {
       dim: point(32,32),
       pos: point(-hide, rh*.39),
     })
-    const dayNumText = new PIXI.BitmapText(`${players.day}`, fonts.title);
+    const dayNumText = new PIXI.BitmapText(`${players.day}`, fonts.playerSplash);
     dayNumText.anchor.set(.5);
     dayNumText.position.set(dayNumCard.width/2, dayNumCard.height/2);
     dayNumCard.addChild(dayNumText);
@@ -185,7 +185,7 @@ export class PlayerCard extends TurnState {
       dim: point(64,24),
       pos: point(-hide, rh*.77),
     })
-    const fightText = new PIXI.BitmapText(`Fight!`, fonts.title);
+    const fightText = new PIXI.BitmapText(`F`, fonts.playerSplash);
     fightText.anchor.set(.5);
     fightText.position.set(fightCard.width/2, fightCard.height/2);
     fightCard.addChild(fightText);

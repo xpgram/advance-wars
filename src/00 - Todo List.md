@@ -12,6 +12,7 @@ But anyway, yeah. There is constant state checking because his system never just
 - [ ] Source game reveals sight map and adjacent units at same time. Mine does the first before the second.
 
 - [ ] Convert `player.units.forEach(u => { if (u.onMap)})` to `player.units.unitsOnMap.forEach(u => {})`
+- [ ] I have assets for player card, but no associated json; I'll have to write one.
 
 - [x] Range Reticle
 - [x] Made an integral feature of MapCursor for easy access everywhere.
