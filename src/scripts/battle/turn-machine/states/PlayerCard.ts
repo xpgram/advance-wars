@@ -146,58 +146,43 @@ export class PlayerCard extends TurnState {
     insignia.alpha = 0;
 
     // Day    - 1
-    const dayCard = this.newRect({
-      g: new PIXI.Graphics(),
-      dim: point(24,16),
-      pos: point(-hide, rh*.20),
-    });
     const dayText = new PIXI.BitmapText('D', fonts.playerSplash);
+    dayText.position.set(-hide, rh*.25);
     dayText.anchor.set(.5);
-    dayText.position.set(dayCard.width/2, dayCard.height/2);
-    dayCard.addChild(dayText);
 
     // #      - 2
-    const dayNumCard = this.newRect({
-      g: new PIXI.Graphics(),
-      dim: point(32,32),
-      pos: point(-hide, rh*.39),
-    })
     const dayNumText = new PIXI.BitmapText(`${players.day}`, fonts.playerSplash);
+    dayNumText.position.set(-hide, rh*.40);
     dayNumText.anchor.set(.5);
-    dayNumText.position.set(dayNumCard.width/2, dayNumCard.height/2);
-    dayNumCard.addChild(dayNumText);
 
     // Map    - 1.5
-    const mapCard = this.newRect({
-      g: new PIXI.Graphics(),
-      dim: point(256,16),
-      pos: point(-256, rh*.60),
-    })
-    mapCard.pivot.x = 0;
+    // TODO Map name text is not actually centered around drift-container orbit point
+    const mapCard = new PIXI.BitmapText(`---------]`, fonts.playerSplash);
+    mapCard.position.set(-hide*1.25, rh*.60);
+    mapCard.pivot.y = mapCard.height/2;
     const mapText = new PIXI.BitmapText(`Land's End`, fonts.script);
-    mapText.anchor.set(.5,.5);
-    mapText.position.set(mapCard.width*.825, mapCard.height/2);
+    mapText.anchor.set(1, 0);
+    mapText.position.set(mapCard.width - 28, 4);
     mapCard.addChild(mapText);
 
     // Fight  - 3
-    const fightCard = this.newRect({
-      g: new PIXI.Graphics(),
-      dim: point(64,24),
-      pos: point(-hide, rh*.77),
-    })
     const fightText = new PIXI.BitmapText(`F`, fonts.playerSplash);
+    fightText.position.set(-hide, rh*.80);
     fightText.anchor.set(.5);
-    fightText.position.set(fightCard.width/2, fightCard.height/2);
-    fightCard.addChild(fightText);
 
     // Left-side mover
     const driftContainer = new PIXI.Container();
-    driftContainer.addChild(dayCard, dayNumCard, fightCard);
+    driftContainer.addChild(dayText, dayNumText, fightText);
     driftContainer.x = rw*.25 - 8;
+
+    // UI Element palette swap container
+    const uiRecolor = new PIXI.Container();
+    uiRecolor.addChild(mapCard, driftContainer);
+    uiRecolor.filters = [new MultiColorReplaceFilter(paletteSwapsText[playerColor])];
 
     // Destructable
     this.container = new PIXI.Container();
-    this.container.addChild(insignia, mapCard, driftContainer);
+    this.container.addChild(insignia, uiRecolor);
 
     Game.hud.addChild(this.container);
 
@@ -215,19 +200,19 @@ export class PlayerCard extends TurnState {
       .at(.15)
       .tween(driftTime, driftContainer, {x: driftContainer.x + 16}) //, Ease.quantize(Ease.linear.out, 16))
       .tween(insigniaFadeTime, insignia, {alpha: 1}, Ease.sine.inOut)
-      .tween(slideTime, dayCard, {x: 0}, motion.out)
-      .tween(mapCardTime, mapCard, {x: -128}, Ease.sine.inOut)
+      .tween(slideTime, dayText, {x: 0}, motion.out)
+      .tween(mapCardTime, mapCard, {x: -16}, Ease.sine.inOut)
 
       .wait(delay)
-      .tween(slideTime, dayNumCard, {x: 0}, motion.out)
+      .tween(slideTime, dayNumText, {x: 0}, motion.out)
 
       .wait(delay/2)
-      .tween(slideTime, fightCard, {x: 0}, motion.out)
+      .tween(slideTime, fightText, {x: 0}, motion.out)
 
       .wait()
       .wait(waitTime)
       .tween(insigniaFadeTime, insignia, {alpha: 0}, Ease.sine.inOut)
-      .tween(slideTime, dayCard, {x: hide*1.5}, motion.in)
+      .tween(slideTime, dayText, {x: hide*1.5}, motion.in)
       .tween(mapCardTime, mapCard, {
         scale: {y: 0},
         skew: {x: -2},  // This conflicts with scale
@@ -235,10 +220,10 @@ export class PlayerCard extends TurnState {
       .tween(mapCardTime, mapCard, {alpha: 0}, Ease.sine.in)
 
       .wait(delay)
-      .tween(slideTime, dayNumCard, {x: hide*1.5}, motion.in)
+      .tween(slideTime, dayNumText, {x: hide*1.5}, motion.in)
 
       .wait(delay/2)
-      .tween(slideTime, fightCard, {x: hide*1.5}, motion.in)
+      .tween(slideTime, fightText, {x: hide*1.5}, motion.in)
       
       .at('end')
       .do(n => { this.advance(); })

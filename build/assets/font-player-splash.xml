@@ -10,8 +10,8 @@
         <char id="68 "  x="0  "  y="35"  width="31"  height="35"  xoffset="0"  yoffset="0"  xadvance="31"  page="0"  chnl="0"/>
         <char id="70 "  x="31 "  y="35"  width="93"  height="35"  xoffset="0"  yoffset="0"  xadvance="93"  page="0"  chnl="0"/>
 
-        <char id="189"  x="155"  y="35"  width="16"  height="16"  xoffset="0"  yoffset="0"  xadvence="16"  page="0"  chnl="0"/>
-        <char id="221"  x="173"  y="35"  width="8 "  height="16"  xoffset="0"  yoffset="0"  xadvence="16"  page="0"  chnl="0"/>
+        <char id="45 "  x="155"  y="35"  width="16"  height="16"  xoffset="0"  yoffset="0"  xadvance="16"  page="0"  chnl="0"/>
+        <char id="93 "  x="173"  y="35"  width="8 "  height="16"  xoffset="0"  yoffset="0"  xadvance="16"  page="0"  chnl="0"/>
 
         <char id="48 "  x="124"  y="35"  width="31"  height="35"  xoffset="0"  yoffset="0"  xadvance="31"  page="0"  chnl="0"/>
         <char id="49 "  x="0  "  y="0 "  width="31"  height="35"  xoffset="0"  yoffset="0"  xadvance="31"  page="0"  chnl="0"/>
