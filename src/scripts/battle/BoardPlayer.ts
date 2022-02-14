@@ -124,6 +124,9 @@ export class BoardPlayer {
     if (options.unitSpawns)
       options.unitSpawns.forEach( settings => this.spawnUnit(settings) );
 
+    // Collect property count
+    this.scanCapturedProperties();
+
     // Set pre-match known conditions
     this.armyDeployed = (this.units.length > 0);
     this.hasHQ = (this.HQs.length > 0);
@@ -136,10 +139,7 @@ export class BoardPlayer {
 
     // Validate player pre-play options
     if (bases.length === 0 && this.units.length === 0)
-      throw new BoardPlayerConstructionError(`BoardPlayer object has no means of playing.`);
-
-    // Collect property count
-    this.scanCapturedProperties();
+      throw new BoardPlayerConstructionError(`BoardPlayer object #${this.playerNumber} has no means of playing.`);
 
     // Set default cursor position
     this.lastCursorPosition = new Point(this.HQs[0].pos);
