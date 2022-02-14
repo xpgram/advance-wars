@@ -14,6 +14,11 @@ But anyway, yeah. There is constant state checking because his system never just
 - [ ] Convert `player.units.forEach(u => { if (u.onMap)})` to `player.units.unitsOnMap.forEach(u => {})`
 - [ ] I have assets for player card, but no associated json; I'll have to write one.
 
+- [ ] Rigorous Typeface Access
+  I don't know if it's feasible to only allow access to font assets that are *definitely* linked ... I mean, I guess I can think of a way. It's a little forceful. Anyway, a system which could verify on access that an assets is or is not loaded could throw an assertion error (the benefit being on strange load errors in real time, the assets would simply be missing, or would maybe default) telling me I've forgotten to link the desired assets. It might also be nice... to have bundles. Scenes don't actually do that much, I feel like they are the bundles, kinda.
+  I dunno. Something to think about.
+  I guess it'll be more of a problem when I actually start working on other scenes.
+
 - [x] Range Reticle
 - [x] Made an integral feature of MapCursor for easy access everywhere.
 - [ ] Applied to CoAffected tiles
