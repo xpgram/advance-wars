@@ -30,22 +30,39 @@ export function buildBoundedRegionMapObject(region: RegionMap, cellSize: number)
 }
 
 function drawBoundedSquare(g: PIXI.Graphics, location: Point, sides: CardinalDirection[], length: number) {
-  g.beginFill(0xDDD5CC);
+  const light = 0xFFFFFF;
+  const dark = 0x39637B;
 
-  const lineRects = {} as NumericDictionary<Rectangle>;
-  lineRects[CardinalDirection.North] = new Rectangle(0,-1,length,1);
-  lineRects[CardinalDirection.South] = new Rectangle(0,length,length,1);
-  lineRects[CardinalDirection.West] = new Rectangle(-1,0,1,length);
-  lineRects[CardinalDirection.East] = new Rectangle(length,0,1,length);
+  type LineRects = Record<CardinalDirection, Rectangle>
+
+  const outerLines = {} as LineRects;
+  outerLines[CardinalDirection.North] = new Rectangle(0,-1,length,1);
+  outerLines[CardinalDirection.South] = new Rectangle(0,length,length,1);
+  outerLines[CardinalDirection.East] = new Rectangle(length,0,1,length);
+  outerLines[CardinalDirection.West] = new Rectangle(-1,0,1,length);
+
+  const innerLines = {} as LineRects;
+  innerLines[CardinalDirection.North] = new Rectangle(0,0,length,1);
+  innerLines[CardinalDirection.South] = new Rectangle(0,length,length,-1);
+  innerLines[CardinalDirection.East] = new Rectangle(length,0,-1,length);
+  innerLines[CardinalDirection.West] = new Rectangle(0,0,1,length);
 
   location = location.multiply(length);
 
-  for (const side of sides) {
-    const rect = lineRects[side];
-    rect.x += location.x;
-    rect.y += location.y;
-    g.drawRect(rect.x, rect.y, rect.width, rect.height);
+  function drawSides(lineRects: LineRects) {
+    for (const side of sides) {
+      const rect = lineRects[side];
+      rect.x += location.x;
+      rect.y += location.y;
+      g.drawRect(rect.x, rect.y, rect.width, rect.height);
+    }
   }
 
+  g.beginFill(light);
+  drawSides(outerLines);  
+  g.endFill();
+
+  g.beginFill(dark);
+  drawSides(innerLines);
   g.endFill();
 }
