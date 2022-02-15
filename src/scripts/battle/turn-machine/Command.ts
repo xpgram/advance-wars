@@ -74,7 +74,7 @@ export module Command {
     
     scheduleEvent() {
       const { map, boardEvents, camera, instruction } = data.assets;
-      const { place, path, actor, assets } = data;
+      const { action, place, path, actor, assets } = data;
 
       // This has to be here because any formal turn will unset this property anyway,
       // and the status icon should be unset immediately to prevent flickering.
@@ -97,8 +97,22 @@ export module Command {
       }
 
       const ambushed = (realPath.length !== path.length);
-      const target = instruction.focal;
       const realGoal = SumCardinalsToVector(realPath).add(place);
+
+      // TODO Attack needs some way of passing this in.
+      // get chain() recently ruined any chance of that, though...
+      // Maybe the problem is actually with MoveEvent's handling of camera focus.
+      //
+      // And also! It needs to actually work.
+      // I probably disabled it on purpose.
+      // I think camera needs a two-focal mode and a 'pull-away' follow-alg
+      // that picks target frames that include both if possible but prefers
+      // the second when it isn't.
+      // The benefit of a proper pull-away style is that the focus the would
+      // follow a moving target via the further edge. A TrackCar moving east
+      // toward a target would be camera bound to the camera's left side as
+      // they both moved toward the real point of focus.
+      const target = (action === Attack.serial) ? instruction.focal : undefined;
 
       // Schedule events
       if (place.notEqual(realGoal)) {
