@@ -11,6 +11,12 @@ But anyway, yeah. There is constant state checking because his system never just
 - [ ] TrackCar doesn't respect sight map yet.
 - [ ] Source game reveals sight map and adjacent units at same time. Mine does the first before the second.
 
+Collect assets for:
+- [ ] Sub dive/surface anim
+- [ ] Air units blow up anim (again)
+- [ ] Flare shot and descend anim
+- [ ] Silo up and down + explosion (+ crater?) anim
+
 - [ ] A cmd variant, called AreaCommand or some shit, must exist to allow AoE region maps to be pulled from the GetCommandBySerial result; Flare and LaunchSilo have (technically) distinct AoE range effects and need a way to describe, themselves, what they do to the ChooseMapTarget turnstate.
 - [ ] Convert `player.units.forEach(u => { if (u.onMap)})` to `player.units.unitsOnMap.forEach(u => {})`
 - [ ] Map name text during player turn splash is not centered around drift-container orbit point.

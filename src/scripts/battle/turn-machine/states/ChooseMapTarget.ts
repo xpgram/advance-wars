@@ -11,6 +11,15 @@ export class ChooseMapTarget extends TurnState {
 
   private mustSelectTargetable = false;
 
+  private updateCursorUI() {
+    const { map, mapCursor } = this.assets;
+    const alwaysTarget = !this.mustSelectTargetable;
+    const overTargetable = map.squareAt(mapCursor.boardLocation).targetFlag;
+    const show = (alwaysTarget || overTargetable);
+    mapCursor.mode = (show) ? 'target' : 'point';
+    mapCursor.showAreaOfEffectMap = (show);
+  }
+
   onRegress() {
     // Use private RegionMap?
     // Do we assume this on construction and always use? That would be simple.
@@ -42,6 +51,10 @@ export class ChooseMapTarget extends TurnState {
     // This is map cursor boundary.
     const areaMap = CommonRangesRetriever({min:0, max:2});
     mapCursor.areaOfEffectMap = areaMap;
+
+    // Define mapcursor mode behavior
+    mapCursor.on('move', this.updateCursorUI, this)
+    this.updateCursorUI();  // First setup call
   }
 
   update() {
@@ -60,8 +73,8 @@ export class ChooseMapTarget extends TurnState {
   }
 
   close() {
-    const { map, mapCursor } = this.assets;
-    map.squares.forEach( s => s.targetFlag = false );
-    mapCursor.areaOfEffectMap = undefined;
+    const { mapCursor } = this.assets;
+    mapCursor.removeListener(this.updateCursorUI, this);
   }
+
 }
