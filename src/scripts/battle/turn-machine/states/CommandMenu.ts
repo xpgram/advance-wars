@@ -6,6 +6,7 @@ import { MapLayer } from "../../map/MapLayers";
 import { Command } from "../Command";
 import { DropLocation } from "./DropLocation";
 import { Game } from "../../../..";
+import { CommandHelpers } from "../Command.helpers";
 
 export class CommandMenu extends TurnState {
   get type() { return CommandMenu; }
@@ -105,15 +106,14 @@ export class CommandMenu extends TurnState {
         : Command.Wait.serial;
       instruction.action = commandValue;
 
-      if (commandValue == Command.Attack.serial)
-        this.advance(ChooseAttackTarget);
-      else if (commandValue === Command.Drop.serial) {
+      // TODO This should probably be inferred by some property of CommandObject (Drop)
+      if (commandValue === Command.Drop.serial) {
         const drop = menu.selectedValue as typeof Command.Drop;
         instruction.which = drop.index;
-        this.advance(DropLocation, CommandMenu);
-      } else {
-        this.advance();
       }
+
+      const cmd = CommandHelpers.getCommandObject(commandValue);
+      this.advance(...cmd.ingressSteps);
     }
 
     // If B, cancel, revert state

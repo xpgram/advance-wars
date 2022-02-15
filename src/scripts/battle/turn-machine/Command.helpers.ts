@@ -1,5 +1,6 @@
 import { Command } from "./Command";
 import { instructionData } from "./InstructionData";
+import { TurnStateConstructor } from "./TurnState";
 
 export module CommandHelpers {
 
@@ -32,8 +33,14 @@ export module CommandHelpers {
 
   /** Interface all Commands must adhere to. */
   export type CommandObject = {
-    /**  */
+    /** A reference to this command object's type. */
     readonly type: CommandObject,
+    /** A list of Commands and the order they must be scheduled when this
+     * command is invoked. */
+    readonly chain: CommandObject[],
+    /** A list of TurnStates which must be ingressed through to complete
+     * the information prerequisites to invoke this command. */
+    readonly ingressSteps: TurnStateConstructor[],
     /** Name string; use as menu option title. */
     readonly name: string,
     /** Command identification serial. */
@@ -42,8 +49,6 @@ export module CommandHelpers {
     readonly weight: Weight,
     /** True if this command's execution leaves the actor unable to take further action. */
     readonly spendsUnit: boolean,
-    /**  */
-    readonly chain: CommandObject[],
     /** Returns true if this command should be included in a ListMenu. */
     triggerInclude: () => boolean,
     /** Effects changes on the board. */

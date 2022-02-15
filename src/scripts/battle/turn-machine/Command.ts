@@ -17,6 +17,10 @@ import { CommonRangesRetriever } from "../unit-actions/RegionMap";
 import { UnitObject } from "../UnitObject";
 import { CommandHelpers } from "./Command.helpers";
 import { instructionData } from "./InstructionData";
+import { ChooseAttackTarget } from "./states/ChooseAttackTarget";
+import { ChooseMapTarget } from "./states/ChooseMapTarget";
+import { CommandMenu } from "./states/CommandMenu";
+import { DropLocation } from "./states/DropLocation";
 
 
 const { data } = instructionData;
@@ -28,6 +32,7 @@ type CommandObject = CommandHelpers.CommandObject;
 
 /** Default command object properties. */
 const cmdDefaults = {
+  ingressSteps: [],
   spendsUnit: true,
   triggerInclude() { return false; },
   scheduleEvent() { return ExitCode.Success; },
@@ -113,6 +118,7 @@ export module Command {
 
     get type() { return Attack; },
     get chain() { return [Move, Attack]; },
+    get ingressSteps() { return [ChooseAttackTarget]; },
     name: "Fire",
     serial: Serial.next().value,
     weight: Weight.Primary,
@@ -298,14 +304,10 @@ export module Command {
 
     get type() { return Flare; },
     get chain() { return [Move, Flare]; },
+    get ingressSteps() { return [ChooseMapTarget]; },
     name: "Flare",
     serial: Serial.next().value,
     weight: Weight.Secondary,
-
-    // TODO This needs to invoke ChooseMapTarget because it needs a focal.
-    // How do I wanna do that?
-    // How should Commands describe what information they need to function?
-    // This is a question I've been delaying for a while.
 
     triggerInclude() {
       const { actor, plansToMove } = data;
@@ -319,7 +321,10 @@ export module Command {
       boardEvents.schedule(new GenericRatifyEvent({
         location: focal,
         ratify: () => {
-          const areaMap = CommonRangesRetriever({min:0,max:3});
+          // TODO This range is the same for ChooseMapTarget as it is here.
+          // Should this be a property of Flare?
+          // It needs to be extracted somewhere.
+          const areaMap = CommonRangesRetriever({min:0,max:2});
           areaMap.points.forEach( p => {
             map.squareAt(p.add(focal)).hiddenFlag = false;
           })
@@ -399,6 +404,7 @@ export module Command {
     
     get type() { return Drop; },
     get chain() { return [Move, Drop]; },
+    get ingressSteps() { return [DropLocation, CommandMenu]; },
     name: "Drop",
     serial: Serial.next().value,
     weight: Weight.Secondary,
