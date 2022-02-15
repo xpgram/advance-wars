@@ -544,6 +544,7 @@ export class Map {
             if (color) {
                 square.moveFlag = false;
                 square.attackFlag = false;
+                square.targetFlag = false;
             }
             if (arrows) {
                 square.arrowFrom = 0;
