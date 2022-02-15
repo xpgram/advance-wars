@@ -17,7 +17,7 @@ Collect assets for:
 - [ ] Flare shot and descend anim
 - [ ] Silo up and down + explosion (+ crater?) anim
 
-- [ ] A cmd variant, called AreaCommand or some shit, must exist to allow AoE region maps to be pulled from the GetCommandBySerial result; Flare and LaunchSilo have (technically) distinct AoE range effects and need a way to describe, themselves, what they do to the ChooseMapTarget turnstate.
+- [ ] A cmd variant, called AreaCommand or some shit, must exist to allow AoE region maps to be pulled from the GetCommandBySerial result; Flare and LaunchSilo have (technically) distinct AoE range effects and need a way to describe, themselves, what they do in the ChooseMapTarget turnstate.
 - [ ] Convert `player.units.forEach(u => { if (u.onMap)})` to `player.units.unitsOnMap.forEach(u => {})`
 - [ ] Map name text during player turn splash is not centered around drift-container orbit point.
 - [ ] EndTurn->MoveCamera->UpdateSightMap->PlayerCard

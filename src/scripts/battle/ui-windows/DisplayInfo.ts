@@ -3,6 +3,10 @@
 // What if this was imported from a different scene? How can I guarantee
 // the assets are actually available?
 
+// TODO Keep the asset import strings here as well; at least then I'd
+// only have to edit one file. I mean, I would still have to edit the
+// linking call, but the proper details would all be in one place.
+
 export const fonts = {
     title: {fontName: 'font-title', fontSize: 10},
     scriptOutlined: {fontName: 'font-map-ui', fontSize: 14},
