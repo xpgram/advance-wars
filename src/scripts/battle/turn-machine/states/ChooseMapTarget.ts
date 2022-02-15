@@ -20,6 +20,7 @@ export class ChooseMapTarget extends TurnState {
     const { map, mapCursor, trackCar } = this.assets;
     const { place, placeTile } = this.data;
 
+    map.clearTileOverlay();
     mapCursor.show();
     trackCar.show();
 
