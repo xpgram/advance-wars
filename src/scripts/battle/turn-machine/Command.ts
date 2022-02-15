@@ -13,6 +13,7 @@ import { RevealNeighborsEvent } from "../map/tile-effects/RevealNeighborsEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
 import { Unit } from "../Unit";
+import { CommonRangesRetriever } from "../unit-actions/RegionMap";
 import { UnitObject } from "../UnitObject";
 import { CommandHelpers } from "./Command.helpers";
 import { instructionData } from "./InstructionData";
@@ -289,6 +290,44 @@ export module Command {
       }));
       return ExitCode.Success;
     }
+  }
+
+  /**  */
+  export const Flare: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return Flare; },
+    get chain() { return [Move, Flare]; },
+    name: "Flare",
+    serial: Serial.next().value,
+    weight: Weight.Secondary,
+
+    // TODO This needs to invoke ChooseMapTarget because it needs a focal.
+    // How do I wanna do that?
+    // How should Commands describe what information they need to function?
+    // This is a question I've been delaying for a while.
+
+    triggerInclude() {
+      const { actor, plansToMove } = data;
+      return (!plansToMove && actor.type === Unit.Flare);
+    },
+
+    scheduleEvent() {
+      const { map, boardEvents } = data.assets;
+      const { focal } = data;
+
+      boardEvents.schedule(new GenericRatifyEvent({
+        location: focal,
+        ratify: () => {
+          const areaMap = CommonRangesRetriever({min:0,max:3});
+          areaMap.points.forEach( p => {
+            map.squareAt(p.add(focal)).hiddenFlag = false;
+          })
+        }
+      }))
+
+      return ExitCode.Success;
+    },
   }
 
   /** Unit combines with allied unit at goal command. */
