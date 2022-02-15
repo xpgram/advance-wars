@@ -1,10 +1,10 @@
 import { Terrain } from "../scripts/battle/map/Terrain";
 import { Unit } from "../scripts/battle/Unit";
 
-const { Plain, Sea, Wood, Mountain, Road, Bridge, City, Factory, Airport, Port, Beach, RoughSea, Reef, Fire, ComTower, Radar, HQ} = Terrain;
-const Ttypes = [ Plain, Sea, Wood, Mountain, Road, Bridge, City, Factory, Airport, Port, Beach, RoughSea, Reef, Fire, ComTower, Radar, HQ ];
+const { Plain, Sea, Wood, Mountain, Road, Bridge, City, Factory, Airport, Port, Silo, Beach, RoughSea, Reef, Fire, ComTower, Radar, HQ} = Terrain;
+const Ttypes = [ Plain, Sea, Wood, Mountain, Road, Bridge, City, Factory, Airport, Port, Silo, Beach, RoughSea, Reef, Fire, ComTower, Radar, HQ ];
 const Tserials = Ttypes.map( t => t.serial );
-const [ pln, sea, wod, mtn, rod, bdg, cty, fct, apt, prt, bch, rgh, ref, fir, com, rad, hq ] = Tserials;
+const [ pln, sea, wod, mtn, rod, bdg, cty, fct, apt, prt, sil, bch, rgh, ref, fir, com, rad, hq ] = Tserials;
 
 const { Infantry, Mech, Bike, Rig, Flare, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, Fighter, BCopter, TCopter, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine } = Unit;
 const Utypes = [ Infantry, Mech, Bike, Rig, Flare, Tank, MdTank, AntiAir, Artillery, Rockets, Missiles, Fighter, BCopter, TCopter, GunBoat, Lander, Carrier, Cruiser, Battleship, Submarine ];
@@ -36,7 +36,7 @@ export const data = {
     [sea,sea,sea,fct,hq ,fct,sea,sea,sea,sea,sea,pln,pln,pln,pln,wod,wod,wod,pln,fct,pln,pln,pln,pln,bch,bch,sea,sea,sea,sea,sea,sea],
     [sea,cty,bdg,pln,fct,pln,prt,sea,sea,sea,sea,sea,sea,pln,pln,pln,pln,wod,wod,wod,wod,pln,apt,pln,pln,wod,bch,sea,sea,sea,sea,sea],
     [sea,cty,sea,sea,bch,bch,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,pln,pln,wod,wod,wod,pln,pln,pln,wod,pln, hq,bch,sea,sea,sea,sea],
-    [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,cty,pln,wod,pln,pln,wod,pln,pln,pln,wod,bch,sea,sea,sea],
+    [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,cty,pln,wod,pln,sil,wod,pln,pln,pln,wod,bch,sea,sea,sea],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,bch,pln,pln,pln,wod,pln,bch,bch,pln,wod,bch,sea,sea,sea,sea],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,bch,pln,pln,wod,wod,sea,sea,bch,bch,sea,sea,sea,sea,sea],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,bch,pln,wod,wod,pln,sea,sea,sea,sea,sea,sea,sea,sea,sea],

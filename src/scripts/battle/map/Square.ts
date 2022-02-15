@@ -71,6 +71,7 @@ export class Square {
     private static readonly bitmask = Common.freezeObject({
         moveable   : BitIO.Generate(1,0),
         attackable : BitIO.Generate(1),
+        targetable : BitIO.Generate(1),
         dangerous  : BitIO.Generate(1),
         hidden     : BitIO.Generate(1),
         hideUnit   : BitIO.Generate(1),
@@ -176,6 +177,11 @@ export class Square {
         const bitmask = Square.bitmask.attackable;
         return BitIO.GetBoolean(this.displayInfo, bitmask);
     }
+    /** Whether this tile is targetable for some action. */
+    get targetFlag(): boolean {
+        const bitmask = Square.bitmask.targetable;
+        return BitIO.GetBoolean(this.displayInfo, bitmask);
+    }
     /** Whether this tile is attackable by enemy troops. */
     get dangerFlag(): boolean {
         const bitmask = Square.bitmask.dangerous;
@@ -232,6 +238,10 @@ export class Square {
     }
     set attackFlag(value) {
         const bitmask = Square.bitmask.attackable;
+        this.displayInfoSet(~~value, bitmask);
+    }
+    set targetFlag(value) {
+        const bitmask = Square.bitmask.targetable;
         this.displayInfoSet(~~value, bitmask);
     }
     set dangerFlag(value) {
@@ -301,6 +311,8 @@ export class Square {
             setColor(colors.blue);
         else if (this.attackFlag)
             setColor(colors.red);
+        else if (this.targetFlag)
+            setColor(colors.blue);
         else if (this.dangerFlag)
             setColor(colors.maroon);
         else if (this.hiddenFlag)
