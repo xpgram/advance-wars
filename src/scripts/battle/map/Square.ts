@@ -363,6 +363,25 @@ export class Square {
         }
     }
 
+    /** Selectively clear common UI and algorithmic settings. */
+    clearValues(options: {tempVals?: boolean, colorFlags?: boolean, arrowPaths?: boolean}) {
+        const { tempVals, colorFlags, arrowPaths } = options;
+
+        if (tempVals) {
+            this.value = -1;
+            this.flag = false;
+        }
+        if (colorFlags) {
+            this.moveFlag = false;
+            this.attackFlag = false;
+            this.targetFlag = false;
+        }
+        if (arrowPaths) {
+            this.arrowFrom = 0;
+            this.arrowTo = 0;
+        }
+    }
+
     /** The neighboring tiles adjacent to this one. */
     get neighbors() {
         return this.map.neighborsAt(this.pos);

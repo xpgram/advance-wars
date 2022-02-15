@@ -526,52 +526,29 @@ export class Map {
                p.y >= 0 && p.y < this.height;
     }
 
-    /** A base for the other map-clearing methods to lean on. This pattern helps ensure the map iter request
-     * is always once only without lots of repeated code. */
-    private clearMapValues(options: {tempVals?: boolean, colorFlags?: boolean, arrowPaths?: boolean}) {
-        let temp = options.tempVals || false;
-        let color = options.colorFlags || false;
-        let arrows = options.arrowPaths || false;
-
-        for (let y = 0; y < this.height; y++)
-        for (let x = 0; x < this.width; x++) {
-            let square = this.squareAt({x:x, y:y});
-
-            if (temp) {
-                square.value = -1;
-                square.flag = false;
-            }
-            if (color) {
-                square.moveFlag = false;
-                square.attackFlag = false;
-                square.targetFlag = false;
-            }
-            if (arrows) {
-                square.arrowFrom = 0;
-                square.arrowTo = 0;
-            }
-        }
-    }
-
     /** Sets all temporary store values on the map to zero.
      * Note that this method is often invoked by other clear-fields methods. */
     clearTemporaryValues() {
-        this.clearMapValues({tempVals: true});
+        const options = {tempVals: true};
+        this.squares.forEach( s => s.clearValues(options) );
     }
 
     /** Sets all colored tile overlays to off and clears all temporary store values. */
     clearTileOverlay() {
-        this.clearMapValues({tempVals: true, colorFlags: true});
+        const options = {tempVals: true, colorFlags: true};
+        this.squares.forEach( s => s.clearValues(options) );
     }
 
     /** Sets all arrow-path overlays to off. */
     clearTileArrows() {
-        this.clearMapValues({arrowPaths: true});
+        const options = {arrowPaths: true};
+        this.squares.forEach( s => s.clearValues(options) );
     }
 
     /** Sets all colored tile and arrow-path overlays to off and clears all temporary store values. */
     clearMovementMap() {
-        this.clearMapValues({tempVals: true, colorFlags: true, arrowPaths: true});
+        const options = {tempVals: true, colorFlags: true, arrowPaths: true};
+        this.squares.forEach( s => s.clearValues(options) );
     }
 
     /** Hides every tile on the map. Useful for establishing a base sight map to selectively reveal
