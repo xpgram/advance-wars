@@ -47,6 +47,12 @@ export class Map {
      * Should never be used directly unless you intend to deal with the border of blank terrain objects. */
     private board: Square[][] = [];
 
+    /** An array representing all tiles that make up the map.
+     * Useful for lambda operations. */
+    get squares(): Square[] {
+        return this.board.flat();
+    }
+
     /** Returns a z-index number based on the board-coordinates given. */
     static calculateZIndex(point: ImmutablePointPrimitive) {
         return -point.x;
