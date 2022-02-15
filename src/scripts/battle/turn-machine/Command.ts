@@ -269,7 +269,7 @@ export module Command {
 
       boardEvents.schedule(new GenericRatifyEvent({
         location: place,
-        time: .2,
+        present: true,
         ratify: () => {
           actor.hiding = true;
           // TODO Update actor vis; this will probs duplicate some code in TurnStart, so I need to extract.
@@ -526,7 +526,7 @@ export module Command {
 
       boardEvents.schedule(new GenericRatifyEvent({
         location: focal,
-        time: .6,
+        present: true,
         ratify: () => {
           const dmgLim = 10; // Cannot reduce HP below this threshold
           const dmg = 30;    // Maximum damage done to HP
