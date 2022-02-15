@@ -2,6 +2,7 @@ import { CardinalVector, SumCardinalsToVector } from "../../Common/CardinalDirec
 import { Point } from "../../Common/Point";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
+import { Terrain } from "../map/Terrain";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
@@ -298,7 +299,7 @@ export module Command {
     }
   }
 
-  /**  */
+  /** Unit launches a flare, illuminating hidden areas on the map. */
   export const Flare: CommandObject = {
     ...cmdDefaults,
 
@@ -480,6 +481,53 @@ export module Command {
           // TODO Update sight map if CO unit has ++vision?
         }
       }));
+
+      return ExitCode.Success;
+    },
+  }
+
+  export const LaunchSilo: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return LaunchSilo; },
+    get chain() { return [Move, LaunchSilo]; },
+    get ingressSteps() { return [ChooseMapTarget]; },
+    name: "Missile",
+    serial: Serial.next().value,
+    weight: Weight.Tertiary,
+
+    triggerInclude() {
+      const { actor, goalTerrain } = data;
+      return (actor.soldierUnit && goalTerrain.type === Terrain.Silo);
+    },
+
+    scheduleEvent() {
+      const { map, boardEvents } = data.assets;
+      const { focal } = data;
+
+      const region = CommonRangesRetriever({min:0,max:2});
+
+      // TODO Schedule MissileUp event    (move camera; animate missile)
+      // TODO Schedule MissileDown event  (move camera; blow up boys)
+
+      boardEvents.schedule(new GenericRatifyEvent({
+        location: focal,
+        time: .6,
+        ratify: () => {
+          const dmgLim = 10; // Cannot reduce HP below this threshold
+          const dmg = 30;    // Maximum damage done to HP
+
+          region.points
+            .map( p => p.add(focal) )
+            .forEach( p => {
+              const tile = map.squareAt(p);
+              const unit = tile.unit;
+              if (unit && unit.hp > dmgLim) {
+                unit.hp = Math.max(dmgLim, unit.hp - dmg);
+              }
+            })
+        }
+      }))
 
       return ExitCode.Success;
     },
