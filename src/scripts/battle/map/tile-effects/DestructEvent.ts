@@ -1,10 +1,6 @@
-import { Spritesheet } from "pixi.js";
-import { Game } from "../../../..";
-import { UnitClass } from "../../EnumTypes";
 import { TrackCar } from "../../TrackCar";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { UnitObject } from "../../UnitObject";
-import { MapLayer } from "../MapLayers";
 import { BattleDamageEvent } from "./BattleDamageEvent";
 
 interface DestructEventOptions {

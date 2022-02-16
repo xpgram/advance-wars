@@ -5,6 +5,7 @@ import { DamageScript } from "../DamageScript";
 import { Terrain } from "../map/Terrain";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
+import { DiveEvent } from "../map/tile-effects/DiveEvents";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
 import { GenericRatifyEvent } from "../map/tile-effects/GenericRatifyEvent";
 import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
@@ -265,17 +266,12 @@ export module Command {
 
     scheduleEvent() {
       const { boardEvents } = data.assets;
-      const { actor, place } = data;
+      const { actor, place, assets } = data;
 
-      boardEvents.schedule(new GenericRatifyEvent({
+      boardEvents.schedule(new DiveEvent({
+        unit: actor,
         location: place,
-        present: true,
-        ratify: () => {
-          actor.hiding = true;
-          // TODO Update actor vis; this will probs duplicate some code in TurnStart, so I need to extract.
-          // Square has access to map — at least I think it does — so it can evaluate whether to actually show the
-          // unit or not. I mean, it does that anyway.
-        }
+        assets,
       }));
 
       return ExitCode.Success;
@@ -299,16 +295,14 @@ export module Command {
     
     scheduleEvent() {
       const { boardEvents } = data.assets;
-      const { actor, goal } = data;
-      boardEvents.schedule(new GenericRatifyEvent({
+      const { actor, goal, assets } = data;
+
+      boardEvents.schedule(new DiveEvent({
+        unit: actor,
         location: goal,
-        ratify: () => {
-          actor.hiding = false;
-          // TODO Update actor vis; this will probs duplicate some code in TurnStart, so I need to extract.
-          // Square has access to map — at least I think it does — so it can evaluate whether to actually show the
-          // unit or not. I mean, it does that anyway.
-        }
+        assets,
       }));
+      
       return ExitCode.Success;
     }
   }

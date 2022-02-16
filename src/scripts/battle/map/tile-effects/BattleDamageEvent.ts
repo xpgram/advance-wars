@@ -61,7 +61,12 @@ export class BattleDamageEvent extends TileEvent {
     const worldPos = boardPos.multiply(Game.display.standardLength);
 
     // Determine animation variant
-    const destructVariant = (defender.unitClass === UnitClass.Naval) ? 'wet' : 'dry';
+    const variants = {} as Record<UnitClass, string>;
+    variants[UnitClass.Ground] = 'dry';
+    variants[UnitClass.Naval]  = 'wet';
+    variants[UnitClass.Air]    = 'air';
+
+    const destructVariant = variants[defender.unitClass];
     const destructAnim = `explosion-${destructVariant}`;
     const damageAnim = `damage-hit`;
 
@@ -71,6 +76,7 @@ export class BattleDamageEvent extends TileEvent {
     // Get animation object
     const sheet = Game.scene.resources[`VFXSpritesheet`].spritesheet as PIXI.Spritesheet;
     const textures = sheet.animations[anim];
+    textures.push(PIXI.Texture.EMPTY);
     this.vfx = new PIXI.AnimatedSprite(textures);
 
     // Configure animation settings
