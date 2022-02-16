@@ -12,8 +12,8 @@ But anyway, yeah. There is constant state checking because his system never just
 - [ ] Source game reveals sight map and adjacent units at same time. Mine does the first before the second.
 
 Collect assets for:
-- [ ] Sub dive/surface anim
-- [ ] Air units blow up anim (again)
+- [x] Sub dive/surface anim
+- [x] Air units blow up anim (again)
 - [ ] Flare shot and descend anim
 - [ ] Silo up and down + explosion (+ crater?) anim
 
@@ -36,7 +36,7 @@ Collect assets for:
 - [x] Range Reticle
 - [x] Made an integral feature of MapCursor for easy access everywhere.
 - [ ] Applied to CoAffected tiles
-- [ ] Applied to Silos
+- [x] Applied to Silos
 
 - [ ] Timer is skippable (max time, order chronology by until?, run update once [complete all tweens])
 - [ ] Timer.every() has max occurrences setting.
@@ -102,7 +102,6 @@ Todo List cleanup: (some easy ones)
     - [ ] Normal: All
     - [ ] Shop: Details (forced open), Terrain; or by convenience, All - hud
     - [ ] Hidden: None
-- [ ] Aircraft have a different explosion animation. ... Wtf. I specifically asked!
 - [ ] DisplayInfo.ts → Typefaces.ts or something, jfc
 
 - [ ] Travel Car checks after each completed tile move if its current position is hidden, adjusts visibility accordingly.
