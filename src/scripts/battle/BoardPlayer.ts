@@ -163,7 +163,7 @@ export class BoardPlayer {
 
   /** A list of all owned units which are placed on the map and not held inside
    * another unit's cargo or some other nebulous space. */
-  get onMapUnits() {
+  get unitsOnMap() {
     return this.units.filter( u => u.onMap );
   }
 
@@ -301,12 +301,9 @@ export class BoardPlayer {
   setCoBoardableIndicators() {
     const { map, scenario } = this;
 
-    this.units.forEach( u => {
-      if (!u.onMap) {
-        u.CoCouldBoard = false;
-        return;
-      }
+    this.clearCoBoardableIndicators();
 
+    this.unitsOnMap.forEach( u => {
       const square = map.squareAt(u.boardLocation);
       const spawnMap = scenario.spawnMap.find( tile => tile.type === square.terrain.type );
 

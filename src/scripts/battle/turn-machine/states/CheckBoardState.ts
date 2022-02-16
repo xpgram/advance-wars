@@ -46,7 +46,7 @@ export class CheckBoardState extends TurnState {
         return;
 
       // Schedule unit destruction
-      p.units.forEach( u => boardEvents.schedule(
+      p.unitsOnMap.forEach( u => boardEvents.schedule(
         new DestructEvent({
           assets: this.assets,
           unit: u,

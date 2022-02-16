@@ -27,10 +27,7 @@ export class StandbyPhase extends TurnState {
     let remainingFunds = player.funds;
 
     // Per Unit effects
-    player.units.forEach( unit => {
-      if (!unit.onMap)
-        return;
-
+    player.unitsOnMap.forEach( unit => {
       const neighbors = map.neighborsAt(unit.boardLocation);
       const square = neighbors.center;
       const terrain = square.terrain;

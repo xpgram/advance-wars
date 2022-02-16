@@ -26,9 +26,8 @@ export class ResetPerspective extends TurnState {
 
       // Reveal vis from allied units
       // if scenario.sharedSightMap include players.sameTeam(players.perspective)?
-      players.perspective.units.forEach( unit => {
-        if (unit.onMap)
-          map.revealSightMapLocation(unit.boardLocation, players.perspective, unit);
+      players.perspective.unitsOnMap.forEach( unit => {
+        map.revealSightMapLocation(unit.boardLocation, players.perspective, unit);
       });
 
       // Reveal vis from allied bases
@@ -46,10 +45,7 @@ export class ResetPerspective extends TurnState {
     }
 
     // Update unit hidden status
-    players.allUnits.forEach( unit => {
-      if (!unit.onMap)
-        return;
-      
+    players.allUnitsOnMap.forEach( unit => {
       const neighbors = map.neighborsAt(unit.boardLocation);
       const square = neighbors.center;
       const terrain = square.terrain;
