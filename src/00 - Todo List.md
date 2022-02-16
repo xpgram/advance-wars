@@ -18,6 +18,9 @@ Collect assets for:
 - [ ] Silo up and down + explosion (+ crater?) anim
 
 - [ ] A cmd variant, called AreaCommand or some shit, must exist to allow AoE region maps to be pulled from the GetCommandBySerial result; Flare and LaunchSilo have (technically) distinct AoE range effects and need a way to describe, themselves, what they do in the ChooseMapTarget turnstate.
+- [ ] Ambushes don't stop Drop.schedule() from being called.
+  I could fix this by [ ] requiring DropEvent to verify that actor is at the goal position. I don't know if that fixes the fundamental problem, though.
+  How does Command.Move get called when calling drop anyway, huh? I think I end up defaulting to Wait. Do I have to? Could I possibly leave the selected cmd as Drop? This would mean that Move, which is or would be, a member of Drop's chain, could interrupt Drop's schedule() call. Currently it gets extraprocedurally called always, every order.
 - [x] Convert `player.units.forEach(u => { if (u.onMap)})` to `player.units.unitsOnMap.forEach(u => {})`
 - [ ] Map name text during player turn splash is not centered around drift-container orbit point.
 - [ ] EndTurn->MoveCamera->UpdateSightMap->PlayerCard
