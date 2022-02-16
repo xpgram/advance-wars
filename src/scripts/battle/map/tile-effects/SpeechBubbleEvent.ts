@@ -89,7 +89,8 @@ export class SpeechBubbleEvent extends TileEvent {
     this.image.alpha = this.animSlider.output;
 
     if (this.shake && this.animSlider.equalsMax()) {
-      const x = Math.sign(Math.sin(this.timer.elapsed*16*Math.PI));
+      const clock = Math.sin(this.timer.elapsed*12*Math.PI);
+      const x = Number(clock > 0);
       this.image.x = this.position.x + x;
     }
 
