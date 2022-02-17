@@ -12,6 +12,7 @@ import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
 import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
 import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
 import { RevealNeighborsEvent } from "../map/tile-effects/RevealNeighborsEvent";
+import { SiloLaunchEvent } from "../map/tile-effects/SiloLaunchEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
 import { Unit } from "../Unit";
@@ -302,7 +303,7 @@ export module Command {
         location: goal,
         assets,
       }));
-      
+
       return ExitCode.Success;
     }
   }
@@ -511,30 +512,34 @@ export module Command {
 
     scheduleEvent() {
       const { map, boardEvents } = data.assets;
-      const { focal } = data;
+      const { goal, focal } = data;
 
       const region = CommonRangesRetriever({min:0,max:2});
 
       // TODO Schedule MissileUp event    (move camera; animate missile)
       // TODO Schedule MissileDown event  (move camera; blow up boys)
 
-      boardEvents.schedule(new GenericRatifyEvent({
-        location: focal,
-        present: true,
-        ratify: () => {
-          const dmgLim = 10; // Cannot reduce HP below this threshold
-          const dmg = 30;    // Maximum damage done to HP
+      boardEvents.schedule(
+        new SiloLaunchEvent({
+          location: goal,
+        }),
+        new GenericRatifyEvent({
+          location: focal,
+          present: true,
+          ratify: () => {
+            const dmgLim = 10; // Cannot reduce HP below this threshold
+            const dmg = 30;    // Maximum damage done to HP
 
-          region.points
-            .map( p => p.add(focal) )
-            .forEach( p => {
-              const tile = map.squareAt(p);
-              const unit = tile.unit;
-              if (unit && unit.hp > dmgLim) {
-                unit.hp = Math.max(dmgLim, unit.hp - dmg);
-              }
-            })
-        }
+            region.points
+              .map( p => p.add(focal) )
+              .forEach( p => {
+                const tile = map.squareAt(p);
+                const unit = tile.unit;
+                if (unit && unit.hp > dmgLim) {
+                  unit.hp = Math.max(dmgLim, unit.hp - dmg);
+                }
+              })
+          }
       }))
 
       return ExitCode.Success;
