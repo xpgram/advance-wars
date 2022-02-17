@@ -1,3 +1,4 @@
+import { Game } from "../../../..";
 import { Ease } from "../../../Common/EaseMethod";
 import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
@@ -22,21 +23,23 @@ export class SiloLaunchEvent extends TileEvent {
   protected create(): void {
     const { location } = this.options;
 
-    const g = new PIXI.Graphics();
-    g.beginFill(0xFFFFFF);
-    g.drawRect(0,0,8,16);
-    g.endFill();
+    const sheet = Game.scene.resources['VFXSpritesheet'].spritesheet as PIXI.Spritesheet;
+    const textures = sheet.animations['silo-rocket'];
 
-    this.rocket = new PIXI.Container();
+    this.rocket = new PIXI.AnimatedSprite(textures);
+    this.rocket.animationSpeed = 1/4;
     this.rocket.position.set(
       location.x * 16,
-      location.y * 16,
+      location.y * 16 + 8,
     )
-    this.rocket.addChild(g);
+    this.rocket.play();
+
     MapLayer('ui').addChild(this.rocket);
 
+    // TODO Use camera height as the displace number?
+
     Timer
-      .tween(.8, this.rocket, {y: this.rocket.y - 256}, Ease.cbcirc.in)
+      .tween(1, this.rocket, {y: this.rocket.y - 256}, Ease.quint.in)
       .wait()
       .do(n => this.finish())
   }
