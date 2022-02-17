@@ -56,6 +56,8 @@ export class DiveEvent extends TileEvent {
   protected update(): void {
     const lastidx = this.vfx.textures.length - 1;
     const curidx = this.vfx.currentFrame;
+    const progress = curidx / lastidx;
+    this.vfx.alpha = .8-(progress / 2);
 
     if (curidx === lastidx)
       this.finish();
