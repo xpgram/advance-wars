@@ -179,7 +179,8 @@ export abstract class UnitObject {
             return UnitProperties.sheet.animations[`${name}/${army}/${color}/${action}`];
         }
         let vehicleSprites = (name: string, army: string, color: string, action: string): PIXI.Texture[] => {
-            return UnitProperties.sheet.animations[`${name}/${color}/${action}`];
+            const textures = UnitProperties.sheet.animations[`${name}/${color}/${action}`];
+            return textures || [PIXI.Texture.EMPTY];
         }
 
         // Pick the spriteset lookup function relevant to this unit.
@@ -195,7 +196,8 @@ export abstract class UnitObject {
 
         // Typically, this happens because new Unit() does not .init(), meaning faction is left blank or whatever. No bueno. I need to refactor a bit.
         // I think this method just needs to ensure it's only called on 'existing' units, not just constructed ones.
-        Debug.assert(Boolean(o.up) && Boolean(o.down) && Boolean(o.left), `Generated set of movement textures is not complete or does not exist. [Up:${Boolean(o.up)}, Down:${Boolean(o.down)}, Left:${Boolean(o.left)}]`);
+        if (!(Boolean(o.up) && Boolean(o.down) && Boolean(o.left)))
+            Debug.ping(`Generated set of movement textures is not complete or does not exist. [Up:${Boolean(o.up)}, Down:${Boolean(o.down)}, Left:${Boolean(o.left)}]`);
 
         return o;
     }

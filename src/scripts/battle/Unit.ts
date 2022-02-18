@@ -749,39 +749,38 @@ export const Unit = {
         }}
     },
 
-    // TODO I'm missing assets.
-    // BlackBomb: class BlackBombUnit extends UnitObject {
-    //     get type() { return BlackBombUnit; }
-    //     static readonly serial = 21;
-    //     get serial() { return 21; }
-    //     get name() { return "Black Bomb"; }
-    //     get shortName() { return "B Bomb"; }
-    //     get description() { return "An unmanned aerial unit. This unit can /explode/ at will, damaging all units within 3 spaces."; }
-    //     get cost() { return 25000; }
+    Seeker: class SeekerUnit extends UnitObject {
+        get type() { return SeekerUnit; }
+        static readonly serial = 21;
+        get serial() { return 21; }
+        get name() { return "Seeker"; }
+        get shortName() { return "Seeker"; }
+        get description() { return "An unmanned aerial unit. This unit can /explode/ at will, damaging all units within 3 spaces."; }
+        get cost() { return 25000; }
     
-    //     get maxGas() { return 45; }
-    //     get maxAmmo() { return 0; }
-    //     get maxMovementPoints() { return 7; }
-    //     get vision() { return 1; }
-    //     get range() { return {min: 0, max: 0}; }  
+        get maxGas() { return 45; }
+        get maxAmmo() { return 0; }
+        get maxMovementPoints() { return 7; }
+        get vision() { return 1; }
+        get range() { return {min: 0, max: 0}; }  
     
-    //     get unitClass() { return UnitClass.Air; }
-    //     get moveType() { return MoveType.Air; }
-    //     get armorType() { return ArmorType.Air; }
+        get unitClass() { return UnitClass.Air; }
+        get moveType() { return MoveType.Air; }
+        get armorType() { return ArmorType.Air; }
         
-    //     get weapon() { return {
-    //         primary: {
-    //             name: '',
-    //             targetMap: [0,0,0,0,0,0],
-    //             damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    //         },
-    //         secondary: {
-    //             name: '',
-    //             targetMap: [0,0,0,0,0,0],
-    //             damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    //         }
-    //     }}
-    // },
+        get weapon() { return {
+            primary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            secondary: {
+                name: '',
+                targetMap: [0,0,0,0,0,0],
+                damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        }}
+    },
 
     Battleship: class BattleshipUnit extends UnitObject {
         get type() { return BattleshipUnit; }

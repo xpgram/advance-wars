@@ -41,10 +41,10 @@ export const defaultUnitSpawnMap = [
     Unit.Rig,
   ]),
   new UnitSpawnMap(Terrain.Airport, [
-    // Unit.BlackBomb,
-    Unit.Stealth,
     Unit.Fighter,
     Unit.Bomber,
+    Unit.Stealth,
+    Unit.Seeker,
     Unit.Duster,
     Unit.BCopter,
     Unit.TCopter,
