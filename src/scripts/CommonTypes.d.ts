@@ -45,6 +45,18 @@ type Point3D = {
     z: number
 }
 
+/** Selectively requires members of type T as described by the union type K.  
+ * Written like `Include<Object, 'name' | 'range'>`. */
+type Include<T, K extends keyof T> = Required<Pick<T,K>> & Omit<T,K>;
+
+/** Selectively adds uncertainty to members of type T as described by the union type K.  
+ * Written like `Optional<Object, 'name' | 'range'>`. */
+type Optional<T, K extends keyof T> = Partial<Pick<T,K>> & Omit<T,K>;
+
+/** Selectively immutablifies members of type T as described by the union type K.  
+ * Written like `Const<Object, 'name' | 'range'>`. */
+type Const<T, K extends keyof T> = Readonly<Pick<T,K>> & Omit<T,K>;
+
 /** A dictionary-type which uses numbers as keys.
  * @deprecated Record<Y,T> makes this obsolete. */
 type NumericDictionary<T> = Iterable<T> & {

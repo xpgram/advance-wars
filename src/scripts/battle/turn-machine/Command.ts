@@ -1,5 +1,6 @@
 import { CardinalVector, SumCardinalsToVector } from "../../Common/CardinalDirection";
 import { Point } from "../../Common/Point";
+import { Include } from "../../CommonTypes";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { Terrain } from "../map/Terrain";
@@ -16,7 +17,7 @@ import { SiloLaunchEvent } from "../map/tile-effects/SiloLaunchEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
 import { Unit } from "../Unit";
-import { CommonRangesRetriever } from "../unit-actions/RegionMap";
+import { CommonRangesRetriever, RegionMap } from "../unit-actions/RegionMap";
 import { UnitObject } from "../UnitObject";
 import { CommandHelpers } from "./Command.helpers";
 import { instructionData } from "./InstructionData";
@@ -28,10 +29,12 @@ import { DropLocation } from "./states/DropLocation";
 
 const { data } = instructionData;
 
+// TODO Move these feckign types out of the module; they're inaccessible.
 const { ExitCode, Weight, Serial, RatificationError } = CommandHelpers;
 type ExitCode = CommandHelpers.ExitCode;
 type Weight = CommandHelpers.Weight;
 type CommandObject = CommandHelpers.CommandObject;
+type UniqueStats = CommandHelpers.UniqueStats;
 
 /** Default command object properties. */
 const cmdDefaults = {
@@ -309,7 +312,7 @@ export module Command {
   }
 
   /** Unit launches a flare, illuminating hidden areas on the map. */
-  export const Flare: CommandObject = {
+  export const Flare: CommandObject & Include<UniqueStats, 'effectAreaMap' | 'range'> = {
     ...cmdDefaults,
 
     get type() { return Flare; },
@@ -318,6 +321,9 @@ export module Command {
     name: "Flare",
     serial: Serial.next().value,
     weight: Weight.Secondary,
+
+    effectAreaMap: CommonRangesRetriever({min:0,max:2}),
+    range: {min:0,max:5},
 
     triggerInclude() {
       const { actor, plansToMove } = data;
@@ -331,11 +337,7 @@ export module Command {
       boardEvents.schedule(new GenericRatifyEvent({
         location: focal,
         ratify: () => {
-          // TODO This range is the same for ChooseMapTarget as it is here.
-          // Should this be a property of Flare?
-          // It needs to be extracted somewhere.
-          const areaMap = CommonRangesRetriever({min:0,max:2});
-          areaMap.points.forEach( p => {
+          this.effectAreaMap.points.forEach( p => {
             map.squareAt(p.add(focal)).hiddenFlag = false;
           })
         }
@@ -495,7 +497,7 @@ export module Command {
     },
   }
 
-  export const LaunchSilo: CommandObject = {
+  export const LaunchSilo: CommandObject & Include<UniqueStats, 'effectAreaMap'> = {
     ...cmdDefaults,
 
     get type() { return LaunchSilo; },
@@ -504,6 +506,8 @@ export module Command {
     name: "Missile",
     serial: Serial.next().value,
     weight: Weight.Tertiary,
+
+    effectAreaMap: CommonRangesRetriever({min:0,max:2}),
 
     triggerInclude() {
       const { actor, goalTerrain } = data;
@@ -514,10 +518,8 @@ export module Command {
       const { map, boardEvents } = data.assets;
       const { goal, focal } = data;
 
-      const region = CommonRangesRetriever({min:0,max:2});
-
-      // TODO Schedule MissileUp event    (move camera; animate missile)
-      // TODO Schedule MissileDown event  (move camera; blow up boys)
+      // TODO [-] Schedule MissileUp event    (move camera; animate missile)
+      // TODO [ ] Schedule MissileDown event  (move camera; blow up boys)
 
       boardEvents.schedule(
         new SiloLaunchEvent({
@@ -530,7 +532,7 @@ export module Command {
             const dmgLim = 10; // Cannot reduce HP below this threshold
             const dmg = 30;    // Maximum damage done to HP
 
-            region.points
+            this.effectAreaMap.points
               .map( p => p.add(focal) )
               .forEach( p => {
                 const tile = map.squareAt(p);

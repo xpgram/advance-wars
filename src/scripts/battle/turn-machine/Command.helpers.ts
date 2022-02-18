@@ -1,3 +1,4 @@
+import { RegionMap } from "../unit-actions/RegionMap";
 import { Command } from "./Command";
 import { instructionData } from "./InstructionData";
 import { TurnStateConstructor } from "./TurnState";
@@ -53,6 +54,13 @@ export module CommandHelpers {
     triggerInclude: () => boolean,
     /** Effects changes on the board. */
     scheduleEvent: () => ExitCode,
+  }
+
+  /** Describes an object which describes an area-of-effect via an
+   * assigned RegionMap member. */
+  export type UniqueStats = {
+    effectAreaMap?: RegionMap,
+    range?: NumericRange,
   }
 
   /** Auto generates a new serial so I don't have to hardcode them manually. */

@@ -104,8 +104,8 @@ export class MapCursor extends Observable() {
   private _mode: 'point' | 'build' | 'ban' | 'target' = 'point';
 
   /** The map describing the area-of-effect surrounding the cursor. */
-  get areaOfEffectMap() { return this._areaReticle; }
-  set areaOfEffectMap(map) {
+  get regionMap() { return this._areaReticle; }
+  set regionMap(map) {
     this._areaReticle = map;
     
     // Deconstruct the old map, if any
@@ -242,7 +242,7 @@ export class MapCursor extends Observable() {
   /** Re-normalizes all cursor settings to their defaults. */
   resetSettings() {
     this.mode = 'point';
-    this.areaOfEffectMap = undefined;
+    this.regionMap = undefined;
     this.showAreaOfEffectMap = true;
   }
 

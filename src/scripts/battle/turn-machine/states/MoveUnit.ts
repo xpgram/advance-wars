@@ -68,7 +68,7 @@ export class MoveUnit extends TurnState {
 
     // Setup AoE indicator
     if (actor.canMoveAndAttack && actor.isIndirect)
-      mapCursor.areaOfEffectMap = actor.rangeMap;
+      mapCursor.regionMap = actor.rangeMap;
 
     // Enable control shortcuts
     scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
