@@ -1006,7 +1006,7 @@ export const Unit = {
         get vision() { return 2; }
 
         boardable(unit?: UnitObject): boolean {
-            const max = 1;
+            const max = 2;
             const full = (this._loadedUnits.length >= max);
             const generally = (!unit);
             const soldierUnit = (unit?.soldierUnit);
