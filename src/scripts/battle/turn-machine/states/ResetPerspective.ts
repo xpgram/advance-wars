@@ -1,7 +1,6 @@
 import { Point } from "../../../Common/Point";
 import { Square } from "../../map/Square";
 import { Terrain } from "../../map/Terrain";
-import { CommonRangesRetriever, RegionMap } from "../../unit-actions/RegionMap";
 import { TurnState } from "../TurnState";
 
 
