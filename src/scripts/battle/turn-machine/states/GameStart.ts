@@ -8,6 +8,11 @@ export class GameStart extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
+    const { scenario, map } = this.assets;
+
+    if (scenario.fogOfWar)
+      map.hideSightMap();
+
     this.advance(TurnStart);
   }
 

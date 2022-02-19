@@ -14,11 +14,7 @@ export class TurnStart extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { mapCursor, uiSystem, players, scripts, } = this.assets;
-    const player = players.current;
-
-    // Move Cursor
-    mapCursor.teleport(player.lastCursorPosition);
+    const { uiSystem, players, scripts, } = this.assets;
 
     // Move UI Windows
     uiSystem.skipAnimations();

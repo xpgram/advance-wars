@@ -9,7 +9,6 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail, proves I think.
 
 - [ ] TrackCar doesn't respect sight map yet.
-- [ ] Source game reveals sight map and adjacent units at same time. Mine does the first before the second.
 
 Collect assets for:
 - [x] Sub dive/surface anim
@@ -21,10 +20,6 @@ Collect assets for:
   I could fix this by [ ] requiring DropEvent to verify that actor is at the goal position. I don't know if that fixes the fundamental problem, though.
   How does Command.Move get called when calling drop anyway, huh? I think I end up defaulting to Wait. Do I have to? Could I possibly leave the selected cmd as Drop? This would mean that Move, which is or would be, a member of Drop's chain, could interrupt Drop's schedule() call. Currently it gets extraprocedurally called always, every order.
 - [ ] Map name text during player turn splash is not centered around drift-container orbit point.
-- [ ] EndTurn->MoveCamera->UpdateSightMap->PlayerCard
-  This process looks odd. I propose, somehow:
-  EndTurn->UpdateSightMap->MoveCamera->PlayerCard
-  I just have to swap the ResetPerspective and mapCursor.teleport() calls in the turn order.
 
 - [ ] Rigorous Typeface Access
   I don't know if it's feasible to only allow access to font assets that are *definitely* linked ... I mean, I guess I can think of a way. It's a little forceful. Anyway, a system which could verify on access that an assets is or is not loaded could throw an assertion error (the benefit being on strange load errors in real time, the assets would simply be missing, or would maybe default) telling me I've forgotten to link the desired assets. It might also be nice... to have bundles. Scenes don't actually do that much, I feel like they are the bundles, kinda.
