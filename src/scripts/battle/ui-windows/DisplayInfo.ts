@@ -7,14 +7,29 @@
 // only have to edit one file. I mean, I would still have to edit the
 // linking call, but the proper details would all be in one place.
 
-export const fonts = {
-    title: {fontName: 'font-title', fontSize: 10},
-    scriptOutlined: {fontName: 'font-map-ui', fontSize: 14},
-    smallScriptOutlined: {fontName: 'font-small-ui', fontSize: 12},
-    script: {fontName: 'font-script', fontSize: 10},
-    list: {fontName: 'font-table-header', fontSize: 6},
-    menu: {fontName: 'font-menu', fontSize: 12},            // I don't know the correct fontSize for this one
-    dayCounter: {fontName: 'font-day-ui', fontSize: 24},
-    playerSplash: {fontName: 'font-player-splash', fontSize: 35},
-    tectac: {fontName: 'TecTacRegular', fontSize: 8},
+// TODO What about bundling fonts?
+// I could have a master with all details and several smaller sub bundles that pick
+// from master. Then in the War scene, you would reference fonts via the WarFonts bundle.
+
+export interface BitmapFont {
+  fontName: string;
+  fontSize: number;
 }
+
+function getBitmapFont(fontName: string, fontSize: number): BitmapFont {
+  return { fontName, fontSize };
+}
+
+export const fonts = {
+  title:          getBitmapFont('font-title', 10),
+  scriptOutlined: getBitmapFont('font-map-ui', 14),
+  smallScriptOutlined: getBitmapFont('font-small-ui', 12),
+  script:         getBitmapFont('font-script', 10),
+  list:           getBitmapFont('font-table-header', 6),
+  menu:           getBitmapFont('font-menu', 12),         // I don't know the correct fontSize for this one
+  dayCounter:     getBitmapFont('font-day-ui', 24),
+  playerSplash:   getBitmapFont('font-player-splash', 35),
+  tectac:         getBitmapFont('TecTacRegular', 8),
+};
+
+
