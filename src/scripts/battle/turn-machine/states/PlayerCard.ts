@@ -1,6 +1,7 @@
 import { MultiColorReplaceFilter } from 'pixi-filters';
 import { Game } from "../../../..";
 import { Ease } from "../../../Common/EaseMethod";
+import { PixiUtils } from '../../../Common/PixiUtils';
 import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
@@ -121,7 +122,7 @@ export class PlayerCard extends TurnState {
   container!: PIXI.Container;
 
   configureScene() {
-    const { players } = this.assets;
+    const { players, map } = this.assets;
 
     // TODO This is confusing. I need... I want to say 'scene.spritesheets.UiGraphics' or something.
     // Game.scene is vague, though; I think that's why I do it this way. Should I host it on assets, then?
@@ -130,6 +131,7 @@ export class PlayerCard extends TurnState {
     const { renderWidth: rw, renderHeight: rh } = Game.display;
     const point = (x: number, y: number) => new Point(x,y);
     const hide = 200;
+    const driftOrbitAxis = rw*.25;
 
     // Construct temp player card.
 
@@ -156,13 +158,15 @@ export class PlayerCard extends TurnState {
     dayNumText.anchor.set(.5);
 
     // Map    - 1.5
-    // TODO Map name text is not actually centered around drift-container orbit point
+    const mapText = PixiUtils.limitBitmapTextToWidth(
+      new PIXI.BitmapText(map.name, fonts.script), 106 );
+    mapText.position.set(6, 4);
+    mapText.anchor.set(0.5, 0);
+    
     const mapCard = new PIXI.BitmapText(`---------]`, fonts.playerSplash);
     mapCard.position.set(-hide*1.25, rh*.60);
+    mapCard.anchor.x = .55;
     mapCard.pivot.y = mapCard.height/2;
-    const mapText = new PIXI.BitmapText(`Land's End`, fonts.script);
-    mapText.anchor.set(1, 0);
-    mapText.position.set(mapCard.width - 28, 4);
     mapCard.addChild(mapText);
 
     // Fight  - 3
@@ -173,7 +177,7 @@ export class PlayerCard extends TurnState {
     // Left-side mover
     const driftContainer = new PIXI.Container();
     driftContainer.addChild(dayText, dayNumText, fightText);
-    driftContainer.x = rw*.25 - 8;
+    driftContainer.x = driftOrbitAxis - 8;
 
     // UI Element palette swap container
     const uiRecolor = new PIXI.Container();
@@ -201,7 +205,7 @@ export class PlayerCard extends TurnState {
       .tween(driftTime, driftContainer, {x: driftContainer.x + 16}) //, Ease.quantize(Ease.linear.out, 16))
       .tween(insigniaFadeTime, insignia, {alpha: 1}, Ease.sine.inOut)
       .tween(slideTime, dayText, {x: 0}, motion.out)
-      .tween(mapCardTime, mapCard, {x: -16}, Ease.sine.inOut)
+      .tween(mapCardTime, mapCard, {x: driftOrbitAxis}, Ease.sine.inOut)
 
       .wait(delay)
       .tween(slideTime, dayNumText, {x: 0}, motion.out)
