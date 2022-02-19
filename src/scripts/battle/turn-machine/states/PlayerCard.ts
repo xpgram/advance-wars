@@ -246,20 +246,4 @@ export class PlayerCard extends TurnState {
     this.container.destroy({children: true});
   }
 
-  // Temp
-  private newRect(o: {
-    g: PIXI.Graphics,
-    dim: ImmutablePointPrimitive,
-    pos: ImmutablePointPrimitive,
-  }) {
-    const {g, dim, pos} = o;
-
-    g.beginFill(0, .5);
-    g.drawRect(0, 0, dim.x, dim.y);
-    g.endFill();
-    g.position.set(pos.x, pos.y);
-    g.pivot.set(g.width/2, g.height/2);
-    return g;
-  }
-
 }
