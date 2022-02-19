@@ -4,6 +4,7 @@ import { Command } from "../Command";
 import { SumCardinalsToVector } from "../../../Common/CardinalDirection";
 import { CommandMenu } from "./CommandMenu";
 import { DamageScript } from "../../DamageScript";
+import { Terrain } from "../../map/Terrain";
 
 
 export class MoveUnit extends TurnState {
@@ -26,7 +27,13 @@ export class MoveUnit extends TurnState {
     const sameFaction = unit?.faction === players.current.faction;
     const reachable = tile.moveFlag;
 
-    const actionable = reachable && sameFaction && (boardable || mergeable);
+    const operator = actor.soldierUnit;
+    const silo = tile.terrain.type === Terrain.Silo; // && !tile.terrain.used;
+
+    const cohabitable = sameFaction && (boardable || mergeable)
+    const operable = operator && silo;
+
+    const actionable = reachable && (cohabitable || operable);
     const attackable = tile.attackFlag;
 
     mapCursor.mode = (actionable || attackable) ? 'target' : 'point';
