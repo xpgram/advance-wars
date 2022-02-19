@@ -43,6 +43,9 @@ function InvalidLocationError(point: ImmutablePointPrimitive) {
  */
 export class Map {
 
+    /** Name string of the map currently loaded. */
+    readonly name: string;
+
     /** 2D array representing the grid of tiles and map entities.
      * Should never be used directly unless you intend to deal with the border of blank terrain objects. */
     private board: Square[][] = [];
@@ -66,6 +69,8 @@ export class Map {
         // TODO Whenever I reimplement random map generation,
         // some of these methods, like forceLegalTiles(), will
         // need to be extracted.
+
+        this.name = mapData.name;
 
         MapLayerFunctions.Init();
         MapLayer('ui').sortableChildren = true;     // TODO Enables z-sorting on child add; do I want this *here* though?
