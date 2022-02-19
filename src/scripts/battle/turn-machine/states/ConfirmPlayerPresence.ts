@@ -1,3 +1,6 @@
+import { Game } from "../../../..";
+import { Timer } from "../../../timer/Timer";
+import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
 
 
@@ -8,21 +11,93 @@ export class ConfirmPlayerPresence extends TurnState {
   get revertible() { return false; }
   get skipOnUndo() { return false; }
 
-  protected configureScene(): void {
-    // TODO only proceed automatically if next player is AI or Internet
-    this.advance();
+  private prompt = new PIXI.Container();
+  private introTimer = new Timer();
+  private outroTimer = new Timer();
 
-    // TODO Enforce neutral view where all players' stealth units are hidden.
-    // TODO On FoW, hide the screen entirely.
-    // ---- Wait for button press in both cases.
-    // TODO Include a visual prompt to press that button, though.
-    // TODO Skip button press when next player is AI or Internet.
+  private neutralPerspective() {
+    const { scenario, map, players } = this.assets;
+
+    // TODO Does this follow the same format ResetPerspective uses?
+
+    // Enforce neutral stealth-unit perspective
+    players.allUnitsOnMap
+      .map( u => map.squareAt(u.boardLocation) )
+      .forEach( s => s.hideUnit = s.unit?.hiding ?? false );
+
+    // Enforce neutral FoW perspective
+    if (scenario.fogOfWar)
+      map.hideSightMap();
+  }
+
+  protected configureScene(): void {
+    const { scenario, players } = this.assets;
+
+    if (players.firstTurn) {
+      this.advance();
+      return;
+    }
+
+    // TODO Pre-move camera to mapcursor pos while map is obscured.
+    // I'll need an instant transition, I guess. Does camera have that?
+
+    // TODO proceed automatically only if next player is AI or Internet
+    // if (players.current.?? || players.currentOnLocalClient())
+    //   this.advance();
+    //   return;
+    // }
+
+    // Build visual prompt to press the 'confirm' button
+    const { renderWidth, renderHeight } = Game.display;
+
+    const playerNum = players.current.playerNumber + 1;
+    const text = new PIXI.BitmapText(`Player ${playerNum} Confirm\n\nPress Z to start`, fonts.title);
+    text.anchor.set(.5);
+    text.position.set(
+      renderWidth/2,
+      renderHeight/2,
+    )
+
+    const bg = new PIXI.Graphics();
+    bg.beginFill(0x200830);
+    bg.drawRect(0,0,renderWidth,renderHeight);
+    bg.endFill();
+    if (!scenario.fogOfWar)
+      bg.alpha = 0.25;
+
+    this.prompt.addChild(bg, text);
+    this.prompt.alpha = 0;
+
+    Game.hud.addChild(this.prompt);
+
+    // Setup tween timers
+    const transitionTime = .125;
+
+    this.introTimer
+      .tween(transitionTime, this.prompt, {alpha: 1})
+      .at('end')
+      .do(this.neutralPerspective, this)
+      .start();
+    
+    this.outroTimer
+      .tween(transitionTime, this.prompt, {alpha: 0})
+      .at('end')
+      .do(n => this.prompt.destroy({children: true}));
+
+    // TODO Refactor this to fit in better?
+    // When not in fog of war, the bg is transparent, so it looks better
+    // to do it immediately instead of waiting for the transition to
+    // complete.
+    if (!scenario.fogOfWar)
+      this.neutralPerspective();
   }
 
   update() {
     const { gamepad } = this.assets;
-    if (gamepad.button.A.pressed)
+    if (gamepad.button.A.pressed) {
+      this.outroTimer.start();
       this.advance();
+    }
   }
 
 }

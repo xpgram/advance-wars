@@ -47,8 +47,15 @@ export class TurnModerator {
       : undefined;
   }
 
+  /** A number representing the current round. Increases by 1 after the last player in
+   * the match order ends their turn. */
   get day() {
     return this._day;
+  }
+
+  /** True if the current turn is the first turn of the first player in the match order. */
+  get firstTurn() {
+    return (this._day === 1 && this.currentIdx.equalsMin());
   }
 
   increment() {
