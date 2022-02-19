@@ -23,15 +23,18 @@ export class SiloLaunchEvent extends TileEvent {
   protected create(): void {
     const { location } = this.options;
 
+    const tileSize = Game.display.standardLength;
+    const worldLocation = location.multiply(tileSize);
+
     const sheet = Game.scene.resources['VFXSpritesheet'].spritesheet as PIXI.Spritesheet;
     const textures = sheet.animations['silo-rocket'];
 
     this.rocket = new PIXI.AnimatedSprite(textures);
     this.rocket.animationSpeed = 1/4;
     this.rocket.position.set(
-      location.x * 16,
-      location.y * 16 + 8,
-    )
+      worldLocation.x,
+      worldLocation.y + 8
+    );
     this.rocket.play();
 
     MapLayer('ui').addChild(this.rocket);
@@ -41,7 +44,7 @@ export class SiloLaunchEvent extends TileEvent {
     Timer
       .tween(.8, this.rocket, {y: this.rocket.y - 256}, Ease.quint.in)
       .wait()
-      .do(n => this.finish())
+      .do(this.finish, this)
   }
 
   protected update(): void {

@@ -13,6 +13,7 @@ import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
 import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
 import { MoveUnitEvent } from "../map/tile-effects/MoveUnitEvent";
 import { RevealNeighborsEvent } from "../map/tile-effects/RevealNeighborsEvent";
+import { SiloImpactEvent } from "../map/tile-effects/SiloImpactEvent";
 import { SiloLaunchEvent } from "../map/tile-effects/SiloLaunchEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
@@ -497,7 +498,7 @@ export module Command {
     },
   }
 
-  export const LaunchSilo: CommandObject & Include<UniqueStats, 'effectAreaMap'> = {
+  export const LaunchSilo: CommandObject & Include<UniqueStats, 'effectAreaMap' | 'damage'> = {
     ...cmdDefaults,
 
     get type() { return LaunchSilo; },
@@ -508,6 +509,7 @@ export module Command {
     weight: Weight.Tertiary,
 
     effectAreaMap: CommonRangesRetriever({min:0,max:2}),
+    damage: 30,
 
     triggerInclude() {
       const { actor, goalTerrain } = data;
@@ -515,8 +517,8 @@ export module Command {
     },
 
     scheduleEvent() {
-      const { map, boardEvents } = data.assets;
-      const { goal, focal } = data;
+      const { boardEvents } = data.assets;
+      const { goal, focal, assets } = data;
 
       // TODO [-] Schedule MissileUp event    (move camera; animate missile)
       // TODO [ ] Schedule MissileDown event  (move camera; blow up boys)
@@ -525,24 +527,11 @@ export module Command {
         new SiloLaunchEvent({
           location: goal,
         }),
-        new GenericRatifyEvent({
+        new SiloImpactEvent({
           location: focal,
-          present: true,
-          ratify: () => {
-            const dmgLim = 10; // Cannot reduce HP below this threshold
-            const dmg = 30;    // Maximum damage done to HP
-
-            this.effectAreaMap.points
-              .map( p => p.add(focal) )
-              .forEach( p => {
-                const tile = map.squareAt(p);
-                const unit = tile.unit;
-                if (unit && unit.hp > dmgLim) {
-                  unit.hp = Math.max(dmgLim, unit.hp - dmg);
-                }
-              })
-          }
-      }))
+          assets,
+        }),
+      );
 
       return ExitCode.Success;
     },

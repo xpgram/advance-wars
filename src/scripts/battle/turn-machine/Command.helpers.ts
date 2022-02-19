@@ -61,6 +61,7 @@ export module CommandHelpers {
   export type UniqueStats = {
     effectAreaMap?: RegionMap,
     range?: NumericRange,
+    damage?: number,
   }
 
   /** Auto generates a new serial so I don't have to hardcode them manually. */
