@@ -57,7 +57,7 @@ export class SiloImpactEvent extends TileEvent {
   }
 
   protected create(): void {
-    const { camera } = this.options.assets;
+    const { map, camera } = this.options.assets;
     const { location } = this.options;
 
     const tileSize = Game.display.standardLength;
@@ -92,7 +92,9 @@ export class SiloImpactEvent extends TileEvent {
     for (let i = 0; i < 3; i++) {
       const explosionSet = region.points
         .filter( p => p.manhattanMagnitude() === i )
-        .map( p => createExplosion(p.add(location)) );
+        .map( p => p.add(location) )
+        .filter( p => map.validPoint(p) )
+        .map( p => createExplosion(p) );
       this.explosionStages.push(explosionSet);
     }
 
@@ -143,9 +145,9 @@ export class SiloImpactEvent extends TileEvent {
       .do(n => camera.algorithms.displacement = cameraShake)
 
       .at('impact')
-      .wait(.1).do(n => triggerExplosionSet(0))
-      .wait(.1).do(n => triggerExplosionSet(1))
-      .wait(.1).do(n => triggerExplosionSet(2))
+      .do(n => triggerExplosionSet(0))
+      .wait(.15).do(n => triggerExplosionSet(1))
+      .wait(.15).do(n => triggerExplosionSet(2))
 
       .at('end').wait(.5)
       .do(n => camera.algorithms.displacement = cameraSwap)
