@@ -403,7 +403,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":22},
 	"sourceSize": {"w":24,"h":24},
-	"anchor": {"x":0.25,"y":0}
+	"anchor": {"x":0.166667,"y":0}
 },
 "silo-exhaust-2.png":
 {
@@ -412,7 +412,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":1,"w":24,"h":22},
 	"sourceSize": {"w":24,"h":24},
-	"anchor": {"x":0.25,"y":0}
+	"anchor": {"x":0.166667,"y":0}
 },
 "silo-exhaust-3.png":
 {
@@ -421,7 +421,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":3,"w":24,"h":21},
 	"sourceSize": {"w":24,"h":24},
-	"anchor": {"x":0.25,"y":0}
+	"anchor": {"x":0.166667,"y":0}
 },
 "silo-exhaust-4.png":
 {
@@ -430,7 +430,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":6,"w":19,"h":18},
 	"sourceSize": {"w":24,"h":24},
-	"anchor": {"x":0.25,"y":0}
+	"anchor": {"x":0.166667,"y":0}
 },
 "silo-rocket-1.png":
 {
@@ -439,7 +439,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":4,"y":0,"w":9,"h":24},
 	"sourceSize": {"w":16,"h":24},
-	"anchor": {"x":0,"y":0.5}
+	"anchor": {"x":0,"y":0.333333}
 },
 "silo-rocket-2.png":
 {
@@ -448,7 +448,7 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":0,"w":11,"h":24},
 	"sourceSize": {"w":16,"h":24},
-	"anchor": {"x":0,"y":0.5}
+	"anchor": {"x":0,"y":0.333333}
 },
 "surface-1.png":
 {
@@ -521,6 +521,6 @@
 	"format": "RGBA8888",
 	"size": {"w":64,"h":392},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:c5a33aea86fd88a721735b5fef2e69a2:d17dc3b6d91e050bcb5acfe2d01c4567:46d4943b13de1fe91893feab54e90fe9$"
+	"smartupdate": "$TexturePacker:SmartUpdate:3b16a0538ad26178499fbdf92d871de2:d17dc3b6d91e050bcb5acfe2d01c4567:46d4943b13de1fe91893feab54e90fe9$"
 }
 }

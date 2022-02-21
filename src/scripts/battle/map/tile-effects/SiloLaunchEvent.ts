@@ -1,6 +1,6 @@
 import { Game } from "../../../..";
 import { Ease } from "../../../Common/EaseMethod";
-import { Point } from "../../../Common/Point";
+import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
@@ -14,6 +14,7 @@ export class SiloLaunchEvent extends TileEvent {
   
   protected options: SiloLaunchEventOptions;
   private rocket!: PIXI.AnimatedSprite;
+  private exhaustStages!: PIXI.AnimatedSprite[];
 
   constructor(options: SiloLaunchEventOptions) {
     super(options.location);
@@ -27,23 +28,59 @@ export class SiloLaunchEvent extends TileEvent {
     const worldLocation = location.multiply(tileSize);
 
     const sheet = Game.scene.resources['VFXSpritesheet'].spritesheet as PIXI.Spritesheet;
-    const textures = sheet.animations['silo-rocket'];
+    const animations = sheet.animations;
 
-    this.rocket = new PIXI.AnimatedSprite(textures);
+    // Rocket
+    this.rocket = new PIXI.AnimatedSprite(animations['silo-rocket']);
     this.rocket.animationSpeed = 1/4;
     this.rocket.position.set(
       worldLocation.x,
-      worldLocation.y + 8
+      worldLocation.y,
     );
     this.rocket.play();
 
-    MapLayer('ui').addChild(this.rocket);
+    // Exhaust
+    this.exhaustStages = [
+      new PIXI.AnimatedSprite(animations['silo-exhaust']),
+      new PIXI.AnimatedSprite(animations['silo-exhaust']),
+      new PIXI.AnimatedSprite(animations['silo-exhaust']),
+      new PIXI.AnimatedSprite(animations['silo-exhaust']),
+    ];
+    this.exhaustStages.forEach( a => {
+      a.textures.push(PIXI.Texture.EMPTY);
+      a.animationSpeed = 1/12;
+      a.alpha = 0;
+    });
+
+    const startExhaust = (n: number, pos: ImmutablePointPrimitive) => {
+      const anim = this.exhaustStages[n];
+      anim.position.set(pos.x, pos.y);
+      anim.alpha = 1;
+      anim.play();
+      anim.loop = false;
+      anim.onComplete = () => {
+        anim.destroy();
+      }
+    }
+
+    // Add to scene
+    MapLayer('ui').addChild(this.rocket, ...this.exhaustStages);
 
     // TODO Use camera height as the displace number?
 
     Timer
       .tween(.8, this.rocket, {y: this.rocket.y - 256}, Ease.quint.in)
-      .wait()
+
+      // .wait(.2)
+      .do(n => startExhaust(0, this.rocket))
+      .wait(.4)
+      .do(n => startExhaust(1, this.rocket))
+      .wait(.1)
+      .do(n => startExhaust(2, this.rocket))
+      .wait(.05)
+      .do(n => startExhaust(3, this.rocket))
+
+      .at('end')
       .do(this.finish, this)
   }
 

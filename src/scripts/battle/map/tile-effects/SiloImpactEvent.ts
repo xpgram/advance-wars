@@ -55,9 +55,9 @@ export class SiloImpactEvent extends TileEvent {
     const worldLocation = location.multiply(tileSize);
 
     const sheet = Game.scene.resources['VFXSpritesheet'].spritesheet as PIXI.Spritesheet;
-    const textures = sheet.animations['silo-rocket'];
+    const animations = sheet.animations;
 
-    this.rocket = new PIXI.AnimatedSprite(textures);
+    this.rocket = new PIXI.AnimatedSprite(animations['silo-rocket']);
     this.rocket.animationSpeed = 1/4;
     this.rocket.position.set(
       worldLocation.x,
