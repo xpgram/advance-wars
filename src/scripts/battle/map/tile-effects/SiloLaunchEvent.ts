@@ -48,7 +48,7 @@ export class SiloLaunchEvent extends TileEvent {
     ];
     this.exhaustStages.forEach( a => {
       a.textures.push(PIXI.Texture.EMPTY);
-      a.animationSpeed = 1/12;
+      a.animationSpeed = 1/16;
       a.alpha = 0;
     });
 
@@ -69,15 +69,14 @@ export class SiloLaunchEvent extends TileEvent {
     // TODO Use camera height as the displace number?
 
     Timer
-      .tween(.8, this.rocket, {y: this.rocket.y - 256}, Ease.quint.in)
+      .tween(.8, this.rocket, {y: this.rocket.y - 256}, Ease.cubic.in)
 
-      // .wait(.2)
       .do(n => startExhaust(0, this.rocket))
-      .wait(.4)
+      .wait(.3)
       .do(n => startExhaust(1, this.rocket))
       .wait(.1)
       .do(n => startExhaust(2, this.rocket))
-      .wait(.05)
+      .wait(.0667)
       .do(n => startExhaust(3, this.rocket))
 
       .at('end')
