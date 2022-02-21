@@ -48,7 +48,7 @@ export class SiloLaunchEvent extends TileEvent {
     ];
     this.exhaustStages.forEach( a => {
       a.textures.push(PIXI.Texture.EMPTY);
-      a.animationSpeed = 1/16;
+      a.animationSpeed = 1/12;
       a.alpha = 0;
     });
 
