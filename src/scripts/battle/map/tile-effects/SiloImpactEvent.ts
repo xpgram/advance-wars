@@ -1,4 +1,5 @@
 import { Game } from "../../../..";
+import { ScreenShake } from "../../../camera/DisplacementAlgorithms";
 import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
@@ -56,6 +57,7 @@ export class SiloImpactEvent extends TileEvent {
   }
 
   protected create(): void {
+    const { camera } = this.options.assets;
     const { location } = this.options;
 
     const tileSize = Game.display.standardLength;
@@ -120,6 +122,10 @@ export class SiloImpactEvent extends TileEvent {
     // TODO Also, maybe not here(..?), but due to the very vertical animation,
     // I need the camera positioning system to demand more surrounding space.
 
+    // Setup camera shake
+    const cameraSwap = camera.algorithms.displacement;
+    const cameraShake = new ScreenShake(12);
+
     Timer
       .tween(.5, this.rocket, {y: worldLocation.y})
       
@@ -134,11 +140,15 @@ export class SiloImpactEvent extends TileEvent {
       .do(n => this.whiteout.destroy())
 
       .at('impact')
+      .do(n => camera.algorithms.displacement = cameraShake)
+
+      .at('impact')
       .wait(.1).do(n => triggerExplosionSet(0))
       .wait(.1).do(n => triggerExplosionSet(1))
       .wait(.1).do(n => triggerExplosionSet(2))
 
       .at('end').wait(.5)
+      .do(n => camera.algorithms.displacement = cameraSwap)
       .do(this.finish, this);
   }
 

@@ -10,13 +10,21 @@ export interface DisplacementAlgorithm {
 
 
 export class ScreenShake implements DisplacementAlgorithm {
-  private screenShakeSlider = new Slider({
-    max: 4,
-    track: 'max',
-    granularity: 1/3,
-    shape: v => Math.ceil(.33*v) * ((Math.ceil(v) % 2 === 0) ? 1 : -1),
-    // shape: v => Math.round(Math.cos(2*v*Math.PI) * .75*v),
-  });
+
+  private screenShakeSlider: Slider;
+
+
+  constructor(intensity?: number) {
+    intensity = intensity ?? 6;
+
+    this.screenShakeSlider = new Slider({
+      max: intensity,
+      track: 'max',
+      granularity: 1/3,
+      shape: v => Math.ceil(.33*v) * ((Math.ceil(v) % 2 === 0) ? 1 : -1),
+      // shape: v => Math.round(Math.cos(2*v*Math.PI) * .75*v),
+    })
+  }
 
   get() {
     const vector = new ViewRectVector();
