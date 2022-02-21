@@ -17,6 +17,7 @@ export class SiloImpactEvent extends TileEvent {
   protected options: SiloImpactEventOptions;
   private rocket!: PIXI.AnimatedSprite;
   private explosionStages: PIXI.AnimatedSprite[][] = [];
+  private whiteout!: PIXI.Graphics;
 
   constructor(options: SiloImpactEventOptions) {
     super(options.location);
@@ -93,6 +94,14 @@ export class SiloImpactEvent extends TileEvent {
       this.explosionStages.push(explosionSet);
     }
 
+    // Whiteout
+    this.whiteout = new PIXI.Graphics();
+    this.whiteout.beginFill(0xFFFFFF);
+    this.whiteout.drawRect(0,0,Game.display.renderWidth,Game.display.renderHeight);
+    this.whiteout.endFill();
+    this.whiteout.alpha = 0;
+    this.whiteout.blendMode = PIXI.BLEND_MODES.LIGHTEN;
+
     // Called by Timer.events to trigger a set of staged explosion events
     const triggerExplosionSet = (n: number) => {
       this.explosionStages[n].forEach( d => {
@@ -105,6 +114,7 @@ export class SiloImpactEvent extends TileEvent {
 
     // Add to scene
     MapLayer('ui').addChild(this.rocket, ...this.explosionStages.flat(3).map( d => d.anim ));
+    Game.hud.addChild(this.whiteout);
 
     // TODO Use camera height as the displace number
     // TODO Also, maybe not here(..?), but due to the very vertical animation,
@@ -113,14 +123,22 @@ export class SiloImpactEvent extends TileEvent {
     Timer
       .tween(.5, this.rocket, {y: worldLocation.y})
       
-      .wait()
+      .wait().label('impact')
       .do(n => this.rocket.destroy({children: true}))
 
+      .at('impact')
+      .tween(.15, this.whiteout, {alpha: .8})
+      .wait()
+      .tween(.15, this.whiteout, {alpha: 0})
+      .wait()
+      .do(n => this.whiteout.destroy())
+
+      .at('impact')
       .wait(.1).do(n => triggerExplosionSet(0))
       .wait(.1).do(n => triggerExplosionSet(1))
       .wait(.1).do(n => triggerExplosionSet(2))
 
-      .wait(.5)
+      .at('end').wait(.5)
       .do(this.finish, this);
   }
 
@@ -129,7 +147,7 @@ export class SiloImpactEvent extends TileEvent {
   }
 
   protected destroy(): void {
-    
+
   }
 
 }
