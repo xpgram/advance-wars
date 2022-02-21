@@ -83,7 +83,7 @@ export class SiloImpactEvent extends TileEvent {
     // I need the camera positioning system to demand more surrounding space.
 
     Timer
-      .tween(.4, this.rocket, {y: worldLocation.y})
+      .tween(.6, this.rocket, {y: worldLocation.y})
       
       .wait()
       .do(n => this.rocket.destroy({children: true}))

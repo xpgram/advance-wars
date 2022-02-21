@@ -69,15 +69,12 @@ export class SiloLaunchEvent extends TileEvent {
     // TODO Use camera height as the displace number?
 
     Timer
-      .tween(.8, this.rocket, {y: this.rocket.y - 256}, Ease.cubic.in)
+      .tween(1, this.rocket, {y: this.rocket.y - 256}, Ease.quad.in)
 
-      .do(n => startExhaust(0, this.rocket))
-      .wait(.3)
-      .do(n => startExhaust(1, this.rocket))
-      .wait(.1)
-      .do(n => startExhaust(2, this.rocket))
-      .wait(.0667)
-      .do(n => startExhaust(3, this.rocket))
+      .wait(.1).do(n => startExhaust(0, this.rocket))
+      .wait(.1).do(n => startExhaust(1, this.rocket))
+      .wait(.1).do(n => startExhaust(2, this.rocket))
+      .wait(.1).do(n => startExhaust(3, this.rocket))
 
       .at('end')
       .do(this.finish, this)
