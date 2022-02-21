@@ -276,6 +276,7 @@ export module Command {
       boardEvents.schedule(new DiveEvent({
         unit: actor,
         location: place,
+        anim: 'dive',
         assets,
       }));
 
@@ -305,6 +306,7 @@ export module Command {
       boardEvents.schedule(new DiveEvent({
         unit: actor,
         location: goal,
+        anim: 'surface',
         assets,
       }));
 

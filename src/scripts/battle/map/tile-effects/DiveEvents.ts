@@ -8,6 +8,7 @@ import { TileEvent } from "./TileEvent";
 interface DiveEventOptions {
   unit: UnitObject;
   location: Point;
+  anim: 'surface' | 'dive', // | 'cloak' | 'uncloak',
   assets: BattleSceneControllers;
 }
 
@@ -16,6 +17,8 @@ interface DiveEventOptions {
 // I probably need a VfxEvent which takes an array of textures, a
 // location, a ratify() call and whether to make that call before or
 // after the animation plays.
+// TODO At the very least, I can repurpose this to HideEvent which works for both
+// Subs and Stealth Planes.
 export class DiveEvent extends TileEvent {
   
   protected options: DiveEventOptions;
@@ -33,12 +36,12 @@ export class DiveEvent extends TileEvent {
   }
 
   protected create(): void {
-    const { unit } = this.options;
+    const { unit, anim } = this.options;
     const length = Game.display.standardLength;
 
     // Build and play animation
     const sheet = Game.scene.resources[`VFXSpritesheet`].spritesheet as PIXI.Spritesheet;
-    const textures = sheet.animations[`dive`];
+    const textures = sheet.animations[anim];
     textures.push(PIXI.Texture.EMPTY);
     this.vfx = new PIXI.AnimatedSprite(textures);
 
