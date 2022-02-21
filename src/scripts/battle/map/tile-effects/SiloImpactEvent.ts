@@ -36,6 +36,16 @@ export class SiloImpactEvent extends TileEvent {
     // All region map points of manhattan distance dist will have animation
     // timers created, configured and returned as a batch list.
 
+    // Animation stages
+    // - Rocket comes down
+    // - Impact immediately starts:
+    //   - ground explosion at center tile
+    //   - white, expanding ring
+    //   - crazy shake
+    //   - brief whiteout (bright light effect)
+    // - in timed stages after impact:
+    //   - tiles of manhattan distance n begin their ground explosions
+
     const minHP = 10;
     const dmg = Command.LaunchSilo.damage;
     const regionMap = Command.LaunchSilo.effectAreaMap;
