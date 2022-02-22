@@ -1,5 +1,10 @@
 import * as PIXI from "pixi.js";
 import { Game } from "..";
+import { Debug } from "../scripts/DebugUtils";
+
+class ResourceError extends Error {
+  name = 'ResourceError';
+}
 
 /**
  * @author Dei Valko
@@ -36,6 +41,27 @@ export abstract class Scene {
     return this._resources;
   }
   private _resources: PIXI.IResourceDictionary | null = null;
+
+  /** Returns a spritesheet from the scene's resource dictionary.
+   * @throws ResourceError when the spritesheet referred to by 'name' does not exist. */
+  getSpritesheet(name: string): PIXI.Spritesheet {
+    const sheet = this.resources[name].spritesheet as PIXI.Spritesheet;
+    if (sheet === undefined)
+      throw new ResourceError(`Cannot find spritesheet '${name}'`);
+    return sheet;
+  }
+
+  /** Returns a dictionary of Texture objects from the named spritesheet.
+   * @throws ResourceError when the spritesheet referred to by 'sheet' does not exist. */
+  texturesFrom(sheet: string) {
+    return this.getSpritesheet(sheet).textures;
+  }
+
+  /** Returns a dictionary of lists of in-sequence Texture objects from the named spritesheet.
+   * @throws ResourceError when the spritesheet referred to by 'sheet' does not exist. */
+  animationsFrom(sheet: string) {
+    return this.getSpritesheet(sheet).animations;
+  }
 
 
   constructor() {

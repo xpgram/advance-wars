@@ -8,6 +8,8 @@ import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DiveEvent } from "../map/tile-effects/DiveEvents";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
+import { FlareIgniteEvent } from "../map/tile-effects/FlareIgniteEvent";
+import { FlareLaunchEvent } from "../map/tile-effects/FlareLaunchEvent";
 import { GenericRatifyEvent } from "../map/tile-effects/GenericRatifyEvent";
 import { JoinUnitEvent } from "../map/tile-effects/JoinUnitEvent";
 import { LoadUnitEvent } from "../map/tile-effects/LoadUnitEvent";
@@ -17,6 +19,7 @@ import { SiloImpactEvent } from "../map/tile-effects/SiloImpactEvent";
 import { SiloLaunchEvent } from "../map/tile-effects/SiloLaunchEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
 import { TrackCar } from "../TrackCar";
+import { ViewSide } from "../ui-windows/generic-components/UiEnums";
 import { Unit } from "../Unit";
 import { CommonRangesRetriever, RegionMap } from "../unit-actions/RegionMap";
 import { UnitObject } from "../UnitObject";
@@ -335,16 +338,26 @@ export module Command {
 
     scheduleEvent() {
       const { map, boardEvents } = data.assets;
-      const { focal } = data;
+      const { actor, goal, focal, assets } = data;
 
-      boardEvents.schedule(new GenericRatifyEvent({
-        location: focal,
-        ratify: () => {
-          this.effectAreaMap.points.forEach( p => {
-            map.squareAt(p.add(focal)).hiddenFlag = false;
-          })
-        }
-      }))
+      boardEvents.schedule(
+        new FlareLaunchEvent({
+          location: goal,
+          side: (actor.reverseFacing) ? ViewSide.Left : ViewSide.Right,
+        }),
+        new FlareIgniteEvent({
+          location: focal,
+          assets,
+        }),
+        // new GenericRatifyEvent({
+        //   location: focal,
+        //   ratify: () => {
+        //     this.effectAreaMap.points.forEach( p => {
+        //       map.squareAt(p.add(focal)).hiddenFlag = false;
+        //     })
+        //   }
+        // })
+      )
 
       return ExitCode.Success;
     },

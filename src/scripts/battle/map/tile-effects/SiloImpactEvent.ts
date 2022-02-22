@@ -28,26 +28,6 @@ export class SiloImpactEvent extends TileEvent {
   private ratify(loc: Point) {
     const { map } = this.options.assets;
 
-    // TODO I actually want to ratify each tile position individually.
-    // I need to setup a batching system that will start a set of timers
-    // that each describe their own ratify event.
-
-    // This is animation stuff. Trying to orchestrate the spread-out blow-up effect.
-    // TODO createTimer(loc: Point, delay: seconds): Timer
-    // TODO getTimers(origin: Point, map: RegionMap, dist: number): Timer[]
-    // All region map points of manhattan distance dist will have animation
-    // timers created, configured and returned as a batch list.
-
-    // Animation stages
-    // - Rocket comes down
-    // - Impact immediately starts:
-    //   - ground explosion at center tile
-    //   - white, expanding ring
-    //   - crazy shake
-    //   - brief whiteout (bright light effect)
-    // - in timed stages after impact:
-    //   - tiles of manhattan distance n begin their ground explosions
-
     const minHP = 10;
     const dmg = Command.LaunchSilo.damage;
 
@@ -121,6 +101,7 @@ export class SiloImpactEvent extends TileEvent {
     Game.hud.addChild(this.whiteout);
 
     // TODO Use camera height as the displace number
+    // Or, have the rocket fade out at the top since I have no way of knowing how zoomed out the player could possibly ever be.
     // TODO Also, maybe not here(..?), but due to the very vertical animation,
     // I need the camera positioning system to demand more surrounding space.
 
