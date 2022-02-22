@@ -47,9 +47,10 @@ export class FlareIgniteEvent extends TileEvent {
 
     const tileSize = Game.display.standardLength;
     const descendDistance = tileSize*2;
-
     const worldLocation = location.multiply(tileSize);
-    worldLocation.y += -descendDistance + tileSize/2;
+
+    const worldLocationCenter = worldLocation.add(tileSize/2);
+    const descendLocation = worldLocationCenter.add(0, -descendDistance);
 
     const textures = Game.scene.texturesFrom('VFXSpritesheet');
     const animations = Game.scene.animationsFrom('VFXSpritesheet');
@@ -64,7 +65,7 @@ export class FlareIgniteEvent extends TileEvent {
     }
     const spark = new PIXI.AnimatedSprite(sparkSets.start);
     spark.animationSpeed = 1/3;
-    spark.position.set(worldLocation.x + tileSize/2, worldLocation.y);
+    spark.position.set(descendLocation.x, descendLocation.y);
     spark.loop = false;
 
     const startSpark = () => {
@@ -77,12 +78,14 @@ export class FlareIgniteEvent extends TileEvent {
       spark.play();
     }
 
-    //
-    //
-    //
+    // Light blast
+    const lightBlast = new PIXI.Sprite(textures['flare/flare-blast.png']);
+    lightBlast.position.set(worldLocationCenter.x, worldLocationCenter.y);
+    lightBlast.scale.set(.1);
+    lightBlast.alpha = 0;
 
     // Add to scene
-    MapLayer('ui').addChild(spark);
+    MapLayer('ui').addChild(spark, lightBlast);
 
     // Animation Schedule
     const time = 1.5;
@@ -97,10 +100,17 @@ export class FlareIgniteEvent extends TileEvent {
       .do(n => changeSpark(sparkSets.mid))
       .wait(time/3)
       .do(n => changeSpark(sparkSets.dim))
+      .wait(time/3)
+      
+      .do(n => spark.destroy())
+      .do(n => lightBlast.alpha = 1)
+      .tween(.5, lightBlast, {scale: {x: 1, y: 1}, alpha: 0})
+
+      .wait()
+      .do(n => lightBlast.destroy())
 
       .at('end')
       .do(this.ratify, this)
-      .do(n => spark.destroy())   // Move to this.destroy() or something
       .do(this.finish, this);
   }
 

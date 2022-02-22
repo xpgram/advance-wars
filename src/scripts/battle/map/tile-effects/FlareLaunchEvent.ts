@@ -1,5 +1,6 @@
 import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
+import { Timer } from "../../../timer/Timer";
 import { ViewSide } from "../../ui-windows/generic-components/UiEnums";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
@@ -36,7 +37,7 @@ export class FlareLaunchEvent extends TileEvent {
     blast.animationSpeed = 1/4;
     blast.position.set(worldLocation.x, worldLocation.y);
     blast.loop = false;
-    blast.play();
+    blast.alpha = 0;
 
     blast.onComplete = () => {
       blast.destroy();
@@ -45,6 +46,13 @@ export class FlareLaunchEvent extends TileEvent {
 
     // Add to scene
     MapLayer('ui').addChild(blast);
+
+    // Animation schedule
+    Timer
+      .wait(.4)
+      .do(n => {blast.alpha = 1; blast.play();})
+      .wait(.6)
+      .do(this.finish, this);
   }
 
   protected update(): void {
