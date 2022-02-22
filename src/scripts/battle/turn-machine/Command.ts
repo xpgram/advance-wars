@@ -349,14 +349,6 @@ export module Command {
           location: focal,
           assets,
         }),
-        // new GenericRatifyEvent({
-        //   location: focal,
-        //   ratify: () => {
-        //     this.effectAreaMap.points.forEach( p => {
-        //       map.squareAt(p.add(focal)).hiddenFlag = false;
-        //     })
-        //   }
-        // })
       )
 
       return ExitCode.Success;
