@@ -17,8 +17,6 @@ export class BattleScene extends Scene {
     battleSystem!: BattleSystemManager;
     controllers!: BattleSceneControllers;
 
-    unitSwap?: UnitObject;
-
     loadStep(): void {
         // TODO I want more strict references to resources.
         // I'm not sure how to get TypeScript to comply, but here's what I want:
