@@ -16,6 +16,11 @@ But anyway, yeah. There is constant state checking because his system never just
 - [ ] ChooseMapTarget projects choosable tile space without validating map points.
   - [ ] On large maps, forgetting to validate the map.squareAt() you be plucking is veeery common. How can I prevent that mistake from being made?
 
+- [ ] Sometimes P4 gets stuck in the AnimateEvents turnstate before IssueOrderStart.
+  - It's some issue with camera.targetInFrame() or whatever I called it; it only happens while at zoom stage 2 or 3 and is fixed by changing zoom levels.
+  The camera won't move but it also can't yield control to the BSM.
+  [ ] Create a dev button for posting camera state.
+
 - [ ] Timer.every.max is always +1 by implementation; I'm too busy to solve this rn.
   - [ ] FlareIgniteEvent will need to be updated to reflect .every() changes.
 
