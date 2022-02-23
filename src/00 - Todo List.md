@@ -12,6 +12,8 @@ But anyway, yeah. There is constant state checking because his system never just
   - [ ] What layer are they added to? Can they be simply frozen like other MapLayers?
 - [ ] Silo spending and graphic updating
   - [ ] While I'm there: what are the difficulties in getting tiles to swap to, say, a snow version of themselves? Just graphically.
+    - [ ] Map.changeTerrain(pos: Point, terrain: TerrainType)
+      This should handle the specifics.
 
 - [ ] ChooseMapTarget projects choosable tile space without validating map points.
   - [ ] On large maps, forgetting to validate the map.squareAt() you be plucking is veeery common. How can I prevent that mistake from being made?
@@ -22,6 +24,7 @@ But anyway, yeah. There is constant state checking because his system never just
   [ ] Create a dev button for posting camera state.
 
 - [ ] Timer.every.max is always +1 by implementation; I'm too busy to solve this rn.
+  - [ ] The default for non-repeating events is 0? It should probably be 1. e.repeat should be decremented before the extension check.
   - [ ] FlareIgniteEvent will need to be updated to reflect .every() changes.
 
 - [ ] TrackCar doesn't respect sight map yet.
