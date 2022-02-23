@@ -1,6 +1,6 @@
 import { Game } from "../../../..";
 import { ScreenShake } from "../../../camera/DisplacementAlgorithms";
-import { Point } from "../../../Common/Point";
+import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { Command } from "../../turn-machine/Command";
@@ -57,8 +57,8 @@ export class SiloImpactEvent extends TileEvent {
     this.rocket.play();
 
     // Ground Explosions
-    const createExplosion = (p: Point) => {
-      const world = p.multiply(Game.display.standardLength);
+    const createExplosion = (p: ImmutablePointPrimitive) => {
+      const world = new Point(p).multiply(Game.display.standardLength);
       const anim = new PIXI.AnimatedSprite(animations['explosion-dry']);
       anim.animationSpeed = 1/4;
       anim.position.set(world.x, world.y);
@@ -70,11 +70,9 @@ export class SiloImpactEvent extends TileEvent {
 
     const region = Command.LaunchSilo.effectAreaMap;
     for (let i = 0; i < 3; i++) {
-      const explosionSet = region.points
-        .filter( p => p.manhattanMagnitude() === i )
-        .map( p => p.add(location) )
-        .filter( p => map.validPoint(p) )
-        .map( p => createExplosion(p) );
+      const explosionSet = map.squaresFrom(location, region)
+        .filter( s => location.manhattanDistance(s) === i )
+        .map( s => createExplosion(s) )
       this.explosionStages.push(explosionSet);
     }
 

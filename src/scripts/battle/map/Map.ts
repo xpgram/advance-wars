@@ -56,6 +56,15 @@ export class Map {
         return this.board.flat();
     }
 
+    /** Returns an array of all on-map squares described by the given
+     * region and point location. Useful for lambda operations. */
+    squaresFrom(pos: Point, region: RegionMap) {
+        return region.points
+            .map( p => p.add(pos) )
+            .filter( p => this.validPoint(p) )
+            .map( p => this.squareAt(p) )
+    }
+
     /** Returns a z-index number based on the board-coordinates given. */
     static calculateZIndex(point: ImmutablePointPrimitive) {
         return -point.x;
@@ -375,6 +384,10 @@ export class Map {
      * these locations.
      * @param pos The location on the map to retrieve.
      */
+    // TODO Accessing (-2,-2) is actually a common mistake.
+    // Can I make safely make this safe by always returning at least a default void tile?
+    // What are the possible externalities of doing that?
+    // What if you referenced .at(-40,21) and then get .neighbors()?
     squareAt(pos: ImmutablePointPrimitive): Square {
         // (-1,-1) and (width,height) refer to the border objects. They are secret.
         if (pos.x < -1 || pos.y < -1 || pos.x >= this.trueWidth || pos.y >= this.trueHeight)

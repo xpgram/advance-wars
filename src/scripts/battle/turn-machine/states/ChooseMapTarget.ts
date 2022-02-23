@@ -33,9 +33,7 @@ export class ChooseMapTarget extends TurnState {
 
     if (cmd.range) {
       const rangeMap = CommonRangesRetriever(cmd.range);
-      rangeMap.points.forEach( p => {
-        map.squareAt(p.add(place)).targetFlag = true;
-      })
+      map.squaresFrom(place, rangeMap).forEach( s => s.targetFlag = true );
       this.mustSelectTargetable = true;
     }
 

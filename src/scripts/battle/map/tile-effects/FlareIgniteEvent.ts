@@ -115,16 +115,11 @@ export class FlareIgniteEvent extends TileEvent {
     const reveal = (dist: number) => {
       const { map } = this.options.assets;
 
-      Command.Flare.effectAreaMap.points.forEach( p => {
-        if (p.manhattanMagnitude() !== dist)
-          return;
+      const region = Command.Flare.effectAreaMap;
 
-        const loc = p.add(location);
-        if (!map.validPoint(loc))
-          return;
-
-        map.squareAt(loc).hiddenFlag = false;
-      })
+      map.squaresFrom(location, region)
+        .filter( s => location.manhattanDistance(s) === dist )
+        .forEach( s => s.hiddenFlag = false );
     }
 
     // Add to scene
