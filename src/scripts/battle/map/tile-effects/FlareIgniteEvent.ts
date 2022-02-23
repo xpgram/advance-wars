@@ -18,6 +18,9 @@ interface Options {
 // [ ] Automatically figure worldLocation from set location point
 // [ ] Auto-implement this.ratify()? How do I control when it gets called?
 //     I don't know if this one is important.
+// [ ] Implement skipAnimation() which *requires* a ratify method.
+//     This is *required* for online play (leave and reenter) unless I want to send
+//     then entire board state every packet exchange.
 
 export class FlareIgniteEvent extends TileEvent {
 
@@ -43,6 +46,7 @@ export class FlareIgniteEvent extends TileEvent {
   }
 
   protected create(): void {
+    const { map } = this.options.assets;
     const { location } = this.options;
 
     const tileSize = Game.display.standardLength;
@@ -106,33 +110,58 @@ export class FlareIgniteEvent extends TileEvent {
     lightBlast.scale.set(.1);
     lightBlast.alpha = 0;
 
+    // Reveal ratify
+    const reveal = (dist: number) => {
+      const { map } = this.options.assets;
+
+      Command.Flare.effectAreaMap.points.forEach( p => {
+        if (p.manhattanMagnitude() !== dist)
+          return;
+
+        const loc = p.add(location);
+        if (!map.validPoint(loc))
+          return;
+
+        map.squareAt(loc).hiddenFlag = false;
+      })
+    }
+
     // Add to scene
     MapLayer('ui').addChild(spark, lightBlast);
 
     // Animation Schedule
     const time = 1.5;
     const timeInit = .25;
+    const blastTime = .5;
     Timer
       .wait(.3)
       .tween(time + timeInit, spark, {y: spark.y + descendDistance})
-      .do(n => startSpark())  // This needs to happen after the whoosh effect
+      .do(n => startSpark())
       .do(createActionLines)
 
-      .at(timeInit)
+      .at('end').label('descend-finish')
+
+      .at(timeInit) // control for 
       .every({time: time/3, max: 2}, createSmokePoof)
       .do(n => changeSpark(sparkSets.bright))
       .wait(time/3)
       .do(n => changeSpark(sparkSets.mid))
       .wait(time/3)
       .do(n => changeSpark(sparkSets.dim))
-      .wait(time/3)
 
+      .at('descend-finish') // expanding light blast
       .do(n => spark.destroy())
       .do(n => lightBlast.alpha = 1)
-      .tween(.5, lightBlast, {scale: {x: 1, y: 1}, alpha: 0})
-
+      .tween(blastTime, lightBlast, {scale: {x: 1, y: 1}, alpha: 0})
       .wait()
       .do(n => lightBlast.destroy())
+
+      .at('descend-finish') // expanding ratification
+      .do(n => reveal(0))
+      .wait(blastTime/3)
+      .do(n => reveal(1))
+      .wait(blastTime/3)
+      .do(n => reveal(2))
 
       .at('end')
       .do(this.ratify, this)
