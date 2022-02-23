@@ -70,6 +70,7 @@ export class FlareIgniteEvent extends TileEvent {
     const spark = new PIXI.AnimatedSprite(sparkSets.start);
     spark.animationSpeed = 1/3;
     spark.position.set(descendLocation.x, descendLocation.y);
+    spark.alpha = 0;
     spark.loop = false;
 
     const startSpark = () => {
