@@ -13,6 +13,9 @@ But anyway, yeah. There is constant state checking because his system never just
 - [ ] Silo spending and graphic updating
   - [ ] While I'm there: what are the difficulties in getting tiles to swap to, say, a snow version of themselves? Just graphically.
 
+- [ ] Timer.every.max is always +1 by implementation; I'm too busy to solve this rn.
+  - [ ] FlareIgniteEvent will need to be updated to reflect .every() changes.
+
 - [ ] TrackCar doesn't respect sight map yet.
 
 Collect assets for:

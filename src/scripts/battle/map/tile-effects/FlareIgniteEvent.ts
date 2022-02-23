@@ -78,6 +78,28 @@ export class FlareIgniteEvent extends TileEvent {
       spark.play();
     }
 
+    // Line-whip or w/e you call it
+    const createActionLines = () => {
+      const action = new PIXI.AnimatedSprite(animations['flare/flare-ignite']);
+      action.animationSpeed = 1/4;
+      action.position.set(spark.x, spark.y);
+      action.loop = false;
+      action.play();
+      action.onComplete = () => action.destroy();
+      MapLayer('ui').addChild(action);
+    }
+
+    // Smoke poof
+    const createSmokePoof = () => {
+      const poof = new PIXI.AnimatedSprite(animations['flare/flare-smoke-poof']);
+      poof.animationSpeed = 1/8;
+      poof.position.set(spark.x, spark.y);
+      poof.loop = false;
+      poof.play();
+      poof.onComplete = () => poof.destroy();
+      MapLayer('ui').addChild(poof);
+    }
+
     // Light blast
     const lightBlast = new PIXI.Sprite(textures['flare/flare-blast.png']);
     lightBlast.position.set(worldLocationCenter.x, worldLocationCenter.y);
@@ -91,17 +113,20 @@ export class FlareIgniteEvent extends TileEvent {
     const time = 1.5;
     const timeInit = .25;
     Timer
+      .wait(.3)
       .tween(time + timeInit, spark, {y: spark.y + descendDistance})
       .do(n => startSpark())  // This needs to happen after the whoosh effect
+      .do(createActionLines)
 
       .at(timeInit)
+      .every({time: time/3, max: 2}, createSmokePoof)
       .do(n => changeSpark(sparkSets.bright))
       .wait(time/3)
       .do(n => changeSpark(sparkSets.mid))
       .wait(time/3)
       .do(n => changeSpark(sparkSets.dim))
       .wait(time/3)
-      
+
       .do(n => spark.destroy())
       .do(n => lightBlast.alpha = 1)
       .tween(.5, lightBlast, {scale: {x: 1, y: 1}, alpha: 0})

@@ -347,7 +347,7 @@ export class Timer {
     const time = e.until + e.interval;
     const span = e.until - e.time;
     const until = time + span;
-    const repeat = (e.repeat > 0) ? e.repeat - 1 : -1;
+    const repeat = (e.repeat < 0) ? -1 : Math.max(e.repeat - 1, 0);
 
     const next = TEvent.createTimerEvent({
       time, until, interval, repeat, action, context, object, target, ease,
@@ -446,14 +446,14 @@ export class Timer {
 
   /** Schedules an event-call at 'time' and every 'interval' seconds after; returns this.
    * Every-events are by nature infinite and prevent the timer from self-destructing. */
-  // TODO options: {interval: number, max?: number}
-  every(interval: number, action: ProgressiveFunction, context?: object) {
+  every(interval: number | {time: number, max: number}, action: ProgressiveFunction, context?: object) {
     const time = this.timeCursor;
-    interval = millis(interval);
+    const repeat = (typeof interval === 'number') ? -1 : interval.max;
+    interval = millis( (typeof interval === 'number') ? interval : interval.time );
     const e = TEvent.createTimerEvent({
       time,
       interval,
-      repeat: -1,
+      repeat,
       action,
       context,
     })
