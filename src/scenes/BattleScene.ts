@@ -38,6 +38,9 @@ export class BattleScene extends Scene {
         // There's probably no reason bundles.normalTileset couldn't just name url and name
         // the same thing during the linking process; the bundle kind of eliminates the
         // need for a resource name at all. Well, except for legacy.
+        //
+        // Game.scene.getSpritesheet(bundles.war.normalTilesheet)
+        // Could detect that it has a 'name' field and use that for retrieval.
 
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
         this.linker.push({name: 'NormalMapLandscapeSheet', url: 'assets/sheets/normal-map-landscapes.json'});
