@@ -20,6 +20,27 @@ export class BattleScene extends Scene {
     unitSwap?: UnitObject;
 
     loadStep(): void {
+        // TODO I want more strict references to resources.
+        // I'm not sure how to get TypeScript to comply, but here's what I want:
+        // links = {normalTileset: {name: string, url: string}}
+        //   => .forEach( o => this.linker.push(o) )
+        //   ∴ {normalTileset: Spritesheet}
+        // ∴ (Game.scene as BattleScene).resource.normalTileset
+
+        // An alternative would be bundling.
+        // So, this.linker.push(...bundles.BattleScene)
+        // Game.scene.resources[bundles.BattleScene.name]
+        //
+        // I... disprefer this. Hm. I'm not sure how to avoid it, though.
+        // Either would be better than what I'm currently doing, I guess.
+        //
+        // And of course, scene.resources should be left alone for legacy support.
+        //
+        // Btw, I think 'name' is just how we want the resource to be referred to in-app.
+        // There's probably no reason bundles.normalTileset couldn't just name url and name
+        // the same thing during the linking process; the bundle kind of eliminates the
+        // need for a resource name at all. Well, except for legacy.
+
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
         this.linker.push({name: 'NormalMapLandscapeSheet', url: 'assets/sheets/normal-map-landscapes.json'});
         this.linker.push({name: 'UnitSpritesheet', url: 'assets/sheets/unit-sprites.json'});
@@ -50,40 +71,6 @@ export class BattleScene extends Scene {
 
         // Start scene-relevant shader tickers
         this.ticker.add(updateUniforms);
-        
-        // TODO Do something with the below notes:
-
-        // Testing unit sprites
-        // let unitName = 'seeker/red/idle';
-        // let sheet = Game.loader.resources['UnitSpritesheet'].spritesheet;
-        // let frames = sheet.animations[unitName];
-        // frames.push(frames[1]);                     // This has to be done when the sheet is loaded, and so should be done in json, I guess; asking the units to do it causes muy problemas (too many frames.)
-        // for (let i = 0; i < 5; i++) {
-        //     let unit = new PIXI.AnimatedSprite(sheet.animations[unitName]);
-        //     unit.animationSpeed = 1 / 12.5;     // Or 5 / 60, which is 5 frame updates per second.
-        //     //unit.scale.x = -1;                // Then running could be 10 / 60.
-        //     unit.x = unit.y = 32;               // And driving could be 15 / 60.
-        //     unit.x += 16*i;
-        //     unit.play();                        // Alt: idle = 4 / 50, which is 4 frames over 5/6ths a second.
-        //     if (i % 3 == 0)                     //   running = 4 / 25       .42 seconds
-        //         unit.tint = 0x888888;           //   driving = 3 / 12       .25 seconds
-        //     Game.stage.addChild(unit);
-        // }
-
-        //// Syncing all units sprites:
-        // Let there be a ticker of speed 0.08, whatever that is.
-        // On update, increase a counter toward a maximum value (ping-ponging.)
-        // Also on update, callback any listeners with the new value, so they can pull their new texture from sheet.animations['which'][frameIdx].
-        // It would be smart of me to verify frameIdx is valid.
-        // Eh.
-
-        // Idle anim speed:        1/12.5   // Ping-pongs 3 frames      ← Both infantry and vehicles follow this one
-        // Legs move anim speed:   1/6.25   // Ping-pongs 3 frames      // There are only 8 of these total. // TODO Copy frame 1 as 3 in texture-packer source.
-        // Wheels move anim speed: 1/4      // Loops 3 frames           // Movement sprites do not need to be synced
-        // Unit-spent tint:        0x888888
-        // Unit-right is unit-left with scale.x = -1
-        // MovementRailcar does ~not~ pause animation once it reaches its destination. It is just usually too fast to notice this.
-
 
         // TODO This is awful. Kinda. I dunno, clean it up.
         // Add small-map camera squeezing.
@@ -122,6 +109,7 @@ export class BattleScene extends Scene {
     updateStep(): void {
 
         // TODO Move this to the game's main update loop / ticker / something.
+            // Haven't I? Fug, I can't even remember.
         this.controllers.gamepad.update();
 
         // TODO Move this to Camera.update(), a function which should add itself to the scene's ticker.
@@ -136,5 +124,7 @@ export class BattleScene extends Scene {
     }
 
     destroyStep(): void {
+        // TODO destroy map, assets, etc.
     }
+
 }
