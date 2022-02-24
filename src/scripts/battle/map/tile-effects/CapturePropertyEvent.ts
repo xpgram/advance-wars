@@ -13,12 +13,13 @@ export class CapturePropertyEvent extends TileEvent {
 
   private options: CapturePropertyEventOptions;
 
+
   constructor(options: CapturePropertyEventOptions) {
     super(options.actor.boardLocation);
     this.options = options;
   }
 
-  protected create(): void {
+  protected ratify(): void {
     const { map, players } = this.options.assets;
     const { actor, terrain } = this.options;
 
@@ -28,8 +29,33 @@ export class CapturePropertyEvent extends TileEvent {
       terrain.faction = actor.faction;
       map.revealSightMapLocation(actor.boardLocation, players.perspective);
     }
+  }
 
+  protected create(): void {
+    const { actor } = this.options;
+
+    this.ratify();
     this.finish();
+    return;
+
+    const preCapture = actor.capture;
+    actor.captureBuilding();
+    const postCapture = actor.capture;
+
+    const bg = new PIXI.Graphics();
+    bg.beginFill(0);
+    bg.drawRect(0,0,128,128);
+    bg.endFill();
+
+    const fill = new PIXI.Graphics();
+    fill.beginFill(0xFFFFFF);
+    fill.drawRect(0,0,24,24);
+    fill.endFill();
+
+    const setValue = (n: number) => {
+      const r = n / 20;
+
+    }
   }
 
   protected update(): void {
