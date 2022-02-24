@@ -65,6 +65,27 @@ export class Rectangle {
     return this;
   }
 
+  /** Returns a new rectangle with coordinates equal to the sum of this and the given point. */
+  move(x: number | ImmutablePointPrimitive, y?: number) {
+    const p = new Point(x, y).add(this);
+    return new Rectangle(
+      p.x, p.y,
+      this.width,
+      this.height,
+    );
+  }
+
+  /** Returns a new rectangle with size coordinates equal to the sum of this rectangle's width
+   * and height and the given point. */
+  adjustSize(w: number | ImmutablePointPrimitive, h?: number) {
+    const p = new Point(w, h).add(this.bottomright);
+    return new Rectangle(
+      this.x, this.y,
+      p.x,
+      p.y,
+    );
+  }
+
   /** Returns a new rectangle with all its properties a product of this one's after applying the given function. */
   apply(f: (n: number) => number) {
     return new Rectangle(
