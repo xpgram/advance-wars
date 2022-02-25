@@ -43,6 +43,19 @@ export class CapturePropertyEvent extends TileEvent {
   protected create(): void {
     const { actor } = this.options;
 
+    // TODO [ ] Use terrain.illustration in big box
+    // TODO [ ] Put terrain.name in box beneath illustration
+    // TODO [ ] Captured property illustrations are tinted by faction
+    // TODO [ ] Illustrations are tinted at end of meter fill when captured
+    // TODO [ ] At end of meter fill, ?? / 20 is displayed, or 'Captured'
+    // TODO [ ] Meter bg is color of controlling faciton
+    // TODO [ ] Meter fill is color of capturing faction
+    //   TODO [ ] I really think I need a BoardPlayer.palette field.
+    //            Or at least a palette[BoardPlayer.faction] singleton.
+    //   I suppose palette.factions[BoardPlayer.faction] is preferable
+    //   since I also need palette.UI.windowBG and stuff like that.
+    //   I can't keep fiddling with these feckign colors, dude.
+
     // Ratify immediate changes; record changes for animation
     const preCapture = actor.capture;
     actor.captureBuilding();
