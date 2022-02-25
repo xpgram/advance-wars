@@ -59,6 +59,9 @@ export class CapturePropertyEvent extends TileEvent {
       barSep-1
     );
 
+    const barColorEmpty = 0x666666;
+    const barColorFull = 0xCCCCCC;
+
     const drawRect = (g: PIXI.Graphics, r: Rectangle, c: number, a: number) => {
       g.beginFill(c,a);
       g.drawRect(r.x, r.y, r.width, r.height);
@@ -79,24 +82,24 @@ export class CapturePropertyEvent extends TileEvent {
 
     const meter = new PIXI.Graphics();
     for (let i = 0; i < 20; i++)
-      drawRect(meter, bar.move(0, -barSep*i), 0x444444, 1);
+      drawRect(meter, bar.move(0, -barSep*i), barColorEmpty, 1);
 
     const meterFill = new PIXI.Graphics();
     for (let i = 0; i < preCapture; i++)
-      drawRect(meterFill, bar.move(0, -barSep*i), 0x888888, 1);
+      drawRect(meterFill, bar.move(0, -barSep*i), barColorFull, 1);
     
     // Add to scene
     bg.addChild(meter, meterFill);
     Game.hud.addChild(bg);
 
     // Animation schedule
-    const timer = Timer.at(.15);
+    const timer = Timer.wait();
     
     let timeSep = .05;
     for (let i = preCapture; i < postCapture; i++) {
       timer
-        .do(n => drawRect(meterFill, bar.move(0, -barSep*i), 0x888888, 1))
-        .wait(timeSep);
+        .wait(timeSep)
+        .do(n => drawRect(meterFill, bar.move(0, -barSep*i), barColorFull, 1))
     }
 
     timer

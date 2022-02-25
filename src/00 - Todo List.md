@@ -9,6 +9,8 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 - [ ] Silo: I've forgotten to add gradual transparency to the explosion effects, and I guess the silo exhaust too. This tells me I need a VFX module to standardize separate implementations. Like, VFX.FadingParticle(tex: Tex[], ease: EaseFunction?) or something.
+  - [ ] BattleEffects.createGroundExplosion(p: Point)
+    - [ ] VFX.createFadingPartical(tex: Tex[], ease?: EaseMethod)
 
 - [ ] Sight Map caching
   - [ ] What layer are they added to? Can they be simply frozen like other MapLayers?
@@ -24,6 +26,23 @@ But anyway, yeah. There is constant state checking because his system never just
   - It's some issue with camera.targetInFrame() or whatever I called it; it only happens while at zoom stage 2 or 3 and is fixed by changing zoom levels.
   The camera won't move but it also can't yield control to the BSM.
   [ ] Create a dev button for posting camera state.
+
+- [ ] Destroyable Bridges — same HP as meteors.
+  - [ ] scenario.destroyableBridges == true changes a flag on all bridges on the map that activates HP and targetability.
+    - I haven't worked on Meteors yet. Do TerrainObjects need a .destroyable flag to indicate they may be attacked?
+  - [ ] Bridges may not be attacked while they have inhabitants; they should not be destroyable while a unit is also present.
+  - Some maps might be made unplayable by destroyed bridges preventing any further player interaction.
+    - If detected, this could result in a Draw. That would be funny.
+    - I want to give Rigs the ability to use Material on new Bridges.
+      - Rigs, while adjacent to a bridgable spot, may choose 'Build' (with an icon of a Bridge).
+      - The player will choose an adjacent tile, much like ChooseDropLocation.
+      - This location will be saved as a CardinalDir on the Rig itself.
+      - The Rig uses its Capture mechanic to record progress toward the full build.
+        - It would be fun to heartbeat-flash green the tile the Rig is building on during the CaptureEvent animation.
+      - When the Rig moves, its capture is reset as well as its CardinalDir.
+      - When a unit moves into the space the rig is working on, it is also interrupted.
+        - This isn't necessary. The bridge only expands the movement matrix; nothing would be broken. I do think though that it's a design philosophy that tiles are only terraformable when they're uninhabited or are inhabited by self.
+      - When a Rig finishes, the terrain is changed to Bridge with full HP (always destructible variant)
 
 - [ ] Timer.every.max is always +1 by implementation; I'm too busy to solve this rn.
   - [ ] The default for non-repeating events is 0? It should probably be 1. e.repeat should be decremented before the extension check.
