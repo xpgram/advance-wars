@@ -27,6 +27,9 @@ But anyway, yeah. There is constant state checking because his system never just
   The camera won't move but it also can't yield control to the BSM.
   [ ] Create a dev button for posting camera state.
 
+- [ ] Flares do not use their Material to cast flares.
+  - I'm not even sure they recognize themselves as having Material ammunition.
+
 - [ ] Destroyable Bridges — same HP as meteors.
   - [ ] scenario.destroyableBridges == true changes a flag on all bridges on the map that activates HP and targetability.
     - I haven't worked on Meteors yet. Do TerrainObjects need a .destroyable flag to indicate they may be attacked?
@@ -49,12 +52,6 @@ But anyway, yeah. There is constant state checking because his system never just
   - [ ] FlareIgniteEvent will need to be updated to reflect .every() changes.
 
 - [ ] TrackCar doesn't respect sight map yet.
-
-Collect assets for:
-- [x] Sub dive/surface anim
-- [x] Air units blow up anim (again)
-- [ ] Flare shot and descend anim
-- [ ] Silo up and down + explosion (+ crater?) anim
 
 - [ ] Ambushes don't stop Drop.schedule() from being called.
   I could fix this by [ ] requiring DropEvent to verify that actor is at the goal position. I don't know if that fixes the fundamental problem, though.
