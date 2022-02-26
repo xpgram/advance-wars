@@ -1,7 +1,9 @@
 import { Game } from "../../../..";
 import { Rectangle } from "../../../Common/Rectangle";
 import { Timer } from "../../../timer/Timer";
+import { FactionColors } from "../../EnumTypes";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
+import { fonts } from "../../ui-windows/DisplayInfo";
 import { UnitObject } from "../../UnitObject";
 import { TerrainObject } from "../TerrainObject";
 import { TileEvent } from "./TileEvent";
@@ -41,7 +43,7 @@ export class CapturePropertyEvent extends TileEvent {
   }
 
   protected create(): void {
-    const { actor } = this.options;
+    const { actor, terrain } = this.options;
 
     // TODO [ ] Use terrain.illustration in big box
     // TODO [ ] Put terrain.name in box beneath illustration
@@ -62,7 +64,7 @@ export class CapturePropertyEvent extends TileEvent {
     const postCapture = actor.capture;
 
     // Setup UI element definitions
-    const windowRect = new Rectangle(0,0,80,64);
+    const windowRect = new Rectangle(0,0,88,63);
 
     const barSep = 3;
     const bar = new Rectangle(
@@ -72,8 +74,10 @@ export class CapturePropertyEvent extends TileEvent {
       barSep-1
     );
 
-    const barColorEmpty = 0x666666;
-    const barColorFull = 0xCCCCCC;
+    // TODO Palette
+    const meterColors = [0x888888, 0x888888, 0xCC4444, 0x4444CC, 0xCCCC33, 0x333344];
+    const barColorEmpty = meterColors[terrain.faction] - 0x333333;
+    const barColorFull = meterColors[actor.faction];
 
     const drawRect = (g: PIXI.Graphics, r: Rectangle, c: number, a: number) => {
       g.beginFill(c,a);
@@ -82,6 +86,26 @@ export class CapturePropertyEvent extends TileEvent {
     }
 
     // Assemble UI elements
+    const illustration = terrain.illustration;
+    illustration.position.set(2);
+    // TODO Palette
+    const colors = [0xFFFFFF, 0xFFFFFF, 0xFFBBBB, 0xBBBBFF, 0xFFDD88, 0x889999];
+    illustration.tint = colors[terrain.faction];
+    illustration.scale.x = (windowRect.width - 6 - bar.width) / illustration.width;
+    illustration.scale.y = (windowRect.height - 4 - 16) / illustration.height;
+
+    const tintOnCapture = () => {
+      if (actor.buildingCaptured())
+        illustration.tint = colors[actor.faction];
+    }
+
+    const name = new PIXI.BitmapText(terrain.name, fonts.title);
+    name.anchor.set(.4, 0);
+    name.position.set(
+      illustration.width/2 + 2,
+      illustration.y + illustration.height + 2
+    )
+
     const bg = new PIXI.Graphics();
     drawRect(bg, windowRect, 0, .5);
     bg.position.set(
@@ -102,6 +126,7 @@ export class CapturePropertyEvent extends TileEvent {
       drawRect(meterFill, bar.move(0, -barSep*i), barColorFull, 1);
     
     // Add to scene
+    bg.addChild(illustration, name);
     bg.addChild(meter, meterFill);
     Game.hud.addChild(bg);
 
@@ -117,6 +142,7 @@ export class CapturePropertyEvent extends TileEvent {
 
     timer
       .at('end')
+      .do(tintOnCapture)
       .wait(.5)
       .do(this.captureProperty, this)
       .do(n => bg.destroy({children: true}))
