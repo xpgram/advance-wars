@@ -1,12 +1,17 @@
 
+// TODO Move this to src/Common, or maybe just src
+
+import { PlayerFactionPalette } from "./PlayerFactionPalette";
 
 export const palettes = {
   ui: {
 
   },
   factions: {
-    red: {
-      primary: 0,
+    red: <PlayerFactionPalette>{
+      menu: {
+        primary: 2,
+      },
       insigniaSplash: [
         // This is supposed to be the palette swap info from red to ???
         // However, either I need to describe red here as well, which seems silly,
