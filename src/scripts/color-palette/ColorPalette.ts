@@ -96,7 +96,8 @@ const t = {
 
 const { HSV } = Color;
 
-// TODO Let's make this a feature of Color.
+// TODO I need to consolodate. Color goes into its own ecosystem space,
+// this probably follows it.
 
 export const palette = {                  // v Until I setup the color overlayer v
   white:              HSV(  0,  0,100),
@@ -121,6 +122,29 @@ export const palette = {                  // v Until I setup the color overlayer
   blister_pearl:      HSV(170, 35,100),   //  + Light accent
 }
 
+// TODO This should go into its own file.
+// TODO Palette swaps... I might keep them where they're relevant. I don't know.
+//   It'd be nice, I guess, if I could describe them on the spritesheet their image is a member of,
+//   but I don't know what to do about that yet. I guess I could mod Pixi myself to look for a palette
+//   field and save a new texture via a PixiFilter or something. Prolly not gonna.
+//   
+//   What I should probably do is extract the palette-swap-texture process to a function. You could
+//   give it the texture and a list of colors pairs and it would return a new texure.
+//   Then, those color pairs... you know what I should do?
+//
+//   Every image has a name and a sheet. The names are arranged like a folder structure.
+//   Every resource name paired with its spritesheet root should refer to a list of faction color via
+//   a service kind of like RegionMap: defined terms are returned when asked, otherwise an empty list
+//   and a console warning accompany and undefined request.
+//
+//   This would require a little maintaince on my end, I don't think I can make it automatic,
+//   but this would intrinsically pair resources with their palette variations and it would be
+//   easily accessible.
+//     getPaletteSwap.blue('UISpritesheet', 'emblems/13th-battalion.png')
+//   
+//   This (won't, but) could easily get very large and unwieldy.
+//   I think I would need an indexing service which allows me to add and remove them with a
+//   few copy-pastes.
 export const playerFactions = {
   red: <PlayerFactionPalette>{
 
