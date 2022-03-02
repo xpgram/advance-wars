@@ -15,6 +15,7 @@
 // I'll need to do some thinking.
 // A little CSS influence might not hurt.
 
+import { Color } from "../CommonUtils";
 import { PlayerFactionPalette } from "./PlayerFactionPalette";
 
 export const test = {
@@ -93,34 +94,47 @@ const t = {
   // Possibly not relevant to this project.
 }
 
-export const palettes = {
-  ui: {
-    window: {
-      background: 2,
-      cursor: 2,
-    }
+const { HSV } = Color;
+
+// TODO Let's make this a feature of Color.
+
+export const palette = {                  // v Until I setup the color overlayer v
+  white:              HSV(  0,  0,100),
+  black:              HSV(  0,  0,  0),
+
+  carbon1:            HSV(  0,  0, 10),
+  carbon2:            HSV(  0,  0, 20),
+  carbon3:            HSV(  0,  0, 30),
+  grey1:              HSV(  0,  0, 40),
+  grey2:              HSV(  0,  0, 50),
+  grey3:              HSV(  0,  0, 60),
+  cerebral_grey1:     HSV(  0,  0, 70),
+  cerebral_grey2:     HSV(  0,  0, 80),
+  cerebral_grey3:     HSV(  0,  0, 90),
+
+  gale_force1:        HSV(200, 30, 30),   // Cmd Menu Background
+  gale_force2:        HSV(215, 25, 35),   // Cmd Menu Primary
+  cloudless:          HSV(220, 15,100),   //  + Light accent
+
+  caribbean_green:    HSV(166,100, 80),   // Cursor
+  terrestrial:        HSV(170, 65, 40),   // Cmd Menu Selected
+  blister_pearl:      HSV(170, 35,100),   //  + Light accent
+}
+
+export const playerFactions = {
+  red: <PlayerFactionPalette>{
+
   },
-  factions: {
-    red: <PlayerFactionPalette>{
-      menu: {
-        primary: 2,
-      },
-      insigniaSplash: [
-        // This is supposed to be the palette swap info from red to ???
-        // However, either I need to describe red here as well, which seems silly,
-        // or I need to be *absolutely sure* that the order of these color
-        // listings match those of ???'s.
-        // Maybe I'll just call it insigniaSplashPaletteSwap and do the obvious thing.
-      ],
-    },
-    blue: {
+  blue: <PlayerFactionPalette>{
 
-    },
-    yellow: {
+  },
+  yellow: <PlayerFactionPalette>{
 
-    },
-    black: {
+  },
+  green: <PlayerFactionPalette>{
 
-    },
+  },
+  black: <PlayerFactionPalette>{
+
   },
 }
