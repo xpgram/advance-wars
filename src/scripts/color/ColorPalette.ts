@@ -15,7 +15,7 @@
 // I'll need to do some thinking.
 // A little CSS influence might not hurt.
 
-import { Color } from "../CommonUtils";
+import { Color } from "./Color";
 import { PlayerFactionPalette } from "./PlayerFactionPalette";
 
 export const test = {

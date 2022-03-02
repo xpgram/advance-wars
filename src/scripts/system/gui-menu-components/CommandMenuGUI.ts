@@ -1,9 +1,9 @@
 import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
+import { Color } from "../../color/Color";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
-import { Color } from "../../CommonUtils";
 import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
 import { IconTitle } from "./ListMenuTitleTypes";

@@ -1,11 +1,13 @@
 import { Game } from "../../..";
+import { Color } from "../../color/Color";
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
-import { Color } from "../../CommonUtils";
 import { Pulsar } from "../../timer/Pulsar";
 
 type Rectangle = PIXI.Rectangle;
 const Rectangle = PIXI.Rectangle;
+
+const { HSV } = Color;
 
 /**  */
 export class MenuCursor {
@@ -17,7 +19,7 @@ export class MenuCursor {
     /** The width of the cursor's borders. */
     thickness: 2,
     /** The single-shade color of the selection cursor. */
-    color: Color.HSV(166,100, 80),
+    color: HSV(166,100, 80),
     /** The number of frames before settling from old to new position. */
     motionFrames: 3,
     /** The number of frames between pulse animation frame updates. */

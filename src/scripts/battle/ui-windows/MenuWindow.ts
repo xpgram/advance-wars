@@ -7,7 +7,7 @@ import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { Point } from "../../Common/Point";
 import { Pulsar } from "../../timer/Pulsar";
 import { Debug } from "../../DebugUtils";
-import { Color, Common } from "../../CommonUtils";
+import { Color } from "../../color/Color";
 
 // TODO Option selection is updated via redrawing the entire menu
 // TODO Worse, this is triggered in 3 different places. Slider.onChange or something should be used instead.
@@ -21,7 +21,7 @@ import { Color, Common } from "../../CommonUtils";
 // Rewrite, baby... yea... I'm excited, I'm just tired.
 
 // Colors
-const HSV = Color.HSV;
+const { HSV } = Color;
 const palette = {
     selector:   HSV(166, 100, 50),
     background: HSV(196, 28, 23),

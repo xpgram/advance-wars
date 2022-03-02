@@ -1,5 +1,5 @@
+import { Color } from "../../color/Color";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
-import { Color } from "../../CommonUtils"
 
 /**
  * Consider renaming this class.
@@ -8,7 +8,7 @@ import { Color } from "../../CommonUtils"
  * what each option is for.
  */
 
-const HSV = Color.HSV;
+const { HSV } = Color;
 
 const palette = {
   background:     HSV(196, 28, 23),

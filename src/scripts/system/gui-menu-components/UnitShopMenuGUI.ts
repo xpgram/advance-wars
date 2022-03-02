@@ -1,7 +1,7 @@
 import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
+import { Color } from "../../color/Color";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
-import { Color } from "../../CommonUtils";
 import { CommandMenuGUI } from "./CommandMenuGUI";
 
 const { HSV } = Color;
