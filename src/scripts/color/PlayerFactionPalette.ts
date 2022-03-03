@@ -1,15 +1,21 @@
+import { Faction } from "../battle/EnumTypes";
+import { Common } from "../CommonUtils";
+import { Palette } from "./ColorPalette";
 import { HexColor } from "./ColorTypes";
 
-/**  */
+
+/** A container consolidating player faction palette data. */
 export type FactionPalette = {
   CoWindow: {
     background: HexColor,
+    white_tintdown: HexColor,
   }
   propertyCapture: {
     meter: HexColor,
     tint: HexColor,
   }
   turnStartSplash: {
+    presenceBackground: HexColor,
     // TODO I think I just use swap pairs, here.
     // This might be irrelevant.
   }
@@ -24,46 +30,101 @@ export type FactionPalette = {
   }
 }
 
-export const FactionPalettes = {
-  red: <FactionPalette>{
 
+const neutral: FactionPalette = {
+  CoWindow: {
+    background: Palette.standing_ovation,
+    white_tintdown: Palette.asian_violet,
   },
-  blue: <FactionPalette>{
-
+  propertyCapture: {
+    meter: Palette.standing_ovation,
+    tint: Palette.asian_violet,
   },
-  yellow: <FactionPalette>{
-
+  turnStartSplash: {
+    presenceBackground: Palette.standing_ovation,
   },
-  green: <FactionPalette>{
-
-  },
-  black: <FactionPalette>{
-
-  },
+  paletteSwap: {},
 }
 
-// TODO Palette swaps... I might keep them where they're relevant. I don't know.
-//   It'd be nice, I guess, if I could describe them on the spritesheet their image is a member of,
-//   but I don't know what to do about that yet. I guess I could mod Pixi myself to look for a palette
-//   field and save a new texture via a PixiFilter or something. Prolly not gonna.
-//   
-//   What I should probably do is extract the palette-swap-texture process to a function. You could
-//   give it the texture and a list of colors pairs and it would return a new texure.
-//   Then, those color pairs... you know what I should do?
-//
-//   Every image has a name and a sheet. The names are arranged like a folder structure.
-//   Every resource name paired with its spritesheet root should refer to a list of faction color via
-//   a service kind of like RegionMap: defined terms are returned when asked, otherwise an empty list
-//   and a console warning accompany and undefined request.
-//
-//   This would require a little maintaince on my end, I don't think I can make it automatic,
-//   but this would intrinsically pair resources with their palette variations and it would be
-//   easily accessible.
-//     getPaletteSwap.blue('UISpritesheet', 'emblems/13th-battalion.png')
-//   
-//   This (won't, but) could easily get very large and unwieldy.
-//   I think I would need an indexing service which allows me to add and remove them with a
-//   few copy-pastes.
-//
-// TODO Alternatively, I could find that they're combinable and I could keep
-//   one really large one for each faction here.
+const red: FactionPalette = {
+  CoWindow: {
+    background: Palette.boerewors,
+    white_tintdown: Palette.hibiscus_petal,
+  },
+  propertyCapture: {
+    meter: Palette.boerewors,
+    tint: Palette.hibiscus_petal,
+  },
+  turnStartSplash: {
+    presenceBackground: Palette.boerewors,
+  },
+  paletteSwap: {},
+}
+
+const blue: FactionPalette = {
+  CoWindow: {
+    background: Palette.blue_sail,
+    white_tintdown: Palette.maximum_blue_purple,
+  },
+  propertyCapture: {
+    meter: Palette.blue_sail,
+    tint: Palette.maximum_blue_purple,
+  },
+  turnStartSplash: {
+    presenceBackground: Palette.blue_sail,
+  },
+  paletteSwap: {},
+}
+
+const yellow: FactionPalette = {
+  CoWindow: {
+    background: Palette.brassy_brass,
+    white_tintdown: Palette.master_key,
+  },
+  propertyCapture: {
+    meter: Palette.brassy_brass,
+    tint: Palette.master_key,
+  },
+  turnStartSplash: {
+    presenceBackground: Palette.brassy_brass,
+  },
+  paletteSwap: {},
+}
+
+const green: FactionPalette = {
+  CoWindow: {
+    background: 0,
+    white_tintdown: 0,
+  },
+  propertyCapture: {
+    meter: 0,
+    tint: 0
+  },
+  turnStartSplash: {
+    presenceBackground: 0,
+  },
+  paletteSwap: {},
+}
+
+const black: FactionPalette = {
+  CoWindow: {
+    background: Palette.violet_black,
+    white_tintdown: Palette.cerebral_grey1,
+  },
+  propertyCapture: {
+    meter: Palette.violet_black,
+    tint: Palette.cerebral_grey1,
+  },
+  turnStartSplash: {
+    presenceBackground: Palette.violet_black,
+  },
+  paletteSwap: {},
+}
+
+/** A container for all palette information for all Advance Wars factions. */
+export const FactionPalettes = Common.freezeObject({ neutral, red, blue, yellow, green, black });
+
+/** Returns a FactionPalette corresponding to the given Faction value. */
+export function getFactionPalette(faction: Faction) {
+  return [neutral, neutral, red, blue, yellow, black][faction];
+}

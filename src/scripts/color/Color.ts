@@ -2,6 +2,7 @@ import { Common } from "../CommonUtils";
 import { Debug } from "../DebugUtils";
 import { HexColor, HSVColor, RGBColor } from "./ColorTypes";
 
+
 /** Manipulates, primarily, hex colors. */
 export module Color {
 
@@ -24,14 +25,15 @@ export module Color {
     const m = (val / 100) - c;                      // value adjustment
 
     // which component set depends on which side of the rgb cube space we're using.
+    const cubeSide = (hue === 0) ? 0 : ceil(hue / 60) - 1;
     const rgbset = [
       [0, x, c],
       [0, c, x],
       [x, c, 0],
       [c, x, 0],
       [c, 0, x],
-      [x, 0, c]
-    ][ceil(hue / 60) - 1];
+      [x, 0, c],
+    ][cubeSide];
 
     const component = (i: number) => 0xFF * (rgbset[i] + m) << (i*8)
     return component(2) + component(1) + component(0); // r+g+b
@@ -70,7 +72,10 @@ export module Color {
     }
   }
 
-  /** ..? Allows simple proportional adjustments. Implementation is naive, however. */
+  /** ..? Allows simple proportional adjustments. Implementation is naive, however.
+   * I think the point is to adjust luminance/brightness, I should find the formula
+   * for that.
+   * @deprecated use luminance(hexcolor, value) whenever it's written. */
   export function multiply(c: HexColor, n: number): HexColor {
     const { clamp } = Common;
     const { trunc } = Math;

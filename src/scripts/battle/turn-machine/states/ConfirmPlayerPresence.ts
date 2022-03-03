@@ -1,4 +1,6 @@
 import { Game } from "../../../..";
+import { Color } from "../../../color/Color";
+import { getFactionPalette } from "../../../color/PlayerFactionPalette";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
@@ -58,16 +60,11 @@ export class ConfirmPlayerPresence extends TurnState {
       renderHeight/2,
     )
 
-    // TODO Color palette consolidation
-    const bgColors = [
-      0x3D2929, // 0x633131,
-      0x263740, // 0x29425A,
-      0x403C26, // 0x845A18,
-      0x313931,
-    ]
+    const paletteColor = getFactionPalette(players.current.faction).turnStartSplash.presenceBackground;
+    const bgColor = Color.multiply(paletteColor, .5);
 
     const bg = new PIXI.Graphics();
-    bg.beginFill(bgColors[players.current.playerNumber]);
+    bg.beginFill(bgColor);
     bg.drawRect(0,0,renderWidth,renderHeight);
     bg.endFill();
     if (!scenario.fogOfWar)

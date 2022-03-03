@@ -95,8 +95,8 @@ export class InfoWindowSystem {
     this.camera = settings.camera;
     this.map = settings.map;
     this.players = settings.players;
-    this.players.all.forEach( (player, idx) => {
-      const window = new COWindow(WindowSettings.DrawerHide, player, idx);
+    this.players.all.forEach( player => {
+      const window = new COWindow(WindowSettings.DrawerHide, player);
       this.playerInfo.idealOrder.push(window);
     });
     this.playerInfo.windows = this.playerInfo.idealOrder;

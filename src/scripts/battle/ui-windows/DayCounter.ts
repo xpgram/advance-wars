@@ -1,3 +1,4 @@
+import { Palette } from "../../color/ColorPalette";
 import { fonts } from "./DisplayInfo";
 import { Fadable } from "./Fadable";
 
@@ -41,8 +42,8 @@ export class DayCounter {
   }
 
   private createBackground(g: PIXI.Graphics, t: PIXI.BitmapText) {
-    const color = 0x29424A;
-    const shadow = 0x000000;
+    const color = Palette.gale_force1;
+    const shadow = Palette.black;
   
     const xoff = (t.text[0] === '1') ? 1 : 0;
 

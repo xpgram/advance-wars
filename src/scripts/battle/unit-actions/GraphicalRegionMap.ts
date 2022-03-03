@@ -1,7 +1,7 @@
+import { Palette } from "../../color/ColorPalette";
 import { CardinalDirection, CardinalVector } from "../../Common/CardinalDirection";
 import { Point } from "../../Common/Point";
 import { Rectangle } from "../../Common/Rectangle";
-import { NumericDictionary } from "../../CommonTypes";
 import { RegionMap } from "./RegionMap";
 
 /** Returns a PIXI.Graphics object which bounds a given RegionMap (projected to
@@ -30,8 +30,8 @@ export function buildBoundedRegionMapObject(region: RegionMap, cellSize: number)
 }
 
 function drawBoundedSquare(g: PIXI.Graphics, location: Point, sides: CardinalDirection[], length: number) {
-  const light = 0xFFFFFF;
-  const dark = 0x39637B;
+  const light = Palette.white;
+  const dark = Palette.blueprint;
 
   type LineRects = Record<CardinalDirection, Rectangle>
 

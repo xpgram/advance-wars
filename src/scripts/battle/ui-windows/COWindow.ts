@@ -5,6 +5,8 @@ import { fonts } from "./DisplayInfo";
 import { Common } from "../../CommonUtils";
 import { Faction, FactionColors } from "../EnumTypes";
 import { BoardPlayer, BoardPlayerConstructionError } from "../BoardPlayer";
+import { getFactionPalette } from "../../color/PlayerFactionPalette";
+import { Palette } from "../../color/ColorPalette";
 
 export class COWindow extends SlidingWindow {
 
@@ -23,39 +25,25 @@ export class COWindow extends SlidingWindow {
     private armyCountText = new PIXI.BitmapText('', fonts.scriptOutlined);
     private cityCountText = new PIXI.BitmapText('', fonts.scriptOutlined);
 
-    constructor(options: SlidingWindowOptions, player: BoardPlayer, faction: Faction) {
+    constructor(options: SlidingWindowOptions, player: BoardPlayer) {
         super(options);
         
         this.player = player;
-
-        // TODO Remove: faction is still player number by implementation elsewhere.
-        faction += 2;
+        const { faction } = player;
 
         // Validate faction
         if ([Faction.None, Faction.Neutral].includes(faction))
             throw new RangeError(`CO Window ${player.playerNumber}: Cannot set faction to ${FactionColors[faction]}`);
 
-        // Returns a color-set object
-        function colorPalette(primary: number, whiteTint: number) {
-            return {primary, whiteTint};
-        }
-
-        const palettes = [
-            colorPalette(0xBAB2BA, 0x8A828A),
-            colorPalette(0xBAB2BA, 0x8A828A),
-            colorPalette(0x943142, 0xEEAAAA),
-            colorPalette(0x294A9C, 0xAAAAEE),
-            colorPalette(0x736321, 0xDDCC88),
-            colorPalette(0x4A424A, 0xAAAAAA),
-        ]
+        const palette = getFactionPalette(faction).CoWindow;
 
         let background = RectBuilder({
             width: 88,
             height: 31,
-            color: palettes[faction].primary,
+            color: palette.background,
             alpha: 1,
             border: {
-                color: 0x29424a,
+                color: Palette.gale_force1,
                 top: 1,
                 bottom: 1,
                 left: 2,
@@ -67,9 +55,9 @@ export class COWindow extends SlidingWindow {
         this.commanderImage = function () {
             const g = new PIXI.Graphics();
             const { width, height } = player.officer.eyeshot;
-            g.beginFill(palettes[faction].whiteTint, .30);
+            g.beginFill(palette.white_tintdown, .30);
             g.drawRect(4,0,width-4,height);
-            g.beginFill(palettes[faction].whiteTint, .15);
+            g.beginFill(palette.white_tintdown, .15);
             g.drawRect(3,0,1,height);
             g.endFill();
             g.addChild(player.officer.eyeshot);
@@ -89,12 +77,12 @@ export class COWindow extends SlidingWindow {
         // Insignia
         this.insignia = player.officer.insignia;
         this.insignia.x = 4; this.insignia.y = 1;
-        this.insignia.tint = palettes[faction].whiteTint;
+        this.insignia.tint = palette.white_tintdown;
         this.insignia.alpha = .8;
 
         // City Icon
         this.cityIcon.x = 4; this.cityIcon.y = 16;
-        this.cityIcon.tint = palettes[faction].whiteTint;
+        this.cityIcon.tint = palette.white_tintdown;
         this.cityIcon.alpha = .8;
 
         // Funds
