@@ -212,6 +212,7 @@ export abstract class UnitObject {
     abstract get description(): string;
 
     /** The unit's price to build. */
+    // TODO Unit.Type describes baseCost, this yields cost adjusted by HP
     abstract get cost(): number;
 
     /** The unit's maximum gas: a stat depleted while moving. */
