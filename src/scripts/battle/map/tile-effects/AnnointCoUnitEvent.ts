@@ -52,13 +52,14 @@ export class AnnointCoUnitEvent extends TileEvent {
     MapLayer('ui').addChild(icon);
 
     Timer
-      .at(.2)
+      .at(.15)
       .tween(.05, icon, {alpha: 1})
       .tween(.15, icon, {scale: {x: 1, y: 1}})
 
       .at('end')
-      .wait(.4)
       .do(this.ratify, this)
+
+      .wait(.35)
       .do(n => icon.destroy())
       .do(this.finish, this)
   }
