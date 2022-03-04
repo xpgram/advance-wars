@@ -35,7 +35,10 @@ export class AnnointCoUnitEvent extends TileEvent {
   }
 
   protected create(): void {
+    const { players } = this.options.assets;
     const { location } = this.options;
+
+    players.perspectivesTurn?.clearCoBoardableIndicators();
 
     const size = Game.display.standardLength;
     const worldLocation = location
