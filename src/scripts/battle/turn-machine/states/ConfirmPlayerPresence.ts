@@ -60,8 +60,9 @@ export class ConfirmPlayerPresence extends TurnState {
       renderHeight/2,
     )
 
-    const paletteColor = getFactionPalette(players.current.faction).turnStartSplash.presenceBackground;
-    const bgColor = Color.multiply(paletteColor, .5);
+    const baseColor = getFactionPalette(players.current.faction).turnStartSplash.presenceBackground;
+    const baseHSV = Color.getHSV(baseColor);
+    const bgColor = Color.HSV(baseHSV.h, baseHSV.s/2, baseHSV.v/2);
 
     const bg = new PIXI.Graphics();
     bg.beginFill(bgColor);

@@ -37,8 +37,8 @@ const neutral: FactionPalette = {
     white_tintdown: Palette.asian_violet,
   },
   propertyCapture: {
-    meter: Palette.standing_ovation,
-    tint: Palette.asian_violet,
+    meter: Palette.white,
+    tint: Palette.white,
   },
   turnStartSplash: {
     presenceBackground: Palette.standing_ovation,
@@ -63,30 +63,30 @@ const red: FactionPalette = {
 
 const blue: FactionPalette = {
   CoWindow: {
-    background: Palette.blue_sail,
+    background: Palette.regal_destiny,
     white_tintdown: Palette.maximum_blue_purple,
   },
   propertyCapture: {
-    meter: Palette.blue_sail,
+    meter: Palette.regal_destiny,
     tint: Palette.maximum_blue_purple,
   },
   turnStartSplash: {
-    presenceBackground: Palette.blue_sail,
+    presenceBackground: Palette.regal_destiny,
   },
   paletteSwap: {},
 }
 
 const yellow: FactionPalette = {
   CoWindow: {
-    background: Palette.brassy_brass,
+    background: Palette.tarnished_brass,
     white_tintdown: Palette.master_key,
   },
   propertyCapture: {
-    meter: Palette.brassy_brass,
+    meter: Palette.lemon_ginger,
     tint: Palette.master_key,
   },
   turnStartSplash: {
-    presenceBackground: Palette.brassy_brass,
+    presenceBackground: Palette.lemon_ginger,
   },
   paletteSwap: {},
 }
@@ -108,15 +108,15 @@ const green: FactionPalette = {
 
 const black: FactionPalette = {
   CoWindow: {
-    background: Palette.violet_black,
+    background: Palette.black_dahlia,
     white_tintdown: Palette.cerebral_grey1,
   },
   propertyCapture: {
-    meter: Palette.violet_black,
+    meter: Palette.black_dahlia,
     tint: Palette.cerebral_grey1,
   },
   turnStartSplash: {
-    presenceBackground: Palette.violet_black,
+    presenceBackground: Palette.black_dahlia,
   },
   paletteSwap: {},
 }

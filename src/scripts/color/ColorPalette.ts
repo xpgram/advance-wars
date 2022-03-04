@@ -32,20 +32,24 @@ export const Palette = Common.freezeObject({
   asian_violet:       HSV(300,  6, 54), // Emblem Tint
 
   // Red Faction
-  boerewors:          HSV(350, 67, 58), // CO Window
+  boerewors:          HSV(350, 68, 58), // CO Window
   hibiscus_petal:     HSV(  0, 29, 93), // Emblem Tint    Is this derivable from boerewors?
+  // Cap Meter
 
   // Blue Faction
-  blue_sail:          HSV(223, 74, 61), // CO Window
+  regal_destiny:      HSV(220, 68, 54), // CO Window
   maximum_blue_purple:HSV(240, 29, 93), // Emblem Tint
+  // Cap Meter
 
   // Yellow Faction
-  brassy_brass:       HSV( 48, 71, 45), // CO Window
+  tarnished_brass:    HSV( 48, 68, 50), // CO Window
   master_key:         HSV( 48, 38, 87), // Emblem Tint
+  lemon_ginger:       HSV( 48, 68, 58), // Presence Confirmation
+  // Cap Meter
 
   // Green Faction
 
   // Black Faction
-  violet_black:       HSV(300, 11, 29), // CO Window
-  // cerebral grey1
+  black_dahlia:       HSV(300, 10, 30), // CO Window
+  // Cap Meter
 })

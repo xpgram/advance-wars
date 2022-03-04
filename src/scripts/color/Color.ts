@@ -63,13 +63,43 @@ export module Color {
   }
 
   /** Returns an RGB color object extracted from a hex-format color. */
-  function fromHex(c: HexColor): RGBColor {
+  export function getRGB(c: HexColor): RGBColor {
     const component = (i: number) => (c & (0xFF << i*8)) >> i*8;
     return {
       r: component(2),
       g: component(1),
       b: component(0),
     }
+  }
+
+  /** Returns an HSV color object extracted from a hex-format color.
+   * Forumula adapted from Wikipedia. */
+  export function getHSV(c: HexColor): HSVColor {
+    const { min, max } = Math;
+
+    const { r, g, b } = getRGB(c);
+    const R = r/0xFF; // Red
+    const G = g/0xFF; // Green
+    const B = b/0xFF; // Blue
+
+    const V = max(R,G,B);       // Value
+    const C = V - min(R,G,B);   // Chroma
+
+    const H =         // Hue
+      (C === 0) ? 0
+    : (V === R) ? 60 * (G-B)/C
+    : (V === G) ? 60 * (2 + (B-R)/C)
+    :/*V === B*/  60 * (4 + (R-G)/C);
+    
+    const S = (V === 0) ? 0 : C/V;  // Saturation
+
+    // TODO Remove; kept because I don't know the limits of this implementation.
+    const hex = (n: number) => n.toString(16);
+    const fix = (n: number) => n.toFixed(3);
+    Debug.errif(H < 0 || H > 360, `H = ${H}, V=${fix(V)}, C=${fix(C)}, S=${fix(S)}, c=#${hex(c)} R=${fix(R)} G=${fix(G)} B=${fix(B)}`)
+
+    const h = (H < 0) ? H + 360 : H;
+    return {h, s:S*100, v:V*100};
   }
 
   /** ..? Allows simple proportional adjustments. Implementation is naive, however.
@@ -80,7 +110,7 @@ export module Color {
     const { clamp } = Common;
     const { trunc } = Math;
 
-    const color = fromHex(c) as RGBColor & Record<string, number>;
+    const color = getRGB(c) as RGBColor & Record<string, number>;
 
     const adjust = (m: number) => clamp(trunc(n*m), 0, 0xFF);
     for (const key in color)

@@ -1,4 +1,6 @@
 import { Game } from "../../../..";
+import { Color } from "../../../color/Color";
+import { getFactionPalette } from "../../../color/PlayerFactionPalette";
 import { Rectangle } from "../../../Common/Rectangle";
 import { Timer } from "../../../timer/Timer";
 import { FactionColors } from "../../EnumTypes";
@@ -74,10 +76,12 @@ export class CapturePropertyEvent extends TileEvent {
       barSep-1
     );
 
-    // TODO Palette
-    const meterColors = [0x888888, 0x888888, 0xCC4444, 0x4444CC, 0xCCCC33, 0x333344];
-    const barColorEmpty = meterColors[terrain.faction] - 0x333333;
-    const barColorFull = meterColors[actor.faction];
+    const curPalette = getFactionPalette(terrain.faction).propertyCapture;
+    const capPalette = getFactionPalette(actor.faction).propertyCapture;
+
+    const curMeterHSV = Color.getHSV(curPalette.meter);
+    const barColorEmpty = Color.HSV(curMeterHSV.h, curMeterHSV.s*2/3, curMeterHSV.v*2/3);
+    const barColorFull = capPalette.meter;
 
     const drawRect = (g: PIXI.Graphics, r: Rectangle, c: number, a: number) => {
       g.beginFill(c,a);
@@ -87,16 +91,14 @@ export class CapturePropertyEvent extends TileEvent {
 
     // Assemble UI elements
     const illustration = terrain.illustration;
-    illustration.position.set(2);
-    // TODO Palette
-    const colors = [0xFFFFFF, 0xFFFFFF, 0xFFBBBB, 0xBBBBFF, 0xFFDD88, 0x889999];
-    illustration.tint = colors[terrain.faction];
+    illustration.position.set(2);  
+    illustration.tint = curPalette.tint;
     illustration.scale.x = (windowRect.width - 6 - bar.width) / illustration.width;
     illustration.scale.y = (windowRect.height - 4 - 16) / illustration.height;
 
     const tintOnCapture = () => {
       if (actor.buildingCaptured())
-        illustration.tint = colors[actor.faction];
+        illustration.tint = capPalette.tint;
     }
 
     const name = new PIXI.BitmapText(terrain.name, fonts.title);
