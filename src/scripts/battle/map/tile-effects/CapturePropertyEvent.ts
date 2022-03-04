@@ -99,7 +99,7 @@ export class CapturePropertyEvent extends TileEvent {
     meterText.position.set(illustration.width/2, illustration.height/2);
     meterText.alpha = 0;
 
-    const captureText = new PIXI.BitmapText(`Captured`, fonts.title);
+    const captureText = new PIXI.BitmapText(`Captured!`, fonts.title);
     captureText.anchor.set(.4,.6);
     captureText.position.set(illustration.width/2, illustration.height/2);
     captureText.alpha = 0;
