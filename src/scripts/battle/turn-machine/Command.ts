@@ -4,6 +4,7 @@ import { Include } from "../../CommonTypes";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
 import { Terrain } from "../map/Terrain";
+import { AnnointCoUnitEvent } from "../map/tile-effects/AnnointCoUnitEvent";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DiveEvent } from "../map/tile-effects/DiveEvents";
@@ -486,19 +487,13 @@ export module Command {
     },
     
     scheduleEvent() {
-      const { boardEvents, players } = data.assets;
-      const { actor } = data;
+      const { boardEvents } = data.assets;
+      const { actor, goal, assets } = data;
 
-      boardEvents.schedule(new GenericRatifyEvent({
-        location: actor.boardLocation,
-        ratify: () => {
-          actor.CoOnBoard = true;
-          actor.rank = 3;
-          players.perspectivesTurn?.setCoBoardableIndicators();
-          players.current.expendFunds(actor.cost);
-
-          // TODO Update sight map if CO unit has ++vision?
-        }
+      boardEvents.schedule(new AnnointCoUnitEvent({
+        actor,
+        location: goal,
+        assets,
       }));
 
       return ExitCode.Success;
