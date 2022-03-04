@@ -212,8 +212,10 @@ export abstract class UnitObject {
     abstract get description(): string;
 
     /** The unit's price to build. */
-    // TODO Unit.Type describes baseCost, this yields cost adjusted by HP
     abstract get cost(): number;
+
+    /** The unit's value after factoring in its present condition. */
+    get adjustedCost(): number { return Math.ceil(this.cost * this.hp / UnitObject.MaxHp); }
 
     /** The unit's maximum gas: a stat depleted while moving. */
     abstract get maxGas(): number;

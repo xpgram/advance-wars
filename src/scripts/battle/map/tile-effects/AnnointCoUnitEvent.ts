@@ -29,7 +29,7 @@ export class AnnointCoUnitEvent extends TileEvent {
     actor.CoOnBoard = true;
     actor.rank = 3;
     players.perspectivesTurn?.setCoBoardableIndicators();
-    players.current.expendFunds(actor.cost);
+    players.current.expendFunds(actor.adjustedCost);
 
     // TODO Update sight map if CO unit has ++vision?
   }
