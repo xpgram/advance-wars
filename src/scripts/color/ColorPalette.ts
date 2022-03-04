@@ -36,7 +36,6 @@ export const Palette = Common.freezeObject({
   boerewors:          HSV(350, 68, 58), // CO Window
   hibiscus_petal:     HSV(  0, 29, 93), // Emblem Tint    Is this derivable from boerewors?
   pepper_jelly:       HSV(350, 80, 80), // Cap Meter
-  // Cap Meter
 
   // Blue Faction
   regal_destiny:      HSV(220, 68, 54), // CO Window
@@ -49,7 +48,10 @@ export const Palette = Common.freezeObject({
   lemon_ginger:       HSV( 48, 68, 58), // Presence Confirmation
   finger_banana:      HSV( 48, 80, 90), // Cap Meter
 
-  // Green Faction
+  // Green Faction — These might need tweaking
+  gulfweed:           HSV(130, 68, 58), // CO Window
+  weekend_gardener:   HSV(130, 30, 90), // Emblem Tint
+  green_envy:         HSV(130, 80, 70), // Cap Meter
 
   // Black Faction
   black_dahlia:       HSV(300, 10, 30), // CO Window

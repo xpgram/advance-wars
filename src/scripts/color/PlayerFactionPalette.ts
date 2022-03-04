@@ -93,15 +93,15 @@ const yellow: FactionPalette = {
 
 const green: FactionPalette = {
   CoWindow: {
-    background: 0,
-    white_tintdown: 0,
+    background: Palette.gulfweed,
+    white_tintdown: Palette.weekend_gardener,
   },
   propertyCapture: {
-    meter: 0,
-    tint: 0
+    meter: Palette.green_envy,
+    tint: Palette.weekend_gardener,
   },
   turnStartSplash: {
-    presenceBackground: 0,
+    presenceBackground: Palette.gulfweed,
   },
   paletteSwap: {},
 }
