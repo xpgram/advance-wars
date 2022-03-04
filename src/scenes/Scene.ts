@@ -34,6 +34,14 @@ export abstract class Scene {
   }
   private _ticker: PIXI.Ticker | null = null;
 
+  /** Link URLs to the scene's depended resources.
+   * Also a useful access library for resource names within the IResourceDictionary. */
+  static readonly resourceLinks: Record<string, string>;
+
+  /** Link URLs to the scene's depended typeface resources. */
+  // TODO Extract Y from Record<T,Y> as a BitmapFont type object.
+  static readonly resourceFonts: Record<string, {fontName: string, fontSize: number}>;
+
   /** Volatile reference to the scene's loaded resources. */
   get resources(): PIXI.IResourceDictionary {
     if (!this._resources)

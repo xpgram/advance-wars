@@ -8,40 +8,67 @@ import { updateUniforms } from "../scripts/filters/TileSpotlight";
 import { Point } from "../scripts/Common/Point";
 import { ViewRect } from "../scripts/camera/ViewRect";
 
+interface BitmapFont {
+    fontName: string;
+    fontSize: number;
+}
+function getBitmapFont(fontName: string, fontSize: number): BitmapFont {
+    return { fontName, fontSize };
+}
+
 /**
  * @author Dei Valko
  * @version 0.2.0
  */
 export class BattleScene extends Scene {
 
+    // TODO Finish implementation of Scene resource bundles
+    // [ ] load() iterates over resourceLinks and resourcesFonts to link all resources.
+    // [ ] loadStep() is deprecated
+    // [ ] All references of the form Game.scene.resources['NormalMapTilesheet'] are replaced with
+    //     Game.scene.getSpritesheet(BattleScene.resourceLinks.normalMapTilesheet)
+    // This is obviously longer and more tedious to write and invoke, but the benefit
+    // is that Code's autocomplete will help me remember what's available.
+    // A disbenefit is that child components which depend on certain resources are coupled
+    // to BattleScene, but that was already kind of true anyway.
+    // [ ] When I work on other scene's eventually: Common sheets can be extracted to bundle
+    //     objects which get added via the ...spread operator, probably preserving their keys in
+    //     their type. Then, objects can request resources based on the bundles they depend
+    //     on instead of the Scene they're a member of, if that's even useful.
+    // [ ] BitmapFont is extracted to CommonTypes.d.ts
+    //
+    // Game.scene.getSpritesheet(ResourceBundles.War.normalTilesheet) <-- This is preferable.
+    // [ ] .getSpritesheet() complains if it detects Bundles.War was never linked.
+    // [ ] The Bundles.War 'War' key should be remembered by Scene then for bundle-inclusion reference.
+    // [ ] Bundles.War, then, has the form {key: string, links: [...]}
+
+    static readonly resourceLinks = {
+        normalMapTilesheet: 'assets/sheets/normal-map-tiles-sm.json',
+        NormalMapLandscapeSheet: 'assets/sheets/normal-map-landscapes.json',
+        UnitSpritesheet: 'assets/sheets/unit-sprites.json',
+        UnitIllustrationSpritesheet: 'assets/sheets/unit-illustrations.json',
+        UISpritesheet: 'assets/sheets/ui-sprites.json',
+        VFXSpritesheet: 'assets/sheets/vfx-sprites.json',
+        CoSpritesheet: 'assets/sheets/commanding-officers.json',
+        background: 'assets/background-battle.png',
+    };
+
+    static readonly resourceFonts = {
+        font_title: getBitmapFont('assets/font-title.xml', 10),
+        scriptOutlined: getBitmapFont('assets/font-map-ui.xml', 14),
+        smallScriptOutlined: getBitmapFont('assets/font-small-ui.xml', 12),
+        script: getBitmapFont('assets/font-script.xml', 10),
+        list: getBitmapFont('assets/font-table-header.xml', 6),
+        menu: getBitmapFont('assets/font-menu.xml', 12),
+        dayCounter: getBitmapFont('assets/font-day-ui.xml', 24),
+        playerSplash: getBitmapFont('assets/font-player-splash.xml', 35),
+        label: getBitmapFont('assets/font-label.xml', 6),
+    }
+
     battleSystem!: BattleSystemManager;
     controllers!: BattleSceneControllers;
 
     loadStep(): void {
-        // TODO I want more strict references to resources.
-        // I'm not sure how to get TypeScript to comply, but here's what I want:
-        // links = {normalTileset: {name: string, url: string}}
-        //   => .forEach( o => this.linker.push(o) )
-        //   ∴ {normalTileset: Spritesheet}
-        // ∴ (Game.scene as BattleScene).resource.normalTileset
-
-        // An alternative would be bundling.
-        // So, this.linker.push(...bundles.BattleScene)
-        // Game.scene.resources[bundles.BattleScene.name]
-        //
-        // I... disprefer this. Hm. I'm not sure how to avoid it, though.
-        // Either would be better than what I'm currently doing, I guess.
-        //
-        // And of course, scene.resources should be left alone for legacy support.
-        //
-        // Btw, I think 'name' is just how we want the resource to be referred to in-app.
-        // There's probably no reason bundles.normalTileset couldn't just name url and name
-        // the same thing during the linking process; the bundle kind of eliminates the
-        // need for a resource name at all. Well, except for legacy.
-        //
-        // Game.scene.getSpritesheet(bundles.war.normalTilesheet)
-        // Could detect that it has a 'name' field and use that for retrieval.
-
         this.linker.push({name: 'NormalMapTilesheet', url: 'assets/sheets/normal-map-tiles-sm.json'});
         this.linker.push({name: 'NormalMapLandscapeSheet', url: 'assets/sheets/normal-map-landscapes.json'});
         this.linker.push({name: 'UnitSpritesheet', url: 'assets/sheets/unit-sprites.json'});
