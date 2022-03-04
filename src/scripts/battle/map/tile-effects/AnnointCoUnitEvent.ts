@@ -45,7 +45,7 @@ export class AnnointCoUnitEvent extends TileEvent {
     const tex = Game.scene.texturesFrom('UISpritesheet')['icon-co-badge.png'];
     const icon = new PIXI.Sprite(tex);
     icon.anchor.set(.5);
-    icon.scale.set(2.2);
+    icon.scale.set(2.0);
     icon.alpha = 0;
     icon.position.set(worldLocation.x, worldLocation.y);
 
