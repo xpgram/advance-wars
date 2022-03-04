@@ -119,4 +119,27 @@ export module Color {
     return RGB(color.r, color.g, color.b);
   }
 
+  /** Returns a HexColor after applying the given adjustment values to each HSV property.  
+   * The properties are handled thusly:  
+   * `c.h += h`  
+   * `c.s *= s`  
+   * `c.v *= v`  
+   **/
+  export function adjustHSV(c: HexColor, h: number, s: number, v: number): HexColor {
+    const color = getHSV(c);
+
+    // TODO Reduce. I should write a toDegrees function in CommonUtils.
+    color.h = color.h + h;
+    if (color.h < 0)
+      color.h = 360 + (color.h % 360);
+    else if (color.h > 360)
+      color.h = color.h % 360;
+
+    const adjust = (n: number, m: number) => Common.clamp(n*m, 0, 100);
+    color.s = adjust(color.s, s);
+    color.v = adjust(color.v, v);
+
+    return HSV(color.h, color.s, color.v);
+  }
+
 }

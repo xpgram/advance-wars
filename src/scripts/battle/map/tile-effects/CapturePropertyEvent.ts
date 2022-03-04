@@ -79,8 +79,7 @@ export class CapturePropertyEvent extends TileEvent {
     const curPalette = getFactionPalette(terrain.faction).propertyCapture;
     const capPalette = getFactionPalette(actor.faction).propertyCapture;
 
-    const curMeterHSV = Color.getHSV(curPalette.meter);
-    const barColorEmpty = Color.HSV(curMeterHSV.h, curMeterHSV.s*2/3, curMeterHSV.v*2/3);
+    const barColorEmpty = Color.adjustHSV(curPalette.meter, 0, .65, .65);
     const barColorFull = capPalette.meter;
 
     const drawRect = (g: PIXI.Graphics, r: Rectangle, c: number, a: number) => {
