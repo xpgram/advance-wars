@@ -129,11 +129,11 @@ export module Color {
     const { clamp, rotate } = Common;
     const color = getHSV(c);
 
-    color.h = rotate(color.h+h, 360);
-    color.s = clamp(color.s*s, 0, 100);
-    color.v = clamp(color.v*v, 0, 100);
-
-    return HSV(color.h, color.s, color.v);
+    return HSV(
+      rotate(color.h + h, 360),
+      clamp(color.s * s, 0, 100),
+      clamp(color.v * v, 0, 100),
+    );
   }
 
 }
