@@ -126,18 +126,12 @@ export module Color {
    * `c.v *= v`  
    **/
   export function adjustHSV(c: HexColor, h: number, s: number, v: number): HexColor {
+    const { clamp, rotate } = Common;
     const color = getHSV(c);
 
-    // TODO Reduce. I should write a toDegrees function in CommonUtils.
-    color.h = color.h + h;
-    if (color.h < 0)
-      color.h = 360 + (color.h % 360);
-    else if (color.h > 360)
-      color.h = color.h % 360;
-
-    const adjust = (n: number, m: number) => Common.clamp(n*m, 0, 100);
-    color.s = adjust(color.s, s);
-    color.v = adjust(color.v, v);
+    color.h = rotate(color.h+h, 360);
+    color.s = clamp(color.s*s, 0, 100);
+    color.v = clamp(color.v*v, 0, 100);
 
     return HSV(color.h, color.s, color.v);
   }

@@ -64,6 +64,14 @@ export const Common = {
     return Math.min(max, Math.max(min, n));
   },
 
+  /** Contains `n` to the range [0, `lim`] by circularly projecting the
+   * the space (-∞,∞) onto the range defined by `lim`. Useful for containing
+   * degrees to the range [0,360], for instance. */
+  rotate(n: number, lim: number) {
+    n %= lim;
+    return (n >= 0) ? n : n + lim;
+  },
+
   /** Returns true if n is in the range [min,max], default inclusive. */
   within(n: number, min: number, max: number, exclusive?: boolean) {
     if (exclusive)  // By default, undefined
