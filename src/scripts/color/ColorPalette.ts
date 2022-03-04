@@ -28,28 +28,30 @@ export const Palette = Common.freezeObject({
   blueprint:          HSV(200, 54, 48), // Map Cursor Dark
 
   // Neutral Faction
-  standing_ovation:   HSV(300,  5, 75), // CO Window
-  asian_violet:       HSV(300,  6, 54), // Emblem Tint
+  standing_ovation:   HSV(220,  5, 75), // CO Window
+  asian_violet:       HSV(220,  6, 54), // Emblem Tint
+  light_slipper_satin:HSV(220,  5, 85), // Cap Meter
 
   // Red Faction
   boerewors:          HSV(350, 68, 58), // CO Window
   hibiscus_petal:     HSV(  0, 29, 93), // Emblem Tint    Is this derivable from boerewors?
+  pepper_jelly:       HSV(350, 80, 80), // Cap Meter
   // Cap Meter
 
   // Blue Faction
   regal_destiny:      HSV(220, 68, 54), // CO Window
   maximum_blue_purple:HSV(240, 29, 93), // Emblem Tint
-  // Cap Meter
+  janitor:            HSV(220, 80, 80), // Cap Meter
 
   // Yellow Faction
   tarnished_brass:    HSV( 48, 68, 50), // CO Window
   master_key:         HSV( 48, 38, 87), // Emblem Tint
   lemon_ginger:       HSV( 48, 68, 58), // Presence Confirmation
-  // Cap Meter
+  finger_banana:      HSV( 48, 80, 90), // Cap Meter
 
   // Green Faction
 
   // Black Faction
   black_dahlia:       HSV(300, 10, 30), // CO Window
-  // Cap Meter
+  decorative_iris:    HSV(300, 10, 50), // Cap Meter
 })

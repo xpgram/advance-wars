@@ -1,9 +1,9 @@
 import { Game } from "../../../..";
-import { Color } from "../../../color/Color";
+import { Palette } from "../../../color/ColorPalette";
 import { getFactionPalette } from "../../../color/PlayerFactionPalette";
+import { PixiGraphics } from "../../../Common/PixiGraphics";
 import { Rectangle } from "../../../Common/Rectangle";
 import { Timer } from "../../../timer/Timer";
-import { FactionColors } from "../../EnumTypes";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { UnitObject } from "../../UnitObject";
@@ -45,70 +45,85 @@ export class CapturePropertyEvent extends TileEvent {
   }
 
   protected create(): void {
+    const { drawRect } = PixiGraphics;
     const { actor, terrain } = this.options;
 
-    // TODO [ ] Use terrain.illustration in big box
-    // TODO [ ] Put terrain.name in box beneath illustration
-    // TODO [ ] Captured property illustrations are tinted by faction
-    // TODO [ ] Illustrations are tinted at end of meter fill when captured
-    // TODO [ ] At end of meter fill, ?? / 20 is displayed, or 'Captured'
-    // TODO [ ] Meter bg is color of controlling faciton
-    // TODO [ ] Meter fill is color of capturing faction
-    //   TODO [ ] I really think I need a BoardPlayer.palette field.
-    //            Or at least a palette[BoardPlayer.faction] singleton.
-    //   I suppose palette.factions[BoardPlayer.faction] is preferable
-    //   since I also need palette.UI.windowBG and stuff like that.
-    //   I can't keep fiddling with these feckign colors, dude.
+    const curPalette = getFactionPalette(terrain.faction).propertyCapture;
+    const capPalette = getFactionPalette(actor.faction).propertyCapture;
+
+    const barColorEmpty = curPalette.meter;
+    const barColorFull = capPalette.meter;
+    const windowBgColor = Palette.gale_force1;
 
     // Ratify immediate changes; record changes for animation
     const preCapture = actor.capture;
     actor.captureBuilding();
     const postCapture = actor.capture;
 
+    // TODO [x] Use terrain.illustration in big box
+    // TODO [x] Put terrain.name in box beneath illustration
+    // TODO [x] Captured property illustrations are tinted by faction
+    // TODO [x] Illustrations are tinted at end of meter fill when captured
+    // TODO [ ] At end of meter fill, ?? / 20 is displayed, or 'Captured'
+    // TODO [x] Meter bg is color of controlling faciton
+    // TODO [x] Meter fill is color of capturing faction
+    //   TODO [x] I really think I need a BoardPlayer.palette field.
+    //            Or at least a palette[BoardPlayer.faction] singleton.
+    //   I suppose palette.factions[BoardPlayer.faction] is preferable
+    //   since I also need palette.UI.windowBG and stuff like that.
+    //   I can't keep fiddling with these feckign colors, dude.
+
     // Setup UI element definitions
-    const windowRect = new Rectangle(0,0,88,63);
+    const windowRect = new Rectangle(0,0,88,61);
 
     const barSep = 3;
     const bar = new Rectangle(
-      windowRect.width-18,
-      windowRect.height-barSep-1,
+      windowRect.width-17,
+      windowRect.height-barSep,
       16,
       barSep-1
     );
 
-    const curPalette = getFactionPalette(terrain.faction).propertyCapture;
-    const capPalette = getFactionPalette(actor.faction).propertyCapture;
-
-    const barColorEmpty = Color.adjustHSV(curPalette.meter, 0, .65, .65);
-    const barColorFull = capPalette.meter;
-
-    const drawRect = (g: PIXI.Graphics, r: Rectangle, c: number, a: number) => {
-      g.beginFill(c,a);
-      g.drawRect(r.x, r.y, r.width, r.height);
-      g.endFill();
-    }
-
     // Assemble UI elements
+
     const illustration = terrain.illustration;
-    illustration.position.set(2);  
+    illustration.position.set(1);  
     illustration.tint = curPalette.tint;
-    illustration.scale.x = (windowRect.width - 6 - bar.width) / illustration.width;
-    illustration.scale.y = (windowRect.height - 4 - 16) / illustration.height;
+    illustration.scale.x = (windowRect.width - 3 - bar.width) / illustration.width;
+    illustration.scale.y = (windowRect.height - 2 - 16) / illustration.height;
+
+    // TODO This needs to start showing a little bit before the meter reaches its final
+    // value. It also needs to fade-in and shrink, just like speech bubbles.
+    const meterText = new PIXI.BitmapText(`${postCapture} / 20`, fonts.scriptOutlined);
+    meterText.anchor.set(.4,.6);
+    meterText.position.set(illustration.width/2, illustration.height/2);
+    meterText.alpha = 0;
+
+    const captureText = new PIXI.BitmapText(`Captured`, fonts.title);
+    captureText.anchor.set(.4,.6);
+    captureText.position.set(illustration.width/2, illustration.height/2);
+    captureText.alpha = 0;
+
+    illustration.addChild(meterText, captureText);
 
     const tintOnCapture = () => {
-      if (actor.buildingCaptured())
+      if (actor.buildingCaptured()) {
         illustration.tint = capPalette.tint;
+        captureText.alpha = 1;
+      } else {
+        meterText.alpha = 1;
+      }
     }
 
     const name = new PIXI.BitmapText(terrain.name, fonts.title);
     name.anchor.set(.4, 0);
     name.position.set(
       illustration.width/2 + 2,
-      illustration.y + illustration.height + 2
+      illustration.y + illustration.height + 1,
     )
 
     const bg = new PIXI.Graphics();
-    drawRect(bg, windowRect, 0, .5);
+    drawRect(bg, windowRect, windowBgColor);
     bg.position.set(
       Game.display.renderWidth/2,
       Game.display.renderHeight/2,
@@ -120,11 +135,11 @@ export class CapturePropertyEvent extends TileEvent {
 
     const meter = new PIXI.Graphics();
     for (let i = 0; i < 20; i++)
-      drawRect(meter, bar.move(0, -barSep*i), barColorEmpty, 1);
+      drawRect(meter, bar.move(0, -barSep*i), barColorEmpty);
 
     const meterFill = new PIXI.Graphics();
     for (let i = 0; i < preCapture; i++)
-      drawRect(meterFill, bar.move(0, -barSep*i), barColorFull, 1);
+      drawRect(meterFill, bar.move(0, -barSep*i), barColorFull);
     
     // Add to scene
     bg.addChild(illustration, name);
@@ -138,7 +153,7 @@ export class CapturePropertyEvent extends TileEvent {
     for (let i = preCapture; i < postCapture; i++) {
       timer
         .wait(timeSep)
-        .do(n => drawRect(meterFill, bar.move(0, -barSep*i), barColorFull, 1))
+        .do(n => drawRect(meterFill, bar.move(0, -barSep*i), barColorFull));
     }
 
     timer

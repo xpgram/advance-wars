@@ -37,7 +37,7 @@ const neutral: FactionPalette = {
     white_tintdown: Palette.asian_violet,
   },
   propertyCapture: {
-    meter: Palette.white,
+    meter: Palette.light_slipper_satin,
     tint: Palette.white,
   },
   turnStartSplash: {
@@ -52,7 +52,7 @@ const red: FactionPalette = {
     white_tintdown: Palette.hibiscus_petal,
   },
   propertyCapture: {
-    meter: Palette.boerewors,
+    meter: Palette.pepper_jelly,
     tint: Palette.hibiscus_petal,
   },
   turnStartSplash: {
@@ -67,7 +67,7 @@ const blue: FactionPalette = {
     white_tintdown: Palette.maximum_blue_purple,
   },
   propertyCapture: {
-    meter: Palette.regal_destiny,
+    meter: Palette.janitor,
     tint: Palette.maximum_blue_purple,
   },
   turnStartSplash: {
@@ -82,7 +82,7 @@ const yellow: FactionPalette = {
     white_tintdown: Palette.master_key,
   },
   propertyCapture: {
-    meter: Palette.lemon_ginger,
+    meter: Palette.finger_banana,
     tint: Palette.master_key,
   },
   turnStartSplash: {
@@ -112,7 +112,7 @@ const black: FactionPalette = {
     white_tintdown: Palette.cerebral_grey1,
   },
   propertyCapture: {
-    meter: Palette.black_dahlia,
+    meter: Palette.decorative_iris,
     tint: Palette.cerebral_grey1,
   },
   turnStartSplash: {
