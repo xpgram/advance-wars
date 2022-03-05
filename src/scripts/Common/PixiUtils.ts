@@ -29,4 +29,9 @@ export module PixiUtils {
     return gtext;
   }
 
+  /** Returns an assembled BitmapText options object. */
+  export function newBitmapFont(fontName: string, fontSize: number): BitmapFont {
+    return { fontName, fontSize };
+  }
+
 }
