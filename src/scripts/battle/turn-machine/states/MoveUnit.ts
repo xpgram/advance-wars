@@ -4,7 +4,6 @@ import { Command } from "../Command";
 import { SumCardinalsToVector } from "../../../Common/CardinalDirection";
 import { CommandMenu } from "./CommandMenu";
 import { DamageScript } from "../../DamageScript";
-import { Terrain } from "../../map/Terrain";
 
 
 export class MoveUnit extends TurnState {

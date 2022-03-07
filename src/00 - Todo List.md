@@ -13,6 +13,10 @@ But anyway, yeah. There is constant state checking because his system never just
   This should handle the specifics.
 - [ ] Map.changeTileset(mode: 'normal' | 'snow' | 'desert' | 'wasteland')
 
+- [ ] Map serial interpreter makes room for a variant number.
+  - [ ] Use number packing to let one address carry both a 30-bit terrain serial and a 2-bit variant number.
+  - This is probably the simplest way to save and construct-from-data Bridge tiles without weird, duplicate classes.
+
 - [ ] Silo: I've forgotten to add gradual transparency to the explosion effects, and I guess the silo exhaust too. This tells me I need a VFX module to standardize separate implementations. Like, VFX.FadingParticle(tex: Tex[], ease: EaseFunction?) or something.
   - [ ] BattleEffects.createGroundExplosion(p: Point)
     - [ ] VFX.createFadingPartical(tex: Tex[], ease?: EaseMethod)

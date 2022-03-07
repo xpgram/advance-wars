@@ -7,14 +7,14 @@ import { Faction, FactionColors } from "../EnumTypes";
 import { Game } from "../../..";
 import { MapLayer } from "./MapLayers";
 
-export const TerrainMethods = {
+export module TerrainMethods {
 
     /** Used to animate the shoreline where land meets sea. */
-    shorelineFilter: new PixiFilters.MultiColorReplaceFilter([[0, 0], [0, 0], [0, 0], [0, 0]], 0.015),
+    export const shorelineFilter = new PixiFilters.MultiColorReplaceFilter([[0, 0], [0, 0], [0, 0], [0, 0]], 0.015);
 
     /** An array of colors for MultiColorReplace to swap; contributes to
      * animating the shoreline where land meets sea. */
-    shorelinePaletteSwaps: [
+    export const shorelinePaletteSwaps: [number, number][][] = [
         // Beach Light Blue     Beach Dark Blue       Cliff ~Dark~ Blue     Cliff Dark Blue
         [[0xC6DEEF, 0xcde6f7], [0x6d9dce, 0x96b5d6], [0x637b9c, 0x5d6f8c], [0x9cb5ce, 0x96b5d6]],
         [[0xC6DEEF, 0xc9e5f7], [0x6d9dce, 0x94b4d6], [0x637b9c, 0x5c6e94], [0x9cb5ce, 0x94b4d6]],
@@ -34,55 +34,55 @@ export const TerrainMethods = {
         [[0xC6DEEF, 0x8ba8c6], [0x6d9dce, 0x6681a5], [0x637b9c, 0xa1bad6], [0x9cb5ce, 0x6681a5]]
         // Beach dark blue and cliff dark blue are the same source color.
         // Or, they would have been if I hadn't messed with 'em during ripping.
-    ],
+    ];
 
-    animTime: 0,
-    animFrame: 0,
-    animateShoreline: () => {
+    let animTime = 0;
+    let animFrame = 0;
+    export function animateShoreline() {
         // Collect time, update every nth frame.
-        TerrainMethods.animTime += Game.delta;
-        if (TerrainMethods.animTime > 6) {
-            TerrainMethods.animTime -= 6;
+        animTime += Game.delta;
+        if (animTime > 6) {
+            animTime -= 6;
             
             // Choose a new palette-swap color matrix: use a triangle wave pattern to decide.
-            let colorMatrix = TerrainMethods.shorelinePaletteSwaps[TerrainMethods.animFrame];
-            if (TerrainMethods.animFrame > 15)
-                colorMatrix = TerrainMethods.shorelinePaletteSwaps[31 - TerrainMethods.animFrame];
+            let colorMatrix = shorelinePaletteSwaps[animFrame];
+            if (animFrame > 15)
+                colorMatrix = shorelinePaletteSwaps[31 - animFrame];
 
             // Insert the new palette swap in to the color-replacement filter.
-            TerrainMethods.shorelineFilter.replacements = colorMatrix;
+            shorelineFilter.replacements = colorMatrix;
             
             // TODO Assign filterArea to camera.frame? Would this even accomplish anything?
 
             // Frame-counting maintenance.
-            TerrainMethods.animFrame++;
-            if (TerrainMethods.animFrame > 31)
-                TerrainMethods.animFrame = 0;
+            animFrame++;
+            if (animFrame > 31)
+                animFrame = 0;
 
         }
-    },
+    }
 
     /** Initiates the shoreline animation ticker and adds the color-swap filter to the bottom texture layer. */
-    startPaletteAnimation: () => {
+    export function startPaletteAnimation() {
         // Pixi defaults to low resolutions for filters, undo that.
-        TerrainMethods.shorelineFilter.resolution = Game.renderer.resolution;
+        shorelineFilter.resolution = Game.renderer.resolution;
 
-        MapLayer('bottom').filters = [TerrainMethods.shorelineFilter];
-        Game.scene.ticker.add( TerrainMethods.animateShoreline );
-    },
+        MapLayer('bottom').filters = [shorelineFilter];
+        Game.scene.ticker.add( animateShoreline );
+    }
 
     /** Stops the shoreline animation ticker, and removes the color filter. */
-    stopPaletteAnimation: () => {
+    export function stopPaletteAnimation() {
         MapLayer('bottom').filters = [];
-        Game.scene.ticker.remove( TerrainMethods.animateShoreline );  // TODO Does this work?
-    },
+        Game.scene.ticker.remove( animateShoreline );
+    }
 
     /** Adds an animated, background sea layer to the overall map image.
      * Should be added first before anything else.
      * @param width In pixels, the horizontal size of the sea background layer.
      * @param height In pixels, the vertical size of the sea background layer.
      */
-    addSeaLayer: (width: number, height: number) => {
+    export function addSeaLayer(width: number, height: number) {
         let anim = new PIXI.AnimatedSprite(TerrainProperties.sheet.animations['sea']);
         let tsprite = new PIXI.TilingSprite(anim.texture, width, height);
         MapLayer('sea').addChild(tsprite);
@@ -92,29 +92,29 @@ export const TerrainMethods = {
         };
         anim.animationSpeed = 0.1;
         anim.play();
-    },
+    }
 
     /** Removes the animated, background sea layer from the map image.
      * (Not implemented) */
-    removeSeaLayer: () => {
+    export function removeSeaLayer() {
         // This function cannot see anim or tsprite.
         // Plus, I feel there should be a way to get PIXI to clear
         // all of its display/ticker objects without writing my own.
-    },
+    }
 
-    randomPlainTile(): string {
+    export function randomPlainTile(): string {
         // This should grab '6' as the length of a plainTile textures array, but I don't have one set up in the atlas.
         // This is ~different~ from randomTileVariant(), by the way: it prioritizes index 0.
         let n = (Math.random() < 0.3) ? (Math.floor(Math.random()*6) + 1) : 0;
         return `${n}`;
-    },
+    }
 
-    randomTileVariant(max: number) {
+    export function randomTileVariant(max: number) {
         let n = Math.floor(Math.random()*max);
         return `${n}`;
-    },
+    }
 
-    seaCliffVariant(neighbors: NeighborMatrix<TerrainObject>) {
+    export function seaCliffVariant(neighbors: NeighborMatrix<TerrainObject>) {
         // 0 = none, 1 = land border, 2 = border corner
         //  l=2 u=1 u=2
         //  l=1 src r=1
@@ -142,9 +142,9 @@ export const TerrainMethods = {
         }
     
         return `${u}${r}${d}${l}`;
-    },
+    }
 
-    seaShallowVariant(neighbors: NeighborMatrix<TerrainObject>) {
+    export function seaShallowVariant(neighbors: NeighborMatrix<TerrainObject>) {
         let n = {
             up:        neighbors.up.shallowWater || neighbors.up.landTile,
             upleft:    neighbors.upleft.shallowWater || neighbors.upleft.landTile,
@@ -169,9 +169,9 @@ export const TerrainMethods = {
         ul = (n.up && n.upleft && n.left)       ? 1 : 0;
     
         return `${ur}${dr}${dl}${ul}`;
-    },
+    }
 
-    beachVariant(neighbors: NeighborMatrix<TerrainObject>) {
+    export function beachVariant(neighbors: NeighborMatrix<TerrainObject>) {
         let u, r, d, l;
     
         u = (neighbors.up.landTile) ? 1 : 0;
@@ -185,9 +185,9 @@ export const TerrainMethods = {
         l = (neighbors.left.type == Terrain.Beach) ? 2 : l;
     
         return `${u}${r}${d}${l}`;
-    },
+    }
 
-    fourDirectionalVariant(neighbors: NeighborMatrix<TerrainObject>, ...types: TerrainType[]) {
+    export function fourDirectionalVariant(neighbors: NeighborMatrix<TerrainObject>, ...types: TerrainType[]) {
         
         // 0 = none, 1 = same type, 2 = alt type
         // l=2 u=1 u=2
@@ -234,9 +234,9 @@ export const TerrainMethods = {
         l = (neighbors.left.type == Terrain.Void) ? 0 : l;
     
         return `${u}${r}${d}${l}`;
-    },
+    }
 
-    lineDirectionalVariant(neighbors: NeighborMatrix<TerrainObject>, type: TerrainType) {
+    export function lineDirectionalVariant(neighbors: NeighborMatrix<TerrainObject>, type: TerrainType) {
         // 0 = none, 1 = same type
         // l=1 src r=1
         let l, r;
@@ -246,9 +246,9 @@ export const TerrainMethods = {
         r = (neighbors.right.type == type) ? 1 : 0;
     
         return `${l}${r}`;
-    },
+    }
 
-    createSeaLayer(neighbors: NeighborMatrix<TerrainObject>,
+    export function createSeaLayer(neighbors: NeighborMatrix<TerrainObject>,
             options?: {includeCliffs?: boolean, includeShallowWater?: boolean}) {
 
         // Default options properties
@@ -269,7 +269,7 @@ export const TerrainMethods = {
 
                 // Skip particularity if the tile we're building is naturally 'surrounded'.
                 if (!neighbors.center.shallowWaterSourceTile)
-                    variant = TerrainMethods.seaShallowVariant(neighbors);
+                    variant = seaShallowVariant(neighbors);
 
                 // If determined orientation isn't 'none'
                 if (variant != "0000") {
@@ -283,7 +283,7 @@ export const TerrainMethods = {
     
         // Add cliffs
         if (!options || options.includeCliffs) {
-            let variant = TerrainMethods.seaCliffVariant(neighbors);
+            let variant = seaCliffVariant(neighbors);
 
             // Only if orientation isn't 'none'
             if (variant != "0000") {
@@ -293,24 +293,24 @@ export const TerrainMethods = {
         }
 
         return container;
-    },
+    }
 
-    createPlainLayer() {
-        let variant = TerrainMethods.randomPlainTile();
+    export function createPlainLayer() {
+        let variant = randomPlainTile();
         return new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-${variant}.png`]);
-    },
+    }
 
-    createBuildingLayers(building: string) {
+    export function createBuildingLayers(building: string) {
         // Plain
-        let bottom: PIXI.Container = TerrainMethods.createPlainLayer();
+        let bottom: PIXI.Container = createPlainLayer();
 
         // Building
-        let top = TerrainMethods.getBuildingSprite(building);
+        let top = getBuildingSprite(building);
 
         return {bottom: bottom, top: top};
-    },
+    }
 
-    getBuildingSprite(building: string) {
+    export function getBuildingSprite(building: string) {
         let colors = [
             FactionColors[Faction.Neutral],
             FactionColors[Faction.Red],

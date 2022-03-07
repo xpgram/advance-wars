@@ -2,6 +2,7 @@ import { CardinalVector, SumCardinalsToVector } from "../../Common/CardinalDirec
 import { SerialGenerator } from "../../Common/SerialGenerator";
 import { Include } from "../../CommonTypes";
 import { Common } from "../../CommonUtils";
+import { Debug } from "../../DebugUtils";
 import { DamageScript } from "../DamageScript";
 import { Terrain } from "../map/Terrain";
 import { AnnointCoUnitEvent } from "../map/tile-effects/AnnointCoUnitEvent";
@@ -524,12 +525,16 @@ export module Command {
 
     scheduleEvent() {
       const { boardEvents } = data.assets;
-      const { goal, focal, assets } = data;
+      const { goal, goalTerrain, focal, assets } = data;
+
+      if (!(goalTerrain instanceof Terrain.Silo)) {
+        throw new RatificationError(`goal terrain is not Silo: pos ${goal.toString()} '${goalTerrain.name}'`);
+      }
 
       boardEvents.schedule(
         new SiloLaunchEvent({
           location: goal,
-          assets,
+          terrain: goalTerrain,
         }),
         new SiloImpactEvent({
           location: focal,

@@ -1,11 +1,10 @@
 import { RegionMap } from "../unit-actions/RegionMap";
 import { Command } from "./Command";
-import { instructionData } from "./InstructionData";
 import { TurnStateConstructor } from "./TurnState";
 
 export module CommandHelpers {
 
-  /**  */
+  /** Error-type pertaining to an issue with confirming board changes. */
   export class RatificationError extends Error {
     name = 'RatificationError';
   }
@@ -14,6 +13,7 @@ export module CommandHelpers {
   export enum ExitCode {
     Success = 0,
     Interrupted,
+    SchedulingFault,
   }
 
   /** Names for sorting weight categories; indicates menu order. */

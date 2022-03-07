@@ -21,14 +21,13 @@ export const TerrainProperties = {
 }
 
 /**
- * Auto-generated.
  * A list of all terrain or map-tile classes.
  */
-export const Terrain = {
+export module Terrain {
 
-    Void: class VoidTile extends TerrainObject {
+    export class Void extends TerrainObject {
         // Not for nothin', but these properties are all technically condensible into one 64-bit value.
-        get type() { return VoidTile; }
+        get type() { return Void; }
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
@@ -56,11 +55,11 @@ export const Terrain = {
 
         orient(neighbors: NeighborMatrix<TerrainObject>) {
         }
-    },
+    }
 
     //start
-    Plain: class PlainTile extends TerrainObject {
-        get type() { return PlainTile; }
+    export class Plain extends TerrainObject {
+        get type() { return Plain; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
             if (this.variation == 1)
@@ -101,10 +100,10 @@ export const Terrain = {
             // if neighbors.center == Plasma: assume razed grass
             // set this.variation to whichever
         }
-    },
+    }
 
-    Road: class RoadTile extends TerrainObject {
-        get type() { return RoadTile; }
+    export class Road extends TerrainObject {
+        get type() { return Road; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Road"; }
@@ -139,10 +138,10 @@ export const Terrain = {
             sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`road-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
-    },
+    }
 
-    Wood: class WoodTile extends TerrainObject {
-        get type() { return WoodTile; }
+    export class Wood extends TerrainObject {
+        get type() { return Wood; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Wood"; }
@@ -176,10 +175,10 @@ export const Terrain = {
             sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`wood-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
-    },
+    }
 
-    Mountain: class MountainTile extends TerrainObject {
-        get type() { return MountainTile; }
+    export class Mountain extends TerrainObject {
+        get type() { return Mountain; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Mountain"; }
@@ -217,10 +216,10 @@ export const Terrain = {
             sprite.alpha = 0.25;
             this.layers.push({object: sprite, key: ['top', 'row', 'static']});
         }
-    },
+    }
 
-    Wasteland: class WastelandTile extends TerrainObject {
-        get type() { return WastelandTile; }
+    export class Wasteland extends TerrainObject {
+        get type() { return Wasteland; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Wasteland"; }
@@ -249,10 +248,10 @@ export const Terrain = {
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`wasteland-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
-    },
+    }
 
-    Ruins: class RuinsTile extends TerrainObject {
-        get type() { return RuinsTile; }
+    export class Ruins extends TerrainObject {
+        get type() { return Ruins; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Ruins"; }
@@ -286,10 +285,10 @@ export const Terrain = {
             sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`ruins-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
-    },
+    }
 
-    Bridge: class BridgeTile extends TerrainObject {
-        get type() { return BridgeTile; }
+    export class Bridge extends TerrainObject {
+        get type() { return Bridge; }
         static readonly serial = Serial.next().value;
         readonly landTile: boolean;
         get shallowWaterSourceTile() { return false; }
@@ -345,10 +344,10 @@ export const Terrain = {
                     neighbors.center.type == Terrain.River ||
                     neighbors.center.type == Terrain.Bridge);
         }
-    },
+    }
 
-    River: class RiverTile extends TerrainObject {
-        get type() { return RiverTile; }
+    export class River extends TerrainObject {
+        get type() { return River; }
         static readonly serial = Serial.next().value;
 
         get name() { return "River"; }
@@ -377,10 +376,10 @@ export const Terrain = {
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`river-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
-    },
+    }
 
-    Sea: class SeaTile extends TerrainObject {
-        get type() { return SeaTile; }
+    export class Sea extends TerrainObject {
+        get type() { return Sea; }
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
@@ -410,10 +409,10 @@ export const Terrain = {
             let container = TerrainMethods.createSeaLayer(neighbors);
             this.layers.push({object: container, key: ['bottom', 'static']});
         }
-    },
+    }
 
-    Beach: class BeachTile extends TerrainObject {
-        get type() { return BeachTile; }
+    export class Beach extends TerrainObject {
+        get type() { return Beach; }
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
 
@@ -472,10 +471,10 @@ export const Terrain = {
 
             return result;
         }
-    },
+    }
 
-    RoughSea: class RoughSeaTile extends TerrainObject {
-        get type() { return RoughSeaTile; }
+    export class RoughSea extends TerrainObject {
+        get type() { return RoughSea; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
             return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
@@ -529,10 +528,10 @@ export const Terrain = {
             });
             return result;
         }
-    },
+    }
 
-    Mist: class MistTile extends TerrainObject {
-        get type() { return MistTile; }
+    export class Mist extends TerrainObject {
+        get type() { return Mist; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
             return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
@@ -571,10 +570,10 @@ export const Terrain = {
             sprite.alpha = 0.75;
             this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
         }
-    },
+    }
 
-    Reef: class ReefTile extends TerrainObject {
-        get type() { return ReefTile; }
+    export class Reef extends TerrainObject {
+        get type() { return Reef; }
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
 
@@ -621,10 +620,10 @@ export const Terrain = {
             });
             return result;
         }
-    },
+    }
 
-    Fire: class FireTile extends TerrainObject {
-        get type() { return FireTile; }
+    export class Fire extends TerrainObject {
+        get type() { return Fire; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
@@ -665,10 +664,10 @@ export const Terrain = {
             anim.play();
             this.layers.push({object: anim, key: ['top', 'row', 'animated']});
         }
-    },
+    }
 
-    Meteor: class MeteorTile extends TerrainObject {
-        get type() { return MeteorTile; }
+    export class Meteor extends TerrainObject {
+        get type() { return Meteor; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
@@ -728,10 +727,10 @@ export const Terrain = {
                 anim.play();
             this.layers.push({object: anim, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    Plasma: class PlasmaTile extends TerrainObject {
-        get type() { return PlasmaTile; }
+    export class Plasma extends TerrainObject {
+        get type() { return Plasma; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
@@ -788,10 +787,10 @@ export const Terrain = {
             anim.play();
             this.layers.push({object: anim, key: ['top', 'row', 'animated']});
         }
-    },
+    }
 
-    Pipeline: class PipelineTile extends TerrainObject {
-        get type() { return PipelineTile; }
+    export class Pipeline extends TerrainObject {
+        get type() { return Pipeline; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Pipeline"; }
@@ -831,10 +830,10 @@ export const Terrain = {
             // One more note: Pipes as they are in classic advance wars do not have a no-connections texture. They just pick the
             // horizontal connection. This looks ugly. When (if) I implement these, draw a no-connections texture.
         }
-    },
+    }
 
-    PipeSeam: class PipeSeamTile extends TerrainObject {
-        get type() { return PipeSeamTile; }
+    export class PipeSeam extends TerrainObject {
+        get type() { return PipeSeam; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Pipe Seam"; }
@@ -870,10 +869,10 @@ export const Terrain = {
             // neighbors.center.direction == 0101 || 1010 // a straight line necessarily connected to other pipes.
             return false;
         }
-    },
+    }
 
-    HQ: class HQTile extends TerrainBuildingObject {
-        get type() { return HQTile; }
+    export class HQ extends TerrainBuildingObject {
+        get type() { return HQ; }
         static readonly serial = Serial.next().value;
 
         get name() { return "HQ"; }
@@ -910,10 +909,10 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    City: class CityTile extends TerrainBuildingObject {
-        get type() { return CityTile; }
+    export class City extends TerrainBuildingObject {
+        get type() { return City; }
         static readonly serial = Serial.next().value;
 
         get name() { return "City"; }
@@ -947,10 +946,10 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    ComTower: class ComTowerTile extends TerrainBuildingObject {
-        get type() { return ComTowerTile; }
+    export class ComTower extends TerrainBuildingObject {
+        get type() { return ComTower; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Com Tower"; }
@@ -983,10 +982,10 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    Radar: class RadarTile extends TerrainBuildingObject {
-        get type() { return RadarTile; }
+    export class Radar extends TerrainBuildingObject {
+        get type() { return Radar; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Radar"; }
@@ -1019,10 +1018,10 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    Silo: class SiloTile extends TerrainObject {
-        get type() { return SiloTile; }
+    export class Silo extends TerrainObject {
+        get type() { return Silo; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
             const variant = (this.used) ? 'used' : 'unused';
@@ -1082,10 +1081,10 @@ export const Terrain = {
             this.updateTexture();
             this.layers.push({object: this.siloSprite, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    Factory: class FactoryTile extends TerrainBuildingObject {
-        get type() { return FactoryTile; }
+    export class Factory extends TerrainBuildingObject {
+        get type() { return Factory; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Factory"; }
@@ -1119,10 +1118,10 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    Airport: class AirportTile extends TerrainBuildingObject {
-        get type() { return AirportTile; }
+    export class Airport extends TerrainBuildingObject {
+        get type() { return Airport; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Airport"; }
@@ -1156,10 +1155,10 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    Port: class PortTile extends TerrainBuildingObject {
-        get type() { return PortTile; }
+    export class Port extends TerrainBuildingObject {
+        get type() { return Port; }
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
 
@@ -1195,10 +1194,10 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    TempAirpt: class TempAirptTile extends TerrainBuildingObject {
-        get type() { return TempAirptTile; }
+    export class TempAirpt extends TerrainBuildingObject {
+        get type() { return TempAirpt; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Temp Airpt"; }
@@ -1231,10 +1230,10 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
 
-    TempPort: class TempPortTile extends TerrainBuildingObject {
-        get type() { return TempPortTile; }
+    export class TempPort extends TerrainBuildingObject {
+        get type() { return TempPort; }
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
 
@@ -1269,6 +1268,6 @@ export const Terrain = {
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
             this.layers.push({object: layers.top, key: ['top', 'row', 'animated'], maskShape: true});
         }
-    },
+    }
     //end
 }

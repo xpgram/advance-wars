@@ -4,13 +4,13 @@ import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { MapLayer } from "../MapLayers";
+import { Terrain } from "../Terrain";
 import { TileEvent } from "./TileEvent";
 
 
 interface SiloLaunchEventOptions {
   location: Point;
-  // terrain: Terrain.Silo
-  assets: BattleSceneControllers;
+  terrain: Terrain.Silo
 }
 
 export class SiloLaunchEvent extends TileEvent {
@@ -25,11 +25,8 @@ export class SiloLaunchEvent extends TileEvent {
   }
 
   ratify(): void {
-    const { map } = this.options.assets;
-    const { location } = this.options;
-
-    const terrain = map.squareAt(location).terrain;
-    terrain.used = true;  // I can't typecheck SiloTile
+    const { terrain } = this.options;
+    terrain.used = true;
   }
 
   protected create(): void {
