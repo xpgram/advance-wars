@@ -1,6 +1,7 @@
 import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
 import { Color } from "../../color/Color";
+import { Palette } from "../../color/ColorPalette";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { CommandMenuGUI } from "./CommandMenuGUI";
 
@@ -17,10 +18,10 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
   });
 
   readonly palette = {
-    background: HSV(200, 30, 30),
-    primary:    HSV(215, 25, 35),
-    light:      HSV(220, 15,100),
-    dark:       HSV(190, 10,  0),
+    background: Palette.gale_force1,
+    primary:    Palette.gale_force2,
+    light:      Palette.cloudless,
+    dark:       Palette.black,
   }
 
   /** How thick in pixels the top and bottom margins of the menu are. */

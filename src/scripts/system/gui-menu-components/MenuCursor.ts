@@ -1,5 +1,6 @@
 import { Game } from "../../..";
 import { Color } from "../../color/Color";
+import { Palette } from "../../color/ColorPalette";
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
 import { Pulsar } from "../../timer/Pulsar";
@@ -19,7 +20,7 @@ export class MenuCursor {
     /** The width of the cursor's borders. */
     thickness: 2,
     /** The single-shade color of the selection cursor. */
-    color: HSV(166,100, 80),
+    color: Palette.caribbean_green,
     /** The number of frames before settling from old to new position. */
     motionFrames: 3,
     /** The number of frames between pulse animation frame updates. */
