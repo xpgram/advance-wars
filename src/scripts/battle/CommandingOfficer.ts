@@ -1,13 +1,17 @@
+import { SerialGenerator } from "../Common/SerialGenerator";
 import { CommandingOfficerObject, UnitStats, universalStatsBonus } from "./CommandingOfficerObject";
 import { UnitClass } from "./EnumTypes";
 import { Unit } from "./Unit";
 import { UnitObject } from "./UnitObject";
 
+const Serial = SerialGenerator(-1);
+
 /**  */
 export const CommandingOfficer = {
+
   Void: class VoidCO extends CommandingOfficerObject {
     readonly type = VoidCO;
-    static readonly serial = -2;
+    static readonly serial = Serial.next().value;
 
     readonly name = 'Void';
     readonly allegiance = 'None';
@@ -22,7 +26,7 @@ export const CommandingOfficer = {
 
   None: class NoneCO extends CommandingOfficerObject {
     readonly type = NoneCO;
-    static readonly serial = 0;
+    static readonly serial = Serial.next().value;
 
     readonly name = 'None';
     readonly allegiance = 'None';
@@ -37,7 +41,7 @@ export const CommandingOfficer = {
 
   Will: class WillCO extends CommandingOfficerObject {
     readonly type = WillCO;
-    static readonly serial = 1;
+    static readonly serial = Serial.next().value;
 
     readonly name = 'Will';
     readonly allegiance = '13th Battalion';
@@ -62,7 +66,7 @@ export const CommandingOfficer = {
 
   Brenner: class BrennerCO extends CommandingOfficerObject {
     readonly type = BrennerCO;
-    static readonly serial = 2;
+    static readonly serial = Serial.next().value;
 
     readonly name = 'Brenner';
     readonly allegiance = '13th Battalion';
@@ -79,7 +83,7 @@ export const CommandingOfficer = {
 
   Lin: class LinCO extends CommandingOfficerObject {
     readonly type = LinCO;
-    static readonly serial = 3;
+    static readonly serial = Serial.next().value;
 
     readonly name = 'Lin';
     readonly allegiance = '13th Battalion';
@@ -99,7 +103,7 @@ export const CommandingOfficer = {
 
   Isabella: class IsabellaCO extends CommandingOfficerObject {
     readonly type = IsabellaCO;
-    static readonly serial = 4;
+    static readonly serial = Serial.next().value;
 
     readonly name = 'Isabella';
     readonly allegiance = '13th Battalion';
@@ -118,4 +122,5 @@ export const CommandingOfficer = {
   // readonly allegiance = 'Lazuria';
   // readonly allegiance = 'New Rubinelle';
   // readonly allegiance = 'IDS';
+
 }

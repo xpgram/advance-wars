@@ -24,6 +24,7 @@ export class UnitConstructionError extends Error {
 /** An uninstantiated Unit class type. */
 export interface UnitType {
     new (): UnitObject;
+    readonly serial: number
 }
 
 // Write bit-masking constants: length and shift amount
@@ -102,7 +103,7 @@ export abstract class UnitObject {
     static readonly serial: number = -1;
 
     /** Numerical index of unit types. Used for saving/loading, primarily. */
-    abstract get serial(): number;
+    get serial(): number { return this.type.serial; }
 
     /** The sprite container for this unit. */
     get sprite(): PIXI.AnimatedSprite {

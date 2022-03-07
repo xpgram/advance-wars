@@ -1,5 +1,5 @@
 import { CardinalVector, SumCardinalsToVector } from "../../Common/CardinalDirection";
-import { Point } from "../../Common/Point";
+import { SerialGenerator } from "../../Common/SerialGenerator";
 import { Include } from "../../CommonTypes";
 import { Common } from "../../CommonUtils";
 import { DamageScript } from "../DamageScript";
@@ -35,11 +35,13 @@ import { DropLocation } from "./states/DropLocation";
 const { data } = instructionData;
 
 // TODO Move these feckign types out of the module; they're inaccessible.
-const { ExitCode, Weight, Serial, RatificationError } = CommandHelpers;
+const { ExitCode, Weight, RatificationError } = CommandHelpers;
 type ExitCode = CommandHelpers.ExitCode;
 type Weight = CommandHelpers.Weight;
 type CommandObject = CommandHelpers.CommandObject;
 type UniqueStats = CommandHelpers.UniqueStats;
+
+const Serial = SerialGenerator();
 
 /** Default command object properties. */
 const cmdDefaults = {

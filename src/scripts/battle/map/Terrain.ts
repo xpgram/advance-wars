@@ -1,13 +1,13 @@
-import * as PIXI from "pixi.js";
 import { Game } from "../../..";
 import { TerrainObject } from "./TerrainObject";
-import { UnitClass, Faction } from "../EnumTypes";
+import { UnitClass } from "../EnumTypes";
 import { Common } from "../../CommonUtils";
 import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
-import { Debug } from "../../DebugUtils";
-import { Unit } from "../Unit";
+import { SerialGenerator } from "../../Common/SerialGenerator";
+
+const Serial = SerialGenerator(-1);
 
 /**
  * Global terrain properties container.
@@ -28,7 +28,7 @@ export const Terrain = {
     Void: class VoidTile extends TerrainObject {
         // Not for nothin', but these properties are all technically condensible into one 64-bit value.
         get type() { return VoidTile; }
-        static readonly serial = -1;
+        static readonly serial = Serial.next().value;
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -60,7 +60,7 @@ export const Terrain = {
     //start
     Plain: class PlainTile extends TerrainObject {
         get type() { return PlainTile; }
-        static readonly serial = 0;
+        static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
             if (this.variation == 1)
                 return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-meteor-landscape.png'] );
@@ -104,7 +104,7 @@ export const Terrain = {
 
     Road: class RoadTile extends TerrainObject {
         get type() { return RoadTile; }
-        static readonly serial = 1;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Road"; }
         get shortName() { return "Road"; }
@@ -142,7 +142,7 @@ export const Terrain = {
 
     Wood: class WoodTile extends TerrainObject {
         get type() { return WoodTile; }
-        static readonly serial = 2;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Wood"; }
         get shortName() { return "Wood"; }
@@ -179,7 +179,7 @@ export const Terrain = {
 
     Mountain: class MountainTile extends TerrainObject {
         get type() { return MountainTile; }
-        static readonly serial = 3;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Mountain"; }
         get shortName() { return "Mtn"; }
@@ -220,7 +220,7 @@ export const Terrain = {
 
     Wasteland: class WastelandTile extends TerrainObject {
         get type() { return WastelandTile; }
-        static readonly serial = 4;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Wasteland"; }
         get shortName() { return "Wstlnd"; }
@@ -252,7 +252,7 @@ export const Terrain = {
 
     Ruins: class RuinsTile extends TerrainObject {
         get type() { return RuinsTile; }
-        static readonly serial = 5;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Ruins"; }
         get shortName() { return "Ruins"; }
@@ -289,7 +289,7 @@ export const Terrain = {
 
     Bridge: class BridgeTile extends TerrainObject {
         get type() { return BridgeTile; }
-        static readonly serial = 6;
+        static readonly serial = Serial.next().value;
         readonly landTile: boolean;
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -348,7 +348,7 @@ export const Terrain = {
 
     River: class RiverTile extends TerrainObject {
         get type() { return RiverTile; }
-        static readonly serial = 7;
+        static readonly serial = Serial.next().value;
 
         get name() { return "River"; }
         get shortName() { return "River"; }
@@ -380,7 +380,7 @@ export const Terrain = {
 
     Sea: class SeaTile extends TerrainObject {
         get type() { return SeaTile; }
-        static readonly serial = 8;
+        static readonly serial = Serial.next().value;
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
@@ -413,7 +413,7 @@ export const Terrain = {
 
     Beach: class BeachTile extends TerrainObject {
         get type() { return BeachTile; }
-        static readonly serial = 9;
+        static readonly serial = Serial.next().value;
         get landTile() { return false; }
 
         get name() { return "Beach"; }
@@ -475,7 +475,7 @@ export const Terrain = {
 
     RoughSea: class RoughSeaTile extends TerrainObject {
         get type() { return RoughSeaTile; }
-        static readonly serial = 10;
+        static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
             return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
         }
@@ -532,7 +532,7 @@ export const Terrain = {
 
     Mist: class MistTile extends TerrainObject {
         get type() { return MistTile; }
-        static readonly serial = 11;
+        static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
             return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['sea-landscape.png'] );
         }
@@ -574,7 +574,7 @@ export const Terrain = {
 
     Reef: class ReefTile extends TerrainObject {
         get type() { return ReefTile; }
-        static readonly serial = 12;
+        static readonly serial = Serial.next().value;
         get landTile() { return false; }
 
         get name() { return "Reef"; }
@@ -624,7 +624,7 @@ export const Terrain = {
 
     Fire: class FireTile extends TerrainObject {
         get type() { return FireTile; }
-        static readonly serial = 13;
+        static readonly serial = Serial.next().value;
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
@@ -668,7 +668,7 @@ export const Terrain = {
 
     Meteor: class MeteorTile extends TerrainObject {
         get type() { return MeteorTile; }
-        static readonly serial = 14;
+        static readonly serial = Serial.next().value;
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
@@ -684,7 +684,7 @@ export const Terrain = {
 
         private _value = 99;
         get value(): number { return this._value; }
-        set value(n) { this._value = Common.confine(n, 0, 99); }
+        set value(n) { this._value = Common.clamp(n, 0, 99); }
 
         movementCost = {
             infantry: 0,
@@ -731,7 +731,7 @@ export const Terrain = {
 
     Plasma: class PlasmaTile extends TerrainObject {
         get type() { return PlasmaTile; }
-        static readonly serial = 15;
+        static readonly serial = Serial.next().value;
         get illustration(): PIXI.AnimatedSprite {
             let anim = new PIXI.AnimatedSprite( TerrainProperties.infoPortraitSheet.animations['default-landscape'] );
             anim.animationSpeed = 6 / 20;
@@ -791,7 +791,7 @@ export const Terrain = {
 
     Pipeline: class PipelineTile extends TerrainObject {
         get type() { return PipelineTile; }
-        static readonly serial = 16;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Pipeline"; }
         get shortName() { return "Pipe"; }
@@ -834,7 +834,7 @@ export const Terrain = {
 
     PipeSeam: class PipeSeamTile extends TerrainObject {
         get type() { return PipeSeamTile; }
-        static readonly serial = 17;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Pipe Seam"; }
         get shortName() { return "Pipe"; }
@@ -843,7 +843,7 @@ export const Terrain = {
 
         private _value = 99;
         get value(): number { return this._value; }
-        set value(n) { this._value = Common.confine(n, 0, 99); }
+        set value(n) { this._value = Common.clamp(n, 0, 99); }
 
         movementCost = {
             infantry: 0,
@@ -873,7 +873,7 @@ export const Terrain = {
 
     HQ: class HQTile extends TerrainBuildingObject {
         get type() { return HQTile; }
-        static readonly serial = 18;
+        static readonly serial = Serial.next().value;
 
         get name() { return "HQ"; }
         get shortName() { return "HQ"; }
@@ -913,7 +913,7 @@ export const Terrain = {
 
     City: class CityTile extends TerrainBuildingObject {
         get type() { return CityTile; }
-        static readonly serial = 19;
+        static readonly serial = Serial.next().value;
 
         get name() { return "City"; }
         get shortName() { return "City"; }
@@ -950,7 +950,7 @@ export const Terrain = {
 
     ComTower: class ComTowerTile extends TerrainBuildingObject {
         get type() { return ComTowerTile; }
-        static readonly serial = 20;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Com Tower"; }
         get shortName() { return "Com T"; }
@@ -986,7 +986,7 @@ export const Terrain = {
 
     Radar: class RadarTile extends TerrainBuildingObject {
         get type() { return RadarTile; }
-        static readonly serial = 21;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Radar"; }
         get shortName() { return "Radar"; }
@@ -1022,7 +1022,7 @@ export const Terrain = {
 
     Silo: class SiloTile extends TerrainObject {
         get type() { return SiloTile; }
-        static readonly serial = 22;
+        static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
             if (this.value == 1)
                 return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['silo-unused-landscape.png'] );
@@ -1038,7 +1038,9 @@ export const Terrain = {
 
         private _value = 1;
         get value(): number { return this._value; }
-        set value(n) { this._value = Common.confine(n, 0, 1); }
+        set value(n) { this._value = Common.clamp(n, 0, 1); }
+        // TODO This needs to update the sprite.
+        // How do buildings do it? I know I don't tint them.
 
         movementCost = {
             infantry: 1,
@@ -1070,7 +1072,7 @@ export const Terrain = {
 
     Factory: class FactoryTile extends TerrainBuildingObject {
         get type() { return FactoryTile; }
-        static readonly serial = 23;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Factory"; }
         get shortName() { return "Fctry"; }
@@ -1107,7 +1109,7 @@ export const Terrain = {
 
     Airport: class AirportTile extends TerrainBuildingObject {
         get type() { return AirportTile; }
-        static readonly serial = 24;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Airport"; }
         get shortName() { return "Airport"; }
@@ -1144,7 +1146,7 @@ export const Terrain = {
 
     Port: class PortTile extends TerrainBuildingObject {
         get type() { return PortTile; }
-        static readonly serial = 25;
+        static readonly serial = Serial.next().value;
         get landTile() { return false; }
 
         get name() { return "Port"; }
@@ -1183,7 +1185,7 @@ export const Terrain = {
 
     TempAirpt: class TempAirptTile extends TerrainBuildingObject {
         get type() { return TempAirptTile; }
-        static readonly serial = 26;
+        static readonly serial = Serial.next().value;
 
         get name() { return "Temp Airpt"; }
         get shortName() { return "T Air"; }
@@ -1219,7 +1221,7 @@ export const Terrain = {
 
     TempPort: class TempPortTile extends TerrainBuildingObject {
         get type() { return TempPortTile; }
-        static readonly serial = 27;
+        static readonly serial = Serial.next().value;
         get landTile() { return false; }
 
         get name() { return "Temp Port"; }

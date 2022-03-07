@@ -63,16 +63,6 @@ export module CommandHelpers {
     range?: NumericRange,
     damage?: number,
   }
-
-  /** Auto generates a new serial so I don't have to hardcode them manually. */
-  export const Serial = SerialGen();
-  function* SerialGen(): Generator<number, number, number> {
-    let serial = -1;
-    while (true) {
-      serial++;
-      yield serial;
-    }
-  }
   
   /** Returns a CommandObject<number> corrosponding to the given serial number. */
   export function getCommandObject(serial: number): CommandObject {

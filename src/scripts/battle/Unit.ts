@@ -3,6 +3,9 @@ import { UnitObject, UnitType } from "./UnitObject";
 import { MoveType, ArmorType, UnitClass } from "./EnumTypes";
 import { TerrainObject, TerrainType } from "./map/TerrainObject";
 import { Terrain } from "./map/Terrain";
+import { SerialGenerator } from "../Common/SerialGenerator";
+
+const Serial = SerialGenerator();
 
 export const UnitProperties = {
     spritesheet: 'UnitSpritesheet',
@@ -16,8 +19,8 @@ export const Unit = {
     //start
     Infantry: class InfantryUnit extends UnitObject {
         get type() { return InfantryUnit; }
-        static readonly serial = 0;
-        get serial() { return 0; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Infantry"; }
         get shortName() { return "Inftry"; }
         get description() { return "The cheapest unit. They can /capture/ bases. /+3 to vision when/ on mountains."; }
@@ -50,8 +53,8 @@ export const Unit = {
 
     Mech: class MechUnit extends UnitObject {
         get type() { return MechUnit; }
-        static readonly serial = 1;
-        get serial() { return 1; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Mech"; }
         get shortName() { return "Mech"; }
         get description() { return "High attack power. They can /capture/ bases. /+3 to vision when/ on mountains."; }
@@ -84,8 +87,8 @@ export const Unit = {
 
     Bike: class BikeUnit extends UnitObject {
         get type() { return BikeUnit; }
-        static readonly serial = 2;
-        get serial() { return 2; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Bike"; }
         get shortName() { return "Bike"; }
         get description() { return "An infantry unit with high mobility. They can /capture/ bases."; }
@@ -118,8 +121,8 @@ export const Unit = {
 
     Recon: class ReconUnit extends UnitObject {
         get type() { return ReconUnit; }
-        static readonly serial = 3;
-        get serial() { return 3; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Recon"; }
         get shortName() { return "Recon"; }
         get description() { return "Good movement and vision. They are strong against infantry."; }
@@ -150,8 +153,8 @@ export const Unit = {
 
     Flare: class FlareUnit extends UnitObject {
         get type() { return FlareUnit; }
-        static readonly serial = 4;
-        get serial() { return 4; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Flare"; }
         get shortName() { return "Flare"; }
         get description() { return "Flares fire bright /rockets/ that reveal a /13-square area/ in Fog of War."; }
@@ -182,8 +185,8 @@ export const Unit = {
 
     AntiAir: class AntiAirUnit extends UnitObject {
         get type() { return AntiAirUnit; }
-        static readonly serial = 5;
-        get serial() { return 5; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Anti-Air"; }
         get shortName() { return "Anti-Air"; }
         get description() { return "A specialized anti-air unit that can also attack ground forces."; }
@@ -214,8 +217,8 @@ export const Unit = {
 
     Tank: class TankUnit extends UnitObject {
         get type() { return TankUnit; }
-        static readonly serial = 6;
-        get serial() { return 6; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Tank"; }
         get shortName() { return "Tank"; }
         get description() { return "High movement and a low production cost make these units quite useful."; }
@@ -246,8 +249,8 @@ export const Unit = {
 
     MdTank: class MdTankUnit extends UnitObject {
         get type() { return MdTankUnit; }
-        static readonly serial = 7;
-        get serial() { return 7; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Md Tank"; }
         get shortName() { return "M Tank"; }
         get description() { return "A strong tank with better attack and defense than standard tanks."; }
@@ -278,8 +281,8 @@ export const Unit = {
 
     WarTank: class WarTankUnit extends UnitObject {
         get type() { return WarTankUnit; }
-        static readonly serial = 8;
-        get serial() { return 8; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "War Tank"; }
         get shortName() { return "W Tank"; }
         get description() { return "The strongest tank in terms of both attack and defense."; }
@@ -310,8 +313,8 @@ export const Unit = {
 
     Artillery: class ArtilleryUnit extends UnitObject {
         get type() { return ArtilleryUnit; }
-        static readonly serial = 9;
-        get serial() { return 9; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Artillery"; }
         get shortName() { return "Artlry"; }
         get description() { return "An indirect attacker. This unit can move or attack during a turn, but not both."; }
@@ -345,8 +348,8 @@ export const Unit = {
 
     AntiTank: class AntiTankUnit extends UnitObject {
         get type() { return AntiTankUnit; }
-        static readonly serial = 10;
-        get serial() { return 10; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Anti-Tank"; }
         get shortName() { return "Anti-Tk"; }
         get description() { return "An indirect attacker that can /counter-attack/ when under direct fire."; }
@@ -380,8 +383,8 @@ export const Unit = {
 
     Rockets: class RocketsUnit extends UnitObject {
         get type() { return RocketsUnit; }
-        static readonly serial = 11;
-        get serial() { return 11; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Rockets"; }
         get shortName() { return "Rocket"; }
         get description() { return "A powerful indirect attacker with a wide range."; }
@@ -415,8 +418,8 @@ export const Unit = {
 
     Missiles: class MissilesUnit extends UnitObject {
         get type() { return MissilesUnit; }
-        static readonly serial = 12;
-        get serial() { return 12; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Missiles"; }
         get shortName() { return "Missile"; }
         get description() { return "An indirect attacker that can only strike airborne targets."; }
@@ -450,8 +453,8 @@ export const Unit = {
 
     Rig: class RigUnit extends UnitObject {
         get type() { return RigUnit; }
-        static readonly serial = 13;
-        get serial() { return 13; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Rig"; }
         get shortName() { return "Rig"; }
         get description() { return "/Carries 1/ infantry or mech unit. Can also /supply/ units and /build/ temp airports//ports."; }
@@ -503,8 +506,8 @@ export const Unit = {
 
     Fighter: class FighterUnit extends UnitObject {
         get type() { return FighterUnit; }
-        static readonly serial = 14;
-        get serial() { return 14; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Fighter"; }
         get shortName() { return "Fighter"; }
         get description() { return "A mobile aircraft that can attack other airborne units."; }
@@ -535,8 +538,8 @@ export const Unit = {
 
     Bomber: class BomberUnit extends UnitObject {
         get type() { return BomberUnit; }
-        static readonly serial = 15;
-        get serial() { return 15; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Bomber"; }
         get shortName() { return "Bomber"; }
         get description() { return "A massively powerful plane that can attack both ground and naval units."; }
@@ -567,8 +570,8 @@ export const Unit = {
 
     Stealth: class StealthUnit extends UnitObject {
         get type() { return StealthUnit; }
-        static readonly serial = 16;
-        get serial() { return 16; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Stealth"; }
         get shortName() { return "Stealth"; }
         get description() { return "A powerful air unit that can /cloak/ and remain hidden until found by adjacent enemy units."; }
@@ -601,8 +604,8 @@ export const Unit = {
 
     Duster: class DusterUnit extends UnitObject {
         get type() { return DusterUnit; }
-        static readonly serial = 17;
-        get serial() { return 17; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Duster"; }
         get shortName() { return "Duster"; }
         get description() { return "A somewhat powerful plane that can attack both ground and air units."; }
@@ -633,8 +636,8 @@ export const Unit = {
 
     SeaPlane: class SeaPlaneUnit extends UnitObject {
         get type() { return SeaPlaneUnit; }
-        static readonly serial = 18;
-        get serial() { return 18; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Sea Plane"; }
         get shortName() { return "Seapl"; }
         get description() { return "A plane produced at sea by carriers. It can attack any unit."; }
@@ -665,8 +668,8 @@ export const Unit = {
 
     BCopter: class BCopterUnit extends UnitObject {
         get type() { return BCopterUnit; }
-        static readonly serial = 19;
-        get serial() { return 19; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "B Copter"; }
         get shortName() { return "B Cptr"; }
         get description() { return "An air unit that can attack ground and naval units, as well as other helicopters."; }
@@ -697,8 +700,8 @@ export const Unit = {
 
     TCopter: class TCopterUnit extends UnitObject {
         get type() { return TCopterUnit; }
-        static readonly serial = 20;
-        get serial() { return 20; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "T Copter"; }
         get shortName() { return "T Cptr"; }
         get description() { return "An air unit that can /carry 1/ infantry or mech unit, but has no attack capabilities."; }
@@ -751,8 +754,8 @@ export const Unit = {
 
     Seeker: class SeekerUnit extends UnitObject {
         get type() { return SeekerUnit; }
-        static readonly serial = 21;
-        get serial() { return 21; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Seeker"; }
         get shortName() { return "Seeker"; }
         get description() { return "An unmanned aerial unit. This unit can /explode/ at will, damaging all units within 3 spaces."; }
@@ -784,8 +787,8 @@ export const Unit = {
 
     Battleship: class BattleshipUnit extends UnitObject {
         get type() { return BattleshipUnit; }
-        static readonly serial = 22;
-        get serial() { return 22; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Battleship"; }
         get shortName() { return "B Ship"; }
         get description() { return "An extremely strong naval unit that can /launch indirect attacks after moving/."; }
@@ -817,8 +820,8 @@ export const Unit = {
 
     Carrier: class CarrierUnit extends UnitObject {
         get type() { return CarrierUnit; }
-        static readonly serial = 23;
-        get serial() { return 23; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Carrier"; }
         get shortName() { return "Carrier"; }
         get description() { return "A naval unit that can /carry 2/ air units and /produce/ seaplanes."; }
@@ -864,8 +867,8 @@ export const Unit = {
 
     Submarine: class SubmarineUnit extends UnitObject {
         get type() { return SubmarineUnit; }
-        static readonly serial = 24;
-        get serial() { return 24; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Submarine"; }
         get shortName() { return "Sub"; }
         get description() { return "After /diving/, they remain hidden unless found by adjacent enemy units."; }
@@ -898,8 +901,8 @@ export const Unit = {
 
     Cruiser: class CruiserUnit extends UnitObject {
         get type() { return CruiserUnit; }
-        static readonly serial = 25;
-        get serial() { return 25; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Cruiser"; }
         get shortName() { return "Cruiser"; }
         get description() { return "Cruisers are strong against subs and air units, and can /carry 2 copter units/."; }
@@ -945,8 +948,8 @@ export const Unit = {
 
     Lander: class LanderUnit extends UnitObject {
         get type() { return LanderUnit; }
-        static readonly serial = 26;
-        get serial() { return 26; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Lander"; }
         get shortName() { return "Lander"; }
         get description() { return "Landers can /carry 2 ground units/. If the lander sinks, the units vanish."; }
@@ -993,8 +996,8 @@ export const Unit = {
 
     GunBoat: class GunBoatUnit extends UnitObject {
         get type() { return GunBoatUnit; }
-        static readonly serial = 27;
-        get serial() { return 27; }
+        static readonly serial = Serial.next().value;
+
         get name() { return "Gun Boat"; }
         get shortName() { return "G Boat"; }
         get description() { return "A unit that can /carry 1/ foot soldier and attack other naval units."; }
