@@ -1,6 +1,7 @@
 import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
 import { Color } from "../../color/Color";
+import { Palette } from "../../color/ColorPalette";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
@@ -46,22 +47,22 @@ export class CommandMenuGUI<Y> {
 
   readonly palette = {
     unselected: {
-      background: HSV(200, 30, 30),
-      primary:    HSV(215, 25, 35),
-      light:      HSV(220, 15,100),
-      dark:       HSV(190, 10,  0),
+      background: Palette.gale_force1,
+      primary:    Palette.gale_force2,
+      light:      Palette.cloudless,
+      dark:       Palette.black,
     },
     selected: {
-      background: HSV(200, 30, 30),
-      primary:    HSV(170, 65, 40),
-      light:      HSV(185, 35,  0),
-      dark:       HSV(170, 35,100),
+      background: Palette.gale_force1,
+      primary:    Palette.terrestrial,
+      light:      Palette.black,          // Light and dark are switched on purpose
+      dark:       Palette.blister_pearl,  // to achieve a depressed effect.
     },
     disabled: {
-      background: HSV(200, 0, 20),
-      primary:    HSV(215, 0, 30),
-      light:      HSV(190, 0,  0),
-      dark:       HSV(220, 0, 80),
+      background: Palette.carbon2,
+      primary:    Palette.carbon3,
+      light:      Palette.black,
+      dark:       Palette.cerebral_grey2,
     },
   }
 
