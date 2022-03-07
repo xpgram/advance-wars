@@ -20,6 +20,7 @@ export const Palette = Common.freezeObject({
   gale_force1:        HSV(200, 30, 30), // Cmd Menu Background
   gale_force2:        HSV(215, 25, 35), // Cmd Menu Primary
   cloudless:          HSV(220, 15,100), //  + Light accent
+  encore:             HSV(220, 15, 50), // TextBox filling
 
   caribbean_green:    HSV(166,100, 80), // Menu Cursor
   terrestrial:        HSV(170, 65, 40), // Cmd Menu Selected

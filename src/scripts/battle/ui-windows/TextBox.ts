@@ -1,4 +1,5 @@
 import { Color } from "../../color/Color";
+import { Palette } from "../../color/ColorPalette";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 
 /**
@@ -11,9 +12,9 @@ import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 const { HSV } = Color;
 
 const palette = {
-  background:     HSV(196, 28, 23),
-  textBackground: HSV(220, 16, 50),
-  textRule:       HSV(214, 18, 35),
+  background:     Palette.gale_force1,
+  textBackground: Palette.encore,
+  textRule:       Palette.gale_force2,
 };
 
 const TEXT_PROPS = new BoxContainerProperties({
