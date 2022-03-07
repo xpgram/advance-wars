@@ -46,7 +46,7 @@ export const Palette = Common.freezeObject({
   tarnished_brass:    HSV( 48, 68, 50), // CO Window
   master_key:         HSV( 48, 38, 87), // Emblem Tint
   lemon_ginger:       HSV( 48, 68, 58), // Presence Confirmation
-  finger_banana:      HSV( 48, 80, 90), // Cap Meter
+  grass_daisy:      HSV( 48, 80, 80), // Cap Meter
 
   // Green Faction — These might need tweaking
   gulfweed:           HSV(130, 68, 58), // CO Window

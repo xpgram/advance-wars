@@ -82,7 +82,7 @@ const yellow: FactionPalette = {
     white_tintdown: Palette.master_key,
   },
   propertyCapture: {
-    meter: Palette.finger_banana,
+    meter: Palette.grass_daisy,
     tint: Palette.master_key,
   },
   turnStartSplash: {
