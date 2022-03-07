@@ -1025,10 +1025,8 @@ export const Terrain = {
         get type() { return SiloTile; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
-            if (this.value == 1)
-                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['silo-unused-landscape.png'] );
-            else
-                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['silo-used-landscape.png'] );
+            const variant = (this.used) ? 'used' : 'unused';
+            return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures[`silo-${variant}-landscape.png`] );
         }
 
         get name() { return "Silo"; }
