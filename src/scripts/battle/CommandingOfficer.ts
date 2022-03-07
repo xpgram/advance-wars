@@ -1,7 +1,6 @@
 import { SerialGenerator } from "../Common/SerialGenerator";
 import { CommandingOfficerObject, UnitStats, universalStatsBonus } from "./CommandingOfficerObject";
 import { UnitClass } from "./EnumTypes";
-import { Unit } from "./Unit";
 import { UnitObject } from "./UnitObject";
 
 const Serial = SerialGenerator(-1);
