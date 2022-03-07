@@ -22,18 +22,16 @@ export class MoveUnit extends TurnState {
     // Change cursor mode
     const tile = map.squareAt(mapCursor.boardLocation);
     const unit = tile.unit;
+    const occupiable = tile.occupiable(actor);
     const boardable = unit?.boardable(actor);
     const mergeable = unit?.mergeable(actor);
     const sameFaction = unit?.faction === players.current.faction;
     const reachable = tile.moveFlag;
 
-    const operator = actor.soldierUnit;
-    const silo = tile.terrain.type === Terrain.Silo; // && !tile.terrain.used;
-
     const cohabitable = sameFaction && (boardable || mergeable)
-    const operable = operator && silo;
+    const operableTerrain = occupiable && tile.terrain.actionable(actor);
 
-    const actionable = reachable && (cohabitable || operable);
+    const actionable = reachable && (cohabitable || operableTerrain);
     const attackable = tile.attackFlag;
 
     mapCursor.mode = (actionable || attackable) ? 'target' : 'point';

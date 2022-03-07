@@ -10,7 +10,7 @@ import { Game } from "../../..";
 import { whitemask } from "../../filters/Whitemask";
 import { TextureLibrary } from "../../system/TextureLibrary";
 import { tileSpotlight } from "../../filters/TileSpotlight";
-import { UnitType } from "../UnitObject";
+import { UnitObject, UnitType } from "../UnitObject";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.
@@ -306,5 +306,10 @@ export abstract class TerrainObject {
      * tile's graphical limitations. */
     legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
         return true;    // Override if you want to be more specific.
+    }
+
+    /** Returns true if the given unit is capable of doing something with this terrain. */
+    actionable(unit: UnitObject): boolean {
+        return false;
     }
 }

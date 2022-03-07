@@ -6,6 +6,7 @@ import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { SerialGenerator } from "../../Common/SerialGenerator";
+import { UnitObject } from "../UnitObject";
 
 const Serial = SerialGenerator(-1);
 
@@ -1036,11 +1037,27 @@ export const Terrain = {
         get defenseRating() { return 2; }
         get conceals() { return true; }
 
-        private _value = 1;
-        get value(): number { return this._value; }
-        set value(n) { this._value = Common.clamp(n, 0, 1); }
-        // TODO This needs to update the sprite.
-        // How do buildings do it? I know I don't tint them.
+        private siloSprite!: PIXI.Sprite;
+
+        private updateTexture() {
+            const which = this._used ? 2 : 1;
+            const tex = TerrainProperties.sheet.textures[`silo-${which}.png`];
+            this.siloSprite.texture = tex;
+            this.siloSprite.anchor.y = .5;
+            this._shapeSerial = `${this._used ? 0 : 1}`;
+        }
+
+        /** Whether this silo has been launched already. */
+        get used(): boolean { return this._used; }
+        set used(b) {
+            this._used = b;
+            this.updateTexture();
+        }
+        private _used = false;
+
+        actionable(unit: UnitObject) {
+            return (unit.soldierUnit && !this.used);
+        }
 
         movementCost = {
             infantry: 1,
@@ -1063,10 +1080,9 @@ export const Terrain = {
             this.layers.push({object: sprite, key: ['bottom', 'static']});
 
             // Silo
-            let which = (this.value == 1) ? 1 : 2;  // Unused : Used
-            sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`silo-${which}.png`]);
-            this._shapeSerial = `${which}`;
-            this.layers.push({object: sprite, key: ['top', 'row', 'animated'], maskShape: true});
+            this.siloSprite = new PIXI.Sprite();
+            this.updateTexture();
+            this.layers.push({object: this.siloSprite, key: ['top', 'row', 'animated'], maskShape: true});
         }
     },
 

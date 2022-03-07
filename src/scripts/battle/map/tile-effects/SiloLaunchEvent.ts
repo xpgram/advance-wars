@@ -2,12 +2,15 @@ import { Game } from "../../../..";
 import { Ease } from "../../../Common/EaseMethod";
 import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
+import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
 
 
 interface SiloLaunchEventOptions {
   location: Point;
+  // terrain: Terrain.Silo
+  assets: BattleSceneControllers;
 }
 
 export class SiloLaunchEvent extends TileEvent {
@@ -21,11 +24,20 @@ export class SiloLaunchEvent extends TileEvent {
     this.options = options;
   }
 
+  ratify(): void {
+    const { map } = this.options.assets;
+    const { location } = this.options;
+
+    const terrain = map.squareAt(location).terrain;
+    terrain.used = true;  // I can't typecheck SiloTile
+  }
+
   protected create(): void {
     const { location } = this.options;
 
     const tileSize = Game.display.standardLength;
-    const worldLocation = location.multiply(tileSize);
+    const tileAlignment = new Point(-3,5);
+    const worldLocation = location.multiply(tileSize).add(tileAlignment);
 
     const sheet = Game.scene.resources['VFXSpritesheet'].spritesheet as PIXI.Spritesheet;
     const animations = sheet.animations;
@@ -69,6 +81,7 @@ export class SiloLaunchEvent extends TileEvent {
     // TODO Use camera height as the displace number?
 
     Timer
+      .do(this.ratify, this)
       .tween(1, this.rocket, {y: this.rocket.y - 256}, Ease.quad.in)
 
       .wait(.1).do(n => startExhaust(0, this.rocket))

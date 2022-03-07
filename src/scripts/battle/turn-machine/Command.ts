@@ -517,19 +517,19 @@ export module Command {
 
     triggerInclude() {
       const { actor, goalTerrain } = data;
-      return (actor.soldierUnit && goalTerrain.type === Terrain.Silo);
+      const silo = (goalTerrain.type === Terrain.Silo);
+      const actionable = (goalTerrain.actionable(actor));
+      return (silo && actionable);
     },
 
     scheduleEvent() {
       const { boardEvents } = data.assets;
       const { goal, focal, assets } = data;
 
-      // TODO [-] Schedule MissileUp event    (move camera; animate missile)
-      // TODO [ ] Schedule MissileDown event  (move camera; blow up boys)
-
       boardEvents.schedule(
         new SiloLaunchEvent({
           location: goal,
+          assets,
         }),
         new SiloImpactEvent({
           location: focal,
