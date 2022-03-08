@@ -454,7 +454,7 @@ export module Command {
         .map( d => d.which )
         .includes( this.index );
       const oneEmptySpace = neighbors.orthogonals
-        .some( tile => (tile.occupiable(unit) || tile.unit === actor)
+        .some( tile => (tile.occupiable(unit) || (tile.traversable(unit) && tile.unit === actor) )
           && !drop.some( d => d.where.equal(tile.pos) ) );
       return !alreadyDropped && oneEmptySpace;
     },

@@ -50,7 +50,7 @@ export class DropLocation extends TurnState {
 
     const neighbors = map.neighborsAt(goal);
     const tiles = neighbors.orthogonals
-      .filter( tile => (tile.occupiable(toDrop) || tile.unit === actor )
+      .filter( tile => (tile.occupiable(toDrop) || (tile.traversable(toDrop) && tile.unit === actor) )
         && !(drop.map( d => d.where ).some( p => p.equal(new Point(tile.pos)) )) );
     tiles.forEach( tile => tile.moveFlag = true );
 
