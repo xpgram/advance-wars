@@ -355,6 +355,20 @@ export class Map {
         MapLayerFunctions.SortLayer('top');
     }
 
+    /** Triggers a local rebuild of the map display object at the point p to the given terrain type. */
+    // TODO write; test
+    changeTile(p: Point, terrain: TerrainType) {
+        // stub; experimental
+        // needed for map editor
+    }
+
+    /** Triggers a full rebuild of the map display object from a new tileset variant. */
+    // TODO alt tileset assets; write; test
+    changeTileset(mode: 'normal' | 'snow' | 'desert' | 'wasteland') {
+        // stub; experimental
+        // needed for some weather effects
+    }
+
     /** Returns the horizontal size of the grid map, including the border columns. */
     private get trueWidth() {
         // Length minus the border of blank objects.

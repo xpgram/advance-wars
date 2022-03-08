@@ -12,6 +12,7 @@ But anyway, yeah. There is constant state checking because his system never just
 - [ ] Map.changeTerrain(pos: Point, terrain: TerrainType)
   This should handle the specifics.
 - [ ] Map.changeTileset(mode: 'normal' | 'snow' | 'desert' | 'wasteland')
+However, Bridge -> DestroyedBridge should probably be a tile variant option. I could let the server record mutations to the map you're playing on, but that sounds complicated.
 
 - [ ] Map serial interpreter makes room for a variant number.
   - [ ] Use number packing to let one address carry both a 30-bit terrain serial and a 2-bit variant number.
