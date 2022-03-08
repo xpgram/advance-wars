@@ -6,10 +6,10 @@ import { UnitObject } from "./UnitObject";
 const Serial = SerialGenerator(-1);
 
 /**  */
-export const CommandingOfficer = {
+export module CommandingOfficer {
 
-  Void: class VoidCO extends CommandingOfficerObject {
-    readonly type = VoidCO;
+  export class Void extends CommandingOfficerObject {
+    readonly type = Void;
     static readonly serial = Serial.next().value;
 
     readonly name = 'Void';
@@ -21,10 +21,10 @@ export const CommandingOfficer = {
     getBonusStats(unit: UnitObject): UnitStats {
       return universalStatsBonus();
     }
-  },
+  }
 
-  None: class NoneCO extends CommandingOfficerObject {
-    readonly type = NoneCO;
+  export class None extends CommandingOfficerObject {
+    readonly type = None;
     static readonly serial = Serial.next().value;
 
     readonly name = 'None';
@@ -36,10 +36,10 @@ export const CommandingOfficer = {
     getBonusStats(unit: UnitObject): UnitStats {
       return universalStatsBonus();
     }
-  },
+  }
 
-  Will: class WillCO extends CommandingOfficerObject {
-    readonly type = WillCO;
+  export class Will extends CommandingOfficerObject {
+    readonly type = Will;
     static readonly serial = Serial.next().value;
 
     readonly name = 'Will';
@@ -61,10 +61,10 @@ export const CommandingOfficer = {
 
       return stats;
     }
-  },
+  }
 
-  Brenner: class BrennerCO extends CommandingOfficerObject {
-    readonly type = BrennerCO;
+  export class Brenner extends CommandingOfficerObject {
+    readonly type = Brenner;
     static readonly serial = Serial.next().value;
 
     readonly name = 'Brenner';
@@ -78,10 +78,10 @@ export const CommandingOfficer = {
       stats.defense += 20;
       return stats;
     }
-  },
+  }
 
-  Lin: class LinCO extends CommandingOfficerObject {
-    readonly type = LinCO;
+  export class Lin extends CommandingOfficerObject {
+    readonly type = Lin;
     static readonly serial = Serial.next().value;
 
     readonly name = 'Lin';
@@ -98,10 +98,10 @@ export const CommandingOfficer = {
       }
       return stats;
     }
-  },
+  }
 
-  Isabella: class IsabellaCO extends CommandingOfficerObject {
-    readonly type = IsabellaCO;
+  export class Isabella extends CommandingOfficerObject {
+    readonly type = Isabella;
     static readonly serial = Serial.next().value;
 
     readonly name = 'Isabella';
@@ -116,7 +116,7 @@ export const CommandingOfficer = {
       stats.defense += 10;
       return stats;
     }
-  },
+  }
 
   // readonly allegiance = 'Lazuria';
   // readonly allegiance = 'New Rubinelle';

@@ -150,7 +150,7 @@ let rootLayer: Layer;
 * @version 2.0.0
 */
 export function MapLayer(...terms: (string | number)[]): PIXI.Container {
-  if (MapLayerFunctions.destroyed)
+  if (MapLayerFunctions.isDestroyed())
     throw new Error(`Attempting to access MapLayer system before construction; run MapLayerFunctions.Init() first.`);
   
   let result = rootLayer;
@@ -168,14 +168,15 @@ export function MapLayer(...terms: (string | number)[]): PIXI.Container {
 * @author Dei Valko
 * @version 2.0.0
 */
-export const MapLayerFunctions = {
+export module MapLayerFunctions {
   
-  destroyed: true,
+  let destroyed = true;
+  export function isDestroyed() { return destroyed; }
   
   /** Initializes the MapLayer system for use. 
   * MapLayer system will not be functional before calling this method. */
-  Init() {
-    if (!this.destroyed)
+  export function Init() {
+    if (!destroyed)
       return;
     
     rootLayer = new Layer({
@@ -183,48 +184,48 @@ export const MapLayerFunctions = {
       children: layers_config,
     })
     Game.stage.addChild(rootLayer.container);
-    this.destroyed = false;
-  },
+    destroyed = false;
+  }
   
   /** Frees up the resources held by the MapLayers system.
   * Do not reference graphics containers after calling this method before
   * once again calling the Init() method. */
-  Destroy() {
-    if (this.destroyed)
+  export function Destroy() {
+    if (destroyed)
       return;
     
     rootLayer.container.destroy({children: true});
-    this.destroyed = true;
-  },
+    destroyed = true;
+  }
 
   /** Converts an object's world position to a row layer.
    * This is MapLayer's solution to z-ordering. */
-  RowLayerFromWorldPosition(position: {x: number, y: number}) {
+  export function RowLayerFromWorldPosition(position: {x: number, y: number}) {
     return Math.floor(position.y / Game.display.standardLength);
-  },
+  }
   
   /** Signals all freezable graphics layers that they are done being built
   * and should compile for draw efficiency. These layers are functionally
   * treated as immutable unless specifically signalled to update. */
-  FreezeStaticLayers() {
-    if (this.destroyed)
+  export function FreezeStaticLayers() {
+    if (destroyed)
       return;
     rootLayer.freeze();
-  },
+  }
 
   /** Signals a layer to sort its children, and for all its children to sort their children. */
-  SortLayer(...terms: (string | number)[]) {
+  export function SortLayer(...terms: (string | number)[]) {
     // TODO Is this function necessary? Does Pixi not watch z for changes and retrigger sort automatically?
     function sort(container: PIXI.Container) {
       container.children.forEach( child => sort(child as PIXI.Container) );
       container.sortChildren();
     }
     sort( MapLayer(...terms) );
-  },
+  }
   
   /** Compiles the layer structure into a single string report which is
    * then posted to the console. */
-  Report() {
+  export function Report() {
     function getString(layer: Layer) {
       let lines = [layer.path];
       layer.children.forEach( child => {
@@ -232,7 +233,7 @@ export const MapLayerFunctions = {
       })
       return lines.join('\n');
     }
-
     Debug.ping('MapLayer Paths', getString(rootLayer));
   }
-};
+
+}
