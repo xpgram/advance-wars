@@ -14,11 +14,11 @@ export const UnitProperties = {
     get illustrationSheet() { return Game.scene.resources[ UnitProperties.illustrationSpritesheet ].spritesheet as PIXI.Spritesheet; },
 }
 
-export const Unit = {
+export module Unit {
 
     //start
-    Infantry: class InfantryUnit extends UnitObject {
-        get type() { return InfantryUnit; }
+    export class Infantry extends UnitObject {
+        get type() { return Infantry; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Infantry"; }
@@ -49,10 +49,10 @@ export const Unit = {
                 damageMap: [55,45,45,12,10,3,5,5,1,10,30,20,20,14,0,0,0,0,0,8,30,0,0,0,0,0,0,0,1]
             }
         }}
-    },
+    }
 
-    Mech: class MechUnit extends UnitObject {
-        get type() { return MechUnit; }
+    export class Mech extends UnitObject {
+        get type() { return Mech; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Mech"; }
@@ -83,10 +83,10 @@ export const Unit = {
                 damageMap: [65,55,55,18,15,5,8,5,1,15,35,35,35,20,0,0,0,0,0,12,35,0,0,0,0,0,0,0,2]
             }
         }}
-    },
+    }
 
-    Bike: class BikeUnit extends UnitObject {
-        get type() { return BikeUnit; }
+    export class Bike extends UnitObject {
+        get type() { return Bike; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Bike"; }
@@ -117,10 +117,10 @@ export const Unit = {
                 damageMap: [65,55,55,18,15,5,8,5,1,15,35,35,35,20,0,0,0,0,0,12,35,0,0,0,0,0,0,0,2]
             }
         }}
-    },
+    }
 
-    Recon: class ReconUnit extends UnitObject {
-        get type() { return ReconUnit; }
+    export class Recon extends UnitObject {
+        get type() { return Recon; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Recon"; }
@@ -149,10 +149,10 @@ export const Unit = {
                 damageMap: [75,65,65,35,30,8,8,5,1,45,25,55,55,45,0,0,0,0,0,18,35,0,0,0,0,0,0,0,3]
             }
         }}
-    },
+    }
 
-    Flare: class FlareUnit extends UnitObject {
-        get type() { return FlareUnit; }
+    export class Flare extends UnitObject {
+        get type() { return Flare; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Flare"; }
@@ -181,10 +181,10 @@ export const Unit = {
                 damageMap: [80,70,70,60,50,45,10,5,1,45,25,55,55,45,0,0,0,0,0,18,35,0,0,0,0,0,0,0,5]
             }
         }}
-    },
+    }
 
-    AntiAir: class AntiAirUnit extends UnitObject {
-        get type() { return AntiAirUnit; }
+    export class AntiAir extends UnitObject {
+        get type() { return AntiAir; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Anti-Air"; }
@@ -213,10 +213,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Tank: class TankUnit extends UnitObject {
-        get type() { return TankUnit; }
+    export class Tank extends UnitObject {
+        get type() { return Tank; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Tank"; }
@@ -245,10 +245,10 @@ export const Unit = {
                 damageMap: [75,70,70,40,35,8,8,5,1,45,5,55,55,45,0,0,0,0,0,18,40,0,0,0,0,0,0,0,5]
             }
         }}
-    },
+    }
 
-    MdTank: class MdTankUnit extends UnitObject {
-        get type() { return MdTankUnit; }
+    export class MdTank extends UnitObject {
+        get type() { return MdTank; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Md Tank"; }
@@ -277,10 +277,10 @@ export const Unit = {
                 damageMap: [90,80,80,40,35,8,8,5,1,45,5,60,60,45,0,0,0,0,0,24,40,0,0,0,0,0,0,0,5]
             }
         }}
-    },
+    }
 
-    WarTank: class WarTankUnit extends UnitObject {
-        get type() { return WarTankUnit; }
+    export class WarTank extends UnitObject {
+        get type() { return WarTank; }
         static readonly serial = Serial.next().value;
 
         get name() { return "War Tank"; }
@@ -309,10 +309,10 @@ export const Unit = {
                 damageMap: [105,95,95,45,40,10,10,10,1,45,5,65,65,45,0,0,0,0,0,35,45,0,0,0,0,0,0,0,8]
             }
         }}
-    },
+    }
 
-    Artillery: class ArtilleryUnit extends UnitObject {
-        get type() { return ArtilleryUnit; }
+    export class Artillery extends UnitObject {
+        get type() { return Artillery; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Artillery"; }
@@ -344,10 +344,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    AntiTank: class AntiTankUnit extends UnitObject {
-        get type() { return AntiTankUnit; }
+    export class AntiTank extends UnitObject {
+        get type() { return AntiTank; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Anti-Tank"; }
@@ -379,10 +379,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Rockets: class RocketsUnit extends UnitObject {
-        get type() { return RocketsUnit; }
+    export class Rockets extends UnitObject {
+        get type() { return Rockets; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Rockets"; }
@@ -414,10 +414,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Missiles: class MissilesUnit extends UnitObject {
-        get type() { return MissilesUnit; }
+    export class Missiles extends UnitObject {
+        get type() { return Missiles; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Missiles"; }
@@ -449,10 +449,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Rig: class RigUnit extends UnitObject {
-        get type() { return RigUnit; }
+    export class Rig extends UnitObject {
+        get type() { return Rig; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Rig"; }
@@ -502,10 +502,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Fighter: class FighterUnit extends UnitObject {
-        get type() { return FighterUnit; }
+    export class Fighter extends UnitObject {
+        get type() { return Fighter; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Fighter"; }
@@ -534,10 +534,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Bomber: class BomberUnit extends UnitObject {
-        get type() { return BomberUnit; }
+    export class Bomber extends UnitObject {
+        get type() { return Bomber; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Bomber"; }
@@ -566,10 +566,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Stealth: class StealthUnit extends UnitObject {
-        get type() { return StealthUnit; }
+    export class Stealth extends UnitObject {
+        get type() { return Stealth; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Stealth"; }
@@ -600,10 +600,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Duster: class DusterUnit extends UnitObject {
-        get type() { return DusterUnit; }
+    export class Duster extends UnitObject {
+        get type() { return Duster; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Duster"; }
@@ -632,10 +632,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    SeaPlane: class SeaPlaneUnit extends UnitObject {
-        get type() { return SeaPlaneUnit; }
+    export class SeaPlane extends UnitObject {
+        get type() { return SeaPlane; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Sea Plane"; }
@@ -664,10 +664,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    BCopter: class BCopterUnit extends UnitObject {
-        get type() { return BCopterUnit; }
+    export class BCopter extends UnitObject {
+        get type() { return BCopter; }
         static readonly serial = Serial.next().value;
 
         get name() { return "B Copter"; }
@@ -696,10 +696,10 @@ export const Unit = {
                 damageMap: [75,65,65,30,30,1,8,8,1,25,1,35,25,20,0,0,0,0,0,65,85,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    TCopter: class TCopterUnit extends UnitObject {
-        get type() { return TCopterUnit; }
+    export class TCopter extends UnitObject {
+        get type() { return TCopter; }
         static readonly serial = Serial.next().value;
 
         get name() { return "T Copter"; }
@@ -750,10 +750,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Seeker: class SeekerUnit extends UnitObject {
-        get type() { return SeekerUnit; }
+    export class Seeker extends UnitObject {
+        get type() { return Seeker; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Seeker"; }
@@ -783,10 +783,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Battleship: class BattleshipUnit extends UnitObject {
-        get type() { return BattleshipUnit; }
+    export class Battleship extends UnitObject {
+        get type() { return Battleship; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Battleship"; }
@@ -816,10 +816,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Carrier: class CarrierUnit extends UnitObject {
-        get type() { return CarrierUnit; }
+    export class Carrier extends UnitObject {
+        get type() { return Carrier; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Carrier"; }
@@ -863,10 +863,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,35,35,35,40,40,45,55,55,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Submarine: class SubmarineUnit extends UnitObject {
-        get type() { return SubmarineUnit; }
+    export class Submarine extends UnitObject {
+        get type() { return Submarine; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Submarine"; }
@@ -897,10 +897,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Cruiser: class CruiserUnit extends UnitObject {
-        get type() { return CruiserUnit; }
+    export class Cruiser extends UnitObject {
+        get type() { return Cruiser; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Cruiser"; }
@@ -944,10 +944,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,105,105,105,105,105,120,120,120,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    Lander: class LanderUnit extends UnitObject {
-        get type() { return LanderUnit; }
+    export class Lander extends UnitObject {
+        get type() { return Lander; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Lander"; }
@@ -992,10 +992,10 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
 
-    GunBoat: class GunBoatUnit extends UnitObject {
-        get type() { return GunBoatUnit; }
+    export class GunBoat extends UnitObject {
+        get type() { return GunBoat; }
         static readonly serial = Serial.next().value;
 
         get name() { return "Gun Boat"; }
@@ -1037,6 +1037,6 @@ export const Unit = {
                 damageMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }}
-    },
+    }
     //end
 }
