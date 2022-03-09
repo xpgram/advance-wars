@@ -52,10 +52,6 @@ export interface TerrainType {
  */
 export abstract class TerrainObject {
 
-    /** Used to move graphical elements into position without actually holding that
-     * information in memory forever; it's only used on initialize so there'd be no point. */
-    protected static transform: LowResTransform = new LowResTransform();
-
     /** Textures for each tile whitemask. Note that this resource is never flushed because
      * the battle scene is 90% of this game and I don't really need to worry about memory. */
     protected static whitemasks: TextureLibrary = new TextureLibrary();
@@ -192,20 +188,13 @@ export abstract class TerrainObject {
         // Build whitemask texture; save to whitemasks library
         this.constructWhiteMask();
 
-        // Add populated layers to display and this.transform
-        let graphicsObjects: TransformableList = new TransformableList();
+        // Add populated layers to display and move them to their in-world position
         this.layers.forEach( layer => {
-            graphicsObjects.push(layer.object);
             const terms = layer.key.map( key => (key === 'row') ? mapLayerRow : key );
             const mapLayer = MapLayer(...terms);
             mapLayer.addChild(layer.object);
+            layer.object.position.set(pos.x, pos.y);
         });
-
-        // Use TerrainObject's single-instance LowResTransform
-        // to auto-move the graphical set into position.
-        TerrainObject.transform.pos3D = pos;
-        TerrainObject.transform.object = graphicsObjects;
-        TerrainObject.transform.object = null;
 
         this.built = true;
     }
