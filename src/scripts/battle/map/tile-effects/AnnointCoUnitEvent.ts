@@ -48,7 +48,7 @@ export class AnnointCoUnitEvent extends TileEvent {
     const tex = Game.scene.texturesFrom('UISpritesheet')['icon-co-badge.png'];
     const icon = new PIXI.Sprite(tex);
     icon.anchor.set(.5);
-    icon.scale.set(1.75);
+    icon.scale.set(1.65);
     icon.alpha = 0;
     icon.position.set(worldLocation.x, worldLocation.y);
 
@@ -56,8 +56,8 @@ export class AnnointCoUnitEvent extends TileEvent {
 
     Timer
       .at(.15)
-      .tween(.03, icon, {alpha: 1})
-      .tween(.10, icon, {scale: {x: 1, y: 1}})
+      .tween(.030, icon, {alpha: 1})
+      .tween(.125, icon, {scale: {x: 1, y: 1}})
 
       .at('end')
       .do(this.ratify, this)
