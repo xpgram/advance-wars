@@ -1,6 +1,7 @@
 import { Game } from "../../../..";
 import { ScreenShake } from "../../../camera/DisplacementAlgorithms";
 import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
+import { AnimatedSpritePresets } from "../../../system/vfx-components/AnimatedSpritePresets";
 import { Timer } from "../../../timer/Timer";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { Command } from "../../turn-machine/Command";
@@ -59,12 +60,10 @@ export class SiloImpactEvent extends TileEvent {
     // Ground Explosions
     const createExplosion = (p: ImmutablePointPrimitive) => {
       const world = new Point(p).multiply(Game.display.standardLength);
-      const anim = new PIXI.AnimatedSprite(animations['explosion-dry']);
-      anim.animationSpeed = 1/4;
+      const textures = animations['explosion-dry'];
+      const anim = AnimatedSpritePresets.explosion(textures);
       anim.position.set(world.x, world.y);
       anim.alpha = 0;
-      anim.loop = false;
-      anim.onComplete = () => anim.destroy();
       return {anim, loc: p};
     }
 

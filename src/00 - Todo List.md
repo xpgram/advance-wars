@@ -17,6 +17,8 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
 - [ ] Map serial interpreter makes room for a variant number.
   - [ ] Use number packing to let one address carry both a 30-bit terrain serial and a 2-bit variant number.
   - This is probably the simplest way to save and construct-from-data Bridge tiles without weird, duplicate classes.
+  - [ ] Figure out a way for `new Terrain.Bridge()` to accept the variant number.
+    - I think I have to build-in the requirement that *all* TerrainTypes require their variant number for deliberation even though only a few types actually use it.
 
 - [ ] Silo: I've forgotten to add gradual transparency to the explosion effects, and I guess the silo exhaust too. This tells me I need a VFX module to standardize separate implementations. Like, VFX.FadingParticle(tex: Tex[], ease: EaseFunction?) or something.
   - [ ] BattleEffects.createGroundExplosion(p: Point)

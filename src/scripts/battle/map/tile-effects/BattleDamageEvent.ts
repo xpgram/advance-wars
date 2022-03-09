@@ -1,5 +1,6 @@
 import { Game } from "../../../..";
 import { ScreenShake } from "../../../camera/DisplacementAlgorithms";
+import { AnimatedSpritePresets } from "../../../system/vfx-components/AnimatedSpritePresets";
 import { AttackMethod, UnitClass } from "../../EnumTypes";
 import { TrackCar } from "../../TrackCar";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
@@ -18,7 +19,7 @@ interface BattleDamageEventOptions {
 export class BattleDamageEvent extends TileEvent {
 
   protected options: BattleDamageEventOptions;
-  private vfx!: PIXI.AnimatedSprite;
+
   private selfSetCameraAlg = false;
 
 
@@ -56,6 +57,8 @@ export class BattleDamageEvent extends TileEvent {
       return;
     }
 
+    // TODO Conform with AnimatedSpritePresets implementation.
+
     // World position variables
     const boardPos = defender.boardLocation;
     const worldPos = boardPos.multiply(Game.display.standardLength);
@@ -71,19 +74,21 @@ export class BattleDamageEvent extends TileEvent {
     const damageAnim = `damage-hit`;
 
     const explodeSprite = (defender.hp === 0);
-    const anim = (explodeSprite) ? destructAnim : damageAnim;
+    const animName = (explodeSprite) ? destructAnim : damageAnim;
 
     // Get animation object
     const sheet = Game.scene.resources[`VFXSpritesheet`].spritesheet as PIXI.Spritesheet;
-    const textures = sheet.animations[anim];
-    textures.push(PIXI.Texture.EMPTY);
-    this.vfx = new PIXI.AnimatedSprite(textures);
+    const textures = sheet.animations[animName];
+    const anim = AnimatedSpritePresets.explosion(textures);
+    if (!explodeSprite) anim.animationSpeed = 1/2;
 
     // Configure animation settings
-    this.vfx.position.set(worldPos.x, worldPos.y);
-    this.vfx.animationSpeed = (explodeSprite) ? 1/4 : 1;
-    this.vfx.loop = false;
-    this.vfx.play();
+    anim.position.set(worldPos.x, worldPos.y);
+    anim.play();
+    anim.onComplete = () => {
+      anim.destroy();
+      this.finish();
+    }
 
     // Configure unit settings
     if (defender.hp === 0) {
@@ -91,19 +96,11 @@ export class BattleDamageEvent extends TileEvent {
       trackCar?.hide();
     }
 
-    MapLayer('ui').addChild(this.vfx);
+    MapLayer('ui').addChild(anim);
   }
 
   protected update(): void {
-    // Update VFX settings
-    const lastidx = this.vfx.textures.length - 1;
-    const curidx = this.vfx.currentFrame;
-    const progress = curidx / lastidx;
-    this.vfx.alpha = 1-Math.max(progress-.5, 0)/.65;
-
-    // Signal finish
-    if (curidx === lastidx)
-      this.finish();
+    
   }
 
   protected destroy(): void {
@@ -111,10 +108,5 @@ export class BattleDamageEvent extends TileEvent {
 
     if (this.selfSetCameraAlg)  // Protection against double-events unsetting shake immediately
       camera.algorithms.displacement = undefined;
-
-    this.vfx?.destroy();
-    this.vfx = undefined;
-    //@ts-expect-error
-    this.options = undefined;
   }
 }
