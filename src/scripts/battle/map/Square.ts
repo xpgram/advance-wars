@@ -98,14 +98,18 @@ export class Square {
             this.unit.destroy();
         //@ts-expect-error
         this.map = undefined;
+        Game.scene.ticker.remove(this.updateOverlayPanelTexture, this);
     }
 
     /** Retrieves the next frame for this tile's overlay panel. */
     private updateOverlayPanelTexture() {
-        if (this.showSpotlight)
-            this.overlayPanel.texture = this.terrain.getOverlayTexture(this.terrain.shapeId);
-        else
-            this.overlayPanel.texture = TerrainObject.getWhitemask(this.terrain.shapeId);
+        const rate = 3;
+        if (!this.overlayPanel.visible || Game.frameCount % rate !== 0)
+            return;
+
+        this.overlayPanel.texture = (this.showSpotlight)
+            ? this.terrain.getOverlayTexture(this.terrain.shapeId)
+            : TerrainObject.getWhitemask(this.terrain.shapeId);
     }
 
     /** This method sets up terrain graphics, grabs its white texture, etc.
@@ -131,19 +135,7 @@ export class Square {
         this.overlayPanel.visible = false;
 
         // Overlay panel continuous texture update step
-        Game.scene.ticker.add( () => {
-            if (!this.overlayPanel.visible)
-                return;
-            const rate = 3;
-            if (Game.frameCount % rate === 0) {
-                this.updateOverlayPanelTexture();
-            }
-            // TODO When are these removed? Is self-remove a good strategy?
-            // Or do we not really care until the inevitable Game.scene.ticker.clear()?
-            // I think I might need to care if tiles can change mid-game.
-            //if (this.destroyed)
-            //  Game.scene.ticker.remove(func);     // func needs to be this anonymous function
-        });
+        Game.scene.ticker.add(this.updateOverlayPanelTexture, this);
 
         // Arrow Layer
         MapLayer('ui').addChild(this.overlayArrow);
