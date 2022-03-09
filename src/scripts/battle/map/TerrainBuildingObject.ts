@@ -5,6 +5,7 @@ import { TerrainProperties } from "./Terrain";
 import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { Point3D } from "../../CommonTypes";
+import { UnitObject } from "../UnitObject";
 
 /** // TODO Refactor this class name; this is a building-type terrain object class. */
 export abstract class TerrainBuildingObject extends TerrainObject {
@@ -27,6 +28,19 @@ export abstract class TerrainBuildingObject extends TerrainObject {
 
     // All TerrainBuildingObject's are naturally buildings.
     get building() { return true; }
+
+    /** Returns a 0–4 index for a building-color frame, given a faction type. */
+    protected buildingColorFrameIndex(faction: Faction) {
+        const dict: Record<Faction, number> = {
+            [Faction.None]: 0,
+            [Faction.Neutral]: 0,
+            [Faction.Red]: 1,
+            [Faction.Blue]: 2,
+            [Faction.Yellow]: 3,
+            [Faction.Black]: 4,
+        }
+        return dict[faction];
+    }
 
     // Sets this building's team ownership and color indicator of such.
     private _faction = Faction.Neutral;

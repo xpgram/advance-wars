@@ -286,19 +286,6 @@ export abstract class TerrainObject {
         return tex;
     }
 
-    /** Returns a 0–4 index for a building color frame, given a faction type. */
-    protected buildingColorFrameIndex(faction: Faction) {
-        if (faction == Faction.Red)
-            return 1;
-        if (faction == Faction.Blue)
-            return 2;
-        if (faction == Faction.Yellow)
-            return 3;
-        if (faction == Faction.Black)
-            return 4;
-        return 0;
-    }
-
     /** Builds the tile's graphical object based on its surrounding set of neighbors. */
     abstract orient(neighbors: NeighborMatrix<TerrainObject>): void;
 
@@ -308,7 +295,9 @@ export abstract class TerrainObject {
         return true;    // Override if you want to be more specific.
     }
 
-    /** Returns true if the given unit is capable of doing something with this terrain. */
+    /** Returns true if the given unit is capable of doing something special with this terrain.
+     * This is intended to signal a loud visual acknowledgement of the possible action; simple,
+     * rote actions such as property capture not included. */
     actionable(unit: UnitObject): boolean {
         return false;
     }
