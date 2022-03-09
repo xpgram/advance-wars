@@ -20,10 +20,6 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
   - [ ] Figure out a way for `new Terrain.Bridge()` to accept the variant number.
     - I think I have to build-in the requirement that *all* TerrainTypes require their variant number for deliberation even though only a few types actually use it.
 
-- [ ] Silo: I've forgotten to add gradual transparency to the explosion effects, and I guess the silo exhaust too. This tells me I need a VFX module to standardize separate implementations. Like, VFX.FadingParticle(tex: Tex[], ease: EaseFunction?) or something.
-  - [ ] BattleEffects.createGroundExplosion(p: Point)
-    - [ ] VFX.createFadingPartical(tex: Tex[], ease?: EaseMethod)
-
 - [ ] Sight Map caching
   - [ ] What layer are they added to? Can they be simply frozen like other MapLayers?
   - [ ] While I'm at it, why are they imperfectly layered? There is consistently a .5 pixel overlap on some portions of the view. I suspect this has something to do with LowResTransform, but I couldn't really tell you why.
