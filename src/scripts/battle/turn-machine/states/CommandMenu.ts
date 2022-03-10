@@ -7,6 +7,7 @@ import { Command } from "../Command";
 import { DropLocation } from "./DropLocation";
 import { Game } from "../../../..";
 import { CommandHelpers } from "../Command.helpers";
+import { Common } from "../../../CommonUtils";
 
 export class CommandMenu extends TurnState {
   get type() { return CommandMenu; }
@@ -19,6 +20,7 @@ export class CommandMenu extends TurnState {
   protected configureScene(): void {
     const { map, mapCursor, trackCar, cmdMenu, camera } = this.assets;
     const { actor, place, placeTile, goal, goalTile, goalTerrain, drop } = this.data;
+    const { insertIf } = Common;
 
     // leave trackCar on
     trackCar.show();
@@ -57,12 +59,17 @@ export class CommandMenu extends TurnState {
     }
 
     // Get commands
-    const commands = (destOccupiable)
-      ? Object.values(Command)
-        .concat( (actor.unloadPosition(goalTerrain)) ? dropCommands : [] )
-        .sort( (a,b) => a.weight - b.weight )
+    // TODO CommandHelpers.bundles?? .general .wait .drop--(built here)
+    const commandsUnsorted = (destOccupiable)
+      ? [
+        ...insertIf(drop.length === 0, ...Object.values(Command)),
+        ...insertIf(drop.length > 0, Command.Wait),
+        ...insertIf(actor.unloadPosition(goalTerrain), ...dropCommands),
+        ]
       : [Command.Join, Command.Load];
+    const commands = commandsUnsorted.sort( (a,b) => a.weight - b.weight );
     
+    // Map commands to Menu Options
     const options = commands.map( command => {
       type Drop = typeof Command.Drop;
 
