@@ -716,7 +716,7 @@ export module Unit {
         get canMoveAndAttack() { return false; }
 
         boardable(unit?: UnitObject): boolean {
-            const max = 2;
+            const max = 1;
             const boardTypes: (UnitType | undefined)[] = [
                 Unit.Infantry, Unit.Mech,
             ];
@@ -1009,7 +1009,7 @@ export module Unit {
         get vision() { return 2; }
 
         boardable(unit?: UnitObject): boolean {
-            const max = 2;
+            const max = 1;
             const full = (this._loadedUnits.length >= max);
             const generally = (!unit);
             const soldierUnit = (unit?.soldierUnit);
