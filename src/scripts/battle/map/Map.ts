@@ -666,7 +666,7 @@ export class Map {
             affectedPoints.forEach( p => {
                 let square = this.squareAt(p);
                 if (!square.flag) {
-                    square.attackFlag = true;
+                    square.attackFlag = square.targetable(unit);
                     square.flag = true;
                 }
             });

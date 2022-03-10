@@ -384,7 +384,7 @@ export class Square {
 
   /** Returns true if the given unit can successfully target this square for attack. */
   // TODO This function is never called. As a consequence, Subs pretend as if they can attack anything on land.
-  targetable(unit: UnitObject): boolean {
+  targetable(actor: UnitObject): boolean {
     if (this.terrain.type === Terrain.Void)
       return false;
 
@@ -412,14 +412,14 @@ export class Square {
      * move-types may legally inhabit this square. The UnitClass being inferred here is described
      * by the contents of the given lists. */
     const hypothetical = (o: {armorTypes: ArmorType[], moveTypes: MoveType[]}): boolean => {
-      const someArmor = o.armorTypes.some( armor => unit.couldTarget(armor) );
+      const someArmor = o.armorTypes.some( armor => actor.couldTarget(armor) );
       const someMove  = o.moveTypes.some( move => this.terrain.getMovementCost(move) > 0 );
       return someArmor && someMove;
     }
 
     // Check if this _square_ is targetable. If uninhabited, use hypotheticals.
     // (As a visual convenience, treat ally-unit squares as empty)
-    if (!this.unit || !this.unitVisible() || this.unit.faction === unit.faction) {
+    if (!this.unit || !this.unitVisible() || this.unit.faction === actor.faction) {
       targetable = (
         hypothetical(troopSet) ||
         hypothetical(treadSet) ||
@@ -427,7 +427,7 @@ export class Square {
         hypothetical(seaSet)
       );
     } else {
-      targetable = unit.canTarget(this.unit);
+      targetable = actor.canTarget(this.unit);
     }
 
     return targetable;
@@ -436,9 +436,9 @@ export class Square {
   /** Returns true if the given unit may launch an attack on a unit inhabiting this square.
    * Returns false if there is no inhabiting unit to attack, or if the inhabiting unit is not
    * targetable by the given. */
-  attackable(unit: UnitObject): boolean {
+  attackable(actor: UnitObject): boolean {
     if (this.unit && this.unitVisible())
-      return unit.canTarget(this.unit);
+      return actor.canTarget(this.unit);
     else
       return false;
   }

@@ -28,9 +28,6 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
 - [ ] ChooseMapTarget projects choosable tile space without validating map points.
   - [ ] On large maps, forgetting to validate the map.squareAt() you be plucking is veeery common. How can I prevent that mistake from being made?
 
-- [ ] Gunboats with two units can drop and attack in the same turn. No.
-  CommandMenu needs to force Drop and Wait only when instruction.drop has length > 0
-
 - [ ] Sometimes P4 gets stuck in the AnimateEvents turnstate before IssueOrderStart.
   - It's some issue with camera.targetInFrame() or whatever I called it; it only happens while at zoom stage 2 or 3 and is fixed by changing zoom levels.
   The camera won't move but it also can't yield control to the BSM.
