@@ -461,24 +461,24 @@ export module Command {
     },
     
     scheduleEvent() {
-      const { map, camera } = data.assets;
       const { drop } = data;
 
       if (drop.length === 0)
         return ExitCode.Success;
 
-      const { boardEvents } = data.assets;
+      const { boardEvents, map, camera } = data.assets;
       const { actor, assets } = data;
+      const { insertIf } = Common;
 
       // Dropped units must have an empty space to enter, otherwise unsuccessful.
       const toDrop = drop.filter( d => !(map.squareAt(d.where).unit) )
-
-      // TODO I need a better way to schedule concurrency
-      const events: TileEvent[] = [ new DropHeldUnitEvent({actor, drop: toDrop, assets}) ];
-      if (toDrop.length !== drop.length)
-        events.push( new SpeechBubbleEvent({actor, camera, message: 'ambush'}) );
       
-      boardEvents.schedule(events);
+      boardEvents.schedule([
+        new DropHeldUnitEvent({actor, drop: toDrop, assets}),
+
+        ...insertIf( (toDrop.length !== drop.length),
+          new SpeechBubbleEvent({actor, camera, message: 'ambush'})),
+      ]);
       return ExitCode.Success;
     },
   }

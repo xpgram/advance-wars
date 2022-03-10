@@ -44,6 +44,20 @@ export module Common {
     return list[ floor(random()*list.length) ];
   }
 
+  /** Returns list if `cond` is ture, otherwise returns an empty list.  
+   * Use with the spread operator like this:
+   * ```
+   * const events = [
+   *   new Event('1'),
+   *   ...insertIf(m > 0, new Event('2')),
+   *   ...insertIf(m > 5, new Event('3')),
+   * ]
+   * ```
+   */
+  export function insertIf<T>(cond: boolean, ...elements: T[] ): T[] {
+    return (cond) ? elements : [];
+  }
+
   /** Confines n to the range [min, max] inclusive.
    * @deprecated clamp() is more descriptive. I think. */
   export function confine(n: number, min: number, max: number) {
