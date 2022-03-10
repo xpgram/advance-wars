@@ -60,7 +60,7 @@ export module Command {
     ...cmdDefaults,
 
     get type() { return Wait; },
-    get chain() { return [Move, Wait]; },
+    get chain() { return [Move, Wait, Drop]; },
     name: "Wait",
     serial: Serial.next().value,
     weight: Weight.Quaternary,

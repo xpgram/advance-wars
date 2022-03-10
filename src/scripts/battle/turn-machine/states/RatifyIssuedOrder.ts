@@ -27,8 +27,6 @@ export class RatifyIssuedOrder extends TurnState {
     const command = CommandHelpers.getCommandObject(action);
     CommandHelpers.scheduleEvents(command);
 
-    Command.Drop.scheduleEvent();
-
     if (placeTile.unit && command.spendsUnit) {
       const actor = placeTile.unit;
       const location = this.data.goal;
