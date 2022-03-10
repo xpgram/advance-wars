@@ -20,6 +20,7 @@ import { RevealNeighborsEvent } from "../map/tile-effects/RevealNeighborsEvent";
 import { SiloImpactEvent } from "../map/tile-effects/SiloImpactEvent";
 import { SiloLaunchEvent } from "../map/tile-effects/SiloLaunchEvent";
 import { SpeechBubbleEvent } from "../map/tile-effects/SpeechBubbleEvent";
+import { TileEvent } from "../map/tile-effects/TileEvent";
 import { TrackCar } from "../TrackCar";
 import { ViewSide } from "../ui-windows/generic-components/UiEnums";
 import { Unit } from "../Unit";
@@ -471,10 +472,13 @@ export module Command {
 
       // Dropped units must have an empty space to enter, otherwise unsuccessful.
       const toDrop = drop.filter( d => !(map.squareAt(d.where).unit) )
-      if (toDrop.length !== drop.length)
-        boardEvents.schedule( new SpeechBubbleEvent({actor, camera, message: 'ambush'}));
 
-      boardEvents.schedule( new DropHeldUnitEvent({actor, drop: toDrop, assets}));
+      // TODO I need a better way to schedule concurrency
+      const events: TileEvent[] = [ new DropHeldUnitEvent({actor, drop: toDrop, assets}) ];
+      if (toDrop.length !== drop.length)
+        events.push( new SpeechBubbleEvent({actor, camera, message: 'ambush'}) );
+      
+      boardEvents.schedule(events);
       return ExitCode.Success;
     },
   }
