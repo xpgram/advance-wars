@@ -28,6 +28,9 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
 - [ ] ChooseMapTarget projects choosable tile space without validating map points.
   - [ ] On large maps, forgetting to validate the map.squareAt() you be plucking is veeery common. How can I prevent that mistake from being made?
 
+- [ ] Gunboats with two units can drop and attack in the same turn. No.
+  CommandMenu needs to force Drop and Wait only when instruction.drop has length > 0
+
 - [ ] Sometimes P4 gets stuck in the AnimateEvents turnstate before IssueOrderStart.
   - It's some issue with camera.targetInFrame() or whatever I called it; it only happens while at zoom stage 2 or 3 and is fixed by changing zoom levels.
   The camera won't move but it also can't yield control to the BSM.
@@ -58,10 +61,6 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
   - [ ] FlareIgniteEvent will need to be updated to reflect .every() changes.
 
 - [ ] TrackCar doesn't respect sight map yet.
-
-- [ ] Ambushes don't stop Drop.schedule() from being called.
-  I could fix this by [ ] requiring DropEvent to verify that actor is at the goal position. I don't know if that fixes the fundamental problem, though.
-  How does Command.Move get called when calling drop anyway, huh? I think I end up defaulting to Wait. Do I have to? Could I possibly leave the selected cmd as Drop? This would mean that Move, which is or would be, a member of Drop's chain, could interrupt Drop's schedule() call. Currently it gets extraprocedurally called always, every order.
 
 - [ ] Rigorous Typeface Access
   I don't know if it's feasible to only allow access to font assets that are *definitely* linked ... I mean, I guess I can think of a way. It's a little forceful. Anyway, a system which could verify on access that an assets is or is not loaded could throw an assertion error (the benefit being on strange load errors in real time, the assets would simply be missing, or would maybe default) telling me I've forgotten to link the desired assets. It might also be nice... to have bundles. Scenes don't actually do that much, I feel like they are the bundles, kinda.

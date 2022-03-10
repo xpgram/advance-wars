@@ -460,6 +460,7 @@ export module Command {
     },
     
     scheduleEvent() {
+      const { map, camera } = data.assets;
       const { drop } = data;
 
       if (drop.length === 0)
@@ -468,7 +469,12 @@ export module Command {
       const { boardEvents } = data.assets;
       const { actor, assets } = data;
 
-      boardEvents.schedule( new DropHeldUnitEvent({actor, drop, assets}));
+      // Dropped units must have an empty space to enter, otherwise unsuccessful.
+      const toDrop = drop.filter( d => !(map.squareAt(d.where).unit) )
+      if (toDrop.length !== drop.length)
+        boardEvents.schedule( new SpeechBubbleEvent({actor, camera, message: 'ambush'}));
+
+      boardEvents.schedule( new DropHeldUnitEvent({actor, drop: toDrop, assets}));
       return ExitCode.Success;
     },
   }
