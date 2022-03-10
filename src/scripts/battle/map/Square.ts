@@ -294,7 +294,7 @@ export class Square {
     this.overlayPanel.visible = false;
 
     // Choose glassy overlay preset
-    if (this.moveFlag) setColor(colors.green);
+    if (this.moveFlag)        setColor(colors.green);
     else if (this.attackFlag) setColor(colors.red);
     else if (this.targetFlag) setColor(colors.green);
     else if (this.dangerFlag) setColor(colors.maroon);
