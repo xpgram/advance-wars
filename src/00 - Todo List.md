@@ -62,6 +62,9 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
 - [ ] Ambushes don't stop Drop.schedule() from being called.
   I could fix this by [ ] requiring DropEvent to verify that actor is at the goal position. I don't know if that fixes the fundamental problem, though.
   How does Command.Move get called when calling drop anyway, huh? I think I end up defaulting to Wait. Do I have to? Could I possibly leave the selected cmd as Drop? This would mean that Move, which is or would be, a member of Drop's chain, could interrupt Drop's schedule() call. Currently it gets extraprocedurally called always, every order.
+- [ ] Also, dropping units onto a FoW tile with an enemy on it overwrites that enemy's map position without destroying it.
+  I think Drops to tiles with units in them probably shouldn't happen.
+  Also, Map.placeUnit() is kind of failing me here, not complaining about the overwrite. Or is it? I didn't check the log, tbf.
 
 - [ ] Rigorous Typeface Access
   I don't know if it's feasible to only allow access to font assets that are *definitely* linked ... I mean, I guess I can think of a way. It's a little forceful. Anyway, a system which could verify on access that an assets is or is not loaded could throw an assertion error (the benefit being on strange load errors in real time, the assets would simply be missing, or would maybe default) telling me I've forgotten to link the desired assets. It might also be nice... to have bundles. Scenes don't actually do that much, I feel like they are the bundles, kinda.
