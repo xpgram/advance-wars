@@ -471,7 +471,8 @@ export module Command {
       const { insertIf } = Common;
 
       // Dropped units must have an empty space to enter, otherwise unsuccessful.
-      const toDrop = drop.filter( d => !(map.squareAt(d.where).unit) )
+      const emptyCheck = (u: UnitObject | undefined) => !u || u === actor;
+      const toDrop = drop.filter( d => emptyCheck(map.squareAt(d.where).unit) );
       
       boardEvents.schedule([
         new DropHeldUnitEvent({actor, drop: toDrop, assets}),
