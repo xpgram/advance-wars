@@ -93,11 +93,7 @@ export module Color {
     
     const S = (V === 0) ? 0 : C/V;  // Saturation
 
-    // TODO Remove; kept because I don't know the limits of this implementation.
-    const hex = (n: number) => n.toString(16);
-    const fix = (n: number) => n.toFixed(3);
-    Debug.errif(H < 0 || H > 360, `H = ${H}, V=${fix(V)}, C=${fix(C)}, S=${fix(S)}, c=#${hex(c)} R=${fix(R)} G=${fix(G)} B=${fix(B)}`)
-
+    // FYI: H is sometimes < 0 and maybe > 360, I don't actually know if this is expected.
     const h = (H < 0) ? H + 360 : H;
     return {h, s:S*100, v:V*100};
   }
