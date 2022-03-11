@@ -215,6 +215,8 @@ export class BattleSceneControllers {
     // TODO Add to assets access
     // TODO Add to destruction process
     // TODO Factor out behavioral dependencies from PointerController to here.
+    // TODO Add concise syncing with mapCursor behavior: when mapCursor stops listening to dpad
+    //      events, pointer events shouldn't work either.
     if (Game.developmentMode) {
       new WorldPointerController({
         stage: Game.stage,
