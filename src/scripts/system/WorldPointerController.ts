@@ -21,6 +21,17 @@ interface Options {
 // What's needed isn't this managing class, it's an aptly named handle to alleviate
 // vagueness in the code.
 
+// 'mousemove' actually isn't a good option, either. Unless I drastically rethink implementation.
+// - When zoomed in, the cursor still obeys the camera's subject rect.
+// - The mouse might stay still beyond the subject rect, meaning:
+//   - mousemove will cease firing
+//   - mapcursor will *not* continue chasing the mouse
+// - This completely neglects tap events.
+//   - The user would rather tap and drag the map around, but there is no functionality
+//     for that.
+// - Truthfully, I would rather use mousewheel and ?? to scroll the camera than I would
+//   have it chase my pointer; that feels hella weird.
+
 export class WorldPointerController {
 
   private options: Options;
