@@ -215,11 +215,13 @@ export class BattleSceneControllers {
     // TODO Add to assets access
     // TODO Add to destruction process
     // TODO Factor out behavioral dependencies from PointerController to here.
-    new WorldPointerController({
-      stage: Game.stage,
-      mapCursor: this.mapCursor,
-      camera: this.camera,
-    }).enabled = true;
+    if (Game.developmentMode) {
+      new WorldPointerController({
+        stage: Game.stage,
+        mapCursor: this.mapCursor,
+        camera: this.camera,
+      }).enabled = true;
+    }
 
     // Setup UI Window System
     this.uiSystem = new InfoWindowSystem({

@@ -25,11 +25,11 @@ class App {
     readonly contextElement!: any;
 
     /** True if this app is being run in a development environment. */
-    private readonly debugMode = process.env.NODE_ENV === 'development';
+    readonly developmentMode = process.env.NODE_ENV === 'development';
 
     /** A keyboard controller for debug controls.
      * Be careful not to overlap controls with any others set. */
-    readonly devController = new DevController({enable: this.debugMode});
+    readonly devController = new DevController({enable: this.developmentMode});
 
     /** Development settings container which affects various Game systems. */
     readonly devSettings = {
@@ -74,7 +74,7 @@ class App {
 
     /** Runs debug scripts when in debug mode. */
     private developmentScripts() {
-        if (!this.debugMode)
+        if (!this.developmentMode)
             return;
         this.devControls.forEach( script => script() );
     }
@@ -219,7 +219,7 @@ class App {
         this.preload( () => {
             // Add the debugger/diagnostics UI to the global scene.
             //@ts-expect-error
-            this.diagnosticLayer = new DiagnosticLayer({enable: this.debugMode});
+            this.diagnosticLayer = new DiagnosticLayer({enable: this.developmentMode});
             this.debugHud.addChild(this.diagnosticLayer.container);
             
             // Add the main loop to global system ticker.
