@@ -266,6 +266,9 @@ export abstract class UnitObject {
     /** Whether this unit is a resupplier unit. */
     get canResupply(): boolean { return false; }
 
+    /** Whether this unit's ammo can be resupplied. */
+    get ammoCanBeResupplied(): boolean { return true; }
+
     /** Whether this unit is a resupplier-to-its-cargo unit. */
     get canResupplyHeldUnits(): boolean { return this.canResupply; }
 
@@ -795,7 +798,7 @@ export abstract class UnitObject {
     resuppliable(unit?: UnitObject, options: {strict: boolean} = {strict: true}): boolean {
         const { strict } = options;
         const lowGas = (this.gas < this.maxGas);
-        const lowAmmo = (this.ammo < this.maxAmmo && !this.materialsInsteadOfAmmo);
+        const lowAmmo = (this.ammo < this.maxAmmo && this.ammoCanBeResupplied);
         const supplierUnit = (unit?.canResupply === true);
         const alliedSupplier = (unit?.faction === this.faction);
         const notSelf = (unit !== this);
@@ -805,7 +808,7 @@ export abstract class UnitObject {
     /** Resupplies this unit with operational resources. */
     resupply() {
         this.gas = this.maxGas;
-        if (!this.materialsInsteadOfAmmo)
+        if (this.ammoCanBeResupplied)
             this.ammo = this.maxAmmo;
     }
 

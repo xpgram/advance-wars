@@ -161,9 +161,11 @@ export module Unit {
         get cost() { return 5000; }
     
         get maxGas() { return 60; }
-        get maxAmmo() { return 0; }
+        get maxAmmo() { return 3; }
         get maxMovementPoints() { return 5; }
         get vision() { return 2; }
+
+        get materialsInsteadOfAmmo() { return true; }
     
         get unitClass() { return UnitClass.Ground; }
         get moveType() { return MoveType.Tread; }
@@ -467,6 +469,7 @@ export module Unit {
         get range() { return {min: -1, max: -1}; }  
         
         get materialsInsteadOfAmmo() { return true; }  
+        get ammoCanBeResupplied() { return false; }
         get canMoveAndAttack() { return false; }
         get canResupply() { return true; }
 
@@ -833,6 +836,7 @@ export module Unit {
         get vision() { return 4; }
         
         get materialsInsteadOfAmmo() { return true; }
+        get ammoCanBeResupplied() { return false; }
         get canResupplyHeldUnits() { return true; }
 
         boardable(unit?: UnitObject): boolean {

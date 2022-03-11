@@ -338,11 +338,13 @@ export module Command {
 
     triggerInclude() {
       const { actor, plansToMove } = data;
-      return (!plansToMove && actor.type === Unit.Flare);
+      const flareUnit = actor.type === Unit.Flare;
+      const spendableAmmo = actor.ammo > 0;
+      return (!plansToMove && flareUnit && spendableAmmo);
     },
 
     scheduleEvent() {
-      const { map, boardEvents } = data.assets;
+      const { boardEvents } = data.assets;
       const { actor, goal, focal, assets } = data;
 
       boardEvents.schedule(
@@ -351,6 +353,7 @@ export module Command {
           side: (actor.reverseFacing) ? ViewSide.Left : ViewSide.Right,
         }),
         new FlareIgniteEvent({
+          actor,
           location: focal,
           assets,
         }),

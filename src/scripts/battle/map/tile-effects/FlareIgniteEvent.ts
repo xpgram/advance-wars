@@ -3,11 +3,13 @@ import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { Command } from "../../turn-machine/Command";
+import { UnitObject } from "../../UnitObject";
 import { MapLayer } from "../MapLayers";
 import { TileEvent } from "./TileEvent";
 
 
 interface Options {
+  actor: UnitObject;
   location: Point;
   assets: BattleSceneControllers;
 }
@@ -35,7 +37,9 @@ export class FlareIgniteEvent extends TileEvent {
 
   private ratify(): void {
     const { map } = this.options.assets;
-    const { location } = this.options;
+    const { actor, location } = this.options;
+
+    actor.ammo -= 1;
 
     Command.Flare.effectAreaMap.points.forEach( p => {
       const loc = p.add(location);
