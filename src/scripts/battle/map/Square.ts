@@ -128,7 +128,7 @@ export class Square {
     // Overlay Panel
     MapLayer('top', this.y, 'glass-tile').addChild(this.overlayPanel);
     this.overlayPanel.position.set(worldPos.x, worldPos.y);
-    this.overlayPanel.anchor.set(0, .5);
+    this.overlayPanel.anchor.set(0,.5);
 
     // Overlay panel continuous texture update step
     Game.scene.ticker.add(this.autoUpdateOverlayPanelTexture, this);
