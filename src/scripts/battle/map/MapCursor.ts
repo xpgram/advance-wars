@@ -373,17 +373,18 @@ export class MapCursor extends Observable() {
     if (distance == 0)
       return;
 
-    // New position is close enough to animate to
-    else if (distance < 2) {
-      let p = new Point(this.transform).multiply(1 / 16);   // Update lastPos to transform's 'board location'
+    // Animate to new position
+    else {
+      let p = new Point(this.transform).multiply(1 / 16); // Update lastPos to transform's 'board location'
       this.lastPos.set(p);                                // in case we're interrupting active movement.
       this.setCursorLocation(newPos);
       this.slideAnimSlider.setToMin();                    // Reset animation state
     }
 
-    // New position is far enough to teleport to
-    else
-      this.teleport(newPos);
+    // New position is far enough to teleport to (>= 2)
+    // @deprecated
+    // else
+    //   this.teleport(newPos);
   }
 
   /** Moves this cursor's position directly to some other position on the game map.
