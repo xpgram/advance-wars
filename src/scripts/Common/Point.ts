@@ -130,6 +130,13 @@ export class Point {
     );
   }
 
+  /** Returns a new vector: the inverse of this vector's coordinates via the function 1/x  
+   * Either of this vector's coordinates which are 0 remain 0 after the operation.  
+   * Use with .multiply() for scalar division. */
+  inverse() {
+    return this.apply( n => (n === 0) ? 0 : 1 / n );
+  }
+
   /** Returns the dot product between this and the given vector. */
   dot(b: ImmutablePointPrimitive) {
     const a = this;

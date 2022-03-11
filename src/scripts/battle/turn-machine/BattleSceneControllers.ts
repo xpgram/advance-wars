@@ -32,6 +32,7 @@ import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { LinearApproach } from "../../camera/TravelAlgorithms";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
+import { WorldPointerController } from "../../system/WorldPointerController";
 
 type CommandObject = CommandHelpers.CommandObject;
 
@@ -209,6 +210,16 @@ export class BattleSceneControllers {
     // filterArea is limiting the range of the shoreline filter applied to bottom.
     // It's also updated after window resize in BattleScene.update()
     // filterArea is not a culling method; all of 'bottom' is drawn before the filter is applied.
+
+    // TODO experimental; move mapcursor according to pointer position
+    // TODO Add to assets access
+    // TODO Add to destruction process
+    // TODO Factor out behavioral dependencies from PointerController to here.
+    new WorldPointerController({
+      stage: Game.stage,
+      mapCursor: this.mapCursor,
+      camera: this.camera,
+    }).enabled = true;
 
     // Setup UI Window System
     this.uiSystem = new InfoWindowSystem({
