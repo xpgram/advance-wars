@@ -159,8 +159,8 @@ export class CapturePropertyEvent extends TileEvent {
     timer
       .at('end')
       .do(tintOnCapture)
-      .wait(.65)
       .do(this.captureProperty, this)
+      .wait(.65)
       .do(n => bg.destroy({children: true}))
       .do(this.finish, this);
   }
