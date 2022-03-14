@@ -32,6 +32,26 @@ interface Options {
 
 export class WorldPointerController {
 
+  // TODO I need to consider how this might be generalized to any clickable container.
+  // I may have written about this above, actually. Idk, different day.
+  // 
+  // Like VirtualGamepad, I want the inner-workings to reduce to a referenceable state
+  // so that IssueOrderStart can ask `mouse.lmb.pressed` and be smoothly integrated with
+  // the existing controls infrastructer.
+  // 
+  // I did not implement a listener pattern with VGP, which may come with disadvantages,
+  // but it's mostly fine aside of the inherit busy work in constantly checking controller
+  // state.
+  //
+  // I think what I might do is write a general click interface which gets attached to
+  // a given DisplayObject, and then write an inheriting interface for Map which modifies
+  // the click location to be a board location instead of a real one.
+  // That makes sense to me.
+  //
+  // Do keep in mind, this'll probably only be used by Map anyway; Pixi's 'click' events
+  // are already quite manageable. I'm just trying to integrate the mouse-map functions
+  // with the existing keyboard-map, gamepad-map ones.
+
   private options: Options;
 
   // TODO Pass in MouseObserver so we may reference button state

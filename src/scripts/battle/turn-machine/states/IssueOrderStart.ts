@@ -117,6 +117,11 @@ export class IssueOrderStart extends TurnState {
 
     
     // TODO This allows mouse click, but I need to formalize the approach.
+    // What I would prefer most of all is a simple method of implementing
+    // `if (A.pressed || stage.clicked)`
+    // stage.clicked is context sensitive, though. The UI also needs to be clickable.
+    // assets.worldClickController, as opposed to HudClickController, could differentiate,
+    // I'm just not sure how that would be implemented.
     const pressA = () => {
       // Allied unit to move
       const visible = (square.unitVisible());
