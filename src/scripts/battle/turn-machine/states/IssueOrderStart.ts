@@ -148,6 +148,8 @@ export class IssueOrderStart extends TurnState {
     }
 
     // On press A, select an allied unit to give instruction to
+    // TODO I just realized this gets set every frame. That's silly.
+    // And it pre-selects the square tile to examine before click->teleport gets handled.
     this.assets.worldClickController.onClick = () => pressA();
     if (A.pressed) {
       pressA();
