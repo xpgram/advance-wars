@@ -281,7 +281,7 @@ export class MapCursor extends Observable() {
   }
 
   /** True if the player-interactivity listener is active. */
-  get enabled() { return this.controlsEnabled = true; }
+  get enabled() { return this.controlsEnabled; }
 
   /** Triggers this object's animation to play once. */
   private triggerAnimation() {
