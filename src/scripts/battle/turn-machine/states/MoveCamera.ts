@@ -51,7 +51,7 @@ export class MoveCamera extends TurnState {
       mapPos.x = [topLeft.x, mapPos.x, bottomRight.x][Math.sign(lastInput.x) + 1];
       mapPos.y = [topLeft.y, mapPos.y, bottomRight.y][Math.sign(lastInput.y) + 1];
 
-      mapCursor.teleport(mapPos);
+      mapCursor.teleportTo(mapPos);
     }
 
     // Fix UI after cursor movement.

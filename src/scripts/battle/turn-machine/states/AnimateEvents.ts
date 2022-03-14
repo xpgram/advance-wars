@@ -25,7 +25,7 @@ export class AnimateEvents extends TurnState {
       const location = boardEvents.boardLocation || mapCursor.boardLocation;
 
       if (mapCursor.boardLocation.notEqual(location))
-        mapCursor.teleport(new Point(location));
+        mapCursor.teleportTo(new Point(location));
 
       if (camera.subjectInView && !boardEvents.batchPlaying && !boardEvents.batchFinished)
         boardEvents.batchPlay();
@@ -40,7 +40,7 @@ export class AnimateEvents extends TurnState {
 
   close(): void {
     const { mapCursor } = this.assets;
-    mapCursor.teleport(this.cursorPosSwap);
+    mapCursor.teleportTo(this.cursorPosSwap);
     //@ts-expect-error
     this.cursorPosSwap = undefined;
   }

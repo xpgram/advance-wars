@@ -57,7 +57,7 @@ export class IssueOrderStart extends TurnState {
 
     // Configure map cursor to update pointer graphic over certain terrains
     mapCursor.on('move', this.changeCursorMode, this);
-    mapCursor.teleport(mapCursor.boardLocation);  // Trigger cursor mode.
+    mapCursor.teleportTo(mapCursor.boardLocation);  // Trigger cursor mode.
   }
 
   close() {

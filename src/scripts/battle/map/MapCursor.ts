@@ -140,6 +140,11 @@ export class MapCursor extends Observable() {
   }
   private _boardLocation = new Point();
 
+  /** A point representing the maximum location values for the current map. */
+  private get coordinateLimits() {
+    return new Point(this.map.width - 1, this.map.height - 1);
+  }
+
   /** Where this cursor was last. */
   private lastPos = new Point();
 
@@ -358,52 +363,47 @@ export class MapCursor extends Observable() {
     Game.diagnosticLayer.cursorPos = this._boardLocation.toString();
   }
 
-  /** Moves this cursor's position on the game map relative to its current position.
-   * Invokes cursor animation when new location is close enough. */
-  move(dir: Point) {
-    // Get new position and clamp it to board width and height.
-    let newPos = this._boardLocation.add(dir);
-    newPos.x = Common.clamp(newPos.x, 0, this.map.width - 1);
-    newPos.y = Common.clamp(newPos.y, 0, this.map.height - 1);
+  /** Moves this cursor's position directly to some other position on the game map.
+   * Always animates. */
+  animateTo(place: Point) {
+    const newLocation = place.clamp(this.coordinateLimits);
 
-    // Get the distance between the current position and new.
-    let distance = this._boardLocation.distance(newPos);
+    const oldLocation = new Point(this.transform).multiply(1/16);
+    this.lastPos.set(oldLocation);
+    this.setCursorLocation(newLocation);
+    this.slideAnimSlider.setToMin();
+  }
 
-    // These are the same point, skip.
-    if (distance == 0)
-      return;
+  /** Moves this cursor's position directly to some other position on the game map.
+   * Skips animation. */
+  teleportTo(place: Point) {
+    const newLocation = place.clamp(this.coordinateLimits);
 
-    // Animate to new position
-    else {
-      let p = new Point(this.transform).multiply(1 / 16); // Update lastPos to transform's 'board location'
-      this.lastPos.set(p);                                // in case we're interrupting active movement.
-      this.setCursorLocation(newPos);
-      this.slideAnimSlider.setToMin();                    // Reset animation state
-    }
-
-    // New position is far enough to teleport to (>= 2)
-    // @deprecated
-    // else
-    //   this.teleport(newPos);
+    this.lastPos.set(-1, -1);             // System maintenance: set the last cursor position to something invalid.
+    this.slideAnimSlider.setToMax();      // Set cursor sprite to new location
+    this.setCursorLocation(newLocation);  // Place the cursor in new position
+    this.updateGameWorldPosition();       // Update transform position now, not next cycle
   }
 
   /** Moves this cursor's position directly to some other position on the game map.
    * Invokes cursor animation when new location is close enough. */
   moveTo(place: Point) {
-    let relativePos = new Point(place).subtract(this.boardLocation);
-    this.move(relativePos);
+    const newLocation = place.clamp(this.coordinateLimits);
+    const distance = this._boardLocation.distance(newLocation);
+
+    if (distance == 0)
+      return;
+    else if (distance < 2)
+      this.animateTo(newLocation);
+    else
+      this.teleportTo(newLocation);
   }
 
-  teleport(place: Point) {
-    // Clamp new cursor position to some place on the board.
-    place.set(
-      Common.clamp(place.x, 0, this.map.width - 1),
-      Common.clamp(place.y, 0, this.map.height - 1)
-    );
-
-    this.lastPos.set(-1, -1);            // System maintenance: set the last cursor position to something invalid.
-    this.slideAnimSlider.setToMax();    // Set cursor sprite to new location
-    this.setCursorLocation(place);      // Place the cursor in new position
-    this.updateGameWorldPosition();     // Update transform position now, not next cycle
+  /** Moves this cursor's position on the game map relative to its current position.
+   * Invokes cursor animation when new location is close enough. */
+  move(dir: Point) {
+    const newLocation = this._boardLocation.add(dir);
+    this.moveTo(newLocation);    
   }
+
 }

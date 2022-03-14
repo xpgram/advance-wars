@@ -59,7 +59,7 @@ export class ResetPerspective extends TurnState {
     });
 
     // Move Cursor
-    mapCursor.teleport(players.current.lastCursorPosition);
+    mapCursor.teleportTo(players.current.lastCursorPosition);
 
     this.advance();
   }

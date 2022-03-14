@@ -30,7 +30,7 @@ export class NextTargetableUnit extends ControlScript {
       }
 
       if (point)
-        mapCursor.teleport(point);
+        mapCursor.teleportTo(point);
     },
     this
   );
@@ -71,7 +71,7 @@ export class NextTargetableUnit extends ControlScript {
     const { unitSelect, unitLocations, holdPulsar, nextUnitButton } = this;
 
     if (nextUnitButton.pressed && unitLocations.length !== 0) {
-      mapCursor.teleport(unitLocations[unitSelect.output]);
+      mapCursor.teleportTo(unitLocations[unitSelect.output]);
       unitSelect.increment();
       holdPulsar.start();
     }

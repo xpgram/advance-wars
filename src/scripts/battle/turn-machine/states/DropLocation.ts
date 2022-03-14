@@ -33,7 +33,7 @@ export class DropLocation extends TurnState {
     this.drop = {
       which,
     }
-    mapCursor.teleport(where as Point);
+    mapCursor.teleportTo(where as Point);
     this.cursorMoved = true;
   }
 
@@ -112,7 +112,7 @@ export class DropLocation extends TurnState {
     const { place, goal } = this.data;
 
     map.clearTileOverlay();
-    mapCursor.teleport(goal);
+    mapCursor.teleportTo(goal);
 
     map.squareAt(place).moveFlag = true;
     map.squareAt(goal).moveFlag = true;

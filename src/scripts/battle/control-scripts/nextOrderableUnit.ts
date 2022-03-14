@@ -37,7 +37,7 @@ export class NextOrderableUnit extends ControlScript {
       }
 
       if (point)
-        mapCursor.teleport(point);
+        mapCursor.teleportTo(point);
     },
     this
   );
@@ -101,7 +101,7 @@ export class NextOrderableUnit extends ControlScript {
 
       const cursorAtLocation = location().equal(mapCursor.boardLocation);
       slider.increment( Number(cursorAtLocation) );
-      mapCursor.teleport(location());
+      mapCursor.teleportTo(location());
       holdPulsar.start();
     }
     triggerMoveCursor(nextUnitButton, unitLocations, unitSelect);

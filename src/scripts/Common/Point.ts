@@ -90,12 +90,16 @@ export class Point {
     return this.add(p.negative());
   }
   
-  /** Returns a new vector: the result of applying the given function on each vector component. */
+  /** Returns a new vector: the result of the given function applied to each vector component. */
   apply(f: (x: number) => number) {
-    return this.clone().set(
-      f(this.x),
-      f(this.y),
-    );
+    return this.clone().set( f(this.x), f(this.y) );
+  }
+
+  /** Returns a new vector: the result of the given function applied to each pair of vector components.
+   * `new Point(f(x1,x2), f(y1,y2))` */
+  merge(f: (a: number, b: number) => number, x: number | ImmutablePointPrimitive, y?: number): Point {
+    const p = new Point(x,y);
+    return new Point( f(this.x, p.x), f(this.y, p.y) );
   }
 
   /** Returns a new vector: this vector's additive inverse. */
@@ -115,6 +119,13 @@ export class Point {
 
   /** Returns a new vector: this vector's truncated coordinates. */
   trunc(): Point { return this.apply(Math.trunc); }
+
+  /** Returns a new vector: this vector's coordinates confined to
+   * the dimensions described by the given point properties. */
+  clamp(x: number | ImmutablePointPrimitive, y?: number): Point {
+    const clamp = (x: number, max: number) => Common.clamp(x, 0, max);
+    return this.merge(clamp, new Point(x,y));
+  }
 
   /** Returns this point's coordinates as a sum. */
   sumCoords() {

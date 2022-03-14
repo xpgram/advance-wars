@@ -45,7 +45,7 @@ export class WorldPointerController {
     stage.addListener('mousemove', (e) => {
       const pointer_raw = new Point(e.data.getLocalPosition(stage));
       const mapPos = pointer_raw.apply(n => Math.floor(n / tileSize));
-      mapCursor.moveTo(mapPos);
+      mapCursor.animateTo(mapPos);
     })
   }
 

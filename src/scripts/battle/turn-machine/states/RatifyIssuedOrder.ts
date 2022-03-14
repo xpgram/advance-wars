@@ -36,7 +36,7 @@ export class RatifyIssuedOrder extends TurnState {
     // Update cursor position.
     if (instruction.path) {
       const { goal } = this.data;
-      this.assets.mapCursor.teleport(goal);
+      this.assets.mapCursor.teleportTo(goal);
     }
 
     // Advance to next state.
