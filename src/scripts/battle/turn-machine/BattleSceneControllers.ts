@@ -221,7 +221,6 @@ export class BattleSceneControllers {
       new WorldPointerController({
         stage: Game.stage,
         mapCursor: this.mapCursor,
-        camera: this.camera,
       }).enabled = true;
     }
 

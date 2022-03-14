@@ -7,7 +7,6 @@ import { Point } from "../Common/Point";
 interface Options {
   readonly stage: PIXI.Container,
   readonly mapCursor: MapCursor;
-  readonly camera: Camera;
 }
 
 // TODO This is currently located in src/scripts/system, and it's hard to want to move it.
@@ -39,7 +38,7 @@ export class WorldPointerController {
   constructor(options: Options) {
     this.options = options;
 
-    const { stage, mapCursor, camera } = this.options;
+    const { stage, mapCursor } = this.options;
     const tileSize = Game.display.standardLength;
 
     stage.addListener('mousemove', (e) => {
