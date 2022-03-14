@@ -1,6 +1,5 @@
 import { Game } from "../..";
 import { MapCursor } from "../battle/map/MapCursor";
-import { Camera } from "../camera/Camera";
 import { Point } from "../Common/Point";
 
 
@@ -35,6 +34,12 @@ export class WorldPointerController {
 
   private options: Options;
 
+  // TODO Pass in MouseObserver so we may reference button state
+  // TODO Make MouseObserver an extension of VirtualGamepad and just pass that in?
+  //      Like, I could shift+click or shift+scroll if I allowed that.
+  onClick?: (location: Point) => void;
+
+
   constructor(options: Options) {
     this.options = options;
 
@@ -42,16 +47,30 @@ export class WorldPointerController {
     const tileSize = Game.display.standardLength;
 
     stage.addListener('mousemove', (e) => {
+      if (!mapCursor.enabled)
+        return;
       const pointer_raw = new Point(e.data.getLocalPosition(stage));
       const mapPos = pointer_raw.apply(n => Math.floor(n / tileSize));
       mapCursor.animateTo(mapPos);
     })
+    stage.addListener('click', (e) => {
+      if (!mapCursor.enabled || !this.onClick)
+        return;
+      const pointer_raw = new Point(e.data.getLocalPosition(stage));
+      const mapPos = pointer_raw.apply(n => Math.floor(n / tileSize));
+      mapCursor.teleportTo(mapPos);
+      this.onClick(mapPos);
+    })
   }
 
   destroy() {
-    this.options.stage.interactive = false;
+    const { stage } = this.options;
+    stage.interactive = false;
+    stage.removeAllListeners(); // Am I the only one?
+
     //@ts-ignore
     this.options = undefined;
+
   }
 
   get enabled() { return this.options.stage.interactive; }

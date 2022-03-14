@@ -120,6 +120,7 @@ export class BattleSceneControllers {
   scenario: Scenario;
 
   gamepad: VirtualGamepad;
+  worldClickController: WorldPointerController;
   camera: Camera;
   map: Map;
   mapCursor: MapCursor;
@@ -217,12 +218,11 @@ export class BattleSceneControllers {
     // TODO Factor out behavioral dependencies from PointerController to here.
     // TODO Add concise syncing with mapCursor behavior: when mapCursor stops listening to dpad
     //      events, pointer events shouldn't work either.
-    if (Game.developmentMode) {
-      new WorldPointerController({
-        stage: Game.stage,
-        mapCursor: this.mapCursor,
-      }).enabled = true;
-    }
+    this.worldClickController = new WorldPointerController({
+      stage: Game.stage,
+      mapCursor: this.mapCursor,
+    });
+    this.worldClickController.enabled = true; // TODO Give to inter-state reset?
 
     // Setup UI Window System
     this.uiSystem = new InfoWindowSystem({
@@ -281,6 +281,8 @@ export class BattleSceneControllers {
 
   destroy() {
     Game.scene.ticker.remove(this.updateControlScripts, this);
+    this.worldClickController.destroy();
+    // TODO make sure errything cleaned up
   }
 
   /** Hides all UI and player-interface systems. */

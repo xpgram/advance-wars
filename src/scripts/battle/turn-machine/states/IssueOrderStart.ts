@@ -115,9 +115,9 @@ export class IssueOrderStart extends TurnState {
       if (square.unit)
         square.unit.CoOnBoard = true;
 
-    // On press A, select an allied unit to give instruction to
-    if (A.pressed) {
-      
+    
+    // TODO This allows mouse click, but I need to formalize the approach.
+    const pressA = () => {
       // Allied unit to move
       const visible = (square.unitVisible());
       const orderableAlly = (unit?.orderable && unit?.faction === player.faction);
@@ -138,6 +138,14 @@ export class IssueOrderStart extends TurnState {
         this.advance(FieldMenu);
       }
 
+      // TODO This needs to be a part of the inter-state reset process
+      this.assets.worldClickController.onClick = undefined;
+    }
+
+    // On press A, select an allied unit to give instruction to
+    this.assets.worldClickController.onClick = () => pressA();
+    if (A.pressed) {
+      pressA();
     }
 
     // On press B, show unit attack range or initiate move camera mode.

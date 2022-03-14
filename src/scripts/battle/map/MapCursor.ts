@@ -280,6 +280,9 @@ export class MapCursor extends Observable() {
     this.controlsEnabled = true;
   }
 
+  /** True if the player-interactivity listener is active. */
+  get enabled() { return this.controlsEnabled = true; }
+
   /** Triggers this object's animation to play once. */
   private triggerAnimation() {
     this.cursorSprite.gotoAndPlay(0);
