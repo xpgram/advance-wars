@@ -3,5 +3,5 @@ export enum ButtonState {
     Up,
     Pressed,
     Down,
-    Released
+    Released,
 }

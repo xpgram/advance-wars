@@ -48,7 +48,7 @@ export class WorldPointerController {
   // state.
   //
   // I think what I might do is write a general click interface which gets attached to
-  // a given DisplayObject, and then write an inheriting interface for Map which modifies
+  // a given Container, and then write an inheriting interface for Map which modifies
   // the click location to be a board location instead of a real one.
   // That makes sense to me.
   //
@@ -108,11 +108,21 @@ export class WorldPointerController {
 type InteractionEvent = PIXI.interaction.InteractionEvent;
 type FederatedWheelEvent = PIXI.FederatedWheelEvent;
 
-/** A class designed for DisplayObjects which need greater sophistication for
- * their mouse-event handling. Automatically handles queries such as mouse-button hold
- * time.  
+// TODO Supposedly this might not work with Macs or left-handed mice
+enum MouseButtonMap {
+  Left = 0,
+  Middle = 1,
+  Right = 2,
+  Fourth = 3,
+  Fifth = 4,
+}
+
+/** A wrapper for Pixi Containers which need greater sophistication or direct-state
+ * referencing for their mouse-event handling. Automatically handles queries such as
+ * mouse-button hold time.  
  * Note: Pixi's own listener events are likely capable of handling most clickable button
- * tasks, this observer is intended for more complex control systems.
+ * tasks, this observer is intended for more complex control systems, or to homogenize
+ * button.released reference structures.
  **/
 class MouseObserver {
 
@@ -132,85 +142,79 @@ class MouseObserver {
     // when scroll dir changes, zero-out, then increment as normal
     // change scroll dir does not untilt axis
 
-  /** Pointer coordinates relative to this DisplayObject's origin. */
+  /** Pointer coordinates relative to this Container's origin. */
   private localPosition: Point = new Point();
 
-  /** Whether the pointer is within this DisplayObject's bounds or not. */
+  /** Whether the pointer is within this Container's bounds or not. */
   private mouseHovering: boolean = false;
 
   /** The graphical subject being managed by this mouse state observer. */
   readonly container: PIXI.Container;
 
 
-  constructor(displayObject: PIXI.Container) {
-    displayObject.addListener('mousemove', this.mouseMoveHandler, this);
-    displayObject.addListener('mousedown', this.mouseDownHandler, this);
-    displayObject.addListener('mouseup', this.mouseUpHandler, this);
-    // displayObject.addListener('wheel', this.mouseWheelHandler, this);
+  constructor(container: PIXI.Container) {
+    container.addListener('mousemove', this.updateMousePosition, this);
+    container.addListener('mousedown', this.mouseDownHandler, this);
+    container.addListener('mouseup', this.mouseUpHandler, this);
+    // container.addListener('wheel', this.mouseWheelHandler, this);
 
-    displayObject.interactive = true;
-    this.container = displayObject;
+    container.interactive = true;
+    this.container = container;
+  }
+
+  destroy() {
+    this.container.removeListener('mousemove', this.updateMousePosition, this);
+    this.container.removeListener('mousedown', this.mouseDownHandler, this);
+    this.container.removeListener('mouseup', this.mouseUpHandler,this);
+    this.container.interactive = false; // I'm assuming for now I will never assign two controllers to one container.
   }
 
   private updateMousePosition(event: InteractionEvent) {
     const local = event.data.getLocalPosition(this.container);
     this.localPosition.set(local);
 
-    // TODO I might just handle this with 'mouseover' and 'mouseout'
-    // I wonder if this coupling is more concrete, though.
+    const wasHovering = this.mouseHovering;
     this.mouseHovering = (
       Common.within(local.x, 0, this.container.width) &&
       Common.within(local.y, 0, this.container.height)
     );
+
+    if (wasHovering && !this.mouseHovering)
+      Object.values(this.button).forEach( b => b.cancel() );
   }
 
-  private updateButtonState(event: InteractionEvent) {
-
-  }
-
-  private mouseMoveHandler(event: InteractionEvent) {
-    this.updateMousePosition(event);
-    
+  private getButton(event: InteractionEvent): Button {
+    return this.button[event.data.button as MouseButtonMap];
   }
 
   private mouseDownHandler(event: InteractionEvent) {
     this.updateMousePosition(event);
-    this.updateButtonState(event);
-    if (!this.mouseHovering)
-      return;
+    const button = this.getButton(event);
+
+    if (this.mouseHovering)
+      button.update(true);
       
     event.stopPropagation();  // Prevents underneaths from triggering.
   }
 
   private mouseUpHandler(event: InteractionEvent) {
     this.updateMousePosition(event);
-    this.updateButtonState(event); // TODO 'released' only gets set when hovering is true
-    if (!this.mouseHovering)
-      return;
+    this.getButton(event).update(false);
 
-    event.stopPropagation();
+    if (this.mouseHovering)   // TODO Does this hover-guard do what I expect?
+      event.stopPropagation();
   }
 
   private mouseWheelHandler(event: FederatedWheelEvent) {
-    this.updateMousePosition(event);
-    this.updateButtonState(event);
-    if (!this.mouseHovering)
-      return;
-
-    event.stopPropagation();
+    // stub; follow down/up implementation
   }
 
-  /** True if the controller is listening for inputs. */
+  /** True if this controller is listening for inputs. */
   get enabled() { return this.container.interactive; }
-  set enabled(b) { this.container.interactive = b; }
+  set enabled(b) {
+    this.container.interactive = b;
+    if (!b)
+      Object.values(this.button).forEach( b => b.reset() );
+  }
 
-}
-
-// TODO Supposedly this might not work with Macs or left-handed mice
-enum MouseButtonMap {
-  Left = 0,
-  Middle = 1,
-  Right = 2,
-  Fourth = 3,
-  Fifth = 4,
 }
