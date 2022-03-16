@@ -67,10 +67,24 @@ export class IssueOrderStart extends TurnState {
 
   update() {
     const { players, map, mapCursor, instruction, gamepad, scenario } = this.assets;
-    const { uiSystem } = this.assets;
+    const { uiSystem, worldClickController } = this.assets;
+
+    const tileSize = Game.display.standardLength;
 
     const player = players.current;
     const { A, B, start } = gamepad.button;
+
+    // TODO [0]?
+    const leftMB = worldClickController.button[0];
+    const rightMB = worldClickController.button[2];
+    const mouseBoardLocation = worldClickController.getPosition().apply( n => Math.floor(n*1/tileSize) );
+    const mouseOverCursor = (mouseBoardLocation.equal(mapCursor.boardLocation));
+
+    const clickMove = (leftMB.down && !mouseOverCursor);
+    const clickAffirm = (leftMB.released && mouseOverCursor);
+    // TODO left.press -> cursor.move -> left.release -> tile.select
+    // This is not how this should work.
+    // tile.select should only happen when cursor.move is not called.
 
     const square = map.squareAt(mapCursor.boardLocation);
     const unit = square.unit;
@@ -115,14 +129,14 @@ export class IssueOrderStart extends TurnState {
       if (square.unit)
         square.unit.CoOnBoard = true;
 
-    
-    // TODO This allows mouse click, but I need to formalize the approach.
-    // What I would prefer most of all is a simple method of implementing
-    // `if (A.pressed || stage.clicked)`
-    // stage.clicked is context sensitive, though. The UI also needs to be clickable.
-    // assets.worldClickController, as opposed to HudClickController, could differentiate,
-    // I'm just not sure how that would be implemented.
-    const pressA = () => {
+
+    // On left click (not over cursor pos), move cursor
+    if (clickMove) {
+      mapCursor.moveTo(mouseBoardLocation);
+    }
+
+    // On press A, select an allied unit to give instruction to
+    else if (A.pressed || clickAffirm) {
       // Allied unit to move
       const visible = (square.unitVisible());
       const orderableAlly = (unit?.orderable && unit?.faction === player.faction);
@@ -142,17 +156,6 @@ export class IssueOrderStart extends TurnState {
       else {
         this.advance(FieldMenu);
       }
-
-      // TODO This needs to be a part of the inter-state reset process
-      this.assets.worldClickController.onClick = undefined;
-    }
-
-    // On press A, select an allied unit to give instruction to
-    // TODO I just realized this gets set every frame. That's silly.
-    // And it pre-selects the square tile to examine before click->teleport gets handled.
-    this.assets.worldClickController.onClick = () => pressA();
-    if (A.pressed) {
-      pressA();
     }
 
     // On press B, show unit attack range or initiate move camera mode.

@@ -32,7 +32,7 @@ import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { LinearApproach } from "../../camera/TravelAlgorithms";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
-import { WorldPointerController } from "../../system/WorldPointerController";
+import { MouseInputWrapper, WorldPointerController } from "../../system/WorldPointerController";
 
 type CommandObject = CommandHelpers.CommandObject;
 
@@ -120,7 +120,7 @@ export class BattleSceneControllers {
   scenario: Scenario;
 
   gamepad: VirtualGamepad;
-  worldClickController: WorldPointerController;
+  worldClickController: MouseInputWrapper;
   camera: Camera;
   map: Map;
   mapCursor: MapCursor;
@@ -218,10 +218,7 @@ export class BattleSceneControllers {
     // TODO Factor out behavioral dependencies from PointerController to here.
     // TODO Add concise syncing with mapCursor behavior: when mapCursor stops listening to dpad
     //      events, pointer events shouldn't work either.
-    this.worldClickController = new WorldPointerController({
-      stage: Game.stage,
-      mapCursor: this.mapCursor,
-    });
+    this.worldClickController = new MouseInputWrapper(Game.stage);
     this.worldClickController.enabled = true; // TODO Give to inter-state reset?
 
     // Setup UI Window System

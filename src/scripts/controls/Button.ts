@@ -51,7 +51,10 @@ export class Button {
     // Absolve single-frame states
     if (this.pressed) this.changeState(Down);
     if (this.released) this.changeState(Up);
-    if (this._releaseCancelled) this.changeState(Up);
+    if (this._releaseCancelled) {
+      this.changeState(Up);
+      this._releaseCancelled = false;
+    }
 
     // Affect state if there's been a change
     if (this.up && buttonDown) this.changeState(Pressed);

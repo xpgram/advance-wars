@@ -124,15 +124,22 @@ enum MouseButtonMap {
  * tasks, this observer is intended for more complex control systems, or to homogenize
  * button.released reference structures.
  **/
-class MouseObserver {
+export class MouseInputWrapper {
 
   readonly button = {
-    [MouseButtonMap.Left]:   new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
-    [MouseButtonMap.Middle]: new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
-    [MouseButtonMap.Right]:  new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
-    [MouseButtonMap.Fourth]: new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
-    [MouseButtonMap.Fifth]:  new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
+    [MouseButtonMap.Left]:   new Button(new ButtonMap(MouseButtonMap.Left,  0,0,0)),
+    [MouseButtonMap.Middle]: new Button(new ButtonMap(MouseButtonMap.Middle,0,0,0)),
+    [MouseButtonMap.Right]:  new Button(new ButtonMap(MouseButtonMap.Right, 0,0,0)),
+    [MouseButtonMap.Fourth]: new Button(new ButtonMap(MouseButtonMap.Fourth,0,0,0)),
+    [MouseButtonMap.Fifth]:  new Button(new ButtonMap(MouseButtonMap.Fifth, 0,0,0)),
   }
+
+  private getButton(event: InteractionEvent): Button {
+    return this.button[event.data.button as MouseButtonMap];
+  }
+
+  // Eh. It works though.
+  private skipUpdateButtonState = false;
 
   // scrollUp: Button;
   // scrollDown: Button;
@@ -143,10 +150,24 @@ class MouseObserver {
     // change scroll dir does not untilt axis
 
   /** Pointer coordinates relative to this Container's origin. */
-  private localPosition: Point = new Point();
+  private localPosition = new Point();
+
+  /** Pointer coordinates relative to this Container's origin; captured on left press event. */
+  private localPressedPosition = new Point();
+
+  /** Returns a Point object corresponding to the pointer's coordinates relative to
+   * the associated Container's origin. */
+  getPosition() { return this.localPosition.clone() }
 
   /** Whether the pointer is within this Container's bounds or not. */
-  private mouseHovering: boolean = false;
+  private _mouseHovering: boolean = false;
+
+  /**  */
+  // TODO actually, I don't know.
+  get hovering() { return this._mouseHovering; }
+
+  /**  */
+  dragged = false;
 
   /** The graphical subject being managed by this mouse state observer. */
   readonly container: PIXI.Container;
@@ -160,6 +181,7 @@ class MouseObserver {
 
     container.interactive = true;
     this.container = container;
+    Game.scene.ticker.add(this.updateButtonStates, this);
   }
 
   destroy() {
@@ -167,41 +189,58 @@ class MouseObserver {
     this.container.removeListener('mousedown', this.mouseDownHandler, this);
     this.container.removeListener('mouseup', this.mouseUpHandler,this);
     this.container.interactive = false; // I'm assuming for now I will never assign two controllers to one container.
+    Game.scene.ticker.remove.remove(this.updateButtonStates, this);
+  }
+
+  private updateButtonStates() {
+    if (this.skipUpdateButtonState)
+      this.skipUpdateButtonState = false
+    else
+      Object.values(this.button).forEach( b => b.update(b.down) );
   }
 
   private updateMousePosition(event: InteractionEvent) {
     const local = event.data.getLocalPosition(this.container);
     this.localPosition.set(local);
+    if (this.button[0].pressed)
+      this.localPressedPosition.set(local);
 
-    const wasHovering = this.mouseHovering;
-    this.mouseHovering = (
+    const wasHovering = this._mouseHovering;
+    this._mouseHovering = (
       Common.within(local.x, 0, this.container.width) &&
       Common.within(local.y, 0, this.container.height)
     );
 
-    if (wasHovering && !this.mouseHovering)
+    if (this.button[0].down && this.localPosition.distance(this.localPressedPosition) > 2)
+      this.dragged = true;
+
+    if (wasHovering && !this._mouseHovering)
       Object.values(this.button).forEach( b => b.cancel() );
   }
 
-  private getButton(event: InteractionEvent): Button {
-    return this.button[event.data.button as MouseButtonMap];
-  }
-
   private mouseDownHandler(event: InteractionEvent) {
-    this.updateMousePosition(event);
     const button = this.getButton(event);
-
-    if (this.mouseHovering)
+    if (this._mouseHovering) {
       button.update(true);
-      
+      this.skipUpdateButtonState = true;
+    }
+
+    this.updateMousePosition(event);
     event.stopPropagation();  // Prevents underneaths from triggering.
   }
 
   private mouseUpHandler(event: InteractionEvent) {
-    this.updateMousePosition(event);
-    this.getButton(event).update(false);
+    const button = this.getButton(event);
 
-    if (this.mouseHovering)   // TODO Does this hover-guard do what I expect?
+    if (this.dragged)
+      button.cancel();
+
+    button.update(false);
+    this.updateMousePosition(event);
+    this.skipUpdateButtonState = true;
+    this.dragged = false;
+
+    if (this._mouseHovering)   // TODO Does this hover-guard do what I expect?
       event.stopPropagation();
   }
 
