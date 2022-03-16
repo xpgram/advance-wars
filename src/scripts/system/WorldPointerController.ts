@@ -1,6 +1,10 @@
 import { Game } from "../..";
 import { MapCursor } from "../battle/map/MapCursor";
 import { Point } from "../Common/Point";
+import { Common } from "../CommonUtils";
+import { Axis2D } from "../controls/Axis";
+import { Button } from "../controls/Button";
+import { ButtonMap } from "../controls/ButtonMap";
 
 
 interface Options {
@@ -73,7 +77,7 @@ export class WorldPointerController {
       const mapPos = pointer_raw.apply(n => Math.floor(n / tileSize));
       mapCursor.animateTo(mapPos);
     })
-    stage.addListener('click', (e) => {
+    stage.addListener('mousedown', (e) => {
       if (!mapCursor.enabled || !this.onClick)
         return;
       const pointer_raw = new Point(e.data.getLocalPosition(stage));
@@ -96,4 +100,117 @@ export class WorldPointerController {
   get enabled() { return this.options.stage.interactive; }
   set enabled(b) { this.options.stage.interactive = b; }
 
+}
+
+
+/// Experimental MouseController class
+
+type InteractionEvent = PIXI.interaction.InteractionEvent;
+type FederatedWheelEvent = PIXI.FederatedWheelEvent;
+
+/** A class designed for DisplayObjects which need greater sophistication for
+ * their mouse-event handling. Automatically handles queries such as mouse-button hold
+ * time.  
+ * Note: Pixi's own listener events are likely capable of handling most clickable button
+ * tasks, this observer is intended for more complex control systems.
+ **/
+class MouseObserver {
+
+  readonly button = {
+    [MouseButtonMap.Left]:   new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
+    [MouseButtonMap.Middle]: new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
+    [MouseButtonMap.Right]:  new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
+    [MouseButtonMap.Fourth]: new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
+    [MouseButtonMap.Fifth]:  new Button(new ButtonMap(MouseButtonMap.Left,0,0,0)),
+  }
+
+  // scrollUp: Button;
+  // scrollDown: Button;
+  // scrollWheel: Axis2D;
+    // increments to 0 by .05 every frame
+    // scroll 'buttons' increment away from 0 by .2 per input
+    // when scroll dir changes, zero-out, then increment as normal
+    // change scroll dir does not untilt axis
+
+  /** Pointer coordinates relative to this DisplayObject's origin. */
+  private localPosition: Point = new Point();
+
+  /** Whether the pointer is within this DisplayObject's bounds or not. */
+  private mouseHovering: boolean = false;
+
+  /** The graphical subject being managed by this mouse state observer. */
+  readonly container: PIXI.Container;
+
+
+  constructor(displayObject: PIXI.Container) {
+    displayObject.addListener('mousemove', this.mouseMoveHandler, this);
+    displayObject.addListener('mousedown', this.mouseDownHandler, this);
+    displayObject.addListener('mouseup', this.mouseUpHandler, this);
+    // displayObject.addListener('wheel', this.mouseWheelHandler, this);
+
+    displayObject.interactive = true;
+    this.container = displayObject;
+  }
+
+  private updateMousePosition(event: InteractionEvent) {
+    const local = event.data.getLocalPosition(this.container);
+    this.localPosition.set(local);
+
+    // TODO I might just handle this with 'mouseover' and 'mouseout'
+    // I wonder if this coupling is more concrete, though.
+    this.mouseHovering = (
+      Common.within(local.x, 0, this.container.width) &&
+      Common.within(local.y, 0, this.container.height)
+    );
+  }
+
+  private updateButtonState(event: InteractionEvent) {
+
+  }
+
+  private mouseMoveHandler(event: InteractionEvent) {
+    this.updateMousePosition(event);
+    
+  }
+
+  private mouseDownHandler(event: InteractionEvent) {
+    this.updateMousePosition(event);
+    this.updateButtonState(event);
+    if (!this.mouseHovering)
+      return;
+      
+    event.stopPropagation();  // Prevents underneaths from triggering.
+  }
+
+  private mouseUpHandler(event: InteractionEvent) {
+    this.updateMousePosition(event);
+    this.updateButtonState(event); // TODO 'released' only gets set when hovering is true
+    if (!this.mouseHovering)
+      return;
+
+    event.stopPropagation();
+  }
+
+  private mouseWheelHandler(event: FederatedWheelEvent) {
+    this.updateMousePosition(event);
+    this.updateButtonState(event);
+    if (!this.mouseHovering)
+      return;
+
+    event.stopPropagation();
+  }
+
+  /** True if the controller is listening for inputs. */
+  get enabled() { return this.container.interactive; }
+  set enabled(b) { this.container.interactive = b; }
+
+}
+
+// TODO Supposedly this might not work with Macs or left-handed mice
+enum MouseButtonMap {
+  Left = 0,
+  Middle = 1,
+  Right = 2,
+  Fourth = 3,
+  Fifth = 4,
 }
