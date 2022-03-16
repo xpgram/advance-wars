@@ -132,7 +132,7 @@ export class IssueOrderStart extends TurnState {
 
     // On left click (not over cursor pos), move cursor
     if (clickMove) {
-      mapCursor.moveTo(mouseBoardLocation);
+      mapCursor.animateTo(mouseBoardLocation);
     }
 
     // On press A, select an allied unit to give instruction to
