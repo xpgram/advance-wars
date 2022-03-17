@@ -14,6 +14,19 @@ But anyway, yeah. There is constant state checking because his system never just
   - [ ] Right Click: Negative / Cancel / Back
   - [ ] Middle Click: Info (Open Details window)
   - [ ] Middle+Left Click: Change Info Page
+- [ ] Intuitive mouse flow:
+  - Click on troop (hold)
+  - Hold triggers, MoveUnit turnstate
+  - Mouse drag to draw path
+  - Mouse release to select location
+    - Inhabitable space: Open CmdMenu
+    - Attackable space: Auto-Attack
+    - Uninhabitable space: Do nothing, leave cursor there
+    (This is probably just how MoveUnit will work, even without the first few steps)
+  - In CmdMenu:
+    - Click option to select
+    - Click outside of Menu (world) to cancel
+    - Right click to cancel; (unless right-clicks aren't feasible in browser)
 
 - [ ] Map.changeTerrain(pos: Point, terrain: TerrainType)
   This should handle the specifics.

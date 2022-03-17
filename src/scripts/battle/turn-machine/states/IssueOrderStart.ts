@@ -82,8 +82,11 @@ export class IssueOrderStart extends TurnState {
     const mouseBoardLocation = worldClickController.getPosition().apply( n => Math.floor(n*1/tileSize) );
     const mouseOverCursor = (mouseBoardLocation.equal(mapCursor.boardLocation));
 
+    // TODO This implementation is incredibly messy; I was experimenting.
+    // It's also made harder to read by the dev controls, clean those up too.
     const clickMove = (leftMB.down && !mouseOverCursor);
     const clickAffirm = (leftMB.released && mouseOverCursor && !this.cursorMovedByClick);
+    const clickHoldAffirm = (leftMB.held && mouseOverCursor && !worldClickController.dragged);
     if (leftMB.up)
       this.cursorMovedByClick = false;
     // TODO left.press -> cursor.move -> left.release -> tile.select
@@ -144,7 +147,7 @@ export class IssueOrderStart extends TurnState {
     }
 
     // On press A, select an allied unit to give instruction to
-    else if (A.pressed || clickAffirm) {
+    else if (A.pressed || clickAffirm || clickHoldAffirm) {
       // Allied unit to move
       const visible = (square.unitVisible());
       const orderableAlly = (unit?.orderable && unit?.faction === player.faction);

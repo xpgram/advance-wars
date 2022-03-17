@@ -33,6 +33,7 @@ export class Button {
   // Button polling methods
   get pressed() { return this._state === ButtonState.Pressed; }
   get down() { return this._state === ButtonState.Down || this.pressed; }
+  get held() { return this.down && this._framesHeld > 8; } // TODO Unhardcode the frames (n/60 seconds)
   get released() { return this._state === ButtonState.Released; }
   get up() { return this._state === ButtonState.Up || this.released; }
   get changed() { return this.pressed || this.released; }
