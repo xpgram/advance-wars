@@ -18,6 +18,8 @@ export class IssueOrderStart extends TurnState {
   get revertible() { return true; }   // ← If each state is either auto-skipped on undo or must deliberately cancel
   get skipOnUndo() { return false; }  //   itself via a function call, I wonder if this property is even necessary.
 
+  private cursorMovedByClick = false;
+
   changeCursorMode() {
     const { map, mapCursor, players, scenario } = this.assets;
 
@@ -81,7 +83,9 @@ export class IssueOrderStart extends TurnState {
     const mouseOverCursor = (mouseBoardLocation.equal(mapCursor.boardLocation));
 
     const clickMove = (leftMB.down && !mouseOverCursor);
-    const clickAffirm = (leftMB.released && mouseOverCursor);
+    const clickAffirm = (leftMB.released && mouseOverCursor && !this.cursorMovedByClick);
+    if (leftMB.up)
+      this.cursorMovedByClick = false;
     // TODO left.press -> cursor.move -> left.release -> tile.select
     // This is not how this should work.
     // tile.select should only happen when cursor.move is not called.
@@ -132,7 +136,11 @@ export class IssueOrderStart extends TurnState {
 
     // On left click (not over cursor pos), move cursor
     if (clickMove) {
-      mapCursor.animateTo(mouseBoardLocation);
+      if (leftMB.pressed)
+        mapCursor.moveTo(mouseBoardLocation);
+      else
+        mapCursor.animateTo(mouseBoardLocation);
+      this.cursorMovedByClick = true;
     }
 
     // On press A, select an allied unit to give instruction to
