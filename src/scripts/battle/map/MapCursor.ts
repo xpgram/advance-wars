@@ -1,7 +1,7 @@
 import { Map } from "./Map";
 import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
-import { Common } from "../../CommonUtils";
+import { MouseInputWrapper } from "../../controls/MouseInputWrapper";
 import { LowResTransform } from "../../LowResTransform";
 import { MapLayer } from "./MapLayers";
 import { Pulsar } from "../../timer/Pulsar";
@@ -38,6 +38,14 @@ import { buildBoundedRegionMapObject } from "../unit-actions/GraphicalRegionMap"
 // the arrow-path on A-press to be certain it's frame correct, but that's a small
 // price, tbh.
 
+
+// TODO Include stage.pointer controls, self-regulate selection pulse-triggers
+// Actually, before I do this, lets set up the pointer in a few turnstates first
+// to see what kind of benefits this consolidation would give us.
+//
+// TurnStates still have to maintain the cancel behavior, that can't be merged
+// here, or it shouldn't be anyway, and I don't really like splitting the domains
+// here.
 
 /**
  * @author Dei Valko
@@ -157,6 +165,9 @@ export class MapCursor extends Observable() {
 
   /** A reference to the controller we are recieving input from. */
   private controller: VirtualGamepad;
+
+  // /** A reference to the pointer-controller we are recieving input from. */
+  // private pointer: MouseInputWrapper;
 
   /** The container object representing this cursor graphically. */
   private spriteLayer = new PIXI.Container();

@@ -10,7 +10,6 @@ import { FactoryMenu } from "./FactoryMenu";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 import { Unit } from "../../Unit";
 import { Common } from "../../../CommonUtils";
-import { Terrain } from "../../map/Terrain";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -69,7 +68,7 @@ export class IssueOrderStart extends TurnState {
 
   update() {
     const { players, map, mapCursor, instruction, gamepad, scenario } = this.assets;
-    const { uiSystem, worldClickController } = this.assets;
+    const { uiSystem, stagePointer } = this.assets;
 
     const tileSize = Game.display.standardLength;
 
@@ -77,16 +76,16 @@ export class IssueOrderStart extends TurnState {
     const { A, B, start } = gamepad.button;
 
     // TODO [0]?
-    const leftMB = worldClickController.button[0];
-    const rightMB = worldClickController.button[2];
-    const mouseBoardLocation = worldClickController.getPosition().apply( n => Math.floor(n*1/tileSize) );
+    const leftMB = stagePointer.button[0];
+    const rightMB = stagePointer.button[2];
+    const mouseBoardLocation = stagePointer.getPosition().apply( n => Math.floor(n*1/tileSize) );
     const mouseOverCursor = (mouseBoardLocation.equal(mapCursor.boardLocation));
 
     // TODO This implementation is incredibly messy; I was experimenting.
     // It's also made harder to read by the dev controls, clean those up too.
     const clickMove = (leftMB.down && !mouseOverCursor);
-    const clickAffirm = (leftMB.released && mouseOverCursor && !this.cursorMovedByClick);
-    const clickHoldAffirm = (leftMB.held && mouseOverCursor && !worldClickController.dragged);
+    const clickAffirm = (stagePointer.clicked() && mouseOverCursor);
+    const clickHoldAffirm = (leftMB.down && stagePointer.dragged);
     if (leftMB.up)
       this.cursorMovedByClick = false;
     // TODO left.press -> cursor.move -> left.release -> tile.select
@@ -164,13 +163,13 @@ export class IssueOrderStart extends TurnState {
       }
 
       // The tile has no particular function — open the Field Menu.
-      else {
+      else if (A.pressed) {
         this.advance(FieldMenu);
       }
     }
 
     // On press B, show unit attack range or initiate move camera mode.
-    else if (B.pressed) {
+    else if (B.pressed || rightMB.pressed) {
       const allied = square.unit?.faction === player.faction;
       const visible = square.unitVisible();
       if (square.unit && (allied || visible)) {

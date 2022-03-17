@@ -2,13 +2,13 @@ import { MapCursor } from "../map/MapCursor";
 import { Map } from "../map/Map";
 import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
+import { MouseInputWrapper } from "../../controls/MouseInputWrapper";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
 import { MapLayer, MapLayerFunctions } from "../map/MapLayers";
 import { UnitObject } from "../UnitObject";
 import { Point } from "../../Common/Point";
 import { CameraZoom } from "../control-scripts/cameraZoom";
-import { StringDictionary } from "../../CommonTypes";
 import { ControlScript } from "../../ControlScript";
 import { CommandInstruction } from "./CommandInstruction";
 import { BoardPlayer } from "../BoardPlayer";
@@ -32,7 +32,6 @@ import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { LinearApproach } from "../../camera/TravelAlgorithms";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
-import { MouseInputWrapper, WorldPointerController } from "../../system/WorldPointerController";
 
 type CommandObject = CommandHelpers.CommandObject;
 
@@ -120,7 +119,7 @@ export class BattleSceneControllers {
   scenario: Scenario;
 
   gamepad: VirtualGamepad;
-  worldClickController: MouseInputWrapper;
+  stagePointer: MouseInputWrapper;
   camera: Camera;
   map: Map;
   mapCursor: MapCursor;
@@ -218,8 +217,8 @@ export class BattleSceneControllers {
     // TODO Factor out behavioral dependencies from PointerController to here.
     // TODO Add concise syncing with mapCursor behavior: when mapCursor stops listening to dpad
     //      events, pointer events shouldn't work either.
-    this.worldClickController = new MouseInputWrapper(Game.stage);
-    this.worldClickController.enabled = true; // TODO Give to inter-state reset?
+    this.stagePointer = new MouseInputWrapper(Game.stage);
+    this.stagePointer.enabled = true; // TODO Give to inter-state reset?
 
     // Setup UI Window System
     this.uiSystem = new InfoWindowSystem({
@@ -278,7 +277,7 @@ export class BattleSceneControllers {
 
   destroy() {
     Game.scene.ticker.remove(this.updateControlScripts, this);
-    this.worldClickController.destroy();
+    this.stagePointer.destroy();
     // TODO make sure errything cleaned up
   }
 
@@ -295,7 +294,7 @@ export class BattleSceneControllers {
     this.fieldMenu.hide();
 
     // Reset all scripts
-    const scripts = this.scripts as any as StringDictionary<ControlScript>;
+    const scripts = this.scripts as Record<string, ControlScript>;
     for (const name in scripts) {
       const script = scripts[name];
       if (script.defaultEnabled())

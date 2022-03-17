@@ -4,6 +4,7 @@ import { Command } from "../Command";
 import { SumCardinalsToVector } from "../../../Common/CardinalDirection";
 import { CommandMenu } from "./CommandMenu";
 import { DamageScript } from "../../DamageScript";
+import { Game } from "../../../..";
 
 
 export class MoveUnit extends TurnState {
@@ -104,8 +105,18 @@ export class MoveUnit extends TurnState {
   }
 
   update() {
-    const { map, mapCursor, gamepad, players, instruction } = this.assets;
+    const { map, mapCursor, gamepad, stagePointer, players, instruction } = this.assets;
     const { actor, place } = this.data;
+
+    const tileSize = Game.display.standardLength;
+
+    // Experimental mouse controls setup
+    const pointerPos = stagePointer.getPosition().apply(n => Math.floor(n/tileSize));
+    const pointerAffirm = stagePointer.button[0].released;
+    if (stagePointer.button[0].down && pointerPos.notEqual(mapCursor.boardLocation)) {
+      mapCursor.moveTo(pointerPos);
+    }
+    // TODO pointerCancel when button[0].pressed on a non-flagged tile.
 
     // On press B, revert state
     if (gamepad.button.B.pressed)
@@ -116,7 +127,7 @@ export class MoveUnit extends TurnState {
       return;
 
     // On press A and viable location, advance state
-    else if (gamepad.button.A.pressed) {
+    else if (gamepad.button.A.pressed || pointerAffirm) {
       const square = map.squareAt(mapCursor.boardLocation);
       const underneath = square.unit;
 
