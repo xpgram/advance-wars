@@ -2,21 +2,9 @@ import { Game } from "../..";
 import { Point } from "../Common/Point";
 import { Common } from "../CommonUtils";
 import { Button } from "../controls/Button";
-import { ButtonMap } from "../controls/ButtonMap";
-
-/// Experimental MouseController class
+import { Keys } from "./KeyboardObserver";
 
 type InteractionEvent = PIXI.interaction.InteractionEvent;
-type FederatedWheelEvent = PIXI.FederatedWheelEvent;
-
-// TODO Supposedly this might not work with Macs or left-handed mice
-enum MouseButtonMap {
-  Left = 0,
-  Middle = 1,
-  Right = 2,
-  Fourth = 3,
-  Fifth = 4,
-}
 
 /** A wrapper for Pixi Containers which need greater sophistication or direct-state
  * referencing for their mouse-event handling. Automatically handles queries such as
@@ -25,55 +13,42 @@ enum MouseButtonMap {
  * tasks, this observer is intended for more complex control systems, or to homogenize
  * button.released reference structures.
  **/
- export class MouseInputWrapper {
+ export class ClickableContainer {
 
-  readonly button = {
-    [MouseButtonMap.Left]:   new Button(new ButtonMap(MouseButtonMap.Left,  0,0,0)),
-    [MouseButtonMap.Middle]: new Button(new ButtonMap(MouseButtonMap.Middle,0,0,0)),
-    [MouseButtonMap.Right]:  new Button(new ButtonMap(MouseButtonMap.Right, 0,0,0)),
-    [MouseButtonMap.Fourth]: new Button(new ButtonMap(MouseButtonMap.Fourth,0,0,0)),
-    [MouseButtonMap.Fifth]:  new Button(new ButtonMap(MouseButtonMap.Fifth, 0,0,0)),
-  }
+  // TODO Build consistent frame behavior into Button so I don't have to manage this.
+  // Button will use time-stamps (framecounts) to determine press and release event procession.
+  private skipNextButtonUpdate = false;
 
-  private getButton(event: InteractionEvent): Button {
-    return this.button[event.data.button as MouseButtonMap];
-  }
+  /** Object managing pointer button state. */
+  readonly button = new Button();
 
-  // Eh. It works though.
-  private skipUpdateButtonState = false;
+  /** Keeps track of drag state. */
+  private dragButton = new Button();
 
-  // scrollUp: Button;
-  // scrollDown: Button;
-  // scrollWheel: Axis2D;
-    // increments to 0 by .05 every frame
-    // scroll 'buttons' increment away from 0 by .2 per input
-    // when scroll dir changes, zero-out, then increment as normal
-    // change scroll dir does not untilt axis
+  /** Whether the pointer has moved during a continuous button-down event. */
+  get pointerDragging() { return this.dragButton.down; }
 
-  /** Pointer coordinates relative to this Container's origin. */
-  private localPosition = new Point();
+  /** Trigger pulse flag for whether the pointer has started moving during a continuous button-down event. */
+  get pointerDragStarted() { return this.dragButton.pressed; }
 
-  /** Pointer coordinates relative to this Container's origin; captured on left press event. */
-  private localPressedPosition = new Point();
+  /** Trigger pulse flag for whether the pointer button has released after a drag state. */
+  get pointerDragStopped() { return this.dragButton.released; }
 
-  /** Returns a Point object corresponding to the pointer's coordinates relative to
-   * the associated Container's origin. */
-  getPosition() { return this.localPosition.clone() }
+  /** Returns a Point object: the pointer's coordinates relative to its Container's origin. */
+  pointerLocation() { return this._pointerLocation.clone() }
+  private _pointerLocation = new Point();
 
-  /** Whether the pointer is within this Container's bounds or not. */
-  private _mouseHovering: boolean = false;
+  /** Returns a Point object: the pointer's coordinates relatvei to its COntainer's origin
+   * during last button-pressed event. */
+  pointerLastPressLocation() { return this._pointerLastPressLocation.clone(); }
+  private _pointerLastPressLocation = new Point();
 
-  /**  */
-  // TODO actually, I don't know.
-  get hovering() { return this._mouseHovering; }
+  /** Whether the pointer is hovering over the managed Container. */
+  get pointerWithin() { return this._pointerWithin; }
+  private _pointerWithin: boolean = false;
 
-  /**  */
-  dragged = false;
-
-  /**  */
-  clicked(/* support for multiple buttons */) {
-    return this.button[0].released && !this.dragged;
-  }
+  /** Returns true if this Container has been 'clicked': a button-release event without pointer dragging. */
+  clicked() { return this.button.released && this.dragButton.up && !this.dragButton.released; }
 
   /** The graphical subject being managed by this mouse state observer. */
   readonly container: PIXI.Container;
@@ -83,11 +58,10 @@ enum MouseButtonMap {
     container.addListener('mousemove', this.updateMousePosition, this);
     container.addListener('mousedown', this.mouseDownHandler, this);
     container.addListener('mouseup', this.mouseUpHandler, this);
-    // container.addListener('wheel', this.mouseWheelHandler, this);
-
     container.interactive = true;
+
     this.container = container;
-    Game.scene.ticker.add(this.updateButtonStates, this);
+    Game.scene.ticker.add(this.updateButtonState, this);
   }
 
   destroy() {
@@ -95,66 +69,72 @@ enum MouseButtonMap {
     this.container.removeListener('mousedown', this.mouseDownHandler, this);
     this.container.removeListener('mouseup', this.mouseUpHandler,this);
     this.container.interactive = false; // I'm assuming for now I will never assign two controllers to one container.
-    Game.scene.ticker.remove.remove(this.updateButtonStates, this);
+    Game.scene.ticker.remove.remove(this.updateButtonState, this);
   }
 
-  private updateButtonStates() {
-    if (this.skipUpdateButtonState)
-      this.skipUpdateButtonState = false
-    else
-      Object.values(this.button).forEach( b => b.update(b.down) );
+  /** Update step which passes current down-state back into the pointer button to
+   * facilitate the Button object's routine functions. */
+  private updateButtonState() {
+    if (!this.skipNextButtonUpdate) {
+      this.button.update(this.button.down);
+      this.dragButton.update(this.dragButton.down);
+    }
+    this.skipNextButtonUpdate = false;
   }
 
+  /** Updates the virtual pointer with the position of the observed pointer. */
   private updateMousePosition(event: InteractionEvent) {
     const local = event.data.getLocalPosition(this.container);
-    this.localPosition.set(local);
-    if (this.button[0].pressed)
-      this.localPressedPosition.set(local);
+    this._pointerLocation.set(local);
+    if (this.button.pressed)
+      this._pointerLastPressLocation.set(local);
 
-    const wasHovering = this._mouseHovering;
-    this._mouseHovering = (
+    const wasHovering = this._pointerWithin;
+    this._pointerWithin = (
       Common.within(local.x, 0, this.container.width) &&
       Common.within(local.y, 0, this.container.height)
     );
 
-    if (this.button[0].down && this.localPosition.distance(this.localPressedPosition) > 2)
-      this.dragged = true;
-
-    if (wasHovering && !this._mouseHovering)
-      Object.values(this.button).forEach( b => b.cancel() );
-  }
-
-  private mouseDownHandler(event: InteractionEvent) {
-    const button = this.getButton(event);
-    if (this._mouseHovering) {
-      button.update(true);
-      this.skipUpdateButtonState = true;
+    if (this.button.down && this._pointerLocation.distance(this._pointerLastPressLocation) > 2) {
+      this.dragButton.update(true);
+      this.skipNextButtonUpdate = true;
     }
 
+    if (wasHovering && !this._pointerWithin) {
+      this.button.cancel();
+      this.dragButton.cancel();
+    }
+  }
+
+  /** Updates the virtual pointer with a button-down event. Also updates the pointer's location. */
+  private mouseDownHandler(event: InteractionEvent) {
+    if (this._pointerWithin) {
+      this.button.update(true);
+      this.skipNextButtonUpdate = true;
+    }
     this.updateMousePosition(event);
     event.stopPropagation();  // Prevents underneaths from triggering.
   }
 
+  /** Updates the virtual pointer with a button-up event. Also updates the pointer's location. */
   private mouseUpHandler(event: InteractionEvent) {
-    this.getButton(event).update(false);
+    this.button.update(false);
+    this.dragButton.update(false);
+    this.skipNextButtonUpdate = true;
     this.updateMousePosition(event);
-    this.skipUpdateButtonState = true;
-    this.dragged = false;
 
-    if (this._mouseHovering)   // TODO Does this hover-guard do what I expect?
+    if (this._pointerWithin)  // TODO Does this hover-guard do what I expect?
       event.stopPropagation();
-  }
-
-  private mouseWheelHandler(event: FederatedWheelEvent) {
-    // stub; follow down/up implementation
   }
 
   /** True if this controller is listening for inputs. */
   get enabled() { return this.container.interactive; }
   set enabled(b) {
     this.container.interactive = b;
-    if (!b)
-      Object.values(this.button).forEach( b => b.reset() );
+    if (!b) {
+      this.button.reset();
+      this.dragButton.reset();
+    }
   }
 
 }

@@ -75,22 +75,22 @@ export class IssueOrderStart extends TurnState {
     const player = players.current;
     const { A, B, start } = gamepad.button;
 
-    // TODO [0]?
-    const leftMB = stagePointer.button[0];
-    const rightMB = stagePointer.button[2];
-    const mouseBoardLocation = stagePointer.getPosition().apply( n => Math.floor(n*1/tileSize) );
-    const mouseOverCursor = (mouseBoardLocation.equal(mapCursor.boardLocation));
+    // TODO Refine
+    const pointerButton = stagePointer.button;
+    const pointerBoardLocation = stagePointer.pointerLocation().apply( n => Math.floor(n/tileSize) );
+    const pointerPressBoardLocation = stagePointer.pointerLastPressLocation().apply( n => Math.floor(n/tileSize) );
+    const pointerOverCursor = (pointerBoardLocation.equal(mapCursor.boardLocation));
+
+    // TODO ClickDrag grabs square from pointerPressBoardLocation
 
     // TODO This implementation is incredibly messy; I was experimenting.
     // It's also made harder to read by the dev controls, clean those up too.
-    const clickMove = (leftMB.down && !mouseOverCursor);
-    const clickAffirm = (stagePointer.clicked() && mouseOverCursor);
-    const clickHoldAffirm = (leftMB.down && stagePointer.dragged);
-    if (leftMB.up)
+    const clickMove = (pointerButton.down && !pointerOverCursor);
+    const clickAffirm = (stagePointer.clicked() && pointerOverCursor);
+    const clickHoldAffirm = (pointerButton.held && !stagePointer.pointerDragging);
+    const clickDragAffirm = (stagePointer.pointerDragging);
+    if (pointerButton.up)
       this.cursorMovedByClick = false;
-    // TODO left.press -> cursor.move -> left.release -> tile.select
-    // This is not how this should work.
-    // tile.select should only happen when cursor.move is not called.
 
     const square = map.squareAt(mapCursor.boardLocation);
     const unit = square.unit;
@@ -138,15 +138,15 @@ export class IssueOrderStart extends TurnState {
 
     // On left click (not over cursor pos), move cursor
     if (clickMove) {
-      if (leftMB.pressed)
-        mapCursor.moveTo(mouseBoardLocation);
+      if (pointerButton.pressed)
+        mapCursor.moveTo(pointerBoardLocation);
       else
-        mapCursor.animateTo(mouseBoardLocation);
+        mapCursor.animateTo(pointerBoardLocation);
       this.cursorMovedByClick = true;
     }
 
     // On press A, select an allied unit to give instruction to
-    else if (A.pressed || clickAffirm || clickHoldAffirm) {
+    else if (A.pressed || clickAffirm || clickHoldAffirm || clickDragAffirm) {
       // Allied unit to move
       const visible = (square.unitVisible());
       const orderableAlly = (unit?.orderable && unit?.faction === player.faction);
@@ -169,7 +169,7 @@ export class IssueOrderStart extends TurnState {
     }
 
     // On press B, show unit attack range or initiate move camera mode.
-    else if (B.pressed || rightMB.pressed) {
+    else if (B.pressed) {
       const allied = square.unit?.faction === player.faction;
       const visible = square.unitVisible();
       if (square.unit && (allied || visible)) {

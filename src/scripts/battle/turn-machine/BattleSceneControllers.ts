@@ -2,7 +2,7 @@ import { MapCursor } from "../map/MapCursor";
 import { Map } from "../map/Map";
 import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
-import { MouseInputWrapper } from "../../controls/MouseInputWrapper";
+import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
 import { MapLayer, MapLayerFunctions } from "../map/MapLayers";
@@ -119,7 +119,7 @@ export class BattleSceneControllers {
   scenario: Scenario;
 
   gamepad: VirtualGamepad;
-  stagePointer: MouseInputWrapper;
+  stagePointer: ClickableContainer;
   camera: Camera;
   map: Map;
   mapCursor: MapCursor;
@@ -217,7 +217,7 @@ export class BattleSceneControllers {
     // TODO Factor out behavioral dependencies from PointerController to here.
     // TODO Add concise syncing with mapCursor behavior: when mapCursor stops listening to dpad
     //      events, pointer events shouldn't work either.
-    this.stagePointer = new MouseInputWrapper(Game.stage);
+    this.stagePointer = new ClickableContainer(Game.stage);
     this.stagePointer.enabled = true; // TODO Give to inter-state reset?
 
     // Setup UI Window System

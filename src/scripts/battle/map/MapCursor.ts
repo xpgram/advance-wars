@@ -1,7 +1,7 @@
 import { Map } from "./Map";
 import { Game } from "../../..";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
-import { MouseInputWrapper } from "../../controls/MouseInputWrapper";
+import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { LowResTransform } from "../../LowResTransform";
 import { MapLayer } from "./MapLayers";
 import { Pulsar } from "../../timer/Pulsar";

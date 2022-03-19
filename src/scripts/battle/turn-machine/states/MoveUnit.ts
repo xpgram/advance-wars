@@ -111,9 +111,9 @@ export class MoveUnit extends TurnState {
     const tileSize = Game.display.standardLength;
 
     // Experimental mouse controls setup
-    const pointerPos = stagePointer.getPosition().apply(n => Math.floor(n/tileSize));
-    const pointerAffirm = stagePointer.button[0].released;
-    if (stagePointer.button[0].down && pointerPos.notEqual(mapCursor.boardLocation)) {
+    const pointerPos = stagePointer.pointerLocation().apply(n => Math.floor(n/tileSize));
+    const pointerAffirm = stagePointer.button.released;
+    if (stagePointer.button.down && pointerPos.notEqual(mapCursor.boardLocation)) {
       mapCursor.moveTo(pointerPos);
     }
     // TODO pointerCancel when button[0].pressed on a non-flagged tile.

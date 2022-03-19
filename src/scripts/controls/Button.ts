@@ -1,6 +1,8 @@
 import { ButtonState } from "./ButtonState";
 import { ButtonMap } from "./ButtonMap";
 
+const defaultBMap = new ButtonMap(-1,-1,-1,-1);
+
 /** Describes a single button on the virtual controller. Self-manages pressed/down/released state. */
 export class Button {
 
@@ -26,14 +28,14 @@ export class Button {
   // private _timer = ;
 
 
-  constructor(map: ButtonMap) {
-    this.map = map;
+  constructor(map?: ButtonMap) {
+    this.map = map ?? defaultBMap;
   }
 
   // Button polling methods
   get pressed() { return this._state === ButtonState.Pressed; }
   get down() { return this._state === ButtonState.Down || this.pressed; }
-  get held() { return this.down && this._framesHeld > 3; } // TODO Unhardcode the frames (n/60 seconds)
+  get held() { return this.down && this._framesHeld > 15; } // TODO Unhardcode the frames (n/60 seconds)
   get released() { return this._state === ButtonState.Released; }
   get up() { return this._state === ButtonState.Up || this.released; }
   get changed() { return this.pressed || this.released; }
@@ -67,7 +69,7 @@ export class Button {
     this._state = ButtonState.Up;
   }
 
-  /** On next update(), changes to 'Up' state, skipping 'Released'. */
+  /** On next update(), changes directly to 'Up' state, skipping 'Released'. */
   cancel() {
     this._releaseCancelled = true;
   }
