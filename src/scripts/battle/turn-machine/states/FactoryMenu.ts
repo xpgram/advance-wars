@@ -52,10 +52,10 @@ export class FactoryMenu extends TurnState {
       const key = {
         icon: unit.shopPreview(player.faction, player.armyFacing),
         title: unit.name,
-        cost: (spawnMap?.units) ? unit.cost : 0,
+        cost: unit.cost,
       }
       return new ListMenuOption(key, unit.serial, {
-        triggerDisable: () => player.canAfford(key.cost) === false,
+        triggerDisable: () => player.canAfford(unit.cost) === false,
       });
     });
 
@@ -127,7 +127,6 @@ export class FactoryMenu extends TurnState {
         instruction.place = new Point(this.assets.mapCursor.boardLocation);
         instruction.action = Command.SpawnUnit.serial;
         instruction.which = unitSerial;
-
         this.advance();
       }
     }
