@@ -4,6 +4,9 @@ import { Transformable } from "./CommonTypes";
  * A solution to the problem of LowResTransform being unable to accept lists.
  * This is an intermediary class, acting as a transform for a list of things, but
  * ultimately meant to be transformed itself.
+ * @deprecated I hate this class.  
+ * For real though, LowResTransform is deprecated, and this was an awkward layer
+ * above it anyway; it has problems.
  */
 export class TransformableList {
     list: Transformable[] = [];
@@ -25,25 +28,23 @@ export class TransformableList {
         return this.list.length;
     }
 
-    // FIXME There are no protections against an empty list.
-
-    get x(): number { return this.list[0].x; }
+    get x(): number { return this.list[0]?.x ?? 0; }
     set x(num) { this.list.forEach( obj => obj.x = num ); }
 
-    get y(): number { return this.list[0].y; }
+    get y(): number { return this.list[0]?.y ?? 0; }
     set y(num) { this.list.forEach( obj => obj.y = num ); }
 
-    get zIndex(): number { return this.list[0].zIndex; }
+    get zIndex(): number { return this.list[0]?.zIndex ?? 0; }
     set zIndex(num) { this.list.forEach( obj => obj.zIndex = num ); }
 
-    get rotation(): number { return this.list[0].rotation; }
+    get rotation(): number { return this.list[0]?.rotation ?? 0; }
     set rotation(num) { this.list.forEach( obj => obj.rotation = num ); }
 
     get scale() { return ((parent) => { return { 
-        get x(): number { return parent.list[0].scale.x; },
+        get x(): number { return parent.list[0]?.scale.x ?? 1; },
         set x(num) { parent.list.forEach( obj => obj.scale.x = num ); },
 
-        get y(): number { return parent.list[0].scale.y; },
+        get y(): number { return parent.list[0]?.scale.y ?? 1; },
         set y(num) { parent.list.forEach( obj => obj.scale.y = num ); }
     }})(this)}
 
@@ -55,9 +56,9 @@ export class TransformableList {
     // Technically, I could solve this issue be scaling width directly and height proportionally.
     // That doesn't feel very mathematical, however.
 
-    get width(): number { return this.list[0].width; }
+    get width(): number { return this.list[0]?.width ?? 0; }
     set width(num) { /*this.list.forEach( obj => obj.width = num );*/ }
 
-    get height(): number { return this.list[0].height; }
+    get height(): number { return this.list[0]?.height ?? 0; }
     set height(num) { /*this.list.forEach( obj => obj.height = num );*/ }
 }
