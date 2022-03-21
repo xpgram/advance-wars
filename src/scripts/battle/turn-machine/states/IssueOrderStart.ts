@@ -87,7 +87,7 @@ export class IssueOrderStart extends TurnState {
     const clickMove = (pointerButton.down && !pointerOverCursor);
     const clickAffirm = (stagePointer.clicked() && pointerOverCursor);
     const clickHoldAffirm = (pointerButton.held && !stagePointer.pointerDragging);
-    const clickDragAffirm = (stagePointer.pointerDragging);
+    const clickDragAffirm = (stagePointer.pointerDragging && pointerPressBoardLocation.equal(pointerBoardLocation));
     if (pointerButton.up)
       this.cursorMovedByClick = false;
 

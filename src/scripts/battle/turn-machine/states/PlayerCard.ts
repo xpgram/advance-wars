@@ -234,9 +234,9 @@ export class PlayerCard extends TurnState {
   }
 
   update() {
-    const { gamepad } = this.assets;
+    const { gamepad, stagePointer } = this.assets;
 
-    if (gamepad.button.A.pressed) {
+    if (gamepad.button.A.pressed || stagePointer.clicked() ) {
       this.timer.destroy();
       this.advance();
     }

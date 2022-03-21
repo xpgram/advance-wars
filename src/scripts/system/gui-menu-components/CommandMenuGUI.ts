@@ -5,6 +5,8 @@ import { Palette } from "../../color/ColorPalette";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
+import { Common } from "../../CommonUtils";
+import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
 import { IconTitle } from "./ListMenuTitleTypes";
@@ -72,6 +74,21 @@ export class CommandMenuGUI<Y> {
     shape: v => Math.sqrt(v),
   });
 
+  /** Listeners for click interactions. */
+  readonly menuPointer: ClickableContainer;
+
+  /** Returns the index of the menu item the pointer is currently hovering over.
+   * Returns undefined if the pointer position cannot be resolved to a list item. */
+  getPointerSelection() {
+    const itemHeight = this.listItemProps.height;
+    const itemMargin = this.listItemProps.border.top;
+
+    const pointerY = this.menuPointer.pointerLocation().y;
+    const idx = Math.floor((pointerY - itemMargin) / itemHeight);
+
+    return (Common.validIndex(idx, this.menu.listItems.length)) ? idx : undefined;
+  }
+
   /** Reference to the menu object which controls this GUI. */
   readonly menu: ListMenu<IconTitle, Y>;
 
@@ -95,11 +112,14 @@ export class CommandMenuGUI<Y> {
 
     this.gui.zIndex = 1000;
 
+    this.menuPointer = new ClickableContainer(this.gui);
+
     Game.scene.ticker.add(this.update, this);
   }
 
   /** Unlinks this object's circular references and removes it from higher scope structures. */
   destroy() {
+    this.menuPointer.destroy();
     this.gui.destroy({children: true});
     this.menu.destroy();
     this.cursorGraphic.destroy();
@@ -110,6 +130,12 @@ export class CommandMenuGUI<Y> {
   private update() {
     this.fadeInSlider.increment();
     this.gui.alpha = this.fadeInSlider.output;
+
+    if (this.menuPointer.pointerWithin) {
+      const pointerIdx = this.getPointerSelection();
+      if (pointerIdx !== undefined && this.menu.selectedIndex !== pointerIdx)
+        this.menu.setCursor(pointerIdx);
+    }
   }
 
   /** Reveals this menu's graphics and enables player input. */
