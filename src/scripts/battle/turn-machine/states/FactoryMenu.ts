@@ -115,11 +115,24 @@ export class FactoryMenu extends TurnState {
   }
 
   update() {
-    const { gamepad, shopMenu, instruction } = this.assets;
-    const { menu } = shopMenu;
+    const { gamepad, stagePointer, shopMenu, instruction } = this.assets;
+    const { menu, menuPointer } = shopMenu;
+
+    let affirm = false;
+
+    if (menuPointer.clicked()) {
+      const idx = shopMenu.getPointerSelection();
+      if (idx !== undefined) {
+        menu.setCursor(idx);
+        affirm = true;
+      }
+    }
+
+    if (gamepad.button.A.pressed)
+      affirm = true;
 
     // On press A, handle selected option.
-    if (gamepad.button.A.pressed) {
+    if (affirm) {
       const option = menu.selectedOption;
       const unitSerial = option.value;
 
@@ -132,7 +145,7 @@ export class FactoryMenu extends TurnState {
     }
 
     // On press B, revert to field cursor.
-    else if (gamepad.button.B.pressed) {
+    else if (gamepad.button.B.pressed || stagePointer.clicked() ) {
       this.regress();
     }
   }
