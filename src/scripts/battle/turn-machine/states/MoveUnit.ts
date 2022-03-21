@@ -116,7 +116,6 @@ export class MoveUnit extends TurnState {
     if (stagePointer.button.down && pointerPos.notEqual(mapCursor.boardLocation)) {
       mapCursor.moveTo(pointerPos);
     }
-    // TODO pointerCancel when button[0].pressed on a non-flagged tile.
 
     // On press B, revert state
     if (gamepad.button.B.pressed)
@@ -152,6 +151,9 @@ export class MoveUnit extends TurnState {
         instruction.action = Command.Attack.serial;
         instruction.focal = mapCursor.boardLocation;
         this.advance();
+      }
+      else if (pointerAffirm) {   // Mouse up over non-interactable: cancel
+        this.regress();
       }
     }
   }
