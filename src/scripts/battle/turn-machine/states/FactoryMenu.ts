@@ -52,12 +52,18 @@ export class FactoryMenu extends TurnState {
       const key = {
         icon: unit.shopPreview(player.faction, player.armyFacing),
         title: unit.name,
-        cost: unit.cost,
+        cost: (spawnMap?.units) ? unit.cost : 0,
       }
       return new ListMenuOption(key, unit.serial, {
-        triggerDisable: () => player.canAfford(unit.cost) === false,
+        triggerDisable: () => player.canAfford(key.cost) === false,
       });
     });
+
+    // Safe-guard for no spawn-map
+    if (listItems.length === 0) {
+      this.failTransition(`No units to spawn here (${mapCursor.boardLocation.toString()})`);
+      return;
+    }
 
     // Build and position menu
     shopMenu.setListItems(listItems);

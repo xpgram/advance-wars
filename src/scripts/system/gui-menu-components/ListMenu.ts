@@ -145,8 +145,10 @@ export class ListMenu<X, Y> extends Observable() {
 
     if (dir.y !== 0)
       this.updateListeners('move-cursor');
-    if (dir.x !== 0)
+    if (dir.x !== 0) {
       this.updateListeners('change-page');
+      this.updateListeners('move-cursor');
+    }
   }
 
   /** Resets menu cursor to the first item of the first page. */
@@ -201,7 +203,7 @@ export class ListMenu<X, Y> extends Observable() {
     this._listReal.forEach( item => item.retrigger() );
     this._listSieve = this._listReal.filter( item => item.included );
 
-    const max = Math.floor(this._listSieve.length / this.pageLength);
+    const max = Math.ceil(this._listSieve.length / this.pageLength);
     const idx = (this.pageCursor)
       ? Math.min(this.pageCursor.output, max)
       : 0;
@@ -220,8 +222,10 @@ export class ListMenu<X, Y> extends Observable() {
     const end = Math.min(start+this.pageLength, this._listSieve.length);
     this._listPage = this._listSieve.slice(start, end);
 
+    const loopCorrection = -1;
+
     const idx = (this.cursor)
-      ? Math.min(this.cursor.output, end-start)
+      ? Math.min(this.cursor.output, end - start + loopCorrection)
       : 0;
     this.cursor = new Slider({
       max: this._listPage.length,
