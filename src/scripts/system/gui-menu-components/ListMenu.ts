@@ -151,11 +151,17 @@ export class ListMenu<X, Y> extends Observable() {
 
   /** Resets menu cursor to the first item of the first page. */
   resetCursor() {
-    this.pageCursor.track = 0;
+    this.setCursor(0,0);
+  }
+
+  /** Sets the menu cursor to the index and page given. Invalid indices are reduced to valid
+   * ones by the menu's internal mechanisms. */
+  setCursor(index: number, page?: number) {
+    this.pageCursor.track = page ?? this.pageCursor.track;
     this.setPage();
-    this.cursor.track = 0;
-    this.updateListeners('change-page');
-    this.updateListeners('move-cursor');
+    this.cursor.track = index;
+    this.updateListeners(`change-page`);
+    this.updateListeners(`move-cursor`);
   }
 
   /** Enables the player interactivity listener. */

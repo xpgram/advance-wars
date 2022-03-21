@@ -104,10 +104,24 @@ export class CommandMenu extends TurnState {
 
   update(): void {
     const { gamepad, stagePointer, instruction } = this.assets;
-    const { menu } = this.assets.cmdMenu;
+    const { menu, menuPointer } = this.assets.cmdMenu;
+
+    let affirm = false;
+
+    if (menuPointer.clicked()) {
+      const idx = this.assets.cmdMenu.getPointerSelection();
+      if (idx !== undefined) {
+        menu.setCursor(idx);
+        affirm = true;
+      }
+    }
+
+    if (gamepad.button.A.pressed || this.autoEnd) {
+      affirm = true;
+    }
 
     // If A, infer next action from cmdMenu.
-    if (gamepad.button.A.pressed || this.autoEnd) {
+    if (affirm) {
       const commandValue = (!this.autoEnd)
         ? menu.selectedValue.serial
         : Command.Wait.serial;
