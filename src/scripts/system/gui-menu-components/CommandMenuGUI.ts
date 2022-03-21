@@ -142,6 +142,7 @@ export class CommandMenuGUI<Y> {
   show() {
     this.fadeInSlider.incrementFactor = 1;
     this.menu.enableInput();
+    this.menuPointer.enabled = true;
     this.cursorGraphic.skipMotion();
   }
 
@@ -149,6 +150,7 @@ export class CommandMenuGUI<Y> {
   hide() {
     this.fadeInSlider.incrementFactor = -1;
     this.menu.disableInput();
+    this.menuPointer.enabled = false;
   }
 
   /** Changes the GUI coordinate location so that its top-left corner is p. */
