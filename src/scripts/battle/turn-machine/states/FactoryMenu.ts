@@ -43,6 +43,10 @@ export class FactoryMenu extends TurnState {
     const spawnMap = defaultUnitSpawnMap.find(spawnMap => spawnMap.type === square.terrain.type)
     const unitTypes = spawnMap?.units || [];
 
+    // Populates shop menu with all available units if the spawn map is empty and dev-mode is on.
+    if (unitTypes.length === 0 && Game.developmentMode)
+      unitTypes.push( ...Object.values(Unit).filter(type => square.occupiable(new type())) )
+
     const listItems = unitTypes.map(type => {
       const unit = new type();
       const key = {

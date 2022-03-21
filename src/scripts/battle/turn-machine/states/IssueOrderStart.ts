@@ -8,8 +8,7 @@ import { MoveCamera } from "./MoveCamera";
 import { FieldMenu } from "./FieldMenu";
 import { FactoryMenu } from "./FactoryMenu";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
-import { Unit } from "../../Unit";
-import { Common } from "../../../CommonUtils";
+import { BattleSceneControllers } from "../BattleSceneControllers";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -92,48 +91,15 @@ export class IssueOrderStart extends TurnState {
     if (pointerButton.up)
       this.cursorMovedByClick = false;
 
+    // TODO Try to write these out of the update() script; it'll make mouse easier
     const square = map.squareAt(mapCursor.boardLocation);
     const unit = square.unit;
 
-    // TODO Remove — but not yet; I find it useful. Extract it to a control script, maybe.
-    // Empty resources
-    if (Game.devController.pressed(Keys.E, 'Shift'))
-      if (unit) {
-        unit.gas = 10;
-        unit.ammo = 0;
-        unit.hp = 50;
-      }
-    // Reactivate unit
-    if (Game.devController.pressed(Keys.R, 'Shift'))
-      if (unit && unit.faction === player.faction) {
-        unit.spent = false;
-        unit.orderable = true;
-      }
-    // Spawn unit
-    if (Game.devController.pressed(Keys.N, 'Shift')) {
-      if (unit)
-        unit.destroy();
-      const possibleSpawns = Object.values(Unit).filter( type => square.occupiable(new type()) );
-      const newUnit = player.spawnUnit({
-        location: mapCursor.boardLocation,
-        serial: Common.pick(possibleSpawns).serial,
-      })
-      newUnit.orderable = true;
-    }
-    // Destroy unit
-    if (Game.devController.pressed(Keys.M, 'Shift'))
-      if (unit)
-        unit.destroy();
-    // Capture property
-    if (Game.devController.pressed(Keys.C, 'Shift'))
-      if (square.terrain.building) {
-        square.terrain.faction = player.faction;
-        player.scanCapturedProperties();
-      }
-    // CO
-    if (Game.devController.pressed(Keys.O, 'Shift'))
-      if (square.unit)
-        square.unit.CoOnBoard = true;
+    // Run dev control scripts (defined at the bottom)
+    devControls.forEach( script => {
+      if (Game.devController.pressed(script.key, 'Shift'))
+        script.run(this.assets, this);
+    });
 
 
     // On left click (not over cursor pos), move cursor
@@ -186,3 +152,88 @@ export class IssueOrderStart extends TurnState {
   }
 
 }
+
+
+//////////////////////////////////////////////////////////////////////
+//////////    Dev Control Scripts    /////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+const devControls: {key: number, run: (assets: BattleSceneControllers, state: IssueOrderStart) => void}[] = [
+  { // Empty resources
+    key: Keys.E,
+    run: (assets) => {
+      const { map, mapCursor, players } = assets;
+      const unit = map.squareAt(mapCursor.boardLocation).unit;
+
+      if (unit && unit.faction === players.current.faction) {
+        unit.gas = 10;
+        unit.ammo = Math.min(1, unit.maxAmmo);
+        unit.hp = 50;
+      }
+    }
+  },
+  { // Reactivate unit
+    key: Keys.R,
+    run: (assets) => {
+      const { map, mapCursor, players } = assets;
+      const unit = map.squareAt(mapCursor.boardLocation).unit;
+
+      if (unit && unit.faction == players.current.faction) {
+        unit.spent = false;
+        unit.orderable = true;
+      }
+    }
+  },
+  { // Increase funds by 1 turn
+    key: Keys.I,
+    run: (assets) => {
+      const { players, scenario, uiSystem } = assets;
+      const income = scenario.incomePerTaxableProperty;
+      players.current.funds += income * players.current.propertyCount;
+      uiSystem.inspectPlayers();
+    }
+  },
+  { // Spawn unit
+    key: Keys.N,
+    run: (assets, state) => {
+      const { map, mapCursor, players } = assets;
+      const square = map.squareAt(mapCursor.boardLocation);
+      
+      if (square.unit)
+        square.unit.destroy();
+      state.advance(FactoryMenu, RatifyIssuedOrder);
+    }
+  },
+  { // Destroy unit
+    key: Keys.M,
+    run: (assets) => {
+      const { map, mapCursor } = assets;
+      const unit = map.squareAt(mapCursor.boardLocation);
+
+      if (unit)
+        unit.destroy();
+    }
+  },
+  { // Capture property
+    key: Keys.C,
+    run: (assets) => {
+      const { map, mapCursor, players } = assets;
+      const square = map.squareAt(mapCursor.boardLocation);
+
+      if (square.terrain.building) {
+        square.terrain.faction = players.current.faction;
+        players.current.scanCapturedProperties();
+        map.revealSightMapLocation(square.pos, players.current);
+      }
+    }
+  },
+  { // Annoint CO unit
+    key: Keys.O,
+    run: (assets) => {
+      const { map, mapCursor } = assets;
+      const unit = map.squareAt(mapCursor.boardLocation).unit;
+      if (unit)
+        unit.CoOnBoard = true;
+    }
+  }
+]
