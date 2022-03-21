@@ -45,7 +45,12 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
   }
 
   // Redefine menu type
-  declare readonly menu: ListMenu<ShopItemTitle, Y>;
+  // readonly menu: ListMenu<ShopItemTitle, Y>;
+
+  // TODO menu here uses a different X typing, but CommandMenuGUI technically
+  // depends on the one it defines (Typescript has no way of knowing that I'm
+  // not making a typing mistake during this override). So... yeesh.
+  // I need to think up a less messy implementation anyway.
 
   protected onCursorMove() {
     const { listItemProps: props, capHeight } = this;
