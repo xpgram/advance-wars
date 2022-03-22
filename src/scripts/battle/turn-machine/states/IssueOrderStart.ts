@@ -76,8 +76,8 @@ export class IssueOrderStart extends TurnState {
 
     // TODO Refine
     const pointerButton = stagePointer.button;
-    const pointerBoardLocation = stagePointer.pointerLocation().apply( n => Math.floor(n/tileSize) );
-    const pointerPressBoardLocation = stagePointer.pointerLastPressLocation().apply( n => Math.floor(n/tileSize) );
+    const pointerBoardLocation = map.squareFromWorldPoint(stagePointer.pointerLocation()).boardLocation;
+    const pointerPressBoardLocation = map.squareFromWorldPoint(stagePointer.pointerLastPressLocation()).boardLocation;
     const pointerOverCursor = (pointerBoardLocation.equal(mapCursor.boardLocation));
 
     // TODO ClickDrag grabs square from pointerPressBoardLocation

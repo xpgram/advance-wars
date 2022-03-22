@@ -85,17 +85,15 @@ export class ChooseAttackTarget extends TurnState {
     let cancel = false;
 
     // Mouse controls data
-    const tileSize = Game.display.standardLength;
-    const pointerBoardLocation = stagePointer.pointerLocation().apply(n => Math.floor(n/tileSize));
-    const tile = map.squareAt(pointerBoardLocation);
+    const tile = map.squareFromWorldPoint(stagePointer.pointerLocation());
 
-    const pointerOverCursor = pointerBoardLocation.equal(mapCursor.boardLocation);
+    const pointerOverCursor = tile.boardLocation.equal(mapCursor.boardLocation);
 
     // Mouse logic
     if (stagePointer.clicked()) {
       if (tile.attackFlag) {
         if (!pointerOverCursor) {
-          this.radialPoints.setIndexToPoint(pointerBoardLocation);
+          this.radialPoints.setIndexToPoint(tile.boardLocation);
         } else
           affirm = true;
       }

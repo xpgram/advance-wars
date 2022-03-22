@@ -111,10 +111,10 @@ export class MoveUnit extends TurnState {
     const tileSize = Game.display.standardLength;
 
     // Experimental mouse controls setup
-    const pointerPos = stagePointer.pointerLocation().apply(n => Math.floor(n/tileSize));
+    const pointerBoardLocation = map.squareFromWorldPoint(stagePointer.pointerLocation()).boardLocation;
     const pointerAffirm = stagePointer.button.released;
-    if (stagePointer.button.down && pointerPos.notEqual(mapCursor.boardLocation)) {
-      mapCursor.moveTo(pointerPos);
+    if (stagePointer.button.down && pointerBoardLocation.notEqual(mapCursor.boardLocation)) {
+      mapCursor.moveTo(pointerBoardLocation);
     }
 
     // On press B, revert state
