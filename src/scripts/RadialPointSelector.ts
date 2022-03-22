@@ -144,4 +144,14 @@ export class RadialPointSelector {
       onButtonTap();
   }
 
+  /** Sets the selector's index value to one whose data matches the point given.
+   * If the given point cannot be found within the list, no change is made. */
+  setIndexToPoint(loc: Point) {
+    const idx = this.points.findIndex( (p) => p.equal(loc) );
+    if (idx >= 0) {
+      this.index.track = idx;
+      this.onIncrement.call(this.context, this.points[this.index.output]);
+    }
+  }
+
 }

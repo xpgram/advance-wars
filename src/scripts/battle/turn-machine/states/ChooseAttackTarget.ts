@@ -2,6 +2,7 @@ import { TurnState } from "../TurnState";
 import { Point } from "../../../Common/Point";
 import { DamageScript } from "../../DamageScript";
 import { RadialPointSelector } from "../../../RadialPointSelector";
+import { Game } from "../../../..";
 
 export class ChooseAttackTarget extends TurnState {
   get type() { return ChooseAttackTarget; }
@@ -74,14 +75,44 @@ export class ChooseAttackTarget extends TurnState {
   }
 
   update() {
-    const { gamepad, mapCursor, instruction } = this.assets;
+    const { gamepad, stagePointer, map, mapCursor, instruction } = this.assets;
     const { place } = this.data;
 
     const { A, B } = gamepad.button;
 
+    // Transition intent flags
+    let affirm = false;
+    let cancel = false;
+
+    // Mouse controls data
+    const tileSize = Game.display.standardLength;
+    const pointerBoardLocation = stagePointer.pointerLocation().apply(n => Math.floor(n/tileSize));
+    const tile = map.squareAt(pointerBoardLocation);
+
+    const pointerOverCursor = pointerBoardLocation.equal(mapCursor.boardLocation);
+
+    // Mouse logic
+    if (stagePointer.clicked()) {
+      if (tile.attackFlag) {
+        if (!pointerOverCursor) {
+          this.radialPoints.setIndexToPoint(pointerBoardLocation);
+        } else
+          affirm = true;
+      }
+      else
+        cancel = true;
+    }
+
+    // Gamepad logic
+    if (A.pressed)
+      affirm = true;
     if (B.pressed)
+      cancel = true;
+
+    // Handle transition intent
+    if (cancel)
       this.regress();
-    else if (A.pressed) {
+    else if (affirm) {
       instruction.focal = this.radialPoints.current;
       this.advance();
     }
