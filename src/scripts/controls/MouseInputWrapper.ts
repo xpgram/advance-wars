@@ -38,9 +38,9 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   pointerLocation() { return this._pointerLocation.clone() }
   private _pointerLocation = new Point();
 
-  /** Returns a Point object: the pointer's coordinates relatvei to its COntainer's origin
+  /** Returns a Point object: the pointer's coordinates relative to its Container's origin
    * during last button-pressed event. */
-  pointerLastPressLocation() { return this._pointerLastPressLocation.clone(); }
+  pointerPressedLocation() { return this._pointerLastPressLocation.clone(); }
   private _pointerLastPressLocation = new Point();
 
   /** Whether the pointer is hovering over the managed Container. */
