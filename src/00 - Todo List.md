@@ -12,28 +12,19 @@ Although, I suspect if my player closed the browser, I wouldn't really care abou
 But anyway, yeah. There is constant state checking because his system never just *knows* where it is like mine does.
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
+- [ ] Turn common mouse-drag cursor behavior into enable-able Control Script
+  - [ ] Mode: 'any' cursor moves to any tile
+  - [ ] Mode: 'highlighted' cursor moves to any tile with moveFlag|attackFlag|targetFlag set
 - [ ] MouseInputWrapper doesn't play well with Game.stage when it scales.
+- [ ] map.squareAt() is becoming a problem for cursor move-to-pointer ops. I need that 'infinite plane' functionality.
 
 - [ ] Integrate MapCursor with stage.pointer and gamepad controls.
-  - [ ] OrderStart will check for mapCursor.select or .holdSelect, a pulse that works the same as A.pressed
-- [ ] Support for Mouse controls
-  - [ ] Left Click: Positive / Confirm / Select
-  - [ ] Right Click: Negative / Cancel / Back
-  - [ ] Middle Click: Info (Open Details window)
-  - [ ] Middle+Left Click: Change Info Page
 - [ ] Intuitive mouse flow:
-  - Click on troop (hold)
-  - Hold triggers, MoveUnit turnstate
-  - Mouse drag to draw path
-  - Mouse release to select location
-    - Inhabitable space: Open CmdMenu
-    - Attackable space: Auto-Attack
-    - Uninhabitable space: Do nothing, leave cursor there
-    (This is probably just how MoveUnit will work, even without the first few steps)
-  - In CmdMenu:
-    - Click option to select
-    - Click outside of Menu (world) to cancel
-    - Right click to cancel; (unless right-clicks aren't feasible in browser)
+  - Click on troop: select for MoveUnit
+  - Click-hold-release: move cursor to unit, no select
+  - Click-drag to select: no longer a thing
+    - [ ] Before disabling: let's try using PressLocation first and see how that feels.
+  - MoveUnit: click on cursor-location to select for CmdMenu
 
 - [ ] Map.changeTerrain(pos: Point, terrain: TerrainType)
   This should handle the specifics.
