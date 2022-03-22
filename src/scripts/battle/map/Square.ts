@@ -204,7 +204,7 @@ export class Square {
     return BitIO.ReadBits(this.displayInfo, bitmask);
   }
   /** A point object representing this square's positional coordinates on the map. */
-  get pos(): Point {
+  get boardLocation(): Point {
     return new Point(this.x, this.y);
   }
   /** Temporary store: A 4-bit number (value range -1–14) useful in search algorithms. */
@@ -362,7 +362,7 @@ export class Square {
 
   /** The neighboring tiles adjacent to this one. */
   get neighbors() {
-    return this.map.neighborsAt(this.pos);
+    return this.map.neighborsAt(this.boardLocation);
   }
 
   /** Returns true if the given unit may legally inhabit this square. */

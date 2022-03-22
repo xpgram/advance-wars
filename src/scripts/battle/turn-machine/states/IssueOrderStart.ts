@@ -223,7 +223,7 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
       if (square.terrain.building) {
         square.terrain.faction = players.current.faction;
         players.current.scanCapturedProperties();
-        map.revealSightMapLocation(square.pos, players.current);
+        map.revealSightMapLocation(square.boardLocation, players.current);
       }
     }
   },

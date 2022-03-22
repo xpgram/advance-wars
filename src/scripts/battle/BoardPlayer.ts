@@ -142,7 +142,7 @@ export class BoardPlayer {
       throw new BoardPlayerConstructionError(`BoardPlayer object #${this.playerNumber} has no means of playing.`);
 
     // Set default cursor position
-    this.lastCursorPosition = new Point(this.HQs[0].pos);
+    this.lastCursorPosition = new Point(this.HQs[0].boardLocation);
   }
 
   /** Unbind references which may be circular. */

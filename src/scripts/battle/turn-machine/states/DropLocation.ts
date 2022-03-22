@@ -51,7 +51,7 @@ export class DropLocation extends TurnState {
     const neighbors = map.neighborsAt(goal);
     const tiles = neighbors.orthogonals
       .filter( tile => (tile.occupiable(toDrop) || (tile.traversable(toDrop) && tile.unit === actor) )
-        && !(drop.map( d => d.where ).some( p => p.equal(new Point(tile.pos)) )) );
+        && !(drop.map( d => d.where ).some( p => p.equal(new Point(tile.boardLocation)) )) );
     tiles.forEach( tile => tile.moveFlag = true );
 
     if (!tiles.length)
@@ -70,7 +70,7 @@ export class DropLocation extends TurnState {
       ];
       const smartSet = dirSets[lastDir];
       const cursorDir = smartSet.find( s => map.squareAt(goal.add(s)).moveFlag );
-      const point = (cursorDir) ? cursorDir.add(goal) : new Point(tiles[0].pos);
+      const point = (cursorDir) ? cursorDir.add(goal) : new Point(tiles[0].boardLocation);
 
       mapCursor.moveTo(point);
     }
@@ -79,7 +79,7 @@ export class DropLocation extends TurnState {
     this.radialPoints = new RadialPointSelector({
       gamepad,
       origin: goal,
-      points: tiles.map( t => new Point(t.pos) ),
+      points: tiles.map( t => new Point(t.boardLocation) ),
       startingPoint: mapCursor.boardLocation,
       onIncrement: p => mapCursor.moveTo(p),
     })

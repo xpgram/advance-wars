@@ -411,6 +411,12 @@ export class Map {
         return this.board[pos.x][pos.y];
     }
 
+    /** Returns the Square object located underneath the in-world point given. */
+    squareFromWorldPoint(point: Point) {
+        const tileSize = Game.display.standardLength;
+        return this.squareAt( point.apply(n => Math.floor(n/tileSize)) );
+    }
+
     /** Gathers the nearest-neighboring tiles adjacent to the tile at pos and returns them as a NeighborMatrix object.
      * @param pos The location on the map to inspect.
      */
