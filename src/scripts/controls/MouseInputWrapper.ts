@@ -47,6 +47,10 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   get pointerWithin() { return this._pointerWithin; }
   private _pointerWithin: boolean = false;
 
+  /** Whether the pointer has moved this frame. */
+  get pointerMoved() { return this._pointerMoved; }
+  private _pointerMoved: boolean = false;
+
   /** Returns true if this Container has been 'clicked': a button-release event without pointer dragging. */
   clicked() { return this.button.released && this.dragButton.up && !this.dragButton.released; }
 
@@ -78,6 +82,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
     if (!this.skipNextButtonUpdate) {
       this.button.update(this.button.down);
       this.dragButton.update(this.dragButton.down);
+      this._pointerMoved = false;
     }
     this.skipNextButtonUpdate = false;
   }
@@ -95,10 +100,11 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
       Common.within(local.y, 0, this.container.height)
     );
 
-    if (this.button.down && this._pointerLocation.distance(this._pointerLastPressLocation) > 2) {
+    this._pointerMoved = true;
+    this.skipNextButtonUpdate = true;
+
+    if (this.button.down && this._pointerLocation.distance(this._pointerLastPressLocation) > 2)
       this.dragButton.update(true);
-      this.skipNextButtonUpdate = true;
-    }
 
     if (wasHovering && !this._pointerWithin) {
       this.button.cancel();
