@@ -19,6 +19,9 @@ export class StagePointerInterface extends ControlScript {
   private readonly map: Map;
   private readonly mapCursor: MapCursor;
 
+  /** Function called every time this controller updates the map cursor's board location. */
+  onMoveCursor?: (location: Point) => void;
+
   /** True if the controller is currently moving the map cursor. */
   get operatingCursor() { return this._operatingCursor; }
   private _operatingCursor = false;
@@ -37,10 +40,19 @@ export class StagePointerInterface extends ControlScript {
   private _cancelIntent = false;
 
   /** Affects which tiles the controller will move the cursor to and which intents
-   * it signals when a tile is clicked. */
+   * it signals when a tile is clicked. Default: 'any'. */
   mode: 'any' | 'highlighted' = 'any';
 
-  //
+  /** Whether 'affirm' should be signaled during a pointer-drag action. Default: false. */
+  affirmOnPointerDrag = false;
+
+  /** Whether 'affirm' should be signaled during a pointer-button release event. Default: false. */
+  affirmOnRelease = false;
+
+  /** Whether 'affirm' should be signaled during a pointer-button release event while pointer-dragging
+   * is also true. Default: false. */
+  affirmOnDragRelease = false;
+
 
   constructor(assets: BattleSceneControllers) {
     super(assets);
@@ -54,11 +66,15 @@ export class StagePointerInterface extends ControlScript {
   }
 
   protected disableScript(): void {
+    this.onMoveCursor = undefined;
     this._operatingCursor = false;
     this._affirmIntent = false;
     this._affirmIntentLocation.set(0,0);
     this._cancelIntent = false;
     this.mode = 'any';
+    this.affirmOnPointerDrag = false;
+    this.affirmOnRelease = false;
+    this.affirmOnDragRelease = false;
   }
 
   protected updateScript(): void {
@@ -77,21 +93,27 @@ export class StagePointerInterface extends ControlScript {
 
     const tileSelectable = (this.mode === 'any' || tileFlagged(currentTile));
     const moveCursorIntent = (button.down && !pointerOverCursor && tileSelectable);
+    const moveCursorEndIntent = (button.up);
 
     const clickAffirm = (pointerClicked && pointerOverCursor && !this.operatingCursor);
-    const dragAffirm = (stagePointer.pointerDragging);
+    const dragAffirm = (stagePointer.pointerDragging && this.affirmOnPointerDrag);
+    const releaseAffirm = (button.released && this.affirmOnRelease);
+    const dragReleaseAffirm = (stagePointer.pointerDragStopped && this.affirmOnDragRelease);
 
     // Move cursor
     if (moveCursorIntent) {
-      if (button.pressed)
-        mapCursor.moveTo(currentTile.boardLocation);
-      else
-        mapCursor.animateTo(currentTile.boardLocation);
+      (button.pressed)
+        ? mapCursor.moveTo(currentTile.boardLocation)
+        : mapCursor.animateTo(currentTile.boardLocation);
+      if (this.onMoveCursor)
+        this.onMoveCursor(mapCursor.boardLocation);
+      this._operatingCursor = true;
     }
-    this._operatingCursor = moveCursorIntent;
+    if (moveCursorEndIntent)
+      this._operatingCursor = false;
 
     // Affirm intent
-    this._affirmIntent = (clickAffirm || dragAffirm);
+    this._affirmIntent = (clickAffirm || dragAffirm || releaseAffirm || dragReleaseAffirm);
     this._affirmIntentLocation.set( ((dragAffirm) ? pressedTile : currentTile).boardLocation );
 
     // Cancel intent

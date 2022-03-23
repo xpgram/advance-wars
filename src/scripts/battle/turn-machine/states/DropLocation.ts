@@ -39,12 +39,19 @@ export class DropLocation extends TurnState {
 
   configureScene() {
     const { map, mapCursor, trackCar, gamepad } = this.assets;
+    const { stagePointerInterface: pointer } = this.assets.scripts;
     const { actor, path, goal, drop } = this.data;
 
     map.clearTileOverlay();
     mapCursor.show();
     mapCursor.disable();
     trackCar.show();
+
+    pointer.enable();
+    pointer.mode = 'highlighted';
+    pointer.onMoveCursor = (location) => {
+      this.radialPoints.setIndexToPoint(location);
+    }
 
     const toDrop = actor.loadedUnits[this.drop.which];
 
@@ -87,13 +94,14 @@ export class DropLocation extends TurnState {
 
   update() {
     const { map, mapCursor, gamepad } = this.assets;
+    const { stagePointerInterface: pointer } = this.assets.scripts;
 
     // On press B, revert state
-    if (gamepad.button.B.pressed)
+    if (gamepad.button.B.pressed || pointer.cancelIntent)
       this.regress();
 
     // On press A, advance to next state
-    else if (gamepad.button.A.pressed) {
+    else if (gamepad.button.A.pressed || pointer.affirmIntent) {
       const tile = map.squareAt(mapCursor.boardLocation);
       if (tile.moveFlag) {
         this.drop.where = new Point(mapCursor.boardLocation);

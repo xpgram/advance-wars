@@ -20,12 +20,14 @@ export class ChooseMapTarget extends TurnState {
   }
   
   configureScene() {
-    const { map, mapCursor, trackCar } = this.assets;
+    const { map, mapCursor, trackCar, scripts } = this.assets;
     const { action, place } = this.data;
 
     map.clearTileOverlay();
     mapCursor.show();
     trackCar.show();
+
+    scripts.stagePointerInterface.enable();
 
     const cmd = CommandHelpers.getCommandObject(action) as CommandHelpers.UniqueStats;
 
@@ -44,15 +46,19 @@ export class ChooseMapTarget extends TurnState {
 
   update() {
     const { gamepad, map, mapCursor, instruction } = this.assets;
+    const { stagePointerInterface: pointer } = this.assets.scripts;
 
     const { A, B } = gamepad.button;
 
     if (B.pressed)
       this.regress();
-    else if (A.pressed) {
+    else if (A.pressed || pointer.affirmIntent) {
       if (!this.mustSelectTargetable || map.squareAt(mapCursor.boardLocation).targetFlag) {
         instruction.focal = mapCursor.boardLocation;
         this.advance();
+      }
+      else if (pointer.affirmIntent) {  // Pointer-style cancel
+        this.regress();
       }
     }
   }

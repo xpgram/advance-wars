@@ -32,6 +32,7 @@ import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { LinearApproach } from "../../camera/TravelAlgorithms";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
+import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
 
 type CommandObject = CommandHelpers.CommandObject;
 
@@ -139,6 +140,7 @@ export class BattleSceneControllers {
     cameraZoom: CameraZoom,
     nextOrderableUnit: NextOrderableUnit,
     nextTargetableUnit: NextTargetableUnit,
+    stagePointerInterface: StagePointerInterface,
     manualMoveCamera: ManualMoveCamera,
     hideUnits: HideUnits,
   }
@@ -264,6 +266,7 @@ export class BattleSceneControllers {
       cameraZoom: new CameraZoom(this),
       nextOrderableUnit: new NextOrderableUnit(this),
       nextTargetableUnit: new NextTargetableUnit(this),
+      stagePointerInterface: new StagePointerInterface(this),
       manualMoveCamera: new ManualMoveCamera(this),
       hideUnits: new HideUnits(this),
     }

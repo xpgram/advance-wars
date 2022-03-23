@@ -54,6 +54,8 @@ export class IssueOrderStart extends TurnState {
 
     // Activate control scripts.
     scripts.nextOrderableUnit.enable();
+    scripts.stagePointerInterface.enable();
+    scripts.stagePointerInterface.affirmOnPointerDrag = true;
 
     // Configure map cursor to update pointer graphic over certain terrains
     mapCursor.on('move', this.changeCursorMode, this);
@@ -67,30 +69,10 @@ export class IssueOrderStart extends TurnState {
 
   update() {
     const { players, map, mapCursor, instruction, gamepad, scenario } = this.assets;
-    const { uiSystem, stagePointer } = this.assets;
-
-    const tileSize = Game.display.standardLength;
+    const { stagePointerInterface: pointer } = this.assets.scripts;
 
     const player = players.current;
     const { A, B, start } = gamepad.button;
-
-    // TODO Refine
-    const pointerButton = stagePointer.button;
-    const pointerBoardLocation = map.squareFromWorldPoint(stagePointer.pointerLocation()).boardLocation;
-    const pointerPressBoardLocation = map.squareFromWorldPoint(stagePointer.pointerPressedLocation()).boardLocation;
-    const pointerOverCursor = (pointerBoardLocation.equal(mapCursor.boardLocation));
-
-    // TODO ClickDrag grabs square from pointerPressBoardLocation
-
-    // TODO This implementation is incredibly messy; I was experimenting.
-    // It's also made harder to read by the dev controls, clean those up too.
-    const clickMove = (pointerButton.down && !pointerOverCursor);
-    const clickAffirm = (stagePointer.clicked() && pointerOverCursor && !this.cursorMovedByClick);
-    const clickHoldAffirm = (pointerButton.held && !stagePointer.pointerDragging);
-    const clickDragAffirm = (stagePointer.pointerDragging && pointerPressBoardLocation.equal(pointerBoardLocation));
-    if (pointerButton.up)
-      this.cursorMovedByClick = false;
-
 
     // Run dev control scripts (defined at the bottom)
     devControls.forEach( script => {
@@ -98,25 +80,14 @@ export class IssueOrderStart extends TurnState {
         script.run(this.assets, this);
     });
 
-
-    // On left click (not over cursor pos), move cursor
-    if (clickDragAffirm) {
-      mapCursor.teleportTo(pointerPressBoardLocation);
-    }
-    else if (clickMove) {
-      if (pointerButton.pressed)
-        mapCursor.moveTo(pointerBoardLocation);
-      else
-        mapCursor.animateTo(pointerBoardLocation);
-      this.cursorMovedByClick = true;
-    }
-
-    // 
-    const square = map.squareAt(mapCursor.boardLocation);
+    // Get examined map tile
+    const square = (pointer.affirmIntent)
+      ? map.squareAt(pointer.affirmIntentLocation())
+      : map.squareAt(mapCursor.boardLocation);
     const unit = square.unit;
 
     // On press A, select an allied unit to give instruction to
-    if (A.pressed || clickAffirm || clickHoldAffirm || clickDragAffirm) {
+    if (A.pressed || pointer.affirmIntent) {
       // Allied unit to move
       const visible = (square.unitVisible());
       const orderableAlly = (unit?.orderable && unit?.faction === player.faction);

@@ -48,7 +48,7 @@ export class MoveUnit extends TurnState {
   }
 
   configureScene() {
-    const { map, mapCursor, uiSystem, players, trackCar, scripts } = this.assets;
+    const { map, mapCursor, uiSystem, players, trackCar, stagePointer, scripts } = this.assets;
     const { actor, placeTile } = this.data;
 
     mapCursor.show();
@@ -77,6 +77,8 @@ export class MoveUnit extends TurnState {
 
     // Enable control shortcuts
     scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
+    scripts.stagePointerInterface.enable();
+    scripts.stagePointerInterface.affirmOnDragRelease = stagePointer.button.down;
   }
 
   updateNonInterruptible() {
@@ -106,19 +108,11 @@ export class MoveUnit extends TurnState {
 
   update() {
     const { map, mapCursor, gamepad, stagePointer, players, instruction } = this.assets;
+    const { stagePointerInterface: pointer } = this.assets.scripts;
     const { actor, place } = this.data;
 
-    const tileSize = Game.display.standardLength;
-
-    // Experimental mouse controls setup
-    const pointerBoardLocation = map.squareFromWorldPoint(stagePointer.pointerLocation()).boardLocation;
-    const pointerAffirm = stagePointer.button.released;
-    if (stagePointer.button.down && pointerBoardLocation.notEqual(mapCursor.boardLocation)) {
-      mapCursor.moveTo(pointerBoardLocation);
-    }
-
     // On press B, revert state
-    if (gamepad.button.B.pressed)
+    if (gamepad.button.B.pressed || pointer.cancelIntent)
       this.regress();
 
     // If the unit is not owned by current player, do nothing else
@@ -126,7 +120,7 @@ export class MoveUnit extends TurnState {
       return;
 
     // On press A and viable location, advance state
-    else if (gamepad.button.A.pressed || pointerAffirm) {
+    else if (gamepad.button.A.pressed || pointer.affirmIntent) {
       const square = map.squareAt(mapCursor.boardLocation);
       const underneath = square.unit;
 
@@ -152,7 +146,7 @@ export class MoveUnit extends TurnState {
         instruction.focal = mapCursor.boardLocation;
         this.advance();
       }
-      else if (pointerAffirm) {   // Mouse up over non-interactable: cancel
+      else if (pointer.affirmIntent) {  // Pointer-style cancel
         this.regress();
       }
     }

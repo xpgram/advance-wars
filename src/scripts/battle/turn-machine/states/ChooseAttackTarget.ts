@@ -32,13 +32,20 @@ export class ChooseAttackTarget extends TurnState {
   }
 
   configureScene() {
-    const { map, mapCursor, uiSystem, trackCar, gamepad } = this.assets;
+    const { map, mapCursor, uiSystem, trackCar, gamepad, scripts } = this.assets;
     const { actor, goal } = this.data;
 
     mapCursor.show();
     mapCursor.disable();
     uiSystem.show();
     trackCar.show();
+
+    // Setup pointer controls
+    scripts.stagePointerInterface.enable();
+    scripts.stagePointerInterface.mode = 'highlighted';
+    scripts.stagePointerInterface.onMoveCursor = (location) => {
+      this.radialPoints.setIndexToPoint(location);
+    }
 
     // Setup map cursor
     mapCursor.on('move', this.updateDamageForecast, this);
@@ -75,42 +82,15 @@ export class ChooseAttackTarget extends TurnState {
   }
 
   update() {
-    const { gamepad, stagePointer, map, mapCursor, instruction } = this.assets;
-    const { place } = this.data;
+    const { gamepad, instruction } = this.assets;
+    const { stagePointerInterface: pointer } = this.assets.scripts;
 
     const { A, B } = gamepad.button;
 
-    // Transition intent flags
-    let affirm = false;
-    let cancel = false;
-
-    // Mouse controls data
-    const tile = map.squareFromWorldPoint(stagePointer.pointerLocation());
-
-    const pointerOverCursor = tile.boardLocation.equal(mapCursor.boardLocation);
-
-    // Mouse logic
-    if (stagePointer.clicked()) {
-      if (tile.attackFlag) {
-        if (!pointerOverCursor) {
-          this.radialPoints.setIndexToPoint(tile.boardLocation);
-        } else
-          affirm = true;
-      }
-      else
-        cancel = true;
-    }
-
-    // Gamepad logic
-    if (A.pressed)
-      affirm = true;
-    if (B.pressed)
-      cancel = true;
-
     // Handle transition intent
-    if (cancel)
+    if (B.pressed || pointer.cancelIntent)
       this.regress();
-    else if (affirm) {
+    else if (A.pressed || pointer.affirmIntent) {
       instruction.focal = this.radialPoints.current;
       this.advance();
     }
