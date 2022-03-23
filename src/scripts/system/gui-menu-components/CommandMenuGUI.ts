@@ -80,11 +80,10 @@ export class CommandMenuGUI<Y> {
   /** Returns the index of the menu item the pointer is currently hovering over.
    * Returns undefined if the pointer position cannot be resolved to a list item. */
   getPointerSelection() {
-    const itemHeight = this.listItemProps.height;
-    const itemMargin = this.listItemProps.border.top;
+    const itemHeight = this.listItemProps.borderOuterBox().height;
 
     const pointerY = this.menuPointer.pointerLocation().y;
-    const idx = Math.floor((pointerY - itemMargin) / itemHeight);
+    const idx = Math.floor(pointerY / itemHeight);
 
     return (Common.validIndex(idx, this.menu.listItems.length)) ? idx : undefined;
   }
