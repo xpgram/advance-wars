@@ -82,17 +82,18 @@ export class StagePointerInterface extends ControlScript {
     const { button } = stagePointer;
 
     const pointerClicked = stagePointer.clicked();
+    const { pointerWithin } = stagePointer;
+
+    const tileFlagged = (tile: Square) => (tile.moveFlag || tile.attackFlag || tile.targetFlag);
 
     const currentTile = map.squareFromWorldPoint(stagePointer.pointerLocation());
     const pressedTile = map.squareFromWorldPoint(stagePointer.pointerPressedLocation());
-
-    const tileFlagged = (tile: Square) => (tile.moveFlag || tile.attackFlag || tile.targetFlag);
 
     const pointerOverPressed = currentTile.boardLocation.equal(pressedTile.boardLocation);
     const pointerOverCursor = currentTile.boardLocation.equal(mapCursor.boardLocation);
 
     const tileSelectable = (this.mode === 'any' || tileFlagged(currentTile));
-    const moveCursorIntent = (button.down && !pointerOverCursor && tileSelectable);
+    const moveCursorIntent = (button.down && pointerWithin && !pointerOverCursor && tileSelectable);
     const moveCursorEndIntent = (button.up);
 
     const clickAffirm = (pointerClicked && pointerOverCursor && !this.operatingCursor);

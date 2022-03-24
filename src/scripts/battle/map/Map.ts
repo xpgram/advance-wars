@@ -398,23 +398,25 @@ export class Map {
      * these locations.
      * @param pos The location on the map to retrieve.
      */
-    // TODO Accessing (-2,-2) is actually a common mistake.
-    // Can I make safely make this safe by always returning at least a default void tile?
-    // What are the possible externalities of doing that?
-    // What if you referenced .at(-40,21) and then get .neighbors()?
+    // TODO Consider clamping gridLoc to the VoidTile boundary like squareFromWorldPoint does?
     squareAt(pos: ImmutablePointPrimitive): Square {
-        // (-1,-1) and (width,height) refer to the border objects. They are secret.
-        if (pos.x < -1 || pos.y < -1 || pos.x >= this.trueWidth || pos.y >= this.trueHeight)
+        const gridLoc = new Point(pos).add(1,1);    // Corrects for -1,-1 VoidTile boundary
+        const widthCheck = Common.validIndex(gridLoc.x, this.trueWidth);
+        const heightCheck = Common.validIndex(gridLoc.y, this.trueHeight);
+        if (!widthCheck || !heightCheck)
             throw new Error(InvalidLocationError(pos));
-        // Obviously, (-1,-1) isn't memory legal. +1 corrects.
-        pos = {x: (pos.x + 1), y: (pos.y + 1)};
-        return this.board[pos.x][pos.y];
+        return this.board[gridLoc.x][gridLoc.y];
     }
 
-    /** Returns the Square object located underneath the in-world point given. */
-    squareFromWorldPoint(point: Point) {
+    /** Returns the Square object located underneath the in-world point given.  
+     * If the given point is outside the bounds of the map, the retrieved tile is clamped
+     * to the closest perimeter VoidTile. */
+    squareFromWorldPoint(point: Point): Square {
         const tileSize = Game.display.standardLength;
-        return this.squareAt( point.apply(n => Math.floor(n/tileSize)) );
+        const gridLoc = point
+            .apply(n => Math.floor(n/tileSize))
+            .merge( (x,w) => Common.clamp(x, -1, w), this.width, this.height);
+        return this.squareAt(gridLoc);
     }
 
     /** Gathers the nearest-neighboring tiles adjacent to the tile at pos and returns them as a NeighborMatrix object.
