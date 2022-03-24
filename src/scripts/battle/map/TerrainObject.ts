@@ -202,11 +202,8 @@ export abstract class TerrainObject {
     /** Instructs the object to disassociate all materials, readying itself for
      * garbage collection. */
     destroy() {
-        this.layers.forEach( layer => {
-            const mapLayer = MapLayer(...layer.key);
-            mapLayer.removeChild(layer.object);
-            layer.object.destroy({children: true}); // .destroy({children: true, texture: true})
-        });
+        this.layers.forEach( layer => layer.object.destroy({children: true}) );
+        // TODO destroy {texture: true} too?
     }
 
     /** Generates a white-mask from the graphical objects in this.layers. */

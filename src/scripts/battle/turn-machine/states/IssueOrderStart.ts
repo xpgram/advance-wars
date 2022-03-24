@@ -171,11 +171,11 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
   { // Spawn unit
     key: Keys.N,
     run: (assets, state) => {
-      const { map, mapCursor, players } = assets;
-      const square = map.squareAt(mapCursor.boardLocation);
+      const { map, mapCursor } = assets;
+      const unit = map.squareAt(mapCursor.boardLocation).unit;
       
-      if (square.unit)
-        square.unit.destroy();
+      if (unit)
+        unit.destroy();
       state.advance(FactoryMenu, RatifyIssuedOrder);
     }
   },
@@ -183,7 +183,7 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
     key: Keys.M,
     run: (assets) => {
       const { map, mapCursor } = assets;
-      const unit = map.squareAt(mapCursor.boardLocation);
+      const unit = map.squareAt(mapCursor.boardLocation).unit;
 
       if (unit)
         unit.destroy();
@@ -193,12 +193,12 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
     key: Keys.C,
     run: (assets) => {
       const { map, mapCursor, players } = assets;
-      const square = map.squareAt(mapCursor.boardLocation);
+      const terrain = map.squareAt(mapCursor.boardLocation).terrain;
 
-      if (square.terrain.building) {
-        square.terrain.faction = players.current.faction;
+      if (terrain.building) {
+        terrain.faction = players.current.faction;
         players.current.scanCapturedProperties();
-        map.revealSightMapLocation(square.boardLocation, players.current);
+        map.revealSightMapLocation(mapCursor.boardLocation, players.current);
       }
     }
   },
