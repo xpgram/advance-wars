@@ -33,16 +33,10 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
   - [ ] While I'm at it, why are they imperfectly layered? There is consistently a .5 pixel overlap on some portions of the view. I suspect this has something to do with LowResTransform, but I couldn't really tell you why.
   I suppose it could also be a Pixi imprecision when scaling/placing independent layer items, objects which don't *technically* have anything to do with each other; Pixi doesn't *really* enforce a strict grid, you know. Maybe it does.
 
-- [ ] ChooseMapTarget projects choosable tile space without validating map points.
-  - [ ] On large maps, forgetting to validate the map.squareAt() you be plucking is veeery common. How can I prevent that mistake from being made?
-
 - [ ] Sometimes P4 gets stuck in the AnimateEvents turnstate before IssueOrderStart.
   - It's some issue with camera.targetInFrame() or whatever I called it; it only happens while at zoom stage 2 or 3 and is fixed by changing zoom levels.
   The camera won't move but it also can't yield control to the BSM.
   [ ] Create a dev button for posting camera state.
-
-- [ ] Flares do not use their Material to cast flares.
-  - I'm not even sure they recognize themselves as having Material ammunition.
 
 - [ ] Destroyable Bridges — same HP as meteors.
   - [ ] scenario.destroyableBridges == true changes a flag on all bridges on the map that activates HP and targetability.
@@ -62,6 +56,7 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
       - When a Rig finishes, the terrain is changed to Bridge with full HP (always destructible variant)
 
 - [ ] Timer.every.max is always +1 by implementation; I'm too busy to solve this rn.
+  (i.e. max = 1 actually occurs 2 times)
   - [ ] The default for non-repeating events is 0? It should probably be 1. e.repeat should be decremented before the extension check.
   - [ ] FlareIgniteEvent will need to be updated to reflect .every() changes.
 
@@ -106,17 +101,8 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
   The reason I move the cursor around is to manage the camera. I move it around invisibly. I could, I suppose, swap in a focal point instead.
 
 Todo List cleanup: (some easy ones)
-- [ ] Replace StringDictionary and NumericDictionary with Record and Iterable.
-  - I didn't know I could do it, boss.
-  - More importantly, I know which objects are Records ahead of time, but what I've been doing is casting them later. This is unsafe as there is nothing ensuring unity of types besides my own big brain. I think all the work might be too much for a complete migration, but declaring my Records as Records & Iterables (as relevant) at declaration is more rigorous and informative.
-  - I also learned a trick. Records don't feature auto-complete for direct property dot-access, but `Record & {a:,b:}` does, actually.
 - [ ] On-screen icon indicates when there are un-instructed units
 - [ ] On-screen icon indicates when there are un-utilized bases
-- [ ] CO animation zoom-shrinks to proper status icon size.
-  - [ ] CO Scheduled Event — Does the zoom
-  - [ ] Afterward, sets the status
-    - [ ] Sets the status show to the CO icon.
-    - Actually... I forget how the incrementer works. Probably depends on framecount or something, but since the CO badge is always the first assigned its also the the zeroth frame. I can work with that.
 - [x] Terrain/Unit/Battle tab icons
   - [ ] Make them nice, tho
 - [ ] Hide day counter during Shop
