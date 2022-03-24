@@ -78,7 +78,9 @@ export class Square {
     tempFlag: BitIO.Generate(1),
   });
 
-  static readonly Max_Coords = Math.pow(2, Square.coordinateLength);
+  /** The maximum coordinate value allowable in the bit-space.
+   * Numeric range is adjusted down 1 to allow exclusively for the -1 value. */
+  static readonly Max_Coords = Math.pow(2, Square.coordinateLength) - 1;
 
   constructor(map: Map, x = 0, y = 0) {
     this.setCoords(x, y);
@@ -193,15 +195,17 @@ export class Square {
     const bitmask = Square.bitmask.arrowTo;
     return BitIO.ReadBits(this.displayInfo, bitmask);
   }
-  /** Represents this square's x-coordinate on the map. */
+  /** Represents this square's x-coordinate on the map.  
+   * Ranges between -1 and Max_Coords */
   get x(): number {
     const bitmask = Square.bitmask.xCoord;
-    return BitIO.ReadBits(this.displayInfo, bitmask);
+    return BitIO.ReadBits(this.displayInfo, bitmask) - 1;
   }
-  /** Represents this square's y-coordinate on the map. */
+  /** Represents this square's y-coordinate on the map.  
+   * Ranges between -1 and Max_Coords */
   get y(): number {
     const bitmask = Square.bitmask.yCoord;
-    return BitIO.ReadBits(this.displayInfo, bitmask);
+    return BitIO.ReadBits(this.displayInfo, bitmask) - 1;
   }
   /** A point object representing this square's positional coordinates on the map. */
   get boardLocation(): Point {
@@ -252,8 +256,8 @@ export class Square {
   }
   private setCoords(x: number, y: number) {
     const { xCoord, yCoord } = Square.bitmask;
-    this.displayInfoSet(x, xCoord);
-    this.displayInfoSet(y, yCoord);
+    this.displayInfoSet(x+1, xCoord); // +1 is necessary to adjust for numeric range
+    this.displayInfoSet(y+1, yCoord); // [-1 to Max_Coords]
   }
   set value(n: number) {
     const bitmask = Square.bitmask.temp;
