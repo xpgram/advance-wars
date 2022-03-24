@@ -62,6 +62,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
     container.addListener('mousemove', this.updateMousePosition, this);
     container.addListener('mousedown', this.mouseDownHandler, this);
     container.addListener('mouseup', this.mouseUpHandler, this);
+    container.addListener('mouseupoutside', this.mouseUpHandler, this);
     container.interactive = true;
 
     this.container = container;
@@ -72,6 +73,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
     this.container.removeListener('mousemove', this.updateMousePosition, this);
     this.container.removeListener('mousedown', this.mouseDownHandler, this);
     this.container.removeListener('mouseup', this.mouseUpHandler,this);
+    this.container.removeListener('mouseupoutside', this.mouseUpHandler, this);
     this.container.interactive = false; // I'm assuming for now I will never assign two controllers to one container.
     Game.scene.ticker.remove.remove(this.updateButtonState, this);
   }
