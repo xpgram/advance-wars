@@ -393,30 +393,24 @@ export class Map {
         return (this.trueHeight) ? this.trueHeight - 2 : 0;
     }
 
-    /** Returns the Square object located at point pos on the game board.
+    /** Returns the Square object located at point pos on the game board.  
      * Coordinates from (-1,-1) to (width, height) are technically allowed; the bordering void tiles exist at
-     * these locations.
+     * these locations. Points beyond this range are clamped to the closest void tile on its axis.
      * @param pos The location on the map to retrieve.
      */
-    // TODO Consider clamping gridLoc to the VoidTile boundary like squareFromWorldPoint does?
     squareAt(pos: ImmutablePointPrimitive): Square {
-        const gridLoc = new Point(pos).add(1,1);    // Corrects for -1,-1 VoidTile boundary
-        const widthCheck = Common.validIndex(gridLoc.x, this.trueWidth);
-        const heightCheck = Common.validIndex(gridLoc.y, this.trueHeight);
-        if (!widthCheck || !heightCheck)
-            throw new Error(InvalidLocationError(pos));
+        const gridLoc = new Point(pos)
+            .add(1,1)     // Corrects for -1,-1 VoidTile boundary
+            .merge( (x,w) => Common.clamp(x, 0, w-1), this.trueWidth, this.trueHeight );
         return this.board[gridLoc.x][gridLoc.y];
     }
 
     /** Returns the Square object located underneath the in-world point given.  
      * If the given point is outside the bounds of the map, the retrieved tile is clamped
-     * to the closest perimeter VoidTile. */
+     * to the closest perimeter void tile. */
     squareFromWorldPoint(point: Point): Square {
         const tileSize = Game.display.standardLength;
-        const gridLoc = point
-            .apply(n => Math.floor(n/tileSize))
-            .merge( (x,w) => Common.clamp(x, -1, w), this.width, this.height);
-        return this.squareAt(gridLoc);
+        return this.squareAt( point.apply(n => Math.floor(n/tileSize)) );
     }
 
     /** Gathers the nearest-neighboring tiles adjacent to the tile at pos and returns them as a NeighborMatrix object.
