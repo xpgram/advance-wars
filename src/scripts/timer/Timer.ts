@@ -127,7 +127,7 @@ export class Timer {
 
 
   constructor(seconds?: number, action?: ProgressiveFunction, context?: object) {
-    action = action || Timer.NULL_ACTION;
+    action = action ?? Timer.NULL_ACTION;
     (seconds) && this.at(seconds);
     this.do(action, context);
     Game.scene.ticker.add(this.update, this);

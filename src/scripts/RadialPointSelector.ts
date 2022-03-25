@@ -1,7 +1,6 @@
 import { Game } from "..";
 import { Point } from "./Common/Point";
 import { Slider } from "./Common/Slider";
-import { Common } from "./CommonUtils";
 import { VirtualGamepad } from "./controls/VirtualGamepad";
 import { Pulsar } from "./timer/Pulsar";
 import { Timer } from "./timer/Timer";
@@ -38,7 +37,7 @@ export class RadialPointSelector {
   private incrementDirection = 1;
 
   /** Used to preserve increment direction when quickly tapping. */
-  private fastTapTimer = new Timer(.35);
+  private fastTapTimer = new Timer(.35).noSelfDestruct();
   /** Which directional input's increment direction is being preserved. */
   private lastTapVector?: Point;
 
