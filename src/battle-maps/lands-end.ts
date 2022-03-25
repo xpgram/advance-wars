@@ -36,7 +36,7 @@ export const data = {
     [sea,sea,sea,fct,hq ,fct,sea,sea,sea,sea,sea,pln,pln,pln,pln,wod,wod,wod,pln,fct,pln,pln,pln,pln,bch,bch,sea,sea,sea,sea,sea,sea],
     [sea,cty,bdg,pln,fct,pln,prt,sea,sea,sea,sea,sea,sea,pln,pln,pln,pln,wod,wod,wod,wod,pln,apt,pln,pln,wod,bch,sea,sea,sea,sea,sea],
     [sea,cty,sea,sea,bch,bch,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,pln,pln,wod,wod,wod,pln,pln,pln,wod,pln, hq,bch,sea,sea,sea,sea],
-    [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,cty,pln,wod,pln,sil,wod,pln,pln,pln,wod,bch,sea,sea,sea],
+    [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,pln,pln,cty,sil,wod,pln,wod,wod,pln,pln,pln,wod,bch,sea,sea,sea],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,bch,pln,pln,pln,wod,pln,bch,bch,pln,wod,bch,sea,sea,sea,sea],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,bch,pln,pln,wod,wod,sea,sea,bch,bch,sea,sea,sea,sea,sea],
     [sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,sea,bch,pln,wod,wod,pln,sea,sea,sea,sea,sea,sea,sea,sea,sea],
