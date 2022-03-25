@@ -4,6 +4,7 @@ import { ControlScript } from "../../ControlScript";
 import { Map } from "../map/Map";
 import { MapCursor } from "../map/MapCursor";
 import { Square } from "../map/Square";
+import { Terrain } from "../map/Terrain";
 import { BattleSceneControllers } from "../turn-machine/BattleSceneControllers";
 
 
@@ -82,7 +83,6 @@ export class StagePointerInterface extends ControlScript {
     const { button } = stagePointer;
 
     const pointerClicked = stagePointer.clicked();
-    const { pointerWithin } = stagePointer;
 
     const tileFlagged = (tile: Square) => (tile.moveFlag || tile.attackFlag || tile.targetFlag);
 
@@ -93,7 +93,8 @@ export class StagePointerInterface extends ControlScript {
     const pointerOverCursor = currentTile.boardLocation.equal(mapCursor.boardLocation);
 
     const tileSelectable = (this.mode === 'any' || tileFlagged(currentTile));
-    const moveCursorIntent = (button.down && pointerWithin && !pointerOverCursor && tileSelectable);
+    const currentTileValid = (currentTile.terrain.type !== Terrain.Void);
+    const moveCursorIntent = (button.down && currentTileValid && !pointerOverCursor && tileSelectable);
     const moveCursorEndIntent = (button.up);
 
     const clickAffirm = (pointerClicked && pointerOverCursor && !this.operatingCursor);
