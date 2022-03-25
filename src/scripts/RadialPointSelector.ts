@@ -14,6 +14,8 @@ interface Options {
   points: Point[];
   /** The point the selector mechanism should start on. */
   startingPoint?: Point,
+  /** A vector describing the ideal angle the selected starting point should be closest to. */
+  startingVector?: Point,
   /** Function to call any time the selection index is incremented. */
   onIncrement?: (p: Point) => void;
   /** The context object with which to call the listener. */
@@ -61,7 +63,7 @@ export class RadialPointSelector {
   get current() { return this.points[this.index.output]; }
 
   ////////////////////////////////////////
-  constructor({gamepad, origin, points, startingPoint, onIncrement, context}: Options) {
+  constructor({gamepad, origin, points, startingPoint, startingVector, onIncrement, context}: Options) {
     if (points.length === 0)
       throw new Error(`Points list provided was length zero.`);
 
@@ -82,8 +84,13 @@ export class RadialPointSelector {
     this.context = context;
 
     // Build selector
+    if (startingVector && !startingPoint) {
+      const angleDifference = (p: Point) => startingVector.angleDifference(p.subtract(origin));
+      startingPoint = points.reduce( (r, p) => (angleDifference(p) < angleDifference(r)) ? p : r );
+    }
+
     let idx = (startingPoint)
-      ? points.findIndex( p => p.equal(startingPoint) )
+      ? points.findIndex( p => p.equal(startingPoint) ) // ... This is a TypeScript bug.
       : 0;
     idx = (idx !== -1) ? idx : 0;
 

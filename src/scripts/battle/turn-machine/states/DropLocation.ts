@@ -1,4 +1,4 @@
-import { CardinalDirection, CardinalVectorToCardinal } from "../../../Common/CardinalDirection";
+import { CardinalDirection, CardinalVector, CardinalVectorToCardinal } from "../../../Common/CardinalDirection";
 import { Point } from "../../../Common/Point";
 import { RadialPointSelector } from "../../../RadialPointSelector";
 import { CommandDropInstruction } from "../CommandInstruction";
@@ -69,32 +69,22 @@ export class DropLocation extends TurnState {
     if (!tiles.length)
       this.failTransition(`No locations to drop unit.`);
 
-    if (!this.cursorMoved) {
-      // Convoluted 'smart' auto-pick.
-      const lastDir = (path && path[path.length-1]) || CardinalDirection.North;
-      const { Up, Left, Right, Down } = Point;
-      const dirSets = [   // This is highly dependent on CardinalDirection enum order
-        [Up, Left, Right, Down], // None
-        [Up, Left, Right, Down], // North
-        [Right, Down, Up, Left], // East
-        [Down, Left, Right, Up], // South
-        [Left, Down, Up, Right], // West
-      ];
-      const smartSet = dirSets[lastDir];
-      const cursorDir = smartSet.find( s => map.squareAt(goal.add(s)).moveFlag );
-      const point = (cursorDir) ? cursorDir.add(goal) : new Point(tiles[0].boardLocation);
-
-      mapCursor.moveTo(point);
-    }
+    // Smart first select auto-pick
+    const lastDir = (path && path[path.length-1]) || CardinalDirection.North;
+    const startingVector = (!this.cursorMoved)
+      ? CardinalVector(lastDir)
+      : undefined;
 
     // Setup selector
     this.radialPoints = new RadialPointSelector({
       gamepad,
       origin: goal,
-      points: tiles.map( t => new Point(t.boardLocation) ),
-      startingPoint: mapCursor.boardLocation,
+      points: tiles.map( t => t.boardLocation ),
+      startingVector,
       onIncrement: p => mapCursor.moveTo(p),
     })
+
+    mapCursor.moveTo(this.radialPoints.current);
   }
 
   update() {

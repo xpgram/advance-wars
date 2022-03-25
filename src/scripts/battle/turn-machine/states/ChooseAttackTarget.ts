@@ -3,6 +3,7 @@ import { Point } from "../../../Common/Point";
 import { DamageScript } from "../../DamageScript";
 import { RadialPointSelector } from "../../../RadialPointSelector";
 import { Game } from "../../../..";
+import { CardinalDirection, CardinalVector } from "../../../Common/CardinalDirection";
 
 export class ChooseAttackTarget extends TurnState {
   get type() { return ChooseAttackTarget; }
@@ -33,7 +34,7 @@ export class ChooseAttackTarget extends TurnState {
 
   configureScene() {
     const { map, mapCursor, uiSystem, trackCar, gamepad, scripts } = this.assets;
-    const { actor, goal } = this.data;
+    const { actor, path, goal } = this.data;
 
     mapCursor.show();
     mapCursor.disable();
@@ -66,14 +67,19 @@ export class ChooseAttackTarget extends TurnState {
       }
 
     // If there are no targets, revert to last state
-    if (targets.length == 0)
+    if (targets.length === 0)
       this.failTransition(`no attackable targets in range`);
+
+    // Smart first select auto-pick
+    const lastDir = (path && path[path.length-1]) || CardinalDirection.North;
+    const startingVector = CardinalVector(lastDir);
 
     // Otherwise, setup the target-picker and move the cursor.
     this.radialPoints = new RadialPointSelector({
       gamepad,
       origin: goal,
       points: targets,
+      startingVector,
       onIncrement: this.triggerCursorMove,
       context: this,
     })
