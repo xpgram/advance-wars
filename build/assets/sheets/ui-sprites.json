@@ -63,7 +63,34 @@
 	"sourceSize": {"w":32,"h":23},
 	"anchor": {"x":0,"y":0}
 },
-"drop-overlay-up.png":
+"drop-overlay-1000.png":
+{
+	"frame": {"x":135,"y":298,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
+"drop-overlay-0100.png":
+{
+	"frame": {"x":135,"y":298,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
+"drop-overlay-0010.png":
+{
+	"frame": {"x":135,"y":298,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16},
+	"anchor": {"x":0,"y":0}
+},
+"drop-overlay-0001.png":
 {
 	"frame": {"x":135,"y":298,"w":16,"h":16},
 	"rotated": false,

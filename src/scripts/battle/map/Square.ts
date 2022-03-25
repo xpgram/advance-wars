@@ -20,16 +20,26 @@ import { BitIO, BitMask } from "../../Common/BitIncrementer";
  * @version 0.1.1
  */
 export class Square {
+
+  /** A reference to the game board this Square is a member of. */
   private map: Map;
 
-  private _terrain!: TerrainObject;
+  /** This Square's x-coordinate on the game board. */
+  readonly x: number;
+
+  /** This Square's y-coordinate on the game board. */
+  readonly y: number;
+
+  /** A point object representing this square's positional coordinates on the map. */
+  get boardLocation(): Point { return new Point(this.x,this.y); }
+
   /** The terrain object associated with this board location object. */
   get terrain() { return this._terrain; }
   set terrain(terr: TerrainObject) {
     this._terrain = terr;
   }
+  private _terrain!: TerrainObject;
 
-  private _unit?: UnitObject;
   /** The unit object inhabiting this board location object. */
   get unit() { return this._unit; }
   set unit(unitObj: UnitObject | undefined) {
@@ -46,6 +56,7 @@ export class Square {
     if (this._unit !== oldUnit)
       this.hideUnit = false;
   }
+  private _unit?: UnitObject;
 
   /** The tinted-glass tile highlight that informs the player what actions or information is available for this square. */
   private overlayPanel = new PIXI.Sprite();
@@ -61,7 +72,6 @@ export class Square {
 
   // Constants/accessor-values for displayInfo
   private static readonly directionLength = 3;
-  private static readonly coordinateLength = 7;
   private static readonly tempLength = 4;
   private static readonly bitmask = Common.freezeObject({
     moveable: BitIO.Generate(1, 0),
@@ -72,18 +82,15 @@ export class Square {
     hideUnit: BitIO.Generate(1),
     arrowFrom: BitIO.Generate(Square.directionLength),
     arrowTo: BitIO.Generate(Square.directionLength),
-    xCoord: BitIO.Generate(Square.coordinateLength),
-    yCoord: BitIO.Generate(Square.coordinateLength),
+    showDropArrow: BitIO.Generate(1),
     temp: BitIO.Generate(Square.tempLength),
     tempFlag: BitIO.Generate(1),
   });
 
-  /** The maximum coordinate value allowable in the bit-space.
-   * Numeric range is adjusted down 1 to allow exclusively for the -1 value. */
-  static readonly Max_Coords = Math.pow(2, Square.coordinateLength) - 1;
 
   constructor(map: Map, x = 0, y = 0) {
-    this.setCoords(x, y);
+    this.x = x;
+    this.y = y;
     this.terrain = new Terrain.Void();
     this.map = map;
   }
@@ -195,21 +202,10 @@ export class Square {
     const bitmask = Square.bitmask.arrowTo;
     return BitIO.ReadBits(this.displayInfo, bitmask);
   }
-  /** Represents this square's x-coordinate on the map.  
-   * Ranges between -1 and Max_Coords */
-  get x(): number {
-    const bitmask = Square.bitmask.xCoord;
-    return BitIO.ReadBits(this.displayInfo, bitmask) - 1;
-  }
-  /** Represents this square's y-coordinate on the map.  
-   * Ranges between -1 and Max_Coords */
-  get y(): number {
-    const bitmask = Square.bitmask.yCoord;
-    return BitIO.ReadBits(this.displayInfo, bitmask) - 1;
-  }
-  /** A point object representing this square's positional coordinates on the map. */
-  get boardLocation(): Point {
-    return new Point(this.x, this.y);
+  /** Whether to show the drop-arrow sprite family instead of the normal movement arrows. */
+  get showDropArrow(): boolean {
+    const bitmask = Square.bitmask.showDropArrow;
+    return BitIO.GetBoolean(this.displayInfo, bitmask);
   }
   /** Temporary store: A 4-bit number (value range -1–14) useful in search algorithms. */
   get value(): number {
@@ -254,10 +250,9 @@ export class Square {
     const bitmask = Square.bitmask.arrowTo;
     this.displayInfoSet(value, bitmask);
   }
-  private setCoords(x: number, y: number) {
-    const { xCoord, yCoord } = Square.bitmask;
-    this.displayInfoSet(x+1, xCoord); // +1 is necessary to adjust for numeric range
-    this.displayInfoSet(y+1, yCoord); // [-1 to Max_Coords]
+  set showDropArrow(value) {
+    const bitmask = Square.bitmask.showDropArrow;
+    this.displayInfoSet(~~value, bitmask);
   }
   set value(n: number) {
     const bitmask = Square.bitmask.temp;
@@ -326,23 +321,33 @@ export class Square {
     let arrowHeadIdx = (fromIdx + 2) % variationChars.length; // Arrow head exit side is opposite to entrance.
 
     // Set 'from' direction flag——and 'to' direction flag if path ends here.
-    if (this.arrowFrom !== CardinalDirection.None) {
+    if (this.arrowFrom !== CardinalDirection.None)
       variationChars[fromIdx] = '1';
-      if (this.arrowTo === CardinalDirection.None)
-        variationChars[arrowHeadIdx] = '2';
-    }
     // Set 'to' direction flag
     if (this.arrowTo !== CardinalDirection.None)
       variationChars[toIdx] = '1';
+    // Set 'to' direction to arrow-head when empty.
+    if (this.arrowTo === CardinalDirection.None)
+      variationChars[arrowHeadIdx] = '2';
+
+    // Correct the variation string for secondary arrow sprite-family
+    if (this.showDropArrow)
+      variationChars = variationChars.map( c => (c === '2') ? '1' : c );
 
     // Assemble string
-    let variation = variationChars.join('');
+    const variation = variationChars.join('');
 
-    // If variation isn't "none," set new arrow path graphic, otherwise hide the old one.
-    if (variation !== '0000') {
-      this.overlayArrow.texture = sheet.textures[`MovementArrow/movement-arrow-${variation}.png`];
-      this.overlayArrow.visible = true;
-    }
+    // If variation is "none", do not configure the new arrow graphic.
+    if (variation === '0000')
+      return;
+    
+    // Assemble sprite
+    const spriteFamily = (this.showDropArrow)
+      ? `drop-overlay`
+      : `MovementArrow/movement-arrow`;
+
+    this.overlayArrow.texture = sheet.textures[`${spriteFamily}-${variation}.png`];
+    this.overlayArrow.visible = true;
   }
 
   /** Selectively clear common UI and algorithmic settings. */
@@ -361,6 +366,7 @@ export class Square {
     if (arrowPaths) {
       this.arrowFrom = 0;
       this.arrowTo = 0;
+      this.showDropArrow = false;
     }
   }
 

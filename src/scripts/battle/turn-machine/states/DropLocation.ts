@@ -1,4 +1,4 @@
-import { CardinalDirection } from "../../../Common/CardinalDirection";
+import { CardinalDirection, CardinalVectorToCardinal } from "../../../Common/CardinalDirection";
 import { Point } from "../../../Common/Point";
 import { RadialPointSelector } from "../../../RadialPointSelector";
 import { CommandDropInstruction } from "../CommandInstruction";
@@ -11,7 +11,7 @@ export class DropLocation extends TurnState {
   get skipOnUndo() { return false; }
 
   cursorMoved = false;
-  drop!: {
+  toDrop!: {
     which: number,
     where?: Point,
   };
@@ -20,20 +20,25 @@ export class DropLocation extends TurnState {
 
   onAdvance() {
     const { which } = this.data;
-    this.drop = {
+    this.toDrop = {
       which,
     }
   }
 
   onRegress() {
-    const { mapCursor } = this.assets;
+    const { map, mapCursor } = this.assets;
     const { drop } = this.data;
     
-    const { which, where } = drop.pop() as typeof this.drop;
-    this.drop = {
+    const { which, where } = drop.pop() as typeof this.toDrop;
+    this.toDrop = {
       which,
     }
-    mapCursor.teleportTo(where as Point);
+
+    if (!where)
+      return;
+
+    mapCursor.teleportTo(where);
+    map.squareAt(where).clearValues({arrowPaths: true});
     this.cursorMoved = true;
   }
 
@@ -53,7 +58,7 @@ export class DropLocation extends TurnState {
       this.radialPoints.setIndexToPoint(location);
     }
 
-    const toDrop = actor.loadedUnits[this.drop.which];
+    const toDrop = actor.loadedUnits[this.toDrop.which];
 
     const neighbors = map.neighborsAt(goal);
     const tiles = neighbors.orthogonals
@@ -95,6 +100,7 @@ export class DropLocation extends TurnState {
   update() {
     const { map, mapCursor, gamepad } = this.assets;
     const { stagePointerInterface: pointer } = this.assets.scripts;
+    const { actor, drop } = this.data;
 
     // On press B, revert state
     if (gamepad.button.B.pressed || pointer.cancelIntent)
@@ -104,8 +110,16 @@ export class DropLocation extends TurnState {
     else if (gamepad.button.A.pressed || pointer.affirmIntent) {
       const tile = map.squareAt(mapCursor.boardLocation);
       if (tile.moveFlag) {
-        this.drop.where = new Point(mapCursor.boardLocation);
-        this.data.drop.push(this.drop as CommandDropInstruction);
+        this.toDrop.where = new Point(mapCursor.boardLocation);
+        drop.push(this.toDrop as CommandDropInstruction);
+
+        // Configure drop-tile UI
+        if (drop.length < actor.loadedUnits.length) {
+          const point = mapCursor.boardLocation.subtract(actor.boardLocation);
+          tile.arrowTo = CardinalVectorToCardinal(point);
+          tile.showDropArrow = true;
+        }
+
         this.advance();
       }
     }
