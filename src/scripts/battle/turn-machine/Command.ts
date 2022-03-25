@@ -445,14 +445,14 @@ export module Command {
       if (this.index === -1)  // Null case
         return false;
 
-      if (actor.loadedUnits.length === 0) // Nothing to drop
+      if (actor.cargo.length === 0) // Nothing to drop
         return false;
 
-      if (!Common.validIndex(this.index, actor.loadedUnits.length))
+      if (!Common.validIndex(this.index, actor.cargo.length))
         throw new RatificationError(`${this.name} → input ${this.index} does not correspond to a held unit.`);
 
       const neighbors = map.neighborsAt(goal);
-      const unit = actor.loadedUnits[this.index];
+      const unit = actor.cargo[this.index];
 
       const alreadyDropped = drop
         .map( d => d.which )

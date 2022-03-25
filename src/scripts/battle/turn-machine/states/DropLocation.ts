@@ -58,7 +58,7 @@ export class DropLocation extends TurnState {
       this.radialPoints.setIndexToPoint(location);
     }
 
-    const toDrop = actor.loadedUnits[this.toDrop.which];
+    const toDrop = actor.cargo[this.toDrop.which];
 
     const neighbors = map.neighborsAt(goal);
     const tiles = neighbors.orthogonals
@@ -114,7 +114,7 @@ export class DropLocation extends TurnState {
         drop.push(this.toDrop as CommandDropInstruction);
 
         // Configure drop-tile UI
-        if (drop.length < actor.loadedUnits.length) {
+        if (drop.length < actor.cargo.length) {
           const point = mapCursor.boardLocation.subtract(actor.boardLocation);
           tile.arrowTo = CardinalVectorToCardinal(point);
           tile.showDropArrow = true;

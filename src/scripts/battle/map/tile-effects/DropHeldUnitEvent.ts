@@ -45,7 +45,7 @@ export class DropHeldUnitEvent extends TileEvent {
 
     // Setup drop trackCar animations
     this.dropCars = drop.map( d => {
-      const unit = actor.loadedUnits[d.which];
+      const unit = actor.cargo[d.which];
       const dirPoint = d.where.subtract(actor.boardLocation);
       const dir = CardinalVectorToCardinal(dirPoint);
 

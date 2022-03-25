@@ -381,7 +381,7 @@ export abstract class UnitObject {
 
     /** Unlinks this objects references and connections. */
     destroy() {
-        this._loadedUnits.forEach( u => u.destroy() );
+        this._cargo.forEach( u => u.destroy() );
         
         this.boardPlayer.unspawnUnit(this);
         
@@ -546,16 +546,16 @@ export abstract class UnitObject {
 
     /** True if one of this unit's held units (recursive) is a CO unit. */
     get CoUnitIsCargo(): boolean {
-        if (this._loadedUnits.length === 0)
+        if (this._cargo.length === 0)
             return false;
-        return this._loadedUnits.some( u => u.CoOnBoard || u.CoUnitIsCargo );
+        return this._cargo.some( u => u.CoOnBoard || u.CoUnitIsCargo );
     }
 
     /** True if at least one of this unit's held units (non-recursive) is not a CO unit. */
     get nonCoUnitIsCargo(): boolean {
-        if (this._loadedUnits.length === 0)
+        if (this._cargo.length === 0)
             return false;
-        return this._loadedUnits.some( u => !u.CoOnBoard ); // No recursion
+        return this._cargo.some( u => !u.CoOnBoard ); // No recursion
     }
 
     /** True if this unit is located inside the CO Zone of its commanding officer. */
@@ -722,7 +722,7 @@ export abstract class UnitObject {
             },
             {
                 name: `icon-boarded-${color}.png`,
-                condition: (this._loadedUnits.length > 0 && !this.CoUnitIsCargo),
+                condition: (this._cargo.length > 0 && !this.CoUnitIsCargo),
             },
             {
                 name: `icon-hidden-${color}.png`,
@@ -816,8 +816,8 @@ export abstract class UnitObject {
      * Returns true if any units were resupplied by this function call. */
     resupplyHeldUnits() {
         if (this.canResupplyHeldUnits) {
-            const resupplied = this._loadedUnits.some( unit => unit.resuppliable() );
-            this._loadedUnits.forEach( unit => unit.resupply() );
+            const resupplied = this._cargo.some( unit => unit.resuppliable() );
+            this._cargo.forEach( unit => unit.resupply() );
             return resupplied;
         }
         return false;
@@ -840,7 +840,7 @@ export abstract class UnitObject {
         const sameType = (this.type === unit.type);
         const sameFaction = (this.faction === unit.faction);
         const oneRepairable = (this.repairable || unit.repairable);
-        const notHolding = (this.loadedUnits.length === 0 && unit.loadedUnits.length === 0);
+        const notHolding = (this.cargo.length === 0 && unit.cargo.length === 0);
         return notSelf && sameType && sameFaction && oneRepairable && notHolding;
     }
 
@@ -933,23 +933,23 @@ export abstract class UnitObject {
     }
 
     /** This unit's list of loaded units. */
-    get loadedUnits() {
-        return this._loadedUnits.slice();
+    get cargo() {
+        return this._cargo.slice();
     }
-    protected _loadedUnits: UnitObject[] = [];
+    protected _cargo: UnitObject[] = [];
 
     /** Loads a unit into this unit's load list. */
     loadUnit(unit: UnitObject) {
-        this._loadedUnits.push(unit);
+        this._cargo.push(unit);
         this.rebuildStatusIcons();
     }
 
     /** Unloads the given unit from this unit's load list. */
     unloadUnit(n: number): UnitObject {
-        if (!Common.within(n, 0, this._loadedUnits.length - 1))
+        if (!Common.within(n, 0, this._cargo.length - 1))
             throw new Error(`Can't unload unit at index ${n}`);
-        const u = this._loadedUnits[n];
-        this._loadedUnits = this._loadedUnits.filter( (u,i) => i !== n );
+        const u = this._cargo[n];
+        this._cargo = this._cargo.filter( (u,i) => i !== n );
         this.rebuildStatusIcons();
         return u;
     }

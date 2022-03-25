@@ -200,11 +200,11 @@ export class UnitWindow extends SlidingWindow {
       ? this.setMaterialMeterValue(unit.ammo)
       : this.setAmmoMeterValue(unit.ammo, unit.maxAmmo);
 
-    this.setFirstLoadUnit( (unit.loadedUnits.length > 0)
-      ? unit.loadedUnits[0].cargoPreview
+    this.setFirstLoadUnit( (unit.cargo.length > 0)
+      ? unit.cargo[0].cargoPreview
       : null);
-    this.setSecondLoadUnit( (unit.loadedUnits.length > 1)
-      ? unit.loadedUnits[1].cargoPreview
+    this.setSecondLoadUnit( (unit.cargo.length > 1)
+      ? unit.cargo[1].cargoPreview
       : null);
   }
 }

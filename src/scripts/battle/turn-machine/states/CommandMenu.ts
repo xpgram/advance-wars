@@ -47,7 +47,7 @@ export class CommandMenu extends TurnState {
           }
 
     // Get drop command instances and auto-end if all previously selected.
-    const dropCommands = actor.loadedUnits
+    const dropCommands = actor.cargo
       .map( (u, index) => ({
         ...Command.Drop,
         index,
@@ -75,7 +75,7 @@ export class CommandMenu extends TurnState {
 
       const title = command.name;
       const icon = (command.type === Command.Drop && (command as Drop).index >= 0)
-        ? actor.loadedUnits[(command as Drop).index].cargoPreview
+        ? actor.cargo[(command as Drop).index].cargoPreview
         : undefined;
 
       return new ListMenuOption(

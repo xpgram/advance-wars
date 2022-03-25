@@ -479,7 +479,7 @@ export module Unit {
                 Unit.Infantry, Unit.Mech,
             ];
 
-            const full = (this._loadedUnits.length >= max);
+            const full = (this._cargo.length >= max);
             const generally = (!unit);
             const soldierUnit = (boardTypes.includes(unit?.type));
             return !full && (soldierUnit || generally);
@@ -724,7 +724,7 @@ export module Unit {
                 Unit.Infantry, Unit.Mech,
             ];
 
-            const full = (this._loadedUnits.length >= max);
+            const full = (this._cargo.length >= max);
             const generally = (!unit);
             const soldierUnit = (boardTypes.includes(unit?.type));
             return !full && (soldierUnit || generally);
@@ -841,7 +841,7 @@ export module Unit {
 
         boardable(unit?: UnitObject): boolean {
             const max = 2;
-            const full = (this._loadedUnits.length >= max);
+            const full = (this._cargo.length >= max);
             const generally = (!unit);
             const airUnit = (unit?.unitClass === UnitClass.Air);
             return !full && (airUnit || generally);
@@ -921,7 +921,7 @@ export module Unit {
 
         boardable(unit?: UnitObject): boolean {
             const max = 2;
-            const full = (this._loadedUnits.length >= max);
+            const full = (this._cargo.length >= max);
             const generally = (!unit);
             const copterTypes = [Unit.BCopter, Unit.TCopter] as (UnitType | undefined)[];
             const copterUnit = (copterTypes.includes(unit?.type));
@@ -969,7 +969,7 @@ export module Unit {
 
         boardable(unit?: UnitObject): boolean {
             const max = 2;
-            const full = (this._loadedUnits.length >= max);
+            const full = (this._cargo.length >= max);
             const generally = (!unit);
             const groundUnit = (unit?.unitClass === UnitClass.Ground);
             return !full && (groundUnit || generally);
@@ -1014,7 +1014,7 @@ export module Unit {
 
         boardable(unit?: UnitObject): boolean {
             const max = 1;
-            const full = (this._loadedUnits.length >= max);
+            const full = (this._cargo.length >= max);
             const generally = (!unit);
             const soldierUnit = (unit?.soldierUnit);
             return !full && (soldierUnit || generally);
