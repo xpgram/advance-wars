@@ -13,6 +13,9 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
+- [ ] Refactor pointer.pointerWithin → pointer.pointerEntered
+  pointerWithin uses container.width and .height to infer whether the pointer is over the object or not, but it's imprecise for some reason. .pointerEntered depends on Pixi's internal 'mouseover' and 'mouseout' events, which are much more pixel-perfect.
+
 - [ ] Pointer controls: Click-Hold should start ShowUnitAttackRange and MoveCamera
   - [ ] I first need to figure out what "MoveCamera" means in a pointer context, though.
   - [ ] MoveUnit is cancellable by clicking on MapCursor when MapCursor is over a non-highlighted tile. This is fine, but feels a little quirky. Add a clickable HUD button that signals a cancel intent.
@@ -153,9 +156,6 @@ Plus, I need the online system so I can start developing it alongside the game's
 I don't even have the funds-cost-remaining widget written yet, so I guess we'll try to force it open whenever I do.
 
 - [ ] Scene has a property called 'resources' which should be equivalent to Game.loader.resources, but I never use it. I think I never use it.
-
-- [x] Camera refactor: bugs and integration
-- [ ] manualMove can't move the camera's target transform fewer than 2 tile spaces away, for some reason.
 
 ShowUnitAttackRange:
 - [x] Allow camera movement

@@ -23,7 +23,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   readonly button = new Button();
 
   /** Keeps track of drag state. */
-  private dragButton = new Button();
+  private readonly dragButton = new Button();
 
   /** Whether the pointer has moved during a continuous button-down event. */
   get pointerDragging() { return this.dragButton.down; }
@@ -34,6 +34,18 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   /** Trigger pulse flag for whether the pointer button has released after a drag state. */
   get pointerDragStopped() { return this.dragButton.released; }
 
+  /** Keeps track of pointer-entered state. */
+  private readonly enterButton = new Button();
+
+  /** Whether the pointer is hovering over this clickable container. */
+  get pointerHovering() { return this.enterButton.down; }
+
+  /** Trigger pulse flag for whether the pointer has just started hovering over this clickable container. */
+  get pointerEntered() { return this.enterButton.pressed; }
+
+  /** Trigger pulse flag for whether the pointer has just stopped hovering over this clickable container. */
+  get pointerExited() { return this.enterButton.released; }
+
   /** Returns a Point object: the pointer's coordinates relative to its Container's origin. */
   pointerLocation() { return this._pointerLocation.clone() }
   private _pointerLocation = new Point();
@@ -43,8 +55,10 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   pointerPressedLocation() { return this._pointerLastPressLocation.clone(); }
   private _pointerLastPressLocation = new Point();
 
-  /** Whether the pointer is hovering over the managed Container. */
+  /** Whether the pointer is hovering over the managed Container.
+   * @deprecated Use pointerHovering and enterButton instead. */
   get pointerWithin() { return this._pointerWithin; }
+  /** @deprecated */
   private _pointerWithin: boolean = false;
 
   /** Whether the pointer has moved this frame. */
@@ -63,6 +77,8 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
     container.addListener('mousedown', this.mouseDownHandler, this);
     container.addListener('mouseup', this.mouseUpHandler, this);
     container.addListener('mouseupoutside', this.mouseUpHandler, this);
+    container.addListener('mouseover', this.mouseInHandler, this);
+    container.addListener('mouseout', this.mouseOutHandler, this);
     container.interactive = true;
 
     this.container = container;
@@ -72,8 +88,10 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   destroy() {
     this.container.removeListener('mousemove', this.updateMousePosition, this);
     this.container.removeListener('mousedown', this.mouseDownHandler, this);
-    this.container.removeListener('mouseup', this.mouseUpHandler,this);
+    this.container.removeListener('mouseup', this.mouseUpHandler, this);
     this.container.removeListener('mouseupoutside', this.mouseUpHandler, this);
+    this.container.removeListener('mouseover', this.mouseInHandler, this);
+    this.container.removeListener('mouseout', this.mouseOutHandler, this);
     this.container.interactive = false; // I'm assuming for now I will never assign two controllers to one container.
     Game.scene.ticker.remove.remove(this.updateButtonState, this);
   }
@@ -81,9 +99,11 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   /** Update step which passes current down-state back into the pointer button to
    * facilitate the Button object's routine functions. */
   private updateButtonState() {
+    // TODO This should be more specific about which updates are being skipped.
     if (!this.skipNextButtonUpdate) {
       this.button.update(this.button.down);
       this.dragButton.update(this.dragButton.down);
+      this.enterButton.update(this.enterButton.down);
       this._pointerMoved = false;
     }
     this.skipNextButtonUpdate = false;
@@ -135,6 +155,18 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
       event.stopPropagation();
   }
 
+  /** Updates the virtual pointer with a mouse-in event. */
+  private mouseInHandler(event: InteractionEvent) {
+    this.enterButton.update(true);
+    this.skipNextButtonUpdate = true;
+  }
+
+  /** Updates the virtual pointer with a mouse-out event. */
+  private mouseOutHandler(event: InteractionEvent) {
+    this.enterButton.update(false);
+    this.skipNextButtonUpdate = true;
+  }
+
   /** True if this controller is listening for inputs. */
   get enabled() { return this.container.interactive; }
   set enabled(b) {
@@ -142,6 +174,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
     if (!b) {
       this.button.reset();
       this.dragButton.reset();
+      this.enterButton.reset();
     }
   }
 
