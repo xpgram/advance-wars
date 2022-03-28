@@ -565,7 +565,7 @@ export module Terrain {
             this.layers.push({object: container, key: ['bottom', 'static']});
 
             // Mist
-            this._shapeSerial = TerrainMethods.lineDirectionalVariant(neighbors, MistTile);
+            this._shapeSerial = TerrainMethods.lineDirectionalVariant(neighbors, Mist);
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`mist-${this._shapeSerial}.png`]);
             sprite.alpha = 0.75;
             this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
