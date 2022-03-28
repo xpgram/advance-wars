@@ -104,7 +104,7 @@ export class StagePointerInterface extends ControlScript {
 
     // Move cursor
     if (moveCursorIntent) {
-      (button.pressed || stagePointer.pointerEntered)
+      (button.pressed || stagePointer.pointerIn)
         ? mapCursor.moveTo(currentTile.boardLocation)
         : mapCursor.animateTo(currentTile.boardLocation);
       if (this.onMoveCursor)

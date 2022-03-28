@@ -38,13 +38,13 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   private readonly enterButton = new Button();
 
   /** Whether the pointer is hovering over this clickable container. */
-  get pointerHovering() { return this.enterButton.down; }
+  get pointerOver() { return this.enterButton.down; }
 
   /** Trigger pulse flag for whether the pointer has just started hovering over this clickable container. */
-  get pointerEntered() { return this.enterButton.pressed; }
+  get pointerIn() { return this.enterButton.pressed; }
 
   /** Trigger pulse flag for whether the pointer has just stopped hovering over this clickable container. */
-  get pointerExited() { return this.enterButton.released; }
+  get pointerOut() { return this.enterButton.released; }
 
   /** Returns a Point object: the pointer's coordinates relative to its Container's origin. */
   pointerLocation() { return this._pointerLocation.clone() }
@@ -54,12 +54,6 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
    * during last button-pressed event. */
   pointerPressedLocation() { return this._pointerLastPressLocation.clone(); }
   private _pointerLastPressLocation = new Point();
-
-  /** Whether the pointer is hovering over the managed Container.
-   * @deprecated Use pointerHovering and enterButton instead. */
-  get pointerWithin() { return this._pointerWithin; }
-  /** @deprecated */
-  private _pointerWithin: boolean = false;
 
   /** Whether the pointer has moved this frame. */
   get pointerMoved() { return this._pointerMoved; }
@@ -116,19 +110,13 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
     if (this.button.pressed)
       this._pointerLastPressLocation.set(local);
 
-    const wasHovering = this._pointerWithin;
-    this._pointerWithin = (
-      Common.within(local.x, 0, this.container.width) &&
-      Common.within(local.y, 0, this.container.height)
-    );
-
     this._pointerMoved = true;
     this.skipNextButtonUpdate = true;
 
     if (this.button.down && this._pointerLocation.distance(this._pointerLastPressLocation) > 2)
       this.dragButton.update(true);
 
-    if (wasHovering && !this._pointerWithin) {
+    if (this.pointerOut) {
       this.button.cancel();
       this.dragButton.cancel();
     }
@@ -136,7 +124,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
 
   /** Updates the virtual pointer with a button-down event. Also updates the pointer's location. */
   private mouseDownHandler(event: InteractionEvent) {
-    if (this._pointerWithin) {
+    if (this.pointerOver) {
       this.button.update(true);
       this.skipNextButtonUpdate = true;
     }
@@ -151,7 +139,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
     this.skipNextButtonUpdate = true;
     this.updateMousePosition(event);
 
-    if (this._pointerWithin)  // TODO Does this hover-guard do what I expect?
+    if (this.pointerOver)
       event.stopPropagation();
   }
 

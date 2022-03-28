@@ -130,7 +130,7 @@ export class CommandMenuGUI<Y> {
     this.fadeInSlider.increment();
     this.gui.alpha = this.fadeInSlider.output;
 
-    if (this.menuPointer.pointerMoved && this.menuPointer.pointerWithin) {
+    if (this.menuPointer.pointerMoved && this.menuPointer.pointerOver) {
       const pointerIdx = this.getPointerSelection();
       if (pointerIdx !== undefined && this.menu.selectedIndex !== pointerIdx)
         this.menu.setCursor(pointerIdx);
