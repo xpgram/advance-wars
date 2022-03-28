@@ -1,10 +1,7 @@
 import { TurnState } from "../TurnState";
-import { ChooseAttackTarget } from "./ChooseAttackTarget";
 import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOption";
-import { MapLayer } from "../../map/MapLayers";
 import { Command } from "../Command";
-import { DropLocation } from "./DropLocation";
 import { Game } from "../../../..";
 import { CommandHelpers } from "../Command.helpers";
 import { Common } from "../../../CommonUtils";
