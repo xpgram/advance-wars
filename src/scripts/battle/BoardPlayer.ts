@@ -121,8 +121,7 @@ export class BoardPlayer {
     });
 
     // Validate and spawn units.
-    if (options.unitSpawns)
-      options.unitSpawns.forEach( settings => this.spawnUnit(settings) );
+    options.unitSpawns?.forEach( settings => this.spawnUnit(settings) );
 
     // Collect property count
     this.scanCapturedProperties();
@@ -212,6 +211,8 @@ export class BoardPlayer {
   /** Spawns a unit according to the given settings. */
   spawnUnit(settings: UnitSpawnSettings) {
     const { location, serial } = settings;
+
+    console.log('spawning', settings);
 
     const square = this.map.squareAt(location);
     const unitType = Object.values(Unit).find( u => u.serial === serial );
