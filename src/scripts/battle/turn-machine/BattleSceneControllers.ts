@@ -7,7 +7,7 @@ import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
 import { MapLayer, MapLayerFunctions } from "../map/MapLayers";
 import { UnitObject } from "../UnitObject";
-import { Point } from "../../Common/Point";
+import { ImmutablePointPrimitive, Point } from "../../Common/Point";
 import { CameraZoom } from "../control-scripts/cameraZoom";
 import { ControlScript } from "../../ControlScript";
 import { CommandInstruction } from "./CommandInstruction";
@@ -30,9 +30,10 @@ import { Camera } from "../../camera/Camera";
 import { ViewRectBorder } from "../../camera/ViewRectBorder";
 import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { LinearApproach } from "../../camera/TravelAlgorithms";
+import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
-import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
+import { data as mapDev2P } from '../../../battle-maps/dev-room-2p';
 
 type CommandObject = CommandHelpers.CommandObject;
 
@@ -168,24 +169,31 @@ export class BattleSceneControllers {
     // TODO A gamepad proxy for whicher is current-player. Could it extend VirtualGamepad and simply change its
     // state to whicher one it's currently listening to?
 
+    // TODO Remove; for now, just names the map we want to load.
+    const mapData = mapDev2P as {name: string, players: number, size: {width: number, height: number}, map: number[][], owners: {location: ImmutablePointPrimitive, player: number}[], predeploy: {location: ImmutablePointPrimitive, serial: number, player: number}[]};
+
     // Setup Map
-    this.map = new Map(mapLandsEnd);
+    this.map = new Map(mapData);
     this.mapCursor = new MapCursor(this.map, this.gamepad);
 
     // Setup Players
     const playerObjects = [];
-    for (let i = 0; i < mapLandsEnd.players; i++) {
+    for (let i = 0; i < mapData.players; i++) {
+
+      const capturePoints = mapData.owners
+        .filter(capture => capture.player === i)
+        .map(capture => new Point(capture.location));
+
+      const unitSpawns = mapData.predeploy?.filter(spawns => spawns.player === i);
+
       const boardPlayer = new BoardPlayer({
         playerNumber: i,
         faction: [Faction.Red, Faction.Blue, Faction.Yellow, Faction.Black][i],
         officerSerial: i+1,   // TODO Set CO serial
         map: this.map,
         scenario: this.scenario,
-        capturePoints: mapLandsEnd.owners
-          .filter(captures => captures.player === i)
-          .map(captures => new Point(captures.location)),
-        unitSpawns: mapLandsEnd.predeploy
-          .filter(spawns => spawns.player === i),
+        capturePoints,
+        unitSpawns,
         // powerMeter: gameSettings.startingPowerMeter  // when would I use this? Mid-turn reload, probably.
         // funds: gameSettings.startingFunds,
       });
