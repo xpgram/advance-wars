@@ -195,6 +195,12 @@ export class Timer {
     return this;
   }
 
+  /** Executes all timer events in chronological order. */
+  skip() {
+    this.elapsedMillis = this.lengthMillis;
+    this.update();
+  }
+
   /** Resets the timer's clock and scheduled event calls to initial; returns this. Does not stop the clock. */
   reset() {
     this.elapsedMillis = 0;

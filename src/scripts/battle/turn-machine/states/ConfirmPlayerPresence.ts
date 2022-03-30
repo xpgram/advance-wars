@@ -100,6 +100,7 @@ export class ConfirmPlayerPresence extends TurnState {
   update() {
     const { gamepad } = this.assets;
     if (gamepad.button.A.pressed) {
+      this.introTimer.skip();
       this.outroTimer.start();
       this.advance();
     }
