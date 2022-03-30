@@ -93,7 +93,7 @@ export class BattleScene extends Scene {
         // Start scene-relevant shader tickers
         this.ticker.add(updateUniforms);
 
-        // TODO This is awful. Kinda. I dunno, clean it up.
+        // TODO Move this to a repository of common bounding boxes
         // Add small-map camera squeezing.
         const { camera, map } = this.controllers;
         camera.algorithms.destinationCorrection = (transform: ViewRect) => {
