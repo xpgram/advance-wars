@@ -171,7 +171,7 @@ export class BattleSceneControllers {
     // state to whicher one it's currently listening to?
 
     // TODO Remove; for now, just names the map we want to load.
-    const mapData = mapMetroIsland as {name: string, players: number, size: {width: number, height: number}, map: number[][], owners: {location: ImmutablePointPrimitive, player: number}[], predeploy: {location: ImmutablePointPrimitive, serial: number, player: number}[]};
+    const mapData = mapDev2P as {name: string, players: number, size: {width: number, height: number}, map: number[][], owners: {location: ImmutablePointPrimitive, player: number}[], predeploy: {location: ImmutablePointPrimitive, serial: number, player: number}[]};
 
     // Setup Map
     this.map = new Map(mapData);
@@ -202,6 +202,10 @@ export class BattleSceneControllers {
     }
     this.players = new TurnModerator(playerObjects);
 
+    // Position MapCursor on board / prepare starting camera position
+    const cursorStartLoc = this.players.current.lastCursorPosition;
+    this.mapCursor.teleportTo(cursorStartLoc);
+
     // Setup Camera
     this.camera = new Camera(Game.stage);
     this.camera.transform.border = new ViewRectBorder({
@@ -210,6 +214,14 @@ export class BattleSceneControllers {
       top: tileSize*2,
       bottom: tileSize*3,
     });
+    // Start camera in map center
+    const camDimensions = this.camera.transform.worldRect();
+    this.camera.transform.position.set(
+      (this.map.width * tileSize - camDimensions.width)/2,
+      (this.map.height * tileSize - camDimensions.height)/2,
+    );
+    this.camera.teleportToDestination();
+    // Setup focal and follow
     this.camera.focalTarget = this.mapCursor.transform;
     this.camera.algorithms = {
       destination: new ScreenPush(),

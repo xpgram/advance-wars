@@ -13,7 +13,7 @@ export class ResetPerspective extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { map, mapCursor, players, scenario } = this.assets;
+    const { map, mapCursor, camera, players, scenario } = this.assets;
 
     // update FoW
     if (scenario.fogOfWar) {
@@ -58,8 +58,10 @@ export class ResetPerspective extends TurnState {
       square.hideUnit = (unit.hiding && notAllied && !adjacentToAllied);
     });
 
-    // Move Cursor
+    // Move Cursor/Camera
     mapCursor.teleportTo(players.current.lastCursorPosition);
+    if (scenario.fogOfWar || players.firstTurn)
+      camera.teleportToDestination();
 
     this.advance();
   }

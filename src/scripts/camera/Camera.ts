@@ -80,6 +80,17 @@ export class Camera {
     Game.scene.ticker.remove(this.update, this);
   }
 
+  /** Skips travel algorithm processes and instantly moves the camera to its current intended transform. */
+  teleportToDestination() {
+    this.algorithms.destination?.update(  // Update transform to current focal
+      this.transform,
+      this.getFocalPoint(),
+      this
+    )
+    this.hiddenTransforms.actual = this.transform.clone();
+    this.update();  // Is this necessary?
+  }
+
   update() {
     const { destinationCorrection, destination, travel, displacement } = this.algorithms;
     const transforms = this.hiddenTransforms;
