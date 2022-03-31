@@ -9,6 +9,7 @@ import { CommandingOfficerObject } from "./CommandingOfficerObject";
 import { Unit } from "./Unit";
 import { Scenario } from "./turn-machine/BattleSceneControllers";
 import { CommonRangesRetriever } from "./unit-actions/RegionMap";
+import { Debug } from "../DebugUtils";
 
 /**  */
 export type UnitSpawnSettings = {
@@ -210,9 +211,13 @@ export class BoardPlayer {
 
   /** Spawns a unit according to the given settings. */
   spawnUnit(settings: UnitSpawnSettings) {
-    const { location, serial } = settings;
+    const { location, serial, hp, ammo, gas, capture, spent } = settings;
 
-    console.log('spawning', settings);
+    // System log line
+    function write(n?: number | boolean) { return (n !== undefined) ? n : ''; }
+    Debug.log('BoardPlayer', 'SpawnUnit', {
+      message: `${serial} ${location.toString()} hp=${write(hp)} ap=${write(ammo)} gas=${write(gas)} cap=${write(capture)} spent=${write(spent)}`,
+    })
 
     const square = this.map.squareAt(location);
     const unitType = Object.values(Unit).find( u => u.serial === serial );

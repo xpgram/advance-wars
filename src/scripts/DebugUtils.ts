@@ -1,3 +1,4 @@
+import { Game } from "..";
 
 type ErrorType = {
     new (msg: string): Error
@@ -60,34 +61,35 @@ export const Debug = {
         });
     },
 
-    /** Whether to hide logged messages from the console. 'true' by default. */
-    logSuppression: true,
+    /** System log data.
+     * Use Debug.postLog() to write the log's contents to the browser console. */
+    _logData: <string[]>[],
 
-    /** Suppresses all messages with priority less than this value. */
-    logPriorityFilter: 0,
+    /** Log to internal memory some system event. Useful for debugging.
+     * Use Debug.postLog() to write the log's contents to the browser console. */
+    log: (domain: string, process: string, options?: {message?: string, reason?: string, warn?: boolean} ) => {
+        // Format "\n  : message text"
+        const includeMsg = (d: string, msg?: string) => (msg) ? `\n  ${d} ${msg}` : '';
 
-    /** Which category of logged message should be let through the filter. By default an empty string, which
-     * lets all categories through. */
-    logTypeFilter: '',
+        const { message, reason, warn } = options ?? {};
+        const timestamp = `[${new Date().toISOString()}] fr${Game.frameCount} ln${Debug._logData.length}`;
+        const logstr = `${timestamp} ${domain} ${process}${includeMsg(':',message)}${includeMsg(';',reason)}`;
+        // Ex:
+        // [2022-03-30T13:32:57.112Z] fr1434672 ln41 BattleManager AdvanceToNextState
+        //    : Failing to previous stable state.
+        //    ; Generic error.
+        // TODO Will '\n' make it hard to grep, even with ln41?
 
-    /** Sets Debug's log filter to the given values, or property-defaults of 'all' if none are provided. */
-    filterLoggedMessages(options: {priority?: number, type?: string}) {
-        Debug.logPriorityFilter = options.priority || 0;
-        Debug.logTypeFilter = options.type || '';
+        if (warn)
+            console.warn(logstr);
+        Debug._logData.push(logstr);
     },
 
-    /** Prints a suppressable message to the console if Debug's log-filter settings are compatible
-     * with those given. */
-    log: (options: {msg: string, priority?: number, type?: string}) => {
-        options.priority = options.priority || 0;
-        options.type = options.type || '*';
-
-        if (!Debug.logSuppression) {
-            if (options.priority >= Debug.logPriorityFilter) {
-                if (Debug.logTypeFilter == '' || Debug.logTypeFilter == options.type)
-                    console.log(`${options.type}: ${options.msg}`);
-            }
-        }
+    /** Writes to the console the contents of the system event log. */
+    exportLogToConsole: () => {
+        console.groupCollapsed(`System Log (${Debug._logData.length})`);
+        console.log(Debug._logData.join('\n'));
+        console.groupEnd();
     },
 
     // An accessible list of all (this application's) error classes.

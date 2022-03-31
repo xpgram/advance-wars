@@ -245,22 +245,34 @@ class App {
 
     /** Any configurations relevant to the function of the main update loop are performed here. */
     private systemLoop() {
-        this.devController.update();
-        this.developmentScripts();
+        try {
+            this.devController.update();
+            this.developmentScripts();
 
-        // Suspend frame updates mechanism
-        if (this.devSettings.suspend && !this.devSettings.suspendBypass) {
-            PIXI.Ticker.shared.stop();
-            this.scene.halt();
-        }
-        else {
-            PIXI.Ticker.shared.start();
-            this.scene.unhalt();
-            this.gameLoop();
-        }
+            // Suspend frame updates mechanism
+            if (this.devSettings.suspend && !this.devSettings.suspendBypass) {
+                PIXI.Ticker.shared.stop();
+                this.scene.halt();
+            }
+            else {
+                PIXI.Ticker.shared.start();
+                this.scene.unhalt();
+                this.gameLoop();
+            }
 
-        // Unset bypass for next frame.
-        this.devSettings.suspendBypass = false;
+            // Unset bypass for next frame.
+            this.devSettings.suspendBypass = false;
+
+            // TODO Give non-development users a way to post the log file.
+            if (this.devController.pressed(Keys.P, 'Shift'))
+                Debug.exportLogToConsole();
+        }
+        catch (err) {
+            console.error(err);
+            Debug.exportLogToConsole();
+            this.systemTicker.stop();   // Unrecoverable error: cease all function
+            // TODO Give the user a FatalError visual message/cue?
+        }
     }
 
     /** Main update loop. A state-machine implementing the Scene pattern. */

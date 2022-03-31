@@ -7,6 +7,8 @@ import { GameStart } from "./states/GameStart";
 import { Common } from "../../CommonUtils";
 import { Keys } from "../../controls/KeyboardObserver";
 
+const DOMAIN = 'BattleStateManager';
+
 const STACK_TRACE_LIMIT = 20;
 const QUEUE_STACK_WARNING = 30;
 
@@ -106,6 +108,7 @@ export class BattleSystemManager {
         this.transitionIntent = TransitionTo.None;
 
         // Close and log previous state.
+        const lastState = this.currentState;
         this.currentState.close();
         const exit = this.currentState.exit;
         this.log(mode, `${this.currentState.name}`, exit);
@@ -116,11 +119,9 @@ export class BattleSystemManager {
         this.stack.push(newState);  // Add new state to stack (implicitly changes current)
         newState.wake();            // Run new state's scene configurer
 
-        // Message logging
-        Debug.log({
-          msg: `Advancing to state ${state.name}`,
-          priority: 4, // TODO Wtf does 4 mean?
-          type: `TurnMachine`,
+        // System log line
+        Debug.log(DOMAIN, 'HandleAdvanceToState', {
+          message: `Advanced from '${lastState.name}' to '${newState.name}'`,
         });
 
         // Cull unreachables from stack
@@ -163,11 +164,19 @@ export class BattleSystemManager {
           this.transitionIntent = TransitionTo.Previous;
         }
 
+        let stateAwakened = false;
+
         // Log new current state to trace history.
         if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
           this.transitionIntent = TransitionTo.NoneFromRegress;
           this.currentState.wake({ fromRegress: true });
+          stateAwakened = true;
         }
+
+        // System log line
+        Debug.log(DOMAIN, 'HandleRegressToState', {
+          message: `Regressed from '${oldState.name}' to '${this.currentState.name}; ${(stateAwakened) ? 'state did wake.' : 'state did not wake.'}'`,
+        })
       }
     } catch (e) {
       Debug.ping(this.getStackTrace());
@@ -179,10 +188,10 @@ export class BattleSystemManager {
   /** Returns true if the given state object is the active state object. */
   private isSelfsameState(state: TurnState) {
     if (this.currentState !== state) {
-      Debug.log({
-        msg: `State '${state.name}' requested a state shift, but active state is '${this.currentState.name}'`,
-        priority: 3,
-        type: `TurnMachine`,
+      Debug.log(DOMAIN, 'RequestAction_VerifySource', {
+        message: `Rejecting intent.`,
+        reason: `Request from '${state.name}' does not match active state ('${this.currentState.name}').`,
+        warn: true,
       });
       return false;
     }
@@ -234,14 +243,12 @@ export class BattleSystemManager {
         break;
       }
     // Slice list and destroy states not needed.
-    if (idx > -1) {
+    if (idx > 0) {
       const culled = this.stack.slice(0,idx);
       this.stack = this.stack.slice(idx);
       culled.forEach( s => s.destroy() );
-      Debug.log({
-        msg: `Culling ${idx} unreachable turnstates.`,
-        priority: 4,
-        type: `Turnmachine`,
+      Debug.log(DOMAIN, 'CullStateStack', {
+        message: `Culled ${idx} unreachable turnstates.`,
       })
     }
   }

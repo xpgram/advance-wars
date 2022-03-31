@@ -66,17 +66,7 @@ export class ManualMoveCamera extends ControlScript {
 
     this.cameraLead.x = Common.clamp(this.cameraLead.x, 0, max.x);
     this.cameraLead.y = Common.clamp(this.cameraLead.y, 0, max.y);
-
-    // TODO Remove?; I think I've fixed the problem, but I need to test on a more powerful machine.
-    // Debugging, logging block
-    this.log.push(`frame ${Game.frameCount}\n  done travelling? ${camera.doneTraveling}\n  dpad ${dpad.point.toString()},\n  focal ${this.cameraLead.toString()},\n  rect ${rect.toString()}`);
-    if (this.log.length > 120)
-      this.log.shift();
-    if (Game.devController.pressed(Keys.L))
-      console.log(this.log.join('\n'));
   }
-
-  private log: string[] = []; // TODO Remove: debugging stuff
 
   protected disableScript(): void {
     const { camera } = this.assets;
