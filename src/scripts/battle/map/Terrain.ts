@@ -346,6 +346,14 @@ export module Terrain {
         }
     }
 
+    export class RiverBridge extends Bridge {
+        static readonly serial = Serial.next().value;
+
+        constructor(prevTile?: TerrainObject) {
+            super(new Plain());
+        }
+    }
+
     export class River extends TerrainObject {
         get type() { return River; }
         static readonly serial = Serial.next().value;
