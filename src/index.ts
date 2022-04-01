@@ -8,6 +8,8 @@ import { TextureLibrary } from './scripts/system/TextureLibrary';
 import { DevController } from './scripts/controls/DevController';
 import { Keys } from './scripts/controls/KeyboardObserver';
 
+import * as PixiFilters from 'pixi-filters';
+
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling fuzziness
@@ -174,8 +176,12 @@ class App {
         }
     };
 
-    /** System stage container equivalent to app.stage. */
+    /** System root container equivalent to app.stage. */
     private readonly container = new PIXI.Container();
+
+    /** System root container for world objects.
+     * Containers all world layers from background to foreground. */
+    private readonly worldContainer = new PIXI.Container();
 
     /** System ticker equivalent to app.ticker. */
     private readonly systemTicker = new PIXI.Ticker();
@@ -210,10 +216,26 @@ class App {
         this.switchScene(this.gameScenes.battleScene);
 
         // Add this game's visual layers to PIXI's app.stage
-        this.container.addChild(this.backdrop);
-        this.container.addChild(this.stage);
+        this.worldContainer.addChild(this.backdrop);
+        this.worldContainer.addChild(this.stage);
+        this.container.addChild(this.worldContainer);
         this.container.addChild(this.hud);
         this.container.addChild(this.debugHud);
+
+        // TODO Blur: Useful for niceness when FieldMenu is open
+
+        // TODO Useful for sunny weather
+        // const filter = new PixiFilters.GodrayFilter({
+        //     alpha: .5,
+        //     angle: -30,
+        //     lacunarity: 2.50,
+        // });
+        
+        // TODO Useful for conforming old DS style
+        // const filter = new PixiFilters.PixelateFilter(2);
+
+        // const filter = new PixiFilters.;
+        // this.container.filters = [filter];
         
         // Preload game-wide resources, start the game on completion.
         this.preload( () => {
