@@ -7,12 +7,16 @@ import { TravelAlgorithm } from "./TravelAlgorithms";
 import { DisplacementAlgorithm } from "./DisplacementAlgorithms";
 import { PositionContainer } from "../CommonTypes";
 import { Keys } from "../controls/KeyboardObserver";
+import { Debug } from "../DebugUtils";
 
 
 type AlgorithmSet = {
   /** A function callback for correcting the target frame after the destination algorithm,
    * such as for confining it to some set of bounds. */
   destinationCorrection?: (target: ViewRect) => ViewRect;
+  /** A function callback for filtering-on-retrieval the focal-object coordinates, such as
+   * for confining it to some set of bounds. */
+  focalCorrection?: (p: Point, target: ViewRect) => Point;
   /** The method by which the camera will choose transform targets. */
   destination?: PositionalAlgorithm;
   /** The method by which the camera will approach its current transform target. */
@@ -31,11 +35,27 @@ type AlgorithmSet = {
 export class Camera {
 
   /** The point, if present, which the camera will try to keep in frame. */
-  focalTarget?: PositionContainer;
+  get focalTarget() { return this._focalTarget; }
+  set focalTarget(t) {
+    const message = (t)
+      ? `Now observing object at ${new Point(t.position).toString()}`
+      : `Now observing no object.`
+    Debug.log('Camera', 'ChangeFocalObject', { message });
+    this._focalTarget = t;
+  }
+  private _focalTarget?: PositionContainer;
 
   /** The transform state this camera aspires to. Instantly moves the camera, or begins approaching
    * if a travel algorithm is set. */
-  transform = new ViewRect(this);
+  get transform() { return this._transform; }
+  set transform(t) {
+    Debug.log('Camera', 'MoveTarget', {
+      message: `Moving transform target to ${t.toString()}`,
+    });
+    this._transform = t;
+  }
+  private _transform = new ViewRect(this);
+  
 
   /** True if this camera's focal point is inside its view bounds. */
   get subjectInView(): boolean {
@@ -46,7 +66,7 @@ export class Camera {
 
   /** True if this camera's actual frame-rect is equal to its target frame-rect. */
   get doneTraveling(): boolean {
-    return this.hiddenTransforms.actual.equal(this.transform);
+    return this.hiddenTransforms.actual.equal(this._transform);
   }
 
   /** Returns a readonly-purpose copy of this Camera's current transform. */
@@ -65,6 +85,7 @@ export class Camera {
 
   /** A container for a set of behavioral algorithms which describe the camera's
    * frame-by-frame movement. */
+  // TODO Add algorithm-change logging
   algorithms: AlgorithmSet = { }
 
   /** The graphical object manipulated by this camera. */
@@ -78,16 +99,19 @@ export class Camera {
 
   destroy() {
     Game.scene.ticker.remove(this.update, this);
+    Debug.log('Camera', 'Destruct', {
+      message: `Camera object destroyed.`,
+    })
   }
 
   /** Skips travel algorithm processes and instantly moves the camera to its current intended transform. */
   teleportToDestination() {
     this.algorithms.destination?.update(  // Update transform to current focal
-      this.transform,
+      this._transform,
       this.getFocalPoint(),
       this
     )
-    this.hiddenTransforms.actual = this.transform.clone();
+    this.hiddenTransforms.actual = this._transform.clone();
     this.update();  // Is this necessary?
   }
 
@@ -100,25 +124,34 @@ export class Camera {
     // Be careful out there, yo.
 
     // Set target transform
-    this.transform = (destination)
+    let nextTarget = (destination)
       ? destination.update(
-          this.transform,
+          this._transform,
           this.getFocalPoint(),
           this,
         )
-      : this.transform;
-    this.transform = (destinationCorrection)
-      ? destinationCorrection(this.transform)
-      : this.transform;
+      : this._transform;
+    nextTarget = (destinationCorrection)
+      ? destinationCorrection(this._transform)
+      : this._transform;
+
+    if (nextTarget.notEqual(this._transform))
+      this.transform = nextTarget;
 
     // Move actual transform
     transforms.actual = (travel)
       ? travel.update(
           transforms.actual,
-          this.transform,
+          this._transform,
           this.getFocalPoint(),
         )
-      : this.transform.clone();
+      : this._transform.clone();
+
+    // Periodically log camera actual position
+    if (Game.frameCount % 120 === 0)
+      Debug.log('Camera', 'UpdatePosition', {
+        message: `Non-displaced, actual transform is currently ${transforms.actual.toString()} with focal ${this.getFocalPoint().toString()}`,
+      });
 
     // Get behavior and set final transform
     transforms.offset = displacement?.get() || new ViewRectVector();
@@ -136,7 +169,10 @@ export class Camera {
 
   /** Returns a point corresponding either to the target of focus or the center of the camera's view. */
   getFocalPoint(): Point {
-    return new Point(this.focalTarget?.position || this.hiddenTransforms.actual.worldRect().center);
+    const filter = this.algorithms.focalCorrection ?? (p => p);
+    return (this._focalTarget)
+      ? filter(new Point(this._focalTarget.position), this._transform)
+      : this.hiddenTransforms.actual.worldRect().center;
   }
   
 }

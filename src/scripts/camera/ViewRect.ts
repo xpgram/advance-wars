@@ -122,6 +122,11 @@ export class ViewRect {
     return sameRects && sameZoom && sameBorder;
   }
 
+  /** Returns true if the given ViewRect is not equivalent to this one. */
+  notEqual(other: ViewRect) {
+    return !this.equal(other);
+  }
+
   /** Returns a delta-ViewRect holding the difference in properties from 'from' to self. */
   vectorFrom(other: ViewRect): ViewRectVector {
     const rectA = this.worldRect();
@@ -142,6 +147,11 @@ export class ViewRect {
     view.zoom += vector.zoom;
     view.border = view.border.add(vector.border);
     return view;
+  }
+
+  /** Returns a string representation of this ViewRect's properties. */
+  toString(): string {
+    return `zoom=${this.zoom} view=${this.worldRect().toString()} focus=${this.subjectRect().toString()}`;
   }
  
 }

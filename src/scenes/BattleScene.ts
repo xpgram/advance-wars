@@ -6,6 +6,7 @@ import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystem
 import { updateUniforms } from "../scripts/filters/TileSpotlight";
 import { ViewRect } from "../scripts/camera/ViewRect";
 import { PixiUtils } from "../scripts/Common/PixiUtils";
+import { Point } from "../scripts/Common/Point";
 
 const { newBitmapFont } = PixiUtils;
 
@@ -124,6 +125,23 @@ export class BattleScene extends Scene {
                 transform.position.y = .5*mapHeight - viewCenter.y + world.y;
             
             return transform;
+        }
+        camera.algorithms.focalCorrection = (p: Point, transform: ViewRect) => {
+            const tileSize = Game.display.standardLength;
+            const mapWidth = map.width * tileSize;  
+            const mapHeight = map.height * tileSize;
+
+            const subject = transform.subjectRect();
+
+            let corrected = p.clone();
+
+            // Centering
+            if (subject.width >= mapWidth)
+                corrected.x = .5*mapWidth;
+            if (subject.height >= mapHeight)
+                corrected.y = .5*mapHeight;
+
+            return corrected;
         }
     }
 
