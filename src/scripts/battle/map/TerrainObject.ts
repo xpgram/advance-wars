@@ -107,6 +107,9 @@ export abstract class TerrainObject {
     /** Whether this terrain represents one of the many building/captureable types. */
     get building(): boolean { return false; }
 
+    /** Whether this terrain maintains a hitpoints stat, and generally is targetable by troops. */
+    get damageable(): boolean { return false; }
+
     /** Whether this tile is naturally shallow sea. Relevant to sea tiles only. */
     get shallowWaterSourceTile(): boolean { return true; }
 

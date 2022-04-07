@@ -422,7 +422,7 @@ export class Square {
      * move-types may legally inhabit this square. The UnitClass being inferred here is described
      * by the contents of the given lists. */
     const hypothetical = (o: {armorTypes: ArmorType[], moveTypes: MoveType[]}): boolean => {
-      const someArmor = o.armorTypes.some( armor => actor.couldTarget(armor) );
+      const someArmor = o.armorTypes.some( armor => actor.canTargetArmor(armor) );
       const someMove  = o.moveTypes.some( move => this.terrain.getMovementCost(move) > 0 );
       return someArmor && someMove;
     }
@@ -431,6 +431,7 @@ export class Square {
     // (As a visual convenience, treat ally-unit squares as empty)
     if (!this.unit || !this.unitVisible() || this.unit.faction === actor.faction) {
       targetable = (
+        actor.canTarget(this.terrain) ||
         hypothetical(troopSet) ||
         hypothetical(treadSet) ||
         hypothetical(airSet)   ||
@@ -447,10 +448,9 @@ export class Square {
    * Returns false if there is no inhabiting unit to attack, or if the inhabiting unit is not
    * targetable by the given. */
   attackable(actor: UnitObject): boolean {
-    if (this.unit && this.unitVisible())
-      return actor.canTarget(this.unit);
-    else
-      return false;
+    return (this.unit && this.unitVisible())
+      ? actor.canTarget(this.unit)
+      : actor.canTarget(this.terrain);
   }
 
   /** Returns true if the unit present here (if any) is hypothetically

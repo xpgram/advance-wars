@@ -683,6 +683,7 @@ export module Terrain {
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
             return anim;
         }
+        get damageable(): boolean { return true; }
         readonly landTile: boolean;
 
         get name() { return "Meteor"; }
@@ -690,6 +691,8 @@ export module Terrain {
         get description() { return "/Destroy/ meteor chunks to eliminate any nearby plasma."; }
         get defenseRating() { return 0; }
 
+        // TODO I wrote this decades ago. I have new standards now.
+        // There's no reason for this to be generic.
         private _value = 99;
         get value(): number { return this._value; }
         set value(n) { this._value = Common.clamp(n, 0, 99); }

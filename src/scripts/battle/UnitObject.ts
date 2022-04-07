@@ -885,9 +885,14 @@ export abstract class UnitObject {
 
     /** Returns the AttackMethod-type if the given target is attackable via either this unit's
      * primary or secondary weapons; if it isn't, returns AttackMethod.None */
-    attackMethodFor(target: UnitObject): AttackMethod {
-        const primaryRating = this.getAttackHeuristic(this.weapon.primary, target.armorType);
-        const secondaryRating = this.getAttackHeuristic(this.weapon.secondary, target.armorType);
+    attackMethodFor(target: UnitObject | TerrainObject): AttackMethod {
+        let primaryRating = 2;
+        let secondaryRating = 2;
+
+        if (target instanceof UnitObject) {
+            primaryRating = this.getAttackHeuristic(this.weapon.primary, target.armorType);
+            secondaryRating = this.getAttackHeuristic(this.weapon.secondary, target.armorType);
+        }
 
         if (primaryRating > 0 && this.ammo > 0)
             return AttackMethod.Primary;
@@ -897,11 +902,19 @@ export abstract class UnitObject {
             return AttackMethod.None;
     }
 
-    /** Returns true if this unit can launch an attack against the given unit. */
-    canTarget(unit: UnitObject) {
-        let attackable = (this.attackMethodFor(unit) != AttackMethod.None);
-        let nonAllied = (this.faction != unit.faction);
-        return (attackable && nonAllied);
+    /** Returns true if this unit can launch an attack against the given unit or terrain. */
+    canTarget(target: UnitObject | TerrainObject) {
+        const unit = (target instanceof UnitObject) ? target : undefined;
+        const terrain = (target instanceof TerrainObject) ? target : undefined;
+
+        const attackable = (this.attackMethodFor(target) !== AttackMethod.None);
+        const nonAllied = Boolean(unit && this.faction !== unit.faction);
+        const destructable = Boolean(terrain && terrain.damageable);
+
+        const unitConditions = nonAllied;
+        const terrainConditions = destructable;
+
+        return (attackable && (unitConditions || terrainConditions));
     }
 
     /** Returns true if this unit is capable of counter-attacking aggressors.
@@ -915,9 +928,8 @@ export abstract class UnitObject {
         return targetable && inRange && adjacent;
     }
 
-    // TODO couldTarget() → canTargetArmor() && canTarget() → canTargetUnit()
     /** Returns true if this unit could attack the given armor type. */
-    couldTarget(armorType: ArmorType) {
+    canTargetArmor(armorType: ArmorType) {
         const primaryRating = this.getAttackHeuristic(this.weapon.primary, armorType);
         const secondaryRating = this.getAttackHeuristic(this.weapon.secondary, armorType);
         return ((primaryRating > 0 && this.ammo > 0) || secondaryRating > 0);
