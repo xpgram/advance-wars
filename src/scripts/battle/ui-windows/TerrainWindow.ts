@@ -103,7 +103,7 @@ export class TerrainWindow extends SlidingWindow {
       else
         this.setCaptureMeter(20);
     else if (terrain.type == Terrain.Meteor)
-      this.setHPMeter(99);
+      this.setHPMeter(terrain.value);
     else
       this.hideCaptureMeter();
   }

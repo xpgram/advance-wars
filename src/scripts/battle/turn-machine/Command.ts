@@ -5,6 +5,7 @@ import { Common } from "../../CommonUtils";
 import { Debug } from "../../DebugUtils";
 import { DamageScript } from "../DamageScript";
 import { Terrain } from "../map/Terrain";
+import { TerrainObject } from "../map/TerrainObject";
 import { AnnointCoUnitEvent } from "../map/tile-effects/AnnointCoUnitEvent";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
@@ -176,16 +177,24 @@ export module Command {
 
     scheduleEvent() {
       const { map, trackCar, boardEvents } = data.assets;
-      const { seed, actor, goal, target, assets } = data;
+      const { seed, actor, goal, focalTile, assets } = data;
       const events = [];
 
-      function getDamageEvent(attacker: UnitObject, defender: UnitObject, damage: number, trackCar?: TrackCar) {
-        return new BattleDamageEvent({attacker, defender, damage, trackCar, assets});
+      const target = focalTile.unit ?? focalTile.terrain;
+
+      function getDamageEvent(attacker: UnitObject, defender: UnitObject | TerrainObject, damage: number, trackCar?: TrackCar) {
+        return (defender instanceof UnitObject)
+          ? new BattleDamageEvent({attacker, defender, damage, trackCar, assets})
+          : new GenericRatifyEvent({location: goal, ratify: () => {
+              defender.value -= damage;
+            }});
       }
 
-      const battleResults = DamageScript.NormalAttack(map, actor, goal, target, seed);
+      const battleResults = (target instanceof UnitObject)
+        ? DamageScript.NormalAttack(map, actor, goal, target, seed)
+        : DamageScript.TerrainAttack(map, actor, goal, target, seed);
       events.push(getDamageEvent(actor, target, battleResults.damage));
-      if (target.canCounterAttack(actor, goal))
+      if (target instanceof UnitObject && target.canCounterAttack(actor, goal))
         events.push(getDamageEvent(target, actor, battleResults.counter, trackCar));
       boardEvents.schedule(events);
 

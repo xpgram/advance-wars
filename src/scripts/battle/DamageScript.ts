@@ -3,6 +3,7 @@ import { Debug } from "../DebugUtils";
 import { Map } from "./map/Map";
 import { Square } from "./map/Square";
 import { Point } from "../Common/Point";
+import { TerrainObject } from "./map/TerrainObject";
 
 export type BattleForecast = {
   damage: number,
@@ -34,31 +35,32 @@ export class DamageScript {
     return 0;
   }
 
-  /**  */
-  private static NormalAttackFormula(A: CombatState, B: CombatState, rand: number) {
+  private static AttackPowerBonus(A: CombatState, rand: number): number {
     const { ceil } = Math;
+
+    const playerA = A.unit.boardPlayer;
 
     // Constants
     const ComTowerBonus = 5;
 
-    // Unit Rank 0: 0/0, I: +5/0, II: +10/0, V: +20/+20
-    // Terrain Stars 0/+1 per star per 1 HP
-    // CO Zone +10/+10, and +10/0 and 0/+10 per attack and defense stars per unit type
-    // COM Towers +5/+5 per count
-    // Sandstorm -30/0
-    // Luck +LCK/0, where LCK is range 0 to ceil(attackerHP / 10)
-
-    const playerA = A.unit.boardPlayer;
-    const playerB = B.unit.boardPlayer;
-
     // Get attacker's stat bonuses
-    const atkStrength = ceil(A.HP / 10) / 10;       // A 1-sig decimal number ranged 0 to 1
     const atkRank = [0, 5, 10, 20][A.unit.rank];    // TODO What if rank is 4?! Irrelevant. It'll never happen.
     const luck = ceil(rand * ceil(A.HP / 10 + 1)) - 1;
     const atkComTower = playerA.comTowerCount * ComTowerBonus;
     const atkCoZone = (playerA.withinCoRange(A.from))
       ? playerA.officer.getBonusStats(A.unit).attack
       : 0;
+
+    return 100 + atkRank + atkCoZone + luck + atkComTower;
+  }
+
+  private static DefensePowerBonus(B: CombatState): number {
+    const { ceil } = Math;
+
+    const playerB = B.unit.boardPlayer;
+
+    // Constants — Duplicated in AttackPowerBonus
+    const ComTowerBonus = 5;
 
     // Get defender's stat bonuses
     const defRank = (B.unit.rank == 3) ? 20 : 0;
@@ -68,16 +70,48 @@ export class DamageScript {
       ? playerB.officer.getBonusStats(B.unit).defense
       : 0;
 
+    return 100 + defRank + defCoZone + terrain + defComTower;
+  }
+
+  /**  */
+  private static NormalAttackFormula(A: CombatState, B: CombatState, rand: number) {
+    const { ceil } = Math;
+
+    // Unit Rank 0: 0/0, I: +5/0, II: +10/0, V: +20/+20
+    // Terrain Stars 0/+1 per star per 1 HP
+    // CO Zone +10/+10, and +10/0 and 0/+10 per attack and defense stars per unit type
+    // COM Towers +5/+5 per count
+    // Sandstorm -30/0
+    // Luck +LCK/0, where LCK is range 0 to ceil(attackerHP / 10)
+
+    // Get attacker's stat bonuses
+    const atkStrength = ceil(A.HP / 10) / 10;       // A 1-sig decimal number ranged 0 to 1
+
     // Get attacker/defender power advantage
-    const attackStat = 100 + atkRank + atkCoZone + luck + atkComTower;
-    const defenseStat = 100 + defRank + defCoZone + terrain + defComTower;
-    const powerRatio = attackStat / defenseStat;
+    const attackBonus = DamageScript.AttackPowerBonus(A, rand);
+    const defenseBonus = DamageScript.DefensePowerBonus(B);
+    const powerRatio = attackBonus / defenseBonus;
 
     // Return final damage
     const baseDamage = A.unit.baseDamage(B.unit);
     const finalDamage = baseDamage * atkStrength * powerRatio;
 
     // [!] Unit HP cannot be stored as a decimal.
+    return ceil(finalDamage);
+  }
+
+  /**  */
+  private static NormalTerrainAttackFormula(A: CombatState, rand: number) {
+    const { ceil } = Math;
+
+    const atkStrength = ceil(A.HP / 10) / 10;
+
+    const attackBonus = DamageScript.AttackPowerBonus(A, rand);
+    const powerRatio = attackBonus / 100;
+
+    const baseDamage = 30;  // TODO I need access to the Terrain value
+    const finalDamage = baseDamage * atkStrength * powerRatio;
+
     return ceil(finalDamage);
   }
 
@@ -113,6 +147,28 @@ export class DamageScript {
       }
     };
   }
+
+  static TerrainAttack(map: Map, attacker: UnitObject, from: Point, terrain: TerrainObject, seed: number) {
+    DamageScript.SetSeed(seed);
+    const formula = DamageScript.NormalTerrainAttackFormula;
+
+    const attackState = new CombatState(map, attacker, from);
+
+    const LCK = DamageScript.Random();
+
+    const damageEst = formula(attackState, .5);
+    const damage = formula(attackState, LCK);
+
+    return {
+      damage: damage,
+      counter: 0,
+      estimate: {
+        damage: damageEst,
+        counter: 0,
+      }
+    };
+  }
+
 }
 
 class CombatState {
