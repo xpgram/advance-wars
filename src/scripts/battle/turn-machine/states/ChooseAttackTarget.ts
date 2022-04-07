@@ -62,7 +62,7 @@ export class ChooseAttackTarget extends TurnState {
           yi + boundary.y,
         )
         const square = map.squareAt(point);
-        if (square.unit && square.attackFlag)
+        if ((square.unit || square.terrain.damageable) && square.attackFlag)
           targets.push(point);
       }
 
