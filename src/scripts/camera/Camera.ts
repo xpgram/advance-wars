@@ -148,7 +148,7 @@ export class Camera {
       : this._transform.clone();
 
     // Periodically log camera actual position
-    if (Game.frameCount % 120 === 0)
+    if (Game.frameCount % 60*5 === 0)
       Debug.log('Camera', 'UpdatePosition', {
         message: `Non-displaced, actual transform is currently ${transforms.actual.toString()} with focal ${this.getFocalPoint().toString()}`,
       });
