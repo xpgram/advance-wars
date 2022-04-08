@@ -1,7 +1,7 @@
 import { Common } from "../../../CommonUtils";
 import { DestructEvent } from "../../map/tile-effects/DestructEvent";
 import { SpeechBubbleEvent } from "../../map/tile-effects/SpeechBubbleEvent";
-import { UnitObject } from "../../UnitObject";
+import { UnitObjectConstants } from "../../UnitObjectConstants";
 import { TurnState } from "../TurnState";
 import { AnimateEvents } from "./AnimateEvents";
 
@@ -45,7 +45,7 @@ export class StandbyPhase extends TurnState {
           // TODO RepairEvent does the ratification, am I doubling up on code here?
 
           // Repair HP
-          const maxUnitHp = UnitObject.MaxHp;
+          const maxUnitHp = UnitObjectConstants.MaxHp;
           const maxRepairHp = scenario.repairHp;
           const remainder = (10 - unit.hp % 10) % 10; // Range 0–9
           repairHp = Common.clamp(maxUnitHp - unit.hp, 0, maxRepairHp) + remainder;

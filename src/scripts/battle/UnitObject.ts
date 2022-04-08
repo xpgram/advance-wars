@@ -16,6 +16,7 @@ import { Square } from "./map/Square";
 import { BitIO } from "../Common/BitIncrementer";
 import { PixiUtils } from "../Common/PixiUtils";
 import { Terrain } from "./map/Terrain";
+import { UnitObjectConstants } from "./UnitObjectConstants";
 
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
@@ -57,22 +58,12 @@ const BITMASK = Common.freezeObject({
  * This class holds most of the gameplay methods,
  * extenders add constants and sprite info.
  * Particularly:
- *     - When units are moving up/down, ~when~ do they change their z-index? Do they? Does the railcar just display over everything? [Yes, it does]
  *  - damageMatrix(type: UnitType): number      Given a unit type (like terrain.type), return a number representing base damage.
- *  - 
- * 
- * TODO: Link-up sprites (kind) to the movement car?
- * TODO: Read unit-type constants into the unit container (this)
- * TODO: Come up with a more maintainable bit-reading-writing architecture.
  * 
  * @author Dei Valko
  * @version 0.1.0
  */
 export abstract class UnitObject {
-    static readonly MaxHp = 100;
-    static readonly MaxCapture = 20;
-    static readonly MaxRank = 3;
-
     private static transform: LowResTransform = new LowResTransform();
     private static TintShade = 0x888888;
     private _sprite!: PIXI.AnimatedSprite;
@@ -216,7 +207,7 @@ export abstract class UnitObject {
     abstract get cost(): number;
 
     /** The unit's value after factoring in its present condition. */
-    get adjustedCost(): number { return Math.ceil(this.cost * this.hp / UnitObject.MaxHp); }
+    get adjustedCost(): number { return Math.ceil(this.cost * this.hp / UnitObjectConstants.MaxHp); }
 
     /** The unit's maximum gas: a stat depleted while moving. */
     abstract get maxGas(): number;
@@ -405,7 +396,7 @@ export abstract class UnitObject {
         return BitIO.ReadBits(this.conditionInfo, BITMASK.HP);
     }
     set hp(num) {
-        num = Common.clamp(num, 0, UnitObject.MaxHp);
+        num = Common.clamp(num, 0, UnitObjectConstants.MaxHp);
         this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.HP);
         
         // Update unit's UI layer
@@ -420,7 +411,7 @@ export abstract class UnitObject {
 
     /** Returns true if this object has anything less than maximum HP. */
     get repairable() {
-        return this.hp < UnitObject.MaxHp;
+        return this.hp < UnitObjectConstants.MaxHp;
     }
 
     /** The unit's HP, but as a number between 0 and 10. A UI feature. */
@@ -481,7 +472,7 @@ export abstract class UnitObject {
         return BitIO.ReadBits(this.conditionInfo, BITMASK.capture);
     }
     set capture(num) {
-        num = Common.clamp(num, 0, UnitObject.MaxCapture);
+        num = Common.clamp(num, 0, UnitObjectConstants.MaxCapture);
         this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.capture);
         this.rebuildStatusIcons();
     }
@@ -510,11 +501,11 @@ export abstract class UnitObject {
     /** The unit's acquired rank or experience level through battle. */
     get rank(): number {
         return (this.CoOnBoard)
-            ? UnitObject.MaxRank
+            ? UnitObjectConstants.MaxRank
             : BitIO.ReadBits(this.conditionInfo, BITMASK.rank);
     }
     set rank(num) {
-        num = Common.clamp(num, 0, UnitObject.MaxRank);
+        num = Common.clamp(num, 0, UnitObjectConstants.MaxRank);
         this.conditionInfo = BitIO.WriteBits(this.conditionInfo, num, BITMASK.rank);
         this.rebuildStatusIcons();
     }
@@ -781,12 +772,12 @@ export abstract class UnitObject {
     captureBuilding() {
         let captureAmt = Math.ceil(this.hp*0.1);    // A single digit, always at least 1 (unless the unit has been deadened.)
         this.capture += captureAmt;
-        this.capture = Common.confine(this.capture, 0, UnitObject.MaxCapture);
+        this.capture = Common.confine(this.capture, 0, UnitObjectConstants.MaxCapture);
     }
 
     /** Returns true if this unit has successfully captured the building they are located over. */
     buildingCaptured() {
-        return this.capture == UnitObject.MaxCapture;
+        return this.capture == UnitObjectConstants.MaxCapture;
     }
 
     /** Resets the unit's capture meter. */

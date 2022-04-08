@@ -2,6 +2,7 @@ import { CardinalDirection } from "../../../Common/CardinalDirection";
 import { Point } from "../../../Common/Point";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";
 import { UnitObject } from "../../UnitObject";
+import { UnitObjectConstants } from "../../UnitObjectConstants";
 import { MoveUnitEvent } from "./MoveUnitEvent";
 
 interface JoinUnitEventOptions {
@@ -34,8 +35,8 @@ export class JoinUnitEvent extends MoveUnitEvent {
 
     const { hp, gas, ammo } = actor;
     const newHp = roundUp(hp) + roundUp(other.hp);
-    const extraHp = Math.max(newHp - UnitObject.MaxHp, 0);
-    const returnedFunds = extraHp / UnitObject.MaxHp * actor.cost;
+    const extraHp = Math.max(newHp - UnitObjectConstants.MaxHp, 0);
+    const returnedFunds = extraHp / UnitObjectConstants.MaxHp * actor.cost;
     players.current.funds += returnedFunds;
 
     const highestRank = Math.max(actor.rank, other.rank);
