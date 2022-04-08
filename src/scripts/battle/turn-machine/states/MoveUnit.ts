@@ -37,10 +37,15 @@ export class MoveUnit extends TurnState {
     mapCursor.mode = (actionable || attackable) ? 'target' : 'point';
     mapCursor.showAreaOfEffectMap = (reachable);
 
+    const goal = SumCardinalsToVector(map.pathFrom(place)).add(actor.boardLocation);
+
     // Update damage forecast
     if (unit && attackable && !sameFaction) {
-      const goal = SumCardinalsToVector(map.pathFrom(place)).add(actor.boardLocation);
       const damage = DamageScript.NormalAttack(map, actor, goal, unit, seed);
+      uiSystem.battleForecast = damage.estimate;
+    } else if (!unit && attackable) {
+      const terrain = map.squareAt(goal).terrain;
+      const damage = DamageScript.TerrainAttack(map, actor, goal, terrain, seed);
       uiSystem.battleForecast = damage.estimate;
     } else {
       uiSystem.battleForecast = undefined;

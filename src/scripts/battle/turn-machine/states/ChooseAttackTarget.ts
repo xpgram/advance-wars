@@ -27,6 +27,9 @@ export class ChooseAttackTarget extends TurnState {
     if (focalUnit && focalUnit.faction !== players.current.faction) {
       const damage = DamageScript.NormalAttack(map, actor, goal, focalUnit, seed);
       uiSystem.battleForecast = damage.estimate;
+    } else if (!focalUnit && focalTile.terrain.damageable) {
+      const damage = DamageScript.TerrainAttack(map, actor, goal, focalTile.terrain, seed);
+      uiSystem.battleForecast = damage.estimate;
     } else {
       uiSystem.battleForecast = undefined;
     }

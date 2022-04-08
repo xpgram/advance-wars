@@ -58,6 +58,7 @@ export class InfoWindowSystem {
   set battleForecast(b) {
     this._battleForecast = b;
     this.windows.unitInfo.setDamageForecast(b?.damage, b?.counter);
+    this.windows.terrainInfo.setDamageForecast(b?.damage);
   }
   private _battleForecast?: BattleForecast;
 
@@ -215,7 +216,7 @@ export class InfoWindowSystem {
     const tileUnit = square.unitVisible() ? square.unit : undefined;
     const inspectUnit = unit || tileUnit;
     
-    this.windows.terrainInfo.inspectTerrain(square.terrain, inspectUnit);
+    this.windows.terrainInfo.inspectTerrain(square.terrain, inspectUnit, square.attackFlag);
     this.windows.unitInfo.inspectUnit(inspectUnit);
     this.windows.detailedInfo.inspectTile(square.terrain, inspectUnit);
     // TODO Update hud indicators?

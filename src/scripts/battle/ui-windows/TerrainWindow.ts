@@ -7,6 +7,7 @@ import { TerrainObject } from "../map/TerrainObject";
 import { Terrain } from "../map/Terrain";
 import { UnitObject } from "../UnitObject";
 import { UnitObjectConstants } from "../UnitObjectConstants";
+import { DamageForecastPane } from "./DamageForecastPane";
 
 export class TerrainWindow extends SlidingWindow {
   // Constants
@@ -20,6 +21,8 @@ export class TerrainWindow extends SlidingWindow {
   private buildingIcon = new PIXI.Sprite(this.sheet.textures['icon-capture.png']);
   private heartIcon = new PIXI.Sprite(this.sheet.textures['icon-heart.png']);
   private numberMeterText = new PIXI.BitmapText('', fonts.scriptOutlined);
+  private damageForecast: DamageForecastPane;
+
 
   constructor(options: SlidingWindowOptions) {
     super(options);
@@ -51,10 +54,31 @@ export class TerrainWindow extends SlidingWindow {
     this.heartIcon.y = this.buildingIcon.y;
     this.heartIcon.visible = false;
 
+    // Damage Forecast
+    this.damageForecast = new DamageForecastPane();
+    this.damageForecast.container.position.set(0,-24);
+
     // Formal add
     this.displayContainer.addChild(background);
     this.displayContainer.addChild(this.thumbnail, this.name);
     this.displayContainer.addChild(this.defenseStars, this.buildingIcon, this.heartIcon, this.numberMeterText);
+    this.displayContainer.addChild(this.damageForecast.container);
+  }
+
+  destroy() {
+    super.destroy();
+    this.damageForecast.destroy();
+  }
+
+  positionWindow(options = { skip: false }) {
+    super.positionWindow(options);
+
+    // Reposition damage forecast preview
+    if (this.damageForecast) {
+      this.damageForecast.container.x = (this.onLeftSide)
+        ? this.displayContainer.width - this.damageForecast.container.width - 2
+        : 2;
+    }
   }
 
   private setThumbnail(container: PIXI.Container) {
@@ -93,8 +117,27 @@ export class TerrainWindow extends SlidingWindow {
     this.numberMeterText.visible = false;
   }
 
+  setDamageForecast(dmgOut?: number) {
+    if (dmgOut === undefined) {
+      this.damageForecast.hide();
+      return;
+    }
+
+    this.damageForecast.damage = Math.round(dmgOut);
+    this.damageForecast.mode = 'safe';
+    this.retriggerDamageForecastVisibility();
+  }
+
+  private _showDamageForecast = false;
+  private retriggerDamageForecastVisibility() {
+    if (this._showDamageForecast)
+      this.damageForecast.show();
+    else
+      this.damageForecast.hide();
+  }
+
   /** Updates window UI elements with given terrain object details. */
-  inspectTerrain(terrain: TerrainObject, unit?: UnitObject) {
+  inspectTerrain(terrain: TerrainObject, unit?: UnitObject, attackFlagged = false) {
     this.setName(terrain.name);
     this.setThumbnail(terrain.preview);
     this.setDefenseMeter(terrain.defenseRating);
@@ -104,5 +147,13 @@ export class TerrainWindow extends SlidingWindow {
       this.setHPMeter(terrain.value);
     else
       this.hideCaptureMeter();
+
+    // TODO attackFlagged: the message passing here between this and IWS is bizarre.
+    // I need that IWS refactor. This object should probably have a reference to the
+    // forecast, its own copy or a pointer, that it can decide to show on its own
+    // only if it isn't undefined.
+
+    this._showDamageForecast = attackFlagged && !Boolean(unit) && terrain.damageable;
+    this.retriggerDamageForecastVisibility();
   }
 }

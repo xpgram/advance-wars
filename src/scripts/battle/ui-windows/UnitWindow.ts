@@ -27,6 +27,7 @@ export class UnitWindow extends SlidingWindow {
   private secondLoad = new PIXI.Graphics();
   private damageForecast: DamageForecastPane;
 
+  
   constructor(options: SlidingWindowOptions) {
     super(options);
 
