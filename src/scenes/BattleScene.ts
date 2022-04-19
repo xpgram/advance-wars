@@ -45,6 +45,11 @@ export class BattleScene extends Scene {
     //   Bundles are more-or-less decoupled from scenes entirely. They represent only the packaging of
     //   similar-purpose sfx/vfx which are directly invoked by the objects that depend on them.
     //   .War could easily be .WarMap for a more component-centric scheme.
+    // Perhaps I do like this idea.
+    // This class, then, would simply mark bundles for download.
+    // Every other resource interaction skips Scene entirely.
+    // Bundles.War should be a superset of Bundles.WarMap, .WarUI, .Troops, etc.
+    // Bundle member management would nearly entirely be handled by the bundling scheme.
 
 
     static readonly resourceLinks = {
