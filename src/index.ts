@@ -206,7 +206,11 @@ class App {
         if (this.contextElement) {
             this.contextElement.appendChild(this.renderer.view);
             this.contextElement.tabIndex = '0';
-        } // TODO What if it can't find the context element?
+        }
+        else {
+            // TODO I don't know what should happen. This will stop the program, in any case.
+            throw new Error(`No context for game renderer.`)
+        }
         
         // First screen resize + add a listener to update on window resize.
         this.display.resize(this.renderer, this.container);
@@ -317,6 +321,19 @@ class App {
             this.scene.destroy();
         if (newScene)
             this.scene = newScene;
+
+        // TODO Completely reset and sanitize the typical containers: stage, ui, etc.
+        // TODO Set up the loading-screen container, if such a thing is necessary
+        // TODO Scene transition effects:
+        //   - Transitions have a start, middle and end phase.
+        //   - Player input is entirely suspended (*not* including dev controls) during the transition.
+        //   - The proper switchScene logic should happen *after* start-phase completes
+        //   - middle occurs while loading, I suppose. I dunno. Maybe we'll do a cool swish for no reason.
+        //   - After the next scene is loaded, end-phase begins.
+        //   - middle can have controls re-enabled for any loading-screen minigames we might play. This
+        //      is a distant and possibly patent-infringing concern, however.
+        //   All of this means that switchScene(newScene) is a SignalIntent and only schedules the change.
+        //   If I want to change the terminology, it should be easy; I believe it's only called here in init().
     }
 }
 
