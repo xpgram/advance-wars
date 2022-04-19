@@ -25,6 +25,7 @@ export class BattleScene extends Scene {
     // is that Code's autocomplete will help me remember what's available.
     // A disbenefit is that child components which depend on certain resources are coupled
     // to BattleScene, but that was already kind of true anyway.
+    // A benefit, then, is that these couplings are more explicit.
     // [ ] When I work on other scene's eventually: Common sheets can be extracted to bundle
     //     objects which get added via the ...spread operator, probably preserving their keys in
     //     their type. Then, objects can request resources based on the bundles they depend
@@ -32,9 +33,19 @@ export class BattleScene extends Scene {
     // [x] BitmapFont is extracted to CommonTypes.d.ts
     //
     // Game.scene.getSpritesheet(ResourceBundles.War.normalTilesheet) <-- This is preferable.
-    // [ ] .getSpritesheet() complains if it detects Bundles.War was never linked.
-    // [ ] The Bundles.War 'War' key should be remembered by Scene then for bundle-inclusion reference.
-    // [ ] Bundles.War, then, has the form {key: string, links: [...]}
+    // [ ] .getSpritesheet() complains if it detects normalTilesheet was never linked.
+    //   - The 'War' bundle inference is merely for the programmer to make.
+    //
+    // Alt 3
+    // Not sure I even like this idea, but
+    // [ ] Bundles.War.urls contains strings which are used to link assets for loading.
+    // [ ] Bundles.War.resources.uiSprites => PIXI.Spritesheet
+    //   .resources is a getter which complains if its parent, .War, is known to be un- or never-loaded.
+    //   Bundles can be unloaded at will, or never unloaded if the footprint is small enough.
+    //   Bundles are more-or-less decoupled from scenes entirely. They represent only the packaging of
+    //   similar-purpose sfx/vfx which are directly invoked by the objects that depend on them.
+    //   .War could easily be .WarMap for a more component-centric scheme.
+
 
     static readonly resourceLinks = {
         normalMapTilesheet: 'assets/sheets/normal-map-tiles-sm.json',
