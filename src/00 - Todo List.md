@@ -80,6 +80,7 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
   - [ ] .hideUnit, which could be .unitVisible, is whether the unit is seen on screen; it's a player perspective setting. .stealth and .fog are about board state and are both useful to AI in a way that .hideUnit simply isn't.
   - Do subs have their own hidden setting? For stealth. Do a little investigating before changing anything.
 
+- [ ] I have a new debug logging system: add lines for these components to help further diagnose the issue.
 - [ ] CMD → Drop → CMD ∴ Status and HP are missing, but only if place === goal.
   - There is an update discrepancy between CmdMenu and IWS. Only one of them can have the preview objects as children, so when IWS wins (for whatever reason) CmdMenu's icons are left blank.
   I think the solution here is to give both containers unique children, not to solve the discrepancy. I need to retain animation control, however. And I can't let a list of roaming sprite objects grow without limit.
@@ -87,6 +88,7 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
   - Lent objects get destroyed when no longer necessary. Would Cmd do this? Would TurnState.close()?
   - A dictionary of preview containers are kept and updated, and named for their purpose. The system would request either 'terrain-info' or 'cmdmenu' then.
 
+- [ ] I have a new debug logging system: add lines for these components to help further diagnose the issue.
 - [x] IWS cannot refresh while transparency sliding.
 - [ ] Problem's not fixed, though.
   This is about flickering when an indirect destroys another unit. (flickering of Details, not UnitInfo)
@@ -109,6 +111,7 @@ Todo List cleanup: (some easy ones)
   - [ ] Related: refactor IWS.
         I'll need to do some thinking about the ideal implementation.
   - [ ] Slotting new widgets in should be easy.
+    - [ ] Make use of the decorators pattern to add styles and behavior (mostly behavior) to ui widgets. I'll have to write all of this.
   - [ ] Windows don't slide independently, why are we treating them as such?
   - [ ] I need a kind of cascading system.
     - HudBar
