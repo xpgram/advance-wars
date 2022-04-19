@@ -316,7 +316,7 @@ class App {
     }
 
     /** Unbuilds the current scene and switches context to the given scene object. */
-    switchScene(newScene: Scene | null) {
+    switchScene(newScene: Scene | null, transition?: null) {
         if (this.scene.ready)
             this.scene.destroy();
         if (newScene)
@@ -334,6 +334,8 @@ class App {
         //      is a distant and possibly patent-infringing concern, however.
         //   All of this means that switchScene(newScene) is a SignalIntent and only schedules the change.
         //   If I want to change the terminology, it should be easy; I believe it's only called here in init().
+        //   Should switchScene accept the transition method (some defined SceneTransition object) as a second
+        //   parameter, then?
     }
 }
 
