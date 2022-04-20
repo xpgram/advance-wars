@@ -1,51 +1,48 @@
 
+
 enum TransitionPhase {
-  Standby,        // Waits for Game to call in()
-  In,             // Moves to Idle when ready
-  Idle,           // Waits for Game to call out()
-  Out,            // Moves to Finished or Tail when ready
-  Tail,           // Moves to Finished when ready
-  Finished,       // Game will call destroy()
+  /** VFX are prepared, but inactive. Awaits a signal from Game to begin operating. */
+  Standby,
+  /** VFX shutters are closing. Awaits a signal from Transition that it is complete. */
+  In,
+  /** VFX are maintaining screen opaqueness. Awaits a signal from Game to begin out-transitioning. */
+  Idle,
+  /** VFX shutters are opening. Awaits a signal from Transition that it is complete, or at least to yield viewport control. */
+  Out,
+  /** VFX shutters are still opening, but game activity may resume anyway. */
+  Tail,
+  /** VFX shutters are completely open. Game will disassemble this Transition object now. */
+  Finished,
 }
 
+/** Describes the execution of a phase of a transition effect. */
+export interface SceneTransitionPhase {
+  /** Called once when this phase is first instigated. */
+  onStart?(): void;
+  /** Called every frame while this phase is in effect.
+   * @param loadProgress a number with interval [0,1]. */
+  onUpdate?(loadProgress: number): void;
+  /** Called once when this phase is concluded.
+   * Perform any object deconstruction as necessary. */
+  onFinish?(): void;
+}
 
-// TODO I might reduce this, actually.
-// This abstract just needs to maintain a phase value.
+const EMPTY_PHASE: SceneTransitionPhase = {};
 
 
-// TODO I need to reduce this, actually.
-// I plan to hold both scenes in memory temporarily for visual effects.
-// So, 'Idle' isn't when scenes get deconstructed anyway.
-// So, this should be a lot simpler.
-// When triggered, the next scene is assembled in the background.
-// When this transition is begun, it does its single-step transition effect. A wipe or something.
-// If I need to move into a loading screen... I mean, I won't. But if I did, that might be a
-// separate process invocation.
-// 
-// As written, I could do
-//  - in => blank
-//  - idle => blank (Game constructs next scene in background)
-//  - out => burn shader effect from scene A to B
-//  - tail => skipped
-//  - finish => done
-// Hm. Yeah, I guess we'll keep working on this.
-// I suppose I could have a destroyLastDuringIdle setting.
-// If I'm concerned about available memory between two scenes, it scares me a little
-// that someone could just *forget* to unload the previous scene during idle, but
-// if the setting defaulted to true at least it would have to be a conscious choice.
-//
-// The real problem is that these transitions are designed to be scene agnostic.
-// They may transition between *any* two scenes. If one that allows this flavor 
-// of scene memory management is selected by mistake, especially dynamically,
-// this becomes kind of a sticky problem that could have been deliberately prevented
-// from ever being an issue.
-//
-// Anyway, I would erase these notes and keep working, but I need to do my actual job now.
-
-/**  */
+/** 
+ * Describes the biolerplate for a scene transition effect's operation.
+ * @author Dei Valko
+ * @version 0.0.1
+ */
 export abstract class SceneTransition {
 
   static TransitionPhase = TransitionPhase;
+
+  /** Whether to destroy the last scene's assets to free up memory at the beginning
+   * of the Idle phase instead of the Finish phase. Default: true.  
+   * [!] Be very cautious about the scenes involved when overriding this value. */
+  readonly destroyLastSceneDuringIdle = true;
 
   /** The current transition-phase this visual effect is in. */
   get phase() { return this._phase; }
@@ -59,25 +56,36 @@ export abstract class SceneTransition {
     return this._phase === In || this._phase === Idle || this._phase === Out;
   }
 
-  phaseProcess!: SceneTransitionPhase;
+  /** The phase currently in control of the VFX structures. */
+  private phaseProcess!: SceneTransitionPhase;
+
+  /** Contains relevant Pixi display objects. Referenceable by descendents of this class for VFX purposes. */
+  protected readonly containers: {
+    readonly overlayer: PIXI.Container;
+    readonly lastScene: PIXI.Container;
+    readonly nextScene: PIXI.Container;
+  };
 
 
-  constructor(transitionLayer: PIXI.Container, prevScene: PIXI.Container, nextScene: PIXI.Container) {
-    // stub
+  constructor(overlayer: PIXI.Container, lastScene: PIXI.Container, nextScene: PIXI.Container) {
+    this.containers = {overlayer, lastScene, nextScene};
   }
 
+  /** Handles the clerical work between phase changes. */
   private changePhase(phase: SceneTransitionPhase) {
-    this.phaseProcess.onFinish?.call(this.phaseProcess);
+    (this.phaseProcess.onFinish) && this.phaseProcess.onFinish();
     this.phaseProcess = phase;
-    this.phaseProcess.onStart?.call(this.phaseProcess);
+    (this.phaseProcess.onStart) && this.phaseProcess.onStart();
   }
 
-  update(loadProgress: number) {
-    this.phaseProcess.update?.call(this.phaseProcess, loadProgress);
+  /**
+   * @param progress A number with interval [0,1] representing the progress value of a loading bar. */
+  update(progress: number) {
+    (this.phaseProcess.onUpdate) && this.phaseProcess.onUpdate(progress);
   }
 
-  /** Call to begin the transition effect process.
-   * Will only work when this transition is in standby phase. */
+  /** Call to begin the transition-in effect process.
+   * Will only work when this transition is in 'Standby' phase. */
   start() {
     if (this._phase !== TransitionPhase.Standby)
       return;
@@ -87,7 +95,7 @@ export abstract class SceneTransition {
 
   /** Call to begin the idle transition effect; signal to Game that asset loading
    * and scene deconstruction may occur now.
-   * Will only work when this transition is in standby phase. */
+   * Will only work when this transition is in 'In' phase. */
   protected idle() {
     if (this._phase !== TransitionPhase.In)
       return;
@@ -95,31 +103,38 @@ export abstract class SceneTransition {
     this.changePhase(this.phaseIdle);
   }
 
-  idleComplete() {
+  /** Call to begin the transition-out effect process.
+   * Will only work when this transition is in 'Idle' phase. */
+  loadComplete() {
     if (this._phase !== TransitionPhase.Idle)
       return;
     this._phase = TransitionPhase.Out;
     this.changePhase(this.phaseOut);
   }
 
+  /** Call to indicate this transition is 'done'; leftover VFX will continue to animate.
+   * Will only work when this transition is in 'Out' phase. */
+  protected releaseBusyStatus() {
+    if (this._phase !== TransitionPhase.Out)
+      return;
+    this._phase = TransitionPhase.Tail;
+  }
 
+  /** Call to indicate this transition is done. Game will destroy this transition's assets at the next opportunity.
+   * Will only work when this transition is in 'Out' or 'Tail' phase. */
+  protected finish() {
+    if (this._phase !== TransitionPhase.Out && this._phase !== TransitionPhase.Tail)
+      return;
+    this._phase = TransitionPhase.Finished;
+    this.changePhase(EMPTY_PHASE);
+  }
 
-  abstract build(): void;
+  /** An optional step where transition assets may be built.
+   * They can kind of be built anywhere. I don't know what I'm doing. */
+  build(): void {};
   
   abstract phaseIn: SceneTransitionPhase;
   abstract phaseIdle: SceneTransitionPhase;
   abstract phaseOut: SceneTransitionPhase;
 
-}
-
-/** Describes the execution of a phase of a transition effect. */
-export interface SceneTransitionPhase {
-  /** Called once when this phase is first instigated. */
-  onStart?(): void;
-  /** Called every frame while this phase is in effect.
-   * @param loadProgress a number with interval [0,1]. */
-  update?(loadProgress: number): void;
-  /** Called once when this phase is concluded.
-   * Perform any object deconstruction as necessary. */
-  onFinish?(): void;
 }
