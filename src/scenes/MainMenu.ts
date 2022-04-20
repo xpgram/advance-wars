@@ -24,7 +24,7 @@ export class MainMenuScene extends Scene {
 
     const g = new PIXI.Graphics();
     g.beginFill(0);
-    g.drawCircle(250,250,500);
+    g.drawCircle(32,32, 32);
     g.endFill();
     Game.stage.addChild(g);
   }
@@ -37,7 +37,9 @@ export class MainMenuScene extends Scene {
   }
 
   destroyStep(): void {
-
+    // TODO Ye, but not here.
+    const children = Game.stage.removeChildren();
+    children.forEach( c => c.destroy() );
   }
 
 }

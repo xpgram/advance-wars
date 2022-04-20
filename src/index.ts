@@ -340,6 +340,28 @@ class App {
         //   Should switchScene accept the transition method (some defined SceneTransition object) as a second
         //   parameter, then?
     }
+
+    /** This will signal to Game an intent to change scenes.
+     * Objective during this step:
+     * - 'transition' is of type SceneTransition which describes an animation with in, idle and out steps.
+     * - Player controls are suspended during the transition phase. I don't... know whose responsibility
+     *   this *should* be. I might just leave it up to the scenes themselves.
+     * - The actual scene change, the stage and UI destruction and reconstruction by the new scene, happens
+     *   during the idle step, which ideally completely obscures the other game visual layers.
+     * - Game should have a transitionProgress descriptor which indicates the current step's degree of completion.
+     *   So, like a slider value. This would allow scenes to halt player input until the transition (in or out, the
+     *   only ones relevant to them) is finished animating, or until it is almost finished.
+     */
+    beginSceneTransition(scene: Scene, transition?: null) {
+
+    }
+
+    /** This is called by Game to actually change the scene object.
+     * This will assume the code currently in switchScene(). */
+    private confirmSceneChange() {
+
+    }
+
 }
 
 // Singleton export
