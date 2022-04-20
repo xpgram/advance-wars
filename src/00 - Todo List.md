@@ -13,6 +13,19 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
+- [ ] Scene Transitions
+  - [ ] Technical Implementation
+    - [x] Scene switching mechanism
+    - [ ] Scene destruction and memory freeing mechanism
+    - [ ] Refactor Scene switching and construction to allow for re-entering.
+          Current implementation has no mechanism for constructing a scene, and destroys scenes on exit.
+  - [ ] Animating Transitions
+    - [ ] SceneTransition class which describes animation state and time progress.
+      - [ ] This naturally exists in a persistent space separate from the scene itself, though it will have access to the scene for shader application.
+      - [ ] Mechanism for two concurrent scenes in memory at once, so a transition may wipe from one to the other without pausing in-scene animations.
+      - [ ] Transitions have access to the display containers for both scenes for full control.
+
+
 - [ ] Pointer controls: Click-Hold should start ShowUnitAttackRange and MoveCamera
   - [ ] I first need to figure out what "MoveCamera" means in a pointer context, though.
   - [ ] MoveUnit is cancellable by clicking on MapCursor when MapCursor is over a non-highlighted tile. This is fine, but feels a little quirky. Add a clickable HUD button that signals a cancel intent.

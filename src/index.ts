@@ -1,4 +1,4 @@
-import { Scene } from './scenes/Scene';
+import { Scene, SceneType } from './scenes/Scene';
 import { BattleScene } from './scenes/BattleScene';
 import { DiagnosticLayer } from './scripts/DiagnosticLayer';
 import { BlankScene } from './scenes/BlankScene';
@@ -285,7 +285,7 @@ class App {
             }
             else {
                 PIXI.Ticker.shared.start();
-                this.scene.unhalt();
+                this.scene.resume();
                 this.gameLoop();
             }
 
@@ -342,6 +342,12 @@ class App {
     }
 
     /** This will signal to Game an intent to change scenes.
+     * Use .transitionToSceneWithData() to pass object data to the new instance. */
+    transitionToScene(type: SceneType<undefined>, transition?: null) {
+        this.transitionToSceneWithData(type, undefined, transition);
+    }
+
+    /** This will signal to Game an intent to change scenes.
      * Objective during this step:
      * - 'transition' is of type SceneTransition which describes an animation with in, idle and out steps.
      * - Player controls are suspended during the transition phase. I don't... know whose responsibility
@@ -352,8 +358,8 @@ class App {
      *   So, like a slider value. This would allow scenes to halt player input until the transition (in or out, the
      *   only ones relevant to them) is finished animating, or until it is almost finished.
      */
-    beginSceneTransition(scene: Scene, transition?: null) {
-
+    transitionToSceneWithData<T>(type: SceneType<T>, data: T, transition?: null) {
+        const sc = new type(data);
     }
 
     /** This is called by Game to actually change the scene object.

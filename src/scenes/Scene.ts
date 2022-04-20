@@ -6,12 +6,19 @@ class ResourceError extends Error {
   name = 'ResourceError';
 }
 
+export type SceneType<T> = {
+  new(options: T): Scene;
+}
+
 /**
+ * Describes the maintenance logic of a scene object.
+ * These are manipulated by Game to control which mode of the program is currently operating.
+ * You might think of them like different rooms or different pages in the application.
  * @author Dei Valko
  * @version 1.0.1
  */
 export abstract class Scene {
-  private static readonly UNBUILT = 0;
+  private static readonly UNBUILT = 0;      // TODO Extract to enum
   private static readonly BUILDING = 1;
   private static readonly READY = 2;
   private state: number;
@@ -101,8 +108,10 @@ export abstract class Scene {
   /** Collects resource links from inheriting scene, then loads them
    * with a provided callback to setup() on completion. */
   private load() {
+      // TODO Do I really have to call this twice?
     Game.loader.reset();                // Empty contents.
     Game.loader.reset();                // Let go of any callbacks we may have added.
+      // TODO Automate this by mapping this.linker into whatever. I have plans written in BattleScene.
     this.loadStep();                        // Collects resource URLs into this.linker[]
     this.linker.forEach(link => Game.loader.add(link.name, link.url) );
     this.state = Scene.BUILDING;            // Prevent calls to init() and update() while loading.
@@ -113,7 +122,7 @@ export abstract class Scene {
     }
 
     Game.loader.load().onComplete.once(onComplete);
-    if (this.linker.length === 0)     // .onComplete is never triggered if there are no assets.
+    if (this.linker.length === 0)     // an empty loader will never call onComplete()
       onComplete();
   }
 
@@ -131,15 +140,16 @@ export abstract class Scene {
   }
 
   /** Stops this scene's update mechanisms.
-   * Probably don't call this downline from scene.update() */
+   * Warning: If calling this from within scene.update(), you will be unable to resume
+   * without the help of a third-party service. */
   halt() {
     this.halted = true;
     this._ticker?.stop();
   }
 
-  /** Un-stops this scene's update mechanisms.
-   * Unreachable downline from scene.update() */
-  unhalt() {
+  /** Resumes this scene's update mechanisms.
+   * Unreachable from within scene.update() */
+  resume() {
     this.halted = false;
     this._ticker?.start();
   }
