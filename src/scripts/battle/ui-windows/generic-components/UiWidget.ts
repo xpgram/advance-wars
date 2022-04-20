@@ -11,7 +11,10 @@ const DefaultWidgetSettings = {
   origin: new Point(),
 }
 
-/** Essentially, a PIXI.Container with constructor settings. */
+/** Essentially, a PIXI.Container with constructor settings.
+ * This is the base class all UI widgets descend from. Further behaviors and styles are
+ * added via decorators applied to objects of this class.
+*/
 export abstract class UiWidget {
 
   readonly container = new PIXI.Container();

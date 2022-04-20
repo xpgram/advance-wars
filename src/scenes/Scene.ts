@@ -104,14 +104,17 @@ export abstract class Scene {
     Game.loader.reset();                // Empty contents.
     Game.loader.reset();                // Let go of any callbacks we may have added.
     this.loadStep();                        // Collects resource URLs into this.linker[]
-    this.linker.forEach(link => {
-      Game.loader.add(link.name, link.url);
-    });
+    this.linker.forEach(link => Game.loader.add(link.name, link.url) );
     this.state = Scene.BUILDING;            // Prevent calls to init() and update() while loading.
-    Game.loader.load().onComplete.once(() => {
+
+    const onComplete = () => {
       this._resources = Game.loader.resources;
       this.setup()
-    });
+    }
+
+    Game.loader.load().onComplete.once(onComplete);
+    if (this.linker.length === 0)     // .onComplete is never triggered if there are no assets.
+      onComplete();
   }
 
   /** Runs the inheriting scene's setup step, then readies the scene for

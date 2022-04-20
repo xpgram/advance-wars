@@ -9,6 +9,7 @@ import { DevController } from './scripts/controls/DevController';
 import { Keys } from './scripts/controls/KeyboardObserver';
 
 import * as PixiFilters from 'pixi-filters';
+import { MainMenuScene } from './scenes/MainMenu';
 
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
@@ -130,8 +131,10 @@ class App {
     private _frameCount = 0;
 
     /** Namespace for the various scenes the game will switch between. */
+    // TODO Why are these instantiated? Follow the TurnState model.
     readonly gameScenes = {
         blankScene: new BlankScene(),
+        mainMenu: new MainMenuScene(),
         battleScene: new BattleScene(),
     };
 
@@ -217,7 +220,7 @@ class App {
         window.addEventListener( 'resize', () => { this.display.resize(this.renderer, this.container)} );
 
         // Set entry point for the game (the first scene)
-        this.switchScene(this.gameScenes.battleScene);
+        this.switchScene(this.gameScenes.mainMenu);
 
         // Add this game's visual layers to PIXI's app.stage
         this.worldContainer.addChild(this.backdrop);
