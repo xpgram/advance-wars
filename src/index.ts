@@ -23,7 +23,7 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling 
 
 /**
  * @author Dei Valko
- * @version 1.1.0
+ * @version 1.2.0
  */
 class App {
     /** The page element assumed as the game's canvas. */
@@ -54,7 +54,7 @@ class App {
             const dc = Game.devController;
             if (dc.pressed(Keys.iRow1, 'Shift')) {
                 Game.devSettings.limitStageScaling = !Game.devSettings.limitStageScaling;
-                Game.display.resize(Game.renderer, Game.container);
+                Game.display.resize(Game.renderer, Game.visualRoot);
             }
         },
         function toggleGameSuspension() {
@@ -90,15 +90,6 @@ class App {
         autoStart: false,
     });
 
-    /** A graphics-container for solid-panel images adding character to blank scenes. */
-    readonly backdrop = new PIXI.Container();
-    /** A graphics-container acting as the game world. */
-    readonly stage = new PIXI.Container();
-    /** A graphics-container acting as the game's heads-up display. */
-    readonly hud = new PIXI.Container();
-    /** A graphics-container acting as a special heads-up display for performance information. */
-    readonly debugHud = new PIXI.Container();
-
     /** Reference to the game's debug UI layer. */
     readonly diagnosticLayer!: DiagnosticLayer;
 
@@ -132,8 +123,9 @@ class App {
     get frameCount() { return this._frameCount; }
     private _frameCount = 0;
 
-    /** Namespace for the various scenes the game will switch between. */
-    // TODO Why are these instantiated? Follow the TurnState model.
+    /** Namespace for the various scenes the game will switch between.
+     * @deprecated These can be passed in by type, they do not need to be catalogued here.
+     * When reimplementing, follow the TurnState model. */
     readonly gameScenes = {
         blankScene: new BlankScene(),
         mainMenu: new MainMenuScene(),
@@ -182,11 +174,29 @@ class App {
     };
 
     /** System root container equivalent to app.stage. */
-    private readonly container = new PIXI.Container();
+    private readonly visualRoot = new PIXI.Container();
 
-    /** System root container for world objects.
-     * Containers all world layers from background to foreground. */
-    private readonly worldContainer = new PIXI.Container();
+    /** System parent for scene root visual layers. */
+    private readonly sceneLayer = new PIXI.Container();
+
+    /** System parent for the scene transition visual layer. */
+    private readonly transitionLayer = new PIXI.Container();
+
+    /** A graphics-container acting as a special heads-up display for performance information. */
+    readonly debugHud = new PIXI.Container();
+
+    /** A graphics-container for solid-panel images adding character to blank scenes.
+     * This is a pointer to the current scene's backdrop layer.
+     * @deprecated Prefer Game.scene.backdrop */
+    get backdrop() { return this.scene.visualLayers.backdrop; }
+    /** A graphics-container acting as the game world.
+     * This is a pointer to the current scene's stage layer.
+     * @deprecated Prefer Game.scene.stage */
+    get stage() { return this.scene.visualLayers.stage; }
+    /** A graphics-container acting as the game's heads-up display.
+     * This is a pointer to the current scene's hud layer.
+     * @deprecated Prefer Game.scene.hud */
+    get hud() { return this.scene.visualLayers.hud; }
 
     /** System ticker equivalent to app.ticker. */
     private readonly systemTicker = new PIXI.Ticker();
@@ -218,18 +228,14 @@ class App {
         }
         
         // First screen resize + add a listener to update on window resize.
-        this.display.resize(this.renderer, this.container);
-        window.addEventListener( 'resize', () => { this.display.resize(this.renderer, this.container)} );
+        this.display.resize(this.renderer, this.visualRoot);
+        window.addEventListener( 'resize', () => { this.display.resize(this.renderer, this.visualRoot)} );
+
+        // Add this game's visual layers to PIXI's app.stage
+        this.visualRoot.addChild(this.sceneLayer, this.debugHud, this.transitionLayer);
 
         // Set entry point for the game (the first scene)
         this.switchScene(this.gameScenes.mainMenu);
-
-        // Add this game's visual layers to PIXI's app.stage
-        this.worldContainer.addChild(this.backdrop);
-        this.worldContainer.addChild(this.stage);
-        this.container.addChild(this.worldContainer);
-        this.container.addChild(this.hud);
-        this.container.addChild(this.debugHud);
 
         // TODO Blur: Useful for niceness when FieldMenu is open
 
@@ -317,15 +323,18 @@ class App {
         this.textureLibrary.flush();
         this._frameCount++;
 
-        this.renderer.render(this.container);
+        this.renderer.render(this.visualRoot);
     }
 
     /** Unbuilds the current scene and switches context to the given scene object. */
     switchScene(newScene: Scene | null, transition?: null) {
-        if (this.scene.ready)
+        if (this.scene.ready) {
             this.scene.destroy();
-        if (newScene)
+        }
+        if (newScene) {
             this.scene = newScene;
+            this.sceneLayer.addChildAt(newScene.visualLayers.root, 0);
+        }
 
         // TODO Completely reset and sanitize the typical containers: stage, ui, etc.
         // TODO Set up the loading-screen container, if such a thing is necessary
@@ -349,10 +358,6 @@ class App {
         this.transitionToSceneWithData(type, undefined, transition);
     }
 
-    private overlayer = new PIXI.Container();
-        // I pass this to the transition function?
-        // What if the dev calls destroy()? What if the dev is an idiot?
-
     /** This will signal to Game an intent to change scenes.
      * Objective during this step:
      * - 'transition' is of type SceneTransition which describes an animation with in, idle and out steps.
@@ -365,12 +370,23 @@ class App {
      *   only ones relevant to them) is finished animating, or until it is almost finished.
      */
     transitionToSceneWithData<T>(type: SceneType<T>, data: T, transition?: SceneTransition) {
-        transition = transition ?? new BlackFadeTransition(this.overlayer, this.container, this.container/*2*/);
-        const nextScene = new type(data);       // <- This, I believe, begins everything. It needs to be called during idle-start.
+        const transitionLayer = new PIXI.Container();
+        const lastScene = this.scene;
+        const nextScene = new type(data);
 
-        // I need to separate the current stage from the next scene's stage.
-        //   I could have scene's manage this, and just convert game.stage to a passthrough method to the current scene's stage.
-        // I need to describe the overlayer, where it is, and how it works.
+        this.sceneLayer.addChildAt(nextScene.visualLayers.root, 0); // Place next scene behind current.
+
+            // sceneTransition?: SceneTransition;
+            // TODO Game will need to reference this during update() somewhere.
+        transition = transition ?? new BlackFadeTransition(transitionLayer, lastScene.visualLayers.root, nextScene.visualLayers.root);
+        transition.start();
+
+        // TODO this.scene = nextScene? I'm going to need a reference to both. Or I'll provide callbacks. I dunno.
+
+        // At this moment, nothing happens. But things are prepared to happen.
+        // When nextScene.init() is called, it will start loading and constructing.
+        // lastScene will need to be destroyed somewhere.
+        // this.update() will manage the messages to and from transition.
     }
 
     /** This is called by Game to actually change the scene object.

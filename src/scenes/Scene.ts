@@ -1,5 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Game } from "..";
+import { Common } from "../scripts/CommonUtils";
 import { Debug } from "../scripts/DebugUtils";
 
 class ResourceError extends Error {
@@ -10,25 +11,31 @@ export type SceneType<T> = {
   new(options: T): Scene;
 }
 
+enum ConstructionState {
+  Unbuilt,
+  Building,
+  Ready,
+  Destroyed,
+}
+
+
 /**
  * Describes the maintenance logic of a scene object.
  * These are manipulated by Game to control which mode of the program is currently operating.
  * You might think of them like different rooms or different pages in the application.
  * @author Dei Valko
- * @version 1.0.1
+ * @version 1.1.0
  */
 export abstract class Scene {
-  private static readonly UNBUILT = 0;      // TODO Extract to enum
-  private static readonly BUILDING = 1;
-  private static readonly READY = 2;
-  private state: number;
+
+  private state = ConstructionState.Unbuilt;
 
   protected linker: { name: string, url: string }[] = [];
 
   /** Whether the scene object still needs to set up its constructs. */
-  get mustInitialize() { return this.state == Scene.UNBUILT; };
+  get mustInitialize() { return this.state == ConstructionState.Unbuilt; };
   /** Whether the scene object is set up and ready to be used. */
-  get ready() { return this.state == Scene.READY; };
+  get ready() { return this.state == ConstructionState.Ready; };
 
   /** Whether this scene's update steps are allowed to update. */
   private halted = false;
@@ -39,7 +46,7 @@ export abstract class Scene {
       throw new Error("Attempted to access the scene's destroyed ticker.");
     return this._ticker;
   }
-  private _ticker: PIXI.Ticker | null = null;
+  private _ticker: PIXI.Ticker;
 
   /** Link URLs to the scene's depended resources.
    * Also a useful access library for resource names within the IResourceDictionary. */
@@ -78,14 +85,32 @@ export abstract class Scene {
     return this.getSpritesheet(sheet).animations;
   }
 
+  /** A container for the scene's visual layers. */
+  readonly visualLayers = Common.freezeObject({
+    /** Root visual layer. All other layers for this scene are some nth-level member of this container. */
+    root: new PIXI.Container(),
+    /** A member of root. This is where the game's universe is located. */
+    world: new PIXI.Container(),
+    /** A member of world. This appears behind stage and is intended for skies and background art. */
+    backdrop: new PIXI.Container(),
+    /** A member of world. This is the world the game takes place in. */
+    stage: new PIXI.Container(),
+    //foreground: new PIXI.Container(),
+    /** A member of root. This is where the game's user interface is located. */
+    hud: new PIXI.Container(),
+    /* debugHud will stay in Game */
+  });
+
 
   constructor() {
-    this.state = Scene.UNBUILT;
+    const { root, world, backdrop, stage, hud } = this.visualLayers;
+    world.addChild(backdrop, stage);
+    root.addChild(world, hud);
   }
 
   /** Initialize step sets up the scene and readies it for the game-loop. */
   init() {
-    if (this.state == Scene.UNBUILT) {
+    if (this.state == ConstructionState.Unbuilt) {
       this._ticker = new PIXI.Ticker();
       this._ticker.start();
       this.load(); // → setup → ready
@@ -96,11 +121,11 @@ export abstract class Scene {
 
   /** Destroy step disassembles the scene object and un-readies it for game-looping. */
   destroy() {
-    if (this.state == Scene.READY) {
-      if (this._ticker) this._ticker.destroy();
-      this._ticker = null;
+    if (this.state == ConstructionState.Ready) {
       this.destroyStep();
-      this.state = Scene.UNBUILT;
+      (this._ticker) && this._ticker.destroy();
+      this.visualLayers.root.destroy({children: true});
+      this.state = ConstructionState.Destroyed;
     } else
       throw new Error("Attempted to destroy an unconstructed scene.");
   }
@@ -112,9 +137,9 @@ export abstract class Scene {
     Game.loader.reset();                // Empty contents.
     Game.loader.reset();                // Let go of any callbacks we may have added.
       // TODO Automate this by mapping this.linker into whatever. I have plans written in BattleScene.
-    this.loadStep();                        // Collects resource URLs into this.linker[]
+    this.loadStep();                    // Collects resource URLs into this.linker[]
     this.linker.forEach(link => Game.loader.add(link.name, link.url) );
-    this.state = Scene.BUILDING;            // Prevent calls to init() and update() while loading.
+    this.state = ConstructionState.Building;  // Prevent calls to init() and update() while loading.
 
     const onComplete = () => {
       this._resources = Game.loader.resources;
@@ -130,12 +155,12 @@ export abstract class Scene {
    * frame-by-frame updating. */
   private setup() {
     this.setupStep();
-    this.state = Scene.READY;
+    this.state = ConstructionState.Ready;
   }
 
   /** Update step describes frame-by-frame events. */
   update() {
-    if (!this.halted && this.state == Scene.READY)
+    if (!this.halted && this.state == ConstructionState.Ready)
       this.updateStep();
   }
 
