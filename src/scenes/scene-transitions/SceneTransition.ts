@@ -39,6 +39,10 @@ export abstract class SceneTransition {
 
   static TransitionPhase = TransitionPhase;
 
+  abstract phaseIn: SceneTransitionPhase;
+  abstract phaseIdle: SceneTransitionPhase;
+  abstract phaseOut: SceneTransitionPhase;
+
   /** Whether to destroy the last scene's assets to free up memory at the beginning
    * of the Idle phase instead of the Finish phase. Default: true.  
    * [!] Be very cautious about the scenes involved when overriding this value. */
@@ -128,13 +132,5 @@ export abstract class SceneTransition {
     this._phase = TransitionPhase.Finished;
     this.changePhase(EMPTY_PHASE);
   }
-
-  /** An optional step where transition assets may be built.
-   * They can kind of be built anywhere. I don't know what I'm doing. */
-  build(): void {};
-  
-  abstract phaseIn: SceneTransitionPhase;
-  abstract phaseIdle: SceneTransitionPhase;
-  abstract phaseOut: SceneTransitionPhase;
 
 }
