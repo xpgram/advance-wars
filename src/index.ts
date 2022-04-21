@@ -10,6 +10,8 @@ import { Keys } from './scripts/controls/KeyboardObserver';
 
 import * as PixiFilters from 'pixi-filters';
 import { MainMenuScene } from './scenes/MainMenu';
+import { SceneTransition } from './scenes/scene-transitions/SceneTransition';
+import { BlackFadeTransition } from './scenes/scene-transitions/BlackFadeTransition';
 
 // Pixi engine settings
 PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF;
@@ -343,9 +345,13 @@ class App {
 
     /** This will signal to Game an intent to change scenes.
      * Use .transitionToSceneWithData() to pass object data to the new instance. */
-    transitionToScene(type: SceneType<undefined>, transition?: null) {
+    transitionToScene(type: SceneType<undefined>, transition?: SceneTransition) {
         this.transitionToSceneWithData(type, undefined, transition);
     }
+
+    private overlayer = new PIXI.Container();
+        // I pass this to the transition function?
+        // What if the dev calls destroy()? What if the dev is an idiot?
 
     /** This will signal to Game an intent to change scenes.
      * Objective during this step:
@@ -358,8 +364,13 @@ class App {
      *   So, like a slider value. This would allow scenes to halt player input until the transition (in or out, the
      *   only ones relevant to them) is finished animating, or until it is almost finished.
      */
-    transitionToSceneWithData<T>(type: SceneType<T>, data: T, transition?: null) {
-        const sc = new type(data);
+    transitionToSceneWithData<T>(type: SceneType<T>, data: T, transition?: SceneTransition) {
+        transition = transition ?? new BlackFadeTransition(this.overlayer, this.container, this.container/*2*/);
+        const nextScene = new type(data);       // <- This, I believe, begins everything. It needs to be called during idle-start.
+
+        // I need to separate the current stage from the next scene's stage.
+        //   I could have scene's manage this, and just convert game.stage to a passthrough method to the current scene's stage.
+        // I need to describe the overlayer, where it is, and how it works.
     }
 
     /** This is called by Game to actually change the scene object.

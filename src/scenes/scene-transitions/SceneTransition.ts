@@ -30,6 +30,15 @@ export interface SceneTransitionPhase {
 const EMPTY_PHASE: SceneTransitionPhase = {};
 
 
+// TODO Timers
+// I suspect tweens are going to be the primo method of modulating an effect.
+// These phaseIn/Out update() calls might be irrelevant.
+// Timers also have the benefit of kind of locking the dev into a definite end.
+// They won't need to call idle() to signal phaseIn's end, for instance.
+// I suppose they still could.
+// I would rename it skipIntro() or something then.
+
+
 /** 
  * Describes the biolerplate for a scene transition effect's operation.
  * @author Dei Valko
@@ -39,9 +48,15 @@ export abstract class SceneTransition {
 
   static TransitionPhase = TransitionPhase;
 
-  abstract phaseIn: SceneTransitionPhase;
-  abstract phaseIdle: SceneTransitionPhase;
-  abstract phaseOut: SceneTransitionPhase;
+  /** This is a convenient place for your initialization step. */
+  protected abstract build(): void;
+
+  /** This is a convenient place for your deconstruction step. Empty by default. */
+  protected destroy(): void {};
+
+  protected abstract phaseIn: SceneTransitionPhase;
+  protected abstract phaseIdle: SceneTransitionPhase;
+  protected abstract phaseOut: SceneTransitionPhase;
 
   /** Whether to destroy the last scene's assets to free up memory at the beginning
    * of the Idle phase instead of the Finish phase. Default: true.  
