@@ -93,3 +93,8 @@ type LayeredSprite = {
     /** The name of the layer this sprite-set belongs to. */
     layerName: string
 }
+
+/** A callback-style function which is inteded to loop until it returns true. */
+type WorkOrder = () => boolean | undefined;
+
+

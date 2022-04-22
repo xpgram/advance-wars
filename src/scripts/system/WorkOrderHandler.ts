@@ -1,3 +1,5 @@
+import { WorkOrder } from "../CommonTypes";
+
 /**
  * A repository for function calls which need to be delayed until some condition is met.
  * Work Orders™ return a boolean, whether they are complete or not, and meter their own
@@ -7,7 +9,7 @@
  * */
 export class WorkOrderHandler {
 
-    workOrders: {order: () => boolean | undefined, context?: object}[] = [];
+    workOrders: {order: WorkOrder, context?: object}[] = [];
 
     /** Close all closable work orders. Those that can't will be held until next call. */
     close() {
@@ -16,12 +18,12 @@ export class WorkOrderHandler {
 
     /** Submits a request to the handler, which will call the given function under the
      * given context every loop as many times as needed until it returns true. */
-    send(order: () => boolean | undefined, context?: object) {
+    send(order: WorkOrder, context?: object) {
         this.workOrders.push({order:order, context:context});
     }
 
     /** Cancels a given work order, preventing it from being carried out (any further). */
-    cancel(order: () => boolean | undefined, context?: object) {
+    cancel(order: WorkOrder, context?: object) {
         this.workOrders = this.workOrders.filter( request => request.order !== order || request.context !== context );
     }
 
@@ -29,4 +31,5 @@ export class WorkOrderHandler {
     clear() {
         this.workOrders = [];
     }
+
 }
