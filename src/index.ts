@@ -93,6 +93,8 @@ class App {
     /** Reference to the game's debug UI layer. */
     readonly diagnosticLayer!: DiagnosticLayer;
 
+    /**  */
+    // TODO Can I abstract between this and Scene.ts? They would accept a set of resources, and they would have convenient accessors for that data, the ones that Scene has.
     readonly globalResources!: PIXI.IResourceDictionary;
 
     /** The scale deviation from the ideal FPS, I think.
