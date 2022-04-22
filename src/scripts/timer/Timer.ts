@@ -99,7 +99,8 @@ export class Timer {
   private _destroyed = false;
 
   /** True if the timer's clock should be ticking. */
-  private started = false;
+  get started() { return this._started; }
+  private _started = false;
 
   /** The current elapsed time in milliseconds. */
   private elapsedMillis: number = 0;
@@ -144,7 +145,7 @@ export class Timer {
     this.events.forEach( e => Common.destroyObject(e) );
     this.events = [];
     this.recurringEvents = [];
-    this.started = false;
+    this._started = false;
     this._destroyed = true;
   }
 
@@ -171,7 +172,7 @@ export class Timer {
   /** Starts the timer's clock; returns this. */
   start() {
     if (!this.destroyed)
-      this.started = true;
+      this._started = true;
     return this;
   }
 
@@ -184,7 +185,7 @@ export class Timer {
 
   /** Stops the timer's clock; returns this. May be resumed with start(). */
   stop() {
-    this.started = false;
+    this._started = false;
     return this;
   }
 
@@ -219,7 +220,7 @@ export class Timer {
 
   /** True if the timer has started and hasn't yet finished. */
   get ticking() {
-    return (this.started && this.elapsedMillis < this.lengthMillis);
+    return (this._started && this.elapsedMillis < this.lengthMillis);
   }
 
   /** True if the timer has finished. */
@@ -236,7 +237,7 @@ export class Timer {
   private update() {
     if (this.destroyed)
       this._destroy();
-    if (!this.started || this.destroyed)
+    if (!this._started || this.destroyed)
       return;
 
     this.handleEvents(this.events);

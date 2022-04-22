@@ -96,5 +96,3 @@ type LayeredSprite = {
 
 /** A callback-style function which is inteded to loop until it returns true. */
 type WorkOrder = () => boolean | undefined;
-
-

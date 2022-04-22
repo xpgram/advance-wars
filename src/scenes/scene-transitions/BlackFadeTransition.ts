@@ -1,13 +1,14 @@
 import { Game } from "../..";
 import { Timer } from "../../scripts/timer/Timer";
-import { SceneTransition, SceneTransitionPhase } from "./SceneTransition";
+import { SceneTransition } from "./SceneTransition";
 
 
 
 export class BlackFadeTransition extends SceneTransition {
 
-  private timerIn!: Timer;
-  private timerOut!: Timer;
+  phaseIn = new Timer();
+  idleLoop = () => {};
+  phaseOut = new Timer();
 
   build() {
     const { renderWidth: width, renderHeight: height } = Game.display;
@@ -17,27 +18,11 @@ export class BlackFadeTransition extends SceneTransition {
     g.drawRect(0,0, width,height);
     g.endFill();
 
-    this.containers.overlayer.addChild(g);
-    this.containers.overlayer.alpha = 0;
+    this.overlayer.addChild(g);
+    this.overlayer.alpha = 0;
 
-    this.timerIn
-      .tween(.35, this.containers.overlayer, {alpha: 1})
-      .wait()
-      .do(this.idle, this);
-    this.timerOut
-      .tween(.35, this.containers.overlayer, {alpha: 0})
-      .wait()
-      .do(this.finish, this);
+    this.phaseIn.tween(.35, this.overlayer, {alpha: 1});
+    this.phaseOut.tween(.35, this.overlayer, {alpha: 0});
   }
-
-  phaseIn: SceneTransitionPhase = {
-    onStart: () => this.timerIn.start(),
-  };
-
-  phaseIdle: SceneTransitionPhase = {};
-
-  phaseOut: SceneTransitionPhase = {
-    onStart: () => this.timerOut.start(),
-  };
 
 }

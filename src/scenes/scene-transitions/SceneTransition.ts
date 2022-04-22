@@ -1,6 +1,8 @@
+import { WorkOrder } from "../../scripts/CommonTypes";
+import { Timer } from "../../scripts/timer/Timer";
 
 
-enum TransitionPhase {
+enum Phase {
   /** VFX are prepared, but inactive. Awaits a signal from Game to begin operating. */
   Standby,
   /** VFX shutters are closing. Awaits a signal from Transition that it is complete. */
@@ -15,38 +17,15 @@ enum TransitionPhase {
   Finished,
 }
 
-/** Describes the execution of a phase of a transition effect. */
-export interface SceneTransitionPhase {
-  /** Called once when this phase is first instigated. */
-  onStart?(): void;
-  /** Called every frame while this phase is in effect.
-   * @param loadProgress a number with interval [0,1]. */
-  onUpdate?(loadProgress: number): void;
-  /** Called once when this phase is concluded.
-   * Perform any object deconstruction as necessary. */
-  onFinish?(): void;
-}
-
-const EMPTY_PHASE: SceneTransitionPhase = {};
-
-
-// TODO Timers
-// I suspect tweens are going to be the primo method of modulating an effect.
-// These phaseIn/Out update() calls might be irrelevant.
-// Timers also have the benefit of kind of locking the dev into a definite end.
-// They won't need to call idle() to signal phaseIn's end, for instance.
-// I suppose they still could.
-// I would rename it skipIntro() or something then.
-
 
 /** 
  * Describes the biolerplate for a scene transition effect's operation.
  * @author Dei Valko
- * @version 0.0.1
+ * @version 0.1.0
  */
 export abstract class SceneTransition {
 
-  static TransitionPhase = TransitionPhase;
+  static Phase = Phase;
 
   /** This is a convenient place for your initialization step. */
   protected abstract build(): void;
@@ -54,9 +33,13 @@ export abstract class SceneTransition {
   /** This is a convenient place for your deconstruction step. Empty by default. */
   protected destroy(): void {};
 
-  protected abstract phaseIn: SceneTransitionPhase;
-  protected abstract phaseIdle: SceneTransitionPhase;
-  protected abstract phaseOut: SceneTransitionPhase;
+  /** Timer or function callback managing the events of the animate-in phase of the transition effect. */
+  protected abstract phaseIn: Timer | WorkOrder;
+  /** Function callback managing the events of the transition's idle-while-loading animation effects.
+   * @param progress A number with interval [0,1] where 1 is complete. Used for loading bars. */
+  protected abstract idleLoop: (progress: number) => void;
+  /** Timer or function callback managing the events of the animate-out phase of the transition effect. */
+  protected abstract phaseOut: Timer | WorkOrder;
 
   /** Whether to destroy the last scene's assets to free up memory at the beginning
    * of the Idle phase instead of the Finish phase. Default: true.  
@@ -65,87 +48,89 @@ export abstract class SceneTransition {
 
   /** The current transition-phase this visual effect is in. */
   get phase() { return this._phase; }
-  private _phase = TransitionPhase.Standby;
+  private _phase = Phase.Standby;
 
   /** This is an indication that there is currently a lot of visual activity occurring.
    * It is a suggestion to any inquirers that they may want to suspend their action; any activity
    * they carry out now may not be seeable by the end user. */
   get busy() {
-    const { In, Idle, Out } = TransitionPhase;
+    const { In, Idle, Out } = Phase;
     return this._phase === In || this._phase === Idle || this._phase === Out;
   }
 
-  /** The phase currently in control of the VFX structures. */
-  private phaseProcess!: SceneTransitionPhase;
+  /** True if this transition is concluded and may be disposed of. */
+  get finished() { return this._phase === Phase.Finished; }
 
-  /** Contains relevant Pixi display objects. Referenceable by descendents of this class for VFX purposes. */
-  protected readonly containers: {
-    readonly overlayer: PIXI.Container;
-    readonly lastScene: PIXI.Container;
-    readonly nextScene: PIXI.Container;
-  };
+  /** An animation layer existing above all other elements of the scene.
+   * Make opaque, for instance, to hide flickering during scene construction. */
+  readonly overlayer: PIXI.Container;
+  /** The scene layer for the scene being transitioned from. */
+  readonly lastScene: PIXI.Container;
+  /** The scene layer for the scene being transitioned to. */
+  readonly nextScene: PIXI.Container;
 
 
   constructor(overlayer: PIXI.Container, lastScene: PIXI.Container, nextScene: PIXI.Container) {
-    this.containers = {overlayer, lastScene, nextScene};
-  }
-
-  /** Handles the clerical work between phase changes. */
-  private changePhase(phase: SceneTransitionPhase) {
-    (this.phaseProcess.onFinish) && this.phaseProcess.onFinish();
-    this.phaseProcess = phase;
-    (this.phaseProcess.onStart) && this.phaseProcess.onStart();
+    this.overlayer = overlayer;
+    this.lastScene = lastScene;
+    this.nextScene = nextScene;
   }
 
   /**
    * @param progress A number with interval [0,1] representing the progress value of a loading bar. */
   update(progress: number) {
-    (this.phaseProcess.onUpdate) && this.phaseProcess.onUpdate(progress);
+    // Splits event types into different repositories.
+    const split = (event: Timer | WorkOrder) => ({
+      timer: (event instanceof Timer) ? event : undefined,
+      workOrder: !(event instanceof Timer) ? event : undefined,
+    });
+
+    // Handles the execution of a `Timer | WorkOrder` event type.
+    const processEvent = (event: Timer | WorkOrder, nextPhase: Phase) => {
+      const advance = () => this._phase = nextPhase;
+      const { timer, workOrder } = split(this.phaseIn);
+
+      if (timer && !timer.started) {
+        timer.at('end').do(advance);
+        timer.start();
+      }
+      else if (workOrder && workOrder())
+        advance();
+    }
+
+    // Handle the execution of this transition effect.
+
+    if (this.phase === Phase.In)
+      processEvent(this.phaseIn, Phase.Idle);
+
+    else if (this.phase === Phase.Idle)
+      this.idleLoop(progress);
+
+    else if (this.phase === Phase.Out || this.phase === Phase.Tail)
+      processEvent(this.phaseOut, Phase.Finished);
   }
 
   /** Call to begin the transition-in effect process.
    * Will only work when this transition is in 'Standby' phase. */
   start() {
-    if (this._phase !== TransitionPhase.Standby)
-      return;
-    this._phase = TransitionPhase.In;
-    this.changePhase(this.phaseIn);
-  }
-
-  /** Call to begin the idle transition effect; signal to Game that asset loading
-   * and scene deconstruction may occur now.
-   * Will only work when this transition is in 'In' phase. */
-  protected idle() {
-    if (this._phase !== TransitionPhase.In)
-      return;
-    this._phase = TransitionPhase.Idle;
-    this.changePhase(this.phaseIdle);
+    if (this._phase === Phase.Standby) {
+      this.build();
+      this._phase = Phase.In;
+    }
   }
 
   /** Call to begin the transition-out effect process.
    * Will only work when this transition is in 'Idle' phase. */
   loadComplete() {
-    if (this._phase !== TransitionPhase.Idle)
-      return;
-    this._phase = TransitionPhase.Out;
-    this.changePhase(this.phaseOut);
+    if (this._phase === Phase.Idle)
+      this._phase = Phase.Out;
   }
 
   /** Call to indicate this transition is 'done'; leftover VFX will continue to animate.
    * Will only work when this transition is in 'Out' phase. */
   protected releaseBusyStatus() {
-    if (this._phase !== TransitionPhase.Out)
-      return;
-    this._phase = TransitionPhase.Tail;
-  }
-
-  /** Call to indicate this transition is done. Game will destroy this transition's assets at the next opportunity.
-   * Will only work when this transition is in 'Out' or 'Tail' phase. */
-  protected finish() {
-    if (this._phase !== TransitionPhase.Out && this._phase !== TransitionPhase.Tail)
-      return;
-    this._phase = TransitionPhase.Finished;
-    this.changePhase(EMPTY_PHASE);
+    if (this._phase === Phase.Out)
+      this._phase = Phase.Tail;
   }
 
 }
