@@ -1,5 +1,6 @@
 import { Game } from "..";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
+import { BattleScene } from "./BattleScene";
 import { Scene } from "./Scene";
 
 
@@ -31,15 +32,10 @@ export class MainMenuScene extends Scene {
 
   updateStep(): void {
     this.gamepad.update();
-    console.log(this.gamepad.button.A.pressed);
     if (this.gamepad.button.A.pressed)
-      Game.switchScene(Game.gameScenes.battleScene);
+      Game.transitionToScene(BattleScene);
   }
 
-  destroyStep(): void {
-    // TODO Ye, but not here.
-    const children = Game.stage.removeChildren();
-    children.forEach( c => c.destroy() );
-  }
+  destroyStep(): void { }
 
 }

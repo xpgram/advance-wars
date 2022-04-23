@@ -126,12 +126,15 @@ export class Timer {
    * @unused */
   private dirty = false;
 
+  /** Reference to the ticker this Timer is using as its update controller. */
+  protected get updateTicker() { return Game.scene.ticker; }
+
 
   constructor(seconds?: number, action?: ProgressiveFunction, context?: object) {
     action = action ?? Timer.NULL_ACTION;
     (seconds) && this.at(seconds);
     this.do(action, context);
-    Game.scene.ticker.add(this.update, this);
+    this.updateTicker.add(this.update, this);
   }
 
   /** Signals self-destruction to happen on next safe opportunity. */
@@ -141,7 +144,7 @@ export class Timer {
 
   /** Destruction method which is called at a time the timer is ready for. */
   private _destroy() {
-    Game.scene.ticker.remove(this.update, this);
+    this.updateTicker.remove(this.update, this);
     this.events.forEach( e => Common.destroyObject(e) );
     this.events = [];
     this.recurringEvents = [];
@@ -234,7 +237,7 @@ export class Timer {
   }
 
   /** Handles timer management. */
-  private update() {
+  protected update() {
     if (this.destroyed)
       this._destroy();
     if (!this._started || this.destroyed)

@@ -3,6 +3,8 @@ import { Game } from "..";
 import { Common } from "../scripts/CommonUtils";
 import { Debug } from "../scripts/DebugUtils";
 
+const DOMAIN = "Scene";
+
 class ResourceError extends Error {
   name = 'ResourceError';
 }
@@ -33,9 +35,11 @@ export abstract class Scene {
   protected linker: { name: string, url: string }[] = [];
 
   /** Whether the scene object still needs to set up its constructs. */
-  get mustInitialize() { return this.state == ConstructionState.Unbuilt; };
+  get mustInitialize() { return this.state === ConstructionState.Unbuilt; };
   /** Whether the scene object is set up and ready to be used. */
-  get ready() { return this.state == ConstructionState.Ready; };
+  get ready() { return this.state === ConstructionState.Ready; };
+  /** Whether the scene object is dismantled and unusable. */
+  get destroyed() { return this.state === ConstructionState.Destroyed; };
 
   /** Whether this scene's update steps are allowed to update. */
   private halted = false;
@@ -122,6 +126,7 @@ export abstract class Scene {
   /** Destroy step disassembles the scene object and un-readies it for game-looping. */
   destroy() {
     if (this.state == ConstructionState.Ready) {
+      Debug.log(DOMAIN, "Destroy", {message: `Disassembling '${this.constructor.name}'`})
       this.destroyStep();
       (this._ticker) && this._ticker.destroy();
       this.visualLayers.root.destroy({children: true});
@@ -146,8 +151,9 @@ export abstract class Scene {
       this.setup()
     }
 
-    Game.loader.load().onComplete.once(onComplete);
-    if (this.linker.length === 0)     // an empty loader will never call onComplete()
+    if (this.linker.length > 0)
+      Game.loader.load().onComplete.once(onComplete);
+    else
       onComplete();
   }
 

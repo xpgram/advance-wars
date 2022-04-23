@@ -6,15 +6,8 @@ import { Scene } from "./Scene";
  * digital purgatory. Whatever.
  */
 export class BlankScene extends Scene {
-    protected loadStep(): void {
-    }
-
-    protected setupStep(): void {
-    }
-
-    protected updateStep(): void {
-    }
-
-    protected destroyStep(): void {
-    }
+  protected loadStep(): void { }
+  protected setupStep(): void { }
+  protected updateStep(): void { }
+  protected destroyStep(): void { }
 }

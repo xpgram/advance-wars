@@ -1,5 +1,5 @@
 import { WorkOrder } from "../../scripts/CommonTypes";
-import { Timer } from "../../scripts/timer/Timer";
+import { GlobalTimer } from "../../scripts/timer/GlobalTimer";
 
 
 enum Phase {
@@ -34,21 +34,24 @@ export abstract class SceneTransition {
   protected destroy(): void {};
 
   /** Timer or function callback managing the events of the animate-in phase of the transition effect. */
-  protected abstract phaseIn: Timer | WorkOrder;
+  protected abstract phaseIn: GlobalTimer | WorkOrder;
   /** Function callback managing the events of the transition's idle-while-loading animation effects.
    * @param progress A number with interval [0,1] where 1 is complete. Used for loading bars. */
   protected abstract idleLoop: (progress: number) => void;
   /** Timer or function callback managing the events of the animate-out phase of the transition effect. */
-  protected abstract phaseOut: Timer | WorkOrder;
+  protected abstract phaseOut: GlobalTimer | WorkOrder;
 
   /** Whether to destroy the last scene's assets to free up memory at the beginning
    * of the Idle phase instead of the Finish phase. Default: true.  
    * [!] Be very cautious about the scenes involved when overriding this value. */
-  readonly destroyLastSceneDuringIdle = true;
+  readonly destroyLastSceneDuringIdle: boolean = true;
 
   /** The current transition-phase this visual effect is in. */
   get phase() { return this._phase; }
   private _phase = Phase.Standby;
+
+  /** True if this transition is awaiting the 'load-complete' signal to continue. */
+  get idling() { return this._phase === Phase.Idle; }
 
   /** This is an indication that there is currently a lot of visual activity occurring.
    * It is a suggestion to any inquirers that they may want to suspend their action; any activity
@@ -80,21 +83,21 @@ export abstract class SceneTransition {
    * @param progress A number with interval [0,1] representing the progress value of a loading bar. */
   update(progress: number) {
     // Splits event types into different repositories.
-    const split = (event: Timer | WorkOrder) => ({
-      timer: (event instanceof Timer) ? event : undefined,
-      workOrder: !(event instanceof Timer) ? event : undefined,
+    const split = (event: GlobalTimer | WorkOrder) => ({
+      timer: (event instanceof GlobalTimer) ? event : undefined,
+      workOrder: !(event instanceof GlobalTimer) ? event : undefined,
     });
 
     // Handles the execution of a `Timer | WorkOrder` event type.
-    const processEvent = (event: Timer | WorkOrder, nextPhase: Phase) => {
+    const processEvent = (event: GlobalTimer | WorkOrder, nextPhase: Phase) => {
       const advance = () => this._phase = nextPhase;
-      const { timer, workOrder } = split(this.phaseIn);
+      const { timer, workOrder } = split(event);
 
       if (timer && !timer.started) {
         timer.at('end').do(advance);
         timer.start();
       }
-      else if (workOrder && workOrder())
+      if (workOrder && workOrder())
         advance();
     }
 

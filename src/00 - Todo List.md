@@ -3,6 +3,7 @@
 Search `// TODO` for tasks hidden among the codebase.
 Search `// IMPORTANT` for severe infractions on the project's design and my mental.
 Search `// FIXME` for important todos which are neither 'important' nor 'todos'.
+Search `// REMOVE` for code I forgot I wanted to remove.
 
 - [ ] Essays: Emphasize how I designed everything about the turn and event system to be easy to write. That's ++ design philosophy, dawg.
 I was going through the source for awdor.com and I realized his turn engine is just an enum. There is sooo much middle management happening.
