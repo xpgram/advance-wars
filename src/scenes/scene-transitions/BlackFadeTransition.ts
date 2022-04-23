@@ -3,7 +3,6 @@ import { GlobalTimer } from "../../scripts/timer/GlobalTimer";
 import { SceneTransition } from "./SceneTransition";
 
 
-
 export class BlackFadeTransition extends SceneTransition {
 
   phaseIn = new GlobalTimer();
