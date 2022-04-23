@@ -171,7 +171,7 @@ export class BattleSceneControllers {
     // state to whicher one it's currently listening to?
 
     // TODO Remove; for now, just names the map we want to load.
-    const mapData = mapDev2P as {name: string, players: number, size: {width: number, height: number}, map: number[][], owners: {location: ImmutablePointPrimitive, player: number}[], predeploy: {location: ImmutablePointPrimitive, serial: number, player: number}[]};
+    const mapData = mapMetroIsland as {name: string, players: number, size: {width: number, height: number}, map: number[][], owners: {location: ImmutablePointPrimitive, player: number}[], predeploy: {location: ImmutablePointPrimitive, serial: number, player: number}[]};
 
     // Setup Map
     this.map = new Map(mapData);

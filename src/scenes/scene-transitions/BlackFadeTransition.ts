@@ -20,7 +20,7 @@ export class BlackFadeTransition extends SceneTransition {
     this.overlayer.addChild(g);
     this.overlayer.alpha = 0;
 
-    const time = .075;
+    const time = .15;
     this.phaseIn.tween(time, this.overlayer, {alpha: 1});
     this.phaseOut.tween(time, this.overlayer, {alpha: 0});
   }

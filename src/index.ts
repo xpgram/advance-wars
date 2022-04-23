@@ -8,7 +8,7 @@ import { DevController } from './scripts/controls/DevController';
 import { Keys } from './scripts/controls/KeyboardObserver';
 
 import * as PixiFilters from 'pixi-filters';
-import { MainMenuScene } from './scenes/MainMenuScene';
+import { TitleScreen } from './scenes/TitleScreen';
 import { SceneTransition } from './scenes/scene-transitions/SceneTransition';
 import { BlackFadeTransition } from './scenes/scene-transitions/BlackFadeTransition';
 
@@ -128,7 +128,7 @@ class App {
   private _frameCount = 0;
 
   /** The first scene the game will initialize with. */
-  private readonly sceneEntryPoint = MainMenuScene;
+  private readonly sceneEntryPoint = TitleScreen;
 
   /** type {GameState} Reference to the game's current scene. */
   scene: Scene = new BlankScene();

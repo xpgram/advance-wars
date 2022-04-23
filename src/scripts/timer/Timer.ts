@@ -264,6 +264,13 @@ export class Timer {
       const normal = (e.until > e.time)
         ? Common.clamp((elapsed - e.time) / (e.until - e.time), 0, 1)
         : 1;
+      
+      // Flag completed events — Performing this here allows e.action to call timer.reset()
+      if (normal === 1) {
+        e.completed = true;
+        e.snap = undefined;
+      }
+
       e.action.call(e.context, e.ease(normal));
 
       // Property-style tweens.
@@ -274,14 +281,8 @@ export class Timer {
       }
 
       // Interval-repeating events.
-      if (e.repeat !== 0)
+      if (e.completed && e.repeat !== 0)
         this.extendRecurringEvent(e);
-      
-      // Flag completed events
-      if (normal === 1) {
-        e.completed = true;
-        e.snap = undefined;
-      }
     });
   }
 
