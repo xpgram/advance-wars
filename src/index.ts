@@ -402,6 +402,11 @@ class App {
         });
         (transition.destroyLastSceneDuringIdle) && lastScene.destroy();
         this.scene = nextScene;
+          // TODO Game.scene is the reference point every object uses for the current context.
+          // I wrote it this way assuming only 1 scene would ever be in memory at a time.
+          // Some transition effects deliberately hold the last scene in memory, though,
+          // meaning this line right here has the potential for dangerous side effects.
+          // Ticker or Display objects from the previous scene may carry over.
       }
       if (nextScene.ready) {
         Debug.log(DOMAIN, "ChangeScene", {
