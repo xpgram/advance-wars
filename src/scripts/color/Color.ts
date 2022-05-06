@@ -47,7 +47,7 @@ export module Color {
 
     const errcheck = (v: number, label: string) => {
       errif(!within(v, 0, 255), `${label} must be within 0--255: given ${v}`);
-      errif(v - floor(v) !== v, `${label} must be an integer: given ${v}`);
+      errif(v - floor(v) !== 0, `${label} must be an integer: given ${v}`);
     }
 
     errcheck(r, 'red');
