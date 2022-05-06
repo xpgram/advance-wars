@@ -8,6 +8,24 @@ import { Debug } from "./DebugUtils";
  */
 export module Common {
 
+  /** Returns a function which returns the given object with its inferred type intact, but with its
+   * property members restricted to an extension of type T.
+   * Useful for defining Record-types with known property access keys.
+   * 
+   * Example:
+   * ```
+   * type Metadata = {name: string, power: number};
+   * const Action = Common.confirmType<Metadata>() ({
+   *   Attack: { name: "Attack", power: 5 },
+   *   Wait:   { name: "Wait",   power: 0, delay: 12 },
+   * });
+   * Action.Wait.delay;   // OK
+   * Action.Launch.name;  // `Property 'Launch' does not exist on type {...}`
+   * ```
+   **/
+  export const confirmType = <T>() => <O extends Record<string, T>>(obj: O) => obj;
+  // export const confirmType = <Req>() => <T extends Req>(obj: T) => obj;
+
   /** Freezes the given object and returns it. */
   export function freezeObject<T>(obj: T): T {
     Object.freeze(obj);
