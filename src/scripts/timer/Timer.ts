@@ -7,7 +7,21 @@ import { ProgressiveFunction, TEvent } from "./TimerEvent";
 function millis(n: number) { return n * 1000; }
 function seconds(n: number) { return n * 0.001; }
 
-export type Tweenable = Dictionary<object | number | undefined>;
+type IntervalOptions = number | {gap: number, max: number};
+
+function getOptionsForEvery(interval: IntervalOptions) {
+  if (typeof interval === 'number')
+    return {gap: interval, repeat: -1};
+
+  let { gap, max } = interval;
+  max = (max < 0) ? -1 : Math.max(0, max - 1);
+  return {gap, repeat: max};
+}
+
+/** An object which Timer is capable of tweening; an object whose property tree eventually
+ * resolves to a number or an ignorable non-defined. */
+export type Tweenable = Record<string | number, object | number | undefined>;
+
 
 // TODO Update doc strings to reflect recent updates.
 
@@ -93,6 +107,9 @@ export class Timer {
 
   /** Whether this object destroys itself after calling the last event. */
   private selfDestruct = true;
+
+  /** Whether this object ends after time elapse or resets itself to begin again. */
+  private looping = false;
 
   /** True if the timer has been dismantled and is no longer useable. */
   get destroyed() { return this._destroyed; }
@@ -249,8 +266,12 @@ export class Timer {
 
     this.elapsedMillis += Game.deltaMS;
 
-    if (this.eventsExhausted && this.selfDestruct)
-      this._destroy();
+    if (this.eventsExhausted) {
+      if (this.looping)
+        this.reset();
+      else if (this.selfDestruct)
+        this._destroy();
+    }
   }
 
   /** Iterator for a list of timer events. */
@@ -392,6 +413,13 @@ export class Timer {
     return this;
   }
 
+  /** Tells the timer to loop through its time interval instead of ending.  
+   * If doing this, you will have to call .destroy() manually. */
+  loop() {
+    this.looping = true;
+    return this;
+  }
+
   /** Moves the time cursor to a particular point in time (seconds).
    * Cannot move to negative time values.
    * Pass in 'end' to move the cursor to the timer's (as of now) final timestamp. */
@@ -457,10 +485,10 @@ export class Timer {
 
   /** Schedules an event-call at 'time' and every 'interval' seconds after; returns this.
    * Every-events are by nature infinite and prevent the timer from self-destructing. */
-  every(interval: number | {time: number, max: number}, action: ProgressiveFunction, context?: object) {
+  every(interval: IntervalOptions, action: ProgressiveFunction, context?: object) {
     const time = this.timeCursor;
-    const repeat = (typeof interval === 'number') ? -1 : interval.max;
-    interval = millis( (typeof interval === 'number') ? interval : interval.time );
+    const { gap, repeat } = getOptionsForEvery(interval);
+    interval = millis(gap);
     const e = TEvent.createTimerEvent({
       time,
       interval,
@@ -488,15 +516,16 @@ export class Timer {
 
   /** Schedules a progressive event-call for 'span' seconds recurringly with
    * 'interval'-seconds gaps; returns this; */
-  transitionEvery(span: number, interval: number, event: ProgressiveFunction, context?: object) {
+  transitionEvery(interval: IntervalOptions, span: number, event: ProgressiveFunction, context?: object) {
     const time = this.timeCursor;
     const until = millis(span) + time;
-    interval = millis(interval);
+    const { gap, repeat } = getOptionsForEvery(interval);
+    interval = millis(gap);
     const e = TEvent.createTimerEvent({
       time,
       until,
       interval,
-      repeat: -1,
+      repeat,
       action: event,
       context,
     })
@@ -527,15 +556,17 @@ export class Timer {
    * properties. If you need more specific control, use transitionEvery().
    * Interval wait time is counted from the tween's span-end time. */
   // TODO max occurences?
-  tweenEvery<T extends object>(span: number, interval: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
+  tweenEvery<T extends object>(interval: IntervalOptions, span: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
     ease = ease || Ease.linear.out;
     const time = this.timeCursor;
     const until = millis(span) + time;
-    interval = millis(interval);
+    const { gap, repeat } = getOptionsForEvery(interval);
+    interval = millis(gap);
     const e = TEvent.createTimerEvent({
       time,
       until,
       interval,
+      repeat,
       object,
       target,
       ease,

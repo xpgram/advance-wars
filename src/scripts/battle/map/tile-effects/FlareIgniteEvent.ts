@@ -142,7 +142,7 @@ export class FlareIgniteEvent extends TileEvent {
       .at('end').label('descend-finish')
 
       .at(timeInit) // control for 
-      .every({time: time/3, max: 2}, createSmokePoof)
+      .every({gap: time/3, max: 3}, createSmokePoof)
       .do(n => changeSpark(sparkSets.bright))
       .wait(time/3)
       .do(n => changeSpark(sparkSets.mid))
