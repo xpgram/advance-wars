@@ -8,7 +8,7 @@ export const uniforms = {
 };
 
 /** Colored tint and rotating bright spot that travels squarely around drawspace boundaries. */
-export const tileSpotlight = new PIXI.Filter('', fragment, uniforms);
+export const tileSpotlight = new PIXI.Filter<typeof uniforms>('', fragment, uniforms);
 
 /** Update-step function for the filter's uniforms. */
 export function updateUniforms(dt: number) {
