@@ -1,7 +1,7 @@
+import * as PixiFilters from "pixi-filters";
 import { Game } from "..";
 import { Color } from "../scripts/color/Color";
 import { Ease } from "../scripts/Common/EaseMethod";
-import { Keys } from "../scripts/controls/KeyboardObserver";
 import { ClickableContainer } from "../scripts/controls/MouseInputWrapper";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
 import { Timer } from "../scripts/timer/Timer";
@@ -43,10 +43,14 @@ export class TitleScreen extends Scene {
 
     const windTexture = textures['dusty-wind-overlay.png'];
     
-    const wind_primary = createWindEffect(windTexture, 12.0, 0.22);
+    const wind_primary = createWindEffect(windTexture, 14.0, 0.175);
     this.toDestroy.push(wind_primary.timer);
 
-    const wind_transition = createWindEffect(windTexture, 1.8, 0);
+    const wind_secondary = createWindEffect(windTexture, 19.0, 0.125);
+    this.toDestroy.push(wind_secondary.timer);
+
+    const wind_transition = createWindEffect(windTexture, 1.0, 0);
+    wind_transition.container.filters = [new PixiFilters.MotionBlurFilter([96,0], 45)];
     this.toDestroy.push(wind_transition.timer);
 
     const logo = Sprite('title-logo.png');
@@ -62,7 +66,7 @@ export class TitleScreen extends Scene {
     copyright.position.set(halfWidth, renderHeight - copyright.height - 4);
 
     // Add pieces to scene
-    this.visualLayers.stage.addChild(backdrop, logoGlow, wind_primary.wind, copyright, logo, touchCue, wind_transition.wind);
+    this.visualLayers.stage.addChild(backdrop, logoGlow, wind_primary.container, logo, copyright, touchCue, wind_secondary.container, wind_transition.container);
 
     // "Press Start" idle behavior
     this.touchCueTimer = Timer
@@ -75,9 +79,11 @@ export class TitleScreen extends Scene {
 
     // "Press Start" interaction behavior (pre-scene-transition effect)
     this.pressStartAnim = new Timer()
-      .tween(1.33, wind_transition, {alpha: 0.66}, Ease.sqrt.inOut)
-      .transition(1.0, n => {
-          n = Math.trunc((1-n)*255*.35 + 255*.65);
+      .tween(2.0, wind_transition, {alpha: 0.75}, Ease.cubic.inOut)
+      .transition(1.66, n => {
+          // n = Math.trunc((1-n)*255*.35 + 255*.65);
+          n = Ease.cubic.in(n);
+          n = (1-n)*255;
           wind_transition.tint = Color.RGB(n,n,n);
         })
       .do( () => {
@@ -85,7 +91,7 @@ export class TitleScreen extends Scene {
           touchCue.alpha = 1;
         })
       .every({gap: .12, max: 6}, () => touchCue.alpha = 1 - touchCue.alpha)
-      .at(1.0)
+      .at(1.5)
       .do( () => Game.transitionToScene(BattleScene) );
     this.toDestroy.push(this.pressStartAnim);
   }
@@ -117,7 +123,7 @@ function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number
   wind2.scale.y = -1;           // Flip to prevent that additive wave effect
   wind2.y = tex.height;
 
-  const secondTime = baseTime*1.66;
+  const secondTime = baseTime*2;
 
   const timer = Timer
     .every(baseTime, () => wind1.x = 0)
@@ -126,7 +132,7 @@ function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number
     .tweenEvery(0, secondTime, wind2, {x: -tex.width});
 
   return {
-    wind,
+    container: wind,
     timer,
     get alpha() {
       return wind1.alpha;
