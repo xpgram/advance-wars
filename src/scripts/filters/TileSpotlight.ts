@@ -1,5 +1,5 @@
 import { Point } from "../Common/Point";
-import fragment from "./TileSpotlight.glsl";
+import fragment from "./TileSpotlight.fs.glsl";
 
 
 /** Adds a spotlight effect which squarely rotates about the given dimensions.

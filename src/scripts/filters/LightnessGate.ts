@@ -1,4 +1,4 @@
-import fragment from "./LightnessGate.glsl";
+import fragment from "./LightnessGate.fs.glsl";
 
 
 export class LightnessGate {

@@ -1,4 +1,4 @@
-import fragment from "./Whitemask.glsl";
+import fragment from "./Whitemask.fs.glsl";
 
 /** White silhouette in the shape of the filtered image; preserves alpha channel. */
 export class Whitemask {
