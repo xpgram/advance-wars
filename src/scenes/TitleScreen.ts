@@ -4,10 +4,10 @@ import { Color } from "../scripts/color/Color";
 import { Ease } from "../scripts/Common/EaseMethod";
 import { ClickableContainer } from "../scripts/controls/MouseInputWrapper";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
+import { Filters } from "../scripts/filters/Filters";
 import { Timer } from "../scripts/timer/Timer";
 import { BattleScene } from "./BattleScene";
 import { Scene } from "./Scene";
-
 
 
 /**

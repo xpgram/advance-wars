@@ -1,4 +1,16 @@
 import fragment from "./Whitemask.glsl";
 
 /** White silhouette in the shape of the filtered image; preserves alpha channel. */
-export const whitemask = new PIXI.Filter(undefined, fragment, {});
+export class Whitemask {
+
+  readonly uniforms = {
+    //
+  }
+
+  readonly filter = new PIXI.Filter<typeof this.uniforms>('', fragment, this.uniforms);
+
+  constructor() {
+    //
+  }
+
+}

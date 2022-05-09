@@ -3,7 +3,6 @@ import { Game } from "..";
 import { MapLayer } from "../scripts/battle/map/MapLayers";
 import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSceneControllers";
 import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystemManager";
-import { updateUniforms } from "../scripts/filters/TileSpotlight";
 import { ViewRect } from "../scripts/camera/ViewRect";
 import { PixiUtils } from "../scripts/Common/PixiUtils";
 import { Point } from "../scripts/Common/Point";
@@ -106,9 +105,6 @@ export class BattleScene extends Scene {
         });
         
         this.controllers = this.battleSystem.controllers;
-
-        // Start scene-relevant shader tickers
-        this.ticker.add(updateUniforms);
 
         // TODO Move this to a repository of common bounding boxes
         // Add small-map camera squeezing.

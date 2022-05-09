@@ -2,7 +2,6 @@ import { Point } from "../Common/Point";
 import fragment from "./BurnAway.glsl";
 
 
-/**  */
 export class BurnAway {
 
   readonly uniforms = {

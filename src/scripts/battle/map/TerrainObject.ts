@@ -1,16 +1,14 @@
 import * as PIXI from "pixi.js";
-import { LowResTransform } from "../../LowResTransform";
 import { UnitClass, MoveType, Faction } from "../EnumTypes";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { MapLayer, MapLayerFunctions } from "./MapLayers";
-import { TransformableList } from "../../TransformableList";
 import { Point3D } from "../../CommonTypes";
 import { TerrainProperties } from "./Terrain";
 import { Game } from "../../..";
-import { whitemask } from "../../filters/Whitemask";
+import { Whitemask } from "../../filters/Whitemask";
 import { TextureLibrary } from "../../system/TextureLibrary";
-import { tileSpotlight } from "../../filters/TileSpotlight";
-import { UnitObject, UnitType } from "../UnitObject";
+import { UnitObject } from "../UnitObject";
+import { TerrainMethods } from "./Terrain.helpers";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.
@@ -236,7 +234,7 @@ export abstract class TerrainObject {
         });
 
         // White-out colors in shape sprites
-        container.filters = [whitemask];
+        container.filters = [new Whitemask().filter];
 
         // Texture generation
         const tex = Game.renderer.generateTexture(
@@ -259,7 +257,7 @@ export abstract class TerrainObject {
 
         const sprite = new PIXI.Sprite();
         sprite.texture = TerrainObject.whitemasks.get(key);
-        sprite.filters = [tileSpotlight];
+        sprite.filters = [TerrainMethods.spotlightFilter.filter];
 
         const tex = Game.renderer.generateTexture(  // TODO Use render texture? I guess that was always a workaround.
             sprite,

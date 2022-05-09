@@ -101,7 +101,9 @@ export class Map {
         this.configureMap();    // Preliminary setup for things like sea-tiles knowing they're shallow.
         this.initializeMap();   // Ask all types to build their graphical objects.
         MapLayerFunctions.FreezeStaticLayers();
+        
         TerrainMethods.startPaletteAnimation();
+        TerrainMethods.startSpotlightFilter();
     }
 
     /**  */

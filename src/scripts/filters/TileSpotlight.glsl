@@ -2,7 +2,9 @@
 precision mediump float;
 varying vec2 vTextureCoord;   // PIXI
 uniform sampler2D uSampler;
+
 uniform vec2 dimensions;      // Custom
+uniform float maxTime;
 uniform float time;
 
 float max_brightness = .6;    // Settings
@@ -34,10 +36,12 @@ void main() {
   vec2 light_offset = vec2(0.0, dimensions.y / 2.0);
   
   vec2 pos = pixelate(vTextureCoord) * dimensions;
+
+  float angle = time/maxTime * 3.14;
   
   vec2 lightsource = pixelate(vec2(
-    clamp(sin(time - 3.14)*.7+.5, 0.0, 1.0),
-    clamp(cos(time - 3.14)*.7+.5, 0.0, 1.0)
+    clamp(sin(angle)*.7+.5, 0.0, 1.0),
+    clamp(cos(angle)*.7+.5, 0.0, 1.0)
   )) * light_dimensions + light_offset;
   
   float intensity = brightness(pos, lightsource);

@@ -6,8 +6,19 @@ import { Terrain, TerrainProperties } from "./Terrain";
 import { Faction, FactionColors } from "../EnumTypes";
 import { Game } from "../../..";
 import { MapLayer } from "./MapLayers";
+import { Filters } from "../../filters/Filters";
 
 export module TerrainMethods {
+
+    /** A reference to the spotlight effect added to the tile's visual overlayer. */
+    export const spotlightFilter = new Filters.TileSpotlight(16,32, 2.5);
+
+    /** Adds the tile-spotlight effect's udpater to the scene's ticker.
+     * Only needs to be called once. */
+    export function startSpotlightFilter() {
+        Game.scene.ticker.remove(spotlightFilter.update, spotlightFilter);
+        Game.scene.ticker.add(spotlightFilter.update, spotlightFilter);
+    }
 
     /** Used to animate the shoreline where land meets sea. */
     export const shorelineFilter = new PixiFilters.MultiColorReplaceFilter([[0, 0], [0, 0], [0, 0], [0, 0]], 0.015);

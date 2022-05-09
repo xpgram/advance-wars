@@ -1,3 +1,16 @@
 import fragment from "./LightnessGate.glsl";
 
-export const pixelGate = new PIXI.Filter('', fragment, []);
+
+export class LightnessGate {
+
+  readonly uniforms = {
+    //
+  }
+
+  readonly filter = new PIXI.Filter<typeof this.uniforms>('', fragment, this.uniforms);
+
+  constructor() {
+    //
+  }
+
+}

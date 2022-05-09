@@ -1,6 +1,6 @@
 import { Game } from "../..";
 import { Point } from "../../scripts/Common/Point";
-import { BurnAway } from "../../scripts/filters/BurnAway";
+import { F_BurnAway } from "../../scripts/filters/BurnAway";
 import { GlobalTimer } from "../../scripts/timer/GlobalTimer";
 import { SceneTransition } from "./SceneTransition";
 
@@ -22,7 +22,7 @@ export class BurnTransition extends SceneTransition {
       trunc(random() * (renderHeight - 64) + 32),
     )
 
-    const burnShader = new BurnAway(origin);
+    const burnShader = new F_BurnAway(origin);
     this.lastScene.filters = [burnShader.filter];
 
     this.phaseOut
