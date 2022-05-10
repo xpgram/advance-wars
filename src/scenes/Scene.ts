@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import { PIXI } from "../constants";
 import { Game } from "..";
 import { Common } from "../scripts/CommonUtils";
 import { Debug } from "../scripts/DebugUtils";
@@ -50,7 +50,7 @@ export abstract class Scene {
       throw new Error("Attempted to access the scene's destroyed ticker.");
     return this._ticker;
   }
-  private _ticker: PIXI.Ticker;
+  private _ticker!: PIXI.Ticker;
 
   /** Link URLs to the scene's depended resources.
    * Also a useful access library for resource names within the IResourceDictionary. */
@@ -61,12 +61,12 @@ export abstract class Scene {
   static readonly resourceFonts: Record<string, {fontName: string, fontSize: number}>;
 
   /** Volatile reference to the scene's loaded resources. */
-  get resources(): PIXI.IResourceDictionary {
+  get resources(): Record<string, PIXI.LoaderResource> {
     if (!this._resources)
       throw new Error("Attempted to access the scene's destroyed resources.");
     return this._resources;
   }
-  private _resources: PIXI.IResourceDictionary | null = null;
+  private _resources: Record<string, PIXI.LoaderResource> | null = null;
 
   /** Returns a spritesheet from the scene's resource dictionary.
    * @throws ResourceError when the spritesheet referred to by 'name' does not exist. */

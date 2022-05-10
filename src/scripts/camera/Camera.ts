@@ -1,3 +1,4 @@
+import { PIXI } from "../../constants";
 import { Point } from "../Common/Point";
 import { ViewRect, ViewRectVector } from "./ViewRect";
 import { Game } from "../..";
@@ -6,7 +7,6 @@ import { PositionalAlgorithm } from "./PositionalAlgorithms";
 import { TravelAlgorithm } from "./TravelAlgorithms";
 import { DisplacementAlgorithm } from "./DisplacementAlgorithms";
 import { PositionContainer } from "../CommonTypes";
-import { Keys } from "../controls/KeyboardObserver";
 import { Debug } from "../DebugUtils";
 
 

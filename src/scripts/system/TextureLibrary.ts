@@ -1,4 +1,4 @@
-import { StringDictionary } from "../CommonTypes"
+import { PIXI } from "../../constants";
 import { Debug } from "../DebugUtils";
 
 /** A simple key-value dictionary for pre-calculated textures.
@@ -6,7 +6,7 @@ import { Debug } from "../DebugUtils";
  * throughout a scene during a single frame, or any frame if you can manage that. */
 export class TextureLibrary {
 
-  private library: StringDictionary<PIXI.Texture> = {};
+  private library: Record<string, PIXI.Texture> = {};
 
   /** Records the given ID within the library and assigns it the given texture. */
   register(...textures: {id: string, texture: PIXI.Texture}[]): void {

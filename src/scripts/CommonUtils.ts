@@ -1,5 +1,4 @@
-import { StringDictionary } from "./CommonTypes";
-import { Debug } from "./DebugUtils";
+import { PIXI } from "../constants";
 
 /**
  * Commonly useful functions.

@@ -1,8 +1,8 @@
+import { PIXI } from "../../../constants";
 import { Point } from "../../Common/Point";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { Common } from "../../CommonUtils";
 import { Debug } from "../../DebugUtils";
-import { StringDictionary } from "../../CommonTypes";
 
 /** A boolean map projected onto an infinite euclidean plane.
  * 
@@ -182,7 +182,7 @@ function rangeShapeAssembler(min: number, max: number) {
 }
 
 /** With serial keys, maintains a list of all once-requested maps. */
-let regionMapSieve = {} as StringDictionary<RegionMap>;
+let regionMapSieve = {} as Record<string, RegionMap>;
 
 /** Calculates range-maps on request, or retrieves pre-calculated maps from a sieve. */
 export function CommonRangesRetriever(range: NumericRange): RegionMap {

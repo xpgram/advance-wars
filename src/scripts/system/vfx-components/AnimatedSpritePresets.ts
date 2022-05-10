@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Ease, EaseFunction } from "../../Common/EaseMethod";
 
 // TODO There are two modules here; should they be in separate files?

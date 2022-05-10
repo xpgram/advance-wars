@@ -1,5 +1,5 @@
+import { PIXI } from "../constants";
 import { Game } from "..";
-import { Keys } from "./controls/KeyboardObserver";
 
 /**
  * Populates a PIXI.Container with performance information, among other things.

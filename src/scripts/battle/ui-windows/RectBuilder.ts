@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import { PIXI } from "../../../constants";
 
 type BackgroundOptions = {
     offset?: {

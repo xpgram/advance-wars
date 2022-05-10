@@ -1,5 +1,6 @@
-import { Map } from "./Map";
+import { PIXI } from "../../../constants";
 import { Game } from "../../..";
+import { Map } from "./Map";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { LowResTransform } from "../../LowResTransform";

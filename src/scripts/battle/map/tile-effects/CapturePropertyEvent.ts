@@ -1,3 +1,4 @@
+import { PIXI } from "../../../../constants";
 import { Game } from "../../../..";
 import { Palette } from "../../../color/ColorPalette";
 import { getFactionPalette } from "../../../color/PlayerFactionPalette";

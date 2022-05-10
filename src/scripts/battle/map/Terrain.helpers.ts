@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import { PIXI } from "../../../constants";
 import * as PixiFilters from "pixi-filters";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { TerrainObject, TerrainType } from "./TerrainObject";

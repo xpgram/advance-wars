@@ -1,6 +1,7 @@
-import { MapCursor } from "../map/MapCursor";
-import { Map } from "../map/Map";
+import { PIXI } from "../../../constants";
 import { Game } from "../../..";
+import { Map } from "../map/Map";
+import { MapCursor } from "../map/MapCursor";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";

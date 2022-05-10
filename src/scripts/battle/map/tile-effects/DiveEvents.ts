@@ -1,3 +1,4 @@
+import { PIXI } from "../../../../constants";
 import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
 import { BattleSceneControllers } from "../../turn-machine/BattleSceneControllers";

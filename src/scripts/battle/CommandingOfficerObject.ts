@@ -1,5 +1,5 @@
+import { PIXI } from "../../constants";
 import { Game } from "../..";
-import { StringDictionary } from "../CommonTypes";
 import { UnitObject } from "./UnitObject";
 
 export type UnitStats = {
@@ -54,7 +54,7 @@ export abstract class CommandingOfficerObject {
   private _insigniaIcon!: PIXI.Texture;
 
 
-  readonly unitStatTable: StringDictionary<UnitStats> = {} as StringDictionary<UnitStats>;
+  readonly unitStatTable: Record<string, UnitStats> = {};
 
   /** For a given unit object, returns a UnitStats container for stat changes
    * to be applied within the CO Zone. */

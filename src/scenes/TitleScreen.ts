@@ -1,4 +1,4 @@
-import * as PixiFilters from "pixi-filters";
+import { PIXI, PixiFilters } from "../constants";
 import { Game } from "..";
 import { Color } from "../scripts/color/Color";
 import { Ease } from "../scripts/Common/EaseMethod";

@@ -1,3 +1,4 @@
+import { PIXI } from "../../../../constants";
 import { Game } from "../../../..";
 import { ScreenShake } from "../../../camera/DisplacementAlgorithms";
 import { AnimatedSpritePresets } from "../../../system/vfx-components/AnimatedSpritePresets";

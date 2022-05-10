@@ -1,10 +1,10 @@
+import { PIXI } from "../../constants";
 import { Game } from "../..";
 import { Point } from "../Common/Point";
 import { Common } from "../CommonUtils";
 import { Button } from "../controls/Button";
 import { Keys } from "./KeyboardObserver";
 
-type InteractionEvent = PIXI.interaction.InteractionEvent;
 
 /** A wrapper for Pixi Containers which need greater sophistication or direct-state
  * referencing for their mouse-event handling. Automatically handles queries such as
@@ -87,7 +87,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
     this.container.removeListener('mouseover', this.mouseInHandler, this);
     this.container.removeListener('mouseout', this.mouseOutHandler, this);
     this.container.interactive = false; // I'm assuming for now I will never assign two controllers to one container.
-    Game.scene.ticker.remove.remove(this.updateButtonState, this);
+    Game.scene.ticker.remove(this.updateButtonState, this);
   }
 
   /** Update step which passes current down-state back into the pointer button to
@@ -104,7 +104,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   }
 
   /** Updates the virtual pointer with the position of the observed pointer. */
-  private updateMousePosition(event: InteractionEvent) {
+  private updateMousePosition(event: PIXI.InteractionEvent) {
     const local = event.data.getLocalPosition(this.container);
     this._pointerLocation.set(local);
     if (this.button.pressed)
@@ -123,7 +123,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   }
 
   /** Updates the virtual pointer with a button-down event. Also updates the pointer's location. */
-  private mouseDownHandler(event: InteractionEvent) {
+  private mouseDownHandler(event: PIXI.InteractionEvent) {
     if (this.pointerOver) {
       this.button.update(true);
       this.skipNextButtonUpdate = true;
@@ -133,7 +133,7 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   }
 
   /** Updates the virtual pointer with a button-up event. Also updates the pointer's location. */
-  private mouseUpHandler(event: InteractionEvent) {
+  private mouseUpHandler(event: PIXI.InteractionEvent) {
     this.button.update(false);
     this.dragButton.update(false);
     this.skipNextButtonUpdate = true;
@@ -144,13 +144,13 @@ type InteractionEvent = PIXI.interaction.InteractionEvent;
   }
 
   /** Updates the virtual pointer with a mouse-in event. */
-  private mouseInHandler(event: InteractionEvent) {
+  private mouseInHandler(event: PIXI.InteractionEvent) {
     this.enterButton.update(true);
     this.skipNextButtonUpdate = true;
   }
 
   /** Updates the virtual pointer with a mouse-out event. */
-  private mouseOutHandler(event: InteractionEvent) {
+  private mouseOutHandler(event: PIXI.InteractionEvent) {
     this.enterButton.update(false);
     this.skipNextButtonUpdate = true;
   }

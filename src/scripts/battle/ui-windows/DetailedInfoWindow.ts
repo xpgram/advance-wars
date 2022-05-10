@@ -1,5 +1,4 @@
-import * as PIXI from "pixi.js";
-import * as PixiFilters from "pixi-filters";
+import { PIXI, PixiFilters } from "../../../constants";
 import { fonts } from "./DisplayInfo";
 import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
@@ -422,7 +421,7 @@ class DamageHeuristic extends TextComponent {
 }
 
 class DamageHeuristicTable extends UiComponent {
-  private elems: StringDictionary<DamageHeuristic> = {};
+  private elems: Record<string, DamageHeuristic> = {};
 
   constructor(p: Point, textureSet: {boost: PIXI.Texture, depress: PIXI.Texture, none: PIXI.Texture}) {
     super(p);
@@ -588,7 +587,7 @@ class MoveCostTable extends UiComponent {
 
     Object.entries(terrain.movementCost).forEach( item => {
       const [key, cost] = item;
-      const entry = (this.table as StringDictionary<Entry>)[key];
+      const entry = (this.table as Record<string, Entry>)[key];
       if (entry)
         entry.value.text = format(cost);
     });

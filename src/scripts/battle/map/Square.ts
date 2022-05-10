@@ -1,3 +1,5 @@
+import { PIXI } from "../../../constants";
+import { Game } from "../../..";
 import { TerrainObject } from "./TerrainObject";
 import { UnitObject } from "../UnitObject";
 import { Terrain } from "./Terrain";
@@ -5,7 +7,6 @@ import { MapLayer } from "./MapLayers";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { Map } from "./Map";
 import { Point } from "../../Common/Point";
-import { Game } from "../../..";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { CardinalDirection } from "../../Common/CardinalDirection";
 import { Common } from "../../CommonUtils";

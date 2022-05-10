@@ -1,3 +1,4 @@
+import { PIXI } from "../../constants";
 import { Game } from "../..";
 import { GlobalTimer } from "../../scripts/timer/GlobalTimer";
 import { SceneTransition } from "./SceneTransition";

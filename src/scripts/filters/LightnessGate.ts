@@ -1,3 +1,4 @@
+import { PIXI } from "../../constants";
 import fragment from "./LightnessGate.fs.glsl";
 
 
@@ -7,7 +8,7 @@ export class LightnessGate {
     //
   }
 
-  readonly filter = new PIXI.Filter<typeof this.uniforms>('', fragment, this.uniforms);
+  readonly filter = new PIXI.Filter('', fragment, this.uniforms);
 
   constructor() {
     //

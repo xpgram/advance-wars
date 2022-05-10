@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import { PIXI } from "../../../constants";
 import { fonts } from "./DisplayInfo";
 import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
@@ -174,7 +174,7 @@ export class UnitWindow extends SlidingWindow {
     dmgOut = Math.round(dmgOut);
     dmgIn = Math.round(dmgIn);
 
-    this.damageForecast.damage = dmgOut;
+    this.damageForecast.setForecastDamage(dmgOut);
 
     this.damageForecast.mode = (
       (dmgIn < 10) ? 'safe' :

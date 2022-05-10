@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { TerrainObject } from "./TerrainObject";
 import { UnitClass } from "../EnumTypes";
@@ -16,8 +17,8 @@ const Serial = SerialGenerator(-1);
 export const TerrainProperties = {
     tileset: 'NormalMapTilesheet',
     landImageset: 'NormalMapLandscapeSheet',
-    get sheet(): PIXI.Spritesheet { return Game.loader.resources[ TerrainProperties.tileset ].spritesheet; },
-    get infoPortraitSheet(): PIXI.Spritesheet { return Game.loader.resources[ TerrainProperties.landImageset ].spritesheet; },
+    get sheet(): PIXI.Spritesheet { return Game.scene.getSpritesheet(TerrainProperties.tileset); },
+    get infoPortraitSheet(): PIXI.Spritesheet { return Game.scene.getSpritesheet(TerrainProperties.landImageset); },
 }
 
 /**

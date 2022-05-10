@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { Color } from "../../color/Color";
 import { Palette } from "../../color/ColorPalette";

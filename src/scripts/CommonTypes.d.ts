@@ -1,5 +1,4 @@
-import { Point } from "./Common/Point";
-import { LowResTransform } from "./LowResTransform"
+import { PIXI } from "../constants";
 
 /** Describes a partial object of type T where all children are also partial. */
 type PartialDeep<T> = T extends object ? {

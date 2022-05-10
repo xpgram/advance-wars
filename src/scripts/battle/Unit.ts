@@ -1,3 +1,4 @@
+import { PIXI } from "../../constants";
 import { Game } from "../.."
 import { UnitObject, UnitType } from "./UnitObject";
 import { MoveType, ArmorType, UnitClass } from "./EnumTypes";

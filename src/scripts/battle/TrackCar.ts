@@ -1,11 +1,10 @@
+import { PIXI } from "../../constants";
 import { UnitObject } from "./UnitObject";
-import { PointPrimitive, Point } from "../Common/Point";
+import { Point } from "../Common/Point";
 import { Slider } from "../Common/Slider";
 import { Game } from "../..";
 import { CardinalDirection, CardinalVector } from "../Common/CardinalDirection";
-import { Debug } from "../DebugUtils";
 import { MapLayer } from "./map/MapLayers";
-import { Unit } from "./Unit";
 import { LowResTransform } from "../LowResTransform";
 
 export class TrackCar {

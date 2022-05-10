@@ -1,4 +1,4 @@
-import * as PixiFilters from 'pixi-filters';
+import { PIXI, PixiFilters } from "../../../constants";
 import { Game } from "../../..";
 import { Slider } from '../../Common/Slider';
 import { Common } from '../../CommonUtils';
@@ -68,7 +68,8 @@ export class DamageForecastPane extends Fadable {
 
   /** The forecasted damage number to display. */
   get damage() { return this.damageNumber.text; }
-  set damage(n) {
+
+  setForecastDamage(n: number) {
     this.damageNumber.text = Common.clamp(n, 0, 999).toString();
   }
 
@@ -91,7 +92,6 @@ export class DamageForecastPane extends Fadable {
     const sheet = Game.scene.resources['UISpritesheet'].spritesheet as PIXI.Spritesheet;
 
     this.window = new PIXI.Sprite(sheet.textures['damage-forecast-pane.png']);
-    //@ts-expect-error
     this.window.filters = [this.colorFilter];
 
     this.damageNumber = new PIXI.BitmapText('', fonts.scriptOutlined);
@@ -99,7 +99,7 @@ export class DamageForecastPane extends Fadable {
     this.damageNumber.anchor.set(1,0);
     this.container.addChild(this.window, this.damageNumber);
 
-    this.damage = 0;
+    this.setForecastDamage(0);
     this.mode = 'safe';
     
     this.motionPulsar.start();

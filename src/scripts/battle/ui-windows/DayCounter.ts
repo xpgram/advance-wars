@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Palette } from "../../color/ColorPalette";
 import { fonts } from "./DisplayInfo";
 import { Fadable } from "./Fadable";

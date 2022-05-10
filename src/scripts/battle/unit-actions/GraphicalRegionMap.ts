@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Palette } from "../../color/ColorPalette";
 import { CardinalDirection, CardinalVector } from "../../Common/CardinalDirection";
 import { Point } from "../../Common/Point";

@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
 import { Color } from "../../color/Color";

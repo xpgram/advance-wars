@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import { PIXI } from "../../../constants";
 import { Slider } from "../../Common/Slider";
 import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";

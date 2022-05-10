@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
 

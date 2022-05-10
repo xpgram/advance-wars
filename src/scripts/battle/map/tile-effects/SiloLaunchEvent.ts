@@ -1,3 +1,4 @@
+import { PIXI } from "../../../../constants";
 import { Game } from "../../../..";
 import { Ease } from "../../../Common/EaseMethod";
 import { ImmutablePointPrimitive, Point } from "../../../Common/Point";

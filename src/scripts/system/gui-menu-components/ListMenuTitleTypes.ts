@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants"
 
 /** A list-item title which features a sprite, a name string and a numeric value. */
 export type ShopItemTitle = {

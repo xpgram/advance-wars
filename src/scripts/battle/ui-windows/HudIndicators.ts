@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { DayCounter } from "./DayCounter";
 import { Fadable } from "./Fadable";

@@ -1,3 +1,4 @@
+import { PIXI } from "../../constants";
 import { Point } from "../Common/Point";
 import fragment from "./TileSpotlight.fs.glsl";
 
@@ -13,7 +14,7 @@ export class TileSpotlight {
     time: 0,
   };
 
-  readonly filter = new PIXI.Filter<typeof this.uniforms>('', fragment, this.uniforms);
+  readonly filter = new PIXI.Filter('', fragment, this.uniforms);
 
   constructor(width: number, height: number, timeLength: number) {
     this.uniforms.dimensions = [width, height];

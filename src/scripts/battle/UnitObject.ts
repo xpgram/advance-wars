@@ -1,10 +1,11 @@
+import { PIXI } from "../../constants";
+import { Game } from "../..";
 import { Common } from "../CommonUtils";
 import { LowResTransform } from "../LowResTransform";
-import { Game } from "../..";
 import { UnitClass, FactionColors, MoveType, ArmorType, Faction, AttackMethod, Facing } from "./EnumTypes";
 import { Debug } from "../DebugUtils";
 import { fonts } from "./ui-windows/DisplayInfo";
-import { MapLayer, MapLayerFunctions } from "./map/MapLayers";
+import { MapLayer } from "./map/MapLayers";
 import { Unit, UnitProperties } from "./Unit";
 import { Slider } from "../Common/Slider";
 import { Point } from "../Common/Point";
@@ -14,7 +15,6 @@ import { TerrainObject } from "./map/TerrainObject";
 import { NeighborMatrix } from "../NeighborMatrix";
 import { Square } from "./map/Square";
 import { BitIO } from "../Common/BitIncrementer";
-import { PixiUtils } from "../Common/PixiUtils";
 import { Terrain } from "./map/Terrain";
 import { UnitObjectConstants } from "./UnitObjectConstants";
 
@@ -328,13 +328,13 @@ export abstract class UnitObject {
         this.uiBox = new PIXI.Container();
 
         this.hpMeter = new PIXI.BitmapText('', fonts.smallScriptOutlined);
-        this.hpMeter.anchor = 1; // 1,1: bottom right corner
+        this.hpMeter.anchor.set(1);
         this.hpMeter.x = 15; // Sprite b-right corner of the sprite
         this.hpMeter.y = 18; // Font height adjustment
         this.uiBox.addChild(this.hpMeter);
 
         this.previewHpMeter = new PIXI.BitmapText('', fonts.smallScriptOutlined);
-        this.previewHpMeter.anchor = 1;
+        this.previewHpMeter.anchor.set(1);
         this.previewHpMeter.x = 15;
         this.previewHpMeter.y = 18;
 
@@ -668,7 +668,7 @@ export abstract class UnitObject {
         let framesPerFrameUpdateInterval = 12;
         let intervalCount = Math.floor(Game.frameCount / framesPerFrameUpdateInterval);
         let frameIdx = intervalCount % this.sprite.totalFrames;
-        this.sprite.texture = this.sprite.textures[frameIdx];
+        this.sprite.texture = this.sprite.textures[frameIdx] as PIXI.Texture;
     }
 
     /** Status icons are a list of icon textures as frames in an animated sprite. This method includes only the icons relevant to this unit's condition. */
@@ -685,7 +685,7 @@ export abstract class UnitObject {
             {
                 name: `icon-co-badge-faded.png`,
                 condition: (this.CoCouldBoard),
-                // blink: true,
+                blink: false,
             },
             {
                 name: `icon-co-badge-folded.png`,

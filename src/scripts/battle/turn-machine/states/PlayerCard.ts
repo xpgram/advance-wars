@@ -1,8 +1,9 @@
-import { MultiColorReplaceFilter } from 'pixi-filters';
+import { PIXI } from '../../../../constants';
 import { Game } from "../../../..";
+import { MultiColorReplaceFilter } from 'pixi-filters';
 import { Ease } from "../../../Common/EaseMethod";
 import { PixiUtils } from '../../../Common/PixiUtils';
-import { ImmutablePointPrimitive, Point } from "../../../Common/Point";
+import { Point } from "../../../Common/Point";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
@@ -59,7 +60,7 @@ const paletteSwaps = [
   ],
 ];
 
-const paletteSwapsText = [
+const paletteSwapsText: (readonly [number, number])[][] = [
   [ // Red → Red
     [0x000000, 0x000000],
   ],

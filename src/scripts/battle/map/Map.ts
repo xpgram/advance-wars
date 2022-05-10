@@ -1,10 +1,10 @@
 import 'regenerator-runtime/runtime';
+import { PIXI } from '../../../constants';
+import { Game } from "../../..";
 import { Terrain } from "./Terrain";
 import { Square } from "./Square";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { MapLayer, MapLayerFunctions } from "./MapLayers";
-import { Game } from "../../..";
-import { NumericDictionary, StringDictionary } from "../../CommonTypes";
 import { TerrainObject, TerrainType } from "./TerrainObject";
 import { UnitObject } from "../UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
@@ -16,13 +16,12 @@ import { Common } from "../../CommonUtils";
 import { TileInspector } from "./TileInspector";
 import { QueueSearch } from "../../Common/QueueSearch";
 import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
-import { Unit } from '../Unit';
 import { MapData } from '../../../battle-maps/MapData';
+import { BoardPlayer } from '../BoardPlayer';
 
 // TODO Temporary map data for map loading.
 import { data as o1_mapData } from "../../../battle-maps/bean-island";
 import { data as o2_mapData } from "../../../battle-maps/greyfield-strikes";
-import { BoardPlayer } from '../BoardPlayer';
 
 /** Error for map data could not validate. */
 export class MapValidationError extends Error {
@@ -132,10 +131,6 @@ export class Map {
     /** Builds the data structure representing the map given its width and height.
      * This method does not populate. */
     private constructMap(width: number, height: number) {
-        // Enforce maximum
-        if (width > Square.Max_Coords || height > Square.Max_Coords)
-            throw "Map dimensions are too big! Cannot handle without increasing Square's memory allocation for coordinates."
-
         // Include a null-object border around the map.
         width += 2;
         height += 2;

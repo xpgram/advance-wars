@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import { PIXI } from "../../../constants";
 import { fonts } from "./DisplayInfo";
 import { SlidingWindow } from "./SlidingWindow";
 import { Common } from "../../CommonUtils";
@@ -123,7 +123,7 @@ export class TerrainWindow extends SlidingWindow {
       return;
     }
 
-    this.damageForecast.damage = Math.round(dmgOut);
+    this.damageForecast.setForecastDamage(Math.round(dmgOut));
     this.damageForecast.mode = 'safe';
     this.retriggerDamageForecastVisibility();
   }

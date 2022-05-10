@@ -1,3 +1,4 @@
+import { PIXI } from "../constants";
 import { Scene } from "./Scene";
 import { Game } from "..";
 import { MapLayer } from "../scripts/battle/map/MapLayers";

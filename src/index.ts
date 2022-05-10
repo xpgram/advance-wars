@@ -1,3 +1,4 @@
+import { PIXI } from './constants';
 import { Scene, SceneType } from './scenes/Scene';
 import { DiagnosticLayer } from './scripts/DiagnosticLayer';
 import { BlankScene } from './scenes/BlankScene';
@@ -6,8 +7,6 @@ import { WorkOrderHandler } from './scripts/system/WorkOrderHandler';
 import { TextureLibrary } from './scripts/system/TextureLibrary';
 import { DevController } from './scripts/controls/DevController';
 import { Keys } from './scripts/controls/KeyboardObserver';
-
-import * as PixiFilters from 'pixi-filters';
 import { TitleScreen } from './scenes/TitleScreen';
 import { SceneTransition } from './scenes/scene-transitions/SceneTransition';
 import { BlackFadeTransition } from './scenes/scene-transitions/BlackFadeTransition';
@@ -88,16 +87,14 @@ class App {
 
   /** Independent ticker which handles inter-scene processes.
    * Think twice about using. */
-  readonly globalTicker = new PIXI.Ticker({
-    autoStart: false,
-  });
+  readonly globalTicker = new PIXI.Ticker();
 
   /** Reference to the game's debug UI layer. */
   readonly diagnosticLayer!: DiagnosticLayer;
 
   /**  */
   // TODO Can I abstract between this and Scene.ts? They would accept a set of resources, and they would have convenient accessors for that data, the ones that Scene has.
-  readonly globalResources!: PIXI.IResourceDictionary;
+  readonly globalResources!: Record<string, PIXI.LoaderResource>;
 
   /** The scale deviation from the ideal FPS, I think.
    * I dunno, you'd have to ask Pixi. Always >= 0, usually ±0.1 from 1.0. */
