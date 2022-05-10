@@ -94,7 +94,7 @@ export class Camera {
   
   constructor(stage: PIXI.Container) {
     this.stage = stage;
-    Game.scene.ticker.add(this.update, this, UpdatePriority.Camera);
+    Game.scene.ticker.add(this.update, this, <number>UpdatePriority.Camera);
   }
 
   destroy() {
