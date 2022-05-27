@@ -28,6 +28,7 @@ But anyway, yeah. There is constant state checking because his system never just
       - [ ] This naturally exists in a persistent space separate from the scene itself, though it will have access to the scene for shader application.
       - [ ] Mechanism for two concurrent scenes in memory at once, so a transition may wipe from one to the other without pausing in-scene animations.
       - [ ] Transitions have access to the display containers for both scenes for full control.
+  - [ ] Game.transitionToSceneWithData() is fantastic. I want that data to be passed in to Scene.setupStep(), however, not the constructor. Scene-extenders shouldn't need a constructor just for this.
 
 
 - [ ] Pointer controls: Click-Hold should start ShowUnitAttackRange and MoveCamera
