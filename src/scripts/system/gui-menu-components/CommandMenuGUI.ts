@@ -109,6 +109,7 @@ export class CommandMenuGUI<Y> {
 
     this.buildTextures();
     this.buildListItems();
+    this.onFirstBuild();
 
     this.gui.zIndex = 1000;
 
@@ -192,6 +193,13 @@ export class CommandMenuGUI<Y> {
       element.width,
       element.height
     );
+  }
+
+  /** Function to call by the constructor to move the cursor into place */
+  protected onFirstBuild() {
+    this.updateFrames();
+    this.onCursorMove();
+    this.cursorGraphic.skipMotion();
   }
 
   /** Function to call every time the menu's page changes. */
