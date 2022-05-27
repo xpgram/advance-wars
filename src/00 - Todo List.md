@@ -14,6 +14,9 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
+- [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. That's really irritating.
+  - [ ] The camera lags behind the field cursor now. Not sure what that's about. I don't think the camera actually teleports to the cursor pos, I think it just moves very fast, so this could be a design issue. Either that, or a follow algorithm that shouldn't be set has been sometime in the middle of setting up TitleScreen -> MainMenu -> BattleScene
+
 - [ ] Scene Transitions
   - [ ] Technical Implementation
     - [x] Scene switching mechanism
