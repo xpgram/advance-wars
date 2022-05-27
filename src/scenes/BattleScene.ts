@@ -7,6 +7,7 @@ import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystem
 import { ViewRect } from "../scripts/camera/ViewRect";
 import { PixiUtils } from "../scripts/Common/PixiUtils";
 import { Point } from "../scripts/Common/Point";
+import { MapData } from "../battle-maps/MapData";
 
 const { newBitmapFont } = PixiUtils;
 
@@ -15,6 +16,13 @@ const { newBitmapFont } = PixiUtils;
  * @version 0.2.0
  */
 export class BattleScene extends Scene {
+
+    private mapData: MapData;
+
+    constructor(data: MapData) {
+        super();
+        this.mapData = data;
+    }
 
     // TODO Finish implementation of Scene resource bundles
     // [ ] load() iterates over resourceLinks and resourcesFonts to link all resources.
@@ -101,9 +109,12 @@ export class BattleScene extends Scene {
 
     setupStep(): void {
         //this.controllers = new BattleSceneControllers({mapData: {width: 0, height: 0}});
-        this.battleSystem = new BattleSystemManager({
-            // stub
-        });
+        this.battleSystem = new BattleSystemManager(
+            this.mapData,
+            {
+                fogOfWar: true,
+            }
+        );
         
         this.controllers = this.battleSystem.controllers;
 

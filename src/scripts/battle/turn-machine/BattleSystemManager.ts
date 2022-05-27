@@ -1,11 +1,12 @@
 import { TurnState, TurnStateConstructor } from "./TurnState";
 import { Debug } from "../../DebugUtils";
-import { BattleSceneControllers } from "./BattleSceneControllers";
+import { BattleSceneControllers, ScenarioOptions } from "./BattleSceneControllers";
 import { Game } from "../../..";
 import { NullTurnState } from "./NullTurnState";
 import { GameStart } from "./states/GameStart";
 import { Common } from "../../CommonUtils";
 import { Keys } from "../../controls/KeyboardObserver";
+import { MapData } from "../../../battle-maps/MapData";
 
 const DOMAIN = 'BattleStateManager';
 
@@ -52,10 +53,8 @@ export class BattleSystemManager {
   private queue: TurnStateConstructor[] = [];
 
   // TODO Define scenarioOptions
-  constructor(scenarioOptions: {}) {
-    this.controllers = new BattleSceneControllers({
-      // stub
-    });
+  constructor(map: MapData, scenario: ScenarioOptions) {
+    this.controllers = new BattleSceneControllers(map, scenario);
 
     // Configure controllers to the given scenario
     //      Map layout

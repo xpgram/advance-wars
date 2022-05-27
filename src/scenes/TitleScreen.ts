@@ -6,8 +6,8 @@ import { ClickableContainer } from "../scripts/controls/MouseInputWrapper";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
 import { Filters } from "../scripts/filters/Filters";
 import { Timer } from "../scripts/timer/Timer";
-import { BattleScene } from "./BattleScene";
 import { Scene } from "./Scene";
+import { MainMenuScene } from "./MainMenu";
 
 
 /**
@@ -92,7 +92,7 @@ export class TitleScreen extends Scene {
         })
       .every({gap: .12, max: 6}, () => touchCue.alpha = 1 - touchCue.alpha)
       .at(1.5)
-      .do( () => Game.transitionToScene(BattleScene) );
+      .do( () => Game.transitionToScene(MainMenuScene) );
     this.toDestroy.push(this.pressStartAnim);
   }
 

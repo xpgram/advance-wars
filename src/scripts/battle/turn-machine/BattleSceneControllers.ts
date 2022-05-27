@@ -96,7 +96,7 @@ export type Scenario = {
 }
 
 const Default_Scenario: Scenario = {
-  fogOfWar: true,
+  fogOfWar: false,
   weather: Weather.Clear,
   terrainGraphics: TerrainTileSet.Normal,
   dayLimit: -1,
@@ -171,22 +171,19 @@ export class BattleSceneControllers {
     // TODO A gamepad proxy for whicher is current-player. Could it extend VirtualGamepad and simply change its
     // state to whicher one it's currently listening to?
 
-    // TODO Remove; for now, just names the map we want to load.
-    const mapData = mapMetroIsland as {name: string, players: number, size: {width: number, height: number}, map: number[][], owners: {location: ImmutablePointPrimitive, player: number}[], predeploy: {location: ImmutablePointPrimitive, serial: number, player: number}[]};
-
     // Setup Map
-    this.map = new Map(mapData);
+    this.map = new Map(mapdata);
     this.mapCursor = new MapCursor(this.map, this.gamepad);
 
     // Setup Players
     const playerObjects = [];
-    for (let i = 0; i < mapData.players; i++) {
+    for (let i = 0; i < mapdata.players; i++) {
 
-      const capturePoints = mapData.owners
+      const capturePoints = mapdata.owners
         .filter(capture => capture.player === i)
         .map(capture => new Point(capture.location));
 
-      const unitSpawns = mapData.predeploy?.filter(spawns => spawns.player === i);
+      const unitSpawns = mapdata.predeploy?.filter(spawns => spawns.player === i);
 
       const boardPlayer = new BoardPlayer({
         playerNumber: i,
