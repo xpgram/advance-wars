@@ -83,7 +83,7 @@ export class TitleScreen extends Scene {
       .transition(1.66, n => {
           // n = Math.trunc((1-n)*255*.35 + 255*.65);
           n = Ease.cubic.in(n);
-          n = (1-n)*255;
+          n = Math.trunc((1-n)*255);
           wind_transition.tint = Color.RGB(n,n,n);
         })
       .do( () => {
