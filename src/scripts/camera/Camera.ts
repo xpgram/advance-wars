@@ -150,7 +150,7 @@ export class Camera {
     // Periodically log camera actual position
     if (Game.frameCount % 60*5 === 0)
       Debug.log('Camera', 'UpdatePosition', {
-        message: `Non-displaced, actual transform is currently ${transforms.actual.toString()} with focal ${this.getFocalPoint().toString()}`,
+        message: `target-transform=${transforms.actual.toString()} focal=${this.getFocalPoint().toString()} follow-mode=${this.algorithms.travel?.name}`,
       });
 
     // Get behavior and set final transform
