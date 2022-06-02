@@ -15,7 +15,7 @@ But anyway, yeah. There is constant state checking because his system never just
 
 
 - [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. That's really irritating.
-  - [ ] The camera lags behind the field cursor now. Not sure what that's about. I don't think the camera actually teleports to the cursor pos, I think it just moves very fast, so this could be a design issue. Either that, or a follow algorithm that shouldn't be set has been sometime in the middle of setting up TitleScreen -> MainMenu -> BattleScene
+  - [ ] The camera lags behind the field cursor now. Not sure what that's about. I don't think the camera actually teleports to the cursor pos, I think it just moves very fast, so this could be a design issue. Either that, or a follow algorithm that shouldn't be set has been sometime in the middle of setting up TitleScreen -> MainMenu -> BattleScene 
 
 - [ ] Scene Transitions
   - [ ] Technical Implementation
