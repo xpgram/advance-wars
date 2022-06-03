@@ -17,6 +17,7 @@ import { data as mapGreyfieldStrikes } from "../battle-maps/greyfield-strikes";
 import { data as mapLandsEnd } from "../battle-maps/lands-end";
 import { data as mapDev2P } from "../battle-maps/dev-room-2p";
 import { Point } from "../scripts/Common/Point";
+import { TitleScreen } from "./TitleScreen";
 
 
 /**
@@ -67,6 +68,9 @@ export class MainMenuScene extends Scene {
     if (this.gamepad.button.A.pressed || this.guiMenu.menuPointer.clicked()) {
       const map = this.menu.selectedValue;
       Game.transitionToSceneWithData(BattleScene, map);
+    }
+    else if (this.gamepad.button.B.pressed) {
+      Game.transitionToScene(TitleScreen);
     }
   }
 

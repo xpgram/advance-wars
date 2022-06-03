@@ -1,4 +1,5 @@
 import { Game } from "../../../..";
+import { MainMenuScene } from "../../../../scenes/MainMenu";
 import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOption";
 import { TurnState } from "../TurnState";
@@ -21,6 +22,7 @@ export class FieldMenu extends TurnState {
       new ListMenuOption({title: 'Options'}, 1, {
         triggerDisable: () => true,
       }),
+      new ListMenuOption({title: "Quit"}, 2),
       new ListMenuOption({title: 'End Turn'}, 9),
     ]);
     fieldMenu.menu.resetCursor();
@@ -42,6 +44,8 @@ export class FieldMenu extends TurnState {
 
       if (value === 9)
         this.advance(TurnEnd);
+      else if (value === 2)
+        Game.transitionToScene(MainMenuScene);
       else if (value === 0)
         this.regress();
     }
