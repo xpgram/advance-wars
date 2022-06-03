@@ -30,7 +30,7 @@ import { HideUnits } from "../control-scripts/hideUnits";
 import { Camera } from "../../camera/Camera";
 import { ViewRectBorder } from "../../camera/ViewRectBorder";
 import { ScreenPush } from "../../camera/PositionalAlgorithms";
-import { TravelAlgorithms } from "../../camera/TravelAlgorithms";
+import { CameraTravelMethod } from "../../camera/TravelAlgorithms";
 import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
 
 import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
@@ -223,7 +223,7 @@ export class BattleSceneControllers {
     this.camera.focalTarget = this.mapCursor.transform;
     this.camera.algorithms = {
       destination: new ScreenPush(),
-      travel: new TravelAlgorithms.Linear(),
+      travel: new CameraTravelMethod.Linear(),
     };
 
     let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);

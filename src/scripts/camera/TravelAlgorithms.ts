@@ -14,7 +14,7 @@ export interface TravelAlgorithm {
 }
 
 
-export module TravelAlgorithms {
+export module CameraTravelMethod {
 
   /** Follows the target viewrect in a 1:1 fashion; no incremental changes. */
   export class Instant implements TravelAlgorithm {
