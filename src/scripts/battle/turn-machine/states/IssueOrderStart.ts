@@ -9,6 +9,7 @@ import { FieldMenu } from "./FieldMenu";
 import { FactoryMenu } from "./FactoryMenu";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 import { BattleSceneControllers } from "../BattleSceneControllers";
+import { ShowMinimap } from "./ShowMinimap";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -72,7 +73,7 @@ export class IssueOrderStart extends TurnState {
     const { stagePointerInterface: pointer } = this.assets.scripts;
 
     const player = players.current;
-    const { A, B, start } = gamepad.button;
+    const { A, B, start, select } = gamepad.button;
 
     // Run dev control scripts (defined at the bottom)
     devControls.forEach( script => {
@@ -123,6 +124,11 @@ export class IssueOrderStart extends TurnState {
     // On press Start, open the Field Menu.
     else if (start.pressed) {
       this.advance(FieldMenu);
+    }
+
+    // On press Select, open the Minimap.
+    else if (select.pressed) {
+      this.advance(ShowMinimap);
     }
   }
 

@@ -18,10 +18,8 @@ import { QueueSearch } from "../../Common/QueueSearch";
 import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 import { MapData } from '../../../battle-maps/MapData';
 import { BoardPlayer } from '../BoardPlayer';
+import { MiniMap } from './MiniMap';
 
-// TODO Temporary map data for map loading.
-import { data as o1_mapData } from "../../../battle-maps/bean-island";
-import { data as o2_mapData } from "../../../battle-maps/greyfield-strikes";
 
 /** Error for map data could not validate. */
 export class MapValidationError extends Error {

@@ -32,10 +32,7 @@ import { ViewRectBorder } from "../../camera/ViewRectBorder";
 import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { CameraTravelMethod } from "../../camera/TravelAlgorithms";
 import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
-
-import { data as mapLandsEnd } from '../../../battle-maps/lands-end';
-import { data as mapMetroIsland } from '../../../battle-maps/metro-island';
-import { data as mapDev2P } from '../../../battle-maps/dev-room-2p';
+import { MiniMap } from "../map/MiniMap";
 
 type CommandObject = CommandHelpers.CommandObject;
 
@@ -126,6 +123,7 @@ export class BattleSceneControllers {
   stagePointer: ClickableContainer;
   camera: Camera;
   map: Map;
+  minimap: MiniMap;
   mapCursor: MapCursor;
   uiSystem: InfoWindowSystem;
   cmdMenu: CommandMenuGUI<CommandObject>;
@@ -174,6 +172,13 @@ export class BattleSceneControllers {
     // Setup Map
     this.map = new Map(mapdata);
     this.mapCursor = new MapCursor(this.map, this.gamepad);
+
+    this.minimap = new MiniMap(mapdata);
+    this.minimap.container.position.set(
+      Game.display.renderWidth/2 - this.minimap.container.width/2,
+      Game.display.renderHeight/2 - this.minimap.container.height/2,
+    );
+    Game.scene.visualLayers.hud.addChild(this.minimap.container);
 
     // Setup Players
     const playerObjects = [];
@@ -238,7 +243,7 @@ export class BattleSceneControllers {
     // TODO Factor out behavioral dependencies from PointerController to here.
     // TODO Add concise syncing with mapCursor behavior: when mapCursor stops listening to dpad
     //      events, pointer events shouldn't work either.
-    this.stagePointer = new ClickableContainer(Game.stage);
+    this.stagePointer = new ClickableContainer(Game.scene.visualLayers.stage);
     this.stagePointer.enabled = true; // TODO Give to inter-state reset?
 
     // Setup UI Window System
@@ -254,13 +259,13 @@ export class BattleSceneControllers {
     const menuCmd = new ListMenu<IconTitle, CommandObject>(this.gamepad);
     this.cmdMenu = new CommandMenuGUI(menuCmd, MapLayer('ui'));
     const menuShop = new ListMenu<ShopItemTitle, number>(this.gamepad, {pageLength: 7});
-    this.shopMenu = new UnitShopMenuGUI(menuShop, Game.hud);
+    this.shopMenu = new UnitShopMenuGUI(menuShop, Game.scene.visualLayers.hud);
     const menuField = new ListMenu<IconTitle, number>(this.gamepad);
-    this.fieldMenu = new CommandMenuGUI<number>(menuField, Game.hud);
+    this.fieldMenu = new CommandMenuGUI<number>(menuField, Game.scene.visualLayers.hud);
 
     // Setup static background image.
     let backdrop = new PIXI.Sprite(Game.scene.resources['background'].texture);
-    Game.backdrop.addChild(backdrop);
+    Game.scene.visualLayers.backdrop.addChild(backdrop);
 
     // TODO Units collection method. The only real purpose, I think, is to check if they're all spent/destroyed/etc.
 
@@ -305,6 +310,7 @@ export class BattleSceneControllers {
 
   /** Hides all UI and player-interface systems. */
   hidePlayerSystems() {
+    this.minimap.hide();
     this.mapCursor.resetSettings();
     this.mapCursor.hide();
     this.trackCar.hide();
