@@ -10,6 +10,7 @@ import { Unit } from "./Unit";
 import { Scenario } from "./turn-machine/BattleSceneControllers";
 import { CommonRangesRetriever } from "./unit-actions/RegionMap";
 import { Debug } from "../DebugUtils";
+import { Common } from "../CommonUtils";
 
 /**  */
 export type UnitSpawnSettings = {
@@ -67,19 +68,20 @@ type BoardPlayerOptions = {
 
 /** The player-data object for a participant in a game. */
 export class BoardPlayer {
-  map: Map;
-  scenario: Scenario;
-  playerNumber: number;             // Which real player (slot) this player-object belongs to.
-  faction: Faction;                 // The army-color owned by this player, more or less.
-  officer: CommandingOfficerObject; // Reference to CO class, like Unit.??? or Terrain.???
+  readonly map: Map;
+  readonly scenario: Scenario;
+  readonly playerNumber: number;    // Which real player (slot) this player-object belongs to.
+  readonly faction: Faction;        // The army-color owned by this player, more or less.
+  readonly neverHQ: boolean;        // Whether this player didn't have an HQ during the spawning/map-construction phase; allows players to begin games with no HQ whatsoever.
+  readonly armyFacing: Facing;      // Which direction (left/right) the player's army is oriented.
+  readonly officer: CommandingOfficerObject; // Reference to CO class, like Unit.??? or Terrain.???
+
   capturePoints: Point[] = [];      // Where this player's properties are located.
   powerMeter: Slider;               // How much power meter is charged.
   funds: number;                    // Funds available for spending.
-  hasHQ: boolean;                   // Whether this player has an HQ to capture or not; allows players to begin games with no HQ whatsoever.
   armyDeployed: boolean;            // Whether this player has had an army yet. Prevents match loss before unit purchase.
   units: UnitObject[] = [];         // List of units under control.
   lastCursorPosition: Point;
-  armyFacing: Facing;
 
   /** The number of turns a player must wait to spawn another CO unit. */
   get CoUnitTurnDelay() { return this._CoUnitTurnDelay; }
@@ -98,8 +100,9 @@ export class BoardPlayer {
     this.funds = options.funds || 0;
 
     // Validate player number.
-    if (false) // TODO stub
-      throw new BoardPlayerConstructionError(`Cannot set player number to ${this.playerNumber}: invalid link number.`);
+    if (!Common.within(this.playerNumber, 0, 3))
+      throw new BoardPlayerConstructionError(`Cannot set player number to ${this.playerNumber}: must be in range [0,3].`);
+
     this.armyFacing = (this.playerNumber % 2 === 0) ? Facing.Right : Facing.Left;
 
     // Validate faction setting.
@@ -129,20 +132,23 @@ export class BoardPlayer {
 
     // Set pre-match known conditions
     this.armyDeployed = (this.units.length > 0);
-    this.hasHQ = (this.HQs.length > 0);
+    this.neverHQ = (this.HQs.length === 0);
 
     // Get (temp) known number of base locations.
     const spawnTypes = this.scenario.spawnMap.map( m => m.type );
     const bases = this.capturePoints
-      .map( p => this.map.squareAt(p).terrain.type )
-      .filter( type => spawnTypes.includes(type) );
+      .filter( p => spawnTypes.includes(this.map.squareAt(p).terrain.type) );
 
     // Validate player pre-play options
     if (bases.length === 0 && this.units.length === 0)
       throw new BoardPlayerConstructionError(`BoardPlayer object #${this.playerNumber} has no means of playing.`);
 
     // Set default cursor position
-    this.lastCursorPosition = new Point(this.HQs[0].boardLocation);
+    const startingCursorPos = this.HQs[0]?.boardLocation
+      || bases[0]
+      || this.units[0]?.boardLocation
+      || new Point(this.map.width/2, this.map.height/2).trunc();
+    this.lastCursorPosition = startingCursorPos;
   }
 
   /** Unbind references which may be circular. */
@@ -189,7 +195,7 @@ export class BoardPlayer {
 
   /** Returns true if this player has lost this game. */
   get defeated() {
-    const headquartersLost = (this.HQs.length === 0);
+    const headquartersLost = (!this.neverHQ && this.HQs.length === 0);
     const armyDefeated = (this.armyDeployed && this.deployCount === 0);
     return headquartersLost || armyDefeated;
   }
