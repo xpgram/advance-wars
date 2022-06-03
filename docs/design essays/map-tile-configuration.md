@@ -82,6 +82,8 @@ The tilesets used for these maps, though, include [a lot of] borders and pairing
 
 This all happens in multiple stages.
 
+[author] Describe the tile naming scheme, and also describe the possible socket system I could have used, or maybe why the socket system would necessarily apply here. I should cover the Sudoku-style board filling I haven't implemented, though.
+
 **Map Initialization**
 a
 
