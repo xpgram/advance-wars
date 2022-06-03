@@ -15,6 +15,8 @@ import { BattleScene } from "./BattleScene";
 import { data as mapMetroIsland } from "../battle-maps/metro-island";
 import { data as mapGreyfieldStrikes } from "../battle-maps/greyfield-strikes";
 import { data as mapLandsEnd } from "../battle-maps/lands-end";
+import { data as mapDev2P } from "../battle-maps/dev-room-2p";
+import { Point } from "../scripts/Common/Point";
 
 
 /**
@@ -47,19 +49,22 @@ export class MainMenuScene extends Scene {
         mapMetroIsland,
         mapGreyfieldStrikes,
         mapLandsEnd,
+        mapDev2P,
       ].map( data => new ListMenuOption({title: data.name}, data)),
     });
 
     this.guiMenu = new CommandMenuGUI(this.menu, this.visualLayers.hud);
-    // this.guiMenu.updateFrames();
-
+    this.guiMenu.setPosition(new Point(
+      Game.display.renderWidth/2 - this.guiMenu.graphicalWidth/2,
+      Game.display.renderHeight/2 - this.guiMenu.graphicalHeight/2
+    ));
   }
 
   updateStep(): void {
     this.gamepad.update();  // TODO Also this. Every scene object? Why?
                             // At the very least, it should be provided by the abstract, like vis-layers.
 
-    if (this.gamepad.button.A.pressed) {
+    if (this.gamepad.button.A.pressed || this.guiMenu.menuPointer.clicked()) {
       const map = this.menu.selectedValue;
       Game.transitionToSceneWithData(BattleScene, map);
     }
