@@ -179,8 +179,13 @@ export module MapLayerFunctions {
   /** Initializes the MapLayer system for use. 
   * MapLayer system will not be functional before calling this method. */
   export function Init() {
-    if (!destroyed)
+    if (!destroyed) {
+      Debug.log(DOMAIN, "Initialization", {
+        message: "Initialization request rejected",
+        reason: "Already initialized",
+      });
       return;
+    }
     
     rootLayer = new Layer({
       key: 'root',
