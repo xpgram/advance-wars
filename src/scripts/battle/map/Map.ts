@@ -110,6 +110,7 @@ export class Map {
         // I suspect PIXI can handle breaking all the stage layers I've created, but know this theory is untested.
         TerrainMethods.removeSeaLayer();    // Doesn't do anything.
         TerrainMethods.stopPaletteAnimation();
+        MapLayerFunctions.Destroy();
     }
 
     /** Applies a mask to the map to eliminate unwanted overdraw.

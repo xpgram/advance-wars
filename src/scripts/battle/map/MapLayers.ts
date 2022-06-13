@@ -2,6 +2,8 @@ import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { Debug } from "../../DebugUtils";
 
+const DOMAIN = "MapLayerSys";
+
 /** The build instructions for a MapLayer. */
 type LayerProperties = {
   key: string,
@@ -184,8 +186,9 @@ export module MapLayerFunctions {
       key: 'root',
       children: layers_config,
     })
-    Game.stage.addChild(rootLayer.container);
+    Game.scene.visualLayers.stage.addChild(rootLayer.container);
     destroyed = false;
+    Debug.log(DOMAIN, "Initialization");
   }
   
   /** Frees up the resources held by the MapLayers system.
@@ -197,6 +200,7 @@ export module MapLayerFunctions {
     
     rootLayer.container.destroy({children: true});
     destroyed = true;
+    Debug.log(DOMAIN, "Destruction");
   }
 
   /** Converts an object's world position to a row layer.
@@ -212,6 +216,7 @@ export module MapLayerFunctions {
     if (destroyed)
       return;
     rootLayer.freeze();
+    Debug.log(DOMAIN, "SysFunc", { message: "Static visual components frozen to prevent redraw" });
   }
 
   /** Signals a layer to sort its children, and for all its children to sort their children. */
@@ -222,6 +227,7 @@ export module MapLayerFunctions {
       container.sortChildren();
     }
     sort( MapLayer(...terms) );
+    Debug.log(DOMAIN, "LayerSorting");
   }
   
   /** Compiles the layer structure into a single string report which is
