@@ -1,12 +1,13 @@
 import { PIXI } from "../../../constants";
 import { TerrainObject } from "./TerrainObject";
-import { Faction } from "../EnumTypes";
+import { Faction, FactionColors } from "../EnumTypes";
 import { Debug } from "../../DebugUtils";
 import { TerrainProperties } from "./Terrain";
 import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { Point3D } from "../../CommonTypes";
 import { UnitObject } from "../UnitObject";
+import { Game } from "../../..";
 
 /** // TODO Refactor this class name; this is a building-type terrain object class. */
 export abstract class TerrainBuildingObject extends TerrainObject {
@@ -25,6 +26,11 @@ export abstract class TerrainBuildingObject extends TerrainObject {
         sprite.addChild( building );
 
         return sprite;
+    }
+
+    get minimapIconName() {
+        const color = FactionColors[this.faction];
+        return `building-${color}`;
     }
 
     // All TerrainBuildingObject's are naturally buildings.

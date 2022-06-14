@@ -102,10 +102,17 @@ export abstract class TerrainObject {
     }
 
     /** Returns an image to represent this tile in the minimap. */
+    protected get minimapIconName(): string {
+        return this.name.toLowerCase();
+    }
+
     getMinimapIcon(): PIXI.Sprite | PIXI.AnimatedSprite {
         const textures = Game.scene.texturesFrom("UISpritesheet");
-        const texUrl = `MiniMap/${this.name.toLowerCase()}.png`;
+        const texName = this.minimapIconName;
+        const texUrl = `MiniMap/${texName}.png`;
         const tex = textures[texUrl];
+
+        // TODO Check animations first; if anim empty, get tex; if tex empty, fail
 
         if (!tex)
             Debug.log(DOMAIN, "MinimapIcon", {

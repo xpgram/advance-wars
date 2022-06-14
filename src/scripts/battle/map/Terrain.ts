@@ -297,6 +297,7 @@ export module Terrain {
 
         get name() { return "Bridge"; }
         get shortName() { return "Bridge"; }
+        get minimapIconName() { return "road"; }
         get description() { return "Naval units can't pass under river bridges."; }
         get defenseRating() { return 0; }
 
