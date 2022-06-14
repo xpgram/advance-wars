@@ -160,6 +160,16 @@ export abstract class UnitObject {
         return sprite;
     }
 
+    /** Returns an animated sprite representing this unit on the minimap. */
+    getMinimapIcon(): PIXI.AnimatedSprite {
+        const textures = Game.scene.texturesFrom("UISpritesheet");
+        const tex = textures[`MiniMap/unit-${FactionColors[this.faction]}.png`];
+        const anim = new PIXI.AnimatedSprite([tex, PIXI.Texture.EMPTY]);
+        anim.animationSpeed = 1/40;
+        anim.play();
+        return anim;
+    }
+
     /** An object containing the texture sets for the sprite's three movement facings (left must be reflected for right-facing.) */
     get movementAnimations() {
         let name = this.name.replace(' ','').replace('-','').toLowerCase();

@@ -31,11 +31,21 @@ export class MiniMap {
     
     for (let x = 0; x < this.map.width; x++)
     for (let y = 0; y < this.map.height; y++) {
-      const icon = this.map.squareAt(new Point(x,y)).terrain.getMinimapIcon();
+      const square = this.map.squareAt(new Point(x,y));
 
-      const size = icon.width;
-      icon.position.set(x*size, y*size);
-      this.iconContainer.addChild(icon);
+      const terrIcon = square.terrain.getMinimapIcon();
+      const unitIcon = square.unit?.getMinimapIcon();
+      
+      const size = terrIcon.width;
+      const pos = new Point(x*size, y*size);
+
+      terrIcon.position.set(pos.x, pos.y);
+      this.iconContainer.addChild(terrIcon);
+      
+      if (unitIcon) {
+        unitIcon.position.set(pos.x, pos.y);
+        this.iconContainer.addChild(unitIcon);
+      }
     }
   }
 
