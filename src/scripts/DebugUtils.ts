@@ -69,7 +69,20 @@ export const Debug = {
      * Use Debug.postLog() to write the log's contents to the browser console. */
     log: (domain: string, process: string, options?: {message?: string, reason?: string, warn?: boolean} ) => {
         // Format "\n  : message text"
-        const includeMsg = (d: string, msg?: string) => (msg) ? `\n  ${d} ${msg}` : '';
+        const includeMsg = (d: string, msg?: string) => {
+            if (!msg)
+                return '';
+
+            const firstindent = `  ${d} `;
+            const indent = ' '.repeat(firstindent.length);
+
+            const fmsg = msg
+                .split('\n')
+                .map( line => `${indent}${line}` )
+                .join('\n');
+            
+            return `\n${firstindent}${fmsg.slice(indent.length)}`;
+        }
 
         const { message, reason, warn } = options ?? {};
         const timestamp = `[${new Date().toISOString()}] fr${Game.frameCount} ln${Debug._logData.length}`;
@@ -82,6 +95,7 @@ export const Debug = {
 
         if (warn)
             console.warn(logstr);
+            
         Debug._logData.push(logstr);
     },
 
