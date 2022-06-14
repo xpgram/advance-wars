@@ -21,6 +21,8 @@ import { BoardPlayer } from '../BoardPlayer';
 import { MiniMap } from './MiniMap';
 
 
+const DOMAIN = "WarMap";
+
 /** Error for map data could not validate. */
 export class MapValidationError extends Error {
     name = 'MapValidationError';
@@ -76,6 +78,8 @@ export class Map {
         // some of these methods, like forceLegalTiles(), will
         // need to be extracted.
 
+        Debug.log(DOMAIN, "Construction", { message: "Building game board from map data" });
+
         this.name = mapData.name;
 
         MapLayerFunctions.Init();
@@ -101,6 +105,8 @@ export class Map {
         
         TerrainMethods.startPaletteAnimation();
         TerrainMethods.startSpotlightFilter();
+
+        Debug.log(DOMAIN, "Construction", { message: "Finished building game board from map data" });
     }
 
     /**  */
