@@ -1314,7 +1314,7 @@
 	"sourceSize": {"w":4,"h":4},
 	"anchor": {"x":0,"y":0}
 },
-"MiniMap/wastland.png":
+"MiniMap/wasteland.png":
 {
 	"frame": {"x":235,"y":372,"w":4,"h":4},
 	"rotated": false,
