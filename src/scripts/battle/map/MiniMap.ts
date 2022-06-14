@@ -1,44 +1,45 @@
 import { PIXI } from "../../../constants";
-import { MapData } from "../../../battle-maps/MapData";
-import { Game } from "../../..";
-import { Terrain } from "./Terrain";
-import { Debug } from "../../DebugUtils";
 import { Palette } from "../../color/ColorPalette";
+import { Map } from "./Map";
+import { Point } from "pixi.js";
 
 
 /**  */
-// TODO Colors can't be updated mid match if this isn't linked to the map proper.
 // TODO It also needs reference to camera to draw the view border.
 export class MiniMap {
 
-  container: PIXI.Container;
+  private map: Map;
 
-  constructor(data: MapData) {
-    this.container = new PIXI.Container();
-    const textures = Game.scene.texturesFrom("UISpritesheet");
+  container = new PIXI.Container();
+  private iconContainer = new PIXI.Container();
+
+  constructor(map: Map) {
+    this.map = map;
+    this.container.addChild(this.iconContainer);
+    this.updateContents();
+    this.buildBackground();
+  }
+
+  destroy() {
+    //@ts-ignore
+    this.map = undefined;
+    this.container.destroy({children: true});
+  }
+
+  updateContents() {
+    this.iconContainer.removeChildren().forEach( c => c.destroy() );
     
-    for (let x = 0; x < data.size.width; x++)
-    for (let y = 0; y < data.size.height; y++) {
-      const type = Object.values(Terrain).find( t => t.serial === data.map[y][x]);
+    for (let x = 0; x < this.map.width; x++)
+    for (let y = 0; y < this.map.height; y++) {
+      const icon = this.map.squareAt(new Point(x,y)).terrain.getMinimapIcon();
 
-      if (!type)
-        continue;
-
-      // TODO I think this needs to be handled by TerrainObject.
-      // Some names are different, some objects are animations; too complicated.
-      const tex = textures[`MiniMap/${new type().name.toLowerCase()}.png`];
-      
-      if (!tex) {
-        Debug.warn(`MiniMap texture for terrain '${new type().name}' not found.`);
-        continue;
-      }
-
-      const spr = new PIXI.Sprite(tex);
-      const size = spr.width;
-      spr.position.set(x*size, y*size);
-      this.container.addChild(spr);
+      const size = icon.width;
+      icon.position.set(x*size, y*size);
+      this.iconContainer.addChild(icon);
     }
+  }
 
+  private buildBackground() {
     const hBorder = 3;
     const vBorder = 1;
 

@@ -173,7 +173,7 @@ export class BattleSceneControllers {
     this.map = new Map(mapdata);
     this.mapCursor = new MapCursor(this.map, this.gamepad);
 
-    this.minimap = new MiniMap(mapdata);
+    this.minimap = new MiniMap(this.map);
     this.minimap.container.position.set(
       Game.display.renderWidth/2 - this.minimap.container.width/2,
       Game.display.renderHeight/2 - this.minimap.container.height/2,

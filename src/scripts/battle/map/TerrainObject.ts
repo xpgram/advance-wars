@@ -9,6 +9,7 @@ import { Whitemask } from "../../filters/Whitemask";
 import { TextureLibrary } from "../../system/TextureLibrary";
 import { UnitObject } from "../UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
+import { Debug } from "../../DebugUtils";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.
@@ -32,6 +33,8 @@ import { TerrainMethods } from "./Terrain.helpers";
  *   Could we render a grayscale overlay and tint the resulting texture?
  *   Pixi tints are nearly costless. They might also be within the shader, though.
  */
+
+const DOMAIN = "TerrainObject";
 
 /** An uninstantiated Terrain class. */
 export interface TerrainType {
@@ -96,6 +99,21 @@ export abstract class TerrainObject {
     get illustration(): PIXI.Sprite {
         let name = this.name.replace(' ', '').toLowerCase();
         return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures[`${name}-landscape.png`] );
+    }
+
+    /** Returns an image to represent this tile in the minimap. */
+    getMinimapIcon(): PIXI.Sprite | PIXI.AnimatedSprite {
+        const textures = Game.scene.texturesFrom("UISpritesheet");
+        const texUrl = `MiniMap/${this.name.toLowerCase()}.png`;
+        const tex = textures[texUrl];
+
+        if (!tex)
+            Debug.log(DOMAIN, "MinimapIcon", {
+                message: `Could not find a texture for '${texUrl}'.`,
+                warn: true,
+            });
+
+        return new PIXI.Sprite(tex);
     }
 
     /** Whether this terrain is considered land by nature. Important setting for the tile's base-layer
