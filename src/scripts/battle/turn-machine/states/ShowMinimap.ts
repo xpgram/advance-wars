@@ -30,7 +30,10 @@ export class ShowMinimap extends TurnState {
   update() {
     const { gamepad } = this.assets;
 
-    if (gamepad.button.B.pressed)
+    // TODO Reference stage's clickable container. Dimmer may need pass-thru.
+    // Clicking outside the map should dismiss it.
+    // Clicking *on* the map, on the other hand, should allow dragging of the camera.
+    if (gamepad.button.B.pressed || gamepad.button.select.pressed)
       this.regress();
   }
 
