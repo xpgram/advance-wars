@@ -78,7 +78,7 @@ export class Map {
         // some of these methods, like forceLegalTiles(), will
         // need to be extracted.
 
-        Debug.log(DOMAIN, "Construction", { message: "Building game board from map data" });
+        Debug.log(DOMAIN, "Construction", { message: "Building game board from map data." });
 
         this.name = mapData.name;
 
@@ -106,7 +106,7 @@ export class Map {
         TerrainMethods.startPaletteAnimation();
         TerrainMethods.startSpotlightFilter();
 
-        Debug.log(DOMAIN, "Construction", { message: "Finished building game board from map data" });
+        Debug.log(DOMAIN, "Construction", { message: `Finished building game board from map data.\n${this.logString()}` });
     }
 
     /**  */
@@ -117,6 +117,7 @@ export class Map {
         TerrainMethods.removeSeaLayer();    // Doesn't do anything.
         TerrainMethods.stopPaletteAnimation();
         MapLayerFunctions.Destroy();
+        Debug.log(DOMAIN, "Destruction");
     }
 
     /** Applies a mask to the map to eliminate unwanted overdraw.
@@ -130,7 +131,7 @@ export class Map {
 
         // Set the mask and add it to the stage; the mask should move with its object.
         MapLayer('top').mask = mapMask;
-        Game.stage.addChild(mapMask);
+        Game.scene.visualLayers.stage.addChild(mapMask);
     }
 
     /** Builds the data structure representing the map given its width and height.
@@ -206,23 +207,11 @@ export class Map {
     private validateMapData(data: MapData): boolean {
         
         // Assert size dimensions match the map data
-        let sizeMetadataMatchesData = data.map.length === data.size.height;
-        data.map.forEach( row => {
-            if (row.length !== data.size.width)
-                sizeMetadataMatchesData = false;
-        });
+        const sizeMetadataMatchesData = (data.map.length === data.size.height)
+            && (data.map.every( row => row.length === data.size.width ));
 
-        // Assert player HQs
-        const HQserial = Terrain.HQ.serial;
-        // stub
-
-        // assert players metadata matches with the assigned players in owners and predeploy
-        // assert each player has ~one~ HQ
-        // assert each player has at least one predeploy or factory/airport/port
-        // assert all owner and predeploy points are within 0 <= x|y < width|height
-        // assert owners points point to buildings or capturables
-        // assert predeploy units are legally placed (this is minor and possibly expensive)
-        // assert owner points and predeployment points (separately) don't overlap.
+        // Note: Most validation checks actually occur in BoardPlayer's constructer.
+        // This is for Map *specifically*, but Map doesn't have much to worry about.
 
         return sizeMetadataMatchesData;
     }
@@ -438,7 +427,7 @@ export class Map {
      * @param pos (Point) The path-start board location.
      * @throws Error: Inferred path is looping indefinitely.
      */
-    private pathIterableFrom(pos: Point): Iterable<Square> {
+    pathIterableFrom(pos: Point): Iterable<Square> {
         const map = this;
         const maxSteps = 200;
 
@@ -711,12 +700,12 @@ export class Map {
         // Limit this square by the size of the board.
         let range = unit.movementPoints + unit.range.max;
         let tl = {
-            x: Common.confine(unit.boardLocation.x - range, 0, this.width - 1), // -1: this is considered an index value
-            y: Common.confine(unit.boardLocation.y - range, 0, this.height - 1)
+            x: Common.clamp(unit.boardLocation.x - range, 0, this.width - 1), // -1: this is considered an index value
+            y: Common.clamp(unit.boardLocation.y - range, 0, this.height - 1)
         }
         let br = {
-            x: Common.confine(unit.boardLocation.x + range + 1, 0, this.width), // +1: include the column/row the unit exists in
-            y: Common.confine(unit.boardLocation.y + range + 1, 0, this.height),
+            x: Common.clamp(unit.boardLocation.x + range + 1, 0, this.width), // +1: include the column/row the unit exists in
+            y: Common.clamp(unit.boardLocation.y + range + 1, 0, this.height),
         }
         return new PIXI.Rectangle(tl.x, tl.y, (br.x - tl.x), (br.y - tl.y));
     }
@@ -880,16 +869,21 @@ export class Map {
         }
     }
 
-    /** Prints the map's tile-contents to the console as a grid for inspection. */
-    log() {
-        let string = "";
+    /** Returns a string representation of the map for debugging purposes. */
+    logString(): string {
+        const rows: string[] = [];
+
+        rows.push(`w=${this.width} h=${this.height} tiles=${this.squares.length}`);
+
         for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                string += this.squareAt({x:x,y:y}).terrain.name.slice(0,2) + ' ';
-            }
-            string += '\n';
+            const row: string[] = [];
+
+            for (let x = 0; x < this.width; x++)
+                row.push(`${this.squareAt({x:x,y:y}).terrain.name.slice(0,2)} ` );
+
+            rows.push(row.join(''));
         }
 
-        console.log(string);
+        return rows.join('\n');
     }
 }
