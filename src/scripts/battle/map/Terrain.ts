@@ -1,7 +1,7 @@
 import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { TerrainObject } from "./TerrainObject";
-import { UnitClass } from "../EnumTypes";
+import { FactionColors, UnitClass } from "../EnumTypes";
 import { Common } from "../../CommonUtils";
 import { TerrainMethods } from "./Terrain.helpers";
 import { NeighborMatrix } from "../../NeighborMatrix";
@@ -890,6 +890,7 @@ export module Terrain {
 
         get name() { return "HQ"; }
         get shortName() { return "HQ"; }
+        get minimapIconName() { return `hq-${FactionColors[this.faction]}`; }
         get description() { return "Capture the HQ to /end a battle/. Ground units can /resupply/ here too."; }
         get defenseRating() { return 4; }
         get generatesIncome() { return true; }

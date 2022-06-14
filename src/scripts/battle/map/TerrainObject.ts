@@ -107,18 +107,25 @@ export abstract class TerrainObject {
     }
 
     getMinimapIcon(): PIXI.Sprite | PIXI.AnimatedSprite {
+        const animations = Game.scene.animationsFrom("UISpritesheet");
         const textures = Game.scene.texturesFrom("UISpritesheet");
-        const texName = this.minimapIconName;
-        const texUrl = `MiniMap/${texName}.png`;
-        const tex = textures[texUrl];
 
-        // TODO Check animations first; if anim empty, get tex; if tex empty, fail
+        const texUrl = `MiniMap/${this.minimapIconName}`;
+        const frames = animations[texUrl];
+        const tex = textures[`${texUrl}.png`];
 
-        if (!tex)
+        if (!tex && !frames)
             Debug.log(DOMAIN, "MinimapIcon", {
-                message: `Could not find a texture for '${texUrl}'.`,
+                message: `Could not find a texture or animation for '${texUrl}'`,
                 warn: true,
             });
+
+        if (frames) {
+            const anim = new PIXI.AnimatedSprite(frames);
+            anim.animationSpeed = 1/12;
+            anim.play();
+            return anim;
+        }
 
         return new PIXI.Sprite(tex);
     }
