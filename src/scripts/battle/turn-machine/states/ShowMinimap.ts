@@ -15,9 +15,10 @@ export class ShowMinimap extends TurnState {
   private readonly fadeMax = .4;
 
   configureScene() {
-    const { minimap } = this.assets;
+    const { minimap, scripts } = this.assets;
     minimap.rebuildContents();
     minimap.show();
+    scripts.manualMoveCamera.enable();
     
     this.dimmer.beginFill(0);
     this.dimmer.drawRect(0,0, Game.display.renderWidth, Game.display.renderHeight);
@@ -28,12 +29,11 @@ export class ShowMinimap extends TurnState {
   }
 
   update() {
-    const { gamepad } = this.assets;
+    const { gamepad, stagePointer } = this.assets;
 
-    // TODO Reference stage's clickable container. Dimmer may need pass-thru.
-    // Clicking outside the map should dismiss it.
-    // Clicking *on* the map, on the other hand, should allow dragging of the camera.
-    if (gamepad.button.B.pressed || gamepad.button.select.pressed)
+    // TODO Clicking on the map should allow dragging of the camera.
+    
+    if (gamepad.button.B.pressed || gamepad.button.select.pressed || stagePointer.clicked())
       this.regress();
   }
 
