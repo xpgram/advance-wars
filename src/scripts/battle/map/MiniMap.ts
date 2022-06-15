@@ -107,9 +107,10 @@ export class MiniMap {
       const pos = new Point(x*size, y*size);
 
       terrIcon.position.set(pos.x, pos.y);
+      terrIcon.tint = (square.hiddenFlag) ? Palette.grey3 : Palette.white;
       this.iconContainer.addChild(terrIcon);
 
-      if (unitIcon) {
+      if (unitIcon && square.unit?.visible) {
         unitIcon.position.set(pos.x, pos.y);
         this.iconContainer.addChild(unitIcon);
       }
