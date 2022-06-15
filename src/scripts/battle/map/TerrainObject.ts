@@ -103,7 +103,7 @@ export abstract class TerrainObject {
 
     /** Returns an image to represent this tile in the minimap. */
     protected get minimapIconName(): string {
-        return this.name.toLowerCase();
+        return this.name.toLowerCase().replace(' ','-');
     }
 
     getMinimapIcon(): PIXI.Sprite | PIXI.AnimatedSprite {
