@@ -305,8 +305,22 @@ export class BattleSceneControllers {
 
   destroy() {
     Game.scene.ticker.remove(this.updateControlScripts, this);
+    
+    // TODO I introduced a conflict here. Destroy process was never tested
+    // and apparently is broken.
+
+    this.minimap.destroy();
+    this.mapCursor.destroy();
+    this.trackCar.destroy();
+    this.uiSystem.destroy();
+    this.cmdMenu.destroy();
+    this.shopMenu.destroy();
+    this.fieldMenu.destroy();
+    
+    this.map.destroy();
+    this.boardEvents.destroy();
+    this.camera.destroy();
     this.stagePointer.destroy();
-    // TODO make sure errything cleaned up
   }
 
   /** Hides all UI and player-interface systems. */
