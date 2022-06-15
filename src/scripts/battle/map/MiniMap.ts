@@ -78,19 +78,29 @@ export class MiniMap {
 
   container = new PIXI.Container();
   private iconContainer = new PIXI.Container();
+  private cameraRect = new PIXI.Graphics();
 
   constructor(map: Map, camera: Camera) {
     this.map = map;
     this.camera = camera;
     this.rebuildContents();
-    this.container.addChild(this.iconContainer);
+    this.container.addChild(this.iconContainer, this.cameraRect);
     this.container.addChildAt(MiniMap.BuildBackground(this.container), 0);
+    Game.scene.ticker.add(this.update, this);
   }
 
   destroy() {
     //@ts-ignore
     this.map = undefined;
+    //@ts-ignore
+    this.camera = undefined;
     this.container.destroy({children: true});
+    Game.scene.ticker.remove(this.update, this);
+  }
+
+  private update() {
+    if (this.container.visible === true)
+      this.rebuildCameraRect();
   }
 
   rebuildContents() {
@@ -116,19 +126,29 @@ export class MiniMap {
       }
     }
 
-    // Construct camera rectangle
-    const cam = this.camera.transform.worldRect()
+    this.rebuildCameraRect();
+  }
+
+  private rebuildCameraRect() {
+    const { width, height } = this.iconContainer;
+    
+    const cam = this.camera
+      .currentTransform()
+      .worldRect()
       .apply( n => n/16*4 );
 
-    cam.x = Common.clamp(cam.x, 0, this.iconContainer.width);
-    cam.y = Common.clamp(cam.y, 0, this.iconContainer.height);
-    cam.width = Common.clamp(cam.x + cam.width, 0, this.iconContainer.width) - cam.x;
-    cam.height = Common.clamp(cam.y + cam.height, 0, this.iconContainer.height) - cam.y;
+    const x = Common.clamp(cam.left,   0, width);
+    const y = Common.clamp(cam.top,    0, height);
+    const w = Common.clamp(cam.right,  0, width)  - x;
+    const h = Common.clamp(cam.bottom, 0, height) - y;
 
-    const g = new PIXI.Graphics();
-    g.lineStyle({width: 1, color: Palette.pelati});
-    g.drawRect(cam.x, cam.y, cam.width, cam.height);
-    this.iconContainer.addChild(g);
+    const { cameraRect: g } = this;
+    g.clear();
+    g.lineStyle({
+      width: 1,
+      color: Palette.pelati
+    });
+    g.drawRect(x,y,w,h);
   }
 
   show() {
