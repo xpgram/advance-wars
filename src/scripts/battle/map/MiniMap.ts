@@ -14,7 +14,6 @@ import { Common } from "../../CommonUtils";
 const DOMAIN = "Minimap";
 
 /**  */
-// TODO It also needs reference to camera to draw the view border.
 export class MiniMap {
 
   /** Returns a standalone minimap visual-container disconnected from the other game components
