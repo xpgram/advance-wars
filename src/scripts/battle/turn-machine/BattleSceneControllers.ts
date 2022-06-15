@@ -173,13 +173,6 @@ export class BattleSceneControllers {
     this.map = new Map(mapdata);
     this.mapCursor = new MapCursor(this.map, this.gamepad);
 
-    this.minimap = new MiniMap(this.map);
-    this.minimap.container.position.set(
-      Game.display.renderWidth/2 - this.minimap.container.width/2,
-      Game.display.renderHeight/2 - this.minimap.container.height/2,
-    );
-    Game.scene.visualLayers.hud.addChild(this.minimap.container);
-
     // Setup Players
     const playerObjects = [];
     for (let i = 0; i < mapdata.players; i++) {
@@ -210,7 +203,7 @@ export class BattleSceneControllers {
     this.mapCursor.teleportTo(cursorStartLoc);
 
     // Setup Camera
-    this.camera = new Camera(Game.stage);
+    this.camera = new Camera(Game.scene.visualLayers.stage);
     this.camera.transform.border = new ViewRectBorder({
       left: tileSize*2.5,
       right: tileSize*3.5,
@@ -236,6 +229,14 @@ export class BattleSceneControllers {
     // filterArea is limiting the range of the shoreline filter applied to bottom.
     // It's also updated after window resize in BattleScene.update()
     // filterArea is not a culling method; all of 'bottom' is drawn before the filter is applied.
+
+    // Setup Minimap for game board
+    this.minimap = new MiniMap(this.map, this.camera);
+    this.minimap.container.position.set(
+      Game.display.renderWidth/2 - this.minimap.container.width/2,
+      Game.display.renderHeight/2 - this.minimap.container.height/2,
+    );
+    Game.scene.visualLayers.hud.addChild(this.minimap.container);
 
     // TODO experimental; move mapcursor according to pointer position
     // TODO Add to assets access

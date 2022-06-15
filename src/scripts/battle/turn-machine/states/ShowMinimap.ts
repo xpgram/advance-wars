@@ -16,7 +16,7 @@ export class ShowMinimap extends TurnState {
 
   configureScene() {
     const { minimap } = this.assets;
-    minimap.updateContents();
+    minimap.rebuildContents();
     minimap.show();
     
     this.dimmer.beginFill(0);
