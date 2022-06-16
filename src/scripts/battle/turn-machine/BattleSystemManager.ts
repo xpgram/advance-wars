@@ -174,7 +174,7 @@ export class BattleSystemManager {
 
         // System log line
         Debug.log(DOMAIN, 'HandleRegressToState', {
-          message: `Regressed from '${oldState.name}' to '${this.currentState.name}; ${(stateAwakened) ? 'state did wake.' : 'state did not wake.'}'`,
+          message: `Regressed from '${oldState.name}' to '${this.currentState.name}'; ${(stateAwakened) ? 'state did wake.' : 'state did not wake.'}`,
         })
       }
     } catch (e) {
