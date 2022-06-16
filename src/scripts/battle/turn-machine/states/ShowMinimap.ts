@@ -29,9 +29,22 @@ export class ShowMinimap extends TurnState {
   }
 
   update() {
-    const { gamepad, stagePointer } = this.assets;
+    const { camera, gamepad, stagePointer, minimap } = this.assets;
 
     // TODO Clicking on the map should allow dragging of the camera.
+    // Well. It sort of works. Better than I thought it would, anyway.
+    if (minimap.clickController.clicked()) {
+      const pos = minimap.clickController
+        .pointerPressedLocation()
+        .multiply(4)
+        .apply(Math.floor);
+
+      const worldRect = camera.transform.worldRect();
+      camera.transform.position.set(
+        pos.x - worldRect.width/2,
+        pos.y - worldRect.height/2
+      );
+    }
     
     if (gamepad.button.B.pressed || gamepad.button.select.pressed || stagePointer.clicked())
       this.regress();

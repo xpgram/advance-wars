@@ -9,6 +9,7 @@ import { Debug } from "../../DebugUtils";
 import { Unit } from "../Unit";
 import { Camera } from "../../camera/Camera";
 import { Common } from "../../CommonUtils";
+import { ClickableContainer } from "../../controls/MouseInputWrapper";
 
 
 const DOMAIN = "Minimap";
@@ -72,16 +73,20 @@ export class MiniMap {
     return g;
   }
 
-  private map: Map;
-  private camera: Camera;
+  private readonly map: Map;
+  private readonly camera: Camera;
 
-  container = new PIXI.Container();
-  private iconContainer = new PIXI.Container();
-  private cameraRect = new PIXI.Graphics();
+  readonly clickController: ClickableContainer;
+
+  readonly container = new PIXI.Container();
+  private readonly iconContainer = new PIXI.Container();
+  private readonly cameraRect = new PIXI.Graphics();
 
   constructor(map: Map, camera: Camera) {
     this.map = map;
     this.camera = camera;
+    this.clickController = new ClickableContainer(this.iconContainer);
+
     this.rebuildContents();
     this.container.addChild(this.iconContainer, this.cameraRect);
     this.container.addChildAt(MiniMap.BuildBackground(this.container), 0);
@@ -93,6 +98,7 @@ export class MiniMap {
     this.map = undefined;
     //@ts-ignore
     this.camera = undefined;
+    this.clickController.destroy();
     this.container.destroy({children: true});
     Game.scene.ticker.remove(this.update, this);
   }
