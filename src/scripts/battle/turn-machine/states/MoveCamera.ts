@@ -28,6 +28,9 @@ export class MoveCamera extends TurnState {
   close(): void {
     const { camera, mapCursor, uiSystem, scripts } = this.assets;
 
+    // TODO Extract this to a function so it may be shared by ShowMinimap.ts
+    // It could probably be held in manualMoveCamera
+
     const size = Game.display.standardLength;
     const lastInput = scripts.manualMoveCamera.lastInput;
 
