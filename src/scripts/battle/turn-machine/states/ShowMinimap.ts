@@ -1,5 +1,7 @@
+import { Point } from "pixi.js";
 import { Game } from "../../../..";
 import { PIXI } from "../../../../constants";
+import { Debug } from "../../../DebugUtils";
 import { Timer } from "../../../timer/Timer";
 import { TurnState } from "../TurnState";
 
@@ -29,21 +31,16 @@ export class ShowMinimap extends TurnState {
   }
 
   update() {
-    const { camera, gamepad, stagePointer, minimap } = this.assets;
+    const { scripts, gamepad, stagePointer, minimap } = this.assets;
 
-    // TODO Clicking on the map should allow dragging of the camera.
-    // Well. It sort of works. Better than I thought it would, anyway.
-    if (minimap.clickController.clicked()) {
+    // Signal on minimap.click that the camera should move to pointer location.
+    if (minimap.clickController.button.down) {
       const pos = minimap.clickController
-        .pointerPressedLocation()
-        .multiply(4)
-        .apply(Math.floor);
-
-      const worldRect = camera.transform.worldRect();
-      camera.transform.position.set(
-        pos.x - worldRect.width/2,
-        pos.y - worldRect.height/2
-      );
+        .pointerLocation()
+        .multiply(1/4)
+        .apply(Math.floor)
+        .multiply(16);
+      scripts.manualMoveCamera.toPointerPosition(pos);
     }
     
     if (gamepad.button.B.pressed || gamepad.button.select.pressed || stagePointer.clicked())
@@ -54,6 +51,9 @@ export class ShowMinimap extends TurnState {
     Timer.tween(this.fadeTime, this.dimmer, {alpha: 0})
       .at('end')
       .do(() => this.dimmer.destroy());
+
+    // TODO This is missing the after movement cursor re-placement,
+    // which I need to extract from MoveCamera.ts into a common resource.
   }
 
 }

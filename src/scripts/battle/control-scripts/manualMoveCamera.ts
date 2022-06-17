@@ -25,6 +25,11 @@ export class ManualMoveCamera extends ControlScript {
     const { camera } = this.assets;
     this.lastInput.set(0,0);
 
+    // TODO To better serve .toPointerPosition(), this should tighten the camera subject bounds.
+    // I don't have a framework for doing that yet, though.
+    // I suppose maybe the camera should have some default settings that get set every turn state change?
+    // That's kind of what camera is missing, right?
+
     const rect = camera.transform.worldRect();
     this.initialCameraPosition.set(new Point(rect));
     this.cameraLead.set(rect.center);
@@ -71,6 +76,11 @@ export class ManualMoveCamera extends ControlScript {
   protected disableScript(): void {
     const { camera } = this.assets;
     camera.focalTarget = this.focalSwap;
+  }
+
+  toPointerPosition(p: Point) {
+    this.lastInput.set(p.subtract(this.cameraLead));
+    this.cameraLead.set(p);
   }
 
 }
