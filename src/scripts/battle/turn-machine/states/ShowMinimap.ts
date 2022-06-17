@@ -1,4 +1,3 @@
-import { Point } from "pixi.js";
 import { Game } from "../../../..";
 import { PIXI } from "../../../../constants";
 import { Debug } from "../../../DebugUtils";
@@ -48,12 +47,13 @@ export class ShowMinimap extends TurnState {
   }
 
   close() {
+    const { mapCursor, uiSystem, scripts } = this.assets;
+    mapCursor.teleportTo(scripts.manualMoveCamera.finalCursorPosition());
+    uiSystem.skipAnimations();
+
     Timer.tween(this.fadeTime, this.dimmer, {alpha: 0})
       .at('end')
       .do(() => this.dimmer.destroy());
-
-    // TODO This is missing the after movement cursor re-placement,
-    // which I need to extract from MoveCamera.ts into a common resource.
   }
 
 }
