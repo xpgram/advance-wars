@@ -121,9 +121,9 @@ export class Point {
   trunc(): Point { return this.apply(Math.trunc); }
 
   /** Returns a new vector: this vector's coordinates confined to
-   * the dimensions described by the given point properties. */
+   * the interval [0,n], where n is the axis affected. */
   clamp(x: number | ImmutablePointPrimitive, y?: number): Point {
-    const clamp = (x: number, max: number) => Common.clamp(x, 0, max);
+    const clamp = (x: number, max: number) => (max >= 0) ? Common.clamp(x, 0, max) : Common.clamp(x, max, 0);
     return this.merge(clamp, new Point(x,y));
   }
 

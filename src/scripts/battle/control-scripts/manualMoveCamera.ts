@@ -62,15 +62,7 @@ export class ManualMoveCamera extends ControlScript {
       rect.center.y + (rect.height/2 + leadDist)*dpad.point.y,
     )
 
-    // Confine the camera to the map space
-    const max = new Point()
-      .add(
-        (map.width - 1) * tileSize,
-        (map.height - 1) * tileSize,
-      )
-
-    this.cameraLead.x = Common.clamp(this.cameraLead.x, 0, max.x);
-    this.cameraLead.y = Common.clamp(this.cameraLead.y, 0, max.y);
+    this.clampCameraLead();
   }
 
   protected disableScript(): void {
@@ -78,9 +70,17 @@ export class ManualMoveCamera extends ControlScript {
     camera.focalTarget = this.focalSwap;
   }
 
+  private clampCameraLead() {
+    const { map } = this.assets;
+    const tileSize = Game.display.standardLength;
+    const max = new Point(map.width-1, map.height-1).multiply(tileSize);
+    this.cameraLead.set(this.cameraLead.clamp(max));
+  }
+
   toPointerPosition(p: Point) {
     this.lastInput.set(p.subtract(this.cameraLead));
     this.cameraLead.set(p);
+    this.clampCameraLead(); // I actually don't know or remember why this is necessary, but it prevents bouncy on the map boundaries.
   }
 
 }
