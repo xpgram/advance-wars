@@ -53,17 +53,17 @@ export class ManualMoveCamera extends ControlScript {
       this.lastInputWasPointer = false;
 
     // Camera's current target transform
-    const rect = camera.transform.worldRect();
+    const rect = camera.transform.subjectRect();
 
     // If the camera is approaching a destination (likely one given by this script), do nothing
     if (!camera.doneTraveling)
       return;
 
     // Move the camera lead to a point outside the camera's viewframe, unless no input.
-    const leadDist = 2;
+    const camSpeed = 3 * Game.display.standardLength;
     this.cameraLead.set(
-      rect.center.x + (rect.width/2 + leadDist)*dpad.point.x,
-      rect.center.y + (rect.height/2 + leadDist)*dpad.point.y,
+      rect.center.x + (rect.width /2 + camSpeed)*dpad.point.x,
+      rect.center.y + (rect.height/2 + camSpeed)*dpad.point.y,
     )
 
     this.clampCameraLead();
