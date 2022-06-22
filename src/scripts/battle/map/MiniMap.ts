@@ -127,6 +127,7 @@ export class MiniMap {
 
       if (unitIcon && square.unit?.visible) {
         unitIcon.position.set(pos.x, pos.y);
+        unitIcon.tint = (square.unit.spent) ? Palette.cerebral_grey1 : Palette.white;
         this.iconContainer.addChild(unitIcon);
       }
     }
