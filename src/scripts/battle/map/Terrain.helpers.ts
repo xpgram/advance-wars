@@ -5,7 +5,7 @@ import { TerrainObject, TerrainType } from "./TerrainObject";
 import { Terrain, TerrainProperties } from "./Terrain";
 import { Faction, FactionColors } from "../EnumTypes";
 import { Game } from "../../..";
-import { MapLayer } from "./MapLayers";
+import { MapLayer, MapLayerFunctions } from "./MapLayers";
 import { Filters } from "../../filters/Filters";
 
 export module TerrainMethods {
@@ -84,7 +84,8 @@ export module TerrainMethods {
 
     /** Stops the shoreline animation ticker, and removes the color filter. */
     export function stopPaletteAnimation() {
-        MapLayer('bottom').filters = [];
+        if (MapLayerFunctions.isDestroyed() === false)
+            MapLayer('bottom').filters = [];
         Game.scene.ticker.remove( animateShoreline );
     }
 

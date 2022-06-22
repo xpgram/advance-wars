@@ -187,9 +187,7 @@ export class BattleScene extends Scene {
     }
 
     destroyStep(): void {
-        this.controllers.destroy();
         this.battleSystem.destroy();
-        // Resources..?
     }
 
 }

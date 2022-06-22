@@ -16,7 +16,6 @@ But anyway, yeah. There is constant state checking because his system never just
 
 - [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. That's really irritating.
 
-- [ ] Map fails to rebuild properly on second BattleScene construction, though it does seem to exist.
 
 - [ ] Scene Transitions
   - [ ] Technical Implementation

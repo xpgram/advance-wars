@@ -33,7 +33,7 @@ export class CommandMenuGUI<Y> {
   protected cursorGraphic: MenuCursor;
 
   /** A list of all list-item textures; textures for each state. */
-  protected stateTextures!: {
+  protected stateTextures?: {
     enabled: PIXI.Texture,
     disabled: PIXI.Texture,
     selected: PIXI.Texture,
@@ -124,7 +124,8 @@ export class CommandMenuGUI<Y> {
     this.gui.destroy({children: true});
     this.menu.destroy();
     this.cursorGraphic.destroy();
-    Object.values(this.stateTextures).forEach( t => t.destroy() );
+    if (this.stateTextures)
+      Object.values(this.stateTextures).forEach( t => t.destroy() );
     Game.scene.ticker.remove(this.update, this);
   }
 
@@ -309,18 +310,25 @@ export class CommandMenuGUI<Y> {
   /** Updates each list item with relevant state textures. */
   updateFrames() {
     const textures = this.stateTextures;
-    const objects = this.menuGui.children;
+    const objects = this.menuGui.children as PIXI.Sprite[];
+
+    // In case textures were never built for some reason, just abandon
+    if (!textures)
+      return;
 
     this.menu.listItems.forEach( (item, idx) => {
       if (idx >= objects.length)
-        return; // Skip 
+        return; // Skip
+        
       const object = objects[idx];
       object.texture = (item.disabled)
         ? textures.disabled
         : (this.menu.selectedOption === item)
         ? textures.selected
         : textures.enabled;
-      object.children[0].tint = (item.disabled) ? 0x888888 : 0xFFFFFF;
+
+      const objectBackground = object.children[0] as PIXI.Sprite;
+      objectBackground.tint = (item.disabled) ? 0x888888 : 0xFFFFFF;
     });
   }
 

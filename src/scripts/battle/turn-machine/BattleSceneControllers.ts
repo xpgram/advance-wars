@@ -33,8 +33,13 @@ import { ScreenPush } from "../../camera/PositionalAlgorithms";
 import { CameraTravelMethod } from "../../camera/TravelAlgorithms";
 import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
 import { MiniMap } from "../map/MiniMap";
+import { Debug } from "../../DebugUtils";
+
+const DOMAIN = "BattleSceneAssetController";
 
 type CommandObject = CommandHelpers.CommandObject;
+
+// TODO Extract ScenarioOptions to another file.
 
 /** Scenario options for constructing the battle scene. */
 export type ScenarioOptions = {
@@ -238,10 +243,8 @@ export class BattleSceneControllers {
     );
     Game.scene.visualLayers.hud.addChild(this.minimap.container);
 
-    // TODO experimental; move mapcursor according to pointer position
-    // TODO Add to assets access
-    // TODO Add to destruction process
     // TODO Factor out behavioral dependencies from PointerController to here.
+    //      I forget what this means, but general decoupling, you know.
     // TODO Add concise syncing with mapCursor behavior: when mapCursor stops listening to dpad
     //      events, pointer events shouldn't work either.
     this.stagePointer = new ClickableContainer(Game.scene.visualLayers.stage);
@@ -267,8 +270,6 @@ export class BattleSceneControllers {
     // Setup static background image.
     let backdrop = new PIXI.Sprite(Game.scene.resources['background'].texture);
     Game.scene.visualLayers.backdrop.addChild(backdrop);
-
-    // TODO Units collection method. The only real purpose, I think, is to check if they're all spent/destroyed/etc.
 
     // TODO This needs to be more formal, or maybe moved into InfoWindowSystem
     let updateUI = () => {
@@ -304,23 +305,26 @@ export class BattleSceneControllers {
   }
 
   destroy() {
+    const PROCESS = "Destruction";
     Game.scene.ticker.remove(this.updateControlScripts, this);
-    
-    // TODO I introduced a conflict here. Destroy process was never tested
-    // and apparently is broken.
 
-    this.minimap.destroy();
-    this.mapCursor.destroy();
-    this.trackCar.destroy();
-    this.uiSystem.destroy();
-    this.cmdMenu.destroy();
-    this.shopMenu.destroy();
-    this.fieldMenu.destroy();
-    
-    this.map.destroy();
-    this.boardEvents.destroy();
-    this.camera.destroy();
-    this.stagePointer.destroy();
+    type Destroyable = {destroy: () => void};
+    const hasDestroyFunc = (o: any): o is Destroyable => {
+      return (typeof o === 'object' && o.destroy !== undefined);
+    }
+
+    // IMPORTANT: This procedure cannot detect second-level objects (such as `this.scripts.someScript.destroy()`)
+    Object.entries(this).forEach( ([key, prop]) => {
+      if (hasDestroyFunc(prop)) {
+        Debug.log(DOMAIN, PROCESS, { message: `Requesting destroy for '${key}'...` });
+        prop.destroy();
+      }
+    });
+
+    Debug.log(DOMAIN, PROCESS, { message: `Destroying control scripts...` });
+    Object.values(this.scripts).forEach( scr => scr.destroy() );
+
+    Debug.log(DOMAIN, PROCESS, { message: "Finished destroying assets." });
   }
 
   /** Hides all UI and player-interface systems. */
