@@ -12,10 +12,10 @@ import { Debug } from "../DebugUtils";
 
 type AlgorithmSet = {
   /** A function callback for correcting the target frame after the destination algorithm,
-   * such as for confining it to some set of bounds. */
+   * such as to confine it to some set of bounds. */
   destinationCorrection?: (target: ViewRect) => ViewRect;
   /** A function callback for filtering-on-retrieval the focal-object coordinates, such as
-   * for confining it to some set of bounds. */
+   * to quantize it to some grid system. */
   focalCorrection?: (p: Point, target: ViewRect) => Point;
   /** The method by which the camera will choose transform targets. */
   destination?: PositionalAlgorithm;
