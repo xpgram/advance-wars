@@ -9,7 +9,7 @@ export module Common {
 
   /** Returns a function which returns the given object with its inferred type intact, but with its
    * property members restricted to an extension of type T.
-   * Useful for defining Record-types with known property access keys.
+   * Useful for defining Record-types whose members also implement an interface.
    * 
    * Example:
    * ```
