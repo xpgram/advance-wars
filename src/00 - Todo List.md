@@ -14,25 +14,30 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
-- [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. That's really irritating.
+- [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. On my laptop, anyway. That's really irritating.
 
 - [ ] In minimap mode, let X (Key.V I think) toggle blink, on and off for unit icons. blink by default.
 
 - [ ] In shop mode, menu cursor forgets to turn on the first time.
 - [ ] In shop mode, limit the camera subject border to the space between the shop window and the details window.
 
+- [ ] Add an 'opponent visibility field' mode for FoW, so you don't have to calculate which tiles you know they can and can't see yourself.
+  - Four players + their CO Zone fields might make this complicated, but at least a global enemy-sight field would be nice. Generally a low priority, though.
+
 
 - [ ] Scene Transitions
-  - [ ] Technical Implementation
+  - [x] Technical Implementation
     - [x] Scene switching mechanism
-    - [ ] Scene destruction and memory freeing mechanism
-    - [ ] Refactor Scene switching and construction to allow for re-entering.
+    - [x] Scene destruction and memory freeing mechanism
+    - [-] Refactor Scene switching and construction to allow for re-entering.
           Current implementation has no mechanism for constructing a scene, and destroys scenes on exit.
+          I wish I would explain why I write these things sometimes. Re-enter? No construction? What? Why? What do I want this for? Pause screens?
   - [ ] Animating Transitions
-    - [ ] SceneTransition class which describes animation state and time progress.
-      - [ ] This naturally exists in a persistent space separate from the scene itself, though it will have access to the scene for shader application.
-      - [ ] Mechanism for two concurrent scenes in memory at once, so a transition may wipe from one to the other without pausing in-scene animations.
-      - [ ] Transitions have access to the display containers for both scenes for full control.
+    - [x] SceneTransition class which describes animation state and time progress.
+      - [x] This naturally exists in a persistent space separate from the scene itself, though it will have access to the scene for shader application.
+      - [x] Mechanism for two concurrent scenes in memory at once, so a transition may wipe from one to the other without pausing in-scene animations.
+      - [x] Transitions have access to the display containers for both scenes for full control.
+      - [ ] Add more interesting transition effects. The burn-away, at least.
   - [ ] Game.transitionToSceneWithData() is fantastic. I want that data to be passed in to Scene.setupStep(), however, not the constructor. Scene-extenders shouldn't need a constructor just for this.
 
 
