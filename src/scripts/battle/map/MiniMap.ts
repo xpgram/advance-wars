@@ -10,6 +10,8 @@ import { Unit } from "../Unit";
 import { Camera } from "../../camera/Camera";
 import { Common } from "../../CommonUtils";
 import { ClickableContainer } from "../../controls/MouseInputWrapper";
+import { Timer } from "../../timer/Timer";
+import { Ease } from "../../Common/EaseMethod";
 
 
 const DOMAIN = "Minimap";
@@ -80,6 +82,8 @@ export class MiniMap {
 
   readonly container = new PIXI.Container();
   private readonly iconContainer = new PIXI.Container();
+  private readonly troopIconContainer = new PIXI.Container();
+  private troopIconTimer?: Timer;
   private readonly cameraRect = new PIXI.Graphics();
 
   constructor(map: Map, camera: Camera) {
@@ -88,7 +92,7 @@ export class MiniMap {
     this.clickController = new ClickableContainer(this.iconContainer);
 
     this.rebuildContents();
-    this.container.addChild(this.iconContainer, this.cameraRect);
+    this.container.addChild(this.iconContainer, this.troopIconContainer, this.cameraRect);
     this.container.addChildAt(MiniMap.BuildBackground(this.container), 0);
     Game.scene.ticker.add(this.update, this);
   }
@@ -100,16 +104,20 @@ export class MiniMap {
     this.camera = undefined;
     this.clickController.destroy();
     this.container.destroy({children: true});
+    this.troopIconTimer?.destroy();
     Game.scene.ticker.remove(this.update, this);
   }
 
   private update() {
     if (this.container.visible === true)
       this.rebuildCameraRect();
+
+    // TODO I should put the opacity thing here, actually.
   }
 
   rebuildContents() {
     this.iconContainer.removeChildren().forEach( c => c.destroy() );
+    this.troopIconContainer.removeChildren().forEach( c => c.destroy() );
     
     for (let x = 0; x < this.map.width; x++)
     for (let y = 0; y < this.map.height; y++) {
@@ -128,11 +136,13 @@ export class MiniMap {
       if (unitIcon && square.unit?.visible) {
         unitIcon.position.set(pos.x, pos.y);
         unitIcon.tint = (square.unit.spent) ? Palette.cerebral_grey1 : Palette.white;
-        this.iconContainer.addChild(unitIcon);
+        unitIcon.stop();  // Suspend default animation
+        this.troopIconContainer.addChild(unitIcon);
       }
     }
-
+    
     this.rebuildCameraRect();
+    this.troopMode = 'blink';
   }
 
   private rebuildCameraRect() {
@@ -165,4 +175,37 @@ export class MiniMap {
     this.container.visible = false;
   }
 
+  /** Sets the troop-icon visibility mode. */
+  get troopMode(): typeof this._troopMode { return this._troopMode; }
+  set troopMode(mode) {
+    this._troopMode = mode;
+    this.troopIconTimer?.destroy();
+
+    const easeMethod = Ease.quart.inOut;
+    const transtime = .65;
+
+    const mode_ops = {
+      'blink': () => {
+        this.troopIconTimer = Timer
+          .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod)
+          .at('end')
+          .tween(transtime, this.troopIconContainer, {alpha: .35}, easeMethod)
+          .loop();
+      },
+      'on': () => {
+        this.troopIconTimer = Timer
+          .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod);
+      },
+      'off': () => {
+        this.troopIconTimer = Timer
+          .tween(transtime, this.troopIconContainer, {alpha: 0}, easeMethod);
+      },
+    };
+    mode_ops[mode]();
+  }
+  private _troopMode: 'blink' | 'on' | 'off' = 'blink';
+
 }
+
+// work and rework and rework and rework and ...
+// I'm going to add all the troop icons to their own container, then tween that as necessary.
