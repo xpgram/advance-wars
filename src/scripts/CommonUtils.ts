@@ -23,7 +23,24 @@ export module Common {
    * ```
    **/
   export const confirmType = <T>() => <O extends Record<string, T>>(obj: O) => obj;
-  // export const confirmType = <Req>() => <T extends Req>(obj: T) => obj;
+
+  /** Returns a function which returns the given object with its inferred type intact, but with its
+   * property members restricted to an extension of type Req.
+   * Useful for defining objects with inferred types which also implement an interface.
+   * 
+   * Example:
+   * ```
+   * type Algorithm = {name: string, update: (p: Point) => Point};
+   * const LinearAlg = Common.implementsType<Algorithm>() ({
+   *   name: "Linear",
+   *   quantize(p: Point, n: number): Point { ... },
+   *   update(p: Point): Point { ... },
+   * });
+   * LinearAlg.name;        // OK
+   * LinearAlg.quantize();  // OK (even though not defined by <Algorithm>)
+   * ```
+   */
+  export const implementsType = <Req>() => <T extends Req>(obj: T) => obj;
 
   /** Freezes the given object and returns it. */
   export function freezeObject<T>(obj: T): T {

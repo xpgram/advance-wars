@@ -29,7 +29,7 @@ import { ManualMoveCamera } from "../control-scripts/manualMoveCamera";
 import { HideUnits } from "../control-scripts/hideUnits";
 import { Camera } from "../../camera/Camera";
 import { ViewRectBorder } from "../../camera/ViewRectBorder";
-import { ScreenPush } from "../../camera/PositionalAlgorithms";
+import { CameraPositioningMethod } from "../../camera/PositionalAlgorithms";
 import { CameraTravelMethod } from "../../camera/TravelAlgorithms";
 import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
 import { MiniMap } from "../map/MiniMap";
@@ -225,8 +225,8 @@ export class BattleSceneControllers {
     // Setup focal and follow
     this.camera.focalTarget = this.mapCursor.transform;
     this.camera.algorithms = {
-      destination: new ScreenPush(),
-      travel: new CameraTravelMethod.Linear(),
+      destination: CameraPositioningMethod.ScreenPush,
+      travel: CameraTravelMethod.Linear,
     };
 
     let cameraView = new PIXI.Rectangle(0, 0, Game.display.width, Game.display.height);
@@ -349,6 +349,15 @@ export class BattleSceneControllers {
       else
         script.disable();
     }
+
+    // Reset the camera to a set of default properties.
+    // Note that not all properties are considered here (e.g. the zoom level).
+    this.camera.focalTarget = this.mapCursor;
+    this.camera.algorithms.destination = CameraPositioningMethod.ScreenPush;
+    this.camera.algorithms.travel = CameraTravelMethod.Linear;
+    this.camera.algorithms.displacement = undefined;
+    // this.camera.algorithms.destinationCorrection ..?
+    // this.camera.algorithms.focalCorrection ..?
   }
 
   /** Empties the command instruction container. */

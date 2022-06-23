@@ -14,20 +14,20 @@ export interface TravelAlgorithm {
 }
 
 
-export module CameraTravelMethod {
+export const CameraTravelMethod = Common.confirmType<TravelAlgorithm>() ({
 
   /** Follows the target viewrect in a 1:1 fashion; no incremental changes. */
-  export class Instant implements TravelAlgorithm {
-    readonly name = "Instant";
+  Instant: {
+    name: "Instant",
 
     update(actual: ViewRect, target: ViewRect, focal: Point): ViewRect {
       return target;
     }
-  }
+  },
 
   /** Approaches the target viewrect in a straight line at a constant speed. */
-  export class Linear implements TravelAlgorithm {
-    readonly name = "Linear";
+  Linear: {
+    name: "Linear",
 
     update(actual: ViewRect, target: ViewRect, focal: Point): ViewRect {
       const { abs } = Math;
@@ -66,6 +66,6 @@ export module CameraTravelMethod {
 
       return actual;
     }
-  }
+  },
 
-}
+});

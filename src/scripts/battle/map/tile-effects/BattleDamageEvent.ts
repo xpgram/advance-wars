@@ -1,6 +1,6 @@
 import { PIXI } from "../../../../constants";
 import { Game } from "../../../..";
-import { ScreenShake } from "../../../camera/DisplacementAlgorithms";
+import { CameraDisplacementMethod } from "../../../camera/DisplacementAlgorithms";
 import { AnimatedSpritePresets } from "../../../system/vfx-components/AnimatedSpritePresets";
 import { AttackMethod, UnitClass } from "../../EnumTypes";
 import { TrackCar } from "../../TrackCar";
@@ -50,7 +50,7 @@ export class BattleDamageEvent extends TileEvent {
     // Configure camera for shake ­— unless already done by a different controller
     this.selfSetCameraAlg = camera.algorithms.displacement === undefined;
     if (this.selfSetCameraAlg)
-      camera.algorithms.displacement = new ScreenShake();
+      camera.algorithms.displacement = CameraDisplacementMethod.ScreenShake.withIntensity(6);
 
     // Null case
     if (damageDealt === 0) {

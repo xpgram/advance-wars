@@ -17,50 +17,58 @@ export interface PositionalAlgorithm {
   update(rect: ViewRect, focal: Point, camera: Camera): ViewRect;
 }
 
-export class ScreenPush implements PositionalAlgorithm {
-  private lastTravelVector = new Point();
 
-  private quantize(x: number, bias: number): number {
-    const { floor, ceil, sign } = Math;
-    const self = (n: number) => n;
-    const trunc = [floor, self, ceil][sign(bias) + 1];
-    const size = Game.display.standardLength;
-    return trunc(x / size) * size;
-  }
-  
-  update(rect: ViewRect, focal: Point, camera: Camera): ViewRect {
-    const last = rect.clone();
+export const CameraPositioningMethod = Common.confirmType<PositionalAlgorithm>() ({
 
-    // Find new target position
-    const view = rect.subjectRect();
-    const travelVector = new Point(
-      Common.displacementFromRange(focal.x, view.left, view.right),
-      Common.displacementFromRange(focal.y, view.top, view.bottom),
-    );
-    rect.position = rect.position.add(travelVector);
+  /** Positions the target transform such that if the subject frame does not contain the focal
+   * point, the camera travels the minimum distance necessary to again contain it.
+   * This position is also quantized to the game's defined standard length to always neatly
+   * frame the game-board. */
+  ScreenPush: {
+    lastTravelVector: new Point(),
 
-    // Quantize axis if not being pushed by focal point.
-    const srect = rect.subjectRect();
-    const asrect = camera.currentTransform().subjectRect();
-    const border = rect.border;
+    quantize(x: number, bias: number): number {
+      const { floor, ceil, sign } = Math;
+      const self = (n: number) => n;
+      const trunc = [floor, self, ceil][sign(bias) + 1];
+      const size = Game.display.standardLength;
+      return trunc(x / size) * size;
+    },
+    
+    update(rect: ViewRect, focal: Point, camera: Camera): ViewRect {
+      const last = rect.clone();
 
-    const qx = (Common.within(focal.x, asrect.left, asrect.right))
-      ? this.quantize(srect.x, this.lastTravelVector.x) - border.left
-      : rect.position.x;
-    const qy = (Common.within(focal.y, asrect.top, asrect.bottom))
-      ? this.quantize(srect.y, this.lastTravelVector.y) - border.top
-      : rect.position.y;
+      // Find new target position
+      const view = rect.subjectRect();
+      const travelVector = new Point(
+        Common.displacementFromRange(focal.x, view.left, view.right),
+        Common.displacementFromRange(focal.y, view.top, view.bottom),
+      );
+      rect.position = rect.position.add(travelVector);
 
-    rect.position.set(qx, qy);
+      // Quantize axis if not being pushed by focal point.
+      const srect = rect.subjectRect();
+      const asrect = camera.currentTransform().subjectRect();
+      const border = rect.border;
 
-    // Set new quantize parameters for next update
-    const vector = rect.vectorFrom(last);
-    this.lastTravelVector.set(
-      vector.position.x !== 0 ? vector.position.x : this.lastTravelVector.x,
-      vector.position.y !== 0 ? vector.position.y : this.lastTravelVector.y,
-    );
+      const qx = (Common.within(focal.x, asrect.left, asrect.right))
+        ? this.quantize(srect.x, this.lastTravelVector.x) - border.left
+        : rect.position.x;
+      const qy = (Common.within(focal.y, asrect.top, asrect.bottom))
+        ? this.quantize(srect.y, this.lastTravelVector.y) - border.top
+        : rect.position.y;
 
-    return rect;
-  }
+      rect.position.set(qx, qy);
 
-}
+      // Set new quantize parameters for next update
+      const vector = rect.vectorFrom(last);
+      this.lastTravelVector.set(
+        vector.position.x !== 0 ? vector.position.x : this.lastTravelVector.x,
+        vector.position.y !== 0 ? vector.position.y : this.lastTravelVector.y,
+      );
+
+      return rect;
+    },
+  },
+
+});

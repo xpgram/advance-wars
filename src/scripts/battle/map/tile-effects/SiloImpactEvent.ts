@@ -1,6 +1,6 @@
 import { PIXI } from "../../../../constants";
 import { Game } from "../../../..";
-import { ScreenShake } from "../../../camera/DisplacementAlgorithms";
+import { CameraDisplacementMethod } from "../../../camera/DisplacementAlgorithms";
 import { Point } from "../../../Common/Point";
 import { AnimatedSpritePresets } from "../../../system/vfx-components/AnimatedSpritePresets";
 import { Timer } from "../../../timer/Timer";
@@ -105,7 +105,7 @@ export class SiloImpactEvent extends TileEvent {
 
     // Setup camera shake
     const cameraSwap = camera.algorithms.displacement;
-    const cameraShake = new ScreenShake(12);
+    const cameraShake = CameraDisplacementMethod.ScreenShake.withIntensity(12);
 
     Timer
       .tween(.5, this.rocket, {y: worldLocation.y})
