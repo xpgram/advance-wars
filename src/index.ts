@@ -10,6 +10,7 @@ import { Keys } from './scripts/controls/KeyboardObserver';
 import { TitleScreen } from './scenes/TitleScreen';
 import { SceneTransition } from './scenes/scene-transitions/SceneTransition';
 import { BlackFadeTransition } from './scenes/scene-transitions/BlackFadeTransition';
+import { Slider } from './scripts/Common/Slider';
 
 
 const DOMAIN = "Game";
@@ -47,6 +48,9 @@ class App {
     suspendBypass: false,
     /** Whether to show the game metrics overlay. (FPS, etc.) */
     showDiagnosticLayer: false,
+    /** The scale value with which to render the display window. When set to 0, uses a dynamic scaling value
+     * to fill as much webpage space as possible. */
+    absoluteScaling: 0,
   }
 
   /** Scripts which describe development control behavior. */
@@ -75,7 +79,28 @@ class App {
       const dset = Game.devSettings;
       if (dc.pressed(Keys.GraveAccent, 'Shift'))
         dset.showDiagnosticLayer = !dset.showDiagnosticLayer;
-    }
+    },
+    function toggleAbsoluteScaling() {
+      const dc = Game.devController;
+      const ds = Game.devSettings;
+      const oldScale = ds.absoluteScaling;
+
+      if (dc.pressed(Keys.iRow1, 'Ctrl'))
+        ds.absoluteScaling = 1.0;
+      else if (dc.pressed(Keys.iRow2, 'Ctrl'))
+        ds.absoluteScaling = 2.0;
+      else if (dc.pressed(Keys.iRow3, 'Ctrl'))
+        ds.absoluteScaling = 3.0;
+      else if (dc.pressed(Keys.iRow4, 'Ctrl'))
+        ds.absoluteScaling = 4.0;
+      else if (dc.pressed(Keys.iRow5, 'Ctrl'))
+        ds.absoluteScaling = 5.0;
+      else if (dc.pressed(Keys.iRow0, 'Ctrl'))
+        ds.absoluteScaling = 0.0;
+
+      if (ds.absoluteScaling !== oldScale)
+        Game.display.resize(Game.renderer, Game.visualRoot);
+    },
   ];
 
   /** Runs debug scripts when in debug mode. */
@@ -153,12 +178,22 @@ class App {
     /** Callback function which resizes the canvas to the containing div element on window resize. */
     resize: function (renderer: PIXI.Renderer, container: PIXI.Container) {
       let parentNode = renderer.view.parentNode;
-      if (parentNode instanceof HTMLDivElement) {
+
+      // Deliberate set-to-size
+      if (Game.devSettings.absoluteScaling > 0)
+        this.scale = Game.devSettings.absoluteScaling;
+
+      // Dynamic set-to-div-size
+      else if (parentNode instanceof HTMLDivElement) {
         const wRatio = parentNode.offsetWidth / this.renderWidth;
-        // TODO This fixes the too-tall problem, but .9 shouldn't be ~here~.
+        // TODO This fixes the too-tall problem, but .9 shouldn't be *here*.
         const hRatio = window.innerHeight * .9 / this.renderHeight;
         this.scale = Math.min(wRatio, hRatio);
       }
+
+      // Default
+      else
+        this.scale = 1.0;
 
       // Scaling the stage less than the view allows the user to see beyond the render viewport.
       const stageScaling = (Game.devSettings.limitStageScaling) ? this.scale * .65 : this.scale;
