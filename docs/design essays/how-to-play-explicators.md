@@ -102,7 +102,8 @@ I don't have the burn-away yet. But I'll know where to put it.
 Gamepad support (but probably not yours; DS4/5 accepted)
 [show...?]
 
-### Development Build
+Click?
+[minimap already shows this]
 
 Dev tools
 [show a montage of Flare animation pausing, open shops anywhere, the devlog retrieved from the console prettified by some text editor, maybe the extra-resolution view]
