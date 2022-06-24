@@ -7,7 +7,6 @@ import { ArmorType, ArmorTypeString, MoveTypeString, UnitClass } from "../EnumTy
 import { UnitObject } from "../UnitObject";
 import { Point } from "../../Common/Point";
 import { BitmapText } from "@pixi/text-bitmap";
-import { StringDictionary } from "../../CommonTypes";
 import { Slider } from "../../Common/Slider";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
 import { Game } from "../../..";
