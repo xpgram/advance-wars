@@ -85,11 +85,19 @@ export class MiniMap {
   private readonly troopIconContainer = new PIXI.Container();
   private troopIconTimer?: Timer;
   private readonly cameraRect = new PIXI.Graphics();
+  private cameraTimer?: Timer;
 
   constructor(map: Map, camera: Camera) {
     this.map = map;
     this.camera = camera;
     this.clickController = new ClickableContainer(this.iconContainer);
+
+    // Enable to make camera rect oscillate opacity; I think it looks messy.
+    // this.cameraTimer = Timer
+    //   .tween(.8, this.cameraRect, {alpha: .65}, Ease.sine.inOut)
+    //   .wait()
+    //   .tween(.8, this.cameraRect, {alpha: 1}, Ease.sine.inOut)
+    //   .loop();
 
     this.rebuildContents();
     this.container.addChild(this.iconContainer, this.troopIconContainer, this.cameraRect);
@@ -105,14 +113,13 @@ export class MiniMap {
     this.clickController.destroy();
     this.container.destroy({children: true});
     this.troopIconTimer?.destroy();
+    this.cameraTimer?.destroy();
     Game.scene.ticker.remove(this.update, this);
   }
 
   private update() {
     if (this.container.visible === true)
       this.rebuildCameraRect();
-
-    // TODO I should put the opacity thing here, actually.
   }
 
   rebuildContents() {
