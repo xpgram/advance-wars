@@ -13,6 +13,7 @@ import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { Timer } from "../../timer/Timer";
 import { Ease } from "../../Common/EaseMethod";
 import { fonts } from "../ui-windows/DisplayInfo";
+import { Color } from "../../color/Color";
 
 
 const DOMAIN = "Minimap";
@@ -93,6 +94,7 @@ export class MiniMap {
 
   /** Container for terrain icons. */
   private readonly iconContainer = new PIXI.Container();
+  private terrainIcons: {fog: boolean, spr: PIXI.Sprite}[] = [];
 
   /** Container for troop icons. */
   private readonly troopIconContainer = new PIXI.Container();
@@ -104,6 +106,20 @@ export class MiniMap {
 
   /** Text container for the current view mode. */
   private readonly viewModeText = new PIXI.BitmapText('', fonts.smallScriptOutlined);
+
+  /**  */
+  get fogOfWarOpacity() { return this._fogOfWarOpacity; }
+  set fogOfWarOpacity(n) {
+    this._fogOfWarOpacity = n;
+
+    const value = 50*n + 50;
+    const color = Color.HSV(0,0,value);
+
+    for (const icon of this.terrainIcons)
+      if (icon.fog)
+        icon.spr.tint = color;
+  }
+  private _fogOfWarOpacity = 1;
 
 
   constructor(map: Map, camera: Camera) {
@@ -144,6 +160,7 @@ export class MiniMap {
   rebuildContents() {
     this.iconContainer.removeChildren().forEach( c => c.destroy() );
     this.troopIconContainer.removeChildren().forEach( c => c.destroy() );
+    this.terrainIcons = [];
     
     for (let x = 0; x < this.map.width; x++)
     for (let y = 0; y < this.map.height; y++) {
@@ -156,8 +173,8 @@ export class MiniMap {
       const pos = new Point(x*size, y*size);
 
       terrIcon.position.set(pos.x, pos.y);
-      terrIcon.tint = (square.hiddenFlag) ? Palette.grey3 : Palette.white;
       this.iconContainer.addChild(terrIcon);
+      this.terrainIcons.push({fog: square.hiddenFlag, spr: terrIcon});
 
       if (unitIcon && square.unit?.visible) {
         unitIcon.position.set(pos.x, pos.y);
@@ -220,16 +237,23 @@ export class MiniMap {
           .at('end')
           .tween(transtime, this.troopIconContainer, {alpha: .35}, easeMethod)
           .loop();
+
+        // Will auto destruct on it's own.
+        // TODO If pressed very fast, could a competing tween get this stuck in 1.0?
+        Timer
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: 0.5}, easeMethod);
       },
       'on': () => {
         viewModeString = "Troop";
         this.troopIconTimer = Timer
-          .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod);
+          .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod)
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: 0.5}, easeMethod);
       },
       'off': () => {
         viewModeString = "Terrain";
         this.troopIconTimer = Timer
-          .tween(transtime, this.troopIconContainer, {alpha: 0}, easeMethod);
+          .tween(transtime, this.troopIconContainer, {alpha: 0}, easeMethod)
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: 1.0}, easeMethod);
       },
     };
     mode_ops[mode]();
