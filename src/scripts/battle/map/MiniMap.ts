@@ -12,6 +12,7 @@ import { Common } from "../../CommonUtils";
 import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { Timer } from "../../timer/Timer";
 import { Ease } from "../../Common/EaseMethod";
+import { fonts } from "../ui-windows/DisplayInfo";
 
 
 const DOMAIN = "Minimap";
@@ -87,12 +88,23 @@ export class MiniMap {
 
   readonly clickController: ClickableContainer;
 
+  /** Global container for all visual elements. */
   readonly container = new PIXI.Container();
+
+  /** Container for terrain icons. */
   private readonly iconContainer = new PIXI.Container();
+
+  /** Container for troop icons. */
   private readonly troopIconContainer = new PIXI.Container();
   private troopIconTimer?: Timer;
+
+  /** Graphics object for the camera rect. */
   private readonly cameraRect = new PIXI.Graphics();
   private cameraTimer?: Timer;
+
+  /** Text container for the current view mode. */
+  private readonly viewModeText = new PIXI.BitmapText('', fonts.smallScriptOutlined);
+
 
   constructor(map: Map, camera: Camera) {
     this.map = map;
@@ -107,7 +119,7 @@ export class MiniMap {
     //   .loop();
 
     this.rebuildContents();
-    this.container.addChild(this.iconContainer, this.troopIconContainer, this.cameraRect);
+    this.container.addChild(this.iconContainer, this.troopIconContainer, this.cameraRect, this.viewModeText);
     this.container.addChildAt(MiniMap.BuildBackground(this.container), 0);
     Game.scene.ticker.add(this.update, this);
   }
@@ -198,8 +210,11 @@ export class MiniMap {
     const easeMethod = Ease.quart.inOut;
     const transtime = .65;
 
+    let viewModeString = '';
+
     const mode_ops = {
       'blink': () => {
+        viewModeString = "Map";
         this.troopIconTimer = Timer
           .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod)
           .at('end')
@@ -207,19 +222,23 @@ export class MiniMap {
           .loop();
       },
       'on': () => {
+        viewModeString = "Troop";
         this.troopIconTimer = Timer
           .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod);
       },
       'off': () => {
+        viewModeString = "Terrain";
         this.troopIconTimer = Timer
           .tween(transtime, this.troopIconContainer, {alpha: 0}, easeMethod);
       },
     };
     mode_ops[mode]();
+
+    // Reconfigure view-mode string
+    this.viewModeText.text = `X ${viewModeString} View`;
+    this.viewModeText.anchor.set(1,1);
+    this.viewModeText.position.set(this.iconContainer.width - 3, -1);
   }
   private _troopMode: 'blink' | 'on' | 'off' = 'blink';
 
 }
-
-// work and rework and rework and rework and ...
-// I'm going to add all the troop icons to their own container, then tween that as necessary.
