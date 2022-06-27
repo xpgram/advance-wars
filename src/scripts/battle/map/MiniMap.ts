@@ -19,6 +19,13 @@ const DOMAIN = "Minimap";
 /**  */
 export class MiniMap {
 
+  // TODO I need to unify the map-integrated and standalone preview versions of this map feature.
+  // The map-integrated one is the offical one, fyi.
+  //
+  // TODO Actually, Map.ts should have a serialization feature that produces a MapData object.
+  // That way, this object could *always* depend only on MapData, making it very portable.
+  // I'll do this today, probably.
+
   /** Returns a standalone minimap visual-container disconnected from the other game components
    * typically featured as properties of this class. */
   static BuildPreview(data: MapData): PIXI.Container {
