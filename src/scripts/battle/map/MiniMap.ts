@@ -112,7 +112,7 @@ export class MiniMap {
   set fogOfWarOpacity(n) {
     this._fogOfWarOpacity = n;
 
-    const value = 50*n + 50;
+    const value = 100*n;
     const color = Color.HSV(0,0,value);
 
     for (const icon of this.terrainIcons)
@@ -224,8 +224,11 @@ export class MiniMap {
     this._troopMode = mode;
     this.troopIconTimer?.destroy();
 
-    const easeMethod = Ease.quart.inOut;
     const transtime = .65;
+    const troopEaseMethod = Ease.quart.inOut;
+    const fogEaseMethod = Ease.sine.inOut;
+    const maxDarken = .65;
+    const minDarken = .58;
 
     let viewModeString = '';
 
@@ -233,27 +236,36 @@ export class MiniMap {
       'blink': () => {
         viewModeString = "Map";
         this.troopIconTimer = Timer
-          .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod)
+          .tween(transtime, this.troopIconContainer, {alpha: 1}, troopEaseMethod)
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: minDarken}, troopEaseMethod)
           .at('end')
-          .tween(transtime, this.troopIconContainer, {alpha: .35}, easeMethod)
+          .tween(transtime, this.troopIconContainer, {alpha: .35}, troopEaseMethod)
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: maxDarken}, troopEaseMethod)
           .loop();
-
-        // Will auto destruct on it's own.
-        // TODO If pressed very fast, could a competing tween get this stuck in 1.0?
-        Timer
-          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: 0.5}, easeMethod);
       },
       'on': () => {
         viewModeString = "Troop";
         this.troopIconTimer = Timer
-          .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod)
-          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: 0.5}, easeMethod);
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: minDarken}, fogEaseMethod)
+          .at('end')
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: maxDarken}, fogEaseMethod)
+          .loop();
+        
+        // Will autodestruct
+        Timer
+          .tween(transtime, this.troopIconContainer, {alpha: 1}, troopEaseMethod);
       },
       'off': () => {
         viewModeString = "Terrain";
         this.troopIconTimer = Timer
-          .tween(transtime, this.troopIconContainer, {alpha: 0}, easeMethod)
-          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: 1.0}, easeMethod);
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: minDarken}, fogEaseMethod)
+          .at('end')
+          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: maxDarken}, fogEaseMethod)
+          .loop();
+
+        // Will autodestruct
+        Timer
+          .tween(transtime, this.troopIconContainer, {alpha: 0}, troopEaseMethod);
       },
     };
     mode_ops[mode]();
