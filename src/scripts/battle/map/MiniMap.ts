@@ -98,18 +98,26 @@ export class MiniMap {
 
   /** Container for troop icons. */
   private readonly troopIconContainer = new PIXI.Container();
-  private troopIconTimer?: Timer;
 
   /** Graphics object for the camera rect. */
   private readonly cameraRect = new PIXI.Graphics();
-  private cameraTimer?: Timer;
 
   /** Text container for the current view mode. */
   private readonly viewModeText = new PIXI.BitmapText('', fonts.smallScriptOutlined);
 
-  /**  */
-  get fogOfWarOpacity() { return this._fogOfWarOpacity; }
-  set fogOfWarOpacity(n) {
+  /** Stack for any currently active animation tween-timers. */
+  private animationTimers: Timer[] = [];
+
+  /** Pixel width of the map, sans any decorations. */
+  get mapWidth() { return this.iconContainer.width; }
+
+  /** Pixel height of the map, sans any decorations. */
+  get mapHeight() { return this.iconContainer.height; }
+
+  /** How bright (or transparent) the fog-of-war effect is. Treated as a 0–1 lightness value
+   * where 1.0 is completely invisible and 0.0 is completely dark. */
+  get fogLightness() { return this._fogOfWarOpacity; }
+  set fogLightness(n) {
     this._fogOfWarOpacity = n;
 
     const value = 100*n;
@@ -127,16 +135,9 @@ export class MiniMap {
     this.camera = camera;
     this.clickController = new ClickableContainer(this.iconContainer);
 
-    // Enable to make camera rect oscillate opacity; I think it looks messy.
-    // this.cameraTimer = Timer
-    //   .tween(.8, this.cameraRect, {alpha: .65}, Ease.sine.inOut)
-    //   .wait()
-    //   .tween(.8, this.cameraRect, {alpha: 1}, Ease.sine.inOut)
-    //   .loop();
-
     this.rebuildContents();
     this.container.addChild(this.iconContainer, this.troopIconContainer, this.cameraRect, this.viewModeText);
-    this.container.addChildAt(MiniMap.BuildBackground(this.container), 0);
+    this.container.addChildAt(MiniMap.BuildBackground(this.iconContainer), 0);
     Game.scene.ticker.add(this.update, this);
   }
 
@@ -147,8 +148,7 @@ export class MiniMap {
     this.camera = undefined;
     this.clickController.destroy();
     this.container.destroy({children: true});
-    this.troopIconTimer?.destroy();
-    this.cameraTimer?.destroy();
+    this.animationTimers.forEach( t => t.destroy() );
     Game.scene.ticker.remove(this.update, this);
   }
 
@@ -222,36 +222,47 @@ export class MiniMap {
   get troopMode(): typeof this._troopMode { return this._troopMode; }
   set troopMode(mode) {
     this._troopMode = mode;
-    this.troopIconTimer?.destroy();
+    this.animationTimers.forEach( t => t.destroy() );
+    this.animationTimers = [];
 
     const transtime = .65;
-    const easeMethod = Ease.quart.inOut;
+    const tickingEase = Ease.quart.inOut;
+    const directEase = Ease.quart.out;
 
     let viewModeString = '';
 
     const mode_ops = {
       'blink': () => {
         viewModeString = "Map";
-        this.troopIconTimer = Timer
-          .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod)
-          .at('end')
-          .tween(transtime, this.troopIconContainer, {alpha: .35}, easeMethod)
-          .loop();
-
-        Timer
-          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: .65}, easeMethod);
+        this.animationTimers.push(
+          // Oscillating troop icons
+          Timer
+            .tween(transtime, this.troopIconContainer, {alpha: 1}, tickingEase)
+            .at('end')
+            .tween(transtime, this.troopIconContainer, {alpha: .35}, tickingEase)
+            .loop(),
+          // Move fog transparency
+          Timer
+            .tween<MiniMap>(transtime, this, {fogLightness: .7}, directEase),
+        );
       },
       'on': () => {
         viewModeString = "Troop";
-        Timer
-          .tween(transtime, this.troopIconContainer, {alpha: 1}, easeMethod)
-          .tween<MiniMap>(transtime/2, this, {fogOfWarOpacity: .35});
+        this.animationTimers.push(
+          // Move fog and troop transparency
+          Timer
+            .tween(transtime, this.troopIconContainer, {alpha: 1}, directEase)
+            .tween<MiniMap>(transtime/3, this, {fogLightness: .425})
+        );
       },
       'off': () => {
         viewModeString = "Terrain";
-        Timer
-          .tween(transtime, this.troopIconContainer, {alpha: 0}, easeMethod)
-          .tween<MiniMap>(transtime, this, {fogOfWarOpacity: 1}, easeMethod);
+        this.animationTimers.push(
+          // Move fog and troop transparency
+          Timer
+            .tween(transtime, this.troopIconContainer, {alpha: 0}, directEase)
+            .tween<MiniMap>(transtime, this, {fogLightness: 1}, directEase)
+        );
       },
     };
     mode_ops[mode]();

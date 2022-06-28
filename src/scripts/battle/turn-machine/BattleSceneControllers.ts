@@ -238,8 +238,8 @@ export class BattleSceneControllers {
     // Setup Minimap for game board
     this.minimap = new MiniMap(this.map, this.camera);
     this.minimap.container.position.set(
-      Game.display.renderWidth/2 - this.minimap.container.width/2,
-      Game.display.renderHeight/2 - this.minimap.container.height/2,
+      Game.display.renderWidth/2 - this.minimap.mapWidth/2,
+      Game.display.renderHeight/2 - this.minimap.mapHeight/2,
     );
     Game.scene.visualLayers.hud.addChild(this.minimap.container);
 
