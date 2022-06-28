@@ -16,8 +16,6 @@ But anyway, yeah. There is constant state checking because his system never just
 
 - [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. On my laptop, anyway. That's really irritating.
 
-- [ ] In minimap mode, let X (Key.V I think) toggle blink, on and off for unit icons. blink by default.
-
 - [ ] In shop mode, menu cursor forgets to turn on the first time.
 - [ ] In shop mode, limit the camera subject border to the space between the shop window and the details window.
 

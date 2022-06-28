@@ -16,8 +16,6 @@ import { MenuCursor } from "./MenuCursor";
 // This is 'done' but I'm scared.
 // TODO It's broken.
 
-const { HSV } = Color;
-
 /** A generic GUI represention for a ListMenu.
  * Basic menu component. Can or should be overridden to 
  * implement new visual styles.

@@ -5,10 +5,7 @@ import { Color } from "../../color/Color";
 import { Palette } from "../../color/ColorPalette";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { CommandMenuGUI } from "./CommandMenuGUI";
-import { ListMenu } from "./ListMenu";
-import { ShopItemTitle } from "./ListMenuTitleTypes";
 
-const { HSV } = Color;
 
 export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
 
