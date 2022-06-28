@@ -252,7 +252,7 @@ export class MiniMap {
           // Move fog and troop transparency
           Timer
             .tween(transtime, this.troopIconContainer, {alpha: 1}, directEase)
-            .tween<MiniMap>(transtime/3, this, {fogLightness: .425})
+            .tween<MiniMap>(transtime/3, this, {fogLightness: .45})
         );
       },
       'off': () => {
