@@ -229,6 +229,10 @@ export class MiniMap {
     const tickingEase = Ease.quart.inOut;
     const directEase = Ease.quart.out;
 
+    const fogBright = .7;
+    const fogMid = .65;
+    const fogDark = .45;
+
     let viewModeString = '';
 
     const mode_ops = {
@@ -243,7 +247,18 @@ export class MiniMap {
             .loop(),
           // Move fog transparency
           Timer
-            .tween<MiniMap>(transtime, this, {fogLightness: .7}, directEase),
+            .tween<MiniMap>(transtime, this, {fogLightness: fogBright}, directEase),
+          // Heartbeat tween for fog
+          Timer
+            .wait(transtime * 8)
+            .tween<MiniMap>(.125, this, {fogLightness: fogMid}, tickingEase)
+            .wait()
+            .tween<MiniMap>(.125, this, {fogLightness: fogBright}, tickingEase)
+            .wait()
+            .tween<MiniMap>(.125, this, {fogLightness: fogMid}, tickingEase)
+            .wait()
+            .tween<MiniMap>(.125, this, {fogLightness: fogBright}, tickingEase)
+            .loop(),
         );
       },
       'on': () => {
@@ -252,7 +267,7 @@ export class MiniMap {
           // Move fog and troop transparency
           Timer
             .tween(transtime, this.troopIconContainer, {alpha: 1}, directEase)
-            .tween<MiniMap>(transtime/3, this, {fogLightness: .45})
+            .tween<MiniMap>(transtime/3, this, {fogLightness: fogDark})
         );
       },
       'off': () => {
@@ -261,7 +276,7 @@ export class MiniMap {
           // Move fog and troop transparency
           Timer
             .tween(transtime, this.troopIconContainer, {alpha: 0}, directEase)
-            .tween<MiniMap>(transtime, this, {fogLightness: 1}, directEase)
+            .tween<MiniMap>(transtime, this, {fogLightness: 1.0}, directEase)
         );
       },
     };
