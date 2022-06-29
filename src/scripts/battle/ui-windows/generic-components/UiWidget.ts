@@ -23,7 +23,7 @@ export abstract class UiWidget {
   readonly position: Point;
   readonly origin: Point;
 
-  transparency = new Slider({
+  protected transparency = new Slider({
     granularity: 1/3,
     track: 'min',
     incrementFactor: -1,
