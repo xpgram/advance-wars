@@ -10,6 +10,11 @@ type Constructable = {
     new (...args: any[]): object;
 }
 
+/** Captures any object-constructor class for objects of type T. */
+type ConstructorFor<T> = {
+    new (...args: any[]): T;
+}
+
 /** Captures generic classes. */
 type Class<T> = {
     new (...args: any[]): T
