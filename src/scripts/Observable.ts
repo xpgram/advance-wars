@@ -8,6 +8,12 @@ export function Observable<BC extends Constructable>(Base?: BC) {
   return class extends (Base || (class {})) {
 
     private observers: { event?: string, callback: () => void, context: undefined | object }[] = [];
+
+    /** Deconstructs the observer object. Call once in any inheriting class' destroy() method.*/
+    destroy(): void {
+      super.destroy?.call(this);
+      this.clearListeners();
+    }
   
     /** Adds the given callback function and context to the list of observers under the given event key. */
     on(event: string, callback: () => void, context?: object): void {
