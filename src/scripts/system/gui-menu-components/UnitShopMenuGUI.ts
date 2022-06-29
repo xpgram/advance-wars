@@ -1,10 +1,27 @@
 import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { fonts } from "../../battle/ui-windows/DisplayInfo";
-import { Color } from "../../color/Color";
 import { Palette } from "../../color/ColorPalette";
 import { BoxContainerProperties } from "../../Common/BoxContainerProperties";
 import { CommandMenuGUI } from "./CommandMenuGUI";
+
+
+// TODO Refactor
+// These constants were moved out here because CommandMenuGUI, the parent class, calls onMoveCursor
+// as part of its construction process, which naturally occurs before UnitShop's construction;
+// so, we end up referencing an undefined value.
+// 
+// The point of this extension is to yield control of the visual design of the menu to the specific
+// variant, but there are probably other ways of doing this. It would make sense to me if redrawMenu()
+// were an assignable function which returned a container or something that the MenuGUI master could
+// use, instead of it being semi-kinda baked in like this.
+//
+// This setup is trash, anyway; look at the redlines at the bottom. This class was always cobbled together.
+
+/** How thick in pixels the top and bottom margins of the menu are. */
+const capHeight = 2;
+/** How thick in pixels the top and bottom bezels of the menu are. */
+const capBezel = 1;
 
 
 export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
@@ -23,11 +40,6 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
     light:      Palette.cloudless,
     dark:       Palette.black,
   }
-
-  /** How thick in pixels the top and bottom margins of the menu are. */
-  capHeight = 2;
-  /** How thick in pixels the top and bottom bezels of the menu are. */
-  capBezel = 1;
 
   // TODO Reconnect this with CommandMenu logic.
   // Override buildTextures, buildListItems, and updateFrames
@@ -51,21 +63,12 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
   // I need to think up a less messy implementation anyway.
 
   protected onCursorMove() {
-    const { listItemProps: props, capHeight } = this;
-
-    this.updateFrames();
-
-    const element = props.containerBox();
-    this.cursorGraphic.rect = new PIXI.Rectangle(
-      element.x,
-      element.height * this.menu.selectedIndex + capHeight,
-      element.width,
-      element.height,
-    );
+    super.onCursorMove();
+    this.cursorGraphic.rect.y += capHeight;
   }
 
   private buildTextures() {
-    const { palette, listItemProps: props, capHeight, capBezel } = this;
+    const { palette, listItemProps: props } = this;
 
     if (this.stateTextures)
       Object.values(this.stateTextures).forEach( t => t.destroy() );
@@ -138,7 +141,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
   }
 
   buildListItems() {
-    const { menu, stateTextures: textures, listItemProps: props, capHeight } = this;
+    const { menu, stateTextures: textures, listItemProps: props } = this;
 
     const content = props.contentBox();
     const element = props.containerBox();
