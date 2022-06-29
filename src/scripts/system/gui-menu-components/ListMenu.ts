@@ -2,7 +2,7 @@ import { Game } from "../../..";
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
 import { VirtualGamepad } from "../../controls/VirtualGamepad";
-import { Observable } from "../../Observable";
+import { ObservableType } from "../../Observable";
 import { Pulsar } from "../../timer/Pulsar";
 import { ListMenuOption } from "./ListMenuOption";
 
@@ -17,7 +17,7 @@ type CursorSettings = {
  * MenuWindow should be provided a list of MenuOptions with which to populate
  * itself and will return the value of the selected-over option upon request.
  */
-export class ListMenu<X, Y> extends Observable() {
+export class ListMenu<X, Y> extends ObservableType {
 
   private settings = {
     /** The maximum length of the virtual page for list items. */

@@ -1,24 +1,27 @@
 import { PIXI } from "../constants";
 
 /** Describes a partial object of type T where all children are also partial. */
-type PartialDeep<T> = T extends object ? {
-    [P in keyof T]?: PartialDeep<T[P]>;
+type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>;
 } : T;
 
-/** Captures any object-constructing class type. */
-type Constructable = {
-    new (...args: any[]): object;
+/** An object which includes a deconstruction method.
+ * The method is an unknown property for convenience; all objects are potentially destructable.
+ * 
+ * Note: If this is used for anything other than generic types and inferrences, consider redefining
+ * destroy to be concrete. The presence of a concrete destroy() on an object type is good
+ * indication that method must be called, but Destructable obfuscates this. */
+type Destructable = {
+    destroy?(): void;
 }
 
 /** Captures any object-constructor class for objects of type T. */
 type ConstructorFor<T> = {
-    new (...args: any[]): T;
+    new (...args: any[]): T & Destructable;
 }
 
-/** Captures generic classes. */
-type Class<T> = {
-    new (...args: any[]): T
-};
+/** Captures any object-constructing class type. */
+type Constructable = ConstructorFor<object>;
 
 /** Captures PIXI's object-transform style. */
 type Transformable = {
@@ -60,24 +63,6 @@ type Optional<T, K extends keyof T> = Partial<Pick<T,K>> & Omit<T,K>;
 /** Selectively immutablifies members of type T as described by the union type K.  
  * Written like `Const<Object, 'name' | 'range'>`. */
 type Const<T, K extends keyof T> = Readonly<Pick<T,K>> & Omit<T,K>;
-
-/** A dictionary-type which uses numbers as keys.
- * @deprecated Record<Y,T> makes this obsolete. */
-type NumericDictionary<T> = Iterable<T> & {
-    [key: number]: T
-}
-
-/** A dictionary-type which uses strings as keys.
- * @deprecated Record<Y,T> makes this obsolete. */
-type StringDictionary<T> = Iterable<T> & {
-    [key: string]: T
-}
-
-/** An object which maintains a set of key-value pairs.
- * @deprecated Record<Y,T> & Iterable<T> makes this obsolete. */
-type Dictionary<T> = Iterable<T> & {
-    [key: string | number]: T
-}
 
 /** Describes any object whose draw-to-screen is toggleable. */
 type RenderToggleable = {

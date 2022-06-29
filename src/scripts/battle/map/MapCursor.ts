@@ -8,7 +8,7 @@ import { MapLayer } from "./MapLayers";
 import { Pulsar } from "../../timer/Pulsar";
 import { Slider } from "../../Common/Slider";
 import { Point } from "../../Common/Point";
-import { Observable } from "../../Observable";
+import { ObservableType } from "../../Observable";
 import { AnimatedSprite } from "@pixi/sprite-animated";
 import { RegionMap } from "../unit-actions/RegionMap";
 import { buildBoundedRegionMapObject } from "../unit-actions/GraphicalRegionMap";
@@ -51,7 +51,7 @@ import { buildBoundedRegionMapObject } from "../unit-actions/GraphicalRegionMap"
 /**
  * @author Dei Valko
  */
-export class MapCursor extends Observable() {
+export class MapCursor extends ObservableType {
   static readonly spritesheet = 'UISpritesheet';
 
   /** Cursor animation settings. */

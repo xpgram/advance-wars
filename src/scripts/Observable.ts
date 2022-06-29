@@ -4,8 +4,9 @@ import { Constructable } from "./CommonTypes";
  * The new type introduces listener-object behavior which maintains a list of callback
  * functions whose collective call event may be manually triggered by the inheriting class.
  **/
-export function Observable<BC extends Constructable>(Base?: BC) {
-  return class extends (Base || (class {})) {
+export function Observable<BC extends Constructable>(Base: BC) {
+
+  return class extends Base {
 
     private observers: { event?: string, callback: () => void, context: undefined | object }[] = [];
 
@@ -54,3 +55,8 @@ export function Observable<BC extends Constructable>(Base?: BC) {
 
   }
 }
+
+/** A class with listener-callback behaviors.
+ * The messages called and responded to are maintained by the inheriting class; this class
+ * simply defines the architecture. */
+export const ObservableType = Observable(class {});

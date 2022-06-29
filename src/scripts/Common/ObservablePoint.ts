@@ -1,4 +1,4 @@
-import { Observable } from "../Observable";
+import { ObservableType } from "../Observable";
 import { ImmutablePointPrimitive, Point } from "./Point";
 
 /** A point in 2-dimensional space which updates listeners on coordinate-change.
@@ -6,7 +6,7 @@ import { ImmutablePointPrimitive, Point } from "./Point";
  * It is recommended that you use Point to conduct calculations and then simply set() that
  * point to this one.
  **/
-export class ObservablePoint extends Observable() {
+export class ObservablePoint extends ObservableType {
 
   get x() { return this._x; }
   set x(x) {

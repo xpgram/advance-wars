@@ -48,11 +48,6 @@ export function Fadable<BC extends ConstructorFor<UiWidget>>(Base: BC, frameDura
       // The super.chain can do this, but I would have to write
       // `functionName() { super.functionName?.call(this) }`
       // for every single one? I mean, that's fine, but... really?
-      //
-      // Also, this only produces fadable(uiwidgets).
-      // It will *not* produce a fadable(slidable(uiwidget)), even if you write the instantiation that way.
-      //
-      // Hm.
 
       // super.show?.call(this);
       // super.updateListeners('on-show');
