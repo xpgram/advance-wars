@@ -1,15 +1,10 @@
 import { PIXI } from "../../../constants";
 import { Game } from "../../..";
-import { Color } from "../../color/Color";
 import { Palette } from "../../color/ColorPalette";
 import { Point } from "../../Common/Point";
 import { Slider } from "../../Common/Slider";
 import { Pulsar } from "../../timer/Pulsar";
 
-type Rectangle = PIXI.Rectangle;
-const Rectangle = PIXI.Rectangle;
-
-const { HSV } = Color;
 
 /**  */
 export class MenuCursor {
@@ -30,13 +25,13 @@ export class MenuCursor {
 
   /** The on-screen position and dimensions of the cursor. */
   get rect() { return this.goalPose; }
-  set rect(p: Rectangle) {
+  set rect(p: PIXI.Rectangle) {
     this.lastPose = this.goalPose;  // Technically this grows the bounds by settings.thickness, but it probably doesn't matter.
     this.goalPose = p;
     this.motionSlider.track = 'min';
   }
-  private goalPose = new Rectangle();
-  private lastPose = new Rectangle();
+  private goalPose = new PIXI.Rectangle();
+  private lastPose = new PIXI.Rectangle();
 
   /** Used to smoothly transition between poses. */
   private motionSlider = new Slider({
