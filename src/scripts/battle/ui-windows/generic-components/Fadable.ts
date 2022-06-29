@@ -48,6 +48,19 @@ export function Fadable<BC extends ConstructorFor<UiWidget>>(Base: BC, frameDura
       // The super.chain can do this, but I would have to write
       // `functionName() { super.functionName?.call(this) }`
       // for every single one? I mean, that's fine, but... really?
+      //
+      // If I were to use the component-member pattern I saw before, I would have to do the
+      // same thing, I suppose. That's fine, it just seems silly.
+      //
+      // Okay, here's what I actually want:
+      // 
+      // These decorators are, in theory, independent actors which *must* unfortunately share
+      // a namespace. Unless Fadable accepts as an argument a class which depends on show()
+      // as a member method, all of Fadable's methods are intended not to conflict *at all*
+      // with any other decorators, but they should still be conveniently useable.
+      // 
+      // The super.chain is fine, but it's silly. And verbose. And tedious.
+      // This is primarily a namespace problem.
 
       // super.show?.call(this);
       // super.updateListeners('on-show');
