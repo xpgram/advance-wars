@@ -1,4 +1,4 @@
-import { PIXI } from './constants';
+import { PIXI, PixiFilters } from './constants';
 import { Scene, SceneType } from './scenes/Scene';
 import { DiagnosticLayer } from './scripts/DiagnosticLayer';
 import { BlankScene } from './scenes/BlankScene';
@@ -100,6 +100,15 @@ class App {
 
       if (ds.absoluteScaling !== oldScale)
         Game.display.resize(Game.renderer, Game.visualRoot);
+    },
+    function saveSceneRender() {    // was saveScreenshot, but suspend + rightclick saveas is fine
+      const dc = Game.devController;
+      if (dc.pressed(Keys.BackSlash)) {
+        // Game.visualRoot gives meh results. I don't know how to define the bounds.
+        // scene isn't restricted to the screen, so it's useful for seeing *everything*.
+        const img = Game.renderer.plugins.extract.image(Game.sceneLayer, "image/png", 1.0);
+        document.body.appendChild(img);
+      }
     },
   ];
 
