@@ -1,5 +1,14 @@
 import { Constructable } from "./CommonTypes";
 
+
+type Observer = {
+  once?: boolean;
+  event?: string;
+  callback: () => void;
+  context: undefined | object;
+};
+
+
 /** Returns a new type which extends the given one.
  * The new type introduces listener-object behavior which maintains a list of callback
  * functions whose collective call event may be manually triggered by the inheriting class.
@@ -8,18 +17,27 @@ export function Observable<BC extends Constructable>(Base: BC) {
 
   return class extends Base {
 
-    private observers: { event?: string, callback: () => void, context: undefined | object }[] = [];
+    private observers: Observer[] = [];
 
     /** Deconstructs the observer object. Call once in any inheriting class' destroy() method.*/
     destroy(): void {
       super.destroy?.call(this);
       this.clearListeners();
     }
+
+    // TODO Why did I write on() and addListener() differently? Are they not the same request?
   
     /** Adds the given callback function and context to the list of observers under the given event key. */
     on(event: string, callback: () => void, context?: object): void {
       this.observers.push({ callback, context, event });
     }
+
+    /** Adds the given callback function and conntext to the list of observers under the given event key.
+     * The event is set to occur only once on first emit of the associated event or generic impulse. */
+    // TODO Disabled because I'm micromanaging execution efficiency and this isn't an important (now) feature.
+    // once(event: string, callback: () => void, context?: object): void {
+    //   this.observers.push({ callback, context, event, once: true });
+    // }
   
     /** Adds the given callback function and context to the list of observers if it isn't already present. */
     addListener(callback: () => void, context?: object, event?: string): void {
@@ -51,6 +69,9 @@ export function Observable<BC extends Constructable>(Base: BC) {
       this.observers
         .filter(obs => obs.event === event)
         .forEach(obs => obs.callback.call(obs.context));
+      
+      // TODO This is a second-pass for the filter; is there a faster way to do this?
+      // this.observers = this.observers.filter(obs => obs.event === event && !obs.once);
     }
 
   }
