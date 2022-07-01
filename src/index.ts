@@ -85,18 +85,21 @@ class App {
       const ds = Game.devSettings;
       const oldScale = ds.absoluteScaling;
 
-      if (dc.pressed(Keys.iRow1, 'Ctrl'))
-        ds.absoluteScaling = 1.0;
-      else if (dc.pressed(Keys.iRow2, 'Ctrl'))
-        ds.absoluteScaling = 2.0;
-      else if (dc.pressed(Keys.iRow3, 'Ctrl'))
-        ds.absoluteScaling = 3.0;
-      else if (dc.pressed(Keys.iRow4, 'Ctrl'))
-        ds.absoluteScaling = 4.0;
-      else if (dc.pressed(Keys.iRow5, 'Ctrl'))
-        ds.absoluteScaling = 5.0;
-      else if (dc.pressed(Keys.iRow0, 'Ctrl'))
-        ds.absoluteScaling = 0.0;
+      const modes = [
+        [Keys.iRow1, 1.0],
+        [Keys.iRow2, 2.0],
+        [Keys.iRow3, 3.0],
+        [Keys.iRow4, 4.0],
+        [Keys.iRow5, 5.0],
+        [Keys.iRow0, 0.0],
+      ];
+
+      for (const [key, scale] of modes) {
+        if (dc.pressed(key, 'Ctrl')) {
+          ds.absoluteScaling = scale;
+          break;
+        }
+      }
 
       if (ds.absoluteScaling !== oldScale)
         Game.display.resize(Game.renderer, Game.visualRoot);
