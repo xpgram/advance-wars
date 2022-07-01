@@ -34,7 +34,7 @@ export function Observable<BC extends Constructable>(Base: BC) {
 
     /** Adds the given callback function and conntext to the list of observers under the given event key.
      * The event is set to occur only once on first emit of the associated event or generic impulse. */
-    // TODO Disabled because I'm micromanaging execution efficiency and this isn't an important (now) feature.
+    // TODO Disabled because I'm micromanaging execution efficiency and this isn't important now.
     // once(event: string, callback: () => void, context?: object): void {
     //   this.observers.push({ callback, context, event, once: true });
     // }
