@@ -41,16 +41,23 @@ There are quite many, so I'll break them up here.
 2. Troops
 3. ...
 
+TODO Demo trailer playground
+I need maps to add variety to everything you see.
+I could... demo the things I want to do in the actual game, I guess... since that has more dev features.
+
 ### Game Board
 
+[x]
 Auto-configuring tileset + animated shorelines and terrain types
 [I'll show that one island in the middle of Greyfield Strikes]
 
+[x]
 Terrain details linked to UI system
 [show the details window as the cursor slides over a couple things: wood, city maybe]
 
 ### Troops
 
+[ ]
 Troop Pathfinding
 [show some neat-looking green squares, then show off the arrow]
 
@@ -63,15 +70,18 @@ Contextual actions
 Troop-inside-troop recursion
 [show an Infantry loading into a TCopter, then that TCopter loading into a Cruiser]
 
+[x]
 Player-to-player visibility rules
 [show P1 hide their sub, *cut* show P2 moving a ship over that sub with ambush and everything]
 
+[-]
 Fog of War
 [show a Recon moving and revealing a large portion of the map]
 
 Large Explosions
 [show a Silo]
 
+[x]
 Cool distance cannons
 [show a Battleship moving with its giant reticule and attacking something beyond a mountain range]
 
@@ -86,9 +96,11 @@ Factory shops
 Minimap and click-clicky
 [show the minimap camera being moved around by the mouse; also show camera zoom]
 
+[x]
 Up to four players
 [show the player dialogs sliding in, cut, show each pre-turn animation in brief, cuts abound]
 
+[-]
 Neat Title Screen and no Title Menu
 [show ingress from title to map selector]
 
