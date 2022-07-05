@@ -135,7 +135,7 @@ class Layer {
   /** Signals this layer that it should re-render.
    * Does nothing if this layer is not designated as freezable. */
   update() {
-    // this.children.forEach( child => child.update() );
+    this.children.forEach( child => child.update() );
     let prev = this.container.cacheAsBitmap;
     this.container.cacheAsBitmap = false;
     this.container.cacheAsBitmap = prev;
@@ -222,6 +222,14 @@ export module MapLayerFunctions {
       return;
     rootLayer.freeze();
     Debug.log(DOMAIN, "SysFunc", { message: "Static visual components frozen to prevent redraw" });
+  }
+
+  /** Signals all freezable graphics layers that they are to re-render and
+   * cache their scene components. */
+  export function RerenderStaticLayers() {
+    if (destroyed)
+      return;
+    rootLayer.update();
   }
 
   /** Signals a layer to sort its children, and for all its children to sort their children. */

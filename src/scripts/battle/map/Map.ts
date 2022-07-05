@@ -347,10 +347,48 @@ export class Map {
     }
 
     /** Triggers a local rebuild of the map display object at the point p to the given terrain type. */
-    // TODO write; test
     changeTile(p: Point, terrain: TerrainType) {
         // stub; experimental
         // needed for map editor
+        // we'll start with dev controls
+
+        function logRejection(reason: string) {
+            const message = `Failed to change ${p.toString()}`;
+            Debug.log(DOMAIN, "ChangeTile", { message, reason, warn: true });
+        }
+
+        // is p valid?
+        if (!this.validPoint(p)) {
+            logRejection(`tile does not exist: out of bounds`);
+            return;
+        }
+        
+        const square = this.squareAt(p);
+        const neighbors = this.neighboringTerrainAt(p);
+        const newTerrainObj = new terrain(square.terrain);
+        
+        // is this terrain allowed?
+        if (!newTerrainObj.legalPlacement(neighbors)) {
+            logRejection(`terrain type is not legal`)
+            return;
+        }
+        
+        square.terrain.destroy();
+        square.terrain = newTerrainObj;
+        square.finalize(neighbors);
+            // TODO This does not re-model the original map-construction process yet; I haven't checked.
+
+        // Remove illegal troops
+        if (square.unit && !square.traversable(square.unit))
+            square.unit?.destroy();
+
+        // Recompile map visuals
+        MapLayerFunctions.RerenderStaticLayers();
+
+        // TODO square needs to unfinalize first, I think.
+        // I gotta untangle the MapLayers connections I've made already.
+
+        // TODO Orientation does completely happen, for some reason.
     }
 
     /** Triggers a full rebuild of the map display object from a new tileset variant. */

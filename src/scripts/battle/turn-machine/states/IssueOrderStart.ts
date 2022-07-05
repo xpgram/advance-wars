@@ -10,6 +10,7 @@ import { FactoryMenu } from "./FactoryMenu";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 import { BattleSceneControllers } from "../BattleSceneControllers";
 import { ShowMinimap } from "./ShowMinimap";
+import { Terrain } from "../../map/Terrain";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -216,5 +217,13 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
       if (unit)
         unit.CoOnBoard = true;
     }
-  }
+  },
+  {
+    key: Keys.K,
+    run: (assets) => {
+      const { map, mapCursor } = assets;
+      const terrain = Terrain.Road;
+      map.changeTile(mapCursor.boardLocation, terrain);
+    }
+  },
 ]
