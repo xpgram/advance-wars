@@ -219,23 +219,23 @@ export class BoardPlayer {
   spawnUnit(settings: UnitSpawnSettings) {
     const { location, serial, hp, ammo, gas, capture, spent } = settings;
 
-    // System log line
-    function write(n?: number | boolean) { return (n !== undefined) ? n : ''; }
-    Debug.log('BoardPlayer', 'SpawnUnit', {
-      message: `${serial} ${location.toString()} hp=${write(hp)} ap=${write(ammo)} gas=${write(gas)} cap=${write(capture)} spent=${write(spent)}`,
-    })
-
-    const square = this.map.squareAt(location);
     const unitType = Object.values(Unit).find( u => u.serial === serial );
-
     if (!unitType)
       throw new SpawnUnitError(`Could not spawn predeploy: Unit serial ${serial} not found.`);
 
+    // System log line
+    function write(n?: number | boolean) { return (n !== undefined) ? n : ''; }
+    Debug.log('BoardPlayer', 'SpawnUnit', {
+      message: `Spawned ${unitType.name} ser=${serial} at ${new Point(location).toString()}: hp=${write(hp)} ap=${write(ammo)} gas=${write(gas)} cap=${write(capture)} spent=${write(spent)}`,
+    });
+    
     const unit = new unitType();
     unit.init({
       faction: this.faction,
       boardPlayer: this,     // TODO Unimplemented in UnitObject
     });
+    
+    const square = this.map.squareAt(location);
 
     if (square.unit)
       throw new SpawnUnitError(`Could not spawn predeploy: location ${location.toString()} already occupied.`);
