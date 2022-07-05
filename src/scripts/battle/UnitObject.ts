@@ -18,6 +18,9 @@ import { BitIO } from "../Common/BitIncrementer";
 import { Terrain } from "./map/Terrain";
 import { UnitObjectConstants } from "./UnitObjectConstants";
 
+
+const DOMAIN = "TroopObject";
+
 export class UnitConstructionError extends Error {
     name = "UnitConstructionError";
 }
@@ -382,6 +385,10 @@ export abstract class UnitObject {
 
     /** Unlinks this objects references and connections. */
     destroy() {
+        Debug.log(DOMAIN, "Destroy", {
+            message: `Destroyed ${this.name} at ${this.boardLocation.toString()}`
+        });
+
         this._cargo.forEach( u => u.destroy() );
         
         this.boardPlayer.unspawnUnit(this);
