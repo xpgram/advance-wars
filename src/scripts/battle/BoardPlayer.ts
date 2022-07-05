@@ -226,7 +226,7 @@ export class BoardPlayer {
     // System log line
     function write(n?: number | boolean) { return (n !== undefined) ? n : ''; }
     Debug.log('BoardPlayer', 'SpawnUnit', {
-      message: `Spawned ${unitType.name} ser=${serial} at ${new Point(location).toString()}: hp=${write(hp)} ap=${write(ammo)} gas=${write(gas)} cap=${write(capture)} spent=${write(spent)}`,
+      message: `${unitType.name} ser=${serial} at ${new Point(location).toString()}: hp=${write(hp)} ap=${write(ammo)} gas=${write(gas)} cap=${write(capture)} spent=${write(spent)}`,
     });
     
     const unit = new unitType();
