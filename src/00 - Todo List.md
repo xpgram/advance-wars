@@ -15,6 +15,8 @@ But anyway, yeah. There is constant state checking because his system never just
 
 
 In Progress:
+- [ ] Add tile-change to map.ts to make map construction easier.
+- [ ] Add map-to-mapdata function to map.ts for easy post-design extraction.
 - [ ] Refactor UI construction system to use decorators and assembly functions which (attempt to) behave like CSS (using Pixi's already present width/height/etc. functions).
 
 - [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. On my laptop, anyway. That's really irritating.
