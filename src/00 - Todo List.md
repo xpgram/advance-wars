@@ -24,6 +24,8 @@ In Progress:
 
 - [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. On my laptop, anyway. That's really irritating.
 
+- [ ] Infantry can temp high-vis by simply passing over a mountain. This is cool, but I wonder if they should have to commit to the mountain to get the bonus. What does the source game do?
+
 - [ ] The minimap view-mode button prompt needs some refinement: where should it be on small maps?
 
 - [ ] In shop mode, menu cursor forgets to turn on the first time.
