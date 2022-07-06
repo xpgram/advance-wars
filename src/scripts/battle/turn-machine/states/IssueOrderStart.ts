@@ -218,15 +218,15 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
         unit.CoOnBoard = true;
     }
   },
-  {
+  { // Alter terrain
     key: Keys.K,
     run: (assets) => {
       const { map, mapCursor } = assets;
-      const terrain = Terrain.Road;
+      const terrain = Terrain.Mountain;
       map.changeTile(mapCursor.boardLocation, terrain);
     }
   },
-  {
+  { // Post mapdata to console
     key: Keys.L,
     run: (assets) => {
       const { map, players } = assets;

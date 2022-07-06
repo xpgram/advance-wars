@@ -135,6 +135,9 @@ export class Square {
     };
     this.terrain.init(neighbors, worldPos);
 
+    // TODO When calling finalize() twice, confirm that the below instructions only move
+    //   known components and do not duplicate any structures.
+
     // Overlay Panel
     MapLayer('top', this.y, 'glass-tile').addChild(this.overlayPanel);
     this.overlayPanel.position.set(worldPos.x, worldPos.y);

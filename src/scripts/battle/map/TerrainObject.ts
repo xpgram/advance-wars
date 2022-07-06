@@ -213,7 +213,9 @@ export abstract class TerrainObject {
 
     /** Builds graphical sub-objects and sets up the object's transform. */
     init(neighbors: NeighborMatrix<TerrainObject>, pos: Point3D) {
+        this.destroyVisualObjects();    // in case we've already built before
         this.layers = [];
+
         this.orient(neighbors); // Allows subclasses to populate the layers list.
 
         const mapLayerRow = MapLayerFunctions.RowLayerFromWorldPosition(pos);   // For MapLayer
@@ -232,11 +234,14 @@ export abstract class TerrainObject {
         this.built = true;
     }
 
-    /** Instructs the object to disassociate all materials, readying itself for
-     * garbage collection. */
     destroy() {
+        this.destroyVisualObjects();
+        // anything else?
+    }
+
+    /** Destructs the terrain's visual components. */
+    destroyVisualObjects() {
         this.layers.forEach( layer => layer.object.destroy({children: true}) );
-        // TODO destroy {texture: true} too?
     }
 
     /** Generates a white-mask from the graphical objects in this.layers. */

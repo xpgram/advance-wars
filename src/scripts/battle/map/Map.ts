@@ -381,13 +381,8 @@ export class Map {
         // TODO uhh.. this feels complicated.
         // Like, just to destroy and rebuild the graphics? Idk. I *guess*.
         neighborSquares.surrounding.forEach( square => {
-            const terrType = square.terrain.type;
-
-            if (terrType === Terrain.Void)
+            if (square.terrain.type === Terrain.Void)
                 return;
-
-            square.terrain.destroy();
-            square.terrain = new terrType(square.terrain);
             square.finalize(this.neighboringTerrainAt(square.boardLocation));
         });
 
