@@ -66,10 +66,15 @@ export module Common {
     Object.keys(object).forEach( key => obj[key] = undefined);
   }
 
-  /** Returns a two-dimensional array filled with sleep. // TODO */
-  export function Array2D<T>(rows: number, columns: number, fill: (() => T) | T): T[][] {
-    let cb = (fill instanceof Function) ? fill : () => fill;
-    return Array.from<any, T[]>(Array(rows), () => Array.from<any, T>(Array(columns), cb));
+  /** Returns a two-dimensional array filled with a given value or via a point-field generator function.
+   * Arrays are arranged in arr[x][y] fashion, or arr[col][row]. */
+  export function Array2D<T>(columns: number, rows: number, fill: ((x: number, y: number) => T) | T): T[][] {
+    const gen = (fill instanceof Function) ? fill : () => fill;
+    return [...Array(columns)].map(
+      (_, x) => [...Array(rows)].map(
+        (_, y) => gen(x,y)
+      )
+    );
   }
 
   /** Given a list of things, returns a random thing. */

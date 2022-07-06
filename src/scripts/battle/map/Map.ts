@@ -382,6 +382,10 @@ export class Map {
         // Like, just to destroy and rebuild the graphics? Idk. I *guess*.
         neighborSquares.surrounding.forEach( square => {
             const terrType = square.terrain.type;
+
+            if (terrType === Terrain.Void)
+                return;
+
             square.terrain.destroy();
             square.terrain = new terrType(square.terrain);
             square.finalize(this.neighboringTerrainAt(square.boardLocation));
@@ -914,6 +918,36 @@ export class Map {
             this.squareAt(point1).arrowTo = CardinalVectorToCardinal( point2.subtract(point1) );
             this.squareAt(point2).arrowFrom = CardinalVectorToCardinal( point1.subtract(point2) );
         }
+    }
+
+    /** Returns a MapData object representing this map in its current state. */
+    // TODO Since this now depends on BoardPlayer, should this be a Map helper function to decouple the scripts?
+    // TODO Convert to string with nice formating for easy human readability.
+    generateMapData(players: BoardPlayer[]): MapData {
+        const { width, height } = this;
+
+        const mapdata = <MapData>{
+            name: 'unnamed',
+            size: {width, height},
+            players: players.length, // ..? how do I count?
+            map: Common.Array2D(height, width, (y,x) => this.squareAt({x,y}).terrain.type.serial),
+            owners: [],
+            predeploy: [],
+        };
+
+        for (const player of players) {
+            const properties = player.capturePoints.map( p => ({location: p.toPrimitive(), player: player.playerNumber }) );
+            mapdata.owners = mapdata.owners.concat(properties);
+
+            // TODO Support for units-as-cargo in map reconstruction or predeployment.
+            // TODO Support for variable stats: rem HP, Gas, Cap, etc.
+            const troops = player.unitsOnMap.map( troop => ({location: troop.boardLocation.toPrimitive(), serial: troop.type.serial, player: player.playerNumber}) );
+            mapdata.predeploy = mapdata.predeploy.concat(troops);
+        }
+
+        // TODO Support for player data: rem CO power, funds, etc.
+
+        return mapdata;
     }
 
     /** Returns a string representation of the map for debugging purposes. */

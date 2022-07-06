@@ -240,6 +240,11 @@ export class Point {
     return `(${this.x},${this.y})`;
   }
 
+  /** Returns this point as a simple point object with just its value properties. */
+  toPrimitive(): ImmutablePointPrimitive {
+    return {x:this.x, y:this.y};
+  }
+
   // Common Vectors
 
   /** Additive identity vector with all components set to zero. */

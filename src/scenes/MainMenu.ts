@@ -13,6 +13,7 @@ import { BattleScene } from "./BattleScene";
 
 // TODO I need a design for a proper repository.
 import { data as mapMetroIsland } from "../battle-maps/metro-island";
+import { data as mapMetroIsland2 } from "../battle-maps/bean-island-all-roads";
 import { data as mapGreyfieldStrikes } from "../battle-maps/greyfield-strikes";
 import { data as mapLandsEnd } from "../battle-maps/lands-end";
 import { data as mapDev2P } from "../battle-maps/dev-room-2p";
@@ -48,6 +49,7 @@ export class MainMenuScene extends Scene {
     this.menu = new ListMenu(this.gamepad, {
       listItems: [
         mapMetroIsland,
+        mapMetroIsland2,  // TODO Remove
         mapGreyfieldStrikes,
         mapLandsEnd,
         mapDev2P,

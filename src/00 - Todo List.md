@@ -16,6 +16,9 @@ But anyway, yeah. There is constant state checking because his system never just
 
 In Progress:
 - [ ] Add tile-change to map.ts to make map construction easier.
+  - [x] Change tile's terrain type
+  - [x] Update neighbors to reflect new neighbor changes
+  - [ ] Modify terrain.orient()/.finalize() to destroy any existing graphics before construction. This simplifies the process and allows it to retain properties like faction alliance.
 - [ ] Add map-to-mapdata function to map.ts for easy post-design extraction.
 - [ ] Refactor UI construction system to use decorators and assembly functions which (attempt to) behave like CSS (using Pixi's already present width/height/etc. functions).
 

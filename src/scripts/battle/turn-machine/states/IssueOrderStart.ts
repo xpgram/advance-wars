@@ -226,4 +226,11 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
       map.changeTile(mapCursor.boardLocation, terrain);
     }
   },
+  {
+    key: Keys.L,
+    run: (assets) => {
+      const { map, players } = assets;
+      console.log( map.generateMapData(players.all) );
+    }
+  },
 ]
