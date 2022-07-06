@@ -365,6 +365,7 @@ export class Map {
         
         const square = this.squareAt(p);
         const neighbors = this.neighboringTerrainAt(p);
+        const neighborSquares = this.neighborsAt(p);
         const newTerrainObj = new terrain(square.terrain);
         
         // is this terrain allowed?
@@ -376,7 +377,15 @@ export class Map {
         square.terrain.destroy();
         square.terrain = newTerrainObj;
         square.finalize(neighbors);
-            // TODO This does not re-model the original map-construction process yet; I haven't checked.
+
+        // TODO uhh.. this feels complicated.
+        // Like, just to destroy and rebuild the graphics? Idk. I *guess*.
+        neighborSquares.surrounding.forEach( square => {
+            const terrType = square.terrain.type;
+            square.terrain.destroy();
+            square.terrain = new terrType(square.terrain);
+            square.finalize(this.neighboringTerrainAt(square.boardLocation));
+        });
 
         // Remove illegal troops
         if (square.unit && !square.traversable(square.unit))
