@@ -18,8 +18,11 @@ In Progress:
 - [ ] Add tile-change to map.ts to make map construction easier.
   - [x] Change tile's terrain type
   - [x] Update neighbors to reflect new neighbor changes
-  - [ ] Modify terrain.orient()/.finalize() to destroy any existing graphics before construction. This simplifies the process and allows it to retain properties like faction alliance.
-- [ ] Add map-to-mapdata function to map.ts for easy post-design extraction.
+  - [x] Modify terrain.orient()/.finalize() to destroy any existing graphics before construction. This simplifies the process and allows it to retain properties like faction alliance.
+  - [ ] Update the shallow water system on changeTile()
+  - [ ] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
+  - [ ] Investigate why Roads assemble inconsistently on Road->Road transitions. (Probably has to do with the reduce-interconnections process).
+- [x] Add map-to-mapdata function to map.ts for easy post-design extraction.
 - [ ] Refactor UI construction system to use decorators and assembly functions which (attempt to) behave like CSS (using Pixi's already present width/height/etc. functions).
 
 - [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. On my laptop, anyway. That's really irritating.

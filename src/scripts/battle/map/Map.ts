@@ -382,7 +382,17 @@ export class Map {
         // re-orient neighbors
         neighborSquares.surrounding
             .filter( s => s.terrain.type !== Terrain.Void )
-            .forEach( s => s.finalize(this.neighboringTerrainAt(s.boardLocation)) );
+            .forEach( s => {
+                const neighbors = this.neighboringTerrainAt(s.boardLocation);
+
+                // reduce illegal tiles
+                if (!s.terrain.legalPlacement(neighbors)) {
+                    const terrain = (s.terrain.landTile) ? Terrain.Plain : Terrain.Sea;
+                    this.changeTile(s.boardLocation, terrain);
+                }
+                
+                s.finalize(this.neighboringTerrainAt(s.boardLocation))
+            });
 
         // Remove illegal troops
         if (square.unit && !square.traversable(square.unit))

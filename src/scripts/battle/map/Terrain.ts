@@ -843,6 +843,10 @@ export module Terrain {
             // One more note: Pipes as they are in classic advance wars do not have a no-connections texture. They just pick the
             // horizontal connection. This looks ugly. When (if) I implement these, draw a no-connections texture.
         }
+
+        legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
+            return false;
+        }
     }
 
     export class PipeSeam extends TerrainObject {

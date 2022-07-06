@@ -78,7 +78,7 @@ export module Common {
   }
 
   /** Given a list of things, returns a random thing. */
-  export function pick<T>(list: T[]): T {
+  export function choose<T>(list: T[]): T {
     const { random, floor } = Math;
     return list[ floor(random()*list.length) ];
   }

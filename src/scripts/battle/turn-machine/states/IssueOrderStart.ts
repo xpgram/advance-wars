@@ -11,6 +11,7 @@ import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 import { BattleSceneControllers } from "../BattleSceneControllers";
 import { ShowMinimap } from "./ShowMinimap";
 import { Terrain } from "../../map/Terrain";
+import { Common } from "../../../CommonUtils";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -218,16 +219,52 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
         unit.CoOnBoard = true;
     }
   },
-  { // Alter terrain
+  { // Alter terrain to random
     key: Keys.K,
     run: (assets) => {
       const { map, mapCursor } = assets;
-      const terrain = Terrain.Mountain;
-      map.changeTile(mapCursor.boardLocation, terrain);
+      const place = mapCursor.boardLocation;
+      const neighbors = map.neighboringTerrainAt(place);
+      const terrOptions = Object.values(Terrain)
+        .filter( t => t !== Terrain.Void && new t().legalPlacement(neighbors) );
+      const terrain = Common.choose(terrOptions);
+      map.changeTile(place, terrain);
     }
   },
+
+  // TODO After finishing the map builder, remove these dev keys
+
+  { // Tmp map change keys for testing
+    key: Keys.Comma,
+    run: (assets) => {
+      const { map, mapCursor } = assets;
+      map.changeTile(mapCursor.boardLocation, Terrain.Plain);
+    }
+  },
+  { // Tmp map change keys for testing
+    key: Keys.Period,
+    run: (assets) => {
+      const { map, mapCursor } = assets;
+      map.changeTile(mapCursor.boardLocation, Terrain.Sea);
+    }
+  },
+  { // Tmp map change keys for testing
+    key: Keys.ForwardSlash,
+    run: (assets) => {
+      const { map, mapCursor } = assets;
+      map.changeTile(mapCursor.boardLocation, Terrain.RoughSea);
+    }
+  },
+  { // Tmp map change keys for testing
+    key: Keys.M,
+    run: (assets) => {
+      const { map, mapCursor } = assets;
+      map.changeTile(mapCursor.boardLocation, Terrain.Beach);
+    }
+  },
+
   { // Post mapdata to console
-    key: Keys.L,
+    key: Keys.L,  // TODO After finishing the map builder, change this to M maybe.
     run: (assets) => {
       const { map, players } = assets;
       console.log( map.generateMapData(players.all) );
