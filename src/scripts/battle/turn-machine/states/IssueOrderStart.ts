@@ -256,7 +256,7 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
     }
   },
   { // Tmp map change keys for testing
-    key: Keys.M,
+    key: Keys.Semicolon,
     run: (assets) => {
       const { map, mapCursor } = assets;
       map.changeTile(mapCursor.boardLocation, Terrain.Beach);
