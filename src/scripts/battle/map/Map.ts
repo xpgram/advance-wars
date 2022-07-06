@@ -373,18 +373,16 @@ export class Map {
             logRejection(`terrain type is not legal`)
             return;
         }
-        
+
+        // rebuild target tile
         square.terrain.destroy();
         square.terrain = newTerrainObj;
         square.finalize(neighbors);
 
-        // TODO uhh.. this feels complicated.
-        // Like, just to destroy and rebuild the graphics? Idk. I *guess*.
-        neighborSquares.surrounding.forEach( square => {
-            if (square.terrain.type === Terrain.Void)
-                return;
-            square.finalize(this.neighboringTerrainAt(square.boardLocation));
-        });
+        // re-orient neighbors
+        neighborSquares.surrounding
+            .filter( s => s.terrain.type !== Terrain.Void )
+            .forEach( s => s.finalize(this.neighboringTerrainAt(s.boardLocation)) );
 
         // Remove illegal troops
         if (square.unit && !square.traversable(square.unit))
