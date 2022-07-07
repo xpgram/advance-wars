@@ -23,6 +23,7 @@ In Progress:
   - [ ] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
   - [ ] Investigate why Roads assemble inconsistently on Road->Road transitions. (Probably has to do with the reduce-interconnections process).
 - [x] Add map-to-mapdata function to map.ts for easy post-design extraction.
+- [x] Add map-design mode for easy manipulation
 - [ ] Refactor UI construction system to use decorators and assembly functions which (attempt to) behave like CSS (using Pixi's already present width/height/etc. functions).
 
 - [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. On my laptop, anyway. That's really irritating.
