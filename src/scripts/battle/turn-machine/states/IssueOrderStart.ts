@@ -12,6 +12,7 @@ import { BattleSceneControllers } from "../BattleSceneControllers";
 import { ShowMinimap } from "./ShowMinimap";
 import { Terrain } from "../../map/Terrain";
 import { Common } from "../../../CommonUtils";
+import { DevMapEditor } from "./DevMapEditor";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -231,43 +232,10 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
       map.changeTile(place, terrain);
     }
   },
-
-  // TODO After finishing the map builder, remove these dev keys
-
-  { // Tmp map change keys for testing
-    key: Keys.Comma,
-    run: (assets) => {
-      const { map, mapCursor } = assets;
-      map.changeTile(mapCursor.boardLocation, Terrain.Plain);
-    }
-  },
-  { // Tmp map change keys for testing
+  { // Enter developer map-design mode
     key: Keys.Period,
-    run: (assets) => {
-      const { map, mapCursor } = assets;
-      map.changeTile(mapCursor.boardLocation, Terrain.Sea);
-    }
-  },
-  { // Tmp map change keys for testing
-    key: Keys.ForwardSlash,
-    run: (assets) => {
-      const { map, mapCursor } = assets;
-      map.changeTile(mapCursor.boardLocation, Terrain.RoughSea);
-    }
-  },
-  { // Tmp map change keys for testing
-    key: Keys.Semicolon,
-    run: (assets) => {
-      const { map, mapCursor } = assets;
-      map.changeTile(mapCursor.boardLocation, Terrain.Beach);
-    }
-  },
-
-  { // Post mapdata to console
-    key: Keys.L,  // TODO After finishing the map builder, change this to M maybe.
-    run: (assets) => {
-      const { map, players } = assets;
-      console.log( map.generateMapData(players.all) );
+    run: (assets, state) => {
+      state.advance(DevMapEditor);
     }
   },
 ]
