@@ -54,6 +54,12 @@ export function Observable<BC extends Constructable>(Base: BC) {
     removeListenerFromEvent(event: string, callback: () => void, context?: object) {
       this.observers = this.observers.filter(obs => obs.event !== event || obs.callback !== callback || obs.context !== context);
     }
+
+    /** Removes all callback functions matching the given context object.  
+     * Useful when destroying an object with multiple events logged in this observable. */
+    removeListenerContext(context: object) {
+      this.observers = this.observers.filter(obs => obs.context !== context);
+    }
   
     /** Empties the list of callback-context pairs. */
     protected clearListeners(event?: string): void {
