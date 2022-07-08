@@ -16,6 +16,7 @@ But anyway, yeah. There is constant state checking because his system never just
 
 Quick:
 - [ ] Make GameEnd send you back to the main menu
+- [ ] Update sight map (only reveal) for all entities/terrains after closing MapDesigner
 
 In Progress:
 - [ ] Add tile-change to map.ts to make map construction easier.
