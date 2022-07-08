@@ -953,6 +953,29 @@ export class Map {
         return mapdata;
     }
 
+    /** Returns a MapData string that can be easily inserted into a json list. */
+    generateMapDataString(players: BoardPlayer[]): string {
+        const mapdata = this.generateMapData(players);
+
+        let s = [
+            `{`,
+            `  "name": "${mapdata.name}",`,
+            `  "size": { "width": ${mapdata.size.width}, "height": ${mapdata.size.height} },`,
+            `  "players": ${mapdata.players},`,
+            `  "map": [`,
+            ...mapdata.map.map( col => `    [${col}],` ),
+            `  ],`,
+            `  "owners": [`,
+            ...mapdata.owners.map( o => `    {"location": {"x": ${o.location.x}, "y": ${o.location.y}}, "player": ${o.player}},` ),
+            `  ],`,
+            `  "predeploy": [`,
+            ...mapdata.predeploy.map( p => `    {"location": {"x": ${p.location.x}, "y": ${p.location.y}}, "serial": ${p.serial}, "player": ${p.player}},` ),
+            `  ],`,
+            `},`
+        ];
+        return s.join('\n');
+    }
+
     /** Returns a string representation of the map for debugging purposes. */
     logString(): string {
         const rows: string[] = [];
