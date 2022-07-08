@@ -82,6 +82,7 @@ export class DevMapEditor extends TurnState {
       const troopFaction = (brushFaction >= Faction.Red) ? brushFaction : Faction.Red;
       const player = players.all.find( p => p.faction === troopFaction );
       if (player) {
+        map.squareAt(toPaint).unit?.destroy();
         player.spawnUnit({
           location: toPaint,
           serial: troopBrush.serial,
