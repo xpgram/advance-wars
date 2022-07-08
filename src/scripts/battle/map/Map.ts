@@ -347,6 +347,8 @@ export class Map {
     }
 
     /** Triggers a local rebuild of the map display object at the point p to the given terrain type. */
+    // TODO This does work that is redundant af when bucket-filling; add a changeTiles(...terrain) or
+    // a bucketfill(p: point, terrain: TerrainType) method to reduce all that extra rerendering from .finalize().
     changeTile(p: Point, terrain: TerrainType) {
         // stub; experimental
         // needed for map editor
