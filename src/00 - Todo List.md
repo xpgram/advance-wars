@@ -14,12 +14,17 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
+Quick:
+- [ ] Make GameEnd send you back to the main menu
+
 In Progress:
 - [ ] Add tile-change to map.ts to make map construction easier.
   - [x] Change tile's terrain type
   - [x] Update neighbors to reflect new neighbor changes
   - [x] Modify terrain.orient()/.finalize() to destroy any existing graphics before construction. This simplifies the process and allows it to retain properties like faction alliance.
   - [ ] Update the shallow water system on changeTile()
+  - [ ] Use number packing to add data to Bridge serials (river or sea)
+    - [ ] This would 'ruin' the formatting. Should I not have formatting? I suppose there's no longer a reason to edit maps by hand, so...
   - [ ] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
   - [ ] Investigate why Roads assemble inconsistently on Road->Road transitions. (Probably has to do with the reduce-interconnections process).
 - [x] Add map-to-mapdata function to map.ts for easy post-design extraction.
