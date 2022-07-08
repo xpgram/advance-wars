@@ -21,6 +21,7 @@ export class Button {
   /** The frames since this button's last raw-input state change. */
   get framesHeld() { return this._framesHeld; };
   private _framesHeld = 0;
+  private _countHeldFrames = true;
 
   /** The time in seconds since this button's last raw-input state change.  
    * // Note: Not implemented; time is inferred from framecount. */
@@ -39,9 +40,22 @@ export class Button {
   get up() { return this._state === ButtonState.Up || this.released; }
   get changed() { return this.pressed || this.released; }
 
-  /** Returns true if the button has been in the down state for the number of frames given. */
-  held(frames: number) {
-    return this.down && this._framesHeld >= frames;
+  /** Returns true if the button has been in the down state for the number of frames given.  
+   * The interrupt evaluation function assumes you will be continuously checking held() while
+   * waiting for the hold time to elapse. It cannot detect functions which circumstantially
+   * return true only when held() has not been called. */
+  held(frames: number, op: { while?: () => boolean, interrupt?: () => boolean, once?: boolean } = {}) {
+    if (op.interrupt && op.interrupt() || op.while && !op.while()) {
+      this.cancel();
+      return false;
+    }
+
+    const result = this.down && this._framesHeld >= frames;
+
+    if (result && op.once)
+      this.cancel();
+      
+    return result;
   }
 
   /** Updates a button state to the one given and handles clerical details. */
