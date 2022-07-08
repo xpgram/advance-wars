@@ -213,9 +213,6 @@ const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
 
       if (state.bucketFillTarget === state.terrainBrush)
         return; // let's not be silly
-
-      map.clearTemporaryValues();
-      const pointsToPaint: Point[] = [];
       
       new QueueSearch({
         owner: state.name,
@@ -223,28 +220,14 @@ const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
         firstNode: mapCursor.boardLocation,
         searchMode: QueueSearch.SearchMode.BreadthFirst,
         nodeHandler: (node: Point) => {
-          pointsToPaint.push(node);
-          map.squareAt(node).flag = true;
+          if (map.squareAt(node).terrain.type !== state.terrainBrush)
+            state.paintTile(node);
 
           return [Point.Up, Point.Left, Point.Down, Point.Right]
             .map( p => p.add(node) )
-            .filter( p => {
-              const square = map.squareAt(p);
-              const unvisited = (!square.flag);
-              const targetMatched = (square.terrain.type === state.bucketFillTarget);
-              return unvisited && targetMatched;
-            });
+            .filter( p => map.squareAt(p).terrain.type === state.bucketFillTarget );
         }
       });
-
-      let redundantPaintCount = 0;
-      pointsToPaint.forEach( p => {
-        if (map.squareAt(p).terrain.type === state.terrainBrush)
-          redundantPaintCount++;
-        state.paintTile(p);
-      });
-
-      Debug.assert(redundantPaintCount < 2, `Bucket-fill operation is recording duplicate points other than the seed point.`);
     }
   },
   { // Copy terrain underneath
