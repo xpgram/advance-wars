@@ -1,5 +1,7 @@
 import { Debug } from "../DebugUtils";
 
+const DOMAIN = "QueueSearch";
+
 /** Enum with terms for every possible search mode operable by QueueSearch.
  * DepthFirst is approximate: it extends outward to some limit, then works its way back to
  * a previous branching point and extends outward again.
@@ -37,6 +39,7 @@ export class QueueSearch<T> {
 
     /** The time in milliseconds the algorithm will wait before warning that it may be looping forever. */
     private warningTimerLimit: number;
+    private warningPosted = false;
 
     /** The time since the search was started or the elapsed time taken to complete. */
     get elapsedTime(): number {
@@ -100,23 +103,29 @@ export class QueueSearch<T> {
         if (this.finished)
             return;
 
+        const PROCESS = "HandleNode";
+
         // Check the algorithm's elapsed time and warn the developer if it's taking too long.
         // Allow negative timers to cancel this warning.
         if (this.warningTimerLimit >= 0) {
 
-            let warnMsg = (msg: string) => {
-                let name = this.name || 'Nameless';
-                Debug.warn(`Search algorithm '${name}': ${msg}`)
+            const warnMsg = (msg: string) => {
+                const name = this.name || 'Nameless';
+                Debug.log(DOMAIN, PROCESS, {
+                    message: `Search algorithm '${name}': ${msg}`,
+                    warn: true,
+                });
             }
 
             // Inform the developer if the warning limit has fully elapsed.
-            if (this.elapsedTime >= this.warningTimerLimit) {
+            if (!this.warningPosted && this.elapsedTime >= this.warningTimerLimit) {
                 warnMsg(`Exceeded an expected completion time of ${this.elapsedTime}ms.`)
+                this.warningPosted = true;
             }
 
             // Emergency search halt in the case of infinite loop (inferred by time elapsed)
             if (this.elapsedTime >= this.warningTimerLimit*2) {
-                warnMsg(`Search took extroardinarily long. Assuming loop failure.`);
+                warnMsg(`Search took extroardinarily long. Assuming loop failure; aborting.`);
                 this.endSearch();
             }
         }
@@ -190,5 +199,11 @@ export class QueueSearch<T> {
     endSearch() {
         this._finished = true;
         this.endTime = Date.now();
+
+        const name = this.name || 'Nameless';
+        Debug.log(DOMAIN, "Finish", {
+            message: `Search algorithm '${name}': Ended with execution time ${this.elapsedTime}ms`,
+            warn: this.warningPosted,
+        })
     }
 }
