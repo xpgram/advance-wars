@@ -70,12 +70,14 @@ export class QueueSearch<T> {
 
 
     constructor(options: {
+        owner: string,
+        process: string,
+
         firstNode: T,
         searchMode: SearchMode,
 
         staccatoSearch?: boolean,
         warningTimer?: number,
-        algorithmName?: string,
 
         /** Expected to return a list of nodes to queue, none at all, or the signal to stop. */
         nodeHandler: (node: T) => T[] | null | 'break',
@@ -84,7 +86,7 @@ export class QueueSearch<T> {
         this.queue = [options.firstNode];
         this.staccatoSearch = options.staccatoSearch || false;
         this.warningTimerLimit = options.warningTimer || 1000; // Default: 1 second
-        this.name = options.algorithmName;
+        this.name = `${options.owner}:${options.process}`;
 
         this.handleNode = options.nodeHandler;
 

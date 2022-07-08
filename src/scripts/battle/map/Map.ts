@@ -722,6 +722,8 @@ export class Map {
         /// Algorithm ///
         // Color all tiles the given unit may move into.
         new QueueSearch({
+            owner: DOMAIN,
+            process: "GenerateColorMap",
             firstNode: inspector,
             searchMode: QueueSearch.SearchMode.BreadthFirst,
             nodeHandler: (node: TileInspector) => {
@@ -848,6 +850,8 @@ export class Map {
         // looking for a position from which the destination is visible through the range map.
         let newPathfinder = (firstNode: TileInspector) => {
             return new QueueSearch({
+                owner: DOMAIN,
+                process: "RepathTravelArrow",
                 firstNode: firstNode,
                 searchMode: QueueSearch.SearchMode.BreadthFirst,
                 nodeHandler: (node: TileInspector) => {

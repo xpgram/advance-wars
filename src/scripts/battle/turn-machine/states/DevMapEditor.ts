@@ -1,8 +1,11 @@
 import { Game } from "../../../..";
+import { Point } from "../../../Common/Point";
+import { QueueSearch } from "../../../Common/QueueSearch";
 import { Common } from "../../../CommonUtils";
 import { Button } from "../../../controls/Button";
 import { Keys } from "../../../controls/KeyboardObserver";
 import { VirtualGamepad } from "../../../controls/VirtualGamepad";
+import { Debug } from "../../../DebugUtils";
 import { Faction } from "../../EnumTypes";
 import { Terrain } from "../../map/Terrain";
 import { TerrainType } from "../../map/TerrainObject";
@@ -31,6 +34,7 @@ export class DevMapEditor extends TurnState {
   brushFaction: Faction = Faction.Red;
   terrainBrush: TerrainType = Terrain.Plain;
   troopBrush: UnitType = Unit.Infantry;
+  bucketFillTarget: TerrainType = Terrain.Plain;
 
   private iRowString = [0,0];
   
@@ -54,10 +58,34 @@ export class DevMapEditor extends TurnState {
 
   onCursorMoveTrigger() {
     const { gamepad } = this.assets;
-    for (const script of onCursorMoveControls) {
-      if (script.getButton(gamepad).down) {
+    for (const script of controlScripts) {
+      if (script.onCursorTriggerEval(gamepad)) {
         script.run(this.assets, this);
         break;
+      }
+    }
+  }
+
+  paintTile(toPaint: Point) {
+    const { map, players } = this.assets;
+    const { brushMode, brushFaction, terrainBrush, troopBrush } = this;
+
+    if (brushMode === 'terrain') {
+      map.changeTile(toPaint, terrainBrush);
+      const square = map.squareAt(toPaint);
+      if (square.terrain.building)
+        square.terrain.faction = brushFaction;
+    }
+
+    else if (brushMode === 'troop') {
+      // FIXME I need some kind of Faction slider
+      const troopFaction = (brushFaction >= Faction.Red) ? brushFaction : Faction.Red;
+      const player = players.all.find( p => p.faction === troopFaction );
+      if (player) {
+        player.spawnUnit({
+          location: toPaint,
+          serial: troopBrush.serial,
+        });
       }
     }
   }
@@ -141,8 +169,8 @@ export class DevMapEditor extends TurnState {
     }
 
     // Find and execute 1 triggerable control script
-    for (const controlScript of onPressControls) {
-      if (controlScript.getButton(gamepad).pressed) {
+    for (const controlScript of controlScripts) {
+      if (controlScript.triggerEval(gamepad)) {
         controlScript.run(this.assets, this);
         break;
       }
@@ -152,42 +180,76 @@ export class DevMapEditor extends TurnState {
 }
 
 type ControlTriggerScript = {
-  onCursorMove?: boolean;
-  getButton: (gp: VirtualGamepad) => Button;
+  triggerEval: (gp: VirtualGamepad) => boolean;
+  onCursorTriggerEval: (gp: VirtualGamepad) => boolean;
   run(assets: BattleSceneControllers, state: DevMapEditor): void;
 }
 
+const defaultScriptProperties = {
+  triggerEval: () => false,
+  onCursorTriggerEval: () => false,
+};
+
 /** List of scripts for each player control. */
-const onPressControls = <ControlTriggerScript[]>[
+const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
   { // Place terrain
-    onCursorMove: true,
-    getButton: (gp) => gp.button.A,
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.A.pressed,
+    onCursorTriggerEval: (gp) => gp.button.A.down,
     run(assets, state) {
-      const { map, mapCursor, players } = assets;
-      const { brushMode, brushFaction, terrainBrush, troopBrush } = state;
+      const { map, mapCursor } = assets;
+      state.bucketFillTarget = map.squareAt(mapCursor.boardLocation).terrain.type;
+      state.paintTile(mapCursor.boardLocation);
+    }
+  },
+  { // Bucket-fill current terrain from location
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.A.held(60, {interrupt: () => gp.axis.dpad.roaming, once: true}),
+    run(assets, state) {
+      if (state.brushMode !== 'terrain')
+        return; // painting troops seems dangerous and not very useful. maybe.
+        
+      const { map, mapCursor } = assets;
 
-      if (brushMode === 'terrain') {
-        map.changeTile(mapCursor.boardLocation, terrainBrush);
-        const square = map.squareAt(mapCursor.boardLocation);
-        if (square.terrain.building)
-          square.terrain.faction = brushFaction;
-      }
+      if (state.bucketFillTarget === state.terrainBrush)
+        return; // let's not be silly
 
-      else if (state.brushMode === 'troop') {
-        // FIXME I need some kind of Faction slider
-        const troopFaction = (brushFaction >= Faction.Red) ? brushFaction : Faction.Red;
-        const player = players.all.find( p => p.faction === troopFaction );
-        if (player) {
-          player.spawnUnit({
-            location: mapCursor.boardLocation,
-            serial: troopBrush.serial,
-          });
+      map.clearTemporaryValues();
+      const pointsToPaint: Point[] = [];
+      
+      new QueueSearch({
+        owner: state.name,
+        process: "BucketFill",
+        firstNode: mapCursor.boardLocation,
+        searchMode: QueueSearch.SearchMode.BreadthFirst,
+        nodeHandler: (node: Point) => {
+          pointsToPaint.push(node);
+          map.squareAt(node).flag = true;
+
+          return [Point.Up, Point.Left, Point.Down, Point.Right]
+            .map( p => p.add(node) )
+            .filter( p => {
+              const square = map.squareAt(p);
+              const unvisited = (!square.flag);
+              const targetMatched = (square.terrain.type === state.bucketFillTarget);
+              return unvisited && targetMatched;
+            });
         }
-      }
+      });
+
+      let redundantPaintCount = 0;
+      pointsToPaint.forEach( p => {
+        if (map.squareAt(p).terrain.type === state.terrainBrush)
+          redundantPaintCount++;
+        state.paintTile(p);
+      });
+
+      Debug.assert(redundantPaintCount < 2, `Bucket-fill operation is recording duplicate points other than the seed point.`);
     }
   },
   { // Copy terrain underneath
-    getButton: (gp) => gp.button.B,
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.B.pressed,
     run(assets, state) {
       const { map, mapCursor } = assets;
       const square = map.squareAt(mapCursor.boardLocation);
@@ -208,8 +270,9 @@ const onPressControls = <ControlTriggerScript[]>[
     }
   },
   { // Remove special terrain / troops
-    onCursorMove: true,
-    getButton: (gp) => gp.button.X,
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.X.pressed,
+    onCursorTriggerEval: (gp) => gp.button.X.down,
     run(assets, state) {
       const { map, mapCursor } = assets;
 
@@ -228,27 +291,24 @@ const onPressControls = <ControlTriggerScript[]>[
       // TODO I /need/ a retrigger cursor/etc. UI method that does not invoke movement. Mega dangerous.
     }
   },
-  { // Bucket-fill current terrain from location
-    getButton: (gp) => gp.button.Y,
-    run(assets, state) {
-      // IMPLEMENT
-    }
-  },
   { // Switch to 'troop' mode / (open troop picker)
-    getButton: (gp) => gp.button.leftBumper,
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.leftBumper.pressed,
     run(assets, state) {
       state.brushMode = 'troop';
       state.brushFaction = (state.brushFaction < Faction.Red) ? Faction.Red : state.brushFaction;
     }
   },
   { // Switch to 'terrain' mode / (open terrain picker)
-    getButton: (gp) => gp.button.rightBumper,
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.rightBumper.pressed,
     run(assets, state) {
       state.brushMode = 'terrain';
     }
   },
   { // Rotate brush faction
-    getButton: (gp) => gp.button.select,
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.select.pressed,
     run(assets, state) {
       // FIXME uhhh... bad implementation.
       state.brushFaction += 1;
@@ -259,12 +319,10 @@ const onPressControls = <ControlTriggerScript[]>[
     }
   },
   { // End design mode
-    getButton: (gp) => gp.button.start,
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.start.pressed,
     run(assets, state) {
       state.regress();
     }
   },
-];
-
-/** List of control scripts that execute when the button is held down and the cursor moves. */
-const onCursorMoveControls = onPressControls.filter( script => script.onCursorMove );
+]);
