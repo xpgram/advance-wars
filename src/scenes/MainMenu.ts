@@ -11,15 +11,15 @@ import { ListMenuOption } from "../scripts/system/gui-menu-components/ListMenuOp
 import { BattleScene } from "./BattleScene";
 import { Point } from "../scripts/Common/Point";
 import { TitleScreen } from "./TitleScreen";
+import { maps as campaignMaps } from "../battle-maps/campaign-maps";
+import { maps as trialMaps } from "../battle-maps/trial-maps";
 
 
 // TODO I need a design for a proper repository.
-import { data as mapMetroIsland } from "../battle-maps/metro-island";
 import { data as mapBlank } from "../battle-maps/blank";
-import { data as mapGreyfieldStrikes } from "../battle-maps/greyfield-strikes";
+import { data as mapMetroIsland } from "../battle-maps/metro-island";
 import { data as mapLandsEnd } from "../battle-maps/lands-end";
 import { data as mapDev2P } from "../battle-maps/dev-room-2p";
-import { maps as trialMaps } from "../battle-maps/trial-maps";
 
 
 /**
@@ -49,13 +49,14 @@ export class MainMenuScene extends Scene {
 
     this.menu = new ListMenu(this.gamepad, {
       listItems: [
-        mapMetroIsland,
         mapBlank,
-        mapGreyfieldStrikes,
+        mapMetroIsland,
         mapLandsEnd,
         mapDev2P,
+        ...campaignMaps,
         ...trialMaps,
       ].map( data => new ListMenuOption({title: data.name}, data)),
+      pageLength: 8,
     });
 
     this.guiMenu = new CommandMenuGUI(this.menu, this.visualLayers.hud);
