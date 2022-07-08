@@ -24,7 +24,7 @@ In Progress:
   - [x] Update neighbors to reflect new neighbor changes
   - [x] Modify terrain.orient()/.finalize() to destroy any existing graphics before construction. This simplifies the process and allows it to retain properties like faction alliance.
   - [ ] Update the shallow water system on changeTile()
-  - [ ] Use number packing to add data to Bridge serials (river or sea)
+  - [ ] Use number packing to add data to Bridge serials (river or sea) (also affects Plasma; forgot)
     - [ ] This would 'ruin' the formatting. Should I not have formatting? I suppose there's no longer a reason to edit maps by hand, so...
   - [ ] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
   - [ ] Investigate why Roads assemble inconsistently on Road->Road transitions. (Probably has to do with the reduce-interconnections process).
