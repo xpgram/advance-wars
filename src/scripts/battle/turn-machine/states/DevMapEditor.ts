@@ -137,7 +137,7 @@ export class DevMapEditor extends TurnState {
     // Permenant dev control for posting current map data to the console
     if (Game.devController.pressed(Keys.Period)) {
       players.all.forEach( p => p.scanCapturedProperties() );
-      console.log( map.generateMapData(players.all) );
+      console.log( map.generateMapDataString(players.all) );
     }
 
     // Find and execute 1 triggerable control script

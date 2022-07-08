@@ -957,19 +957,26 @@ export class Map {
     generateMapDataString(players: BoardPlayer[]): string {
         const mapdata = this.generateMapData(players);
 
+        // TODO Perfect. I just want serials and positions to be min-width 2, padded with ' '.
+
+        const pad = (n: number) => n.toString().padStart(2, ' ');
+
         let s = [
             `{`,
             `  "name": "${mapdata.name}",`,
             `  "size": { "width": ${mapdata.size.width}, "height": ${mapdata.size.height} },`,
             `  "players": ${mapdata.players},`,
             `  "map": [`,
-            ...mapdata.map.map( col => `    [${col}],` ),
+            ...mapdata.map.map( col =>
+            `    [${col.map(pad)}],` ),
             `  ],`,
             `  "owners": [`,
-            ...mapdata.owners.map( o => `    {"location": {"x": ${o.location.x}, "y": ${o.location.y}}, "player": ${o.player}},` ),
+            ...mapdata.owners.map( o =>
+            `    {"location": {"x": ${pad(o.location.x)}, "y": ${pad(o.location.y)}}, "player": ${o.player}},` ),
             `  ],`,
             `  "predeploy": [`,
-            ...mapdata.predeploy.map( p => `    {"location": {"x": ${p.location.x}, "y": ${p.location.y}}, "serial": ${p.serial}, "player": ${p.player}},` ),
+            ...mapdata.predeploy.map( p =>
+            `    {"location": {"x": ${pad(p.location.x)}, "y": ${pad(p.location.y)}}, "serial": ${pad(p.serial)}, "player": ${p.player}},` ),
             `  ],`,
             `},`
         ];
