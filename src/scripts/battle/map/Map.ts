@@ -372,7 +372,7 @@ export class Map {
         
         // is this terrain allowed?
         if (!newTerrainObj.legalPlacement(neighbors)) {
-            logRejection(`terrain type is not legal`)
+            logRejection(`terrain '${newTerrainObj.name}' placement is not legal`)
             return;
         }
 
