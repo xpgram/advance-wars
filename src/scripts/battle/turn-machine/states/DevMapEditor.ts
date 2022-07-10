@@ -128,13 +128,29 @@ export class DevMapEditor extends TurnState {
 
   close() {
     const { map, mapCursor } = this.assets;
-    mapCursor.removeListenerContext(this);
+    const { current: player } = this.assets.players;
 
+    mapCursor.removeListenerContext(this);
+    
     // Restore old sight map
     for (let x = 0; x < map.width; x++)
     for (let y = 0; y < map.height; y++) {
       map.squareAt({x,y}).hiddenFlag = this.oldSightMap[x][y];
     }
+    
+    // Reveal-only sight map for any new structures added during design mode
+    // TODO This code is adapted from the ResetPerspective turnstate; combine them maybe.
+    player.scanCapturedProperties();
+
+    for (const point of player.capturePoints)
+      map.revealSightMapLocation(point, player);
+    
+    for (const troop of player.units)
+      map.revealSightMapLocation(troop.boardLocation, player, troop);
+
+    map.squares
+      .filter( s => s.terrain.type === Terrain.Fire )
+      .forEach( s => map.revealSightMapLocation(s.boardLocation, player) );
   }
 
   update() {
@@ -148,10 +164,8 @@ export class DevMapEditor extends TurnState {
       this.iRowString.push(iRowNum);
       if (this.iRowString.length > 2)
         this.iRowString.shift();
-    }
 
-    // Temporary dev control for selecting brush based on last 2 iRow presses
-    if (Game.devController.pressed(Keys.Q)) {
+      // Update active brush
       const serial = this.iRowString[0] * 10 + this.iRowString[1];
       
       const terrain = Object.values(Terrain).find( t => t.serial === serial );
@@ -167,6 +181,20 @@ export class DevMapEditor extends TurnState {
     if (Game.devController.pressed(Keys.Period)) {
       players.all.forEach( p => p.scanCapturedProperties() );
       console.log( map.generateMapDataString(players.all) );
+    }
+
+    // Permenant dev control for posting serial IDs to the console ('cause I don't have the pickers yet)
+    if (Game.devController.pressed(Keys.ForwardSlash)) {
+      let loglines: string[] = [];
+
+      if (this.brushMode === 'terrain')
+        loglines = Object.values(Terrain).map( t => `${t.serial.toString().padStart(2, '0')} ${t.name}` );
+
+      if (this.brushMode === 'troop')
+        loglines = Object.values(Unit).map( u => `${u.serial.toString().padStart(2, '0')} ${u.name}` );
+
+      loglines.unshift(`brush: '${this.brushMode}'`);
+      console.log(loglines.join('\n'));
     }
 
     // Find and execute 1 triggerable control script
