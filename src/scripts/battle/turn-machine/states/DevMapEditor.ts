@@ -51,7 +51,7 @@ export class DevMapEditor extends TurnState {
 
     else if (this.brushMode === 'troop') {
       const square = map.squareAt(mapCursor.boardLocation);
-      const placeable = square.traversable(new this.troopBrush());
+      const placeable = square.terrain.getMovementCost(new this.troopBrush().moveType) > 0;
       mapCursor.mode = (placeable) ? 'point' : 'ban';
     }
   }
