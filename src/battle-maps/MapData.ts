@@ -44,6 +44,8 @@ export type MapData = {
     capture?: number,
     rank?: number,
 
+    // ...anything else?
+
     /** Whether this is a CO unit. */
     coAnnointed?: boolean,
     /** how the AI system treats this particular unit; overrides the global, default setting. */
@@ -52,7 +54,5 @@ export type MapData = {
     isHiding?: boolean,
     /** only used by the predeploy system to guarantee proper spawn ordering */
     isCargo?: boolean,
-
-    // ...anything else?
   }[],
 }
