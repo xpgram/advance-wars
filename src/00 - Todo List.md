@@ -16,7 +16,6 @@ But anyway, yeah. There is constant state checking because his system never just
 
 Quick:
 - [ ] Make GameEnd send you back to the main menu
-- [ ] Update sight map (only reveal) for all entities/terrains after closing MapDesigner
 
 In Progress:
 - [ ] Add tile-change to map.ts to make map construction easier.
@@ -371,6 +370,14 @@ More observations:
   - hold() is an update step which allows for animation while a scene is loading or something. If a scene transition takes longer than expected for some reason, this step keeps the transition effect visually interesting.
   - finish() initiates the final half of the transition. A callback or some other kind of signal (probably less used than start()'s) indicates when the transition is fully cleared and done animating.
   As you can see, we're merely operating an attack-hold-decay-release pattern. Release isn't described, but the effect could theoretically declare itself done before it actually finishes animating, at which point it would destroy itself or something.
+
+- [ ] Feature: Grouped Squad Directions
+  - Multi-select troops and pick a target location. Then, each troop moves independently toward that location via the CPU's A* pathing algorithm.
+  - This would be done by generating a block of movement instructions, each executed in-order, kind of like the AI took over for a bit.
+  - The purpose is to make moving clots easier, and to minimize the micro-management involved with troops that are stuck over each other but are otherwise unbothered and safe.
+  - Ex. Late game, you'll often have the enemy cornered, but you might still be purchasing a lot of new tanks or something. The only question these back-board units need to answer is where to move to, and there are a lot of them so the work *is* tedious, so why not let the AI do it?
+  - Ex.2 Narrow passageways create clots that are difficult to move a lot of troops through without them accidentally blocking each other at times. This might require some work to get right, but the AI could do this much faster than the player. And it would reduce tedium.
+  - Late game can be boring because of the examples I gave, so this could really speed it up.
 
 
 
