@@ -237,6 +237,9 @@ export class BoardPlayer {
     
     const square = this.map.squareAt(location);
 
+    // FIXME Check if the new troop could be loaded as cargo into an existing troop before rejecting due to overlapping occupancy.
+    // This allows both Seaplanes and predeploy cargo to work.
+
     if (square.unit)
       throw new SpawnUnitError(`Could not spawn predeploy: location ${location.toString()} already occupied.`);
     if (!square.occupiable(unit))

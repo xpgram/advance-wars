@@ -107,7 +107,7 @@ export enum Weather {
 }
 
 /** Indicates which global priority set an AI will exhibit. */
-export enum AIPlayStyle {
+export enum AiPlayStyle {
   Balanced,
   Aggressive,
   Defensive,

@@ -13,7 +13,7 @@ import { CameraZoom } from "../control-scripts/cameraZoom";
 import { ControlScript } from "../../ControlScript";
 import { CommandInstruction } from "./CommandInstruction";
 import { BoardPlayer } from "../BoardPlayer";
-import { Faction, TerrainTileSet, Weather, AIPlayStyle } from "../EnumTypes";
+import { Faction, TerrainTileSet, Weather, AiPlayStyle } from "../EnumTypes";
 import { MapData } from "../../../battle-maps/MapData";
 import { NextOrderableUnit } from "../control-scripts/nextOrderableUnit";
 import { TurnModerator } from "../TurnModerator";
