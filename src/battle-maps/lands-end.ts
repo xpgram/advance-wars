@@ -104,6 +104,7 @@ export const data = {
     {"location": {"x":25, "y":15}, "serial": sub, "player": 0},
     {"location": {"x":24, "y":16}, "serial": gnb, "player": 0},
     {"location": {"x":23, "y":15}, "serial": lnd, "player": 0},
+    {"location": {"x":23, "y":15}, "serial": tnk, "player": 0},
     {"location": {"x":22, "y":16}, "serial": mdt, "player": 0},
     {"location": {"x":21, "y":16}, "serial": tnk, "player": 0},
     {"location": {"x":23, "y":17}, "serial": flr, "player": 0},
