@@ -13,7 +13,7 @@ const [ inf, mch, bik, rig, flr, tnk, mdt, aai, art, rck, msl, fgt, bcp, tcp, gn
 
 
 export const data = {
-  "name": "Land's End",
+  "name": "DevRoom Large 4P",
   "players": 4,
   "size": {"width": 32, "height": 27},
   "map": [

@@ -13,6 +13,7 @@ import { Point } from "../scripts/Common/Point";
 import { TitleScreen } from "./TitleScreen";
 import { maps as campaignMaps } from "../battle-maps/campaign-maps";
 import { maps as trialMaps } from "../battle-maps/trial-maps";
+import { maps as aw2Maps } from "../battle-maps/aw2-maps";
 
 
 // TODO I need a design for a proper repository.
@@ -55,6 +56,7 @@ export class MainMenuScene extends Scene {
         mapDev2P,
         ...campaignMaps,
         ...trialMaps,
+        ...aw2Maps,
       ].map( data => new ListMenuOption({title: data.name}, data)),
       pageLength: 8,
     });

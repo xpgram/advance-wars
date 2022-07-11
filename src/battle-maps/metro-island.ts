@@ -9,7 +9,7 @@ const { Infantry, Mech, Bike, Recon, Flare, AntiAir, Tank, MdTank, WarTank, Arti
 
 
 export const data = {
-  "name": "Metro Island",
+  "name": "Demo Island",
   "players": 2,
   "size": {"width": 16, "height": 15},
   "map": [

@@ -70,9 +70,10 @@ export class DevMapEditor extends TurnState {
     const { map, players } = this.assets;
     const { brushMode, brushFaction, terrainBrush, troopBrush } = this;
 
+    const square = map.squareAt(toPaint);
+
     if (brushMode === 'terrain') {
       map.changeTile(toPaint, terrainBrush);
-      const square = map.squareAt(toPaint);
       if (square.terrain.building)
         square.terrain.faction = brushFaction;
     }
@@ -81,8 +82,9 @@ export class DevMapEditor extends TurnState {
       // FIXME I need some kind of Faction slider
       const troopFaction = (brushFaction >= Faction.Red) ? brushFaction : Faction.Red;
       const player = players.all.find( p => p.faction === troopFaction );
-      if (player) {
-        map.squareAt(toPaint).unit?.destroy();
+      const troopMayOccupy = (square.terrain.getMovementCost(new troopBrush().moveType) > 0)
+      if (player && troopMayOccupy) {
+        square.unit?.destroy();
         player.spawnUnit({
           location: toPaint,
           serial: troopBrush.serial,
@@ -159,9 +161,15 @@ export class DevMapEditor extends TurnState {
 
     // Temporary dev controls for changing the serial to select brushes with
     const iRows = [Keys.iRow0, Keys.iRow1, Keys.iRow2, Keys.iRow3, Keys.iRow4, Keys.iRow5, Keys.iRow6, Keys.iRow7, Keys.iRow8, Keys.iRow9];
-    const iRowNum = iRows.findIndex( key => Game.devController.pressed(key));
-    if (iRowNum !== -1) {
-      this.iRowString.push(iRowNum);
+    const numpad = [Keys.Numpad0, Keys.Numpad1, Keys.Numpad2, Keys.Numpad3, Keys.Numpad4, Keys.Numpad5, Keys.Numpad6, Keys.Numpad7, Keys.Numpad8, Keys.Numpad9]
+
+    // TODO Give devcontroller a function which asks if a 'digit' was pressed
+    let digit = iRows.findIndex( key => Game.devController.pressed(key));
+    if (digit === -1)
+      digit = numpad.findIndex( key => Game.devController.pressed(key));
+
+    if (digit !== -1) {
+      this.iRowString.push(digit);
       if (this.iRowString.length > 2)
         this.iRowString.shift();
 
