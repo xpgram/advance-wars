@@ -232,27 +232,31 @@ export class BoardPlayer {
     const unit = new unitType();
     unit.init({
       faction: this.faction,
-      boardPlayer: this,     // TODO Unimplemented in UnitObject
+      boardPlayer: this,
     });
     
     const square = this.map.squareAt(location);
 
-    // FIXME Check if the new troop could be loaded as cargo into an existing troop before rejecting due to overlapping occupancy.
-    // This allows both Seaplanes and predeploy cargo to work.
+    if (square.unit && !square.unit.boardable(unit))
+      throw new SpawnUnitError(`Could not spawn unit: '${square.unit.name}' at location ${location.toString()} already occupied or unable to hold new '${unit.name}' as cargo.`);
+    if (!square.unit && !square.occupiable(unit))
+      throw new SpawnUnitError(`Could not spawn unit: location ${location.toString()} not occupiable by '${unit.name}'.`);
 
     if (square.unit)
-      throw new SpawnUnitError(`Could not spawn predeploy: location ${location.toString()} already occupied.`);
-    if (!square.occupiable(unit))
-      throw new SpawnUnitError(`Could not spawn predeploy: location ${location.toString()} not occupiable.`);
+      square.unit.loadUnit(unit);
+    else
+      this.map.placeUnit(unit, location);
 
-    this.map.placeUnit(unit, location);
     this.units.push(unit);
 
-    // Spawn-new settings
-    (unit.canHide) && (unit.hiding = true);
+    // Configure new-troop settings
+    if (settings.hp) unit.hp = settings.hp;
+    if (settings.gas) unit.gas = settings.gas;
+    if (settings.ammo) unit.ammo = settings.ammo;
+    if (settings.capture) unit.capture = settings.capture;
+    unit.spent = settings.spent ?? false;
 
-    // Load-in spawn settings
-    unit.spent = settings.spent || false;
+    unit.hiding = unit.canHide; // TODO settings.isHiding ?? unit.canHide;
 
     // TODO Complete unit spawn settings
     // Units have (had) a state and condition number which describes their HP,
