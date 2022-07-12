@@ -229,19 +229,9 @@ const defaultScriptProperties = {
 
 /** List of scripts for each player control. */
 const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
-  { // Place terrain
-    ...defaultScriptProperties,
-    triggerEval: (gp) => gp.button.A.pressed,
-    onCursorTriggerEval: (gp) => gp.button.A.down,
-    run(assets, state) {
-      const { map, mapCursor } = assets;
-      state.bucketFillTarget = map.squareAt(mapCursor.boardLocation).terrain.type;
-      state.paintTile(mapCursor.boardLocation);
-    }
-  },
   { // Bucket-fill current terrain from location
     ...defaultScriptProperties,
-    triggerEval: (gp) => gp.button.A.held(60, {interrupt: () => gp.axis.dpad.roaming, once: true}),
+    triggerEval: (gp) => gp.button.rightTrigger.down && gp.button.A.pressed,
     run(assets, state) {
       if (state.brushMode !== 'terrain')
         return; // painting troops seems dangerous and not very useful. maybe.
@@ -265,6 +255,16 @@ const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
             .filter( p => map.squareAt(p).terrain.type === state.bucketFillTarget );
         }
       });
+    }
+  },
+  { // Place terrain
+    ...defaultScriptProperties,
+    triggerEval: (gp) => gp.button.A.pressed,
+    onCursorTriggerEval: (gp) => gp.button.A.down,
+    run(assets, state) {
+      const { map, mapCursor } = assets;
+      state.bucketFillTarget = map.squareAt(mapCursor.boardLocation).terrain.type;
+      state.paintTile(mapCursor.boardLocation);
     }
   },
   { // Copy terrain underneath
