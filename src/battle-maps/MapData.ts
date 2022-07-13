@@ -13,6 +13,10 @@ export type MapData = {
     width: number,
     height: number
   },
+
+  /** The serial numbers which describe the map terrain. Be aware this is arranged in [y][x] form.
+   * Why? I have no idea. I can't remember. Probably a Map.ts convention that made posting to the
+   * console easier. */
   map: number[][],
 
   // TODO This should take over 'players', but that will require some refactoring
