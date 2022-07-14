@@ -75,9 +75,9 @@ export class DevMapEditor extends TurnState {
       map.changeTile(toPaint, terrainBrush);
       if (square.terrain.building)
         square.terrain.faction = brushFaction;
-        // FIXME map.softChangeTile() broke this somehow
-        // it's missing the sprite to affect the colors for, but changeTile
-        // should be finished by the time this is called so I don't get it.
+        // FIXME map.softChangeTile() uses square.flag to keep track of what's been touched
+        // However, this triggers a UI rebuild for graphics which don't necessarily exist (cities)
+        // square.displayInfoSet() needs to distinguish between typical settings and tmp values.
     }
 
     else if (brushMode === 'troop') {
