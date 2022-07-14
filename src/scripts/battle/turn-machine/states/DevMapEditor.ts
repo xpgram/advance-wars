@@ -60,6 +60,7 @@ export class DevMapEditor extends TurnState {
     for (const script of controlScripts) {
       if (script.onCursorTriggerEval(gamepad)) {
         script.run(this.assets, this);
+        this.changeCursorMode();
         break;
       }
     }
@@ -210,6 +211,7 @@ export class DevMapEditor extends TurnState {
     for (const controlScript of controlScripts) {
       if (controlScript.triggerEval(gamepad)) {
         controlScript.run(this.assets, this);
+        this.changeCursorMode();
         break;
       }
     }
@@ -289,8 +291,6 @@ const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
       else if (state.brushMode === 'troop') {
         square.unit?.destroy();
       }
-
-      state.changeCursorMode(); // I forget why this is even needed, but eh
     }
   },
   { // Switch to 'troop' mode / (open troop picker)
