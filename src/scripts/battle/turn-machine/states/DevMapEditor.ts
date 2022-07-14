@@ -34,7 +34,6 @@ export class DevMapEditor extends TurnState {
   brushFaction: Faction = Faction.Red;
   terrainBrush: TerrainType = Terrain.Plain;
   troopBrush: UnitType = Unit.Infantry;
-  bucketFillTarget: TerrainType = Terrain.Plain;
 
   private iRowString = [0,0];
   
@@ -183,6 +182,8 @@ export class DevMapEditor extends TurnState {
       const troop = Object.values(Unit).find( u => u.serial === serial );
       if (troop)
         this.troopBrush = troop;
+
+      this.changeCursorMode();
     }
 
     // Permenant dev control for posting current map data to the console
@@ -235,26 +236,9 @@ const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
     run(assets, state) {
       if (state.brushMode !== 'terrain')
         return; // painting troops seems dangerous and not very useful. maybe.
-        
+
       const { map, mapCursor } = assets;
-
-      if (state.bucketFillTarget === state.terrainBrush)
-        return; // let's not be silly
-      
-      new QueueSearch({
-        owner: state.name,
-        process: "BucketFill",
-        firstNode: mapCursor.boardLocation,
-        searchMode: QueueSearch.SearchMode.BreadthFirst,
-        nodeHandler: (node: Point) => {
-          if (map.squareAt(node).terrain.type !== state.terrainBrush)
-            state.paintTile(node);
-
-          return [Point.Up, Point.Left, Point.Down, Point.Right]
-            .map( p => p.add(node) )
-            .filter( p => map.squareAt(p).terrain.type === state.bucketFillTarget );
-        }
-      });
+      map.bucketFill(mapCursor.boardLocation, state.terrainBrush);
     }
   },
   { // Place terrain
@@ -263,7 +247,6 @@ const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
     onCursorTriggerEval: (gp) => gp.button.A.down,
     run(assets, state) {
       const { map, mapCursor } = assets;
-      state.bucketFillTarget = map.squareAt(mapCursor.boardLocation).terrain.type;
       state.paintTile(mapCursor.boardLocation);
     }
   },
@@ -307,8 +290,7 @@ const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
         square.unit?.destroy();
       }
 
-      // mapCursor.teleportTo(mapCursor.boardLocation);  // Retrigger UI
-      // TODO I /need/ a retrigger cursor/etc. UI method that does not invoke movement. Mega dangerous.
+      state.changeCursorMode(); // I forget why this is even needed, but eh
     }
   },
   { // Switch to 'troop' mode / (open troop picker)

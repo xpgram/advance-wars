@@ -6,11 +6,13 @@ import { Debug } from "../scripts/DebugUtils";
 const H = Terrain.HQ.serial;
 const B = Terrain.Factory.serial;
 
-function buildBlankMap(width: number, height: number): MapData {
+function buildBlankMap(width: number, height: number, msg?: string): MapData {
   Debug.assert(width >= 5 && height >= 5, `Map dimensions shorter than 5 tiles are not allowed: tried width=${width} and height=${height}`);
 
+  msg = msg ?? '';
+
   const map = <MapData>{
-    name: `Design ${width}x${height}`,
+    name: `Design ${width}x${height} ${msg}`,
     size: { width, height },
     players: 4,
     map: Common.Array2D(height, width, 0),
@@ -36,11 +38,20 @@ function buildBlankMap(width: number, height: number): MapData {
 }
 
 export const maps = <MapData[]>[
-  buildBlankMap( 10, 10),
-  buildBlankMap( 20, 20),
-  buildBlankMap( 30, 30),
-  buildBlankMap( 50, 50),
-  buildBlankMap(100,100),
+  // Blank maps
+  ...(<[number, number, string?][]>[
+    [10,10],
+    [15,15],
+    [20,20],
+    [30,30],
+    [50,50],
+    [70,40,  "mmap max"],
+    [100,30, "hor test"],
+    [30,100, "ver test"],
+    [100,100,"lag king"],
+  ]).map( ([w,h,m]) => buildBlankMap(w,h,m) ),
+
+  // Demo and Dev rooms
   {
     "name": "Demo Island",
     "size": { "width": 16, "height": 15 },

@@ -379,6 +379,11 @@ export class Square {
     return this.map.neighborsAt(this.boardLocation);
   }
 
+  /** The terrain of the tiles neighboring this one. */
+  get neighboringTerrain() {
+    return this.map.neighboringTerrainAt(this.boardLocation);
+  }
+
   /** Returns true if the given unit may legally inhabit this square. */
   occupiable(unit: UnitObject): boolean {
     const traversable = this.traversable(unit);

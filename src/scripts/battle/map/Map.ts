@@ -346,13 +346,9 @@ export class Map {
         MapLayerFunctions.SortLayer('top');
     }
 
-    /** Triggers a local rebuild of the map display object at the point p to the given terrain type. */
-    // TODO This does work that is redundant af when bucket-filling; add a changeTiles(...terrain) or
-    // a bucketfill(p: point, terrain: TerrainType) method to reduce all that extra rerendering from .finalize().
-    changeTile(p: Point, terrain: TerrainType) {
-        // stub; experimental
-        // needed for map editor
-        // we'll start with dev controls
+    /** Changes the terrain of a tile at the given point without triggering a rebuild of the tileset.
+     * Returns true if the terrain type was successfully changed, false if aborted. */
+    private softChangeTile(p: Point, brush: TerrainType): boolean {
 
         function logRejection(reason: string) {
             const message = `Failed to change ${p.toString()}`;
@@ -362,51 +358,97 @@ export class Map {
         // is p valid?
         if (!this.validPoint(p)) {
             logRejection(`tile does not exist: out of bounds`);
-            return;
+            return false;
         }
         
         const square = this.squareAt(p);
-        const neighbors = this.neighboringTerrainAt(p);
-        const neighborSquares = this.neighborsAt(p);
-        const newTerrainObj = new terrain(square.terrain);
+        const newTerrainObj = new brush(square.terrain);
         
         // is this terrain allowed?
-        if (!newTerrainObj.legalPlacement(neighbors)) {
+        if (!newTerrainObj.legalPlacement(square.neighboringTerrain)) {
             logRejection(`terrain '${newTerrainObj.name}' placement is not legal`)
-            return;
+            return false;
         }
 
-        // rebuild target tile
+        // change target tile's terrain; flag for rebuild
         square.terrain.destroy();
         square.terrain = newTerrainObj;
-        square.finalize(neighbors);
+        square.flag = true;
 
         // re-orient neighbors
-        neighborSquares.surrounding
+        square.neighbors.surrounding
             .filter( s => s.terrain.type !== Terrain.Void )
             .forEach( s => {
-                const neighbors = this.neighboringTerrainAt(s.boardLocation);
+                s.flag = true;
 
                 // reduce illegal tiles
-                if (!s.terrain.legalPlacement(neighbors)) {
-                    const terrain = (s.terrain.landTile) ? Terrain.Plain : Terrain.Sea;
-                    this.changeTile(s.boardLocation, terrain);
+                // FIXME This can affect bucket-fill's ability to capture all tiles for fill
+                if (!s.terrain.legalPlacement(s.neighboringTerrain)) {
+                    const defaultTerr = (s.terrain.landTile) ? Terrain.Plain : Terrain.Sea;
+                    this.softChangeTile(s.boardLocation, defaultTerr);
                 }
-                
-                s.finalize(this.neighboringTerrainAt(s.boardLocation))
             });
 
         // Remove illegal troops
         if (square.unit && !square.traversable(square.unit))
             square.unit?.destroy();
 
-        // Recompile map visuals
+        return true;
+    }
+
+    /** Triggers a rebuild of terrain-changed tiles among the board. Note: This depends on square.flag==true
+     * to determine which have been touched and which haven't. */
+    private rebuildFlaggedTiles() {
+        for (const s of this.squares) {
+            if (s.flag === true)
+                s.finalize(s.neighboringTerrain);
+        }
         MapLayerFunctions.RerenderStaticLayers();
+    }
 
-        // TODO square needs to unfinalize first, I think.
-        // I gotta untangle the MapLayers connections I've made already.
+    /** Triggers a local rebuild of the map display object at the point p to the given terrain type. */
+    changeTile(p: Point, terrain: TerrainType) {
+        this.clearTemporaryValues();
+        this.softChangeTile(p, terrain);
+        this.rebuildFlaggedTiles();
+    }
 
-        // TODO Orientation does completely happen, for some reason.
+    /** Changes the terrain at location p as well as any same-terrain neighbors spreading from p to
+     * the given terrain type. Then rebuilds the visual objects associated with any touched points. */
+    bucketFill(p: Point, brush: TerrainType) {
+        this.clearTemporaryValues();
+        const target = this.squareAt(p).terrain.type;
+
+        // Point must be on map; skip pointless fills
+        if (!this.validPoint(p) || target === brush)
+            return;
+
+        // Set terrain and mark tiles to be visually reconfigured
+        new QueueSearch({
+            owner: DOMAIN,
+            process: "BucketFill",
+            firstNode: p,
+            searchMode: QueueSearch.SearchMode.BreadthFirst,
+            nodeHandler: (node: Point) => {
+                const success = this.softChangeTile(node, brush);
+
+                if (!success)
+                    return null;
+                
+                return Point.Cardinals
+                    .map( p => p.add(node) )
+                    .filter( p => {
+                        if (!this.validPoint(p))
+                            return false;
+                        const square = this.squareAt(p);
+                        const r = (square.value === -1 && square.terrain.type === target);
+                        square.value++;
+                        return r;
+                    });
+            }
+        });
+
+        this.rebuildFlaggedTiles();
     }
 
     /** Triggers a full rebuild of the map display object from a new tileset variant. */
