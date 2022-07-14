@@ -36,10 +36,11 @@ function buildBlankMap(width: number, height: number): MapData {
 }
 
 export const maps = <MapData[]>[
-  buildBlankMap(10, 10),
-  buildBlankMap(20, 20),
-  buildBlankMap(30, 30),
-  buildBlankMap(50, 50),
+  buildBlankMap( 10, 10),
+  buildBlankMap( 20, 20),
+  buildBlankMap( 30, 30),
+  buildBlankMap( 50, 50),
+  buildBlankMap(100,100),
   {
     "name": "Demo Island",
     "size": { "width": 16, "height": 15 },
