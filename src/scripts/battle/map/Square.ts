@@ -160,8 +160,10 @@ export class Square {
    * @param shift How far left the bit-mask is applied.
    * @param value The value to write into info (overages are not possible; mask is applied to value, too).
    */
-  private displayInfoSet(value: number, bitmask: BitMask) {
+  private displayInfoSet(value: number, bitmask: BitMask, suppressUiRetrigger?: boolean) {
     this.displayInfo = BitIO.WriteBits(this.displayInfo, value, bitmask);
+    if (suppressUiRetrigger)
+      return;
     this.updateHighlight();
     this.updateArrows();
   }
@@ -260,11 +262,11 @@ export class Square {
   }
   set value(n: number) {
     const bitmask = Square.bitmask.temp;
-    this.displayInfoSet(n + 1, bitmask);  // +1 unmodifies the numeric range to allow for -1 as a value.
+    this.displayInfoSet(n + 1, bitmask, true);  // +1 unmodifies the numeric range to allow for -1 as a value.
   }
   set flag(b: boolean) {
     const bitmask = Square.bitmask.tempFlag;
-    this.displayInfoSet(~~b, bitmask);
+    this.displayInfoSet(~~b, bitmask, true);
   }
 
   /** Updates the tile overlay to reflect whatever UI state the tile is in. */
