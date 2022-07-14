@@ -31,7 +31,7 @@ export class DevMapEditor extends TurnState {
 
   // Personal properties
   brushMode: 'terrain' | 'troop' = 'terrain';
-  brushFaction: Faction = Faction.Red;
+  brushFaction: Faction = Faction.Neutral;
   terrainBrush: TerrainType = Terrain.Plain;
   troopBrush: UnitType = Unit.Infantry;
 
@@ -75,6 +75,9 @@ export class DevMapEditor extends TurnState {
       map.changeTile(toPaint, terrainBrush);
       if (square.terrain.building)
         square.terrain.faction = brushFaction;
+        // FIXME map.softChangeTile() broke this somehow
+        // it's missing the sprite to affect the colors for, but changeTile
+        // should be finished by the time this is called so I don't get it.
     }
 
     else if (brushMode === 'troop') {
