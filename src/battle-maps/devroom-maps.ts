@@ -38,17 +38,6 @@ function buildBlankMap(width: number, height: number, msg?: string): MapData {
 }
 
 export const maps = <MapData[]>[
-  // Blank maps
-  ...(<[number, number, string?][]>[
-    [10,10],
-    [15,15],
-    [20,20],
-    [30,30],
-    [50,50],
-    [70,40,  "mmap max"],
-    [100,100,"lag king"],
-  ]).map( ([w,h,m]) => buildBlankMap(w,h,m) ),
-
   // Demo and Dev rooms
   {
     "name": "Demo Island",
@@ -215,4 +204,15 @@ export const maps = <MapData[]>[
       { "location": { "x": 25, "y": 4 }, "serial": 7, "player": 1 },
     ],
   },
+
+  // Blank maps
+  ...(<[number, number, string?][]>[
+    [10,10],
+    [15,15],
+    [20,20],
+    [30,30],
+    [50,50],
+    [70,40,  "mmap max"],
+    [100,100,"lag king"],
+  ]).map( ([w,h,m]) => buildBlankMap(w,h,m) ),
 ];
