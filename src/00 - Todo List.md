@@ -19,7 +19,8 @@ In Progress:
   - [x] Change tile's terrain type
   - [x] Update neighbors to reflect new neighbor changes
   - [x] Modify terrain.orient()/.finalize() to destroy any existing graphics before construction. This simplifies the process and allows it to retain properties like faction alliance.
-  - [ ] Update the shallow water system on changeTile()
+  - [x] Update the shallow water system on changeTile()
+    - This requires at least 2-space outward propogation.
   - [ ] Use number packing to add data to Bridge serials (river or sea)
     - This affects:
       - Bridge

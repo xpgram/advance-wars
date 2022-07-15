@@ -393,6 +393,17 @@ export class Map {
         if (square.unit && !square.traversable(square.unit))
             square.unit?.destroy();
 
+        // Touch distant sea tiles to reconfigure the shallow water system
+        const touchMap = new RegionMap(Common.Array2D(5,5,true), new Point(2,2));
+        this.squaresFrom(p, touchMap)
+            .filter( s => !s.terrain.landTile )
+            .forEach( s => {
+                const oldInstance = s.terrain;
+                s.terrain = new s.terrain.type(s.terrain);
+                s.flag = true
+                oldInstance.destroy();
+            });
+
         return true;
     }
 
