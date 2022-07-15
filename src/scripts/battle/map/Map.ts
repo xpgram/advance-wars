@@ -410,6 +410,7 @@ export class Map {
     changeTile(p: Point, terrain: TerrainType) {
         this.clearTemporaryValues();
         this.softChangeTile(p, terrain);
+        this.configureMap();    // The whole map? Maybe a little extreme.
         this.rebuildFlaggedTiles();
     }
 
@@ -448,6 +449,7 @@ export class Map {
             }
         });
 
+        this.configureMap();
         this.rebuildFlaggedTiles();
     }
 
