@@ -182,17 +182,23 @@ export class ListMenu<X, Y> extends ObservableType {
     return this._inputEnabled;
   }
 
-  /** The list of selectables as key/value pairs. */
-  get listItems() {
+  /** The list of selectables from the current page as key/value pairs. */
+  get pageItems() {
     const { max, min } = Math;
     const { index, length } = this.view;
     const start = min(max(index, 0), this._listPage.length - length);
     return this._listPage.slice(start, start+length);
   }
 
+  /** The list of all selectables included in this menu. Does not include list items which
+   * have self-excluded themselves from the list. */
+  get listItems() {
+    return this._listSieve;
+  }
+
   /** Sets a new list of menu options. It is recommended to use triggerInclude on each
    * list-option instead to automatically add or remove them from the menu. */
-   setListItems(li: ListMenuOption<X, Y>[]) {
+  setListItems(li: ListMenuOption<X, Y>[]) {
     this._listReal = li;
     this.retriggerListItems();
   }

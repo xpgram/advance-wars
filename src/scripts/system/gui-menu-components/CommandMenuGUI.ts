@@ -84,7 +84,7 @@ export class CommandMenuGUI<Y> {
     const pointerY = this.menuPointer.pointerLocation().y;
     const idx = Math.floor(pointerY / itemHeight);
 
-    return (Common.validIndex(idx, this.menu.listItems.length)) ? idx : undefined;
+    return (Common.validIndex(idx, this.menu.pageItems.length)) ? idx : undefined;
   }
 
   /** Reference to the menu object which controls this GUI. */
@@ -220,7 +220,7 @@ export class CommandMenuGUI<Y> {
       const iconWidth = (icon && icon.width > 0) ? icon.width + 2 : 0;
       return text.textWidth + iconWidth;
     });
-    return Math.max(...sizes);
+    return Math.max(...sizes, this.listItemProps.minWidth);
   }
 
   /** Draws the button textures for each possible button state. */
@@ -284,7 +284,7 @@ export class CommandMenuGUI<Y> {
     this.menuGui.removeChildren();
 
     // Build a sprite for each element
-    menu.listItems.forEach( (item, idx) => {
+    menu.pageItems.forEach( (item, idx) => {
       // Button body
       const spr = new PIXI.Sprite();
       spr.position.y = element.height * idx;
@@ -314,7 +314,7 @@ export class CommandMenuGUI<Y> {
     if (!textures)
       return;
 
-    this.menu.listItems.forEach( (item, idx) => {
+    this.menu.pageItems.forEach( (item, idx) => {
       if (idx >= objects.length)
         return; // Skip
         

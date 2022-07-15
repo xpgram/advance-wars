@@ -151,7 +151,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
     this.menuGui.removeChildren();
 
     // Build a sprite for each element
-    menu.listItems.forEach( (item, idx) => {
+    menu.pageItems.forEach( (item, idx) => {
       // Button body
       const spr = new PIXI.Sprite(textures.item);
       spr.position.y = element.height * idx + capHeight;
@@ -178,14 +178,14 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
     // Add the caps
     const top = new PIXI.Sprite(textures.topCap);
     const bottom = new PIXI.Sprite(textures.bottomCap);
-    bottom.y = element.height * menu.listItems.length + capHeight;
+    bottom.y = element.height * menu.pageItems.length + capHeight;
     this.menuGui.addChild(top, bottom);
   }
 
   updateFrames() {
     const objects = this.menuGui.children;
     
-    this.menu.listItems.forEach( (item, idx) => {
+    this.menu.pageItems.forEach( (item, idx) => {
       if (idx >= objects.length)
         return;
       const object = objects[idx] as PIXI.Sprite;
