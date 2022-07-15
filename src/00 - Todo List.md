@@ -14,20 +14,22 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
-Quick:
-- [x] Make GameEnd send you back to the main menu
-  - [ ] GameEnd doesn't follow GameLose in a 3+ player game.
-
 In Progress:
 - [ ] Add tile-change to map.ts to make map construction easier.
   - [x] Change tile's terrain type
   - [x] Update neighbors to reflect new neighbor changes
   - [x] Modify terrain.orient()/.finalize() to destroy any existing graphics before construction. This simplifies the process and allows it to retain properties like faction alliance.
   - [ ] Update the shallow water system on changeTile()
-  - [ ] Use number packing to add data to Bridge serials (river or sea) (also affects Plasma; forgot)
-    - [ ] This would 'ruin' the formatting. Should I not have formatting? I suppose there's no longer a reason to edit maps by hand, so...
+  - [ ] Use number packing to add data to Bridge serials (river or sea)
+    - This affects:
+      - Bridge
+      - Meteor
+      - Plasma
+      - Pipe
+    - [ ] This would 'ruin' the formatting in map files, making them less human-readable. Does this matter?
+      - Consider that seperate data-packing for tile variants already exists for building ownership.
   - [ ] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
-  - [ ] Investigate why Roads assemble inconsistently on Road->Road transitions. (Probably has to do with the reduce-interconnections process).
+  - [ ] Investigate why Roads assemble inconsistently on Road->Road transitions. (Probably has to do with the reduce-interconnections process over-prioritizing vertical lines).
 - [x] Add map-to-mapdata function to map.ts for easy post-design extraction.
 - [x] Add map-design mode for easy manipulation
 - [ ] Refactor UI construction system to use decorators and assembly functions which (attempt to) behave like CSS (using Pixi's already present width/height/etc. functions).
@@ -38,7 +40,7 @@ In Progress:
 
 - [ ] The minimap view-mode button prompt needs some refinement: where should it be on small maps?
 
-- [ ] In shop mode, menu cursor forgets to turn on the first time.
+- [x] In shop mode, menu cursor forgets to turn on the first time.
 - [ ] In shop mode, limit the camera subject border to the space between the shop window and the details window.
 
 - [ ] Add an 'opponent visibility field' mode for FoW, so you don't have to calculate which tiles you know they can and can't see yourself.
