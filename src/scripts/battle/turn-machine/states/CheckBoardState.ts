@@ -1,5 +1,6 @@
 import { Game } from "../../../..";
 import { Keys } from "../../../controls/KeyboardObserver";
+import { Debug } from "../../../DebugUtils";
 import { Faction } from "../../EnumTypes";
 import { DestructEvent } from "../../map/tile-effects/DestructEvent";
 import { TurnState } from "../TurnState";
@@ -7,6 +8,7 @@ import { AnimateEvents } from "./AnimateEvents";
 import { GameLose } from "./GameLose";
 import { GameWin } from "./GameWin";
 import { IssueOrderStart } from "./IssueOrderStart";
+import { TurnEnd } from "./TurnEnd";
 
 /** A TurnState which confirms player loss/win state.
  * It splits logical order between the beginning of a new IssueOrder and 
@@ -27,12 +29,17 @@ export class CheckBoardState extends TurnState {
     // Update property count in case HQ was captured
     players.all.forEach(player => player.scanCapturedProperties());
 
+    const playersLog = players.all.map( p => p.logString() ).join('\n');
+    Debug.log(this.name, `VerifyPlayers`, {
+      message: `Checking win status for ${players.playersStillActive} active players.\n${playersLog}`,
+    });
+
     if (players.playerWon(players.perspective)) {
       this.advance(GameWin, IssueOrderStart);
       return;
     }
-
-    if (players.playerLost(players.perspective)) {
+    
+    if (players.winnerFound()) {
       this.advance(GameLose, IssueOrderStart);
       return;
     }
@@ -44,6 +51,10 @@ export class CheckBoardState extends TurnState {
     players.all.forEach( p => {
       if (!p.defeated)
         return;
+
+      // TODO This doesn't need to run on already demolished players
+      // TODO Actually, I think capturePoints might even prevent still-active players from
+      // capturing demolished player's previously held properties.
 
       // Schedule unit destruction
       p.unitsOnMap.forEach( u => boardEvents.schedule(
@@ -67,7 +78,10 @@ export class CheckBoardState extends TurnState {
 
     // PlayerDefeated event where DestructEvents will be handled but
     // a 'Player Defeated' card is also shown and properties are uncaptured.
-    this.advance(AnimateEvents, IssueOrderStart);
+    if (!players.current.defeated)
+      this.advance(AnimateEvents, IssueOrderStart);
+    else
+      this.advance(TurnEnd);
   }
 
 }

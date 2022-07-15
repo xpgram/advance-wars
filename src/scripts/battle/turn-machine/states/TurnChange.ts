@@ -10,7 +10,13 @@ export class TurnChange extends TurnState {
   configureScene() {
     const { players, uiSystem } = this.assets;
 
-    players.increment();
+    // Find the next active player — do not loop infinitely; include a hard limit
+    for (let i = 0; i < players.all.length; i++) {
+      players.increment();
+      if (players.current.defeated === false)
+        break;
+    }
+
     uiSystem.updatePlayerWindowOrder();
 
     // TODO Rebind controller? BoardPlayer probably should know which input its listening from.

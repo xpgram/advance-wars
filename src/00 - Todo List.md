@@ -15,7 +15,8 @@ But anyway, yeah. There is constant state checking because his system never just
 
 
 Quick:
-- [ ] Make GameEnd send you back to the main menu
+- [x] Make GameEnd send you back to the main menu
+  - [ ] GameEnd doesn't follow GameLose in a 3+ player game.
 
 In Progress:
 - [ ] Add tile-change to map.ts to make map construction easier.

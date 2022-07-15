@@ -75,5 +75,13 @@ export class TurnModerator {
   playerLost(player: BoardPlayer) {
     return player.defeated;
   }
-
+  
+  get playersStillActive(): number {
+    return this.all.filter( p => !p.defeated ).length;
+  }
+  
+  winnerFound(): boolean {
+    return (this.playersStillActive === 1);
+  }
+  
 }

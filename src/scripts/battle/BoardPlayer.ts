@@ -208,7 +208,6 @@ export class BoardPlayer {
   }
 
   /** Sets all owned units to unorderable. */
-  // TODO orderable=false and deactivated (not my turn) are different qualities.
   deactivateAllUnits() {
     this.units.forEach((unit) => {
       unit.orderable = false;
@@ -264,6 +263,7 @@ export class BoardPlayer {
     // It isn't comprehensive, because I'm lazy, but those numbers are at least
     // the *main* way I should be serializing unit state for save/load.
 
+    this.armyDeployed = true;
     return unit;
   }
 
@@ -390,6 +390,11 @@ export class BoardPlayer {
    * stored up this player has. */
   get powerMeterLevel() {
     return Math.floor(this.powerMeter.output / 50 / 6);
+  }
+
+  /** Returns a string which logs player data. */
+  logString(): string {
+    return `p${this.playerNumber} faction=${this.faction} defeated=${this.defeated} cap=${this.propertyCount} hq=${this.HQs.length} neverHQ=${this.neverHQ} troop=${this.deployCount} neverTroop=${!this.armyDeployed}`;
   }
 
 }
