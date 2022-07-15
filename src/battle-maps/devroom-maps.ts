@@ -46,8 +46,6 @@ export const maps = <MapData[]>[
     [30,30],
     [50,50],
     [70,40,  "mmap max"],
-    [100,30, "hor test"],
-    [30,100, "ver test"],
     [100,100,"lag king"],
   ]).map( ([w,h,m]) => buildBlankMap(w,h,m) ),
 

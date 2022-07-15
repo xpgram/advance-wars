@@ -4,6 +4,7 @@ import { Ease } from "../../../Common/EaseMethod";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
+import { GameEnd } from "./GameEnd";
 
 // TODO Extend this from GameWin to reduce redundancy
 
@@ -66,6 +67,7 @@ export class GameLose extends TurnState {
       .tween(transitionTime, text, {skew: {x: -1}})
       
       .at('end')
-      .do(n => cleanup())
+      // .do(n => cleanup())
+      .do(n => this.advance(GameEnd))
   }
 }

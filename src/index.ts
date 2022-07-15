@@ -8,9 +8,8 @@ import { TextureLibrary } from './scripts/system/TextureLibrary';
 import { DevController } from './scripts/controls/DevController';
 import { Keys } from './scripts/controls/KeyboardObserver';
 import { TitleScreen } from './scenes/TitleScreen';
+import { SceneTransitionEffect } from './scenes/scene-transitions/SceneTransitionEffect';
 import { SceneTransition } from './scenes/scene-transitions/SceneTransition';
-import { BlackFadeTransition } from './scenes/scene-transitions/BlackFadeTransition';
-import { Slider } from './scripts/Common/Slider';
 
 
 const DOMAIN = "Game";
@@ -391,17 +390,17 @@ class App {
   private transitionData?: {
     lastScene: Scene;
     nextScene: Scene;
-    transition: SceneTransition;
+    transition: SceneTransitionEffect;
   };
 
   /** This will signal to Game an intent to change scenes.
    * Use .transitionToSceneWithData() to pass object data to the new instance. */
-  transitionToScene(type: SceneType<undefined>, transition?: SceneTransition) {
+  transitionToScene(type: SceneType<undefined>, transition?: SceneTransitionEffect) {
     this.transitionToSceneWithData(type, undefined, transition);
   }
 
   /** This will signal to Game an intent to change scenes. */
-  transitionToSceneWithData<T>(sceneType: SceneType<T>, data: T, transition?: SceneTransition) {
+  transitionToSceneWithData<T>(sceneType: SceneType<T>, data: T, transition?: SceneTransitionEffect) {
     // Prevent parallel requests.
     if (this.transitionData) {
       const name = this.transitionData.nextScene.constructor.name;
@@ -420,7 +419,8 @@ class App {
     this.sceneLayer.addChildAt(nextScene.visualLayers.root, 0);
     this.transitionLayer.addChild(overlayer);
 
-    transition = transition ?? new BlackFadeTransition(
+    transition = transition ?? new SceneTransition.BlackFade();
+    transition.init(
       overlayer,
       lastScene.visualLayers.root,
       nextScene.visualLayers.root

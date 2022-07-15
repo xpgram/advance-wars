@@ -4,6 +4,7 @@ import { Ease } from "../../../Common/EaseMethod";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
+import { GameEnd } from "./GameEnd";
 
 export class GameWin extends TurnState {
   get type() { return GameWin; }
@@ -88,6 +89,7 @@ export class GameWin extends TurnState {
 
       .at('end')
       .wait(1)
-      .do(n => cleanup())
+      // .do(n => cleanup())
+      .do(n => this.advance(GameEnd))
   }
 }
