@@ -8,6 +8,7 @@ import { Terrain } from "../map/Terrain";
 import { TerrainObject } from "../map/TerrainObject";
 import { AnnointCoUnitEvent } from "../map/tile-effects/AnnointCoUnitEvent";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
+import { BuildTempPortEvent } from "../map/tile-effects/BuildTempPortEvent";
 import { CapturePropertyEvent } from "../map/tile-effects/CapturePropertyEvent";
 import { DiveEvent } from "../map/tile-effects/DiveEvents";
 import { DropHeldUnitEvent } from "../map/tile-effects/DropHeldUnitEvent";
@@ -224,6 +225,36 @@ export module Command {
       const { boardEvents } = data.assets;
       const { actor, goalTerrain: terrain, assets } = data;
       boardEvents.schedule(new CapturePropertyEvent({actor, terrain, assets}));
+      return ExitCode.Success;
+    },
+  }
+
+  /** Rig unit builds a temp port/airport. */
+  export const Build: CommandObject = {
+    ...cmdDefaults,
+
+    get type() { return Build; },
+    get chain() { return [Move, Build]; },
+    name: "Build",
+    serial: Serial.next().value,
+    weight: Weight.Primary,
+
+    triggerInclude() {
+      const { map } = data.assets;
+      const { actor, goal } = data;
+
+      const terrType = map.squareAt(goal).terrain.type;
+
+      const rigUnit = (actor.type === Unit.Rig);
+      const enoughAmmo = (actor.ammo > 0);
+      const buildableTerrain = (terrType === Terrain.Plain || terrType === Terrain.Beach);
+      return (rigUnit && enoughAmmo && buildableTerrain);
+    },
+
+    scheduleEvent() {
+      const { boardEvents } = data.assets;
+      const { actor, goalTerrain: terrain, assets } = data;
+      boardEvents.schedule(new BuildTempPortEvent({actor, terrain, assets}));
       return ExitCode.Success;
     },
   }
