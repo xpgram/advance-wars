@@ -109,7 +109,8 @@ export class DamageScript {
     const attackBonus = DamageScript.AttackPowerBonus(A, rand);
     const powerRatio = attackBonus / 100;
 
-    const baseDamage = 30;  // TODO I need access to the Terrain value
+    const baseDamage = 110;   // TODO I need access to the Terrain value
+                              // I also need to default to the secondary weapon when AP=0
     const finalDamage = baseDamage * atkStrength * powerRatio;
 
     return ceil(finalDamage);

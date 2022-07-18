@@ -189,6 +189,7 @@ export module Command {
           ? new BattleDamageEvent({attacker, defender, damage, trackCar, assets})
           : new GenericRatifyEvent({location: goal, ratify: () => {
               defender.value -= damage;
+              attacker.ammo -= 1;
               if (defender.value <= 0)
                 map.demolishTile(focalTile.boardLocation);
             }});
