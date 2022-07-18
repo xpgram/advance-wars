@@ -86,6 +86,7 @@ export class Square {
     showDropArrow: BitIO.Generate(1),
     temp: BitIO.Generate(Square.tempLength),
     tempFlag: BitIO.Generate(1),
+    visitedFlag: BitIO.Generate(1),
   });
 
 
@@ -223,6 +224,11 @@ export class Square {
     const bitmask = Square.bitmask.tempFlag;
     return BitIO.GetBoolean(this.displayInfo, bitmask);
   }
+  /** Temporary store: A boolean value describing whether this tile has been seen by the algorithm. */
+  get visited(): boolean {
+    const bitmask = Square.bitmask.visitedFlag;
+    return BitIO.GetBoolean(this.displayInfo, bitmask);
+  }
 
   set moveFlag(value) {
     const bitmask = Square.bitmask.moveable;
@@ -266,6 +272,10 @@ export class Square {
   }
   set flag(b: boolean) {
     const bitmask = Square.bitmask.tempFlag;
+    this.displayInfoSet(~~b, bitmask, false);
+  }
+  set visited(b: boolean) {
+    const bitmask = Square.bitmask.visitedFlag;
     this.displayInfoSet(~~b, bitmask, false);
   }
 
@@ -363,6 +373,7 @@ export class Square {
     if (tempVals) {
       this.value = -1;
       this.flag = false;
+      this.visited = false;
     }
     if (colorFlags) {
       this.moveFlag = false;

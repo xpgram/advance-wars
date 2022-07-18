@@ -686,6 +686,7 @@ export module Terrain {
             return anim;
         }
         get damageable(): boolean { return true; }
+        get dominoTypes() { return [Plasma]; }
         readonly landTile: boolean;
 
         get name() { return "Meteor"; }
@@ -751,6 +752,7 @@ export module Terrain {
             anim.gotoAndPlay(Math.floor(Math.random()*anim.totalFrames));
             return anim;
         }
+        get dominoTypes() { return [Plasma]; }
         readonly landTile: boolean;
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;

@@ -456,8 +456,8 @@ export class Map {
                         if (!this.validPoint(p))
                             return false;
                         const square = this.squareAt(p);
-                        const r = (square.value === -1 && square.terrain.type === target);
-                        square.value++;
+                        const r = (!square.visited && square.terrain.type === target);
+                        square.visited = true;
                         return r;
                     });
             }
@@ -465,6 +465,55 @@ export class Map {
 
         this.configureMap();
         this.rebuildFlaggedTiles();
+    }
+
+    /** Changes the tile's terrain at the given location to that tile's foundation type.
+     * If the given tile describes any domino-types, then this operation will propogate
+     * recursively to any adjacent squares which match one of those types. */
+    demolishTile(p: Point) {
+        this.clearTemporaryValues();
+        
+        //
+        new QueueSearch({
+            owner: DOMAIN,
+            process: "DominoDemolish",
+            firstNode: p,
+            searchMode: QueueSearch.SearchMode.BreadthFirst,
+            nodeHandler: (node: Point) => {
+                const square = this.squareAt(node);
+                const { dominoTypes } = square.terrain;
+                const success = this.softChangeTile(node, square.terrain.baseType);
+                square.visited = true;
+
+                if (!success)
+                    return null;
+
+                return square.neighbors.orthogonals
+                    .filter( s => !s.visited && dominoTypes.includes(s.terrain.type) )
+                    .map( s => s.boardLocation );
+            }
+        })
+
+        this.configureMap();
+        this.rebuildFlaggedTiles();
+        return this.squareAt(p);
+    }
+
+    /** Helper method for the recursive function to demolish all tethered terrain types
+     * starting at Point p. */
+    private demolishTileRecurse(p: Point) {
+        if (!this.validPoint(p))
+            return;
+
+        const square = this.squareAt(p);
+        const dominoTypes = square.terrain.dominoTypes;
+
+        this.softChangeTile(p, square.terrain.baseType);
+        square.visited = true;
+
+        square.neighbors.orthogonals
+            .filter( s => !s.visited && dominoTypes.includes(s.terrain.type) )
+            .forEach( s => this.demolishTile(s.boardLocation) );
     }
 
     /** Triggers a full rebuild of the map display object from a new tileset variant. */

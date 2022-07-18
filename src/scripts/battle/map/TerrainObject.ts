@@ -3,7 +3,7 @@ import { UnitClass, MoveType, Faction } from "../EnumTypes";
 import { NeighborMatrix } from "../../NeighborMatrix";
 import { MapLayer, MapLayerFunctions } from "./MapLayers";
 import { Point3D } from "../../CommonTypes";
-import { TerrainProperties } from "./Terrain";
+import { Terrain, TerrainProperties } from "./Terrain";
 import { Game } from "../../..";
 import { Whitemask } from "../../filters/Whitemask";
 import { TextureLibrary } from "../../system/TextureLibrary";
@@ -72,6 +72,12 @@ export abstract class TerrainObject {
     /** A reference to this terrain's constructing type. Useful for comparisons. */
     abstract get type(): TerrainType;
 
+    /** Returns the TerrainType which represents the formative layer for this terrain type.
+     * So, land tiles return Plain, non-land Sea, aerial would Sky if such a thing were implemented. */
+    get baseType(): TerrainType {
+        return (this.landTile) ? Terrain.Plain : Terrain.Sea;
+    }
+
     /** This terrain type's serial number. */
     static readonly serial: number = -1;
 
@@ -139,6 +145,9 @@ export abstract class TerrainObject {
 
     /** Whether this terrain maintains a hitpoints stat, and generally is targetable by troops. */
     get damageable(): boolean { return false; }
+
+    /** A list of TerrainTypes which should also demolish when this TerrainObject is demolished. */
+    get dominoTypes(): TerrainType[] { return []; }
 
     /** Whether this tile is naturally shallow sea. Relevant to sea tiles only. */
     get shallowWaterSourceTile(): boolean { return true; }

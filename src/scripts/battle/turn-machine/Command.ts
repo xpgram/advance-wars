@@ -5,6 +5,7 @@ import { Common } from "../../CommonUtils";
 import { Debug } from "../../DebugUtils";
 import { DamageScript } from "../DamageScript";
 import { Terrain } from "../map/Terrain";
+import { TerrainMethods } from "../map/Terrain.helpers";
 import { TerrainObject } from "../map/TerrainObject";
 import { AnnointCoUnitEvent } from "../map/tile-effects/AnnointCoUnitEvent";
 import { BattleDamageEvent } from "../map/tile-effects/BattleDamageEvent";
@@ -188,6 +189,8 @@ export module Command {
           ? new BattleDamageEvent({attacker, defender, damage, trackCar, assets})
           : new GenericRatifyEvent({location: goal, ratify: () => {
               defender.value -= damage;
+              if (defender.value <= 0)
+                map.demolishTile(focalTile.boardLocation);
             }});
       }
 
