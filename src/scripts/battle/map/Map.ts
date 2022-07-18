@@ -883,7 +883,7 @@ export class Map {
         for (let y = 0; y < rect.height; y++)
         for (let x = 0; x < rect.width; x++) {
             let square = this.squareAt(new Point(x+rect.x, y+rect.y));
-            if (!square.attackable(unit) || !square.unitVisible())
+            if (!square.attackable(unit))
                 square.attackFlag = false;
         }
     }

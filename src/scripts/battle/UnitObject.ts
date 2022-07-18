@@ -917,10 +917,10 @@ export abstract class UnitObject {
 
         const attackable = (this.attackMethodFor(target) !== AttackMethod.None);
         const nonAllied = Boolean(unit && this.faction !== unit.faction);
-        const destructable = Boolean(terrain && terrain.damageable);
+        const demolishable = Boolean(terrain && terrain.damageable);
 
         const unitConditions = nonAllied;
-        const terrainConditions = destructable;
+        const terrainConditions = demolishable;
 
         return (attackable && (unitConditions || terrainConditions));
     }

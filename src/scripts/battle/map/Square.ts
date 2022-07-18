@@ -415,7 +415,6 @@ export class Square {
   }
 
   /** Returns true if the given unit can successfully target this square for attack. */
-  // TODO This function is never called. As a consequence, Subs pretend as if they can attack anything on land.
   targetable(actor: UnitObject): boolean {
     if (this.terrain.type === Terrain.Void)
       return false;
@@ -440,9 +439,9 @@ export class Square {
       moveTypes:  [MoveType.Ship, MoveType.Transport],
     }
 
-    /** Returns true if any of the given armor-types is targetable and any of the given
-     * move-types may legally inhabit this square. The UnitClass being inferred here is described
-     * by the contents of the given lists. */
+    /** Returns true if a hypothetical enemy is targetable *and* could be located here.
+     * This is done by validating at least one armor type against the acting unit, and one
+     * movement type against this square's legal inhabitants. */
     const hypothetical = (o: {armorTypes: ArmorType[], moveTypes: MoveType[]}): boolean => {
       const someArmor = o.armorTypes.some( armor => actor.canTargetArmor(armor) );
       const someMove  = o.moveTypes.some( move => this.terrain.getMovementCost(move) > 0 );
@@ -450,7 +449,7 @@ export class Square {
     }
 
     // Check if this _square_ is targetable. If uninhabited, use hypotheticals.
-    // (As a visual convenience, treat ally-unit squares as empty)
+    // (As a visual convenience for range projections, treat ally-unit squares as empty)
     if (!this.unit || !this.unitVisible() || this.unit.faction === actor.faction) {
       targetable = (
         actor.canTarget(this.terrain) ||
