@@ -19,15 +19,19 @@ interface CapturePropertyEventOptions {
 
 export class CapturePropertyEvent extends TileEvent {
 
-  private options: CapturePropertyEventOptions;
+  protected options: CapturePropertyEventOptions;
+  protected illustration: PIXI.Sprite;
+  protected terrainName: string;
 
 
   constructor(options: CapturePropertyEventOptions) {
     super(options.actor.boardLocation);
     this.options = options;
+    this.illustration = options.terrain.illustration;
+    this.terrainName = options.terrain.name;
   }
 
-  private captureProperty(): void {
+  protected captureProperty(): void {
     const { map, players } = this.options.assets;
     const { actor, terrain } = this.options;
 
@@ -48,6 +52,7 @@ export class CapturePropertyEvent extends TileEvent {
   protected create(): void {
     const { drawRect } = PixiGraphics;
     const { actor, terrain } = this.options;
+    const { illustration } = this;
 
     const curPalette = getFactionPalette(terrain.faction).propertyCapture;
     const capPalette = getFactionPalette(actor.faction).propertyCapture;
@@ -87,7 +92,6 @@ export class CapturePropertyEvent extends TileEvent {
 
     // Assemble UI elements
 
-    const illustration = terrain.illustration;
     illustration.position.set(1);  
     illustration.tint = curPalette.tint;
     illustration.scale.x = (windowRect.width - 3 - bar.width) / illustration.width;
@@ -116,7 +120,7 @@ export class CapturePropertyEvent extends TileEvent {
       }
     }
 
-    const name = new PIXI.BitmapText(terrain.name, fonts.title);
+    const name = new PIXI.BitmapText(this.terrainName, fonts.title);
     name.anchor.set(.4, 0);
     name.position.set(
       illustration.width/2 + 2,

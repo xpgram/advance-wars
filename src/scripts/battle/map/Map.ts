@@ -418,12 +418,14 @@ export class Map {
         MapLayerFunctions.RerenderStaticLayers();
     }
 
-    /** Triggers a local rebuild of the map display object at the point p to the given terrain type. */
+    /** Triggers a local rebuild of the map display object at the point p to the given terrain type.  
+     * Returns the tile object that was modified. */
     changeTile(p: Point, terrain: TerrainType) {
         this.clearTemporaryValues();
         this.softChangeTile(p, terrain);
         this.configureMap();    // The whole map? Maybe a little extreme.
         this.rebuildFlaggedTiles();
+        return this.squareAt(p);
     }
 
     /** Changes the terrain at location p as well as any same-terrain neighbors spreading from p to
