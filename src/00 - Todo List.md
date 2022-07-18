@@ -30,7 +30,9 @@ In Progress:
       - Pipe
     - [ ] This would 'ruin' the formatting in map files, making them less human-readable. Does this matter?
       - Consider that seperate data-packing for tile variants already exists for building ownership.
-  - [ ] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
+  - [x] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
+    - [ ] Aid terrain tileset variations to feel more visually distinct between maps.
+    Supply each map with a random root-seed that can be added to the location-seed generation method for tileset variations. (low priority)
   - [ ] Investigate why Roads assemble inconsistently on Road->Road transitions. (Probably has to do with the reduce-interconnections process over-prioritizing vertical lines).
 - [x] Add map-to-mapdata function to map.ts for easy post-design extraction.
 - [x] Add map-design mode for easy manipulation
