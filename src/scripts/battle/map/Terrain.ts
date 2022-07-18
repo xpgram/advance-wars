@@ -91,12 +91,15 @@ export module Terrain {
 
         readonly prevTileType?: TerrainType;
 
-        constructor(prevTile?: TerrainObject) {
+        constructor(prevTile?: TerrainObject, noPrevTileCosmetics?: boolean) {
             super();
-            // First check: Keep craters intact in case of tile reorientation.
-            if (prevTile && prevTile.type === Terrain.Plain)
+            // First: Allow invokers to suppress prev-tile variantation
+            if (noPrevTileCosmetics)
+                return;
+            // Second: Keep craters and scorch effects intact in case of tile reorientation.
+            else if (prevTile && prevTile.type === Terrain.Plain)
                 this.prevTileType = (prevTile as Terrain.Plain).prevTileType;
-            // Second: assume the type of the previous tile.
+            // Default: assume the type of the previous tile.
             else
                 this.prevTileType = prevTile?.type;
         }

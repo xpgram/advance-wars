@@ -348,7 +348,7 @@ export class Map {
 
     /** Changes the terrain of a tile at the given point without triggering a rebuild of the tileset.
      * Returns true if the terrain type was successfully changed, false if aborted. */
-    private softChangeTile(p: Point, brush: TerrainType): boolean {
+    private softChangeTile(p: Point, brush: TerrainType, options?: {noPrevTileCosmetics?: boolean}): boolean {
 
         function logRejection(reason: string) {
             const message = `Failed to change ${p.toString()}`;
@@ -362,7 +362,9 @@ export class Map {
         }
         
         const square = this.squareAt(p);
-        const newTerrainObj = new brush(square.terrain);
+        const newTerrainObj = (brush === Terrain.Plain)
+            ? new Terrain.Plain(square.terrain, options?.noPrevTileCosmetics)
+            : new brush(square.terrain);
         
         // is this terrain allowed?
         if (!newTerrainObj.legalPlacement(square.neighboringTerrain)) {
@@ -384,8 +386,7 @@ export class Map {
                 // reduce illegal tiles
                 // FIXME This can affect bucket-fill's ability to capture all tiles for fill
                 if (!s.terrain.legalPlacement(s.neighboringTerrain)) {
-                    const defaultTerr = (s.terrain.landTile) ? Terrain.Plain : Terrain.Sea;
-                    this.softChangeTile(s.boardLocation, defaultTerr);
+                    this.softChangeTile(s.boardLocation, s.terrain.baseType);
                 }
             });
 
@@ -422,7 +423,7 @@ export class Map {
      * Returns the tile object that was modified. */
     changeTile(p: Point, terrain: TerrainType) {
         this.clearTemporaryValues();
-        this.softChangeTile(p, terrain);
+        this.softChangeTile(p, terrain, {noPrevTileCosmetics: true});
         this.configureMap();    // The whole map? Maybe a little extreme.
         this.rebuildFlaggedTiles();
         return this.squareAt(p);
@@ -445,7 +446,7 @@ export class Map {
             firstNode: p,
             searchMode: QueueSearch.SearchMode.BreadthFirst,
             nodeHandler: (node: Point) => {
-                const success = this.softChangeTile(node, brush);
+                const success = this.softChangeTile(node, brush, {noPrevTileCosmetics: true});
 
                 if (!success)
                     return null;
@@ -497,23 +498,6 @@ export class Map {
         this.configureMap();
         this.rebuildFlaggedTiles();
         return this.squareAt(p);
-    }
-
-    /** Helper method for the recursive function to demolish all tethered terrain types
-     * starting at Point p. */
-    private demolishTileRecurse(p: Point) {
-        if (!this.validPoint(p))
-            return;
-
-        const square = this.squareAt(p);
-        const dominoTypes = square.terrain.dominoTypes;
-
-        this.softChangeTile(p, square.terrain.baseType);
-        square.visited = true;
-
-        square.neighbors.orthogonals
-            .filter( s => !s.visited && dominoTypes.includes(s.terrain.type) )
-            .forEach( s => this.demolishTile(s.boardLocation) );
     }
 
     /** Triggers a full rebuild of the map display object from a new tileset variant. */
