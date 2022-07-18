@@ -452,6 +452,7 @@ export class Square {
     // (As a visual convenience for range projections, treat ally-unit squares as empty)
     if (!this.unit || !this.unitVisible() || this.unit.faction === actor.faction) {
       targetable = (
+        actor.isIndirect ||   // FIXME How does the source game handle Fire Geysers, though?
         actor.canTarget(this.terrain) ||
         hypothetical(troopSet) ||
         hypothetical(treadSet) ||
