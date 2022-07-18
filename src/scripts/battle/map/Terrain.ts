@@ -1,6 +1,6 @@
 import { PIXI } from "../../../constants";
 import { Game } from "../../..";
-import { TerrainObject } from "./TerrainObject";
+import { TerrainObject, TerrainType } from "./TerrainObject";
 import { FactionColors, UnitClass } from "../EnumTypes";
 import { Common } from "../../CommonUtils";
 import { TerrainMethods } from "./Terrain.helpers";
@@ -8,6 +8,7 @@ import { NeighborMatrix } from "../../NeighborMatrix";
 import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { SerialGenerator } from "../../Common/SerialGenerator";
 import { UnitObject } from "../UnitObject";
+import { Point } from "../../Common/Point";
 
 const Serial = SerialGenerator(-1);
 
@@ -54,7 +55,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
         }
     }
 
@@ -88,18 +89,22 @@ export module Terrain {
             transport: 0
         };
 
+        readonly prevTileType?: TerrainType;
+
         constructor(prevTile?: TerrainObject) {
             super();
+            // First check: Keep craters intact in case of tile reorientation.
+            if (prevTile && prevTile.type === Terrain.Plain)
+                this.prevTileType = (prevTile as Terrain.Plain).prevTileType;
+            // Second: assume the type of the previous tile.
+            else
+                this.prevTileType = prevTile?.type;
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Plain
-            let sprite = TerrainMethods.createPlainLayer();
+            let sprite = TerrainMethods.createPlainLayer(loc, neighbors, this.prevTileType);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
-
-            // if neighbors.center == Meteor: assume crater
-            // if neighbors.center == Plasma: assume razed grass
-            // set this.variation to whichever
         }
     }
 
@@ -127,9 +132,9 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Plain
-            let sprite = TerrainMethods.createPlainLayer();
+            let sprite = TerrainMethods.createPlainLayer(loc, neighbors);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Road
@@ -166,9 +171,9 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Plain
-            let sprite = TerrainMethods.createPlainLayer();
+            let sprite = TerrainMethods.createPlainLayer(loc, neighbors);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Wood
@@ -202,9 +207,9 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Plain
-            let sprite = TerrainMethods.createPlainLayer();
+            let sprite = TerrainMethods.createPlainLayer(loc, neighbors);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Mountain
@@ -243,9 +248,9 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Wasteland
-            let variant = TerrainMethods.randomTileVariant(6);
+            let variant = TerrainMethods.randomTileVariant(loc, 6);
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`wasteland-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
@@ -276,13 +281,13 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Plain
-            let sprite = TerrainMethods.createPlainLayer();
+            let sprite = TerrainMethods.createPlainLayer(loc, neighbors);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
 
             // Ruins
-            let variant = TerrainMethods.randomTileVariant(3);
+            let variant = TerrainMethods.randomTileVariant(loc, 3);
             sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`ruins-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
@@ -323,7 +328,7 @@ export module Terrain {
             }
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             if (this.landTile) {
                 // River
                 let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
@@ -380,7 +385,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // River TODO They don't connect to each other
             let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`river-${variant}.png`]);
@@ -415,7 +420,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             let container = TerrainMethods.createSeaLayer(neighbors);
             this.layers.push({object: container, key: ['bottom', 'static']});
         }
@@ -446,7 +451,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
             this.layers.push({object: container, key: ['bottom', 'static']});
 
@@ -513,7 +518,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Sea
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
 
@@ -569,7 +574,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Sea
             let container = TerrainMethods.createSeaLayer(neighbors);
             this.layers.push({object: container, key: ['bottom', 'static']});
@@ -608,13 +613,13 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Sea
             let container = TerrainMethods.createSeaLayer(neighbors, {includeCliffs: false});
             this.layers.push({object: container, key: ['bottom', 'static']});
             
             // Reef
-            let variant = TerrainMethods.randomTileVariant(4);
+            let variant = TerrainMethods.randomTileVariant(loc, 4);
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`reef-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
@@ -663,7 +668,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Plain - Cragged
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-crag.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
@@ -718,10 +723,10 @@ export module Terrain {
                 this.landTile = prevTile.landTile;
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             if (this.landTile) {
                 // Plain
-                let sprite = TerrainMethods.createPlainLayer();
+                let sprite = TerrainMethods.createPlainLayer(loc, neighbors);
                 this.layers.push({object: sprite, key: ['bottom', 'static']});
 
                 // Not until the meteor is destroyed; looks weird with it.
@@ -780,10 +785,10 @@ export module Terrain {
                 this.landTile = prevTile.landTile;
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             if (this.landTile) {
                 // Plain
-                let sprite = TerrainMethods.createPlainLayer();
+                let sprite = TerrainMethods.createPlainLayer(loc, neighbors);
                 this.layers.push({object: sprite, key: ['bottom', 'static']});
 
                 // Not until plasma is destroyed; otherwise, plasma has a brown halo and it looks weird.
@@ -828,7 +833,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // TODO Implement Pipes
 
             // There is no such thing as a 3-way pipe.
@@ -879,7 +884,7 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // TODO Implement Pipe Seams
         }
 
@@ -922,8 +927,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('hq');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'hq');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
@@ -959,8 +964,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('city');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'city');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
@@ -995,8 +1000,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('comtower');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'comtower');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
@@ -1031,8 +1036,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('radar');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'radar');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
@@ -1091,9 +1096,9 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // Plain
-            let sprite = TerrainMethods.createPlainLayer();
+            let sprite = TerrainMethods.createPlainLayer(loc, neighbors);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
 
             // Silo
@@ -1131,8 +1136,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('factory');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'factory');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
@@ -1168,8 +1173,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('airport');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'airport');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
@@ -1206,8 +1211,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('port');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'port');
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.buildingSprite = layers.top;
 
@@ -1243,8 +1248,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('tempairpt');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'tempairpt');
             this.buildingSprite = layers.top;
 
             this.layers.push({object: layers.bottom, key: ['bottom', 'static']});
@@ -1280,8 +1285,8 @@ export module Terrain {
             super();
         }
 
-        orient(neighbors: NeighborMatrix<TerrainObject>) {
-            let layers = TerrainMethods.createBuildingLayers('tempport');
+        orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
+            let layers = TerrainMethods.createBuildingLayers(loc, neighbors, 'tempport');
             layers.bottom = TerrainMethods.createSeaLayer(neighbors);
             this.buildingSprite = layers.top;
 

@@ -77,6 +77,19 @@ export module Common {
     );
   }
 
+  /** Returns a generator object which allows sequential pseudo-random number generation from
+   * a particular seed. */
+  export function createMulberry32(seed?: number) {
+    let a = seed ?? Math.random();
+    
+    return function next() {
+      var t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
   /** Given a list of things, returns a random thing. */
   export function choose<T>(list: T[]): T {
     const { random, floor } = Math;

@@ -7,11 +7,13 @@ import { Faction, FactionColors } from "../EnumTypes";
 import { Game } from "../../..";
 import { MapLayer, MapLayerFunctions } from "./MapLayers";
 import { Filters } from "../../filters/Filters";
+import { Point } from "../../Common/Point";
+import { Common } from "../../CommonUtils";
 
 export module TerrainMethods {
 
     /** A reference to the spotlight effect added to the tile's visual overlayer. */
-    export const spotlightFilter = new Filters.TileSpotlight(16,32, 2.5);
+    export const spotlightFilter = new Filters.TileSpotlight(16, 32, 2.5);
 
     /** Adds the tile-spotlight effect's udpater to the scene's ticker.
      * Only needs to be called once. */
@@ -54,7 +56,7 @@ export module TerrainMethods {
         animTime += Game.delta;
         if (animTime > 6) {
             animTime -= 6;
-            
+
             // Choose a new palette-swap color matrix: use a triangle wave pattern to decide.
             let colorMatrix = shorelinePaletteSwaps[animFrame];
             if (animFrame > 15)
@@ -62,7 +64,7 @@ export module TerrainMethods {
 
             // Insert the new palette swap in to the color-replacement filter.
             shorelineFilter.replacements = colorMatrix;
-            
+
             // TODO Assign filterArea to camera.frame? Would this even accomplish anything?
 
             // Frame-counting maintenance.
@@ -79,14 +81,14 @@ export module TerrainMethods {
         shorelineFilter.resolution = Game.renderer.resolution;
 
         MapLayer('bottom').filters = [shorelineFilter];
-        Game.scene.ticker.add( animateShoreline );
+        Game.scene.ticker.add(animateShoreline);
     }
 
     /** Stops the shoreline animation ticker, and removes the color filter. */
     export function stopPaletteAnimation() {
         if (MapLayerFunctions.isDestroyed() === false)
             MapLayer('bottom').filters = [];
-        Game.scene.ticker.remove( animateShoreline );
+        Game.scene.ticker.remove(animateShoreline);
     }
 
     /** Adds an animated, background sea layer to the overall map image.
@@ -114,15 +116,20 @@ export module TerrainMethods {
         // all of its display/ticker objects without writing my own.
     }
 
-    export function randomPlainTile(): string {
+    export function randomPlainTile(loc: Point): string {
         // This should grab '6' as the length of a plainTile textures array, but I don't have one set up in the atlas.
-        // This is ~different~ from randomTileVariant(), by the way: it prioritizes index 0.
-        let n = (Math.random() < 0.3) ? (Math.floor(Math.random()*6) + 1) : 0;
-        return `${n}`;
+        // This is ~different~ from randomTileVariant(), by the way: it has a strong bias toward index 0.
+        const seed = loc.x + loc.y*1000 + 1000;
+        const random = Common.createMulberry32(seed);
+        const n = Math.trunc(random()*24);
+        const variant = (n > 6) ? 0 : n;
+        return `${variant}`;
     }
 
-    export function randomTileVariant(max: number) {
-        let n = Math.floor(Math.random()*max);
+    export function randomTileVariant(loc: Point, max: number) {
+        const seed = loc.x + loc.y*1000;
+        const random = Common.createMulberry32(seed);
+        const n = Math.trunc(random()*max);
         return `${n}`;
     }
 
@@ -131,76 +138,76 @@ export module TerrainMethods {
         //  l=2 u=1 u=2
         //  l=1 src r=1
         let u, r, d, l;
-    
+
         // If side is adjacent to land, set side.
         u = (neighbors.up.landTile) ? 1 : 0;
         r = (neighbors.right.landTile) ? 1 : 0;
         d = (neighbors.down.landTile) ? 1 : 0;
         l = (neighbors.left.landTile) ? 1 : 0;
-    
+
         // Set corner if counter-clockwise is empty, and clockwise isn't adjacent to land.
-        u = (neighbors.upright.landTile && u == 0 && r != 1)   ? 2 : u;
+        u = (neighbors.upright.landTile && u == 0 && r != 1) ? 2 : u;
         r = (neighbors.downright.landTile && r == 0 && d != 1) ? 2 : r;
-        d = (neighbors.downleft.landTile && d == 0 && l != 1)  ? 2 : d;
-        l = (neighbors.upleft.landTile && l == 0 && u != 1)    ? 2 : l;
+        d = (neighbors.downleft.landTile && d == 0 && l != 1) ? 2 : d;
+        l = (neighbors.upleft.landTile && l == 0 && u != 1) ? 2 : l;
 
         // If graphic would be one side, and that side is a river, correct.
         let sides = u + r + d + l;
         if (sides == 1) {
-            if (neighbors.up.type == Terrain.River)     u = 3;
-            if (neighbors.right.type == Terrain.River)  r = 3;
-            if (neighbors.down.type == Terrain.River)   d = 3;
-            if (neighbors.left.type == Terrain.River)   l = 3;
+            if (neighbors.up.type == Terrain.River) u = 3;
+            if (neighbors.right.type == Terrain.River) r = 3;
+            if (neighbors.down.type == Terrain.River) d = 3;
+            if (neighbors.left.type == Terrain.River) l = 3;
         }
-    
+
         return `${u}${r}${d}${l}`;
     }
 
     export function seaShallowVariant(neighbors: NeighborMatrix<TerrainObject>) {
         let n = {
-            up:        neighbors.up.shallowWater || neighbors.up.landTile,
-            upleft:    neighbors.upleft.shallowWater || neighbors.upleft.landTile,
-            upright:   neighbors.upright.shallowWater || neighbors.upright.landTile,
-            down:      neighbors.down.shallowWater || neighbors.down.landTile,
-            downleft:  neighbors.downleft.shallowWater || neighbors.downleft.landTile,
+            up: neighbors.up.shallowWater || neighbors.up.landTile,
+            upleft: neighbors.upleft.shallowWater || neighbors.upleft.landTile,
+            upright: neighbors.upright.shallowWater || neighbors.upright.landTile,
+            down: neighbors.down.shallowWater || neighbors.down.landTile,
+            downleft: neighbors.downleft.shallowWater || neighbors.downleft.landTile,
             downright: neighbors.downright.shallowWater || neighbors.downright.landTile,
-            left:      neighbors.left.shallowWater || neighbors.left.landTile,
-            right:     neighbors.right.shallowWater || neighbors.right.landTile
+            left: neighbors.left.shallowWater || neighbors.left.landTile,
+            right: neighbors.right.shallowWater || neighbors.right.landTile
         }
-    
+
         // 0 = deep, 1 = shallow
         // ul=1 --- ur=1
         // ---  src ---
         let ur, dr, dl, ul;
-    
+
         // If the corner and two adjacent sides are shallow, the corner is 'full'
         // These variants are about giving you 'full' corners
-        ur = (n.up && n.upright && n.right)     ? 1 : 0;
+        ur = (n.up && n.upright && n.right) ? 1 : 0;
         dr = (n.down && n.downright && n.right) ? 1 : 0;
-        dl = (n.down && n.downleft && n.left)   ? 1 : 0;
-        ul = (n.up && n.upleft && n.left)       ? 1 : 0;
-    
+        dl = (n.down && n.downleft && n.left) ? 1 : 0;
+        ul = (n.up && n.upleft && n.left) ? 1 : 0;
+
         return `${ur}${dr}${dl}${ul}`;
     }
 
     export function beachVariant(neighbors: NeighborMatrix<TerrainObject>) {
         let u, r, d, l;
-    
+
         u = (neighbors.up.landTile) ? 1 : 0;
         r = (neighbors.right.landTile) ? 1 : 0;
         d = (neighbors.down.landTile) ? 1 : 0;
         l = (neighbors.left.landTile) ? 1 : 0;
-        
+
         u = (neighbors.up.type == Terrain.Beach) ? 2 : u;
         r = (neighbors.right.type == Terrain.Beach) ? 2 : r;
         d = (neighbors.down.type == Terrain.Beach) ? 2 : d;
         l = (neighbors.left.type == Terrain.Beach) ? 2 : l;
-    
+
         return `${u}${r}${d}${l}`;
     }
 
     export function fourDirectionalVariant(neighbors: NeighborMatrix<TerrainObject>, ...types: TerrainType[]) {
-        
+
         // 0 = none, 1 = same type, 2 = alt type
         // l=2 u=1 u=2
         // l=1 src r=1
@@ -208,27 +215,27 @@ export module TerrainMethods {
 
         // For every type given, set a 1 if that type is directly adjacent.
         types.forEach(type => {
-            u = (neighbors.up.type == type)    ? 1 : u;
+            u = (neighbors.up.type == type) ? 1 : u;
             r = (neighbors.right.type == type) ? 1 : r;
-            d = (neighbors.down.type == type)  ? 1 : d;
-            l = (neighbors.left.type == type)  ? 1 : l;    
+            d = (neighbors.down.type == type) ? 1 : d;
+            l = (neighbors.left.type == type) ? 1 : l;
         });
-    
+
         // Patch fix for bridges: Extend to any land tile that isn't a river or mountain
         // TODO Add an excludeTypes: TerrainType[] parameter.
         if (neighbors.center.type == Terrain.Bridge) {
-            u = (neighbors.up.landTile && neighbors.up.type != Terrain.River && neighbors.up.type != Terrain.Mountain && neighbors.up.type != Terrain.Fire)             ? 1 : u;
+            u = (neighbors.up.landTile && neighbors.up.type != Terrain.River && neighbors.up.type != Terrain.Mountain && neighbors.up.type != Terrain.Fire) ? 1 : u;
             r = (neighbors.right.landTile && neighbors.right.type != Terrain.River && neighbors.right.type != Terrain.Mountain && neighbors.right.type != Terrain.Fire) ? 1 : r;
-            d = (neighbors.down.landTile && neighbors.down.type != Terrain.River && neighbors.down.type != Terrain.Mountain && neighbors.down.type != Terrain.Fire)     ? 1 : d;
-            l = (neighbors.left.landTile && neighbors.left.type != Terrain.River && neighbors.left.type != Terrain.Mountain && neighbors.left.type != Terrain.Fire)     ? 1 : l;
+            d = (neighbors.down.landTile && neighbors.down.type != Terrain.River && neighbors.down.type != Terrain.Mountain && neighbors.down.type != Terrain.Fire) ? 1 : d;
+            l = (neighbors.left.landTile && neighbors.left.type != Terrain.River && neighbors.left.type != Terrain.Mountain && neighbors.left.type != Terrain.Fire) ? 1 : l;
         }
 
         // Patch fix for rivers: Extend to any tile that is by nature a sea tile (except f**ing beaches)
         if (neighbors.center.type == Terrain.River) {
-            u = (!neighbors.up.landTile && neighbors.up.type != Terrain.Beach)       ? 1 : u;
+            u = (!neighbors.up.landTile && neighbors.up.type != Terrain.Beach) ? 1 : u;
             r = (!neighbors.right.landTile && neighbors.right.type != Terrain.Beach) ? 1 : r;
-            d = (!neighbors.down.landTile && neighbors.down.type != Terrain.Beach)   ? 1 : d;
-            l = (!neighbors.left.landTile && neighbors.left.type != Terrain.Beach)   ? 1 : l;
+            d = (!neighbors.down.landTile && neighbors.down.type != Terrain.Beach) ? 1 : d;
+            l = (!neighbors.left.landTile && neighbors.left.type != Terrain.Beach) ? 1 : l;
         }
 
         // Patch fix for roads: Prefer fewer extensions for wrap-around roads
@@ -244,7 +251,7 @@ export module TerrainMethods {
         r = (neighbors.right.type == Terrain.Void) ? 0 : r;
         d = (neighbors.down.type == Terrain.Void) ? 0 : d;
         l = (neighbors.left.type == Terrain.Void) ? 0 : l;
-    
+
         return `${u}${r}${d}${l}`;
     }
 
@@ -252,16 +259,16 @@ export module TerrainMethods {
         // 0 = none, 1 = same type
         // l=1 src r=1
         let l, r;
-        
+
         // If adjacent to the same tile type, set 1
-        l = (neighbors.left.type == type)  ? 1 : 0;
+        l = (neighbors.left.type == type) ? 1 : 0;
         r = (neighbors.right.type == type) ? 1 : 0;
-    
+
         return `${l}${r}`;
     }
 
     export function createSeaLayer(neighbors: NeighborMatrix<TerrainObject>,
-            options?: {includeCliffs?: boolean, includeShallowWater?: boolean}) {
+        options?: { includeCliffs?: boolean, includeShallowWater?: boolean }) {
 
         // Default options properties
         if (!options) options = {};
@@ -269,7 +276,7 @@ export module TerrainMethods {
         if (options.includeShallowWater == undefined) options.includeShallowWater = true;
 
         let container = new PIXI.Container();
-    
+
         // Animated sea is itself inferred now: the scene uses one large TilingSprite to cover the
         // entire board instead of creating <900 AnimatedSprites.
 
@@ -292,7 +299,7 @@ export module TerrainMethods {
                 }
             }
         }
-    
+
         // Add cliffs
         if (!options || options.includeCliffs) {
             let variant = seaCliffVariant(neighbors);
@@ -307,19 +314,40 @@ export module TerrainMethods {
         return container;
     }
 
-    export function createPlainLayer() {
-        let variant = randomPlainTile();
+    export function createPlainLayer(loc: Point, neighbors: NeighborMatrix<TerrainObject>, prevTerrain?: TerrainType) {
+
+        function getPlasmaScorchedVariant(): string {
+            if (!neighbors)
+                return '0000';
+
+            function neighborCheck(t: TerrainObject): number {
+                return (t instanceof Terrain.Plain && t.prevTileType === Terrain.Plasma) ? 1 : 0;
+            }
+
+            return [
+                neighborCheck(neighbors.up),
+                neighborCheck(neighbors.right),
+                neighborCheck(neighbors.down),
+                neighborCheck(neighbors.left),
+            ].join('');
+        }
+
+        let variant = (prevTerrain === Terrain.Meteor)
+            ? 'crater'
+            : (prevTerrain === Terrain.Plasma)
+            ? getPlasmaScorchedVariant()
+            : randomPlainTile(loc);
         return new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-${variant}.png`]);
     }
 
-    export function createBuildingLayers(building: string) {
+    export function createBuildingLayers(loc: Point, neighbors: NeighborMatrix<TerrainObject>, building: string) {
         // Plain
-        let bottom: PIXI.Container = createPlainLayer();
+        let bottom: PIXI.Container = createPlainLayer(loc, neighbors);
 
         // Building
         let top = getBuildingSprite(building);
 
-        return {bottom: bottom, top: top};
+        return { bottom: bottom, top: top };
     }
 
     export function getBuildingSprite(building: string) {

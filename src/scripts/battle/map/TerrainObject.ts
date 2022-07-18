@@ -10,6 +10,7 @@ import { TextureLibrary } from "../../system/TextureLibrary";
 import { UnitObject } from "../UnitObject";
 import { TerrainMethods } from "./Terrain.helpers";
 import { Debug } from "../../DebugUtils";
+import { Point } from "../../Common/Point";
 
 /** TODO Implement Efficient Tile Overlays
  * Constructor: build static filters if they do not exist.
@@ -225,7 +226,7 @@ export abstract class TerrainObject {
         this.destroyVisualObjects();    // in case we've already built before
         this.layers = [];
 
-        this.orient(neighbors); // Allows subclasses to populate the layers list.
+        this.orient(neighbors, new Point(pos)); // Allows subclasses to populate the layers list.
 
         const mapLayerRow = MapLayerFunctions.RowLayerFromWorldPosition(pos);   // For MapLayer
 
@@ -320,7 +321,7 @@ export abstract class TerrainObject {
     }
 
     /** Builds the tile's graphical object based on its surrounding set of neighbors. */
-    abstract orient(neighbors: NeighborMatrix<TerrainObject>): void;
+    abstract orient(neighbors: NeighborMatrix<TerrainObject>, location: Point): void;
 
     /** Returns true if the given set of neighboring tiles agrees with this
      * tile's graphical limitations. */
