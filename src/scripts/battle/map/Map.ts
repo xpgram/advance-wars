@@ -396,12 +396,13 @@ export class Map {
         // Touch distant sea tiles to reconfigure the shallow water system
         const touchMap = new RegionMap(Common.Array2D(5,5,true), new Point(2,2));
         this.squaresFrom(p, touchMap)
-            .filter( s => !s.terrain.landTile )
+            .filter( s => !s.terrain.shallowWaterSourceTile )
             .forEach( s => {
-                const oldInstance = s.terrain;
+                const oldTerrain = s.terrain;
                 s.terrain = new s.terrain.type(s.terrain);
+                s.terrain.faction = oldTerrain.faction;
                 s.flag = true
-                oldInstance.destroy();
+                oldTerrain.destroy();
             });
 
         return true;
