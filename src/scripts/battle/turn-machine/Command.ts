@@ -28,7 +28,7 @@ import { TrackCar } from "../TrackCar";
 import { ViewSide } from "../ui-windows/generic-components/UiEnums";
 import { Unit } from "../Unit";
 import { CommonRangesRetriever, RegionMap } from "../unit-actions/RegionMap";
-import { UnitObject } from "../UnitObject";
+import { UnitObject, UnitType } from "../UnitObject";
 import { CommandHelpers } from "./Command.helpers";
 import { instructionData } from "./InstructionData";
 import { ChooseAttackTarget } from "./states/ChooseAttackTarget";
@@ -240,8 +240,9 @@ export module Command {
     get type() { return Build; },
     get chain() { return [Move, Build]; },
     name: "Build",
+    // icon: `temp-airpt` | `temp-port`,  // TODO This should show you what you intend to build.
     serial: Serial.next().value,
-    weight: Weight.Unpreferred,
+    weight: Weight.Secondary,
 
     triggerInclude() {
       const { map } = data.assets;
@@ -527,6 +528,55 @@ export module Command {
         ...insertIf( (toDrop.length !== drop.length),
           new SpeechBubbleEvent({actor, camera, message: 'ambush'})),
       ]);
+      return ExitCode.Success;
+    },
+  }
+
+  export const ProduceTroop: CommandObject & {troopType: UnitType} = {
+    ...cmdDefaults,
+
+    get type() { return ProduceTroop; },
+    get chain() { return [ProduceTroop]; },
+    // get ingressSteps() { return [TroopShop]; },  // TODO This should open the unit shop where the cost is seeable and options are plentiful (potentially)
+    name: "Produce",
+    // icon: `wrench`,  // TODO This should include an icon that signifies the troops shop. Perhaps the wrench icon the mapcursor uses?
+    serial: Serial.next().value,
+    weight: Weight.Quaternary,
+    spendsUnit: true,
+
+    troopType: Unit.SeaPlane, // TODO This needs to be changed by TroopShop or something
+
+    triggerInclude() {
+      const { players } = data.assets;
+      const { actor, plansToMove } = data;
+
+      const newTroop = new this.troopType();
+
+      const carrierUnit = (actor.type === Unit.Carrier);
+      const enoughAP = (actor.ammo > 0);
+      const enoughFunds = (players.current.canAfford(newTroop.cost));
+      const spaceAvailable = (actor.boardable());
+
+      return carrierUnit && spaceAvailable && enoughAP && enoughFunds && !plansToMove;
+    },
+
+    scheduleEvent() {
+      const { boardEvents, players } = data.assets;
+      const { actor, goal } = data;
+      const { troopType } = this;
+
+      boardEvents.schedule(new GenericRatifyEvent({
+        location: goal,
+        ratify() {
+          actor.ammo--;
+          const unit = players.current.spawnUnit({
+            location: goal,
+            serial: troopType.serial,
+          });
+          players.current.expendFunds(unit.cost);
+        }
+      }));
+
       return ExitCode.Success;
     },
   }

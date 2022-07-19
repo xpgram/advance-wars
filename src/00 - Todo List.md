@@ -37,6 +37,9 @@ In Progress:
 - [x] Add map-to-mapdata function to map.ts for easy post-design extraction.
 - [x] Add map-design mode for easy manipulation
 - [ ] Refactor UI construction system to use decorators and assembly functions which (attempt to) behave like CSS (using Pixi's already present width/height/etc. functions).
+- [ ] Refactor BSM to be generic (its <T> type would be 'assets', descending SceneState objects would be... I think they accept a master of type BSM<Y> and reject any others).
+
+- [ ] Rigs have infinite gas, so they shouldn't display '99'; either '–' or '∞'.
 
 - [ ] I update a bunch of dependencies via Github's security-bot-thing, and now it runs slower. On my laptop, anyway. That's really irritating.
 

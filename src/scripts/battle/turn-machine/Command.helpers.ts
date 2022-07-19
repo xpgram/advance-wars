@@ -24,6 +24,8 @@ export module CommandHelpers {
     Secondary,
     /** Third order abilities: Unit specific special actions secondary. */
     Tertiary,
+    /** Fourth order abilities: Unit specific special actions tertiary. */
+    Quaternary,
     /** Primary-contextual actions. */
     Context1,
     /** Secondary-contextual actions. */
