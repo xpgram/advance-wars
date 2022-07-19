@@ -18,15 +18,19 @@ export module CommandHelpers {
 
   /** Names for sorting weight categories; indicates menu order. */
   export enum Weight {
-    /** First order abilities: Attack */
+    /** First order abilities: Attack. */
     Primary,
-    /** Unit specific special actions. */
+    /** Second order abilities: Unit specific special actions. */
     Secondary,
-    /** Contextual, global actions. */
+    /** Third order abilities: Unit specific special actions secondary. */
     Tertiary,
-    /** Secondary contextual, global actions. */
-    Quaternary,
-    /** Last in list: Wait */
+    /** Primary-contextual actions. */
+    Context1,
+    /** Secondary-contextual actions. */
+    Context2,
+    /** Fulcrum of the list, usually the bottom. */
+    Wait,
+    /** Post-last: appears after Wait; actions which shouldn't be accidentally choosable. */
     Unpreferred,
     /** Bottom in list; indicates an item whose sort is irrelevant. */
     None,

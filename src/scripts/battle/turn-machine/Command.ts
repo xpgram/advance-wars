@@ -67,7 +67,7 @@ export module Command {
     get chain() { return [Move, Wait, Drop]; },
     name: "Wait",
     serial: Serial.next().value,
-    weight: Weight.Quaternary,
+    weight: Weight.Wait,
 
     triggerInclude() {
       const { actor, goalTile } = data;
@@ -241,7 +241,7 @@ export module Command {
     get chain() { return [Move, Build]; },
     name: "Build",
     serial: Serial.next().value,
-    weight: Weight.Primary,
+    weight: Weight.Unpreferred,
 
     triggerInclude() {
       const { map } = data.assets;
@@ -415,7 +415,7 @@ export module Command {
     get chain() { return [Join]; },
     name: "Join",
     serial: Serial.next().value,
-    weight: Weight.Tertiary,
+    weight: Weight.Context1,
     
     triggerInclude() {
       const { map } = data.assets;
@@ -453,7 +453,7 @@ export module Command {
     get chain() { return [Load]; },
     name: "Load",
     serial: Serial.next().value,
-    weight: Weight.Tertiary,
+    weight: Weight.Context1,
     
     triggerInclude() {
       const { actor, goalTile } = data;
@@ -479,7 +479,7 @@ export module Command {
     get ingressSteps() { return [DropLocation, CommandMenu]; },
     name: "Drop",
     serial: Serial.next().value,
-    weight: Weight.Secondary,
+    weight: Weight.Tertiary,
     index: -1,
     
     triggerInclude() {
@@ -532,14 +532,14 @@ export module Command {
   }
 
   /** Unit becomes special 'CO' unit. */
-  export const LoadCO: CommandObject = {
+  export const AnnointCO: CommandObject = {
     ...cmdDefaults,
     
-    get type() { return LoadCO; },
-    get chain() { return [LoadCO]; },
+    get type() { return AnnointCO; },
+    get chain() { return [AnnointCO]; },
     name: "CO",
     serial: Serial.next().value,
-    weight: Weight.Unpreferred,
+    weight: Weight.Context2,
     spendsUnit: false,
     
     triggerInclude() {
@@ -569,7 +569,7 @@ export module Command {
     get ingressSteps() { return [ChooseMapTarget]; },
     name: "Missile",
     serial: Serial.next().value,
-    weight: Weight.Tertiary,
+    weight: Weight.Context1,
 
     effectAreaMap: CommonRangesRetriever({min:0,max:2}),
     damage: 30,
