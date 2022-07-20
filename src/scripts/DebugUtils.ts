@@ -67,7 +67,9 @@ export const Debug = {
 
     /** Log to internal memory some system event. Useful for debugging.
      * Use Debug.postLog() to write the log's contents to the browser console. */
-    log: (domain: string, process: string, options?: {message?: string, reason?: string, warn?: boolean} ) => {
+    log: (domain: string, process: string, options?: {message?: string, reason?: string, error?: boolean, warn?: boolean} ) => {
+        const { message, reason, error, warn } = options ?? {};
+
         // Format "\n  : message text"
         const includeMsg = (d: string, msg?: string) => {
             if (!msg)
@@ -84,7 +86,6 @@ export const Debug = {
             return `\n${firstindent}${fmsg.slice(indent.length)}`;
         }
 
-        const { message, reason, warn } = options ?? {};
         const timestamp = `[${new Date().toISOString()}] fr${Game.frameCount} ln${Debug._logData.length}`;
         const logstr = `${timestamp} ${domain} ${process}${includeMsg(':',message)}${includeMsg(';',reason)}`;
         // Ex:
@@ -93,7 +94,12 @@ export const Debug = {
         //    ; Generic error.
         // TODO Will '\n' make it hard to grep, even with ln41?
 
-        if (warn)
+        // TODO It is not clear from impl. that error and warn can't be concurrent.
+        // I would prefer `elevate?: 'warn' | 'error'`, I think, but I need to refactor elsewhere.
+        // Or deprecate warn, I suppose.
+        if (error)
+            console.error(logstr);
+        else if (warn)
             console.warn(logstr);
             
         Debug._logData.push(logstr);

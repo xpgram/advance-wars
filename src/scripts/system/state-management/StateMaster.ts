@@ -1,0 +1,320 @@
+import { Game } from "../../..";
+import { Debug } from "../../DebugUtils";
+import { Keys } from "../../controls/KeyboardObserver";
+import { Common } from "../../CommonUtils";
+import { StateObject } from "./StateObject";
+import { ConstructorFor } from "../../CommonTypes";
+import { NullState } from "./NullState";
+import { StateAssets } from "./StateAssets";
+
+const DOMAIN = 'StateMachine';
+
+const STACK_TRACE_LIMIT = 20;
+const QUEUE_STACK_WARNING = 30;
+
+enum TransitionTo {
+  // TODO Add doc strings so I remember wtf 'NoneFromRegress' means
+  None,
+  NoneFromRegress,
+  Next,
+  NextFromRegress,
+  Previous,
+  PreviousOnFail,
+  SystemFailure,
+}
+
+
+/* // TODO Refactor
+The purpose of this class is to genericize the BSM into something I can use in any scene.
+Key goals:
+  - The assets object that inter-states use is of type T.
+  - Discrete state-objects now require specific StateMaster<???> type references to infer their own type.
+    An SO for StateMaster<MainMenuAssets> will refuse to work with a reference to StateMaster<BattleSystemAssets>, for instance.
+  - Battle-scene-specific calls and inferences need to be migrated to BattleSystemAssets instead.
+  - All state-switching and error-catching/reporting functions must remain intact or even be expanded.
+    This is obviously the point, I just like keeping checklists.
+
+  - Queue packages SOs with constructor data passed in from whomever made the advance() request
+  - Join this dynamic StateMaster<T> with StateObject<T>; find some way that StateObject can explicitely
+    define which T it wants with no inferances.
+
+I've gotten rid of the obvious redlines.
+I haven't gone over much of the implementation yet, though.
+*/
+
+/** This class is responsible for starting and operating a battle.
+ * The scenario must be provided on instantiation, including board-layout, enemy placement, team COs, etc.
+ * so that the map and accompanying game resources may be built and configured.
+ * 
+ * This class runs a state-machine operating the moment-to-moment gameplay, and keeps a log of its
+ * trajectory through state-transitions for debugging purposes.
+ */
+export class StateMaster<T extends StateAssets> {
+
+  /**  */
+  readonly assets: T;
+
+  /** Enum flag indicating what the battle-system's state-machine intends to do on next cycle. */
+  private transitionIntent = TransitionTo.None;
+  /** The default state of the manager. Empty. Does nothing. */
+  private readonly NULL_STATE = new NullState<T>(this);
+
+  /** A list containing the battle-system's state history. */
+  private stack: StateObject<T>[] = [];
+  /** A string list of all previously visited game states, kept for debugging purposes. */
+  private stackTrace: { msg: string, mode: string, exit?: number }[] = [];
+  /** A list containing the battle-system's upcoming states. */
+  private queue: ConstructorFor<StateObject<T>>[] = [];
+    // TODO Can this be objects that get constructed immediately?
+    // Then states can be added with constructor data whenever
+    // TODO Can SOs have a return value?
+
+
+  constructor(entryPoint: ConstructorFor<StateObject<T>>, assetsObject: T) {
+    this.assets = assetsObject;
+
+    this.queue.push(entryPoint);
+    this.advance(this.NULL_STATE);
+      // TODO When does this advance to the entry point?
+      // I don't remember how this works.
+
+    Game.scene.ticker.add(this.update, this);
+  }
+
+  destroy() {
+    this.NULL_STATE.destroy();
+    //@ts-expect-error
+    this.NULL_STATE = undefined;
+    this.assets.destroy();
+    this.stack.forEach(state => { state.destroy(); });  // Break all references to self in state stack
+    Game.scene.ticker.remove(this.update, this);
+  }
+
+  /** The currently active battle-system state. */
+  get currentState(): StateObject<T> {
+    const state = this.stack[this.stack.length - 1];
+    return (state) ? state : this.NULL_STATE;
+  }
+
+  /** Turn Machine's update step which runs the current state's update step and handles
+   * transition requests. */
+  private update() {
+    // Dev stack trace
+    if (Game.devController.pressed(Keys.P))
+      Debug.ping(this.getStackTrace());
+
+    // On major BSM failure, halt completely.
+    if (this.transitionIntent === TransitionTo.SystemFailure)
+      return;
+
+    try {
+      // nextState->new handler
+      while (this.transitionIntent == TransitionTo.Next
+        || this.transitionIntent == TransitionTo.NextFromRegress) {
+
+        if (this.queue.length === 0)
+          throw new Error(`Cannot advance to next in queue: queue is empty.`);
+
+        const mode = (this.transitionIntent === TransitionTo.NextFromRegress)
+          ? '⟳'
+          : '→'
+        this.transitionIntent = TransitionTo.None;
+
+        // Close and log previous state.
+        const lastState = this.currentState;
+        this.currentState.close();
+        const exit = this.currentState.exit;
+        this.log(mode, `${this.currentState.name}`, exit);
+
+        // Setup next state
+        const state = this.queue.shift() as ConstructorFor<StateObject<T>>;
+        const newState = new state(this);
+        this.stack.push(newState);  // Add new state to stack (implicitly changes current)
+        newState.wake();            // Run new state's scene configurer
+
+        // System log line
+        Debug.log(DOMAIN, 'HandleAdvanceToState', {
+          message: `Advanced from '${lastState.name}' to '${newState.name}'`,
+        });
+
+        // Cull unreachables from stack
+        this.cullNonRevertibles();
+      }
+
+      // nextState->none handler
+      if (this.transitionIntent == TransitionTo.None
+        || this.transitionIntent == TransitionTo.NoneFromRegress) {
+
+        this.currentState.updateSystem();
+        if (!this.assets.suspendInteractivity())
+          this.currentState.updateInteractions();
+      }
+
+      // nextState->previous handler
+      while (this.transitionIntent == TransitionTo.Previous
+        || this.transitionIntent == TransitionTo.PreviousOnFail) {
+
+        // Failure looping check
+        if (this.stackFailureLoop())
+          throw new Error(`Infinite failure loop detected.`);
+        if (this.currentState === this.NULL_STATE)
+          throw new Error(`Cannot revert state from null.`);
+        if (!this.currentState.revertible)
+          throw new Error(`Cannot revert unrevertible state ${this.currentState.name}.`);
+
+        const oldState = this.stack.pop() as StateObject<T>;
+        this.queue.unshift(oldState.type);
+
+        // Transition procedure
+        if (this.transitionIntent == TransitionTo.Previous) {
+          oldState.close();      // Runs generic close procedure
+          oldState.prev();       // Ctrl+Z Undo for smooth backwards transition
+          this.log('↩', `${oldState.name}`, oldState.exit);
+          oldState.destroy();    // Free up memory
+        } else {
+          this.log('🛑', `${oldState.name}`, oldState.exit);
+          oldState.destroy();
+          this.transitionIntent = TransitionTo.Previous;
+        }
+
+        let stateAwakened = false;
+
+        // Log new current state to trace history.
+        if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
+          this.transitionIntent = TransitionTo.NoneFromRegress;
+          this.currentState.wake({ fromRegress: true });
+          stateAwakened = true;
+        }
+
+        // System log line
+        Debug.log(DOMAIN, 'HandleRegressToState', {
+          message: `Regressed from '${oldState.name}' to '${this.currentState.name}'; ${(stateAwakened) ? 'state did wake.' : 'state did not wake.'}`,
+        })
+      }
+    } catch (e) {
+      Debug.ping(this.getStackTrace());
+      this.transitionIntent = TransitionTo.SystemFailure;
+      throw e;
+    }
+  }
+
+  /** Returns true if the given state object is the active state object. */
+  private isSelfsameState(state: StateObject<T>) {
+    if (this.currentState !== state) {
+      Debug.log(DOMAIN, 'RequestAction_VerifySource', {
+        message: `Rejecting intent.`,
+        reason: `Request from '${state.name}' does not match active state ('${this.currentState.name}').`,
+        warn: true,
+      });
+      return false;
+    }
+    return true;
+  }
+
+  /** True if the current state has signalled an intent to change states. */
+  get transitioning() {
+    return this.transitionIntent !== TransitionTo.None
+      && this.transitionIntent !== TransitionTo.NoneFromRegress;
+  }
+
+  /** Removes the first n entries from the state queue.
+   * This is an undo method used by TurnStates to clean up after a regression.
+   * The current state must provide itself as a safety mechanism; only the current state may request changes. */
+  unqueue(requestedBy: StateObject<T>, n: number) {
+    if (this.isSelfsameState(requestedBy))
+      this.queue = this.queue.slice(n);
+  }
+
+  /** Signals an AdvanceIntent to the turn system.
+   * The current state must provide itself as a safety mechanism; only the current state may request changes.
+   * Further turn states may be included to add to queue, but if none are provided, BSM will simply advance
+   * to next in queue. */
+  advance(requestedBy: StateObject<T>, ...next: ConstructorFor<StateObject<T>>[]) {
+    if (!this.transitioning && this.isSelfsameState(requestedBy)) {
+      this.queue.unshift(...next);
+      this.transitionIntent = TransitionTo.Next;
+
+      if (this.queue.length >= QUEUE_STACK_WARNING)
+        Debug.warn(`TurnMachine: queue is ${this.queue.length} members long.`);
+    }
+  }
+
+  /** Signals a RegressIntent to the turn system.
+   * The current state must provide itself as a safety mechanism; only the current state may request changes. */
+  regress(requestedBy: StateObject<T>) {
+    if (!this.transitioning && this.isSelfsameState(requestedBy))
+      this.transitionIntent = TransitionTo.Previous;
+  }
+
+  /** Reduces the stack length at non-revertible break points. */
+  cullNonRevertibles() {
+    let idx = -1;
+    // Find last non-revertible occurrence.
+    for (let i = this.stack.length; i >= 0; i--)
+      if (this.stack[i]?.revertible === false) {
+        idx = i;
+        break;
+      }
+    // Slice list and destroy states not needed.
+    if (idx > 0) {
+      const culled = this.stack.slice(0,idx);
+      this.stack = this.stack.slice(idx);
+      culled.forEach( s => s.destroy() );
+      Debug.log(DOMAIN, 'CullStateStack', {
+        message: `Culled ${idx} unreachable turnstates.`,
+      })
+    }
+  }
+
+  /** Signals the BattleSystemManager that it should abandon its most recent state advancement and continue regressing to the
+   * last stable state. Throws a fatal error if regression is impossible. */
+  failToPreviousState(state: StateObject<T>) {
+    if (this.isSelfsameState(state) == false)
+      return;
+
+    if (this.stack.length > 1)
+      this.transitionIntent = TransitionTo.PreviousOnFail;
+    else {
+      Debug.ping(this.getStackTrace());
+      throw new Error('BattleSystemManager failed to advance state but has no state to revert to.');
+    }
+  }
+
+  /** Returns true if the current stack is experiencing an infinite failure loop. */
+  stackFailureLoop() {
+    const sequence = Common.repeatingSequence(
+      this.stackTrace.map(t => t.exit || 0).reverse(),
+      5
+    );
+    const notEmpty = (sequence.length > 0);
+    const errorCode = (sequence.some(n => n < 0));
+    return notEmpty && errorCode;
+  }
+
+  /** Logs a string——which should be the name of a game state——to the manager's game state history. */
+  private log(mode: string, msg: string, exit: number) {
+    this.stackTrace.push({ msg, mode, exit });
+    if (this.stackTrace.length > STACK_TRACE_LIMIT)
+      this.stackTrace.shift();
+  }
+
+  /** Returns a string log of this battle-system's game state history. */
+  getStackTrace() {
+    const queue = this.queue
+      .slice()
+      .map((s, idx) => `${`${idx}`.padStart(2, '0')}: ${(new s(this)).name}`)
+      .reverse()
+      .join('\n');
+    const mode = (this.transitionIntent === TransitionTo.PreviousOnFail)
+      ? '🛑'
+      : (this.transitionIntent === TransitionTo.NoneFromRegress)
+        ? '⟳▶'
+        : '▶';
+    const cur = `cur: ${mode} ${this.currentState.exit} ${this.currentState.name}`;
+    const trace = this.stackTrace
+      .map(({ msg, mode, exit }, idx) => `${`${idx}`.padStart(2, '0')}: ${mode} ${exit} ${msg}`)
+      .reverse()
+      .join('\n');
+    return `Game State History (last ${STACK_TRACE_LIMIT}):\nQueue\n${queue}\n${cur}\n${trace}`;
+  }
+}
