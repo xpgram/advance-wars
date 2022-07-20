@@ -85,7 +85,8 @@ export class StateMaster<T extends StateAssets> {
     this.NULL_STATE.destroy();
     //@ts-expect-error
     this.NULL_STATE = undefined;
-    this.assets.destroy();
+    if (this.assets.destroy)
+      this.assets.destroy();
     this.stack.forEach(state => { state.destroy(); });  // Break all references to self in state stack
     Game.scene.ticker.remove(this.update, this);
   }
@@ -146,7 +147,7 @@ export class StateMaster<T extends StateAssets> {
         || this.transitionIntent == TransitionTo.NoneFromRegress) {
 
         this.currentState.updateSystem();
-        if (!this.assets.suspendInteractivity())
+        if (!this.assets.suspendInteractivity || !this.assets.suspendInteractivity())
           this.currentState.updateInteractions();
       }
 

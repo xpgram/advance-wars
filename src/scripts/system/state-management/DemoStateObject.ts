@@ -1,7 +1,9 @@
 import { StateObject } from "./StateObject";
 
 
-export class DemoState extends StateObject<{one: number}> {
+// TODO {one: number} has no properties in common with StateAssets. But... why does it need any? They're all optional.
+
+export class DemoState extends StateObject<{suspendInteractivity(): boolean, one: number}> {
   get type() { return DemoState; }
   get name(): string { return 'Demo'; }
   get revertible(): boolean { return true; }
