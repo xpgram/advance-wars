@@ -3,7 +3,7 @@ import { Debug } from "../../DebugUtils";
 import { Keys } from "../../controls/KeyboardObserver";
 import { Common } from "../../CommonUtils";
 import { StateObject } from "./StateObject";
-import { ConstructorFor } from "../../CommonTypes";
+import { Const, ConstructorFor } from "../../CommonTypes";
 import { NullState } from "./NullState";
 import { StateAssets } from "./StateAssets";
 
@@ -12,14 +12,30 @@ const DOMAIN = 'StateMachine';
 const STACK_TRACE_LIMIT = 20;
 const QUEUE_STACK_WARNING = 30;
 
+/**  */
+export type StateConstructorData<Y, T extends ConstructorFor<StateObject<Y>>> = {
+  readonly stateType: T;
+  readonly data: Y;
+}
+
 enum TransitionTo {
-  // TODO Add doc strings so I remember wtf 'NoneFromRegress' means
+  /** No intent to transition. Indicates the current state is settled. */
   None,
+  /** No intent to transition. Indicates the current state is settled, but from the reverse direction. */
   NoneFromRegress,
+  /** Intent to move forward-in-time in the stack. */
   Next,
+
+  /** Indicates logline should display '⟳' for 'replay'.  
+   * I don't think this is used at all, and in fact, I don't even know how it would happen.
+   * @deprecated */
   NextFromRegress,
+
+  /** Intent to move backward-in-time in the stack. */
   Previous,
+  /** Intent to move backward-in-time in the stack as a recovery mechanism from some fatal error. */
   PreviousOnFail,
+  /** Indicates a complete process halt due to some unrecoverable error. */
   SystemFailure,
 }
 
@@ -35,35 +51,52 @@ Key goals:
     This is obviously the point, I just like keeping checklists.
 
   - Queue packages SOs with constructor data passed in from whomever made the advance() request
-  - Join this dynamic StateMaster<T> with StateObject<T>; find some way that StateObject can explicitely
-    define which T it wants with no inferances.
+  - When/how does the machine advance from NULL_STATE to the entry point? Is that request made outside the machine?
 
 I've gotten rid of the obvious redlines.
 I haven't gone over much of the implementation yet, though.
 */
 
-/** This class is responsible for starting and operating a battle.
- * The scenario must be provided on instantiation, including board-layout, enemy placement, team COs, etc.
- * so that the map and accompanying game resources may be built and configured.
+/** This class is responsible for starting and maintaining a generic state machine.  
+ * Primarily, this covers the operation of the current StateObject and the management of the inter-
+ * state transition process, as well as a log of all of these operations and the resulting global
+ * stack structure.
  * 
- * This class runs a state-machine operating the moment-to-moment gameplay, and keeps a log of its
- * trajectory through state-transitions for debugging purposes.
+ * Every state machine holds a reference to a common set of components and variables called `assets`
+ * which determines the machine's generic type. State objects, naturally dependent on these assets,
+ * will only work with a StateMaster of a matching assets type.
+ * 
+ * StateObjects when written should extend the abstract class `StateObject<T>`, but should explicitly
+ * define what common object `T` is.
  */
 export class StateMaster<T extends StateAssets> {
 
-  /**  */
+  /** Reference to the inter-machine-state data object.  
+   * Useful for maintaining global references among state objects to variables or references
+   * to common components. 
+   * 
+   * Note that state-specific data may be passed to those states directly via requests to advance()
+   * the machine state. */
   readonly assets: T;
 
-  /** Enum flag indicating what the battle-system's state-machine intends to do on next cycle. */
+  /** Enum flag indicating what the state machine intends to do on next cycle. */
   private transitionIntent = TransitionTo.None;
-  /** The default state of the manager. Empty. Does nothing. */
+  /** The default state of the machine. Empty. Does nothing. */
   private readonly NULL_STATE = new NullState<T>(this);
 
-  /** A list containing the battle-system's state history. */
+  /** Repository for the state object to regress to during multi-regress. */
+  private regressTarget?: StateObject<T> | ConstructorFor<StateObject<T>>;
+  private get regressTargetLogString(): string {
+    const title = this.regressTarget?.name;
+    const obj_tag = (this.regressTarget instanceof StateObject<T>) ? ' (obj)' : ' (class)';
+    return `${title}${obj_tag}`;
+  }
+
+  /** A list containing the machine's state history. */
   private stack: StateObject<T>[] = [];
-  /** A string list of all previously visited game states, kept for debugging purposes. */
+  /** A string list of all previously visited state objects, kept for debugging purposes. */
   private stackTrace: { msg: string, mode: string, exit?: number }[] = [];
-  /** A list containing the battle-system's upcoming states. */
+  /** A list containing the machine's upcoming states. */
   private queue: ConstructorFor<StateObject<T>>[] = [];
     // TODO Can this be objects that get constructed immediately?
     // Then states can be added with constructor data whenever
@@ -85,8 +118,7 @@ export class StateMaster<T extends StateAssets> {
     this.NULL_STATE.destroy();
     //@ts-expect-error
     this.NULL_STATE = undefined;
-    if (this.assets.destroy)
-      this.assets.destroy();
+    (this.assets.destroy && this.assets.destroy());
     this.stack.forEach(state => { state.destroy(); });  // Break all references to self in state stack
     Game.scene.ticker.remove(this.update, this);
   }
@@ -161,18 +193,18 @@ export class StateMaster<T extends StateAssets> {
         if (this.currentState === this.NULL_STATE)
           throw new Error(`Cannot revert state from null.`);
         if (!this.currentState.revertible)
-          throw new Error(`Cannot revert unrevertible state ${this.currentState.name}.`);
+          throw new Error(`Cannot revert unrevertible state ${this.currentState.name}. RegressTarget=${this.regressTargetLogString}`);
 
         const oldState = this.stack.pop() as StateObject<T>;
         this.queue.unshift(oldState.type);
 
         // Transition procedure
-        if (this.transitionIntent == TransitionTo.Previous) {
+        if (this.transitionIntent === TransitionTo.Previous) {
           oldState.close();      // Runs generic close procedure
           oldState.prev();       // Ctrl+Z Undo for smooth backwards transition
           this.log('↩', `${oldState.name}`, oldState.exit);
           oldState.destroy();    // Free up memory
-        } else {
+        } else if (this.transitionIntent === TransitionTo.PreviousOnFail) {
           this.log('🛑', `${oldState.name}`, oldState.exit);
           oldState.destroy();
           this.transitionIntent = TransitionTo.Previous;
@@ -180,11 +212,15 @@ export class StateMaster<T extends StateAssets> {
 
         let stateAwakened = false;
 
-        // Log new current state to trace history.
-        if (this.currentState.skipOnUndo == false) {    // If 'stable,' signal to stop reverting.
-          this.transitionIntent = TransitionTo.NoneFromRegress;
-          this.currentState.wake({ fromRegress: true });
-          stateAwakened = true;
+        // If a suitable 
+        const targetFound = (this.regressTarget === this.currentState || this.regressTarget === this.currentState.type);
+        const noTarget = (!this.regressTarget);
+        const stableState = (this.currentState.skipOnUndo === false);
+
+        if (targetFound || noTarget && stableState) {
+            this.transitionIntent = TransitionTo.NoneFromRegress;
+            this.currentState.wake({ fromRegress: true });
+            stateAwakened = true;
         }
 
         // System log line
@@ -240,11 +276,44 @@ export class StateMaster<T extends StateAssets> {
     }
   }
 
+  advanceT<Y>(test: StateConstructorData<T,Y>) {
+    const t = new test.stateType(test.data);
+  }
+
   /** Signals a RegressIntent to the turn system.
    * The current state must provide itself as a safety mechanism; only the current state may request changes. */
   regress(requestedBy: StateObject<T>) {
     if (!this.transitioning && this.isSelfsameState(requestedBy))
       this.transitionIntent = TransitionTo.Previous;
+  }
+
+  /**  */
+  // TODO Combine with regress(), maybe rename for new purpose
+  // TODO Log warnings about requesting an invalid state transition should be handled here.
+  regressTo(requestedBy: StateObject<T>, target: StateObject<T> | ConstructorFor<StateObject<T>>) {
+    // confirm request operator and transition request not already in progress
+    if (this.transitioning || !this.isSelfsameState(requestedBy))
+      return false;
+
+    // find some state to regress to
+    let success = false;
+    const stack = this.stack.slice().reverse();
+    for (const state of stack) {
+      if (state === target || state.type === target) {
+        success = true;
+        break;
+      }
+      if (!state.revertible)
+        break;
+    }
+
+    // signal multi-regress intent
+    if (success) {
+      this.transitionIntent = TransitionTo.Previous;
+      this.regressTarget = target;
+    }
+
+    return success;
   }
 
   /** Reduces the stack length at non-revertible break points. */
@@ -301,8 +370,8 @@ export class StateMaster<T extends StateAssets> {
 
   /** Returns a string log of this battle-system's game state history. */
   getStackTrace() {
-    const queue = this.queue
-      .slice()
+    const queue = this.queue;
+    queue.slice()
       .map((s, idx) => `${`${idx}`.padStart(2, '0')}: ${(new s(this)).name}`)
       .reverse()
       .join('\n');

@@ -31,12 +31,6 @@ export abstract class StateObject<T extends StateAssets> {
    * Provides access to the MapCursor, the Map itself, the UI windows, etc. */
   protected get assets() { return this.machine.assets; }
 
-  /** Accessors to all commonly requested objects. */
-  protected data = instructionData.data;
-    // TODO I think TurnState for the BSM could start with
-    // an abstract which extends this class which describes this
-    // shortcut to instruction data, to avoid too much change.
-
   /** The status code this program has concluded with.
    * Positives are successful, negatives are failures, and 0 is default success. */
   get exit() { return this._exit; }
@@ -69,11 +63,7 @@ export abstract class StateObject<T extends StateAssets> {
     try {
       this.machine.unqueue(this, this.queueChange);
       this.queueChange = 0;
-      instructionData.fill(this.assets);
-        // TODO this gets called inside .resetAssets() below
-      this.assets.resetAssets();
-        // TODO Generic solution to this.
-        // I think I'm gonna have to force type assets to include a few standard functions.
+      (this.assets.resetAssets && this.assets.resetAssets());
       (!fromRegress)
         ? this.onAdvance()
         : this.onRegress();
@@ -149,5 +139,12 @@ export abstract class StateObject<T extends StateAssets> {
       this.machine.regress(this);
     } else
       console.warn(`State ${this.name} tried to regress during transition intent. Are we requesting multiple times?`);
+  }
+
+  /** Pushes a request to the state machine to revert state to a specific state or class of state object.
+   * Returns `true` if such a state exists to regress to (and the system has initiated the request), and
+   * `false` if no such regress request is satisfiable. */
+  regressTo(target: StateObject<T> | ConstructorFor<StateObject<T>>): boolean {
+    return this.machine.regressTo(this, target);
   }
 }

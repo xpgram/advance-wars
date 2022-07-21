@@ -1,10 +1,9 @@
-import { Common } from "../../CommonUtils";
 import { StateObject } from "./StateObject";
 
 
 /**  */
 export class NullState<T> extends StateObject<T> {
-  get type() { return NullState; }
+  get type() { return NullState<T>; }
   get name(): string { return 'Null'; }
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return true; }

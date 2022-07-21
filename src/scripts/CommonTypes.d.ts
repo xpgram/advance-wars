@@ -16,8 +16,8 @@ type Destructable = {
 }
 
 /** Captures any object-constructor class for objects of type T. */
-type ConstructorFor<T> = {
-    new (...args: any[]): T & Destructable;
+type ConstructorFor<T,Y=any> = {
+    new (...args: Y[]): T & Destructable;
 }
 
 /** Captures any object-constructing class type. */
