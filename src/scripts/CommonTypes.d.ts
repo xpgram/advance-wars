@@ -15,13 +15,13 @@ type Destructable = {
     destroy?(): void;
 }
 
-/** Captures any object-constructor class for objects of type T. */
+/** Captures any object-constructor class for objects of type T.  
+ * This can (broadly) be replaced with `typeof T` and `new() => T` and maybe `ConstructorParameters<typeof T>`,
+ * although `typeof T` if `T` is generic will produce an error. Stay vigilant, friends.
+ * @deprecated */
 type ConstructorFor<T,Y=any> = {
     new (...args: Y[]): T & Destructable;
 }
-
-/** Captures any object-constructing class type. */
-type Constructable = ConstructorFor<object>;
 
 /** Captures PIXI's object-transform style. */
 type Transformable = {

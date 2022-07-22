@@ -1,7 +1,7 @@
 import { ConstructorFor } from "../../CommonTypes";
 import { Debug } from "../../DebugUtils";
 import { StateAssets } from "./StateAssets";
-import { StateMaster } from "./StateMaster";
+import { StateConcatable, StateMaster } from "./StateMaster";
 
 
 const DOMAIN = "AbstractState";
@@ -20,12 +20,18 @@ export abstract class StateObject<T extends StateAssets> {
 
   get DOMAIN() { return `State_${this.name}`; }
 
-  abstract get type(): ConstructorFor<StateObject<T>>;
+  abstract get type(): new (...args: any) => StateObject<T>;
   abstract get name(): string;            // The formal name of this game state (for logging purposes).
   abstract get revertible(): boolean;     // Whether this state may revert to a previous one.
   abstract get skipOnUndo(): boolean;     // Whether this state is skipped when reached via reversion.
 
-  protected machine: StateMaster<T>;
+  /**  */
+  protected get machine(): StateMaster<T> {
+    if (!this._machine)
+      throw `${this.name}: Attempted to access reference to state-controller before that reference was filled. Has sysinit() been called?`;
+    return this._machine;
+  };
+  private _machine?: StateMaster<T>;
 
   /** All battle-scene-relevant objects, script controllers, and assets.
    * Provides access to the MapCursor, the Map itself, the UI windows, etc. */
@@ -43,10 +49,6 @@ export abstract class StateObject<T extends StateAssets> {
   private queueChange = 0;
     // TODO Reevaluate this; can I undo multiple times? Am I meant not to?
 
-  
-  constructor(machine: StateMaster<T>) {
-    this.machine = machine;
-  }
 
   get destroyed() { return this._destroyed; }
   private _destroyed = false;
@@ -55,6 +57,11 @@ export abstract class StateObject<T extends StateAssets> {
     this._destroyed = true;
     //@ts-expect-error
     this.machine = undefined;
+  }
+
+  /**  */
+  sysinit(machine: StateMaster<T>) {
+    this._machine = machine;
   }
 
   /** State will assume control of the scene, asserting correct pre-state and configuring
@@ -120,7 +127,7 @@ export abstract class StateObject<T extends StateAssets> {
   prev() { };
 
   /** Pushes a request to the battle system manager to advance state to the one given. */
-  advance(...next: ConstructorFor<StateObject<T>>[]) {
+  advance(...next: StateConcatable<T>[]) {
     // TODO Shouldn't machine return true if the request was accepted?
     if (!this.machine.transitioning) {
       this.queueChange = next.length; // TODO What is this? I forget.
@@ -144,7 +151,7 @@ export abstract class StateObject<T extends StateAssets> {
   /** Pushes a request to the state machine to revert state to a specific state or class of state object.
    * Returns `true` if such a state exists to regress to (and the system has initiated the request), and
    * `false` if no such regress request is satisfiable. */
-  regressTo(target: StateObject<T> | ConstructorFor<StateObject<T>>): boolean {
+  regressTo(target: StateObject<T> | (new (...args: any) => StateObject<T>)): boolean {
     return this.machine.regressTo(this, target);
   }
 }

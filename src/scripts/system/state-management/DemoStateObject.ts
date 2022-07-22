@@ -1,4 +1,4 @@
-import { StateConstructorData, StateMaster } from "./StateMaster";
+import { StateMaster } from "./StateMaster";
 import { StateObject } from "./StateObject";
 
 
@@ -15,26 +15,18 @@ export class DemoState extends StateObject<DemoAssets> {
 
   protected demoOptions?: DemoOptions;
 
-  constructor(machine: StateMaster<DemoAssets>, options?: DemoOptions) {
-    super(machine);
+  constructor(options?: DemoOptions) {
+    super();
     this.demoOptions = options;
   }
 
   protected assert(): void {}
-  protected configureScene(): void {}
+  protected configureScene(): void {
+    this.advance(DemoState, new DemoState({startWithHuge: true}));
+  }
   updateInteractions(): void {}
   prev(): void {}
 }
 
 const machine = new StateMaster(DemoState, {suspendInteractivity(){return false;}, one: 1});
-const demo = new DemoState(machine);
-
-const demo2 = <StateConstructorData<DemoAssets,DemoOptions>>{
-  stateType: DemoState,
-  data: {startWithHuge},
-}
-
-machine.advanceT({
-  stateType: DemoState,
-  data: {}
-});
+const demo = new DemoState();

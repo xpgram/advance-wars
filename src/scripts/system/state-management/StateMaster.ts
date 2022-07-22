@@ -3,7 +3,6 @@ import { Debug } from "../../DebugUtils";
 import { Keys } from "../../controls/KeyboardObserver";
 import { Common } from "../../CommonUtils";
 import { StateObject } from "./StateObject";
-import { Const, ConstructorFor } from "../../CommonTypes";
 import { NullState } from "./NullState";
 import { StateAssets } from "./StateAssets";
 
@@ -13,10 +12,7 @@ const STACK_TRACE_LIMIT = 20;
 const QUEUE_STACK_WARNING = 30;
 
 /**  */
-export type StateConstructorData<Y, T extends ConstructorFor<StateObject<Y>>> = {
-  readonly stateType: T;
-  readonly data: Y;
-}
+export type StateConcatable<T> = StateObject<T> | (new () => StateObject<T>);
 
 enum TransitionTo {
   /** No intent to transition. Indicates the current state is settled. */
@@ -82,10 +78,10 @@ export class StateMaster<T extends StateAssets> {
   /** Enum flag indicating what the state machine intends to do on next cycle. */
   private transitionIntent = TransitionTo.None;
   /** The default state of the machine. Empty. Does nothing. */
-  private readonly NULL_STATE = new NullState<T>(this);
+  private readonly NULL_STATE = new NullState<T>();
 
   /** Repository for the state object to regress to during multi-regress. */
-  private regressTarget?: StateObject<T> | ConstructorFor<StateObject<T>>;
+  private regressTarget?: StateObject<T> | typeof StateObject<T>;
   private get regressTargetLogString(): string {
     const title = this.regressTarget?.name;
     const obj_tag = (this.regressTarget instanceof StateObject<T>) ? ' (obj)' : ' (class)';
@@ -97,16 +93,16 @@ export class StateMaster<T extends StateAssets> {
   /** A string list of all previously visited state objects, kept for debugging purposes. */
   private stackTrace: { msg: string, mode: string, exit?: number }[] = [];
   /** A list containing the machine's upcoming states. */
-  private queue: ConstructorFor<StateObject<T>>[] = [];
+  private queue: StateObject<T>[] = [];
     // TODO Can this be objects that get constructed immediately?
     // Then states can be added with constructor data whenever
     // TODO Can SOs have a return value?
 
 
-  constructor(entryPoint: ConstructorFor<StateObject<T>>, assetsObject: T) {
+  constructor(entryPoint: StateConcatable<T>, assetsObject: T) {
     this.assets = assetsObject;
 
-    this.queue.push(entryPoint);
+    this.pushQueue([entryPoint]);
     this.advance(this.NULL_STATE);
       // TODO When does this advance to the entry point?
       // I don't remember how this works.
@@ -160,14 +156,14 @@ export class StateMaster<T extends StateAssets> {
         this.log(mode, `${this.currentState.name}`, exit);
 
         // Setup next state
-        const state = this.queue.shift() as ConstructorFor<StateObject<T>>;
-        const newState = new state(this);
-        this.stack.push(newState);  // Add new state to stack (implicitly changes current)
-        newState.wake();            // Run new state's scene configurer
+        const state = this.queue.shift() as StateObject<T>;
+        state.sysinit(this);
+        this.stack.push(state); // Add new state to stack (implicitly changes current)
+        state.wake();           // Run new state's scene configurer
 
         // System log line
         Debug.log(DOMAIN, 'HandleAdvanceToState', {
-          message: `Advanced from '${lastState.name}' to '${newState.name}'`,
+          message: `Advanced from '${lastState.name}' to '${state.name}'`,
         });
 
         // Cull unreachables from stack
@@ -196,7 +192,14 @@ export class StateMaster<T extends StateAssets> {
           throw new Error(`Cannot revert unrevertible state ${this.currentState.name}. RegressTarget=${this.regressTargetLogString}`);
 
         const oldState = this.stack.pop() as StateObject<T>;
-        this.queue.unshift(oldState.type);
+        this.queue.unshift(oldState);
+          // FIXME Wait. This is undo, right? How do I redo a fresh new object?
+          // God damn it, this is what I was trying to avoid.
+          // If we enter oldState, it modifies itself, then we leave, but later we *re-enter,* I
+          // can't assume the state is new. Which means each state needs reset() behavior.
+          // God.. fucking.. ugh!
+          // 
+          // I'll shelve it for now. Remembering an old future-state could be a nice convenience ¯\_(ツ)_/¯
 
         // Transition procedure
         if (this.transitionIntent === TransitionTo.Previous) {
@@ -254,6 +257,13 @@ export class StateMaster<T extends StateAssets> {
       && this.transitionIntent !== TransitionTo.NoneFromRegress;
   }
 
+  /**  */
+  protected pushQueue(next: StateConcatable<T>[]) {
+    this.queue.unshift(
+      ...next.map(state => (state instanceof StateObject<T>) ? state : new state() )
+    );
+  }
+
   /** Removes the first n entries from the state queue.
    * This is an undo method used by TurnStates to clean up after a regression.
    * The current state must provide itself as a safety mechanism; only the current state may request changes. */
@@ -266,18 +276,14 @@ export class StateMaster<T extends StateAssets> {
    * The current state must provide itself as a safety mechanism; only the current state may request changes.
    * Further turn states may be included to add to queue, but if none are provided, BSM will simply advance
    * to next in queue. */
-  advance(requestedBy: StateObject<T>, ...next: ConstructorFor<StateObject<T>>[]) {
+  advance(requestedBy: StateObject<T>, ...next: StateConcatable<T>[]) {
     if (!this.transitioning && this.isSelfsameState(requestedBy)) {
-      this.queue.unshift(...next);
+      this.pushQueue(next);
       this.transitionIntent = TransitionTo.Next;
 
       if (this.queue.length >= QUEUE_STACK_WARNING)
         Debug.warn(`TurnMachine: queue is ${this.queue.length} members long.`);
     }
-  }
-
-  advanceT<Y>(test: StateConstructorData<T,Y>) {
-    const t = new test.stateType(test.data);
   }
 
   /** Signals a RegressIntent to the turn system.
@@ -290,7 +296,7 @@ export class StateMaster<T extends StateAssets> {
   /**  */
   // TODO Combine with regress(), maybe rename for new purpose
   // TODO Log warnings about requesting an invalid state transition should be handled here.
-  regressTo(requestedBy: StateObject<T>, target: StateObject<T> | ConstructorFor<StateObject<T>>) {
+  regressTo(requestedBy: StateObject<T>, target: StateObject<T> | typeof StateObject<T>) {
     // confirm request operator and transition request not already in progress
     if (this.transitioning || !this.isSelfsameState(requestedBy))
       return false;
@@ -372,7 +378,7 @@ export class StateMaster<T extends StateAssets> {
   getStackTrace() {
     const queue = this.queue;
     queue.slice()
-      .map((s, idx) => `${`${idx}`.padStart(2, '0')}: ${(new s(this)).name}`)
+      .map((s, idx) => `${`${idx}`.padStart(2, '0')}: ${s.name}`)
       .reverse()
       .join('\n');
     const mode = (this.transitionIntent === TransitionTo.PreviousOnFail)
