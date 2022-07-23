@@ -6,7 +6,6 @@ import { StateObject } from "./StateObject";
 import { NullState } from "./NullState";
 import { StateAssets } from "./StateAssets";
 
-const DOMAIN = 'StateMachine';
 
 const STACK_TRACE_LIMIT = 20;
 const QUEUE_STACK_WARNING = 30;
@@ -36,22 +35,6 @@ enum TransitionTo {
 }
 
 
-/* // TODO Refactor
-The purpose of this class is to genericize the BSM into something I can use in any scene.
-Key goals:
-  - The assets object that inter-states use is of type T.
-  - Discrete state-objects now require specific StateMaster<???> type references to infer their own type.
-    An SO for StateMaster<MainMenuAssets> will refuse to work with a reference to StateMaster<BattleSystemAssets>, for instance.
-  - Battle-scene-specific calls and inferences need to be migrated to BattleSystemAssets instead.
-  - All state-switching and error-catching/reporting functions must remain intact or even be expanded.
-    This is obviously the point, I just like keeping checklists.
-
-  - Queue packages SOs with constructor data passed in from whomever made the advance() request
-  - When/how does the machine advance from NULL_STATE to the entry point? Is that request made outside the machine?
-
-I've gotten rid of the obvious redlines.
-I haven't gone over much of the implementation yet, though.
-*/
 
 /** This class is responsible for starting and maintaining a generic state machine.  
  * Primarily, this covers the operation of the current StateObject and the management of the inter-
@@ -67,6 +50,9 @@ I haven't gone over much of the implementation yet, though.
  */
 export class StateMaster<T extends StateAssets> {
 
+  /** The title/responsibility of this state machine. For debugging purposes. */
+  readonly DOMAIN: string;
+
   /** Reference to the inter-machine-state data object.  
    * Useful for maintaining global references among state objects to variables or references
    * to common components. 
@@ -77,6 +63,7 @@ export class StateMaster<T extends StateAssets> {
 
   /** Enum flag indicating what the state machine intends to do on next cycle. */
   private transitionIntent = TransitionTo.None;
+
   /** The default state of the machine. Empty. Does nothing. */
   private readonly NULL_STATE = new NullState<T>();
 
@@ -88,24 +75,23 @@ export class StateMaster<T extends StateAssets> {
     return `${title}${obj_tag}`;
   }
 
-  /** A list containing the machine's state history. */
+  /** A list containing the machine's state history.
+   * States at the bottom of the stack which are no longer reachable are frequently culled. */
   private stack: StateObject<T>[] = [];
+
   /** A string list of all previously visited state objects, kept for debugging purposes. */
   private stackTrace: { msg: string, mode: string, exit?: number }[] = [];
-  /** A list containing the machine's upcoming states. */
+
+  /** A list containing the machine's scheduled future states. */
   private queue: StateObject<T>[] = [];
-    // TODO Can this be objects that get constructed immediately?
-    // Then states can be added with constructor data whenever
-    // TODO Can SOs have a return value?
 
 
-  constructor(entryPoint: StateConcatable<T>, assetsObject: T) {
-    this.assets = assetsObject;
+  constructor(op: {name: string, assets: T, entryPoint: StateConcatable<T>}) {
+    this.DOMAIN = `SM_${op.name}`;
+    this.assets = op.assets;
 
-    this.pushQueue([entryPoint]);
-    this.advance(this.NULL_STATE);
-      // TODO When does this advance to the entry point?
-      // I don't remember how this works.
+    this.pushQueue([op.entryPoint]);
+    this.advance(this.NULL_STATE);  // NULL_STATE is supplied to pass control-ownership verification.
 
     Game.scene.ticker.add(this.update, this);
   }
@@ -119,25 +105,24 @@ export class StateMaster<T extends StateAssets> {
     Game.scene.ticker.remove(this.update, this);
   }
 
-  /** The currently active battle-system state. */
-  get currentState(): StateObject<T> {
+  /** The currently active machine state object. This is NULL_STATE by default. */
+  protected get currentState(): StateObject<T> {
     const state = this.stack[this.stack.length - 1];
     return (state) ? state : this.NULL_STATE;
   }
 
-  /** Turn Machine's update step which runs the current state's update step and handles
-   * transition requests. */
+  /** The machine's update step which runs the current state's update step and handles transition requests. */
   private update() {
     // Dev stack trace
     if (Game.devController.pressed(Keys.P))
       Debug.ping(this.getStackTrace());
 
-    // On major BSM failure, halt completely.
+    // On major machine failure, halt completely.
     if (this.transitionIntent === TransitionTo.SystemFailure)
       return;
 
+    // nextState->new handler
     try {
-      // nextState->new handler
       while (this.transitionIntent == TransitionTo.Next
         || this.transitionIntent == TransitionTo.NextFromRegress) {
 
@@ -157,12 +142,11 @@ export class StateMaster<T extends StateAssets> {
 
         // Setup next state
         const state = this.queue.shift() as StateObject<T>;
-        state.sysinit(this);
         this.stack.push(state); // Add new state to stack (implicitly changes current)
         state.wake();           // Run new state's scene configurer
 
         // System log line
-        Debug.log(DOMAIN, 'HandleAdvanceToState', {
+        Debug.log(this.DOMAIN, 'HandleAdvanceToState', {
           message: `Advanced from '${lastState.name}' to '${state.name}'`,
         });
 
@@ -174,9 +158,19 @@ export class StateMaster<T extends StateAssets> {
       if (this.transitionIntent == TransitionTo.None
         || this.transitionIntent == TransitionTo.NoneFromRegress) {
 
-        this.currentState.updateSystem();
-        if (!this.assets.suspendInteractivity || !this.assets.suspendInteractivity())
-          this.currentState.updateInteractions();
+        try {
+          this.currentState.updateSystem();
+          if (!this.assets.suspendInteractivity || !this.assets.suspendInteractivity())
+            this.currentState.updateInteractions();
+        } catch(err) {
+          Debug.log(this.DOMAIN, 'StateUpdate', {
+            message: `Attempting to regress to previous state from ${this.currentState.name}.`,
+            reason: `${err}`,
+            error: true,
+          });
+          this.failToPreviousState(this.currentState);
+            // TODO This was written to handle failures during configure() calls; does this still work here?
+        }
       }
 
       // nextState->previous handler
@@ -193,23 +187,14 @@ export class StateMaster<T extends StateAssets> {
 
         const oldState = this.stack.pop() as StateObject<T>;
         this.queue.unshift(oldState);
-          // FIXME Wait. This is undo, right? How do I redo a fresh new object?
-          // God damn it, this is what I was trying to avoid.
-          // If we enter oldState, it modifies itself, then we leave, but later we *re-enter,* I
-          // can't assume the state is new. Which means each state needs reset() behavior.
-          // God.. fucking.. ugh!
-          // 
-          // I'll shelve it for now. Remembering an old future-state could be a nice convenience ¯\_(ツ)_/¯
 
         // Transition procedure
         if (this.transitionIntent === TransitionTo.Previous) {
           oldState.close();      // Runs generic close procedure
           oldState.prev();       // Ctrl+Z Undo for smooth backwards transition
           this.log('↩', `${oldState.name}`, oldState.exit);
-          oldState.destroy();    // Free up memory
         } else if (this.transitionIntent === TransitionTo.PreviousOnFail) {
           this.log('🛑', `${oldState.name}`, oldState.exit);
-          oldState.destroy();
           this.transitionIntent = TransitionTo.Previous;
         }
 
@@ -227,7 +212,7 @@ export class StateMaster<T extends StateAssets> {
         }
 
         // System log line
-        Debug.log(DOMAIN, 'HandleRegressToState', {
+        Debug.log(this.DOMAIN, 'HandleRegressToState', {
           message: `Regressed from '${oldState.name}' to '${this.currentState.name}'; ${(stateAwakened) ? 'state did wake.' : 'state did not wake.'}`,
         })
       }
@@ -241,7 +226,7 @@ export class StateMaster<T extends StateAssets> {
   /** Returns true if the given state object is the active state object. */
   private isSelfsameState(state: StateObject<T>) {
     if (this.currentState !== state) {
-      Debug.log(DOMAIN, 'RequestAction_VerifySource', {
+      Debug.log(this.DOMAIN, 'RequestAction_VerifySource', {
         message: `Rejecting intent.`,
         reason: `Request from '${state.name}' does not match active state ('${this.currentState.name}').`,
         warn: true,
@@ -251,54 +236,78 @@ export class StateMaster<T extends StateAssets> {
     return true;
   }
 
+  /** Returns true if the machine is currently handling a transition request, also logs a warning.  
+   * This function is used to assert concurrent transition requests are not made. */
+  private isAlreadyTransitioning(state: StateObject<T>) {
+    if (this.transitioning) {
+      Debug.log(this.DOMAIN, 'RequestAction_VerifyIdle', {
+        message: `Rejecting intent to transition by '${state.name}'.`,
+        reason: `A transition is already in progress.`,
+        warn: true,
+      })
+      return true;
+    }
+    return false;
+  }
+
   /** True if the current state has signalled an intent to change states. */
   get transitioning() {
     return this.transitionIntent !== TransitionTo.None
       && this.transitionIntent !== TransitionTo.NoneFromRegress;
   }
 
-  /**  */
+  /** Add concatable state objects or types to this machine's scheduled queue. */
   protected pushQueue(next: StateConcatable<T>[]) {
-    this.queue.unshift(
-      ...next.map(state => (state instanceof StateObject<T>) ? state : new state() )
-    );
+    const nextObjects = next.map(state => {
+      const instance = (state instanceof StateObject<T>) ? state : new state();
+      instance.sysinit(this);
+      return instance;
+    });
+    this.queue.unshift(...nextObjects);
   }
 
   /** Removes the first n entries from the state queue.
-   * This is an undo method used by TurnStates to clean up after a regression.
+   * This is an undo method used by StateObjects to clean up after a regression.
    * The current state must provide itself as a safety mechanism; only the current state may request changes. */
   unqueue(requestedBy: StateObject<T>, n: number) {
-    if (this.isSelfsameState(requestedBy))
-      this.queue = this.queue.slice(n);
+    if (!this.isSelfsameState(requestedBy))
+      return;
+
+    this.queue.slice(0,n).forEach( s => s.destroy() );
+    this.queue = this.queue.slice(n);
   }
 
-  /** Signals an AdvanceIntent to the turn system.
+  /** Signals an AdvanceIntent to the machine.
    * The current state must provide itself as a safety mechanism; only the current state may request changes.
-   * Further turn states may be included to add to queue, but if none are provided, BSM will simply advance
-   * to next in queue. */
+   * Further states may be included to add to the queue, but if none are provided, the machine will simply
+   * advance to the next in queue. */
   advance(requestedBy: StateObject<T>, ...next: StateConcatable<T>[]) {
-    if (!this.transitioning && this.isSelfsameState(requestedBy)) {
-      this.pushQueue(next);
-      this.transitionIntent = TransitionTo.Next;
+    if (!this.isSelfsameState(requestedBy) || this.isAlreadyTransitioning(requestedBy))
+      return;
+    
+    this.pushQueue(next);
+    this.transitionIntent = TransitionTo.Next;
 
-      if (this.queue.length >= QUEUE_STACK_WARNING)
-        Debug.warn(`TurnMachine: queue is ${this.queue.length} members long.`);
-    }
+    if (this.queue.length >= QUEUE_STACK_WARNING)
+      Debug.log(this.DOMAIN, 'QueueNewStates', {
+        message: `TurnMachine: queue is ${this.queue.length} members long; warning level is ${QUEUE_STACK_WARNING}.`,
+        warn: true,
+      });
   }
 
-  /** Signals a RegressIntent to the turn system.
+  /** Signals a RegressIntent to the machine.
    * The current state must provide itself as a safety mechanism; only the current state may request changes. */
   regress(requestedBy: StateObject<T>) {
-    if (!this.transitioning && this.isSelfsameState(requestedBy))
-      this.transitionIntent = TransitionTo.Previous;
+    if (!this.isSelfsameState(requestedBy) || this.isAlreadyTransitioning(requestedBy))
+      return;
+
+    this.transitionIntent = TransitionTo.Previous;
   }
 
-  /**  */
-  // TODO Combine with regress(), maybe rename for new purpose
-  // TODO Log warnings about requesting an invalid state transition should be handled here.
+  /** Signals a RegressIntent to some specific state or class of state to the machine.  
+   * The current state must provide itself as a safety mechanism; only the current state may request changes. */
   regressTo(requestedBy: StateObject<T>, target: StateObject<T> | typeof StateObject<T>) {
-    // confirm request operator and transition request not already in progress
-    if (this.transitioning || !this.isSelfsameState(requestedBy))
+    if (!this.isSelfsameState(requestedBy) || this.isAlreadyTransitioning(requestedBy))
       return false;
 
     // find some state to regress to
@@ -336,13 +345,13 @@ export class StateMaster<T extends StateAssets> {
       const culled = this.stack.slice(0,idx);
       this.stack = this.stack.slice(idx);
       culled.forEach( s => s.destroy() );
-      Debug.log(DOMAIN, 'CullStateStack', {
+      Debug.log(this.DOMAIN, 'CullStateStack', {
         message: `Culled ${idx} unreachable turnstates.`,
       })
     }
   }
 
-  /** Signals the BattleSystemManager that it should abandon its most recent state advancement and continue regressing to the
+  /** Signals to the machine that it should abandon its most recent state advancement and continue regressing to the
    * last stable state. Throws a fatal error if regression is impossible. */
   failToPreviousState(state: StateObject<T>) {
     if (this.isSelfsameState(state) == false)
@@ -367,14 +376,14 @@ export class StateMaster<T extends StateAssets> {
     return notEmpty && errorCode;
   }
 
-  /** Logs a string——which should be the name of a game state——to the manager's game state history. */
+  /** Logs a string——which should be the name of a state object——to the machine's state history. */
   private log(mode: string, msg: string, exit: number) {
     this.stackTrace.push({ msg, mode, exit });
     if (this.stackTrace.length > STACK_TRACE_LIMIT)
       this.stackTrace.shift();
   }
 
-  /** Returns a string log of this battle-system's game state history. */
+  /** Returns a string log of this machine's state history. */
   getStackTrace() {
     const queue = this.queue;
     queue.slice()
@@ -391,6 +400,6 @@ export class StateMaster<T extends StateAssets> {
       .map(({ msg, mode, exit }, idx) => `${`${idx}`.padStart(2, '0')}: ${mode} ${exit} ${msg}`)
       .reverse()
       .join('\n');
-    return `Game State History (last ${STACK_TRACE_LIMIT}):\nQueue\n${queue}\n${cur}\n${trace}`;
+    return `State History for '${this.DOMAIN}' (last ${STACK_TRACE_LIMIT}):\nQueue\n${queue}\n${cur}\n${trace}`;
   }
 }

@@ -4,8 +4,6 @@ import { StateAssets } from "./StateAssets";
 import { StateConcatable, StateMaster } from "./StateMaster";
 
 
-const DOMAIN = "AbstractState";
-
 export class StateTransitionError extends Error {
   constructor(stateName: string, message: string) {
     super(`${stateName} → ${message}`);
@@ -13,12 +11,15 @@ export class StateTransitionError extends Error {
   }
 }
 
-/** A battle-system state which represents a 'moment' in a 'turn.'
- * When active, this class would setup its own scene configuration, and run its own
- * update scripts operating the turn-moment. */
+/** A discrete object describing the configuration and operation of a step in the
+ * state machine it is a member of.
+ * 
+ * Note that while the constructor of extending classes may be used to add variability
+ * to the behavior of a machine state, it will not have access to its machine's list
+ * of components. Configuration of the environment should always happen in `configure()`. */
 export abstract class StateObject<T extends StateAssets> {
 
-  get DOMAIN() { return `State_${this.name}`; }
+  get DOMAIN() { return `${this.machine.DOMAIN}.${this.name}`; }
 
   abstract get type(): new (...args: any) => StateObject<T>;
   abstract get name(): string;            // The formal name of this game state (for logging purposes).
@@ -50,6 +51,7 @@ export abstract class StateObject<T extends StateAssets> {
     // TODO Reevaluate this; can I undo multiple times? Am I meant not to?
 
 
+
   get destroyed() { return this._destroyed; }
   private _destroyed = false;
   destroy() {
@@ -74,10 +76,10 @@ export abstract class StateObject<T extends StateAssets> {
       (!fromRegress)
         ? this.onAdvance()
         : this.onRegress();
-      this.configureScene();
+      this.configure();
     } catch (err) {
       Debug.log(this.DOMAIN, "Wake", {
-        message: `${err}`,  // TODO ..? How does this work?
+        message: `${err}`,
         error: true,
       });
       this.machine.failToPreviousState(this);
@@ -93,12 +95,13 @@ export abstract class StateObject<T extends StateAssets> {
     throw new StateTransitionError(this.name, message);
   }
 
-  /** Explicitly enables battle system components and control scripts relevant to this
-   * game state; automatic defaults for these are always run before this state gets
-   * control of anything to avoid conflicts.
+  /** Configures the environment of the state machine via the components it has access to in `assets`.  
+   * The StateAssets reset function, if one exists, is always called before configure(), and is intended
+   * to allow this function to focus on enabling services instead of micro-managing each component.
+   *
    * Raising an error of any kind in this step will be caught and reported by the
-   * Battle System Manager, and this will be auto-reverted to the last stable game state. */
-  protected abstract configureScene(): void;
+   * StateMaster, and this will be auto-reverted to the last stable game state. */
+  protected abstract configure(): void;
 
   /** Function called during destruction of the TurnState object. */
   protected onDestroy() { };
@@ -128,7 +131,6 @@ export abstract class StateObject<T extends StateAssets> {
 
   /** Pushes a request to the battle system manager to advance state to the one given. */
   advance(...next: StateConcatable<T>[]) {
-    // TODO Shouldn't machine return true if the request was accepted?
     if (!this.machine.transitioning) {
       this.queueChange = next.length; // TODO What is this? I forget.
       this.machine.advance(this, ...next);
@@ -138,6 +140,11 @@ export abstract class StateObject<T extends StateAssets> {
         warn: true,
       })
       console.warn(`State ${this.name} tried to advance during transition intent. Are we requesting multiple times?`);
+
+      // TODO I fixed this log message not to occur here but in StateMaster, however...
+      // I have to keep the transitioning check here anyway because there is metadata to handle.
+      // And I think Master has a more difficult time inferring the actual intent of the request anyway.
+      // In any case, it's up for review. I'll leave this old implementation here for now.
   }
 
   /** Pushes a request to the battle system manager to revert state to the one previous. */

@@ -14,6 +14,29 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
+State Machine Refactor:
+[x] Generic
+[x] Locked Master<T> and Minor<T>
+[ ] Removal of BattleSystem references
+[ ] Doc strings rewritten
+[x] Queue sets allow configurations
+[ ] Confirmation of working operation
+  [x] Does the system advance from NULL_STATE to the entry point?
+    - It does on `advance()`: NULL_STATE is used to pass the `requestedBy` check.
+[ ] Error messages intact/expanded
+  [ ] SM will try to regress to recover from fatal issues even in non-config methods
+    [x] config() — regress
+    [ ] update() — regress
+    [ ] close() — stop closing
+  [x] Log warnings about concurrent state transition requests handled in Master, not Object.
+  [ ] Failures in update() call Master.failToPreviousState(), but this implementation is unverified.
+[x] StateAssets is a defined type with common operations (such as reset())
+[x] regressTo(s: search) allows regress to specific state or state type
+[ ] States have a mechanism to 'return' a value.
+  - This can probably be achieved by letting Master return objects of type 'searched' from its stack list, likely by most recent, in the same fashion as regressTo(). Then those objects can have `.return` or `.value` or `.chosenLocation` or whatever they like; it'll be up to the caller to utilize them according to how they're built.
+  [ ] Master has a `.getState(s: search)` method to retrieve previous state objects.
+[ ] 
+
 
 In Progress:
 - [ ] Add tile-change to map.ts to make map construction easier.
