@@ -5,13 +5,16 @@ import { Common } from "../../CommonUtils";
 import { StateObject } from "./StateObject";
 import { NullState } from "./NullState";
 import { StateAssets } from "./StateAssets";
+import { Type } from "../../CommonTypes";
 
 
-const STACK_TRACE_LIMIT = 20;
-const QUEUE_STACK_WARNING = 30;
+const STACK_TRACE_LIMIT = 20;       // How many previous states you'd like to see in error read-outs
+const STACK_CULL_TARGET = 20;       // The minimum history the machine will maintain (for return-value queries)
+const QUEUE_STACK_WARNING = 35;     // The stack-length dev warning that a memory leak may be happening.
 
-/**  */
-export type StateConcatable<T> = StateObject<T> | (new () => StateObject<T>);
+/** Concatable states are already constructed or require no parameters to construct. */
+export type StateConcatable<T extends StateAssets> = StateObject<T> | (new () => StateObject<T>);
+
 
 enum TransitionTo {
   /** No intent to transition. Indicates the current state is settled. */
@@ -20,18 +23,17 @@ enum TransitionTo {
   NoneFromRegress,
   /** Intent to move forward-in-time in the stack. */
   Next,
-
-  /** Indicates logline should display '⟳' for 'replay'.  
-   * I don't think this is used at all, and in fact, I don't even know how it would happen.
-   * @deprecated */
-  NextFromRegress,
-
   /** Intent to move backward-in-time in the stack. */
   Previous,
   /** Intent to move backward-in-time in the stack as a recovery mechanism from some fatal error. */
   PreviousOnFail,
   /** Indicates a complete process halt due to some unrecoverable error. */
   SystemFailure,
+
+  /** Indicates logline should display '⟳' for 'replay'.  
+   * I don't think this is used at all, and in fact, I don't even know how it would happen.
+   * @deprecated */
+  NextFromRegress,
 }
 
 
@@ -68,7 +70,7 @@ export class StateMaster<T extends StateAssets> {
   private readonly NULL_STATE = new NullState<T>();
 
   /** Repository for the state object to regress to during multi-regress. */
-  private regressTarget?: StateObject<T> | typeof StateObject<T>;
+  private regressTarget?: StateObject<T> | Type<StateObject<T>>;
   private get regressTargetLogString(): string {
     const title = this.regressTarget?.name;
     const obj_tag = (this.regressTarget instanceof StateObject<T>) ? ' (obj)' : ' (class)';
@@ -161,7 +163,7 @@ export class StateMaster<T extends StateAssets> {
         try {
           this.currentState.updateSystem();
           if (!this.assets.suspendInteractivity || !this.assets.suspendInteractivity())
-            this.currentState.updateInteractions();
+            this.currentState.updateInput();
         } catch(err) {
           Debug.log(this.DOMAIN, 'StateUpdate', {
             message: `Attempting to regress to previous state from ${this.currentState.name}.`,
@@ -280,10 +282,11 @@ export class StateMaster<T extends StateAssets> {
   /** Signals an AdvanceIntent to the machine.
    * The current state must provide itself as a safety mechanism; only the current state may request changes.
    * Further states may be included to add to the queue, but if none are provided, the machine will simply
-   * advance to the next in queue. */
-  advance(requestedBy: StateObject<T>, ...next: StateConcatable<T>[]) {
+   * advance to the next in queue.  
+   * Returns `true` if the request was accepted. */
+  advance(requestedBy: StateObject<T>, ...next: StateConcatable<T>[]): boolean {
     if (!this.isSelfsameState(requestedBy) || this.isAlreadyTransitioning(requestedBy))
-      return;
+      return false;
     
     this.pushQueue(next);
     this.transitionIntent = TransitionTo.Next;
@@ -293,20 +296,25 @@ export class StateMaster<T extends StateAssets> {
         message: `TurnMachine: queue is ${this.queue.length} members long; warning level is ${QUEUE_STACK_WARNING}.`,
         warn: true,
       });
+
+    return true;
   }
 
   /** Signals a RegressIntent to the machine.
-   * The current state must provide itself as a safety mechanism; only the current state may request changes. */
-  regress(requestedBy: StateObject<T>) {
+   * The current state must provide itself as a safety mechanism; only the current state may request changes.  
+   * Returns `true` if the request was accepted. */
+  regress(requestedBy: StateObject<T>): boolean {
     if (!this.isSelfsameState(requestedBy) || this.isAlreadyTransitioning(requestedBy))
-      return;
+      return false;
 
     this.transitionIntent = TransitionTo.Previous;
+    return true;
   }
 
   /** Signals a RegressIntent to some specific state or class of state to the machine.  
-   * The current state must provide itself as a safety mechanism; only the current state may request changes. */
-  regressTo(requestedBy: StateObject<T>, target: StateObject<T> | typeof StateObject<T>) {
+   * The current state must provide itself as a safety mechanism; only the current state may request changes.  
+   * Returns `true` if the request was accepted. */
+  regressTo(requestedBy: StateObject<T>, target: StateObject<T> | Type<StateObject<T>>): boolean {
     if (!this.isSelfsameState(requestedBy) || this.isAlreadyTransitioning(requestedBy))
       return false;
 
@@ -331,22 +339,38 @@ export class StateMaster<T extends StateAssets> {
     return success;
   }
 
-  /** Reduces the stack length at non-revertible break points. */
+  /** Returns the most recent state object of type `target`, or `undefined` if one could not be found.
+   * This is useful for states which operate as return-value operations, such as waiting for the user to
+   * pick a location on a game board.  
+   * 
+   * Be wary that the state stack frequently culls low-relevancy states when debugging. */
+  getState(target: Type<StateObject<T>>) {
+    let i = this.stack.length;
+    while (i --> 0)
+      if (this.stack[i].type === target)
+        return this.stack[i];
+  }
+
+  /** Reduces the stack length by removing low-relevancy states below non-revertible break points. */
   cullNonRevertibles() {
-    let idx = -1;
-    // Find last non-revertible occurrence.
-    for (let i = this.stack.length; i >= 0; i--)
+    let breakPoint = -1;
+  
+    // Find first non-revertible occurrence within the stack cull-length target.
+    let i = Math.max(0, this.stack.length - STACK_CULL_TARGET);
+    while (i --> 0) {
       if (this.stack[i]?.revertible === false) {
-        idx = i;
+        breakPoint = i;
         break;
       }
+    }
+
     // Slice list and destroy states not needed.
-    if (idx > 0) {
-      const culled = this.stack.slice(0,idx);
-      this.stack = this.stack.slice(idx);
+    if (breakPoint > 0) {
+      const culled = this.stack.slice(0,breakPoint);
+      this.stack = this.stack.slice(breakPoint);
       culled.forEach( s => s.destroy() );
       Debug.log(this.DOMAIN, 'CullStateStack', {
-        message: `Culled ${idx} unreachable turnstates.`,
+        message: `Culled ${breakPoint} unreachable turnstates.`,
       })
     }
   }

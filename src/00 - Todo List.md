@@ -17,25 +17,23 @@ But anyway, yeah. There is constant state checking because his system never just
 State Machine Refactor:
 [x] Generic
 [x] Locked Master<T> and Minor<T>
-[ ] Removal of BattleSystem references
-[ ] Doc strings rewritten
+[x] Removal of BattleSystem references
+[x] Doc strings rewritten
 [x] Queue sets allow configurations
 [ ] Confirmation of working operation
   [x] Does the system advance from NULL_STATE to the entry point?
-    - It does on `advance()`: NULL_STATE is used to pass the `requestedBy` check.
+  [ ] Does the regressTo() function actually work?
 [ ] Error messages intact/expanded
   [ ] SM will try to regress to recover from fatal issues even in non-config methods
     [x] config() — regress
     [ ] update() — regress
+      [ ] configured to regress with `machine.failToPreviousState()`, but this implementation is unverified.
     [ ] close() — stop closing
   [x] Log warnings about concurrent state transition requests handled in Master, not Object.
-  [ ] Failures in update() call Master.failToPreviousState(), but this implementation is unverified.
 [x] StateAssets is a defined type with common operations (such as reset())
 [x] regressTo(s: search) allows regress to specific state or state type
-[ ] States have a mechanism to 'return' a value.
-  - This can probably be achieved by letting Master return objects of type 'searched' from its stack list, likely by most recent, in the same fashion as regressTo(). Then those objects can have `.return` or `.value` or `.chosenLocation` or whatever they like; it'll be up to the caller to utilize them according to how they're built.
-  [ ] Master has a `.getState(s: search)` method to retrieve previous state objects.
-[ ] 
+[x] States have a mechanism to 'return' a value.
+  [x] Master has a `.getState(s: search)` method to retrieve previous state objects.
 
 
 In Progress:
