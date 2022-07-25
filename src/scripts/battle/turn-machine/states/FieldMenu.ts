@@ -39,7 +39,7 @@ export class FieldMenu extends TurnState {
     const { menu } = fieldMenu;
 
     // On press A, handle selected option.
-    if (gamepad.button.A.pressed) {
+    if (gamepad.button.A.pressed || fieldMenu.menuPointer.clicked()) {
       const value = menu.selectedValue;
 
       if (value === 9)

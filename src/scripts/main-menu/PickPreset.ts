@@ -23,7 +23,7 @@ export class PickPreset extends StateObject<MainMenuAssets> {
 
     const { A, B } = gamepad.button;
 
-    if (A.pressed) {
+    if (A.pressed || battleSettingsMenu.menuPointer.clicked()) {
       const mapdata = this.machine.getState(PickMap)?.chosenMap;
       const scenario = battleSettingsMenu.menu.selectedValue;
 
