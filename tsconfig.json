@@ -9,7 +9,7 @@
         "strict": true,
         "isolatedModules": true,
         "esModuleInterop": true,
-        "types": [ "node", "pixi.js" ]
+        "types": [ "node" ]
     },
     "include": [
         "src"
