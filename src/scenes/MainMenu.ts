@@ -12,12 +12,17 @@ import { BattleScene } from "./BattleScene";
 import { Point } from "../scripts/Common/Point";
 import { TitleScreen } from "./TitleScreen";
 import { MapsCollection } from "../battle-maps/maps-collection";
+import { StateMaster } from "../scripts/system/state-management/StateMaster";
+import { MainMenuAssets } from "../scripts/main-menu/MainMenuAssets";
+import { PickMap } from "../scripts/main-menu/PickMap";
 
 
 /**
  * @author Dei Valko
  */
 export class MainMenuScene extends Scene {
+
+  private stateMachine!: StateMaster<MainMenuAssets>;
 
   private gamepad!: VirtualGamepad;
 
@@ -37,36 +42,21 @@ export class MainMenuScene extends Scene {
   }
 
   setupStep(): void {
-    this.gamepad = new VirtualGamepad();  // Is it silly that I have to rebuild this every scene?
 
-    this.menu = new ListMenu(this.gamepad, {
-      listItems: MapsCollection.fromCriteria()
-        .map( data => new ListMenuOption({title: data.name}, data)),
-      pageLength: 8,
+    this.stateMachine = new StateMaster({
+      name: `MainMenuSystem`,
+      assets: new MainMenuAssets(this.visualLayers.hud),
+      entryPoint: PickMap,
     });
 
-    this.guiMenu = new CommandMenuGUI(this.menu, this.visualLayers.hud);
-    this.guiMenu.setPosition(new Point(
-      Game.display.renderWidth/2 - this.guiMenu.graphicalWidth/2,
-      Game.display.renderHeight/2 - this.guiMenu.graphicalHeight/2
-    ));
   }
 
   updateStep(): void {
-    this.gamepad.update();  // TODO Also this. Every scene object? Why?
-                            // At the very least, it should be provided by the abstract, like vis-layers.
 
-    if (this.gamepad.button.A.pressed || this.guiMenu.menuPointer.clicked()) {
-      const map = this.menu.selectedValue;
-      Game.transitionToSceneWithData(BattleScene, map);
-    }
-    else if (this.gamepad.button.B.pressed) {
-      Game.transitionToScene(TitleScreen);
-    }
   }
 
   destroyStep(): void {
-
+    this.stateMachine.destroy();
   }
 
 }

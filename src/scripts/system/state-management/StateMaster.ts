@@ -102,7 +102,7 @@ export class StateMaster<T extends StateAssets> {
     this.NULL_STATE.destroy();
     //@ts-expect-error
     this.NULL_STATE = undefined;
-    (this.assets.destroy && this.assets.destroy());
+    this.assets.destroy();
     this.stack.forEach(state => { state.destroy(); });  // Break all references to self in state stack
     Game.scene.ticker.remove(this.update, this);
   }
@@ -115,6 +115,9 @@ export class StateMaster<T extends StateAssets> {
 
   /** The machine's update step which runs the current state's update step and handles transition requests. */
   private update() {
+    // Udpate components
+    this.assets.update();
+
     // Dev stack trace
     if (Game.devController.pressed(Keys.P))
       Debug.ping(this.getStackTrace());
@@ -162,7 +165,7 @@ export class StateMaster<T extends StateAssets> {
 
         try {
           this.currentState.updateSystem();
-          if (!this.assets.suspendInteractivity || !this.assets.suspendInteractivity())
+          if (!this.assets.suspendInteractivity())
             this.currentState.updateInput();
         } catch(err) {
           Debug.log(this.DOMAIN, 'StateUpdate', {
@@ -344,11 +347,11 @@ export class StateMaster<T extends StateAssets> {
    * pick a location on a game board.  
    * 
    * Be wary that the state stack frequently culls low-relevancy states when debugging. */
-  getState(target: Type<StateObject<T>>) {
+  getState<State extends StateObject<T>>(target: Type<State>): State | undefined {
     let i = this.stack.length;
     while (i --> 0)
       if (this.stack[i].type === target)
-        return this.stack[i];
+        return this.stack[i] as State;
   }
 
   /** Reduces the stack length by removing low-relevancy states below non-revertible break points. */

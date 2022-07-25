@@ -1,6 +1,10 @@
 
 
 export interface StateAssets {
+
+  /** Used to call component update methods. */
+  update(): void;
+
   /** Returns true if the state machine should 'wait' until scene assets
    * yield. For example, this function may return `true` while `assets.camera`
    * has a subject `NotInView`. */

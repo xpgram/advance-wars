@@ -2,7 +2,7 @@ import { PIXI } from "../constants";
 import { Scene } from "./Scene";
 import { Game } from "..";
 import { MapLayer } from "../scripts/battle/map/MapLayers";
-import { BattleSceneControllers } from "../scripts/battle/turn-machine/BattleSceneControllers";
+import { BattleSceneControllers, ScenarioOptions } from "../scripts/battle/turn-machine/BattleSceneControllers";
 import { BattleSystemManager } from "../scripts/battle/turn-machine/BattleSystemManager";
 import { ViewRect } from "../scripts/camera/ViewRect";
 import { PixiUtils } from "../scripts/Common/PixiUtils";
@@ -18,10 +18,12 @@ const { newBitmapFont } = PixiUtils;
 export class BattleScene extends Scene {
 
     private mapData: MapData;
+    private scenario: ScenarioOptions;
 
-    constructor(data: MapData) {
+    constructor(op: {mapdata: MapData, scenario?: ScenarioOptions}) {
         super();
-        this.mapData = data;
+        this.mapData = op.mapdata;
+        this.scenario = op.scenario ?? {};
     }
 
     // TODO Finish implementation of Scene resource bundles
@@ -111,9 +113,7 @@ export class BattleScene extends Scene {
         //this.controllers = new BattleSceneControllers({mapData: {width: 0, height: 0}});
         this.battleSystem = new BattleSystemManager(
             this.mapData,
-            {
-                fogOfWar: true,
-            }
+            this.scenario,
         );
         
         this.controllers = this.battleSystem.controllers;
