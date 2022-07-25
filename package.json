@@ -26,6 +26,7 @@
     "copy-webpack-plugin": "^5.1.2",
     "html-webpack-plugin": "^3.2.0",
     "pixi.js": "^6.1.3",
+    "regenerator-runtime": "^0.13.9",
     "ts-shader-loader": "^1.0.6",
     "typescript": "^3.9.9",
     "uglifyjs-webpack-plugin": "^2.2.0",

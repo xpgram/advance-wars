@@ -3,7 +3,7 @@ const HTMLWebpackPlugin = require('html-webpack-plugin')
 const webpack = require('webpack')
 
 module.exports = {
-    entry: './src/index.ts',
+    entry: ['regenerator-runtime/runtime.js', './src/index.ts'],
     mode: 'development',
     module: {
         rules: [
