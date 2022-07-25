@@ -65,8 +65,7 @@ export abstract class StateObject<T extends StateAssets> {
   destroy() {
     this.onDestroy();
     this._destroyed = true;
-    //@ts-expect-error
-    this.machine = undefined;
+    this._machine = undefined;
   }
 
   /** Used by StateMaster to connect this state object to the state machine system. */
