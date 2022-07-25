@@ -63,6 +63,16 @@ export class MainMenuAssets implements StateAssets {
 
   update() {
     this.gamepad.update();
+    // TODO Every other component manages to be self-dependent via tickers and such, why does gamepad need its own, special little update() clause?
+    // VirtualGamepad was written really early on. I think it's time it was updated a bit. I don't know which ticker it should assign itself to,
+    // I guess just scene's, but in any case, all components here should be assumed to be self-reliant; a lot of redundant code otherwise.
+    // I think I'll keep update() here for non-components? Like, regular-ass variables and such. I can't imagine wtf I would use it for, though.
+
+    // TODO update() and suspendInteractivity() should have default implementations; StateAssets should be an abstract class, then.
+
+    // TODO Another reading: since MainMenuAssets is unique to the MainMenuScene anyway, why is this a class object?
+    // MainMenuAssets could describe a *type* and that then is what is used to communicate between the State objects, but MainMenuScene
+    // is what would actually assemble all these things together; that's kind of what it's for.
   }
 
   suspendInteractivity(): boolean {
