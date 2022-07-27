@@ -47,76 +47,108 @@ I could... demo the things I want to do in the actual game, I guess... since tha
 
 ### Game Board
 
-[x]
+[StageBuilt] [FootageAcquired]
+
+[x] [ ]
 Auto-configuring tileset + animated shorelines and terrain types
 [I'll show that one island in the middle of Greyfield Strikes]
 
-[x]
+[x] [ ]
 Terrain details linked to UI system
 [show the details window as the cursor slides over a couple things: wood, city maybe]
 
 ### Troops
 
-[ ]
+[ ] [ ]
 Troop Pathfinding
 [show some neat-looking green squares, then show off the arrow]
 
+[x] [ ]
 Troop movement and attack animations
 [show a tank attacking something else; die or not die?]
 
+[ ] [ ]
 Contextual actions
 [show a Rig w/ already selected tile where it can only Wait, then it cancels and moves to a tile w/ a Suppliable infantry and something else]
 
+[ ] [ ]
 Troop-inside-troop recursion
 [show an Infantry loading into a TCopter, then that TCopter loading into a Cruiser]
 
-[x]
+[ ] [ ]
 Player-to-player visibility rules
 [show P1 hide their sub, *cut* show P2 moving a ship over that sub with ambush and everything]
+[this can happen right before the flare footage]
 
-[-]
+[x] [ ]
 Fog of War
-[show a Recon moving and revealing a large portion of the map]
+[show a Flare revealing a portion of the map]
 
+[ ] [ ]
 Large Explosions
 [show a Silo]
 
-[x]
+[ ] [ ]
 Cool distance cannons
 [show a Battleship moving with its giant reticule and attacking something beyond a mountain range]
 
+[ ] [ ]
 Espionage and Headquarters-seizure
 [show an Infantry surrounded by Yellow units moving into and capturing the Yellow HQ]
 
 ### UI
 
+[ ] [ ]
 Factory shops
 [show a regular factory; page switching]
 
+[ ] [ ]
 Minimap and click-clicky
 [show the minimap camera being moved around by the mouse; also show camera zoom]
+[Add page arrow first, though]
 
-[x]
+[ ] [ ]
 Up to four players
 [show the player dialogs sliding in, cut, show each pre-turn animation in brief, cuts abound]
 
-[-]
+[ ] [ ]
 Neat Title Screen and no Title Menu
 [show ingress from title to map selector]
 
 ### VFX
 
+[ ] [ ]
 Shaders..?
 I don't have the burn-away yet. But I'll know where to put it.
 
 ### Input
 
+[ ] [ ]
 Gamepad support (but probably not yours; DS4/5 accepted)
 [show...?]
 
+[ ] [ ]
 Click?
 [minimap already shows this]
 
+[ ] [ ]
 Dev tools
 [show a montage of Flare animation pausing, open shops anywhere, the devlog retrieved from the console prettified by some text editor, maybe the extra-resolution view]
 *These are automatically disabled in public builds.
+
+### Other Modes
+
+[ ] [ ] 
+Map Editor
+[dev only, but you know]
+
+[ ] [ ] 
+Rigs can build stuff
+The features were built in tandem, so.. I may as well display them that way, I guess.
+
+[ ] [ ]
+Meteors and plasma can disappear
+I might group this as well since the animation is... well, there isn't one.
+
+[ ] [ ]
+Carriers can create seaplanes
