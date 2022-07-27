@@ -47,6 +47,12 @@ export class ListMenu<X, Y> extends ObservableType {
   private cursor!: Slider;
   /** Represents the currently selected page. */
   private pageCursor!: Slider;
+
+  /** The current index of the page the menu is selecting over. */
+  get pageIndex() { return this.pageCursor.output; }
+  /** How many pages this menu is segmented into. */
+  get totalPages() { return this.pageCursor.max; }
+
   /** Limit for returnable items of the current list page. */
   private view!: {
     index: number,

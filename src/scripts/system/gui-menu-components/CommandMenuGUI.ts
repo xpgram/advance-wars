@@ -12,6 +12,7 @@ import { ListMenu } from "./ListMenu";
 import { ListMenuOption } from "./ListMenuOption";
 import { IconTitle } from "./ListMenuTitleTypes";
 import { MenuCursor } from "./MenuCursor";
+import { PageSelector } from "./PageSelector";
 
 // This is 'done' but I'm scared.
 // TODO It's broken.
@@ -76,6 +77,9 @@ export class CommandMenuGUI<Y> {
   /** Listeners for click interactions. */
   readonly menuPointer: ClickableContainer;
 
+  /** Graphical indicator and controls for menu page. */
+  readonly pagesBar = new PageSelector();
+
   /** Returns the index of the menu item the pointer is currently hovering over.
    * Returns undefined if the pointer position cannot be resolved to a list item. */
   getPointerSelection() {
@@ -102,7 +106,10 @@ export class CommandMenuGUI<Y> {
     this.menu.on('change-page', this.onPageChange, this);
 
     container.addChild(this.gui);
-    this.gui.addChild(this.menuGui);
+    this.gui.addChild(
+      this.menuGui,
+      this.pagesBar.container
+    );
     this.cursorGraphic = new MenuCursor(this.gui);
 
     this.buildTextures();
@@ -121,6 +128,7 @@ export class CommandMenuGUI<Y> {
     this.menuPointer.destroy();
     this.gui.destroy({children: true});
     this.menu.destroy();
+    this.pagesBar.destroy();
     this.cursorGraphic.destroy();
     if (this.stateTextures)
       Object.values(this.stateTextures).forEach( t => t.destroy() );
@@ -303,6 +311,17 @@ export class CommandMenuGUI<Y> {
       spr.addChild(gText);
       this.menuGui.addChild(spr);
     });
+
+    // TODO Extend the menu to the page size.
+    // menu.pageItems.length to menu.pageLength just draw blank spots
+    // actually, this goes in the other one, I think
+
+    // TODO Clean up
+    this.pagesBar.build(menu.totalPages, menu.pageIndex);
+    this.pagesBar.container.position.set(
+      content.x + content.width/2 - this.pagesBar.container.width/2,
+      element.y + element.height*menu.pageLength + 3,
+    );
   }
 
   /** Updates each list item with relevant state textures. */

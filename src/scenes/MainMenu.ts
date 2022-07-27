@@ -39,6 +39,12 @@ export class MainMenuScene extends Scene {
     this.linker.push({name: 'font-label', url: 'assets/font-label.xml'});
     this.linker.push({name: 'font-day-ui', url: 'assets/font-day-ui.xml'});
     this.linker.push({name: 'font-player-splash', url: 'assets/font-player-splash.xml'});
+
+    // FIXME Not part of spritesheet
+    this.linker.push({name: 'page-btn-enabled', url: 'assets/tmp-nonbundled/left-page-arrow-enabled.png'});
+    this.linker.push({name: 'page-btn-disabled', url: 'assets/tmp-nonbundled/left-page-arrow-disabled.png'});
+    this.linker.push({name: 'page-icon', url: 'assets/tmp-nonbundled/page-icon.png'});
+    this.linker.push({name: 'page-cur-icon', url: 'assets/tmp-nonbundled/page-current-icon.png'});
   }
 
   setupStep(): void {
