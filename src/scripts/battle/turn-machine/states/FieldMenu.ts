@@ -12,7 +12,10 @@ export class FieldMenu extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { fieldMenu } = this.assets;
+    const { fieldMenu, stagePointer } = this.assets;
+
+    // Cancel button-hold while mouse-button-hold is an ingress method to this state.
+    stagePointer.button.cancel();
 
     // TODO Instead of an enum, value could easily be the state to advance to.
     fieldMenu.setListItems([

@@ -75,6 +75,7 @@ export class Button {
     if (this._releaseCancelled) {
       this.changeState(Up);
       this._releaseCancelled = false;
+      return;
     }
 
     // Affect state if there's been a change
