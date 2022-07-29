@@ -17,7 +17,7 @@ import { MainMenuScene } from "./MainMenu";
 export class TitleScreen extends Scene {
 
   private gamepad!: VirtualGamepad;
-  private clickable!: ClickableContainer;
+  private clickable!: ClickableContainer<PIXI.Container>;
 
   private toDestroy: {destroy(): void}[] = [];
 

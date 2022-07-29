@@ -87,7 +87,7 @@ export class MiniMap {
   private readonly map: Map;
   private readonly camera: Camera;
 
-  readonly clickController: ClickableContainer;
+  readonly clickController: ClickableContainer<PIXI.Container>;
 
   /** Global container for all visual elements. */
   readonly container = new PIXI.Container();

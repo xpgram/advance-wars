@@ -1,3 +1,4 @@
+import { PIXI } from "../../../constants";
 import { Point } from "../../Common/Point";
 import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { ControlScript } from "../../ControlScript";
@@ -16,7 +17,7 @@ import { BattleSceneControllers } from "../turn-machine/BattleSceneControllers";
 export class StagePointerInterface extends ControlScript {
   defaultEnabled(): boolean { return false; }
 
-  private readonly stagePointer: ClickableContainer;
+  private readonly stagePointer: ClickableContainer<PIXI.Container>;
   private readonly map: Map;
   private readonly mapCursor: MapCursor;
 

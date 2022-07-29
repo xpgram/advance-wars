@@ -75,7 +75,7 @@ export class CommandMenuGUI<Y> {
   });
 
   /** Listeners for click interactions. */
-  readonly menuPointer: ClickableContainer;
+  readonly menuPointer: ClickableContainer<PIXI.Container>;
 
   /** Graphical indicator and controls for menu page. */
   readonly pagesBar = new PageSelector();
