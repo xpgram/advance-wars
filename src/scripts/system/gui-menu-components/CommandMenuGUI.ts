@@ -324,8 +324,8 @@ export class CommandMenuGUI<Y> {
     // TODO Clean up
     this.pagesBar.build(menu.totalPages, menu.pageIndex);
     this.pagesBar.container.position.set(
-      content.x + content.width/2 - this.pagesBar.container.width/2,
-      element.y + element.height*menu.pageLength + 3,
+      element.width/2 - this.pagesBar.container.width/2,
+      element.height*menu.pageLength + 3,
     );
   }
 
