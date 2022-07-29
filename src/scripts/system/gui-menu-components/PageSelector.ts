@@ -49,7 +49,7 @@ export class PageSelector {
     for (let i = 0; i < pages; i++) {
       const spr = new PIXI.Sprite( (i === selected) ? curPageIcon : pageIcon );
       spr.x = i*iconSpacing;
-      spr.y = 1;
+      spr.y = 2;
       this.pageIcons.addChild(spr);
     }
 

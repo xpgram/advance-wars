@@ -192,7 +192,7 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
     this.pagesBar.build(menu.totalPages, menu.pageIndex);
     this.pagesBar.container.position.set(
       element.width/2 - this.pagesBar.container.width/2,
-      element.height*menu.pageLength + 2*capHeight + 3,
+      element.height*menu.pageLength + 2*capHeight + 2,
     )
   }
 
