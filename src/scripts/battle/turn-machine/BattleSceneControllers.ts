@@ -125,7 +125,7 @@ export class BattleSceneControllers {
   scenario: Scenario;
 
   gamepad: VirtualGamepad;
-  stagePointer: ClickableContainer;
+  stagePointer: ClickableContainer<PIXI.Container>;
   camera: Camera;
   map: Map;
   minimap: MiniMap;

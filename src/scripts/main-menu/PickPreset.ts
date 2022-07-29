@@ -19,7 +19,7 @@ export class PickPreset extends StateObject<MainMenuAssets> {
   }
 
   updateInput(): void {
-    const { gamepad, battleSettingsMenu } = this.assets;
+    const { gamepad, battleSettingsMenu, stagePointer } = this.assets;
 
     const { A, B } = gamepad.button;
 
@@ -35,7 +35,7 @@ export class PickPreset extends StateObject<MainMenuAssets> {
       Game.transitionToSceneWithData(BattleScene, {mapdata, scenario});
     }
 
-    else if (B.pressed) {
+    else if (B.pressed || stagePointer.clicked()) {
       this.regress();
     }
   }

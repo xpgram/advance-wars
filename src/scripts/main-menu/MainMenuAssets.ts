@@ -5,6 +5,7 @@ import { PIXI } from "../../constants";
 import { ScenarioOptions } from "../battle/turn-machine/BattleSceneControllers";
 import { Point } from "../Common/Point";
 import { Common } from "../CommonUtils";
+import { ClickableContainer } from "../controls/MouseInputWrapper";
 import { VirtualGamepad } from "../controls/VirtualGamepad";
 import { CommandMenuGUI } from "../system/gui-menu-components/CommandMenuGUI";
 import { ListMenu } from "../system/gui-menu-components/ListMenu";
@@ -15,12 +16,22 @@ import { StateAssets } from "../system/state-management/StateAssets";
 export class MainMenuAssets implements StateAssets {
 
   gamepad: VirtualGamepad;
+  stagePointer: ClickableContainer<PIXI.Container>;
 
   mapMenu: CommandMenuGUI<MapData>;
   battleSettingsMenu: CommandMenuGUI<ScenarioOptions>;
 
-  constructor(hudVisualLayer: PIXI.Container) {
+  constructor() {
     this.gamepad = new VirtualGamepad();
+
+    this.stagePointer = new ClickableContainer(Game.scene.visualLayers.stage);
+    this.stagePointer.enabled = true;
+    
+    // TODO At some point there will be a background, soo use that.
+    const clickableObj = new PIXI.Sprite(PIXI.Texture.EMPTY);
+    clickableObj.width = Game.display.renderWidth;
+    clickableObj.height = Game.display.renderHeight;
+    Game.scene.visualLayers.stage.addChild(clickableObj);
     
     // Build menu for map pick
     this.mapMenu = new CommandMenuGUI(
@@ -29,7 +40,7 @@ export class MainMenuAssets implements StateAssets {
           .map( data => new ListMenuOption({title: data.name}, data)),
         pageLength: 8,
       }),
-      hudVisualLayer
+      Game.scene.visualLayers.hud
     );
     this.mapMenu.setPosition(new Point(
       Game.display.renderWidth/2 - this.mapMenu.graphicalWidth/2,
@@ -53,7 +64,7 @@ export class MainMenuAssets implements StateAssets {
         listItems: battlePresets.map( ([title, data]) => new ListMenuOption({title}, data)),
         pageLength: 8,
       }),
-      hudVisualLayer
+      Game.scene.visualLayers.hud
     );
     this.battleSettingsMenu.setPosition(new Point(
       Game.display.renderWidth/2 - this.battleSettingsMenu.graphicalWidth/2,
@@ -87,5 +98,6 @@ export class MainMenuAssets implements StateAssets {
   destroy(): void {
     this.mapMenu.destroy();
     this.battleSettingsMenu.destroy();
+    this.stagePointer.destroy();
   }
 }

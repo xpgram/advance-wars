@@ -3,15 +3,9 @@ import { Game } from "..";
 import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
 import { CommandMenuGUI } from "../scripts/system/gui-menu-components/CommandMenuGUI";
 import { IconTitle } from "../scripts/system/gui-menu-components/ListMenuTitleTypes";
-import { MenuCursor } from "../scripts/system/gui-menu-components/MenuCursor";
 import { Scene } from "./Scene";
 import { ListMenu } from "../scripts/system/gui-menu-components/ListMenu";
 import { MapData } from "../battle-maps/MapData";
-import { ListMenuOption } from "../scripts/system/gui-menu-components/ListMenuOption";
-import { BattleScene } from "./BattleScene";
-import { Point } from "../scripts/Common/Point";
-import { TitleScreen } from "./TitleScreen";
-import { MapsCollection } from "../battle-maps/maps-collection";
 import { StateMaster } from "../scripts/system/state-management/StateMaster";
 import { MainMenuAssets } from "../scripts/main-menu/MainMenuAssets";
 import { PickMap } from "../scripts/main-menu/PickMap";
@@ -51,7 +45,7 @@ export class MainMenuScene extends Scene {
 
     this.stateMachine = new StateMaster({
       name: `MainMenuSystem`,
-      assets: new MainMenuAssets(this.visualLayers.hud),
+      assets: new MainMenuAssets(),
       entryPoint: PickMap,
     });
 
