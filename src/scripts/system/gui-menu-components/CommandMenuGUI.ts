@@ -312,9 +312,14 @@ export class CommandMenuGUI<Y> {
       this.menuGui.addChild(spr);
     });
 
-    // TODO Extend the menu to the page size.
-    // menu.pageItems.length to menu.pageLength just draw blank spots
-    // actually, this goes in the other one, I think
+    // Extend incomplete page with blank options.
+    if (menu.totalPages > 1) {
+      for (let i = menu.pageItems.length; i < menu.pageLength; i++) {
+        const spr = new PIXI.Sprite(this.stateTextures?.disabled);
+        spr.position.y = element.height * i;
+        this.menuGui.addChild(spr);
+      }
+    }
 
     // TODO Clean up
     this.pagesBar.build(menu.totalPages, menu.pageIndex);
