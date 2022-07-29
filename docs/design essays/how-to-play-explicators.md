@@ -59,57 +59,63 @@ Terrain details linked to UI system
 
 ### Troops
 
-[ ] [ ]
+[x] [ ] [ ]
 Troop Pathfinding
-[show some neat-looking green squares, then show off the arrow]
+[show the mapcursor circling (squareling?) around a lone helicopter "Spinny Helicopter"]
+[Also, I could show Infantry travelling infinitely through the sea to capture the yellow HQ. That would be funny.]
 
 [x] [ ]
 Troop movement and attack animations
-[show a tank attacking something else; die or not die?]
+[show anti-air attack and destroy heli in Waylon Strikes Back]
 
-[ ] [ ]
+[x] [ ]
 Contextual actions
 [show a Rig w/ already selected tile where it can only Wait, then it cancels and moves to a tile w/ a Suppliable infantry and something else]
 
-[ ] [ ]
+[x] [ ]
 Troop-inside-troop recursion
-[show an Infantry loading into a TCopter, then that TCopter loading into a Cruiser]
+[On "Contextual Actions," show an infantry->Rig then a Rig->Lander]
+  [show an Infantry loading into a TCopter, then that TCopter loading into a Cruiser]
 
-[ ] [ ]
+[x] [ ]
 Player-to-player visibility rules
 [show P1 hide their sub, *cut* show P2 moving a ship over that sub with ambush and everything]
 [this can happen right before the flare footage]
+[we'll probably just do this on Land's End]
 
 [x] [ ]
 Fog of War
 [show a Flare revealing a portion of the map]
 
-[ ] [ ]
+[x] [ ]
 Large Explosions
 [show a Silo]
+[do this on "Time Map"]
 
-[ ] [ ]
+[x] [ ]
 Cool distance cannons
 [show a Battleship moving with its giant reticule and attacking something beyond a mountain range]
 
-[ ] [ ]
+[x] [ ]
 Espionage and Headquarters-seizure
 [show an Infantry surrounded by Yellow units moving into and capturing the Yellow HQ]
+[added yellow to bounty river]
 
 ### UI
 
 [ ] [ ]
 Factory shops
 [show a regular factory; page switching]
+[Add page arrow first, though]
 
 [ ] [ ]
 Minimap and click-clicky
 [show the minimap camera being moved around by the mouse; also show camera zoom]
-[Add page arrow first, though]
 
 [ ] [ ]
 Up to four players
 [show the player dialogs sliding in, cut, show each pre-turn animation in brief, cuts abound]
+[I might do this on Jay Islands or Land's End]
 
 [ ] [ ]
 Neat Title Screen and no Title Menu
@@ -133,14 +139,16 @@ Click?
 
 [ ] [ ]
 Dev tools
-[show a montage of Flare animation pausing, open shops anywhere, the devlog retrieved from the console prettified by some text editor, maybe the extra-resolution view]
+[show a montage of Flare animation pausing, open shops anywhere, the devlog retrieved from the console prettified by some text editor, maybe the extra-camera-bounds view]
 *These are automatically disabled in public builds.
 
 ### Other Modes
 
-[ ] [ ] 
+[-] [ ] 
 Map Editor
 [dev only, but you know]
+[I want to evoke the random-built maps of yore]
+[My map editor set is based on Jay Islands, maybe I could connect the footage? Like, "look! you can change the map!"]
 
 [ ] [ ] 
 Rigs can build stuff
