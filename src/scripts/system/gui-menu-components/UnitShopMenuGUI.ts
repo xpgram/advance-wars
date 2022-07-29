@@ -175,11 +175,25 @@ export class UnitShopMenuGUI<Y> extends CommandMenuGUI<Y> {
       this.menuGui.addChild(spr);
     })
 
+    // Extend incomplete page with blank options
+    for (let i = menu.pageItems.length; i < menu.pageLength; i++) {
+      const spr = new PIXI.Sprite(this.stateTextures.item);
+      spr.position.y = element.height * i + capHeight;
+      this.menuGui.addChild(spr);
+    }
+
     // Add the caps
     const top = new PIXI.Sprite(textures.topCap);
     const bottom = new PIXI.Sprite(textures.bottomCap);
-    bottom.y = element.height * menu.pageItems.length + capHeight;
+    bottom.y = element.height * menu.pageLength + capHeight;
     this.menuGui.addChild(top, bottom);
+
+    // Add page bar
+    this.pagesBar.build(menu.totalPages, menu.pageIndex);
+    this.pagesBar.container.position.set(
+      element.width/2 - this.pagesBar.container.width/2,
+      element.height*menu.pageLength + 2*capHeight + 3,
+    )
   }
 
   updateFrames() {
