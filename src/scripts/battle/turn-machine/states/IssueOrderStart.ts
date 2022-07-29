@@ -72,7 +72,7 @@ export class IssueOrderStart extends TurnState {
   }
 
   update() {
-    const { players, map, mapCursor, instruction, gamepad, scenario } = this.assets;
+    const { players, map, mapCursor, instruction, gamepad, scenario, stagePointer } = this.assets;
     const { stagePointerInterface: pointer } = this.assets.scripts;
 
     const player = players.current;
@@ -114,7 +114,7 @@ export class IssueOrderStart extends TurnState {
     }
 
     // On press B, show unit attack range or initiate move camera mode.
-    else if (B.pressed) {
+    else if (B.pressed || stagePointer.button.held(20) && square.unit) {
       const allied = square.unit?.faction === player.faction;
       const visible = square.unitVisible();
       if (square.unit && (allied || visible)) {
@@ -125,7 +125,7 @@ export class IssueOrderStart extends TurnState {
     }
 
     // On press Start, open the Field Menu.
-    else if (start.pressed) {
+    else if (start.pressed || stagePointer.button.held(20)) {
       this.advance(FieldMenu);
     }
 

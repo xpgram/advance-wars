@@ -72,6 +72,10 @@ export class MoveUnit extends TurnState {
     // Trigger cursor mode (and whatever)
     this.updateUiSystems();
 
+    // Enable pointer
+    scripts.stagePointerInterface.enable();
+    scripts.stagePointerInterface.affirmOnDragRelease = stagePointer.pointerDragging;
+
     // Skip any further instructions if the turn player is examining an enemy unit.
     if (actor.faction !== players.current.faction)
       return;
@@ -82,8 +86,6 @@ export class MoveUnit extends TurnState {
 
     // Enable control shortcuts
     scripts.nextTargetableUnit.enable();    // Depends on map.generateMovementMap()
-    scripts.stagePointerInterface.enable();
-    scripts.stagePointerInterface.affirmOnDragRelease = stagePointer.button.down;
   }
 
   updateNonInterruptible() {
@@ -112,7 +114,7 @@ export class MoveUnit extends TurnState {
   }
 
   update() {
-    const { map, mapCursor, gamepad, stagePointer, players, instruction } = this.assets;
+    const { map, mapCursor, gamepad, players, instruction } = this.assets;
     const { stagePointerInterface: pointer } = this.assets.scripts;
     const { actor, place } = this.data;
 
@@ -121,8 +123,11 @@ export class MoveUnit extends TurnState {
       this.regress();
 
     // If the unit is not owned by current player, do nothing else
-    if (players.current.faction !== actor.faction)
+    if (players.current.faction !== actor.faction) {
+      if (pointer.affirmIntent)
+        this.regress();
       return;
+    }
 
     // On press A and viable location, advance state
     else if (gamepad.button.A.pressed || pointer.affirmIntent) {

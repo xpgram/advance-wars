@@ -33,10 +33,10 @@ export class ShowUnitAttackRange extends TurnState {
   }
 
   update(): void {
-    const { gamepad } = this.assets;
+    const { gamepad, stagePointer } = this.assets;
 
     // On release B, return to previous state.
-    if (gamepad.button.B.up)
+    if (gamepad.button.B.up && stagePointer.button.up)
       this.regress();
   }
 

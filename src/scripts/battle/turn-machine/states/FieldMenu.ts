@@ -35,7 +35,7 @@ export class FieldMenu extends TurnState {
   }
 
   update() {
-    const { gamepad, fieldMenu } = this.assets;
+    const { gamepad, fieldMenu, stagePointer } = this.assets;
     const { menu } = fieldMenu;
 
     // On press A, handle selected option.
@@ -51,7 +51,7 @@ export class FieldMenu extends TurnState {
     }
 
     // On press B or press Start, revert to field cursor.
-    else if (gamepad.button.B.pressed || gamepad.button.start.pressed) {
+    else if (gamepad.button.B.pressed || gamepad.button.start.pressed || stagePointer.clicked()) {
       this.regress();
     }
   }
