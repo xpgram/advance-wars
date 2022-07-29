@@ -1,5 +1,6 @@
 import { Game } from "../../.."
 import { PIXI } from "../../../constants";
+import { ClickableContainer } from "../../controls/MouseInputWrapper";
 
 
 export class PageSelector {
@@ -7,15 +8,15 @@ export class PageSelector {
 
   readonly container = new PIXI.Container();
 
-  private leftButton = new PIXI.Sprite();
-  private rightButton = new PIXI.Sprite();
+  readonly leftButton = new ClickableContainer(new PIXI.Sprite());
+  readonly rightButton = new ClickableContainer(new PIXI.Sprite());
   private pageIcons = new PIXI.Container();
 
 
   constructor() {
     this.container.addChild(
-      this.leftButton,
-      this.rightButton,
+      this.leftButton.container,
+      this.rightButton.container,
       this.pageIcons,
     )
   }
@@ -37,8 +38,8 @@ export class PageSelector {
 
     this.container.visible = true;
 
-    this.leftButton.texture = btnEnabled;
-    this.rightButton.texture = btnEnabled;
+    this.leftButton.container.texture = btnEnabled;
+    this.rightButton.container.texture = btnEnabled;
 
     this.pageIcons.removeChildren()
       .forEach( spr => spr.destroy() );
@@ -52,11 +53,11 @@ export class PageSelector {
       this.pageIcons.addChild(spr);
     }
 
-    this.pageIcons.x = this.leftButton.width + 2;
-    this.rightButton.x = this.pageIcons.x + pages*iconSpacing;
+    this.pageIcons.x = this.leftButton.container.width + 2;
+    this.rightButton.container.x = this.pageIcons.x + pages*iconSpacing;
 
-    this.rightButton.anchor.x = 1;
-    this.rightButton.scale.x = -1;
+    this.rightButton.container.anchor.x = 1;
+    this.rightButton.container.scale.x = -1;
   }
 
 }

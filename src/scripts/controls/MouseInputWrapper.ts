@@ -13,7 +13,7 @@ import { Keys } from "./KeyboardObserver";
  * tasks, this observer is intended for more complex control systems, or to homogenize
  * button.released reference structures.
  **/
- export class ClickableContainer {
+ export class ClickableContainer<T extends PIXI.Container> {
 
   // TODO Build consistent frame behavior into Button so I don't have to manage this.
   // Button will use time-stamps (framecounts) to determine press and release event procession.
@@ -63,10 +63,10 @@ import { Keys } from "./KeyboardObserver";
   clicked() { return this.button.released && this.dragButton.up && !this.dragButton.released; }
 
   /** The graphical subject being managed by this mouse state observer. */
-  readonly container: PIXI.Container;
+  readonly container: T;
 
 
-  constructor(container: PIXI.Container) {
+  constructor(container: T) {
     container.addListener('mousemove', this.updateMousePosition, this);
     container.addListener('mousedown', this.mouseDownHandler, this);
     container.addListener('mouseup', this.mouseUpHandler, this);

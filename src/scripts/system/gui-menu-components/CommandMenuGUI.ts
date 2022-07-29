@@ -144,6 +144,18 @@ export class CommandMenuGUI<Y> {
       if (pointerIdx !== undefined && this.menu.selectedIndex !== pointerIdx)
         this.menu.setCursor(pointerIdx);
     }
+
+    // TODO Um.  Yeah, these need *such* a refactor.
+    if (this.pagesBar.leftButton.clicked())
+      this.menu.setCursor(
+        this.menu.selectedIndex,
+        this.menu.pageIndex - 1,
+      )
+    else if (this.pagesBar.rightButton.clicked())
+    this.menu.setCursor(
+      this.menu.selectedIndex,
+      this.menu.pageIndex + 1,
+    )
   }
 
   /** Reveals this menu's graphics and enables player input. */
