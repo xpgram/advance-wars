@@ -49,75 +49,75 @@ I could... demo the things I want to do in the actual game, I guess... since tha
 
 [StageBuilt] [FootageAcquired]
 
-[x] [ ]
+[x] [x]
 Auto-configuring tileset + animated shorelines and terrain types
 [I'll show that one island in the middle of Greyfield Strikes]
 
-[x] [ ]
+[x] [x]
 Terrain details linked to UI system
 [show the details window as the cursor slides over a couple things: wood, city maybe]
 
 ### Troops
 
-[x] [ ] [ ]
+[x] [x] [ ]
 Troop Pathfinding
 [show the mapcursor circling (squareling?) around a lone helicopter "Spinny Helicopter"]
 [Also, I could show Infantry travelling infinitely through the sea to capture the yellow HQ. That would be funny.]
 
-[x] [ ]
+[x] [x]
 Troop movement and attack animations
 [show anti-air attack and destroy heli in Waylon Strikes Back]
 
-[x] [ ]
+[x] [x]
 Contextual actions
 [show a Rig w/ already selected tile where it can only Wait, then it cancels and moves to a tile w/ a Suppliable infantry and something else]
 
-[x] [ ]
+[x] [x]
 Troop-inside-troop recursion
 [On "Contextual Actions," show an infantry->Rig then a Rig->Lander]
   [show an Infantry loading into a TCopter, then that TCopter loading into a Cruiser]
 
-[x] [ ]
+[x] [x]
 Player-to-player visibility rules
 [show P1 hide their sub, *cut* show P2 moving a ship over that sub with ambush and everything]
 [this can happen right before the flare footage]
-[we'll probably just do this on Land's End]
+[we'll probably do this on History of Hate. Show a sub dive and move, then show the opponent getting ambushed by them.]
 
-[x] [ ]
+[x] [x]
 Fog of War
 [show a Flare revealing a portion of the map]
 
-[x] [ ]
+[x] [x]
 Large Explosions
 [show a Silo]
 [do this on "Time Map"]
 
-[x] [ ]
+[x] [x]
 Cool distance cannons
 [show a Battleship moving with its giant reticule and attacking something beyond a mountain range]
 
-[x] [ ]
+[x] [x]
 Espionage and Headquarters-seizure
 [show an Infantry surrounded by Yellow units moving into and capturing the Yellow HQ]
 [added yellow to bounty river]
 
 ### UI
 
-[ ] [ ]
+[ ] [?]
 Factory shops
 [show a regular factory; page switching]
 [Add page arrow first, though]
 
-[ ] [ ]
+[x] [x]
 Minimap and click-clicky
 [show the minimap camera being moved around by the mouse; also show camera zoom]
 
-[ ] [ ]
+[x] [x]
 Up to four players
 [show the player dialogs sliding in, cut, show each pre-turn animation in brief, cuts abound]
 [I might do this on Jay Islands or Land's End]
 
-[ ] [ ]
+[x] [x]
 Neat Title Screen and no Title Menu
 [show ingress from title to map selector]
 
@@ -144,13 +144,13 @@ Dev tools
 
 ### Other Modes
 
-[-] [ ] 
+[x] [x] 
 Map Editor
 [dev only, but you know]
 [I want to evoke the random-built maps of yore]
 [My map editor set is based on Jay Islands, maybe I could connect the footage? Like, "look! you can change the map!"]
 
-[ ] [ ] 
+[x] [x] 
 Rigs can build stuff
 The features were built in tandem, so.. I may as well display them that way, I guess.
 
