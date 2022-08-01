@@ -144,7 +144,7 @@ A full-picture view of the battlefield accessible at any time. It also shows you
 <h2 align="right"> Large Maps </h2>
 
 <p align="right">
-Maps can be pretty big because the game makes use of texture caching to skip redundant work on its 2800+ tiles. Or more than that, maybe. Larger than 70x40 makes the minimap hard to use.
+Maps can be pretty big because the game makes use of texture caching to skip redundant work on its 2800+ tiles. Or more than that, maybe. Larger than 70x40 makes the minimap in-<i>aesthetic.</i>
 
 <img src="" width="100%" height="1rem">
 
@@ -155,7 +155,7 @@ Maps can be pretty big because the game makes use of texture caching to skip red
 <h2 align="left"> Map Editing </h2>
 
 <p align="left">
-Currently dev-only, but its mostly just missing UI. And a place to store the data. This is actually accessible (in dev builds) in the middle of any battle.
+Currently dev-only, but it's mostly just missing UI. And a place to store the data. This is actually accessible (in dev builds) in the middle of any battle.
 
 <img src="" width="100%" height="1rem">
 
