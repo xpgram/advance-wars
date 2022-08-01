@@ -18,6 +18,12 @@ All of these will be accompanied by a little gif-video clip.
 
 
 
+The last ffmpeg settings -> -filter:v "crop=1597:959:0:74"
+This was with x5 I think? So ~1600x960
+
+[ ] Collect a static (high-quality, not gif) banner from the title screen.
+
+
 
 ## Intro [I'm working on it]
 
