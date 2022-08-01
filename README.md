@@ -13,6 +13,8 @@ The controls are listed below, but I don't have button prompts in the UI yet, so
 You can also play with a PS4/5 remote.  
 Other gamepads are not guaranteed to work yet, but you can try.
 
+Also, there are a lot of gifs below, so... rip in pieces your PC, maybe.
+
 # Features:
 
 <img src="" width="100%" height="2.5rem">
@@ -60,7 +62,7 @@ Troops travel the path you tell them to when moving. And so, when you draw a pat
 <h2 align="left"> Troop Combat </h2>
 
 <p align="left">
-Troops *can* attack other troops, and the whole process is animated, too. The UI even estimates your damage and risk, and lets you see where your distance attackers can actually reach.
+Troops <i>can</i> attack other troops, and the whole process is animated, too. The UI even estimates your damage and risk, and lets you see where your distance attackers can actually reach.
 
 <img src="" width="100%" height="1rem">
 
@@ -72,6 +74,9 @@ Troops *can* attack other troops, and the whole process is animated, too. The UI
 
 <p align="right">
 The command-menu system triggers different selectable options depending on what unit you're commanding and where you're moving them to.
+
+<p align="right">
+You can also load troops into other troops into other troops recursively. Isn't that fun.
 
 <img src="" width="100%" height="1rem">
 
@@ -94,7 +99,7 @@ Explode!
 
 <p align="right">
 For now, anyway. Main limitation is art.  
-Also, too many players makes for a *slooow* game.
+Also, too many players makes for a <i>slooow</i> game.
 
 <img src="" width="100%" height="1rem">
 
