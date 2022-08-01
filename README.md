@@ -8,7 +8,7 @@ This project is a rebuild of the 2008 game titled above.
 It was chosen because it's a really good game, and because I won't have to draw any art.
 
 You can play the current public build [here.](https://xpgram.github.io/armed-revolt/game.html)  
-The controls are listed below, but I don't have button prompts in the UI yet, so they may be confusing if you're not used to Z,X + ArrowKeys for web games. I'll put a map somewhere soon.
+The controls are listed below, but I don't have button prompts in the UI yet, so they may be confusing if you're not used to Z,X + ArrowKeys for web games. Or how Advance Wars plays. I'll put a map somewhere soon. There *are* technically controls listed on the game's page.
 
 You can also play with a PS4/5 remote.  
 Other gamepads are not guaranteed to work yet, but you can try.
