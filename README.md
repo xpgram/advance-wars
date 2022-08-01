@@ -16,3 +16,6 @@ Currently features:
  - Complete (or near complete, I forget) unit and terrain properties, assembled into discrete class-types via python code generation.
  - A scene-pattern style architecture I have yet to take advantage of. But see, I plan for the future. That's why I'm a special boy.
  - Efficient sprite-draw management—I'm working on this, actually. Nearly there.
+
+Readme test:
+<img src="https://github.com/xpgram/advance-wars/blob/master/docs/demo-reels/troop-pathing.gif" width="40%">
