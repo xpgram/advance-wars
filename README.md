@@ -7,7 +7,7 @@ Anyway.
 This project is a rebuild of the 2008 game titled above.  
 It was chosen because it's a really good game, and because I won't have to draw any art.
 
-You can play the current public build [here.](https://xpgram.github.io/armed-revolt/game.html)
+You can play the current public build [→here.](https://xpgram.github.io/armed-revolt/game.html)
 
 The controls are listed below the game window, but I don't have button prompts in the UI yet, so they may be confusing if you're not used to Z,X + ArrowKeys for web games. Or how Advance Wars plays. I'll put a map somewhere soon.
 
