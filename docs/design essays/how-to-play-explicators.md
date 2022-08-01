@@ -21,6 +21,9 @@ All of these will be accompanied by a little gif-video clip.
 The last ffmpeg settings -> -filter:v "crop=1597:959:0:74"
 This was with x5 I think? So ~1600x960
 
+This was how I stitched together clips
+ffmpeg -i turn-splash-red.mkv -i turn-splash-blue.mkv -i turn-splash-yellow.mkv -i turn-splash-black.mkv -filter_complex "[0:v] [1:v] [2:v] [3:v] concat=n=4:v=1 [v]" -map "[v]" 0-out.mkv
+
 [ ] Collect a static (high-quality, not gif) banner from the title screen.
 
 
