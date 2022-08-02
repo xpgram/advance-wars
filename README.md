@@ -30,7 +30,7 @@ Also, there are a lot of gifs below, so... rip in pieces your PC, maybe.
 
 Nearly any arrangement of terrain is representable. Each tile examines its neighbors during construction and figures out for itself which sprites it needs to blend in with its surroundings.
 
-I wrote a [python script](/src/scripts/battle/map/TerrainWriter.py) that is definitely outdated now but at one time converted a bunch of terrain metadata I had to generated Typescript code. Saved me a lot of work.
+I wrote a [python script](/src/scripts/battle/map/TerrainWriter.py) that is definitely outdated now but at one time converted a bunch of terrain metadata I had to [generated Typescript code](/src/scripts/battle/map/Terrain.ts). Saved me a lot of work.
 
 ![](/docs/demo-reels/shoreline-effects.gif)
 
@@ -52,7 +52,7 @@ The UI code is awful, by the way, don't look at it.
 
 Troops travel the path you tell them to when moving. And so, when you draw a path that's too long or too rugged for your poor little bike to handle, the path is recalculated to always be valid, preferring the old path as much as possible.
 
-The search algorithm that does this, I [factored-out](/src/scripts/Common/QueueSearch.ts) a bunch of the boilerplate code to make it easier for my brain to understand. Now each map-crawling algorithm can focus near-exclusively on the map itself.
+The search algorithm that does this, I [factored-out](/src/scripts/Common/QueueSearch.ts) a bunch of the boilerplate code to make it easier for my brain to understand. Now each [map-crawling algorithm](/src/scripts/battle/map/Map.ts#L434) can focus near-exclusively on the map itself.
 
 ![](/docs/demo-reels/troop-pathing.gif)
 
@@ -113,7 +113,7 @@ The commands you issue to each troop are internally a series of small, discrete 
 
 Battles can be held with limited-information, too, where hidden troops are much more common and troops which can reveal enemy hiding places are suddenly not unimportant.
 
-Also, I wrote my own [Timer](/src/scripts/timer/Timer.ts) class which handles the tweening of objects, like this [flare animation.](/src/scripts/battle/map/tile-effects/FlareIgniteEvent.ts) One of my favorite tools.
+Also, I wrote my own [Timer](/src/scripts/timer/Timer.ts) class which handles the tweening of objects, like this [flare animation](/src/scripts/battle/map/tile-effects/FlareIgniteEvent.ts). One of my favorite tools.
 
 ![](/docs/demo-reels/flare-animation.gif)
 
