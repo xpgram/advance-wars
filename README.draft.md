@@ -105,31 +105,31 @@ Battles can be held with limited-information, too, where hidden troops are much 
 <!------------------------------------------------------------------------------------------------->
 ## Minimap
 
-![](/docs/demo-reels/minimap+explore-fow.gif)
-
 A full-picture view of the battlefield accessible at any time. It also shows you where the camera's view is and will auto-move said camera with directional inputs or to wherever you mouse click.
+
+![](/docs/demo-reels/minimap+explore-fow.gif)
 
 
 <!------------------------------------------------------------------------------------------------->
 ## Large Maps
 
-![](/docs/demo-reels/map-size.gif)
-
 Maps can be pretty big because the game makes use of texture caching to skip redundant work on its 2800+ tiles. Or more than that, maybe. Larger than 70x40 makes the minimap in-<i>aesthetic.</i>
+
+![](/docs/demo-reels/map-size.gif)
 
 
 <!------------------------------------------------------------------------------------------------->
 ## Map Editing
 
-![](/docs/demo-reels/map-design.gif)
-
 Currently dev-only, but it's mostly just missing UI. And a place to store the data. This is actually accessible (in dev builds) in the middle of any battle.
+
+![](/docs/demo-reels/map-design.gif)
 
 
 <!------------------------------------------------------------------------------------------------->
 ## Scene Pattern
 
-![](/docs/demo-reels/title-screen-10s.gif)
-
 It's not, or won't be, just battling all the time. The game is already written to enable different modes whenever they're built, each working independently and requiring only the assets unique to their function. Such as this title screen.
+
+![](/docs/demo-reels/title-screen-10s.gif)
 
