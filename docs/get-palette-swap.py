@@ -2,6 +2,12 @@ import os
 from sys import argv
 from PIL import Image
 
+'''
+Usage: py get-palette-swap.py file1.png file2.png
+Prints a list of color-swaps to get from file1 to file2 dynamically.
+Obviously doesn't work if the images are dissimilar.
+'''
+
 def path(filename):
   # There are some strange consequences to how this actually works, but w/e.
   # Technically '../.././/Home/deivalko' => '/Home/deivalko'
