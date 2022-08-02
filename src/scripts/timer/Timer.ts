@@ -1,6 +1,6 @@
 import { Game } from "../..";
 import { Ease, EaseFunction } from "../Common/EaseMethod";
-import { Dictionary, PartialDeep, StringDictionary } from "../CommonTypes";
+import { DeepPartial } from "../CommonTypes";
 import { Common } from "../CommonUtils";
 import { ProgressiveFunction, TEvent } from "./TimerEvent";
 
@@ -29,7 +29,7 @@ export type Tweenable = Record<string | number, object | number | undefined>;
  * An event itinerary system developed because I saw someone do this in Lua and
  * it was mad cool. Tweening, I mean.
  * 
- * For simple time keeping, create a timer via object construction (new Timer(5)).
+ * For simple time keeping, create a timer via object construction `new Timer(5)`.
  * Then call timer.start() at your leisure.
  * 
  * Timers created via the static class members (Timer.at(), etc.) are started by
@@ -39,11 +39,11 @@ export type Tweenable = Record<string | number, object | number | undefined>;
  * 
  * ```
  * Timer  
- *   .at(.25)       // moves the itinerary cursor
- *   .do(n => {...})          // occurs at .25 seconds
- *   .wait(.25)     // moves the cursor relatively
- *   .tween(.25, n => {...})  // occurs from .50 to .75 seconds
- *   .wait()        // skips to previous step's end time (.75 seconds)
+ *   .at(.25)             // moves the itinerary cursor
+ *   .do(n => {...})      // occurs at .25 seconds
+ *   .wait(.25)           // moves the cursor relative to its current position
+ *   .tween(.25, obj, {position: {x: 128}})   // occurs from .50 to .75 seconds
+ *   .wait()              // skips to previous step's end time (.75 seconds)
  *   ...
  * ```
  * 
@@ -96,12 +96,12 @@ export class Timer {
   }
 
   /** Shortcut to new Timer().start().tween(); returns a Timer object. */
-  static tween<T extends object>(span: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
+  static tween<T extends object>(span: number, object: T, target: DeepPartial<T>, ease?: EaseFunction) {
     return Timer.new().tween(span, object, target, ease);
   }
 
   /** Shortcut to new Timer().start().tweenEvery(); returns a Timer object. */
-  static tweenEvery<T extends object>(span: number, interval: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
+  static tweenEvery<T extends object>(span: number, interval: number, object: T, target: DeepPartial<T>, ease?: EaseFunction) {
     return Timer.new().tweenEvery(span, interval, object, target, ease);
   }
 
@@ -137,7 +137,7 @@ export class Timer {
   private lastAdded?: TEvent.TimerEvent;
 
   /** A record of saved timestamp values; makes time navigating in long chains easier. */
-  private readonly timestampLabels = {} as StringDictionary<number>;
+  private readonly timestampLabels = {} as Record<string, number>;
 
   /** True if the events list needs to be sorted.
    * @unused */
@@ -536,7 +536,7 @@ export class Timer {
   /** Schedules a prop-style tween event which modulates the given object's properties
    * from their occurrence-time values to the given target values. This only works for
    * numeric properties. If you need more specific control, use transition(). */
-  tween<T extends object>(span: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
+  tween<T extends object>(span: number, object: T, target: DeepPartial<T>, ease?: EaseFunction) {
     ease = ease || Ease.linear.out;
     const time = this.timeCursor;
     const until = millis(span) + time;
@@ -556,7 +556,7 @@ export class Timer {
    * properties. If you need more specific control, use transitionEvery().
    * Interval wait time is counted from the tween's span-end time. */
   // TODO max occurences?
-  tweenEvery<T extends object>(interval: IntervalOptions, span: number, object: T, target: PartialDeep<T>, ease?: EaseFunction) {
+  tweenEvery<T extends object>(interval: IntervalOptions, span: number, object: T, target: DeepPartial<T>, ease?: EaseFunction) {
     ease = ease || Ease.linear.out;
     const time = this.timeCursor;
     const until = millis(span) + time;
