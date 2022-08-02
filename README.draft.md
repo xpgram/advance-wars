@@ -83,6 +83,8 @@ Explode!
 For now, anyway. Main limitation is art.  
 Also, too many players makes for a <i>slooow</i> game.
 
+Each splash screen is dynamically color-adjusted to the team it's representing, which is *not* something I do for the troops spritesheet. I actually wrote a [python script](/docs/get-palette-swap.py) to extract color palettes from png's to make building this feature simpler.
+
 ![](/docs/demo-reels/turn-splash.gif)
 
 
