@@ -1,48 +1,162 @@
 
-I be writin' an essay, dog.
+<img src="/docs/demo-reels/title-banner.png">
 
-# Advance Wars Web
+You like Arial font?
 
-TODO Picture
+Anyway.
 
-A clone of "Days of Ruin" (2008) written with Pixi.js and a sound API whenever I get around to it. You can play the current public build [here.](https://xpgram.github.io/armed-revolt/game.html)
+This project is a rebuild of the 2008 game titled above.  
+It was chosen because it's a really good game, and because I won't have to draw any art.
 
-I have (or I will have) various essays about the game's construction linked here.
+You can play the current public build [→here.](https://xpgram.github.io/armed-revolt/game.html)
 
-- [Map and Tile Configuration]()
-  How the map generation or construction happens; how does a Beach tile know which direction to face.
-  Optimizations to speed up draw()
-- [Map Crawler]()
-  The search-pattern the map uses to identify moveable targets for allies and actionable tiles for hot actions.
-- [Tile- and Unit-Type Code Generation]()
-  The python scripts and datafiles I used to save myself looots of time.
-- [Turn System and Board Events]()
-  Structure, Its simple component toggling nature
-  Its built-in failsafes
-  How it builds a unit instruction
-  How it handles events and animation
-    Should I touch on animation techniques? My slider class? Slider, Pulsar and such are probably not interesting enough to get their own essay.
-  Broadly, how I've built it in preparation for eventual online play.
-- [Battle Units]()
-  I imagine we'll talk about pathfinding, the player-team system, the numerous questions asked of them and how they know what they're capable of doing at any moment, etc.
-- [Camera]()
-  I'm recently proud of it. It's unfinished.
-  It zooms.
-  It pans.
-  It moves into place before board events happen.
-  It keeps the map in check: not too far out, always centered when small.
-- [UI System]()
-  I'm not... sure. It's pretty hacked together, you know.
-  It stays out of the way, it auto-updates with new info, it waits to update until able (not while sliding off-screen)
-  I could also talk about the unique problems it faces. I'm not using any kind of auto-positioning system, like CSS, which is *why* it feels so hacked together.
-- [Command Menu and Menu Generic]()
-  Its separated into a functional and a drawable object.
-  Its option=>result style interface.
-  How the options are populated and how I get icons in there.
-- [The Scene-Pattern Separating Game Modes]()
-  Not really utilized, but I could write a short blurb about my future plans.
-- [Custom Shaders]()
-  Not much to say about the shaders themselves. This might be better titled "Interactable Tile Animations" or something.
-  We can talk about the strategy for implementing time-expensive shader operations for each tile shape without expending that much time.
+The controls are listed below the game window, but I don't have button prompts in the UI yet, so they may be confusing if you're not used to Z,X + ArrowKeys for web games. Or how Advance Wars plays. I'll put a map somewhere soon.
 
-Probably more, but this is a lot of essay so far. We'll work on it.
+You can also play with a PS4/5 remote.  
+Other gamepads are not guaranteed to work yet, but you can try.
+
+Oh, I should mention.  
+This project is not necessarily for the public. I know Nintendo is litigation-happy. One of the key objectives here is just to demonstrate my skill. The rest are, you know, private fun with private people.
+
+Also, there are a lot of gifs below, so... rip in pieces your PC, maybe.
+
+# Features:
+
+<img src="" width="100%" height="2.5rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+## Self-Assembling Tileset
+
+![](/docs/demo-reels/shoreline-effects.gif)
+
+Nearly any arrangement of terrain is representable. Each tile examines its neighbors during construction and figures out for itself which sprites it needs to blend in with its surroundings.
+
+
+<!------------------------------------------------------------------------------------------------->
+## Terrain Info Panel
+
+![](/docs/demo-reels/terrain-ui.gif)
+
+Every terrain type (and troop type) has its metadata hooked up to the UI panels to answer your burning questions about wheat fields and rock in ocean.
+
+You can open the detailed panel with left-trigger or Shift.
+
+
+<!------------------------------------------------------------------------------------------------->
+## Troop Pathfinding
+
+![](/docs/demo-reels/troop-pathing.gif)
+
+Troops travel the path you tell them to when moving. And so, when you draw a path that's too long or too rugged for your poor little bike to handle, the path is recalculated to always be valid, preferring the old path as much as possible.
+
+
+<!------------------------------------------------------------------------------------------------->
+## Troop Combat
+
+![](/docs/demo-reels/attack-animation.gif)
+
+Troops *can* attack other troops, and the whole process is animated, too. The UI even estimates your damage and risk, and lets you see where your distance attackers can actually reach.
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/contextual-actions.gif" width="40%" align="left">
+
+<h2 align="right"> Contextual Actions </h2>
+
+<p align="right">
+The command-menu system triggers different selectable options depending on what unit you're commanding and where you're moving them to.
+
+<p align="right">
+You can also load troops into other troops into other troops recursively. Isn't that fun.
+
+<img src="" width="100%" height="1rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/silo-animation.gif" width="40%" align="right">
+
+<h2 align="left"> Animated Special Actions </h2>
+
+<p align="left">
+Explode!
+
+<img src="" width="100%" height="1rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/turn-splash.gif" width="40%" align="left">
+
+<h2 align="right"> Up to Four Players </h2>
+
+<p align="right">
+For now, anyway. Main limitation is art.  
+Also, too many players makes for a <i>slooow</i> game.
+
+<img src="" width="100%" height="1rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/player-visibility.gif" width="40%" align="right">
+
+<h2 align="left"> Stealth and Visibility </h2>
+
+<p align="left">
+Some units, like the Submarine, can hide their presence and ambush enemies who attempt to travel over them. Each player on their turn can only see the information known to them.
+
+<img src="" width="100%" height="1rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/flare-animation.gif" width="40%" align="left">
+
+<h2 align="right"> Fog of War </h2>
+
+<p align="right">
+Battles can be held with limited-information, too, where hidden troops are much more common and troops which can reveal enemy hiding places are suddenly not unimportant.
+
+<img src="" width="100%" height="1rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/minimap+explore-fow.gif" width="40%" align="right">
+
+<h2 align="left"> Minimap </h2>
+
+<p align="left">
+A full-picture view of the battlefield accessible at any time. It also shows you where the camera's view is and will auto-move said camera with directional inputs or to wherever you mouse click.
+
+<img src="" width="100%" height="1rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/map-size.gif" width="40%" align="left">
+
+<h2 align="right"> Large Maps </h2>
+
+<p align="right">
+Maps can be pretty big because the game makes use of texture caching to skip redundant work on its 2800+ tiles. Or more than that, maybe. Larger than 70x40 makes the minimap in-<i>aesthetic.</i>
+
+<img src="" width="100%" height="1rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/map-design.gif" width="40%" align="right">
+
+<h2 align="left"> Map Editing </h2>
+
+<p align="left">
+Currently dev-only, but it's mostly just missing UI. And a place to store the data. This is actually accessible (in dev builds) in the middle of any battle.
+
+<img src="" width="100%" height="1rem">
+
+
+<!------------------------------------------------------------------------------------------------->
+<img src="/docs/demo-reels/title-screen-10s.gif" width="40%" align="left">
+
+<h2 align="right"> Scene Pattern </h2>
+
+<p align="right">
+It's not, or won't be, just battling all the time. The game is already written to enable different modes whenever they're built, each working independently and requiring only the assets unique to their function. Such as this title screen.
+
+<img src="" width="100%" height="1rem">
