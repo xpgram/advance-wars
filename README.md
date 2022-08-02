@@ -30,6 +30,8 @@ Also, there are a lot of gifs below, so... rip in pieces your PC, maybe.
 
 Nearly any arrangement of terrain is representable. Each tile examines its neighbors during construction and figures out for itself which sprites it needs to blend in with its surroundings.
 
+I wrote a [python script](/src/scripts/battle/map/TerrainWriter.py) that is definitely outdated now but at one time converted a bunch of terrain metadata I had to generated Typescript code. Saved me a lot of work.
+
 ![](/docs/demo-reels/shoreline-effects.gif)
 
 
@@ -40,6 +42,8 @@ Every terrain type (and troop type) has its metadata hooked up to the UI panels 
 
 You can open the detailed panel with left-trigger or Shift.
 
+The UI code is awful, by the way, don't look at it.
+
 ![](/docs/demo-reels/terrain-ui.gif)
 
 
@@ -48,13 +52,17 @@ You can open the detailed panel with left-trigger or Shift.
 
 Troops travel the path you tell them to when moving. And so, when you draw a path that's too long or too rugged for your poor little bike to handle, the path is recalculated to always be valid, preferring the old path as much as possible.
 
+The search algorithm that does this, I [factored-out](/src/scripts/Common/QueueSearch.ts) a bunch of the boilerplate code to make it easier for my brain to understand. Now each map-crawling algorithm can focus near-exclusively on the map itself.
+
 ![](/docs/demo-reels/troop-pathing.gif)
 
 
 <!------------------------------------------------------------------------------------------------->
 ## Troop Combat
 
-Troops *can* attack other troops, and the whole process is animated, too. The UI even estimates your damage and risk, and lets you see where your distance attackers can actually reach.
+Troops can attack other troops, and the whole process is animated, too. The UI even estimates your damage and risk, and lets you see where your distance attackers can actually reach.
+
+The troop-command system is already lined up for online play as well. I just haven't gotten around to the server-side yet.
 
 ![](/docs/demo-reels/attack-animation.gif)
 
@@ -74,6 +82,8 @@ You can also load troops into other troops into other troops recursively. Isn't 
 <!-- // TODO This sections is the 'Board Events' system. Show Heli's exploding, resupplies, and this silo explosion. -->
 Explode!
 
+Changes to the board are made via a delayed, event-scheduling system. This missile launch here actually schedules several, the final one being the one that actually deals the damage.
+
 ![](/docs/demo-reels/silo-animation.gif)
 
 
@@ -83,7 +93,7 @@ Explode!
 For now, anyway. Main limitation is art.  
 Also, too many players makes for a <i>slooow</i> game.
 
-Each splash screen is dynamically color-adjusted to the team it's representing, which is *not* something I do for the troops spritesheet. I actually wrote a [python script](/docs/get-palette-swap.py) to extract color palettes from png's to make building this feature simpler.
+Each splash screen is dynamically color-adjusted to the team it's representing, which is *not* something I do for the troops spritesheet. I actually wrote a [python script](/docs/get-palette-swap.py) to extract color palettes from png's to make building this feature easier, so perhaps one day.
 
 ![](/docs/demo-reels/turn-splash.gif)
 
@@ -93,6 +103,8 @@ Each splash screen is dynamically color-adjusted to the team it's representing, 
 
 Some units, like the Submarine, can hide their presence and ambush enemies who attempt to travel over them. Each player on their turn can only see the information known to them.
 
+The commands you issue to each troop are internally a series of small, discrete actions, which return to the next in line whether they were successful or not. This is how they're made interruptible.
+
 ![](/docs/demo-reels/player-visibility.gif)
 
 
@@ -100,6 +112,8 @@ Some units, like the Submarine, can hide their presence and ambush enemies who a
 ## Fog of War
 
 Battles can be held with limited-information, too, where hidden troops are much more common and troops which can reveal enemy hiding places are suddenly not unimportant.
+
+Also, I wrote my own [Timer](/src/scripts/timer/Timer.ts) class which handles the tweening of objects, like this [flare animation.](/src/scripts/battle/map/tile-effects/FlareIgniteEvent.ts) One of my favorite tools.
 
 ![](/docs/demo-reels/flare-animation.gif)
 
@@ -123,7 +137,9 @@ Maps can be pretty big because the game makes use of texture caching to skip red
 <!------------------------------------------------------------------------------------------------->
 ## Map Editing
 
-Currently dev-only, but it's mostly just missing UI. And a place to store the data. This is actually accessible (in dev builds) in the middle of any battle.
+Currently dev-only, but it's mostly just missing UI. And a place to store the data. And the ability to resize the map during runtime. And uh... well, it helps me out.
+
+This is actually accessible in the middle of any battle if in a dev build, and in no battles whatsoever when in a public build. I'm all about dev tyranny. I can't wait to program in my own cheat codes.
 
 ![](/docs/demo-reels/map-design.gif)
 
