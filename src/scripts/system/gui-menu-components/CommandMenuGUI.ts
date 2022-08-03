@@ -146,12 +146,12 @@ export class CommandMenuGUI<Y> {
     }
 
     // TODO Um.  Yeah, these need *such* a refactor.
-    if (this.pagesBar.leftButton.clicked())
+    if (this.pagesBar.leftButton.pointer.clicked())
       this.menu.setCursor(
         this.menu.selectedIndex,
         this.menu.pageIndex - 1,
       )
-    else if (this.pagesBar.rightButton.clicked())
+    else if (this.pagesBar.rightButton.pointer.clicked())
     this.menu.setCursor(
       this.menu.selectedIndex,
       this.menu.pageIndex + 1,

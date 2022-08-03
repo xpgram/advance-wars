@@ -1,6 +1,8 @@
 import { Game } from "../../.."
 import { PIXI } from "../../../constants";
+import { Facing } from "../../battle/EnumTypes";
 import { ClickableContainer } from "../../controls/MouseInputWrapper";
+import { CommonElements } from "../ui-components/CommonElements";
 
 
 export class PageSelector {
@@ -8,8 +10,8 @@ export class PageSelector {
 
   readonly container = new PIXI.Container();
 
-  readonly leftButton = new ClickableContainer(new PIXI.Sprite());
-  readonly rightButton = new ClickableContainer(new PIXI.Sprite());
+  readonly leftButton = CommonElements.TroopConstructionMenu.pageChangeButton(Facing.Left);
+  readonly rightButton = CommonElements.TroopConstructionMenu.pageChangeButton(Facing.Right);
   private pageIcons = new PIXI.Container();
 
 
@@ -38,9 +40,6 @@ export class PageSelector {
 
     this.container.visible = true;
 
-    this.leftButton.container.texture = btnEnabled;
-    this.rightButton.container.texture = btnEnabled;
-
     this.pageIcons.removeChildren()
       .forEach( spr => spr.destroy() );
 
@@ -55,9 +54,6 @@ export class PageSelector {
 
     this.pageIcons.x = this.leftButton.container.width + 2;
     this.rightButton.container.x = this.pageIcons.x + pages*iconSpacing;
-
-    this.rightButton.container.anchor.x = 1;
-    this.rightButton.container.scale.x = -1;
   }
 
 }

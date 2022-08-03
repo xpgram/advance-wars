@@ -1,5 +1,17 @@
 import { Point } from "./Point";
 
+// TODO This needs to be its own construction, or it needs to map to cardinal, like it's another
+// name for the same thing.
+export enum RelativeDirection {
+    None,
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+// TODO Combine the below into a module
+
 export enum CardinalDirection {
     None,
     North,
