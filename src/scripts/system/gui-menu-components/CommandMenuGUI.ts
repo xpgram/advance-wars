@@ -120,6 +120,13 @@ export class CommandMenuGUI<Y> {
 
     this.menuPointer = new ClickableContainer(this.gui);
 
+    // TODO *Sigh* I need something more formalized. This is very hacky.
+    // This whole class is hacky.
+    this.pagesBar.leftButton.triggerIndicatorLight =
+      () => this.menu.gamepad.button.dpadLeft.down;
+    this.pagesBar.rightButton.triggerIndicatorLight =
+      () => this.menu.gamepad.button.dpadRight.down;
+
     Game.scene.ticker.add(this.update, this);
   }
 

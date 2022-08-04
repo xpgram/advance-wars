@@ -81,7 +81,7 @@ export module CommonElements {
         return Game.renderer.generateTexture(g);
       }
 
-      const std_fillToBorderArgs = [0, .75, .65] as const;
+      const std_fillToBorderArgs = [0, .75, .55] as const;
 
       const baseColor = Color.adjustHSV(Palette.caribbean_green, 0, .55, .65);
       const borderColor = Color.adjustHSV(baseColor, ...std_fillToBorderArgs);
@@ -89,7 +89,7 @@ export module CommonElements {
       const hoverColor = Color.adjustHSV(baseColor, 0, 1, 1.20);
       const hoverBorder = Color.adjustHSV(hoverColor, ...std_fillToBorderArgs);
 
-      const depressColor = Color.adjustHSV(baseColor, 0, 1, 1.15);
+      const depressColor = Color.adjustHSV(baseColor, 0, 1, 1.10);
       const depressBorder = Color.adjustHSV(depressColor, ...std_fillToBorderArgs);
 
       const disabledColor = Color.adjustHSV(baseColor, 0, 0, 1);

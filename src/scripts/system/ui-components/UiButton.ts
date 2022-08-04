@@ -30,22 +30,29 @@ export class UiButton extends UiComponent {
   /** Whether this button is enabled for user interactions. */
   disabled = false;
 
+  /** The boolean check for whether the button's associated activity is being invoked.
+   * This allows gamepad buttons which don't interface with the pointer-hover system
+   * to also provide visual feedback. */
+  triggerIndicatorLight?: () => boolean;
+
   // TODO Should this have an onClick callback, or just yield the reference to pointer?
   // I feel like the latter doesn't require me to duplicate a bunch of code.
   // pointer an have onEnter() or onMouseDown() or whatever you want.
 
 
-  constructor(textures: UiButtonTextureSet) {
+  constructor(textures: UiButtonTextureSet, triggerIndicatorLight?: () => boolean) {
     super();
     this.textureSet = textures;
     this.sprite.texture = this.textureSet.enabled;
     this.container.addChild(this.sprite);
+    this.triggerIndicatorLight = triggerIndicatorLight;
   }
 
   destroy() {
     super.destroy();
     this.sprite.destroy({children: true});
     this.pointer.destroy();
+    this.triggerIndicatorLight = undefined;
   }
 
   protected update() {
@@ -57,11 +64,13 @@ export class UiButton extends UiComponent {
       return;
     }
 
+    const artificialTrigger = this.triggerIndicatorLight && this.triggerIndicatorLight();
+
     // I'm just assuming this per-frame reassignment isn't expensive.
     sprite.texture =
       (pointer.button.down)
       ? textureSet.depressed
-      : (pointer.pointerOver)
+      : (pointer.pointerOver || artificialTrigger)
       ? textureSet.hovered
       : textureSet.enabled;
   }

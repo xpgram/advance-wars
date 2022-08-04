@@ -8,7 +8,7 @@ export type TextureSet = {
   lamp: PIXI.Texture,
 }
 
-const ANIM_TIME = 4/60;
+const ANIM_TIME = 3/60;
 
 /** A "light indicator" which can be signalled on or off. */
 export class UiBinaryLamp extends UiComponent {

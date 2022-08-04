@@ -36,7 +36,7 @@ export class ListMenu<X, Y> extends ObservableType {
   get pagePadding() { return this.settings.pagePadding; }
   get extendPages() { return this.settings.extendPages; }
 
-  private readonly gamepad: VirtualGamepad;
+  readonly gamepad: VirtualGamepad;
 
   private _listReal!: ListMenuOption<X, Y>[];   // Global list of all items referenceable by menu.
   private _listSieve!: ListMenuOption<X, Y>[];  // Global list of all items filtered by their inclusion functions.
