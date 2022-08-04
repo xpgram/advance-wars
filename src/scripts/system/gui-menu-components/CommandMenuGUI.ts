@@ -334,10 +334,10 @@ export class CommandMenuGUI<Y> {
     }
 
     // TODO Clean up
-    this.pagesBar.build(menu.totalPages, menu.pageIndex);
+    this.pagesBar.build(menu.totalPages, menu.pageIndex, element.width);
     this.pagesBar.container.position.set(
       element.width/2 - this.pagesBar.container.width/2,
-      element.height*menu.pageLength + 2,
+      element.height*menu.pageLength + 1,
     );
   }
 

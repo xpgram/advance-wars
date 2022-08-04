@@ -1,8 +1,10 @@
 import { Game } from "../../.."
 import { PIXI } from "../../../constants";
 import { Facing } from "../../battle/EnumTypes";
+import { Common } from "../../CommonUtils";
 import { ClickableContainer } from "../../controls/MouseInputWrapper";
 import { CommonElements } from "../ui-components/CommonElements";
+import { UiBinaryLamp } from "../ui-components/UiBinaryLamp";
 
 
 export class PageSelector {
@@ -12,14 +14,16 @@ export class PageSelector {
 
   readonly leftButton = CommonElements.TroopConstructionMenu.pageChangeButton(Facing.Left);
   readonly rightButton = CommonElements.TroopConstructionMenu.pageChangeButton(Facing.Right);
-  private pageIcons = new PIXI.Container();
+  private pageLampBar = new PIXI.Container();
+
+  private pageLamps: UiBinaryLamp[] = [];
 
 
   constructor() {
     this.container.addChild(
       this.leftButton.container,
       this.rightButton.container,
-      this.pageIcons,
+      this.pageLampBar,
     )
   }
 
@@ -27,33 +31,60 @@ export class PageSelector {
     this.container.destroy({children: true});
   }
 
-  build(pages: number, selected: number) {
-    const res = Game.scene.resources;
-    const btnEnabled = res['page-btn-enabled'].texture as PIXI.Texture;
-    const pageIcon = res['page-icon'].texture as PIXI.Texture;
-    const curPageIcon = res['page-cur-icon'].texture as PIXI.Texture;
-
+  build(pages: number, selected: number, minWidth?: number) {
     if (pages <= 1) {
       this.container.visible = false;
       return;
     }
-
     this.container.visible = true;
 
-    this.pageIcons.removeChildren()
-      .forEach( spr => spr.destroy() );
-
-    const iconSpacing = 7;
-
-    for (let i = 0; i < pages; i++) {
-      const spr = new PIXI.Sprite( (i === selected) ? curPageIcon : pageIcon );
-      spr.x = i*iconSpacing;
-      spr.y = 2;
-      this.pageIcons.addChild(spr);
+    // Adjust number of lamps to match the number of pages
+    if (pages < this.pageLamps.length) {
+      this.pageLamps.splice(pages)
+        .forEach( lamp => lamp.destroy() );
+    }
+    else while (pages > this.pageLamps.length) {
+      const i = this.pageLamps.length;
+      const lamp = CommonElements.TroopConstructionMenu.pageIndicatorLamp();
+      lamp.container.x = i*(lamp.container.width + 1);
+      this.pageLampBar.addChild(lamp.container);
+      this.pageLamps.push(lamp);
     }
 
-    this.pageIcons.x = this.leftButton.container.width + 2;
-    this.rightButton.container.x = this.pageIcons.x + pages*iconSpacing;
+    // Turn the right lamp on.
+    this.pageLamps.forEach( (lamp, idx) => {
+      if (idx === selected)
+        lamp.lampOn();
+      else
+        lamp.lampOff();
+    });
+
+    // Reposition elements
+    minWidth = minWidth ?? 0;
+
+    const rightButtonPos = Math.max(
+      this.leftButton.container.width + this.pageLampBar.width + 4,
+      minWidth - this.rightButton.container.width,
+    )
+    const pageBarPos = (
+      (rightButtonPos - this.leftButton.container.width) / 2
+      + this.leftButton.container.width
+      - this.pageLampBar.width / 2
+    );
+    
+    this.pageLampBar.x = pageBarPos;
+    this.rightButton.container.x = rightButtonPos;
+    
+    console.log(
+      this.leftButton.container.x,
+      this.leftButton.container.width,
+      this.pageLampBar.x,
+      this.pageLampBar.width,
+      this.rightButton.container.x,
+      this.rightButton.container.width,
+      rightButtonPos,
+      pageBarPos,
+    )
   }
 
 }

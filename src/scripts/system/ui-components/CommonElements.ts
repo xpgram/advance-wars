@@ -4,6 +4,7 @@ import { Facing } from "../../battle/EnumTypes";
 import { Color } from "../../color/Color";
 import { Palette } from "../../color/ColorPalette";
 import { HexColor } from "../../color/ColorTypes";
+import { UiBinaryLamp } from "./UiBinaryLamp";
 import { UiPageButton } from "./UiPageButton";
 
 
@@ -19,6 +20,32 @@ export module CommonElements {
   }
 
   export module TroopConstructionMenu {
+
+
+    export function pageIndicatorLamp(): UiBinaryLamp {
+      const g = new PIXI.Graphics();
+
+      const c_bg = Palette.gale_force1;
+      const c_lamp = Color.adjustHSV(Palette.caribbean_green, 0, .7, .9);
+
+      const w = 10;
+      const h = 3;
+      const b = 1;
+
+      g.beginFill(c_bg)
+        .drawRect(0,0,w,h)
+        .endFill();
+      const background = Game.renderer.generateTexture(g);
+
+      g.clear()
+        .beginFill(c_lamp)
+        .drawRect(b, b, w-2*b, h-2*b)
+        .endFill();
+      const lamp = Game.renderer.generateTexture(g);
+
+      return new UiBinaryLamp({background, lamp});
+    }
+
 
     export function pageChangeButton(dir: Facing): UiPageButton {
       
@@ -54,17 +81,19 @@ export module CommonElements {
         return Game.renderer.generateTexture(g);
       }
 
-      const baseColor = Color.adjustHSV(Palette.caribbean_green, 0, .7, .7);
-      const borderColor = Color.adjustHSV(baseColor, 0, .8, .6);
+      const std_fillToBorderArgs = [0, .75, .65] as const;
+
+      const baseColor = Color.adjustHSV(Palette.caribbean_green, 0, .55, .65);
+      const borderColor = Color.adjustHSV(baseColor, ...std_fillToBorderArgs);
 
       const hoverColor = Color.adjustHSV(baseColor, 0, 1, 1.20);
-      const hoverBorder = Color.adjustHSV(hoverColor, 0, .8, .6);
+      const hoverBorder = Color.adjustHSV(hoverColor, ...std_fillToBorderArgs);
 
       const depressColor = Color.adjustHSV(baseColor, 0, 1, 1.15);
-      const depressBorder = Color.adjustHSV(depressColor, 0, .8, .6);
+      const depressBorder = Color.adjustHSV(depressColor, ...std_fillToBorderArgs);
 
       const disabledColor = Color.adjustHSV(baseColor, 0, 0, 1);
-      const disabledBorder = Color.adjustHSV(disabledColor, 0, 1, .6);
+      const disabledBorder = Color.adjustHSV(disabledColor, ...std_fillToBorderArgs);
 
       const enabled   = draw(baseColor, borderColor);
       const disabled  = draw(disabledColor, disabledBorder);
