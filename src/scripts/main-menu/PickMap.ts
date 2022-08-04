@@ -16,7 +16,9 @@ export class PickMap extends StateObject<MainMenuAssets> {
   chosenMap?: MapData;
 
   protected configure(): void {
-    this.assets.mapMenu.show();
+    const { mapMenu, userPrompt } = this.assets;
+    mapMenu.show();
+    userPrompt.text = 'Choose Map:';
   }
 
   updateInput() {

@@ -3,6 +3,7 @@ import { MapData } from "../../battle-maps/MapData";
 import { MapsCollection } from "../../battle-maps/maps-collection";
 import { PIXI } from "../../constants";
 import { ScenarioOptions } from "../battle/turn-machine/BattleSceneControllers";
+import { fonts } from "../battle/ui-windows/DisplayInfo";
 import { Point } from "../Common/Point";
 import { Common } from "../CommonUtils";
 import { ClickableContainer } from "../controls/MouseInputWrapper";
@@ -21,6 +22,9 @@ export class MainMenuAssets implements StateAssets {
   mapMenu: CommandMenuGUI<MapData>;
   battleSettingsMenu: CommandMenuGUI<ScenarioOptions>;
 
+  userPrompt = new PIXI.BitmapText('', fonts.list);
+
+
   constructor() {
     this.gamepad = new VirtualGamepad();
 
@@ -32,6 +36,12 @@ export class MainMenuAssets implements StateAssets {
     clickableObj.width = Game.display.renderWidth;
     clickableObj.height = Game.display.renderHeight;
     Game.scene.visualLayers.stage.addChild(clickableObj);
+
+    // Add above-menu text
+    this.userPrompt.anchor.set(.5, 0);
+    this.userPrompt.x = Game.display.renderWidth/2;
+    this.userPrompt.y = 4;
+    Game.scene.visualLayers.hud.addChild(this.userPrompt);
     
     // Build menu for map pick
     this.mapMenu = new CommandMenuGUI(
@@ -93,6 +103,7 @@ export class MainMenuAssets implements StateAssets {
   resetAssets(): void {
     this.mapMenu.hide();
     this.battleSettingsMenu.hide();
+    this.userPrompt.text = '';
   }
 
   destroy(): void {

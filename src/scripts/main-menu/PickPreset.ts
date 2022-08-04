@@ -14,8 +14,9 @@ export class PickPreset extends StateObject<MainMenuAssets> {
   get skipOnUndo(): boolean { return false; }
 
   protected configure(): void {
-    const { battleSettingsMenu } = this.assets;
+    const { battleSettingsMenu, userPrompt } = this.assets;
     battleSettingsMenu.show();
+    userPrompt.text = 'Choose Rules of Engagement:';
   }
 
   updateInput(): void {
