@@ -36,12 +36,21 @@ export module CommonElements {
 
           const w = 16 * 7.75; // TODO Matches UnitShopMenuGUI
           const h = 14;
+          const fw = 7*6+3; // The box the numbers fit in
+
+          const ax = w/2 + 5;
+          const ay = h/2;
 
           const g = new PIXI.Graphics();
 
            // Background
           g.beginFill(Palette.gale_force1)
            .drawRect(0,0,w,h)
+           .endFill()
+
+           .beginFill(Color.adjustHSV(Palette.gale_force1, 0, 0.5, 1.5))
+           .drawRect(16,3,fw,h-6)
+           .drawRect(w-5-fw,3,fw,h-6)
            .endFill()
            
            // Side borders
@@ -54,11 +63,11 @@ export module CommonElements {
 
            // Arrow
            .lineStyle(1, Color.adjustHSV(Palette.gale_force1, 0, 0.5, 2.0), 1)
-           .moveTo(w/2 - 5, h/2)
-           .lineTo(w/2 + 5, h/2)
-           .lineTo(w/2 + 3, h/2 - 2)
-           .moveTo(w/2 + 5, h/2)
-           .lineTo(w/2 + 3, h/2 + 2)
+           .moveTo(ax - 4, ay)
+           .lineTo(ax + 4, ay)
+           .lineTo(ax + 2, ay - 2)
+           .moveTo(ax + 4, ay)
+           .lineTo(ax + 2, ay + 2)
            .endFill();
 
           // 'F' Funds icons
@@ -69,18 +78,14 @@ export module CommonElements {
           leftF.anchor.set(0,.5);
           leftF.position.set(7, h/2);
 
-          // const rightF = new PIXI.Sprite(tex);
-          // rightF.anchor.set(0,.5);
-          // rightF.position.set(w/2 + 10, h/2);
-
           // Funds values
           this.leftNum.anchor.set(1,.5);
-          this.leftNum.position.set(w/2 - 10, h/2+1);
+          this.leftNum.position.set(ax - 7, h/2+1);
         
           this.rightNum.anchor.set(1,.5);
-          this.rightNum.position.set(w - 7, h/2+1);
+          this.rightNum.position.set(w - 6, h/2+1);
 
-          this.container.addChild(g, leftF, /*rightF,*/ this.leftNum, this.rightNum);
+          this.container.addChild(g, leftF, this.leftNum, this.rightNum);
         }
 
         setValues(left: number, right: number) {
