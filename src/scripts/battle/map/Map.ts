@@ -431,12 +431,13 @@ export class Map {
 
     /** Changes the terrain at location p as well as any same-terrain neighbors spreading from p to
      * the given terrain type. Then rebuilds the visual objects associated with any touched points. */
-    bucketFill(p: Point, brush: TerrainType) {
+    bucketFill(p: Point, brush: TerrainType, faction?: Faction) {
         this.clearTemporaryValues();
         const target = this.squareAt(p).terrain.type;
+        const targetFaction = this.squareAt(p).terrain.faction;
 
         // Point must be on map; skip pointless fills
-        if (!this.validPoint(p) || target === brush)
+        if (!this.validPoint(p) || target === brush && (!faction || targetFaction === faction) )
             return;
 
         // Set terrain and mark tiles to be visually reconfigured
@@ -450,6 +451,11 @@ export class Map {
 
                 if (!success)
                     return null;
+
+                // Change faction if factionable
+                const square = this.squareAt(node);
+                if (faction && square.terrain.building)
+                    square.terrain.faction = faction;
                 
                 return Point.Cardinals
                     .map( p => p.add(node) )
@@ -457,9 +463,12 @@ export class Map {
                         if (!this.validPoint(p))
                             return false;
                         const square = this.squareAt(p);
-                        const r = (!square.visited && square.terrain.type === target);
+                        const notVisited = (!square.visited);
+                        const sameType = (square.terrain.type === target);
+                        const notBuilding = (!square.terrain.building);
+                        const sameFaction = (square.terrain.faction === targetFaction);
                         square.visited = true;
-                        return r;
+                        return notVisited && sameType && (notBuilding || sameFaction);
                     });
             }
         });

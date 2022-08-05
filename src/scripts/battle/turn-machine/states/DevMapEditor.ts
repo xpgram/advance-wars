@@ -237,7 +237,7 @@ const controlScripts = Common.implementsType<ControlTriggerScript[]>() ([
         return; // painting troops seems dangerous and not very useful. maybe.
 
       const { map, mapCursor } = assets;
-      map.bucketFill(mapCursor.boardLocation, state.terrainBrush);
+      map.bucketFill(mapCursor.boardLocation, state.terrainBrush, state.brushFaction);
     }
   },
   { // Place terrain
