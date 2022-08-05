@@ -8,7 +8,8 @@ Anyway.
 This project is a rebuild of the 2008 game titled above.  
 It was chosen because it's a really good game, and because I won't have to draw any art.
 
-You can play the current public build[→here.](https://xpgram.github.io/armed-revolt/game.html)
+You can play the current public build[→here.](https://xpgram.github.io/armed-revolt/game.html)  
+Be wary of [these](#known-issues) problems while testing.
 
 The controls are listed below the game window, but I don't have button prompts in the UI yet, so they may be confusing if you're not used to Z,X + ArrowKeys for web games. Or how Advance Wars plays. I'll put a map somewhere soon.
 
@@ -151,3 +152,8 @@ It's not, or won't be, just battling all the time. The game is already written t
 
 ![](/docs/demo-reels/title-screen-10s.gif)
 
+
+# Known Issues
+
+- When the camera zoom level is 2 (the middle one), sometimes the wait-for-camera system waits indefinitely and never begins the next board event. You can work around this by simply pressing the zoom button again.
+- Mouse controls are.. finicky. Sometimes you double, triple, quadruple click, sometimes it gets stuck in mouse-down state. These are usually navigable by clicking around in different places to reset the behavior system, but it's pretty annoying, yeah.

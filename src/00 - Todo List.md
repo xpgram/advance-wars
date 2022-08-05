@@ -137,6 +137,7 @@ However, Bridge -> DestroyedBridge should probably be a tile variant option. I c
   (i.e. max = 1 actually occurs 2 times)
   - [ ] The default for non-repeating events is 0? It should probably be 1. e.repeat should be decremented before the extension check.
   - [ ] FlareIgniteEvent will need to be updated to reflect .every() changes.
+  - [ ] (Aug 4, 2022) I think I fixed this, actually. Confirm?
 
 - [ ] TrackCar doesn't respect sight map yet.
 
