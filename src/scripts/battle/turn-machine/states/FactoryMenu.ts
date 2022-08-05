@@ -1,6 +1,7 @@
 import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
 import { ListMenuOption } from "../../../system/gui-menu-components/ListMenuOption";
+import { CommonElements } from "../../../system/ui-components/CommonElements";
 import { Unit } from "../../Unit";
 import { UnitObject } from "../../UnitObject";
 import { defaultUnitSpawnMap } from "../../UnitSpawnMap";
@@ -14,6 +15,8 @@ export class FactoryMenu extends TurnState {
   get skipOnUndo() { return false; }
 
   private tempUnitLast?: UnitObject;
+
+  private fundsCalculator = CommonElements.TroopConstructionMenu.fundsCalculator();
 
   private updateUnitInfo() {
     const { map, mapCursor, shopMenu, uiSystem, players } = this.assets;
@@ -29,7 +32,12 @@ export class FactoryMenu extends TurnState {
 
     this.tempUnitLast = new unitType().init({boardPlayer: players.current, faction: players.current.faction});
     uiSystem.inspectTile(square, this.tempUnitLast);
+
+    const totalFunds = players.current.funds;
+    const afterPurchase = totalFunds - this.tempUnitLast.cost;
+    this.fundsCalculator.setValues(totalFunds, afterPurchase);
   }
+
 
   configureScene() {
     const { players, map, mapCursor, shopMenu, camera, uiSystem } = this.assets;
@@ -74,15 +82,22 @@ export class FactoryMenu extends TurnState {
     const view = camera.transform.worldRect();
     const onLeftSide = (mapCursor.transform.x > view.center.x - 16);
 
-    shopMenu.setPosition( new Point(
-      (onLeftSide)
-        ? 16
-        : Game.display.renderWidth - 16 - shopMenu.graphicalWidth,
-      40,
-    ));
+    const menuX = (onLeftSide)
+      ? 16
+      : Game.display.renderWidth - 16 - shopMenu.graphicalWidth;
+
+    shopMenu.setPosition( new Point(menuX, 40) );
     shopMenu.menu.on('move-cursor', this.updateUnitInfo, this);
     shopMenu.menu.on('change-page', this.updateUnitInfo, this);
 
+    // Position funds calculator
+      // TODO This is hacked together. It should be an official member of whatever a 'ShopMenu' is.
+    if (!this.fundsCalculator)
+      this.fundsCalculator = CommonElements.TroopConstructionMenu.fundsCalculator();
+    Game.scene.visualLayers.hud.addChild(this.fundsCalculator.container);
+    this.fundsCalculator.container.position.set(menuX, 20);
+
+    // Position details window
     uiSystem.forceOpenDetailWindow = true;
     uiSystem.screenSide = (onLeftSide) ? 'right' : 'left';
     uiSystem.windows.detailedInfo.useShopTabSlider = true;
@@ -112,6 +127,10 @@ export class FactoryMenu extends TurnState {
         return true;
       }
     });
+
+    this.fundsCalculator.destroy();
+    //@ts-expect-error
+    this.fundsCalculator = undefined;
   }
 
   update() {

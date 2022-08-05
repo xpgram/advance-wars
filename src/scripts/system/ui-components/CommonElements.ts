@@ -1,10 +1,12 @@
 import { Game } from "../../..";
 import { PIXI } from "../../../constants";
 import { Facing } from "../../battle/EnumTypes";
+import { fonts } from "../../battle/ui-windows/DisplayInfo";
 import { Color } from "../../color/Color";
 import { Palette } from "../../color/ColorPalette";
 import { HexColor } from "../../color/ColorTypes";
 import { UiBinaryLamp } from "./UiBinaryLamp";
+import { UiComponent } from "./UiComponent";
 import { UiPageButton } from "./UiPageButton";
 
 
@@ -20,6 +22,75 @@ export module CommonElements {
   }
 
   export module TroopConstructionMenu {
+
+    export function fundsCalculator() {
+      // TODO This is a temporary construction that my gut tells me won't fit
+      // neatly into the new UI-system design.
+      class FundsCalculator extends UiComponent {
+
+        private leftNum = new PIXI.BitmapText('', fonts.list);
+        private rightNum = new PIXI.BitmapText('', fonts.list);
+
+        constructor() {
+          super();
+
+          const w = 16 * 7.75; // TODO Matches UnitShopMenuGUI
+          const h = 14;
+
+          const g = new PIXI.Graphics();
+
+           // Background
+          g.beginFill(Palette.gale_force1)
+           .drawRect(0,0,w,h)
+           .endFill()
+           
+           // Side borders
+           .beginFill(Palette.black, 1/3)
+           .drawRect(0,0,3,h)
+           .drawRect(w-3,0,3,h)
+           .drawRect(3,0,w-6,1)
+           .drawRect(3,h-1,w-6,1)
+           .endFill()
+
+           // Arrow
+           .lineStyle(1, Color.adjustHSV(Palette.gale_force1, 0, 0.5, 2.0), 1)
+           .moveTo(w/2 - 5, h/2)
+           .lineTo(w/2 + 5, h/2)
+           .lineTo(w/2 + 3, h/2 - 2)
+           .moveTo(w/2 + 5, h/2)
+           .lineTo(w/2 + 3, h/2 + 2)
+           .endFill();
+
+          // 'F' Funds icons
+          const iconSheet = Game.scene.getSpritesheet('UISpritesheet').textures;
+          const tex = iconSheet['icon-funds.png'];
+
+          const leftF = new PIXI.Sprite(tex);
+          leftF.anchor.set(0,.5);
+          leftF.position.set(7, h/2);
+
+          // const rightF = new PIXI.Sprite(tex);
+          // rightF.anchor.set(0,.5);
+          // rightF.position.set(w/2 + 10, h/2);
+
+          // Funds values
+          this.leftNum.anchor.set(1,.5);
+          this.leftNum.position.set(w/2 - 10, h/2+1);
+        
+          this.rightNum.anchor.set(1,.5);
+          this.rightNum.position.set(w - 7, h/2+1);
+
+          this.container.addChild(g, leftF, /*rightF,*/ this.leftNum, this.rightNum);
+        }
+
+        setValues(left: number, right: number) {
+          this.leftNum.text = `${left}`;
+          this.rightNum.text = `${right}`;
+        }
+      }
+
+      return new FundsCalculator();
+    }
 
 
     export function pageIndicatorLamp(): UiBinaryLamp {
