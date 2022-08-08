@@ -43,10 +43,10 @@ export class TitleScreen extends Scene {
 
     const windTexture = textures['dusty-wind-overlay.png'];
     
-    const wind_primary = createWindEffect(windTexture, 14.0, 0.175, true);
+    const wind_primary = createWindEffect(windTexture, 14.0, 0.20, true);
     this.toDestroy.push(wind_primary.timer);
 
-    const wind_secondary = createWindEffect(windTexture, 19.0, 0.125, true);
+    const wind_secondary = createWindEffect(windTexture, 19.0, 0.15, true);
     this.toDestroy.push(wind_secondary.timer);
 
     const wind_transition = createWindEffect(windTexture, 1.0, 0, false);
@@ -133,8 +133,8 @@ function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number
     if (!context)
       throw `Could not get 2d context from created canvas element?`;
     const gradient = context.createLinearGradient(0,0,0,canvas.height);
-    gradient.addColorStop(0.6,'white');
-    gradient.addColorStop(0.9,'black');
+    gradient.addColorStop(0.55,'white');
+    gradient.addColorStop(0.85,'black');
     context.fillStyle = gradient;
     context.fillRect(0,0,width,height);
     const windAlphaMask = new PIXI.Sprite(PIXI.Texture.from(canvas));
