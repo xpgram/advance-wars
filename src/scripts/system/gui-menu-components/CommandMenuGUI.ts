@@ -344,7 +344,7 @@ export class CommandMenuGUI<Y> {
     this.pagesBar.build(menu.totalPages, menu.pageIndex, element.width);
     this.pagesBar.container.position.set(
       element.width/2 - this.pagesBar.container.width/2,
-      element.height*menu.pageLength + 1,
+      element.height*menu.pageLength + 3,
     );
   }
 
