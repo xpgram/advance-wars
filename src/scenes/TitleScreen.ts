@@ -43,13 +43,13 @@ export class TitleScreen extends Scene {
 
     const windTexture = textures['dusty-wind-overlay.png'];
     
-    const wind_primary = createWindEffect(windTexture, 14.0, 0.175);
+    const wind_primary = createWindEffect(windTexture, 14.0, 0.175, true);
     this.toDestroy.push(wind_primary.timer);
 
-    const wind_secondary = createWindEffect(windTexture, 19.0, 0.125);
+    const wind_secondary = createWindEffect(windTexture, 19.0, 0.125, true);
     this.toDestroy.push(wind_secondary.timer);
 
-    const wind_transition = createWindEffect(windTexture, 1.0, 0);
+    const wind_transition = createWindEffect(windTexture, 1.0, 0, false);
     wind_transition.container.filters = [new PixiFilters.MotionBlurFilter([96,0], 45)];
     this.toDestroy.push(wind_transition.timer);
 
@@ -109,7 +109,7 @@ export class TitleScreen extends Scene {
 }
 
 
-function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number) {
+function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number, applyGradient: boolean) {
   const sprSettings = [tex, tex.width*3, tex.height] as const;
   const wind1 = new PIXI.TilingSprite(...sprSettings);
   const wind2 = new PIXI.TilingSprite(...sprSettings);
@@ -123,6 +123,26 @@ function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number
   wind2.scale.y = -1;           // Flip to prevent that additive wave effect
   wind2.y = tex.height;
 
+  // Create gradient mask for smoke
+  if (applyGradient) {
+    // TODO Extract gradient generation to common pixi tools
+    const { width, height } = Game.display;
+    const canvas = document.createElement('canvas');
+    [canvas.width, canvas.height] = [width, height];
+    const context = canvas.getContext('2d');
+    if (!context)
+      throw `Could not get 2d context from created canvas element?`;
+    const gradient = context.createLinearGradient(0,0,0,canvas.height);
+    gradient.addColorStop(0.6,'white');
+    gradient.addColorStop(0.9,'black');
+    context.fillStyle = gradient;
+    context.fillRect(0,0,width,height);
+    const windAlphaMask = new PIXI.Sprite(PIXI.Texture.from(canvas));
+
+    wind.mask = windAlphaMask;
+  }
+
+  // Setup motion timers
   const secondTime = baseTime*2;
 
   const timer = Timer
