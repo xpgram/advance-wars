@@ -4,6 +4,7 @@ import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
 import { UnitObject } from "../UnitObject";
 import { DamageForecastPane } from "./DamageForecastPane";
+import { Unit } from "../Unit";
 
 export class UnitWindow extends SlidingWindow {
 
@@ -135,7 +136,10 @@ export class UnitWindow extends SlidingWindow {
   }
 
   private setGasMeterValue(value: number) {
-    this.gasMeterText.text = value.toString();
+    if (value > -1)
+      this.gasMeterText.text = value.toString();
+    else
+      this.gasMeterText.text = '__';
   }
 
   private setAmmoMeterValue(value: number, max: number) {
@@ -196,7 +200,9 @@ export class UnitWindow extends SlidingWindow {
     this.setThumbnail(unit.preview);
     this.setName(unit.name);
     this.setHPMeterValue(unit.displayHP);
-    this.setGasMeterValue(unit.gas);
+      // FIXME The UiSystem also needs a reference to the scenario, huh.
+    const hideGasNumeric = (unit.canResupply && unit.boardPlayer.scenario.resuppliersInfiniteGas);
+    this.setGasMeterValue((hideGasNumeric) ? -1 : unit.gas);
     (unit.materialsInsteadOfAmmo)
       ? this.setMaterialMeterValue(unit.ammo)
       : this.setAmmoMeterValue(unit.ammo, unit.maxAmmo);

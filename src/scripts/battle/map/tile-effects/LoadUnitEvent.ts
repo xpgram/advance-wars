@@ -28,8 +28,7 @@ export class LoadUnitEvent extends MoveUnitEvent {
 
     this.ratifySightMapChanges(actor.boardLocation, path);
 
-    if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
-      actor.gas -= map.travelCostForPath(actor.boardLocation, path, actor.moveType);
+    actor.expendTravelGas(map.travelCostForPath(actor.boardLocation, path, actor.moveType));
 
     map.removeUnit(actor.boardLocation);
     underneath.loadUnit(actor);

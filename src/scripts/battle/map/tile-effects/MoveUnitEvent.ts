@@ -61,8 +61,7 @@ export class MoveUnitEvent extends TileEvent {
     if (!map.moveUnit(place, goal))
       throw new RatificationError(`could not move unit ${place.toString()} → ${goal.toString()}`);
 
-    if (actor.type !== Unit.Rig || !scenario.rigsInfiniteGas)
-      actor.gas -= map.travelCostForPath(place, path, actor.moveType);
+    actor.expendTravelGas(map.travelCostForPath(place, path, actor.moveType));
 
     this.ratifySightMapChanges(place, path);
   }

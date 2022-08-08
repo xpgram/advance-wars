@@ -831,8 +831,22 @@ export abstract class UnitObject {
         return false;
     }
 
+    /** Spends the given amount of gas. */
+    expendTravelGas(amt: number) {
+        const { scenario } = this.boardPlayer;
+
+        if (this.canResupply && scenario.resuppliersInfiniteGas)
+            return;
+
+        this.gas -= amt;
+    }
+
     /** Spends a set amount of gas needed to keep the unit aloft / whatever boats do. */
     expendMaintainanceGas() {
+        const { scenario } = this.boardPlayer;
+        if (this.canResupply && scenario.resuppliersInfiniteGas)
+            return;
+
         // Instead of letting the units override, I'm just gonna write it here for now.
         if (this.unitClass === UnitClass.Air)
             this.gas -= 5;

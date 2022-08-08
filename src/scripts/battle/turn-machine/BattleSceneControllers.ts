@@ -92,7 +92,7 @@ export type Scenario = {
   CoUnits: boolean,
   CoPowers: boolean,
   CoLoadableFromHQ: boolean,
-  rigsInfiniteGas: boolean,
+  resuppliersInfiniteGas: boolean,
 
   spawnMap: UnitSpawnMap[],
 }
@@ -115,7 +115,7 @@ const Default_Scenario: Scenario = {
   CoUnits: true,
   CoPowers: true,
   CoLoadableFromHQ: true,
-  rigsInfiniteGas: true,
+  resuppliersInfiniteGas: true,
 
   spawnMap: defaultUnitSpawnMap,
 }
