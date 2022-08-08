@@ -4,7 +4,6 @@ import { SlidingWindow } from "./SlidingWindow";
 import { RectBuilder } from "./RectBuilder";
 import { UnitObject } from "../UnitObject";
 import { DamageForecastPane } from "./DamageForecastPane";
-import { Unit } from "../Unit";
 
 export class UnitWindow extends SlidingWindow {
 
