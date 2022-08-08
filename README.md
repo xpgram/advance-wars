@@ -19,8 +19,6 @@ Other gamepads are not guaranteed to work yet, but you can try.
 Oh, I should mention.  
 This project is not necessarily for the public. I know Nintendo is litigation-happy. One of the key objectives here is just to demonstrate my skill, the rest are, you know, private fun with private people.
 
-Also, there are a lot of gifs below, so... rip in pieces your PC, maybe.
-
 # Features:
 
 <img src="" width="100%" height="1.0rem">
