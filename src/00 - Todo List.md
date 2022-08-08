@@ -16,6 +16,10 @@ But anyway, yeah. There is constant state checking because his system never just
 
 [ ] ClickableContainer does not recognize mouse-hover during construction if the mouse is already hovering. The mouse must leave and then re-enter.
 
+[ ] Inserting new terrain types into Terrain.ts (non-appending) will break every existing map. I need an id system that is concrete but not just sequential order.
+  [ ] I could pre-generate id numbers that are added in manually, but which also pass an assertion on first run that they don't conflict with any other terrain id.
+  [ ] I'll have to do the same for troop-types.
+
 State Machine Refactor:
 [x] Generic
 [x] Locked Master<T> and Minor<T>
