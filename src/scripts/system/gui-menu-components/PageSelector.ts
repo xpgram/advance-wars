@@ -74,17 +74,6 @@ export class PageSelector {
     
     this.pageLampBar.x = pageBarPos;
     this.rightButton.container.x = rightButtonPos;
-    
-    console.log(
-      this.leftButton.container.x,
-      this.leftButton.container.width,
-      this.pageLampBar.x,
-      this.pageLampBar.width,
-      this.rightButton.container.x,
-      this.rightButton.container.width,
-      rightButtonPos,
-      pageBarPos,
-    )
   }
 
 }
