@@ -14,6 +14,8 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
+[ ] ClickableContainer does not recognize mouse-hover during construction if the mouse is already hovering. The mouse must leave and then re-enter.
+
 State Machine Refactor:
 [x] Generic
 [x] Locked Master<T> and Minor<T>
