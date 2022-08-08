@@ -64,7 +64,7 @@ In Progress:
     - [x] .genMapData in Map.ts collects tile exports, ignores returns that are 'undefined'
     - [x] construction from map data assembles the serials into data types
     - [x] construction later moves all data blobs into their described tile locations.
-    - [ ] Bridge (and others) export 'undefined' when only default settings are present.
+    - [ ] Find some way to remove serial 07 (SeaBridge) without breaking every existing map.
   - [x] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
     - [ ] Aid terrain tileset variations to feel more visually distinct between maps.
     Supply each map with a random root-seed that can be added to the location-seed generation method for tileset variations. (low priority)
