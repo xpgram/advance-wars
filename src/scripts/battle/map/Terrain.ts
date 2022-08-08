@@ -299,9 +299,12 @@ export module Terrain {
     export class Bridge extends TerrainObject {
         get type() { return Bridge; }
         static readonly serial = Serial.next().value;
-        readonly landTile: boolean;
+        get landTile() { return this._landTile; };
+        private _landTile = false;
         get shallowWaterSourceTile() { return false; }
-        shallowWater = false;
+        get shallowWater() { return this._shallowWater; }
+        set shallowWater(b: boolean) { this._shallowWater = b; }
+        private _shallowWater = false;
 
         get name() { return "Bridge"; }
         get shortName() { return "Bridge"; }
@@ -322,13 +325,23 @@ export module Terrain {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            this.landTile = false;
             if (prevTile)
-                this.landTile = prevTile.landTile;
-            if (!this.landTile) {
-                this.movementCost.ship = 1;
-                this.movementCost.transport = 1;
-            }
+                this._landTile = prevTile.landTile;
+            this.setLandTile(this._landTile);
+        }
+
+        exportDataBlob() {
+            return {landTile: this.landTile};
+        }
+
+        importDataBlob(data: {landTile: boolean}) {
+            this.setLandTile(data.landTile);
+        }
+
+        private setLandTile(b: boolean) {
+            this._landTile = b;
+            this.movementCost.ship = b ? 0 : 1;
+            this.movementCost.transport = b ? 0 : 1;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
@@ -356,6 +369,7 @@ export module Terrain {
         }
     }
 
+    /** @deprecated This is no longer necessary, but I can't remove it without affecting the serials below. */
     export class RiverBridge extends Bridge {
         static readonly serial = Serial.next().value;
 
@@ -695,7 +709,9 @@ export module Terrain {
         }
         get damageable(): boolean { return true; }
         get dominoTypes() { return [Plasma]; }
-        readonly landTile: boolean;
+
+        get landTile() { return this._landTile; }
+        private _landTile = true;
 
         get name() { return "Meteor"; }
         get shortName() { return "Meteor"; }
@@ -721,9 +737,20 @@ export module Terrain {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            this.landTile = true;
             if (prevTile)
-                this.landTile = prevTile.landTile;
+                this._landTile = prevTile.landTile;
+        }
+
+        exportDataBlob() {
+            return {
+                landTile: this.landTile,
+                hp: this.value,
+            };
+        }
+
+        importDataBlob(data: {landTile: boolean, hp: number}) {
+            this._landTile = data.landTile;
+            this._value = data.hp;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
@@ -761,7 +788,10 @@ export module Terrain {
             return anim;
         }
         get dominoTypes() { return [Plasma]; }
-        readonly landTile: boolean;
+
+        get landTile() { return this._landTile; }
+        private _landTile = true;
+
         get shallowWaterSourceTile() { return false; }
         shallowWater = false;
 
@@ -783,9 +813,18 @@ export module Terrain {
 
         constructor(prevTile?: TerrainObject) {
             super();
-            this.landTile = true;
             if (prevTile)
-                this.landTile = prevTile.landTile;
+                this._landTile = prevTile.landTile;
+        }
+
+        exportDataBlob() {
+            return {
+                landTile: this.landTile,
+            }
+        }
+
+        importDataBlob(data: {landTile: boolean}) {
+            this._landTile = data.landTile;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
@@ -1097,6 +1136,14 @@ export module Terrain {
 
         constructor(prevTile?: TerrainObject) {
             super();
+        }
+
+        exportDataBlob() {
+            return {used: this._used};
+        }
+
+        importDataBlob(data: {used: boolean}) {
+            this._used = data.used;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {

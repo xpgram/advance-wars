@@ -18,7 +18,6 @@ import { QueueSearch } from "../../Common/QueueSearch";
 import { RegionMap, CommonRangesRetriever } from "../unit-actions/RegionMap";
 import { MapData } from '../../../battle-maps/MapData';
 import { BoardPlayer } from '../BoardPlayer';
-import { MiniMap } from './MiniMap';
 
 
 const DOMAIN = "WarMap";
@@ -217,16 +216,23 @@ export class Map {
     }
 
     /** Fills in the built map canvas with the contents described by data. */
-    private buildMapContents(data: MapData) {
+    private buildMapContents(mapdata: MapData) {
         // Create map objects.
         for (let y = 0; y < this.height; y++)
         for (let x = 0; x < this.width; x++) {
-            const terrainSerial = data.map[y][x];
+            const terrainSerial = mapdata.map[y][x];
             const point = new Point(x,y);
             const terrainType = Object.values(Terrain).find( type => type.serial === terrainSerial );
             if (!terrainType)
                 throw new Error(`Terrain serial '${terrainSerial}' does not exist.`);
             this.squareAt(point).terrain = new terrainType();
+        }
+
+        if (!mapdata.tileData)
+            return;
+
+        for (const { location, data } of mapdata.tileData) {
+            this.squareAt(location).terrain.importDataBlob(data);
         }
     }
 
@@ -1036,11 +1042,12 @@ export class Map {
         const { width, height } = this;
 
         const mapdata = <MapData>{
-            name: 'unnamed',
+            name: this.name ?? 'Unnamed',
             size: {width, height},
             players: players.length, // ..? how do I count?
             map: Common.Array2D(height, width, (y,x) => this.squareAt({x,y}).terrain.type.serial),
             owners: [],
+            tileData: [],
             predeploy: [],
         };
 
@@ -1055,6 +1062,16 @@ export class Map {
         }
 
         // TODO Support for player data: rem CO power, funds, etc.
+
+        for (const tile of this.squares) {
+            const data = tile.terrain.exportDataBlob();
+            if (data === undefined)
+                continue;
+            mapdata.tileData.push({
+                location: tile.boardLocation.toPrimitive(),
+                data,
+            });
+        }
 
         return mapdata;
     }
@@ -1083,6 +1100,10 @@ export class Map {
             `  "predeploy": [`,
             ...mapdata.predeploy.map( p =>
             `    {"location": {"x": ${pad(p.location.x)}, "y": ${pad(p.location.y)}}, "serial": ${pad(p.serial)}, "player": ${p.player}},` ),
+            `  ],`,
+            `  "tileData": [`,
+            ...mapdata.tileData.map( d =>
+            `    {"location": {"x": ${pad(d.location.x)}, "y": ${d.location.y}}, "data": ${JSON.stringify(d.data)}},` ),
             `  ],`,
             `},`
         ];

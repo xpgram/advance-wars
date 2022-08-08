@@ -20,6 +20,7 @@ export type MapData = {
   map: number[][],
 
   // TODO This should take over 'players', but that will require some refactoring
+  // TODO This will also need to be an options-type described in BoardPlayer.ts or something.
   playerData?: {
     funds?: number,
     coPower?: number,
@@ -32,6 +33,15 @@ export type MapData = {
       y: number
     },
     player: number
+  }[],
+
+  // TODO This can consume the 'owners' field.
+  tileData: {
+    location: {
+      x: number,
+      y: number
+    },
+    data: any,
   }[],
 
   predeploy: {

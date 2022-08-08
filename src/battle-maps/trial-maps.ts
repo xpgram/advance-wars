@@ -12,13 +12,13 @@ export const maps = <MapData[]>[
       [ 3, 0, 1, 0, 4,16, 0, 4,25, 4, 0,16, 4, 0, 1, 0, 3],
       [ 9, 9, 1, 0, 9,16, 9, 9, 9, 9, 9,16, 9, 1, 1, 9, 9],
       [13, 9, 1, 0, 9,16, 9, 9, 9, 9, 9,16, 9, 1, 0, 9,13],
-      [13, 9, 1, 9, 9,16, 9, 9, 9, 9, 9,16, 9, 1, 0, 9,13],
+      [ 9, 9, 1, 9, 9,16, 9, 9, 9, 9, 9,16, 9, 1, 0, 9,13],
       [16,16,16,16,16,15, 9, 9,15, 9, 9,15, 9, 1, 9, 9,13],
-      [13, 9, 0, 9, 9,16,20,20,20, 9,20,16, 9, 1, 9, 9,13],
+      [ 9, 9, 0, 9, 9,16,20,20,20, 9,20,16, 9, 1, 9, 9,13],
       [13, 9, 0,27, 9,16,20,20,20,20,20,16, 9,27, 0, 9,13],
-      [13, 9, 9, 1, 9,16,20, 9,20,20,20,16, 9, 9, 0, 9,13],
+      [13, 9, 9, 1, 9,16,20, 9,20,20,20,16, 9, 9, 0, 9, 9],
       [13, 9, 9, 1, 9,15, 9, 9,15, 9, 9,15,16,16,16,16,16],
-      [13, 9, 0, 1, 9,16, 9, 9, 9, 9, 9, 1, 9, 9, 1, 9,13],
+      [13, 9, 0, 1, 9,16, 9, 9, 9, 9, 9, 1, 9, 9, 1, 9, 9],
       [13, 9, 0, 1, 9,16, 9, 9, 9, 9, 9, 1, 9, 0, 1, 9,13],
       [ 9, 9, 1, 1, 9,16, 9, 9, 9, 9, 9,16, 9, 0, 1, 9, 9],
       [ 3, 0, 1, 0, 4,16, 0, 4,25, 4, 0,16, 4, 0, 1, 0, 3],
@@ -44,6 +44,48 @@ export const maps = <MapData[]>[
       {"location": {"x": 10, "y": 10}, "player": 1},
     ],
     "predeploy": [
+    ],
+    "tileData": [
+      {"location": {"x":  0, "y": 7}, "data": {"landTile":false}},
+      {"location": {"x":  1, "y": 7}, "data": {"landTile":false}},
+      {"location": {"x":  2, "y": 7}, "data": {"landTile":true}},
+      {"location": {"x":  3, "y": 7}, "data": {"landTile":false}},
+      {"location": {"x":  4, "y": 7}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 2}, "data": {"landTile":true}},
+      {"location": {"x":  5, "y": 3}, "data": {"landTile":true}},
+      {"location": {"x":  5, "y": 4}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 5}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 6}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 7}, "data": {"landTile":false,"hp":99}},
+      {"location": {"x":  5, "y": 8}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 9}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 10}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 11}, "data": {"landTile":false,"hp":99}},
+      {"location": {"x":  5, "y": 12}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 13}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 14}, "data": {"landTile":false}},
+      {"location": {"x":  5, "y": 15}, "data": {"landTile":true}},
+      {"location": {"x":  5, "y": 16}, "data": {"landTile":true}},
+      {"location": {"x":  8, "y": 7}, "data": {"landTile":true,"hp":99}},
+      {"location": {"x":  8, "y": 11}, "data": {"landTile":true,"hp":99}},
+      {"location": {"x": 11, "y": 2}, "data": {"landTile":true}},
+      {"location": {"x": 11, "y": 3}, "data": {"landTile":true}},
+      {"location": {"x": 11, "y": 4}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 5}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 6}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 7}, "data": {"landTile":false,"hp":99}},
+      {"location": {"x": 11, "y": 8}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 9}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 10}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 11}, "data": {"landTile":true,"hp":99}},
+      {"location": {"x": 11, "y": 14}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 15}, "data": {"landTile":true}},
+      {"location": {"x": 11, "y": 16}, "data": {"landTile":true}},
+      {"location": {"x": 12, "y": 11}, "data": {"landTile":false}},
+      {"location": {"x": 13, "y": 11}, "data": {"landTile":false}},
+      {"location": {"x": 14, "y": 11}, "data": {"landTile":true}},
+      {"location": {"x": 15, "y": 11}, "data": {"landTile":false}},
+      {"location": {"x": 16, "y": 11}, "data": {"landTile":false}},
     ],
   },
   {
@@ -87,6 +129,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 13, "y": 10}, "player": 1},
       {"location": {"x": 14, "y": 10}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
     ],
   },
@@ -129,6 +173,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 11, "y":  5}, "player": 1},
       {"location": {"x": 13, "y":  5}, "player": 1},
       {"location": {"x": 15, "y":  6}, "player": 1},
+    ],
+    "tileData": [
     ],
     "predeploy": [
     ],
@@ -185,6 +231,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 19, "y":  5}, "player": 1},
       {"location": {"x": 20, "y":  5}, "player": 1},
       {"location": {"x": 17, "y":  6}, "player": 1},
+    ],
+    "tileData": [
     ],
     "predeploy": [
     ],
@@ -257,6 +305,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 29, "y": 23}, "player": 3},
       {"location": {"x": 27, "y": 24}, "player": 3},
     ],
+    "tileData": [
+    ],
     "predeploy": [
     ],
   },
@@ -317,6 +367,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 27, "y": 15}, "player": 3},
       {"location": {"x": 22, "y": 16}, "player": 3},
       {"location": {"x": 23, "y": 16}, "player": 3},
+    ],
+    "tileData": [
     ],
     "predeploy": [
     ],
@@ -380,6 +432,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 25, "y":  7}, "player": 1},
       {"location": {"x": 27, "y":  7}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
     ],
   },
@@ -437,6 +491,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 20, "y":  8}, "player": 1},
       {"location": {"x": 22, "y":  8}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
     ],
   },
@@ -475,6 +531,8 @@ export const maps = <MapData[]>[
       {"location": {"x":  4, "y":  4}, "player": 3},
       {"location": {"x":  7, "y":  7}, "player": 3},
       {"location": {"x":  0, "y":  9}, "player": 3},
+    ],
+    "tileData": [
     ],
     "predeploy": [
       {"location": {"x":  0, "y":  6}, "serial":  1, "player": 0},
@@ -557,6 +615,16 @@ export const maps = <MapData[]>[
     ],
     "predeploy": [
     ],
+    "tileData": [
+      {"location": {"x":  7, "y": 12}, "data": {"landTile":false,"hp":99}},
+      {"location": {"x":  7, "y": 13}, "data": {"landTile":false}},
+      {"location": {"x":  7, "y": 14}, "data": {"landTile":false}},
+      {"location": {"x":  7, "y": 15}, "data": {"landTile":true}},
+      {"location": {"x": 11, "y": 3}, "data": {"landTile":true}},
+      {"location": {"x": 11, "y": 4}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 5}, "data": {"landTile":false}},
+      {"location": {"x": 11, "y": 6}, "data": {"landTile":false,"hp":99}},
+    ],
   },
   {
     "name": "T31: Comb Map",
@@ -612,6 +680,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 27, "y": 17}, "player": 3},
       {"location": {"x": 25, "y": 19}, "player": 3},
       {"location": {"x": 27, "y": 19}, "player": 3},
+    ],
+    "tileData": [
     ],
     "predeploy": [
       {"location": {"x": 19, "y":  8}, "serial":  9, "player": 0},
@@ -680,6 +750,12 @@ export const maps = <MapData[]>[
       {"location": {"x": 13, "y":  9}, "player": 1},
     ],
     "predeploy": [
+    ],
+    "tileData": [
+      {"location": {"x":  6, "y": 5}, "data": {"landTile":true}},
+      {"location": {"x":  7, "y": 2}, "data": {"landTile":true}},
+      {"location": {"x":  8, "y": 11}, "data": {"landTile":true}},
+      {"location": {"x":  9, "y": 7}, "data": {"landTile":true}},
     ],
   },
 ];

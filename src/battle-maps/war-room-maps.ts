@@ -59,6 +59,12 @@ export const maps = <MapData[]>[
     ],
     "predeploy": [
     ],
+    "tileData": [
+      {"location": {"x": 13, "y": 15}, "data": {"landTile":true}},
+      {"location": {"x": 19, "y": 21}, "data": {"landTile":true}},
+      {"location": {"x": 22, "y": 8}, "data": {"landTile":true}},
+      {"location": {"x": 28, "y": 15}, "data": {"landTile":true}},
+    ],
   },
   {
     "name": "Deer Harbor",
@@ -113,6 +119,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 27, "y": 24}, "player": 1},
       {"location": {"x": 29, "y": 24}, "player": 1},
       {"location": {"x": 28, "y": 25}, "player": 1},
+    ],
+    "tileData": [
     ],
     "predeploy": [
     ],
@@ -188,6 +196,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 30, "y": 18}, "player": 1},
       {"location": {"x": 32, "y": 18}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
       {"location": {"x": 17, "y":  2}, "serial":  0, "player": 1},
       {"location": {"x": 20, "y":  3}, "serial":  0, "player": 1},
@@ -249,6 +259,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 14, "y": 15}, "player": 1},
       {"location": {"x": 15, "y": 15}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
     ],
   },
@@ -300,6 +312,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 16, "y":  4}, "player": 1},
       {"location": {"x": 17, "y":  5}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
     ],
   },
@@ -344,6 +358,8 @@ export const maps = <MapData[]>[
       {"location": {"x":  2, "y": 18}, "player": 1},
       {"location": {"x":  1, "y": 19}, "player": 1},
       {"location": {"x":  3, "y": 19}, "player": 1},
+    ],
+    "tileData": [
     ],
     "predeploy": [
     ],
@@ -397,6 +413,8 @@ export const maps = <MapData[]>[
       {"location": {"x":  4, "y": 16}, "player": 1},
       {"location": {"x":  5, "y": 16}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
     ],
   },
@@ -439,6 +457,8 @@ export const maps = <MapData[]>[
       {"location": {"x":  2, "y":  3}, "player": 2},
       {"location": {"x":  4, "y":  3}, "player": 2},
       {"location": {"x":  6, "y":  4}, "player": 2},
+    ],
+    "tileData": [
     ],
     "predeploy": [
     ],

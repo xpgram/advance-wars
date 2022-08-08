@@ -217,9 +217,20 @@ export abstract class TerrainObject {
     get value(): number { return 0; }
     set value(n) { }
 
+
     // Left blank so that map can create an accessor to the above constants without starting
     // the arduous process of building a graphical object.
     constructor() { }
+
+    /** May return a data object of a type to be determined by the overriding class, or undefined.
+     * This is the 'save-state' method by which terrain exports its extra-data, such as its
+     * remaining HP. */
+    exportDataBlob(): any | undefined { return undefined; }
+
+    /** Accepts an object of a type to be determined by the overriding class.
+     * This is the 'load-state' method by which terrain imports its extra-data, such as its
+     * remaining HP. */
+    importDataBlob(data: any) {}
 
     /** Builds graphical sub-objects and sets up the object's transform. */
     init(neighbors: NeighborMatrix<TerrainObject>, pos: Point3D) {

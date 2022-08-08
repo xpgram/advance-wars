@@ -51,6 +51,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 18, "y":  4}, "player": 1},
       {"location": {"x": 19, "y":  5}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
     ],
   },
@@ -93,6 +95,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 16, "y":  5}, "player": 1},
       {"location": {"x": 13, "y":  6}, "player": 1},
       {"location": {"x": 15, "y":  6}, "player": 1},
+    ],
+    "tileData": [
     ],
     "predeploy": [
     ],
@@ -139,6 +143,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 19, "y": 10}, "player": 2},
       {"location": {"x": 20, "y": 10}, "player": 2},
       {"location": {"x": 19, "y": 12}, "player": 2},
+    ],
+    "tileData": [
     ],
     "predeploy": [
       {"location": {"x":  8, "y":  4}, "serial":  0, "player": 0},
@@ -213,6 +219,8 @@ export const maps = <MapData[]>[
       {"location": {"x":  2, "y":  3}, "player": 1},
       {"location": {"x":  6, "y":  3}, "player": 1},
       {"location": {"x":  0, "y":  4}, "player": 1},
+    ],
+    "tileData": [
     ],
     "predeploy": [
       {"location": {"x":  5, "y": 18}, "serial":  0, "player": 0},
@@ -304,6 +312,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 26, "y": 13}, "player": 1},
       {"location": {"x": 28, "y": 13}, "player": 1},
     ],
+    "tileData": [
+    ],
     "predeploy": [
       {"location": {"x": 16, "y":  7}, "serial": 19, "player": 0},
     ],
@@ -366,6 +376,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 22, "y": 16}, "player": 3},
       {"location": {"x": 23, "y": 16}, "player": 3},
     ],
+    "tileData": [
+    ],
     "predeploy": [
       {"location": {"x": 12, "y":  7}, "serial":  0, "player": 0},
       {"location": {"x": 14, "y":  6}, "serial": 13, "player": 0},
@@ -408,6 +420,8 @@ export const maps = <MapData[]>[
       {"location": {"x":  4, "y":  4}, "player": 3},
       {"location": {"x":  7, "y":  7}, "player": 3},
       {"location": {"x":  0, "y":  9}, "player": 3},
+    ],
+    "tileData": [
     ],
     "predeploy": [
       {"location": {"x":  1, "y":  6}, "serial":  1, "player": 0},
@@ -502,6 +516,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 27, "y": 17}, "player": 3},
       {"location": {"x": 25, "y": 19}, "player": 3},
       {"location": {"x": 27, "y": 19}, "player": 3},
+    ],
+    "tileData": [
     ],
     "predeploy": [
       {"location": {"x": 19, "y":  8}, "serial":  9, "player": 0},
@@ -614,6 +630,8 @@ export const maps = <MapData[]>[
       {"location": {"x":  6, "y":  8}, "player": 2},
       {"location": {"x":  7, "y":  8}, "player": 2},
     ],
+    "tileData": [
+    ],
     "predeploy": [
       {"location": {"x":  5, "y": 10}, "serial": 26, "player": 0},
       {"location": {"x": 14, "y":  9}, "serial": 26, "player": 0},
@@ -694,6 +712,8 @@ export const maps = <MapData[]>[
       {"location": {"x": 27, "y": 15}, "player": 3},
       {"location": {"x": 22, "y": 16}, "player": 3},
       {"location": {"x": 23, "y": 16}, "player": 3},
+    ],
+    "tileData": [
     ],
     "predeploy": [
     ],
