@@ -154,6 +154,11 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
         unit.ammo = Math.min(1, unit.maxAmmo);
         unit.hp = 50;
       }
+
+      mapCursor.teleportTo(mapCursor.boardLocation); // Retrigger UI
+        // TODO I need a phantom-move signal.
+        // TODO It would also be nice if the unit/terrain under the cursor could signal a change so
+        //   I don't have to remember to teleport the cursor each time.
     }
   },
   { // Reactivate unit
