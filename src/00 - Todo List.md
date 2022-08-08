@@ -49,22 +49,28 @@ In Progress:
   - [x] Modify terrain.orient()/.finalize() to destroy any existing graphics before construction. This simplifies the process and allows it to retain properties like faction alliance.
   - [x] Update the shallow water system on changeTile()
     - This requires at least 2-space outward propogation.
-  - [ ] Use number packing to add data to Bridge serials (river or sea)
+  - [ ] Add data-blobs to MapData and TerrainObject exports that save extra-data.
+    - Such as:
+      - Land or Sea status.
+      - Remaining HP.
+      - Used or not used status (silo).
+      - Owning Faction for buildings (So, a migration; a low priority, however)
     - This affects:
       - Bridge
       - Meteor
       - Plasma
       - Pipe
-    - [ ] This would 'ruin' the formatting in map files, making them less human-readable. Does this matter?
-      - Consider that seperate data-packing for tile variants already exists for building ownership.
+    - [x] TerrO Extenders override the export/import functions
+    - [x] .genMapData in Map.ts collects tile exports, ignores returns that are 'undefined'
+    - [x] construction from map data assembles the serials into data types
+    - [x] construction later moves all data blobs into their described tile locations.
+    - [ ] Bridge (and others) export 'undefined' when only default settings are present.
   - [x] Supply point-position to the tileset orientation system: let Plain, Wasteland, etc. choose their visual variant deterministically.
     - [ ] Aid terrain tileset variations to feel more visually distinct between maps.
     Supply each map with a random root-seed that can be added to the location-seed generation method for tileset variations. (low priority)
   - [ ] Investigate why Roads assemble inconsistently on Road->Road transitions. (Probably has to do with the reduce-interconnections process over-prioritizing vertical lines).
 - [x] Add map-to-mapdata function to map.ts for easy post-design extraction.
 - [x] Add map-design mode for easy manipulation
-- [ ] Refactor UI construction system to use decorators and assembly functions which (attempt to) behave like CSS (using Pixi's already present width/height/etc. functions).
-- [ ] Refactor BSM to be generic (its <T> type would be 'assets', descending SceneState objects would be... I think they accept a master of type BSM<Y> and reject any others).
 
 - [ ] Rigs have infinite gas, so they shouldn't display '99'; either '–' or '∞'.
 
