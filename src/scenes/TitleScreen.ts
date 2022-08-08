@@ -43,13 +43,13 @@ export class TitleScreen extends Scene {
 
     const windTexture = textures['dusty-wind-overlay.png'];
     
-    const wind_primary = createWindEffect(windTexture, 14.0, 0.20, true);
+    const wind_primary = createWindEffect(windTexture, 14.0, 0.20, 0);
     this.toDestroy.push(wind_primary.timer);
 
-    const wind_secondary = createWindEffect(windTexture, 19.0, 0.15, true);
+    const wind_secondary = createWindEffect(windTexture, 19.0, 0.15, 0);
     this.toDestroy.push(wind_secondary.timer);
 
-    const wind_transition = createWindEffect(windTexture, 1.0, 0, false);
+    const wind_transition = createWindEffect(windTexture, 1.0, 0, 0.85);
     wind_transition.container.filters = [new PixiFilters.MotionBlurFilter([96,0], 45)];
     this.toDestroy.push(wind_transition.timer);
 
@@ -109,7 +109,7 @@ export class TitleScreen extends Scene {
 }
 
 
-function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number, applyGradient: boolean) {
+function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number, gradientBottomOpacity: number) {
   const sprSettings = [tex, tex.width*3, tex.height] as const;
   const wind1 = new PIXI.TilingSprite(...sprSettings);
   const wind2 = new PIXI.TilingSprite(...sprSettings);
@@ -124,23 +124,25 @@ function createWindEffect(tex: PIXI.Texture, baseTime: number, baseAlpha: number
   wind2.y = tex.height;
 
   // Create gradient mask for smoke
-  if (applyGradient) {
-    // TODO Extract gradient generation to common pixi tools
-    const { width, height } = Game.display;
-    const canvas = document.createElement('canvas');
-    [canvas.width, canvas.height] = [width, height];
-    const context = canvas.getContext('2d');
-    if (!context)
-      throw `Could not get 2d context from created canvas element?`;
-    const gradient = context.createLinearGradient(0,0,0,canvas.height);
-    gradient.addColorStop(0.55,'white');
-    gradient.addColorStop(0.85,'black');
-    context.fillStyle = gradient;
-    context.fillRect(0,0,width,height);
-    const windAlphaMask = new PIXI.Sprite(PIXI.Texture.from(canvas));
+  // TODO Extract gradient generation to common pixi tools
+  const { width, height } = Game.display;
+  const grdTop = 'white';
+  const g = Math.ceil(255*gradientBottomOpacity);
+  const grdBottom = `rgb(${g},${g},${g})`;
 
-    wind.mask = windAlphaMask;
-  }
+  const canvas = document.createElement('canvas');
+  [canvas.width, canvas.height] = [width, height];
+  const context = canvas.getContext('2d');
+  if (!context)
+    throw `Could not get 2d context from created canvas element?`;
+  const gradient = context.createLinearGradient(0,0,0,canvas.height);
+  gradient.addColorStop(0.55, grdTop);
+  gradient.addColorStop(0.85, grdBottom);
+  context.fillStyle = gradient;
+  context.fillRect(0,0,width,height);
+  const windAlphaMask = new PIXI.Sprite(PIXI.Texture.from(canvas));
+
+  wind.mask = windAlphaMask;
 
   // Setup motion timers
   const secondTime = baseTime*2;
