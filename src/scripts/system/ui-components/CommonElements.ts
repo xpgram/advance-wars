@@ -6,6 +6,7 @@ import { Color } from "../../color/Color";
 import { Palette } from "../../color/ColorPalette";
 import { HexColor } from "../../color/ColorTypes";
 import { UiBinaryLamp } from "./UiBinaryLamp";
+import { UiButton } from "./UiButton";
 import { UiComponent } from "./UiComponent";
 import { UiPageButton } from "./UiPageButton";
 
@@ -17,7 +18,44 @@ export module CommonElements {
   // This is where the concept of a 'shop page button' is formally defined.
   // This module could get pretty large. I wonder if I should split anything.
 
+  export module FieldUI {
+
+    // There are two major styles, but maybe more, or maybe I'll want more.
+
+    // There is the square one with the four letter word (X 'page', A 'menu', etc.)
+    // and the big, round button label with the action text (B 'back')
+    
+    // sometimes these buttons want to be surrounded by the green cursor when they're tapped.
+    // since that's just a visual effect, I suppose its callback could do the-thing and also move
+    // the cursor target.
+
+    // A UiButton, onHoverEnter, could move the cursor as well.
+    // I guess it will have to move the SelectedOption for the menu in question, which in turn
+    // moves the menu cursor. I'll think about it more.
+
+    // In any case, these buttons need to assemble whatever graphics they need, and then return
+    // a UiButton, I think.
+
+    // Maybe the UiButton should be more abstract. It's look, animation behavior and such could
+    // be defined here, instead. I think this is.. *kind of* how it works already.
+
+    export function buttonPrompt() {
+
+    }
+
+  }
+
   export module CommandMenu {
+
+    // Should menuButton be a UiButton or a new construction?
+
+    export function menuButton() {
+
+    }
+
+    export function menu() {
+
+    }
 
   }
 
