@@ -1,10 +1,12 @@
-import { PIXI } from "../../../../constants";
+import { PIXI, PixiFilters } from "../../../../constants";
 import { Game } from "../../../..";
 import { Color } from "../../../color/Color";
 import { getFactionPalette } from "../../../color/PlayerFactionPalette";
 import { Timer } from "../../../timer/Timer";
 import { fonts } from "../../ui-windows/DisplayInfo";
 import { TurnState } from "../TurnState";
+import { Palette } from "../../../color/ColorPalette";
+import { Common } from "../../../CommonUtils";
 
 
 
@@ -36,7 +38,7 @@ export class ConfirmPlayerPresence extends TurnState {
   protected configureScene(): void {
     const { scenario, players } = this.assets;
 
-    if (players.firstTurn) {
+    if (players.firstTurn || !scenario.fogOfWar) {
       this.advance();
       return;
     }
@@ -59,17 +61,16 @@ export class ConfirmPlayerPresence extends TurnState {
     text.position.set(
       renderWidth/2,
       renderHeight/2,
-    )
+    );
 
     const baseColor = getFactionPalette(players.current.faction).turnStartSplash.presenceBackground;
     const bgColor = Color.adjustHSV(baseColor, 0, .5, .5);
 
     const bg = new PIXI.Graphics();
-    bg.beginFill(bgColor);
+    bg.beginFill( (scenario.fogOfWar) ? bgColor : Palette.black );
     bg.drawRect(0,0,renderWidth,renderHeight);
     bg.endFill();
-    if (!scenario.fogOfWar)
-      bg.alpha = 0.25;
+    bg.alpha = (scenario.fogOfWar) ? 1.00 : 0.25;
 
     this.prompt.addChild(bg, text);
     this.prompt.alpha = 0;
