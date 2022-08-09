@@ -9,6 +9,7 @@ import { TerrainBuildingObject } from "./TerrainBuildingObject";
 import { SerialGenerator } from "../../Common/SerialGenerator";
 import { UnitObject } from "../UnitObject";
 import { Point } from "../../Common/Point";
+import { Debug } from "../../DebugUtils";
 
 const Serial = SerialGenerator(-1);
 
@@ -33,7 +34,9 @@ export module Terrain {
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
-        shallowWater = false;
+        get shallowWater() { return this._shallowWater; }
+        set shallowWater(b: boolean) { this._shallowWater = b; }
+        private _shallowWater = false;
 
         get name() { return "Void"; }
         get shortName() { return "Void"; }
@@ -89,7 +92,8 @@ export module Terrain {
             transport: 0
         };
 
-        readonly prevTileType?: TerrainType;
+        get prevTileType() { return this._prevTileType; }
+        private _prevTileType?: TerrainType;
 
         constructor(prevTile?: TerrainObject, noPrevTileCosmetics?: boolean) {
             super();
@@ -98,10 +102,31 @@ export module Terrain {
                 return;
             // Second: Keep craters and scorch effects intact in case of tile reorientation.
             else if (prevTile && prevTile.type === Terrain.Plain)
-                this.prevTileType = (prevTile as Terrain.Plain).prevTileType;
+                this._prevTileType = (prevTile as Terrain.Plain).prevTileType;
             // Default: assume the type of the previous tile.
             else
-                this.prevTileType = prevTile?.type;
+                this._prevTileType = prevTile?.type;
+        }
+
+        exportDataBlob() {
+            const t = this.prevTileType;
+            if (!t || !([Plasma, Meteor] as TerrainType[]).includes(t))
+                return;
+
+            return {prevTileSerial: t.serial};
+        }
+
+        importDataBlob(data: {prevTileSerial: number}) {
+            const t = Object.values(Terrain).find( t => t.serial === data.prevTileSerial );
+            if (!t) {
+                Debug.log('PlainTile', 'ImportData', {
+                    message: `Skipping data import.`,
+                    reason: `Serial '${data.prevTileSerial}' could not be reduced to a terrain type.`,
+                    warn: true,
+                })
+                return;
+            }
+            this._prevTileType = t;
         }
 
         orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
@@ -415,7 +440,9 @@ export module Terrain {
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
-        shallowWater = false;
+        get shallowWater() { return this._shallowWater; }
+        set shallowWater(b: boolean) { this._shallowWater = b; }
+        private _shallowWater = false;
 
         get name() { return "Sea"; }
         get shortName() { return "Sea"; }
@@ -513,7 +540,9 @@ export module Terrain {
         }
         get landTile() { return false; }
         get shallowWaterSourceTile() { return false; }
-        shallowWater = false;
+        get shallowWater() { return this._shallowWater; }
+        set shallowWater(b: boolean) { this._shallowWater = b; }
+        private _shallowWater = false;
 
         get name() { return "Rough Sea"; }
         get shortName() { return "Rough"; }
@@ -793,7 +822,9 @@ export module Terrain {
         private _landTile = true;
 
         get shallowWaterSourceTile() { return false; }
-        shallowWater = false;
+        get shallowWater() { return this._shallowWater; }
+        set shallowWater(b: boolean) { this._shallowWater = b; }
+        private _shallowWater = false;
 
         get name() { return "Plasma"; }
         get shortName() { return "Plasma"; }
