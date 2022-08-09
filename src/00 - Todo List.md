@@ -14,6 +14,20 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
+- I think there is slim hope of extending BitmapText to do what I want. Unless I look at the source. Eh. Maybe.
+[ ] ColoredBitmapText is a wrapper class which
+  [ ] splits the given string by the tint-code escape char
+  [ ] creates a bitmaptext object for each string that is tinted according to the letter code at string[0]
+  [ ] merges each object into lines
+    - How do we accomplish line-wrap with separate text objects?
+    [ ] This means text has to be split along inserted newline characters, too.
+This colored-words bit is a big job. Let's focus on the textbox itself for now.
+I may have to write my own typewrite-text class, but we'll do that later.
+
+
+[ ] PIXI.BitmapFont.from("fontname", {options})
+    This would help some of the custom fonts I have. Like that one I use for the title of Terrain and Troop-types in the details window.
+
 [ ] ClickableContainer does not recognize mouse-hover during construction if the mouse is already hovering. The mouse must leave and then re-enter.
 
 [ ] Inserting new terrain types into Terrain.ts (non-appending) will break every existing map. I need an id system that is concrete but not just sequential order.
