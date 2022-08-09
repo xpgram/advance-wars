@@ -9,12 +9,13 @@ This project is a rebuild of the 2008 game titled above.
 It was chosen because it's a really good game, and because I won't have to draw any art.
 
 You can play the current public build[→here.](https://xpgram.github.io/armed-revolt/game.html)  
-Be wary of [these](#known-issues) problems while testing.
+Be wary of [these issues](#known-issues), though.
 
-The controls are listed below the game window, but I don't have button prompts in the UI yet, so they may be confusing if you're not used to Z,X + ArrowKeys for web games. Or how Advance Wars plays. I'll put a map somewhere soon.
+The controls are listed below the game window, but I don't have button prompts in the UI yet, so they may be confusing.  
+I'm working on fixing that. Uh, just press Z and X a bunch and you'll do things.
 
 You can also play with a PS4/5 remote.  
-Other gamepads are not guaranteed to work yet, but you can try.
+Other gamepads are not guaranteed to work yet, but you sure can try.
 
 Oh, I should mention.  
 This project is not necessarily for the public. I know Nintendo is litigation-happy. One of the key objectives here is just to demonstrate my skill, the rest are, you know, private fun with private people.
