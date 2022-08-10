@@ -14,6 +14,7 @@ import { Timer } from "../scripts/timer/Timer";
 import { Point } from "pixi.js";
 import { Ease } from "../scripts/Common/EaseMethod";
 import { TextBox } from "../scripts/system/ui-components/TextBox";
+import { Fadable } from "../scripts/system/ui-components/Fadable";
 
 
 /**
@@ -92,11 +93,6 @@ export class MainMenuScene extends Scene {
       .wait()
       .tween(animTime, this.bg, {y: center.y - y_displace}, Ease.sine.inOut)
       .loop();
-
-    // REMOVE Testing textbox feature
-    const textbox = new TextBox(this.stateMachine.assets.gamepad, this.visualLayers.hud,
-      `Hello world! We're going to try a long line of text to see where the word-wrap happens. Lorem ipsum blah blah I don't know the rest but whatever la di da yes oh yes.`
-    );
   }
 
   updateStep(): void {

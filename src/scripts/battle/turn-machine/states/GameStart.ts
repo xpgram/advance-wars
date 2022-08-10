@@ -1,4 +1,5 @@
 import { TurnState } from "../TurnState";
+import { TextCutscene } from "./TextCutscene";
 import { TurnStart } from "./TurnStart";
 
 export class GameStart extends TurnState {
@@ -13,7 +14,7 @@ export class GameStart extends TurnState {
     if (scenario.fogOfWar)
       map.hideSightMap();
 
-    this.advance(TurnStart);
+    this.advance(TextCutscene, TurnStart);
   }
 
 }

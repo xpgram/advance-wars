@@ -46,19 +46,26 @@ export class TextBox extends UiComponent {
   /** Used for measuring letter and line widths. */
   protected mtext = new PIXI.BitmapText('', fonts.script);
 
+    // TODO string needs to be a {speaker, text} pair
+  protected script: (string | Function)[];
 
-  constructor(gp: VirtualGamepad, visualLayer: PIXI.Container, ...text: (string | Function)[]) {
+  /** Whether this textbox is still progressing through its script. */
+  get finished() { return this._finished; }
+  private _finished = false;
+
+
+  constructor(gp: VirtualGamepad, visualLayer: PIXI.Container, ...script: (string | Function)[]) {
     super();
     this.gamepad = gp;
     visualLayer.addChild(this.container);
 
     this.container.addChild(this.drawBackground());
 
-    // REMOVE Testing text
-    this.nameText.text = 'Will';
-    this.gtext.text = text[0];
+    this.script = script;
+    this.advance();
 
-    Game.scene.ticker.add(this.update, this);
+    // REMOVE Speaker-name demo
+    this.nameText.text = 'Dei';
   }
 
   protected drawBackground(): PIXI.Graphics {
@@ -126,8 +133,38 @@ export class TextBox extends UiComponent {
     return g;
   }
 
+  protected advance() {
+    // TODO Reset animation timers
+
+    // Execute instructions until the next string is found.
+    while (true) {
+      const next = this.script.shift();
+
+      if (!next) {
+        this.finish();
+        break;
+      }
+
+      if (typeof next !== 'string') { // Function
+        next();
+        continue;
+      }
+
+      this.gtext.text = next;
+      break;
+    }
+  }
+
+  protected finish() {
+    this.hide();
+    this._finished = true;
+  }
+
   protected update() {
-    // stub
+    const { gamepad } = this;
+
+    if (gamepad.button.A.pressed)
+      this.advance();
   }
 
 }

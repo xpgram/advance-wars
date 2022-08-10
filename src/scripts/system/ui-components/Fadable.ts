@@ -5,7 +5,7 @@ import { UiComponent } from "./UiComponent";
 
 /** A decorator which modifies a UiComponent class to have alpha fade-in/out transitional
  * behavior on show/hide events. */
-export function Fadable<T extends Type<UiComponent>>(type: T, transitionTime: number = .33) {
+export function Fadable<T extends Type<UiComponent>>(type: T, transitionTime: number = 3/60) {
   return class Fadable extends type {
 
     protected timer?: Timer;
