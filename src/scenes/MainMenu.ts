@@ -1,20 +1,12 @@
 import { PIXI, PixiFilters } from "../constants";
 import { Game } from "..";
-import { VirtualGamepad } from "../scripts/controls/VirtualGamepad";
-import { CommandMenuGUI } from "../scripts/system/gui-menu-components/CommandMenuGUI";
-import { IconTitle } from "../scripts/system/gui-menu-components/ListMenuTitleTypes";
 import { Scene } from "./Scene";
-import { ListMenu } from "../scripts/system/gui-menu-components/ListMenu";
-import { MapData } from "../battle-maps/MapData";
 import { StateMaster } from "../scripts/system/state-management/StateMaster";
 import { MainMenuAssets } from "../scripts/main-menu/MainMenuAssets";
 import { PickMap } from "../scripts/main-menu/PickMap";
-import { Common } from "../scripts/CommonUtils";
 import { Timer } from "../scripts/timer/Timer";
 import { Point } from "pixi.js";
 import { Ease } from "../scripts/Common/EaseMethod";
-import { TextBox } from "../scripts/system/ui-components/TextBox";
-import { Fadable } from "../scripts/system/ui-components/Fadable";
 
 
 /**

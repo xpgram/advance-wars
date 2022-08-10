@@ -1,7 +1,7 @@
 import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
 import { Fadable } from "../../../system/ui-components/Fadable";
-import { TextBox } from "../../../system/ui-components/TextBox";
+import { TextBox } from "../../../system/ui-components/text-box/TextBox";
 import { TurnState, TurnStateConstructor } from "../TurnState";
 
 

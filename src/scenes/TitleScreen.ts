@@ -8,6 +8,9 @@ import { Filters } from "../scripts/filters/Filters";
 import { Timer } from "../scripts/timer/Timer";
 import { Scene } from "./Scene";
 import { MainMenuScene } from "./MainMenu";
+import { TypewriterText } from "../scripts/system/ui-components/text-box/TypewriterText";
+import { fonts } from "../scripts/battle/ui-windows/DisplayInfo";
+import { TWBitmapText } from "../scripts/system/ui-components/text-box/TWBitmapText";
 
 
 /**
@@ -94,6 +97,16 @@ export class TitleScreen extends Scene {
       .at(1.5)
       .do( () => Game.transitionToScene(MainMenuScene) );
     this.toDestroy.push(this.pressStartAnim);
+
+
+    // REMOVE Typewriter text class demo
+    const text = new TypewriterText({
+      font: fonts.tectac,
+      lines: 2,
+      lineSpacing: 8,
+      maxWidth: 128,
+    });
+    this.visualLayers.hud.addChild(text.container);
   }
 
   updateStep(): void {

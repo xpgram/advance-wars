@@ -1,24 +1,35 @@
-import { Game } from "../../..";
-import { PIXI } from "../../../constants";
-import { fonts } from "../../battle/ui-windows/DisplayInfo";
-import { Palette } from "../../color/ColorPalette";
-import { Rectangle } from "../../Common/Rectangle";
-import { VirtualGamepad } from "../../controls/VirtualGamepad";
-import { UiComponent } from "./UiComponent";
+import { Game } from "../../../..";
+import { PIXI } from "../../../../constants";
+import { fonts } from "../../../battle/ui-windows/DisplayInfo";
+import { Palette } from "../../../color/ColorPalette";
+import { Rectangle } from "../../../Common/Rectangle";
+import { VirtualGamepad } from "../../../controls/VirtualGamepad";
+import { UiComponent } from "../UiComponent";
 
 /*
 
 I have to pee, so I'll write this pseudo-code quick.
 
-[ ] Background
-[ ] Text
-[ ] Room for character portraits (probably above, right?)
-[ ] Text is word-wrapped 
+[ ] Extract and define elsewhere the actual text/typewriter effect.
+  [ ] It needs to work with different fonts
+  [ ] Be customizable with different #-lines-shown, line spacing, wrap-width, etc.
+  Because the typewriter effect and the visual design are seperate considerations.
+  [ ] Give it handles, like .setTypewriterSpeed() or .skipTypewriterAnimation(),
+      which affect the same gamepad behaviors but without requiring a gamepad reference.
+  [ ] Then, wrapping services, like this TextBox or some other construction, can link
+      user input (or none) to the typewriter behavior.
+
+[x] Background
+[x] Text
+[x] Room for character portraits (probably above, right?)
+  [ ] Portraits can alternate between the left and right side.
+      (This would be easier with CSS like constructions)
+[x] Text is word-wrapped 
   [ ] A mask and a separate, hidden bitmaptext object is used to measure which
       letters should be shown during the typewriter effect.
 [ ] Text that is measured to extend beyond the textbox bounds is seperated into seperate
     lines or textbox panels. Some pre-caculation is needed here.
-[ ] Press A advances the text box.
+[x] Press A advances the text box.
 [ ] Press A during typewriter skips the typewriter effect.
 [ ] Hold B during typewriter speeds up typewriter effect.
 [ ] Each advanced text panel adds to a text-log history.
@@ -48,6 +59,9 @@ export class TextBox extends UiComponent {
 
     // TODO string needs to be a {speaker, text} pair
   protected script: (string | Function)[];
+
+  private currentLine: string = '';
+  private stringIndex = 0;
 
   /** Whether this textbox is still progressing through its script. */
   get finished() { return this._finished; }
@@ -135,6 +149,7 @@ export class TextBox extends UiComponent {
 
   protected advance() {
     // TODO Reset animation timers
+    this.stringIndex = 0;
 
     // Execute instructions until the next string is found.
     while (true) {
@@ -150,7 +165,8 @@ export class TextBox extends UiComponent {
         continue;
       }
 
-      this.gtext.text = next;
+      this.currentLine = next;
+      this.gtext.text = '';
       break;
     }
   }
@@ -163,8 +179,20 @@ export class TextBox extends UiComponent {
   protected update() {
     const { gamepad } = this;
 
-    if (gamepad.button.A.pressed)
-      this.advance();
+    if (gamepad.button.A.pressed) {
+      if (this.stringIndex < this.currentLine.length) {
+        this.gtext.text = this.currentLine;
+        this.stringIndex = this.currentLine.length;
+      } else {
+        this.advance();
+      }
+    }
+
+    //  This is just demoing the typewriter effect. I'm migrating whatever I learn here to a different class anyway.
+    // if (Game.frameCount % 2 === 0) {
+    this.stringIndex += Game.delta * 2;
+    this.gtext.text = this.currentLine.slice(0, Math.floor(this.stringIndex));
+    // }
   }
 
 }
