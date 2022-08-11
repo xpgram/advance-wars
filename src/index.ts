@@ -105,17 +105,22 @@ class App {
     },
     function saveSceneRender() {    // was saveScreenshot, but suspend + rightclick saveas is fine
       const dc = Game.devController;
-      if (dc.pressed(Keys.BackSlash)) {
-        // Game.visualRoot gives meh results. I don't know how to define the bounds.
-        // scene isn't restricted to the screen, so it's useful for seeing *everything*.
-        const img = Game.renderer.plugins.extract.image(Game.sceneLayer, "image/png", 1.0);
-        document.body.appendChild(img);
+      if (!dc.pressed(Keys.BackSlash))
+        return;
 
-        // const canvas = (Game.contextElement as HTMLElement).childNodes[1] as HTMLCanvasElement;
-        // const stream = canvas.captureStream();
-        // const recorder = new MediaRecorder(stream, {mimeType: 'video/webm'});
-        // const data = [];
-      }
+      // const img = Game.renderer.plugins.extract.image(Game.sceneLayer, "image/png", 1.0);
+
+      const data = Game.renderer.view.toDataURL("image/png");
+      const img = document.createElement("img");
+      img.src = data;
+
+      // Uh. Try captureStream()? That would be video. My head hurts.
+
+      document.body.appendChild(img);
+      // const canvas = (Game.contextElement as HTMLElement).childNodes[1] as HTMLCanvasElement;
+      // const stream = canvas.captureStream();
+      // const recorder = new MediaRecorder(stream, {mimeType: 'video/webm'});
+      // const data = [];
     },
   ];
 
