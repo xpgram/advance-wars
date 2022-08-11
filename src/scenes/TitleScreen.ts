@@ -98,13 +98,13 @@ export class TitleScreen extends Scene {
       .do( () => Game.transitionToScene(MainMenuScene) );
     this.toDestroy.push(this.pressStartAnim);
 
-
     // REMOVE Typewriter text class demo
     const text = new TypewriterText({
+      text: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eum laudantium inventore sed officia. Eum laboriosam eveniet dolores numquam cum dignissimos explicabo aut fugiat temporibus.',
       font: fonts.tectac,
       lines: 2,
       lineSpacing: 8,
-      maxWidth: 128,
+      maxWidth: 256,
     });
     this.visualLayers.hud.addChild(text.container);
   }
