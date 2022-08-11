@@ -36,6 +36,9 @@ export class TypewriterText extends UiComponent {
   //   // ),
   // );
 
+  // TODO Use this to access individual chars; this way tweens can do sine waves and stuff.
+  private letters: {sprite: PIXI.Sprite, position: Point}[] = [];
+
   private typeface: PIXI.BitmapFont[];
 
   /** The next char to reveal. */
