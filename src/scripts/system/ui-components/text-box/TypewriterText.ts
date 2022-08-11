@@ -1,6 +1,9 @@
 import { Sprite } from "pixi.js";
+import { stringify } from "querystring";
 import { Game } from "../../../..";
 import { PIXI } from "../../../../constants";
+import { Color } from "../../../color/Color";
+import { Palette } from "../../../color/ColorPalette";
 import { Point } from "../../../Common/Point";
 import { Common } from "../../../CommonUtils";
 import { UiComponent } from "../UiComponent";
@@ -39,7 +42,7 @@ export class TypewriterText extends UiComponent {
   // TODO Use this to access individual chars; this way tweens can do sine waves and stuff.
   private letters: {sprite: PIXI.Sprite, position: Point}[] = [];
 
-  private typeface: PIXI.BitmapFont[];
+  private typeface: BitmapFont[];
 
   /** The next char to reveal. */
   private typewriterCursor = 0;
@@ -58,13 +61,7 @@ export class TypewriterText extends UiComponent {
 
     this.options = op;
 
-    // Acquire glyph sheet.
-    const data = PIXI.BitmapFont.available[op.font.fontName];
-
-    if (!PIXI.BitmapFont.available[op.font.fontName])
-      throw new Error(`Font '${op.font.fontName}' could not be found.`);
-
-    this.typeface = [data];
+    this.typeface = [op.font];
       // TODO Turn this into a list of mid-script choosable typefaces.
 
     this.buildNextPage(op.text ?? '');
@@ -112,9 +109,9 @@ export class TypewriterText extends UiComponent {
   ~1–0  : Change color
   ~s1–5 : Change text size
 
-    // These aren't possible without making each letter its own sprite object.
-  ~fr   : Frantic behavior    (shakes around like they're scared)
-  ~sn   : Sine-wave behavior  (moves up and down)
+    // These can't be used simultaneously.
+  ~fr   : Behavior-set Frantic    (shakes around like they're scared)
+  ~sn   : Behavior-set Sinewave   (moves up and down)
 
   ~r    : Reset to default settings.
   */
@@ -130,44 +127,64 @@ export class TypewriterText extends UiComponent {
     let cumulativeWidth = 0;  // This + xadvance so lines can be forced < maxWidth
     let maxLineHeight = 0;
 
+    const typefacesNotFound: Record<string, boolean> = {};
+
     // TODO Split lines by supposed width before assembly; split by words.
 
+    // REMOVE idx as well
+    let idx = -1;
     for (const c of script) {
+      idx++;
       const charCode = c.charCodeAt(0);
 
-      const typeface = this.typeface.at(0);
-      if (!typeface)
+      const typefaceData = this.typeface.at(0);
+      if (!typefaceData)
         continue;
+
+      const typeface = PIXI.BitmapFont.available[typefaceData.fontName];
+      if (!typeface) {
+        typefacesNotFound[typefaceData.fontName] = true;
+        continue;
+      }
 
       const charData = typeface.chars[charCode];
       if (!charData)
         continue;
 
+      const scale = typefaceData.fontSize / typeface.size;
+
       // Handle kerning
       if (lastCharData && lastCharData.kerning[charCode])
-        cursor.x += lastCharData.kerning[charCode];
+        cursor.x += lastCharData.kerning[charCode] * scale;
       lastCharData = charData;
 
       // Build sprite object.
       const spr = new PIXI.Sprite(charData.texture);
       spr.position.set(
-        cursor.x + charData.xOffset,
-        cursor.y + charData.yOffset,
+        cursor.x + charData.xOffset * scale,
+        cursor.y + charData.yOffset * scale,
       );
-      // spr.scale.set(typeface.size / charData.texture.height / 2); // I also don't know how to get the proper height.
-        // Why doesn't this display all lines?
+      spr.scale.set(scale);
       spr.visible = false;
         // TODO Extra behaviors
 
+      // REMOVE Test selective coloring
+      if (Common.within(idx, 73, 93))
+        spr.tint = Color.HSV(350,70,100);
+
       this.container.addChild(spr);
 
+        // TODO This somehow considers offsets from the baseline as well
       maxLineHeight = Math.max(spr.height, maxLineHeight);
 
       // Move cursor
-      cursor.x += charData.xAdvance;
+      cursor.x += charData.xAdvance * scale;
       if (cursor.x >= this.options.maxWidth)
         cursor.set(0, cursor.y + maxLineHeight + (this.options.lineSpacing ?? 0));
     };
+
+    // REMOVE Does size and scale match what I expect?
+    console.log(this.container);
   }
 
   /** Stamps `n` new chars onto the text canvas. */
