@@ -199,6 +199,135 @@ export class TypewriterText extends UiComponent {
     console.log(this.container);
   }
 
+  /** Converts a page of dialogue to instructions for the typewriter. */
+  private parseScript(script: string) {
+
+    const StyleRule = {prop: '', value: 0};
+
+    const styleRules: Record<string, (val: string) => (typeof StyleRule | false)> = {
+      'look': (val: string) => {
+        return {
+          prop: 'color',
+          value: Palette.caribbean_green,
+        }
+      },
+      'x': (val: string) => {
+        if (val.length === 3)
+          val = `${Array.from(val).map( c => c.repeat(2) ).join('')}`   // Double every char
+
+        if (val.length !== 6)
+          return false;
+
+        return {
+          prop: 'color',
+          value: Number(`0x${val}`),
+        }
+      },
+    }
+
+    const ruleSchedule: Record<number, typeof StyleRule> = {};
+
+    // Parse style codes out of the script and into the rule schedule
+    let begin = 0, end = 0;
+    while ((begin = script.indexOf('[')) !== -1) {
+      end = script.indexOf(']', begin);
+
+      if (end === -1) // If no more ']', no more tags
+        break;
+
+      // Parse tag and tag contents for a style rule to schedule
+      const tag = script.slice(begin, end+1);
+      const substr = tag.slice(1,-1);
+
+      const rule = Object.entries(styleRules).find( ([key,get]) => substr.startsWith(key) );
+
+      if (rule) {
+        const [ key, get ] = rule;
+        const value = substr.slice(key.length);
+
+        const styleData = get(value);
+
+        if (styleData !== false) {
+          ruleSchedule[begin] = ruleSchedule[begin]
+            ? {...ruleSchedule[begin], ...styleData}  // This is additive. Can I rewrite it, though?
+            : styleData;
+        }
+      }
+
+      // Erase tag from script string
+      script = script.replace(tag,'');
+    }
+
+    // Split lines along \n and then even more with respect to word wrap.
+    let lines = script.split('\n');
+
+    lines = lines
+      .map( line => {
+        // I'ma go basic for now.
+        const newLines: string[] = [];
+        let cursor = 0;
+
+        while (line.length > 0) {
+          while (cursor < 80 && cursor < line.length) {
+            cursor = line.indexOf(' ', cursor);
+          }
+          if (cursor !== 0)
+            cursor = line.lastIndexOf(' ', cursor) + 1; // Get the position of the char just after the space.
+
+          newLines.push(line.slice(0, cursor));
+          line = line.slice(cursor);
+        }
+
+        return [
+          ...newLines,
+          line,
+        ]
+      })
+      .flat();
+
+    // Okay.
+    // We have now produced an array of lines
+    //   ['the first ','the second ','more dialogue ','you get the idea.']
+    // and a style change itinerary
+    //   {14: {'color': 0x009988}, 21: {'color': 0x0}}
+    // I do feel this is missing the point a bit.
+    // Like.
+    // Sigh, I dunno.
+    /*
+
+      I need to parse out the style tags because I need to know the actual length of the lines
+      so I can split them.
+
+      But I also need to know where those tags were so I can still apply them.
+
+      I guess I could convert the chars to graphics in one pass, stopping to apply style tags
+      along the way, and then do the word wrap on the actual graphics objects.
+
+      But in that case, I need some way of knowing where the delimiters are.
+
+      Anyway. I'd love to think about this, but I need to actually work so I can go home later.
+
+      
+
+      I definitely want to do this in one pass because grabbing the texture width data once,
+      doing some stuff, and then later grabbing it again seems silly.
+
+      Word-wrap happens over the last known good space char.
+      
+      So '-' and ' ' could be treated like remembered as line-break points and if the current
+      word goes over the margin then everything from line-break to cursor gets moved into a
+      new line, and '\n' (which does read as one char; '\n'.length === 1) can just do this
+      immediately.
+
+      '[' begins the tag and substring interpreter, which affects the current style object.
+      These are ignored after parsing.
+
+      '\' can't be used as an escape char for '[]' because javascript already does a lot of
+      escaping mid string with it. It would produce a lot of weird results.
+
+    */
+  }
+
   /** Stamps `n` new chars onto the text canvas. */
   private stampNewChars(n: number) {
     if (n <= 0)
