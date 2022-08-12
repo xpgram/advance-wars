@@ -106,14 +106,26 @@ export class TypewriterText extends UiComponent {
 
   /*
   Text codes I'm considering:
-  ~1–0  : Change color
-  ~s1–5 : Change text size
+  look  : Changes color to "of interest" color.
+  req   : Changes color to "required" color.
+  xFFF  : Condensed hex color for proceeding text.
+  s1–5  : Change text size
+  w1–9  : Wait-point with length of some logarithmic measure
 
-    // These can't be used simultaneously.
-  ~fr   : Behavior-set Frantic    (shakes around like they're scared)
-  ~sn   : Behavior-set Sinewave   (moves up and down)
+    // These should be named for their semantic meaning, like [look]
+    // 'Frantic' is fine. I dunno what sine should be. Sine kinda makes me think of a car salesman, though.
+  b:fr  : Behavior-set Frantic    (shakes around like they're scared)
+  b:sn  : Behavior-set Sinewave   (moves up and down)
 
-  ~r    : Reset to default settings.
+  /r    : Reset to default settings. Clears all stylings.
+
+  /code with no value will toggle-off that styling. Ex:
+  /x    : End color (including [look] and [req])
+  /s    : End text size.
+
+  This will [look]get your blood pumping.[/r] But you'll need [req]batteries[/r] from the storage room.
+  These will [xF00]blow [x0F0]your [x00F]balls [/r]away.
+  These can [xF80]made [s4]to do[/x] whatever you[/s] want.
   */
 
   private buildNextPage(script: string) {
@@ -196,50 +208,6 @@ export class TypewriterText extends UiComponent {
     const child = this.container.children.at(this.typewriterCursor);
     child && (child.visible = true);
     this.typewriterCursor++;
-
-    // if (!Common.validIndex(this.cursor.y, this.lines.length) ||
-    //     !Common.validIndex(this.cursor.x, this.lines[this.cursor.y].length))
-    //   return; // TODO Still increment cursor, though.
-
-    // const char = this.lines[this.cursor.y].charCodeAt(this.cursor.x);
-
-    // // Advance the cursor to the next letter.
-    // this.cursor.x++;
-    // if (this.cursor.x >= this.lines[this.cursor.y].length) {
-    //   this.cursor.x = 0;
-    //   this.cursor.y++;
-    // }
-
-    // // Get typeface.
-    // const typeface = this.typeface[0];
-
-    // if (!typeface)
-    //   return; // TODO
-
-    // const charData = typeface.chars[char.char];
-
-    // if (!charData)
-    //   return; // TODO
-
-    // const stamp = new Sprite(charData.texture);
-    // stamp.position.set(this.texCursor.x, this.texCursor.y);
-
-    // let cursor = -8;
-    // for (const char of op.text ?? '') {
-    //   cursor += 8;
-
-    //   const c = char.charCodeAt(0);
-    //   if (!data.chars[c])
-    //     continue;
-
-    //   const spr = new PIXI.Sprite(data.chars[c].texture);
-    //   spr.x = cursor;
-
-    //   Game.renderer.render(spr, {
-    //     renderTexture: this.renderTexture,
-    //     clear: false,
-    //   });
-    // }
 
     // Recursive loop to capture all n-char requests.
     n--;
