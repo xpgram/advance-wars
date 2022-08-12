@@ -307,7 +307,7 @@ export class TypewriterText extends UiComponent {
 
       Anyway. I'd love to think about this, but I need to actually work so I can go home later.
 
-      
+
 
       I definitely want to do this in one pass because grabbing the texture width data once,
       doing some stuff, and then later grabbing it again seems silly.
@@ -318,6 +318,10 @@ export class TypewriterText extends UiComponent {
       word goes over the margin then everything from line-break to cursor gets moved into a
       new line, and '\n' (which does read as one char; '\n'.length === 1) can just do this
       immediately.
+
+      If 'lastBreak' > 0, move all succeeding chars into the next line object, subtract each
+      graphic by the new 0th's x.
+      If 'lastBreak' == 0, just break here at the previous, non-offending char.
 
       '[' begins the tag and substring interpreter, which affects the current style object.
       These are ignored after parsing.
