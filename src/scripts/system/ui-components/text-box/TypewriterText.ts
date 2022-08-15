@@ -81,6 +81,9 @@ export class TypewriterText extends UiComponent {
 
     this.options = op;
 
+    // REMOVE
+    this.timeMultiplier = 2;
+
     this.typeface = [op.font];
       // TODO Turn this into a list of mid-script choosable typefaces.
 
@@ -152,6 +155,7 @@ export class TypewriterText extends UiComponent {
 
     // Setup procedure variables
     let wordBreakIndex = 0;
+    const whitespaceChars = ' ';
     const wordBreakChars = ' -';
 
     let lastCharData: PIXI.IBitmapFontCharacter | undefined;    // For kerning
@@ -166,6 +170,13 @@ export class TypewriterText extends UiComponent {
       scale: 1,
     }
 
+    /** Resets kerning and safe-line-break rememberance.  
+     * The caret or draw-position is considered separate. */
+    function resetContinuityVars() {
+      wordBreakIndex = 0;
+      lastCharData = undefined;
+    }
+
     
     // Iterate over the page string.
     for (let i = 0; i < page.length; i++) {
@@ -175,6 +186,18 @@ export class TypewriterText extends UiComponent {
 
       // consider '[' — we'll de this last
 
+      // Skip ' ' (etc.) on line-breaks.
+      if (line.children.length === 0 && whitespaceChars.includes(char))
+        continue;
+
+      // handle '\n'
+      if (char === '\n') {
+        lines.push(new PIXI.Container());
+          // TODO The way lines are aligned later, '\n\n' cannot create a double line-break.
+          // Should this be considered a feature instead of a design flaw?
+        caret = 0;
+        resetContinuityVars();
+      }
 
       // gather char and font data
       const typefaceCode = 0; // TODO Expand to allow for multiple font choices
@@ -238,7 +261,6 @@ export class TypewriterText extends UiComponent {
       caret += charData.xAdvance * scale;
 
       // apply word-wrap
-        // TODO Verify this stays strictly within maxWidth; draw an overlap box it should never touch
       if (caret > this.options.maxWidth) {
         // use the safe break-point, or if none just this last offending char
           // FIXME I expect this will have odd behavior if ' ' is the last offending char
@@ -253,7 +275,7 @@ export class TypewriterText extends UiComponent {
         newline.children.forEach( c => c.x -= xAdjust );
         caret -= xAdjust;
 
-        wordBreakIndex = 0;
+        resetContinuityVars();
         lines.push(newline);
         line = newline;
       }

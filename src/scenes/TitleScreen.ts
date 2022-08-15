@@ -100,7 +100,15 @@ export class TitleScreen extends Scene {
 
     
     // REMOVE Typewriter text class demo
-    const text = 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eum laudantium inventore sed officia. Eum laboriosam eveniet dolores numquam cum dignissimos explicabo aut fugiat temporibus.';
+    const text = [
+      'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eum laudantium inventore sed officia. Eum laboriosam eveniet dolores numquam cum dignissimos explicabo aut fugiat temporibus.',
+      '',
+      'HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH hello',
+      'HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH-hello',
+    ].join('\n');
+
+    // TODO This shows that " hello" on the next line is incorrectly indented.
+
     const gtext = new TypewriterText({
       componentName: 'TitleScreenTest',
       text,
