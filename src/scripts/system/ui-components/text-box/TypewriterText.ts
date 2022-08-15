@@ -6,13 +6,20 @@ import { Color } from "../../../color/Color";
 import { Palette } from "../../../color/ColorPalette";
 import { Point } from "../../../Common/Point";
 import { Common } from "../../../CommonUtils";
+import { Debug } from "../../../DebugUtils";
 import { UiComponent } from "../UiComponent";
 
 
+export type TypewriterScript = (string | Function)[];
+  // TODO Not all typewriter text needs to do this. I think it makes sense for a coordinator
+  // to manage updating the typewriter pages while calling other functions.
+
 export type TypewriterTextOptions = {
+  componentName: string;
   text?: string;
   font: BitmapFont;
   lines: number;
+  strictLineDistance?: number;
   lineSpacing?: number;
   maxWidth: number;
 }
@@ -25,7 +32,18 @@ interface CharRenderData {
   prevSpaces: number;
 }
 
+
+/**
+ * 
+ * TODO:
+ * [x] Typewriter effect over displayed text
+ * [ ] .setPageText(str) changes the text and rebuilds the typewriter effect
+ * [ ] .advance() moves the paused page to the next line
+ * [ ] .skip() shows all chars now, up to the next line pause
+ */
 export class TypewriterText extends UiComponent {
+
+  get DOMAIN() { return `TypewriterText_${this.options.componentName}`; }
 
   private options: Readonly<TypewriterTextOptions>;
 
@@ -40,19 +58,21 @@ export class TypewriterText extends UiComponent {
   // );
 
   // TODO Use this to access individual chars; this way tweens can do sine waves and stuff.
-  private letters: {sprite: PIXI.Sprite, position: Point}[] = [];
+  private chars: {sprite: PIXI.Sprite, position: Point}[] = [];
 
   private typeface: BitmapFont[];
 
   /** The next char to reveal. */
-  private typewriterCursor = 0;
+  private readonly typewriterCursor = new Point();
 
   private time = 0;
   private timeMultiplier = 1;
 
   /** Returns true if the typewriter cursor is no longer selecting an object. */
   get pageFinished() {
-    return this.typewriterCursor >= this.container.children.length;
+    return this.typewriterCursor.y >= this.container.children.length;
+      // TODO I need, maybe not 'finished', but I need 'waitingForInput' to return 'true' when
+      // the textbox is displaying the maximum chars even if it isn't displaying the last char.
   }
 
 
@@ -65,32 +85,6 @@ export class TypewriterText extends UiComponent {
       // TODO Turn this into a list of mid-script choosable typefaces.
 
     this.buildNextPage(op.text ?? '');
-
-    // this.container.addChild(new PIXI.Sprite(this.renderTexture));
-
-    /*
-
-    So, here's what I want to do, I think.
-
-    BitmapText works by taking the textures taken from data.chars[charCode] and, with a little
-    cursor and kerning magic, assembles them into a larger texture that is then cached and
-    manipulated as a macro object, at least until .text is modified and it needs to re-render.
-
-    I can do the same thing. Perhaps with less sophistication, and.. more slowly, but I can
-    do this myself. *And* I'll have more control over the text itself. Meaning I can color
-    code it.
-
-    Whenever `text` is modified, I'll reset all the animation mechanics and put the text into
-    a sieve, or a series of sieves.
-
-    Delta time will accumulate and whenever it's >1 I'll take the floor (leaving the mantissa)
-    and add that many chars to the big texture.
-
-    The big texture, until a page advance, is a working canvas. It's an additive procedure.
-
-    Let's start by making sure the stamping mechanic works.
-
-    */
   }
 
 
@@ -114,8 +108,9 @@ export class TypewriterText extends UiComponent {
 
     // These should be named for their semantic meaning, like [look]
     // 'Frantic' is fine. I dunno what sine should be. Sine kinda makes me think of a car salesman, though.
-  b:fr  : Behavior-set Frantic    (shakes around like they're scared)
-  b:sn  : Behavior-set Sinewave   (moves up and down)
+  frantic : Behavior-set Frantic    (shakes around like they're scared)
+  sine    : Behavior-set Sinewave   (moves up and down)
+  b1      : Behavior-set Userdefined1
 
   /r    : Reset to default settings. Clears all stylings.
 
@@ -128,78 +123,176 @@ export class TypewriterText extends UiComponent {
   These can [xF80]made [s4]to do[/x] whatever you[/s] want.
   */
 
-  private buildNextPage(script: string) {
+  /** TODO:
+   * [x] Clear last build
+   * [x] Examine next char
+   * [x] If char is ' ' or some other delimiter, update the break point idx
+   * [ ] If char is '[', begin style interpreter
+   *   [ ] first, confirm a matching ']' exists, else end
+   *   [ ] find a cmd whose text begins the substr
+   *   [ ] grab the rest of the string as a value input
+   *   [ ] modify the text-styler module according to new rules
+   *   [ ] remove style tag from stack
+   *   [ ] loop back to examine char
+   * [x] turn char into sprite
+   * [-] style text according to current rules
+   *   [ ] Test existing; expand applicables
+   * [x] loop back
+   * 
+   * So far, it works. Fantastic.
+   * I am concerned that perhaps all the containers are overworking the PC.
+   * I mean, this is why I didn't want to do recursive char containers to begin with.
+   * It's hard to tell with this machine, though.
+   */
+
+  private buildNextPage(page: string) {
     // Clear previous
     this.container.children.forEach( c => c.destroy({children: true}) );
+    this.typewriterCursor.set(0);
 
-    let lastCharData: PIXI.IBitmapFontCharacter | undefined;
+    // Setup procedure variables
+    let wordBreakIndex = 0;
+    const wordBreakChars = ' -';
 
-    const cursor = new Point();
+    let lastCharData: PIXI.IBitmapFontCharacter | undefined;    // For kerning
 
-    let cumulativeWidth = 0;  // This + xadvance so lines can be forced < maxWidth
-    let maxLineHeight = 0;
+    const lines = [new PIXI.Container()]; // A list of all horizontal lines. These are separated by their actual heights after being built, unless 'strictDistance' is enforced.
+    let caret = 0;                        // Keeps track of horizontal travel when placing chars
 
-    const typefacesNotFound: Record<string, boolean> = {};
+    const err_messages = new Set<string>();
 
-    // TODO Split lines by supposed width before assembly; split by words.
+    const style = {
+      color: Palette.white,
+      scale: 1,
+    }
 
-    // REMOVE idx as well
-    let idx = -1;
-    for (const c of script) {
-      idx++;
-      const charCode = c.charCodeAt(0);
+    
+    // Iterate over the page string.
+    for (let i = 0; i < page.length; i++) {
+      const char = page.charAt(i);
+      const charCode = page.charCodeAt(i);
+      let line = lines.at(-1) as PIXI.Container;
 
-      const typefaceData = this.typeface.at(0);
-      if (!typefaceData)
-        continue;
+      // consider '[' — we'll de this last
 
-      const typeface = PIXI.BitmapFont.available[typefaceData.fontName];
-      if (!typeface) {
-        typefacesNotFound[typefaceData.fontName] = true;
+
+      // gather char and font data
+      const typefaceCode = 0; // TODO Expand to allow for multiple font choices
+      const typefaceData = this.typeface.at(typefaceCode);
+      if (!typefaceData) {
+        err_messages.add(`typeface code '${typefaceCode}' not listed`);
         continue;
       }
 
-      const charData = typeface.chars[charCode];
-      if (!charData)
+      const typeface = PIXI.BitmapFont.available[typefaceData.fontName];
+      if (!typeface) {
+        err_messages.add(`typeface assets for '${typefaceData.fontName}' not found`);
         continue;
+      }
+  
+      const charData = typeface.chars[charCode];
+      if (!charData) {
+        err_messages.add(`'${char}' data not found in typeface '${typefaceData.fontName}'`);
+        continue;
+      }
 
-      const scale = typefaceData.fontSize / typeface.size;
+      // calc draw properties
+      const scale = typefaceData.fontSize / typeface.size * style.scale;
 
-      // Handle kerning
-      if (lastCharData && lastCharData.kerning[charCode])
-        cursor.x += lastCharData.kerning[charCode] * scale;
+      // Adjust caret by kerning
+      caret += lastCharData?.kerning[charCode] ?? 0;
       lastCharData = charData;
 
-      // Build sprite object.
-      const spr = new PIXI.Sprite(charData.texture);
-      spr.position.set(
-        cursor.x + charData.xOffset * scale,
-        cursor.y + charData.yOffset * scale,
-      );
-      spr.scale.set(scale);
-      spr.visible = false;
-        // TODO Extra behaviors
+      // build graphical object, apply style rules
+      const gchar = new PIXI.Sprite(charData.texture);
+      gchar.tint = style.color;
+        // TODO Other style behaviors
 
-      // REMOVE Test selective coloring
-      if (Common.within(idx, 73, 93))
-        spr.tint = Color.HSV(350,70,100);
+      // build positional container
+      const cont = new PIXI.Container();
+      cont.addChild(gchar);
 
-      this.container.addChild(spr);
+      cont.x = caret + (charData.xOffset * scale);
+      cont.y = (charData.yOffset * scale);
+      cont.scale.set(scale);
+      // cont.visible = false;  // must be visible to calculate line.height later
 
-        // TODO This somehow considers offsets from the baseline as well
-      maxLineHeight = Math.max(spr.height, maxLineHeight);
+      const charAnimated = false; // TODO For now, all chars are non-animated.
+      cont.cacheAsBitmap = !charAnimated;
+        // TODO Potentially, an entire page could be animated, and in that case I don't want to lean
+        // on this caching technique. Whatever the textbox does should affect the system evenly.
+        //
+        // I could reduce the scene graph, however, if I switch to using a list of {spr, pos} objects.
+        // The point of the wrapping container is to give spr a home-position of (0,0), but a pos that
+        // tells me where it ought to be would work just as well.
+        //
+        // Also, if I switch, I could add fake objects or include a {wait} property to allow for
+        // typewriter pauses.
+        //
+        // I probably should switch.
+        // I will once I figure out how to model the sine-wave text behavior using this method.
 
-      // Move cursor
-      cursor.x += charData.xAdvance * scale;
-      if (cursor.x >= this.options.maxWidth)
-        cursor.set(0, cursor.y + maxLineHeight + (this.options.lineSpacing ?? 0));
+      line.addChild(cont);
+
+      // advance caret
+      caret += charData.xAdvance * scale;
+
+      // apply word-wrap
+        // TODO Verify this stays strictly within maxWidth; draw an overlap box it should never touch
+      if (caret > this.options.maxWidth) {
+        // use the safe break-point, or if none just this last offending char
+          // FIXME I expect this will have odd behavior if ' ' is the last offending char
+        const breakIndex = (wordBreakIndex > 0) ? wordBreakIndex : line.children.length - 1;
+
+        const newline = new PIXI.Container();
+        const transferChildren = line.children.slice(breakIndex);
+        if (transferChildren.length > 0)
+          newline.addChild(...transferChildren);
+
+        const xAdjust = newline.children.at(0)?.x ?? 0;
+        newline.children.forEach( c => c.x -= xAdjust );
+        caret -= xAdjust;
+
+        wordBreakIndex = 0;
+        lines.push(newline);
+        line = newline;
+      }
+
+      // update safe break-point index
+      if (wordBreakChars.includes(char) && line.children.length > 1)
+        wordBreakIndex = line.children.length;
+    }
+
+    // arrange lines vertically
+    let yCaret = 0;
+    for (const line of lines) {
+      line.y = yCaret;
+      yCaret += this.options.strictLineDistance ?? line.height;
+      yCaret += this.options.lineSpacing ?? 0;
+
+      // hide chars for typewriter effect
+      for (const cont of line.children)
+        cont.visible = false;
     };
 
-    // REMOVE Does size and scale match what I expect?
-    console.log(this.container);
+    // add finished lines to component
+    this.container.addChild(...lines);
+
+    // post error messages
+    for (const message of err_messages) {
+      Debug.log(this.DOMAIN, "BuildPage", {
+        message,
+        warn: Game.developmentMode,
+      })
+    }
   }
 
-  /** Converts a page of dialogue to instructions for the typewriter. */
+
+  //  =============================================================================================
+  //  =============================================================================================
+
+  /** Converts a page of dialogue to instructions for the typewriter.
+   * @deprecated */
   private parseScript(script: string) {
 
     const StyleRule = {prop: '', value: 0};
@@ -332,15 +425,33 @@ export class TypewriterText extends UiComponent {
     */
   }
 
+  //  =============================================================================================
+  //  =============================================================================================
+
+
   /** Stamps `n` new chars onto the text canvas. */
   private stampNewChars(n: number) {
     if (n <= 0)
       return;
 
-      // TODO Wait, what about typewriter pauses?
-    const child = this.container.children.at(this.typewriterCursor);
-    child && (child.visible = true);
-    this.typewriterCursor++;
+    // TODO Wait, what about typewriter pauses?
+
+    const line = this.container.children.at(this.typewriterCursor.y) as (PIXI.Container | undefined);
+    const charCont = line?.children.at(this.typewriterCursor.x) as (PIXI.Container | undefined);
+    if (charCont) {
+      charCont.visible = true;
+
+      // If frozen, trigger one update
+      const freeze = charCont.cacheAsBitmap;
+      charCont.cacheAsBitmap = false;
+      charCont.cacheAsBitmap = freeze;
+    }
+
+    this.typewriterCursor.x++;
+    if (line && this.typewriterCursor.x >= line.children.length) {
+      this.typewriterCursor.x = 0;
+      this.typewriterCursor.y++;
+    }
 
     // Recursive loop to capture all n-char requests.
     n--;

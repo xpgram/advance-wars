@@ -102,13 +102,17 @@ export class TitleScreen extends Scene {
     // REMOVE Typewriter text class demo
     const text = 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eum laudantium inventore sed officia. Eum laboriosam eveniet dolores numquam cum dignissimos explicabo aut fugiat temporibus.';
     const gtext = new TypewriterText({
+      componentName: 'TitleScreenTest',
       text,
       font: fonts.tectac,
       lines: 2,
       // lineSpacing: 8,
       maxWidth: 256,
     });
-    this.visualLayers.stage.addChild(gtext.container);
+    const overlap_marker = new PIXI.Graphics();
+    overlap_marker.beginFill(0xFF0000)
+      .drawRect(gtext.options.maxWidth,0,4,Game.display.renderHeight);
+    this.visualLayers.stage.addChild(overlap_marker, gtext.container);
   }
 
   updateStep(): void {
