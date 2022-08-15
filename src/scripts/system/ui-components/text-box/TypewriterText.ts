@@ -262,6 +262,10 @@ export class TypewriterText extends UiComponent {
 
       // apply word-wrap
       if (caret > this.options.maxWidth) {
+        // if (whitespaceChars.includes(char))
+        //   continue;
+        // ^ except ' ' has already been added by this point, so it need to be unadded. *sigh*.
+
         // use the safe break-point, or if none just this last offending char
           // FIXME I expect this will have odd behavior if ' ' is the last offending char
         const breakIndex = (wordBreakIndex > 0) ? wordBreakIndex : line.children.length - 1;
