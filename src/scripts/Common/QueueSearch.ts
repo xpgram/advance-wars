@@ -2,35 +2,31 @@ import { Debug } from "../DebugUtils";
 
 const DOMAIN = "QueueSearch";
 
-/** Enum with terms for every possible search mode operable by QueueSearch.
- * DepthFirst is approximate: it extends outward to some limit, then works its way back to
- * a previous branching point and extends outward again.
- * BreadthFirst searches terms in the order they are encountered. */
+
 enum SearchMode {
+    /** Another name for last-in-first-out: prioritizes nodes at the end of the stack. */
     DepthFirst,
-    BreadthFirst
+    /** Another name for first-in-first-out: prioritizes nodes at the beginning of the stack. */
+    BreadthFirst,
 }
 
-/** A generic scaffolding-pattern for search algorithms,
- * the methodology of which is completely determinable by the invoking script.  
+/**
+ * A boilerplate class for a stack-managed search algorithm.  
+ * Set the search mode and then write the node-handler, which may return `null`, more nodes, or `'break'`
+ * if a fixed-return has been found, the rest will be handled for you.
  * 
- * // TODO Write the rest of this.
- * // I should probably explain how to write an algorithm using this class.
- * // TODO Integrate this class with Map's two versions of the same algorithm. It's why I wrote it.
- * 
- * Searches stop either when the signal "Final" is given by the node-checking function,
- * or when the queue of search-nodes is emptied.
+ * Searches stop when signaled to or when the queue of search-nodes is emptied.
  */
 export class QueueSearch<T> {
 
     static SearchMode = SearchMode;
 
     /** A 'deposit-box' containing the final result of the fully evaluated algorithm. */
-    resultNode: T | null = null;
+    resultNode?: T;
 
     /** Algorithms are nameable for traceability reasons.
      * Generally only useful for staccatoed searches. */
-    private name: string | undefined;
+    private readonly name: string | undefined;
 
     /** Algorithm start timestamp */
     private startTime = Date.now();
@@ -38,24 +34,23 @@ export class QueueSearch<T> {
     private endTime: number | undefined;
 
     /** The time in milliseconds the algorithm will wait before warning that it may be looping forever. */
-    private warningTimerLimit: number;
+    private readonly warningTimerLimit: number;
     private warningPosted = false;
 
     /** The time since the search was started or the elapsed time taken to complete. */
     get elapsedTime(): number {
-        if (this.endTime)
-            return (this.endTime - this.startTime);
-        else
-            return (Date.now() - this.startTime);
+        return (this.endTime)
+            ? (this.endTime - this.startTime)
+            : (Date.now() - this.startTime);
     }
 
     /** Which search method the algorithm will conduct with. */
-    mode: SearchMode;
+    private readonly mode: SearchMode;
 
     /** Whether iterations of the search should be carried out all at once (false)
      * or by request (true). Setting this to true requires you to invoke update()
      * yourself, but allows you to staccato the search across multiple program cycles. */
-    staccatoSearch: boolean;
+    private readonly staccatoSearch: boolean;
 
     /** Called on each node handled by the search algorithm.
      * May return a list of nodes to queue, nothing at all, or the signal ('break') to halt. */
@@ -70,22 +65,26 @@ export class QueueSearch<T> {
 
 
     constructor(options: {
+        /** Name description of the owning object; the job issuer. For logging purposes. */
         owner: string,
+        /** Name description of the job this search is performing. For logging purposes. */
         process: string,
 
         firstNode: T,
         searchMode: SearchMode,
 
+        /** Set to `true` if you'd like to stagger the search over multiple frames; update() must be called manually. */
         staccatoSearch?: boolean,
+        /** The ms time the loop may continue before a console warning is issued. Twice this duration and the search
+         * will assume it is looping infinitely. */
         warningTimer?: number,
-
         /** Expected to return a list of nodes to queue, none at all, or the signal to stop. */
         nodeHandler: (node: T) => T[] | null | 'break',
     }) {
         this.mode = options.searchMode;
         this.queue = [options.firstNode];
-        this.staccatoSearch = options.staccatoSearch || false;
-        this.warningTimerLimit = options.warningTimer || 1000; // Default: 1 second
+        this.staccatoSearch = options.staccatoSearch ?? false;
+        this.warningTimerLimit = options.warningTimer ?? 1000; // Default: 1 second
         this.name = `${options.owner}:${options.process}`;
 
         this.handleNode = options.nodeHandler;
@@ -101,7 +100,6 @@ export class QueueSearch<T> {
     /** Pulls one node from the queue and evaluates it. This may extend the search or stop it,
      * depending. */
     private handleNextNode() {
-        // If search completed, do not continue.
         if (this.finished)
             return;
 
@@ -135,13 +133,13 @@ export class QueueSearch<T> {
         // Get the next node for consideration.
         let node: T | undefined;
 
-        if (this.mode == SearchMode.BreadthFirst)       // If this gets any more complicated,
+        if (this.mode === SearchMode.BreadthFirst)      // If this gets any more complicated,
             node = this.queue.shift();                  // write something of the form:
-        else if (this.mode == SearchMode.DepthFirst)    // mode = () => T; node = mode();
+        else if (this.mode === SearchMode.DepthFirst)   // mode = () => T; node = mode();
             node = this.queue.pop();
 
         // If the queue is empty, cease the search
-        if (node == undefined) {
+        if (node === undefined) {
             this.endSearch();
             return;
         }
@@ -149,12 +147,12 @@ export class QueueSearch<T> {
         let result = this.handleNode(node);
 
         // If result was the signal to stop searching, break.
-        if (result == 'break') {
+        if (result === 'break') {
             this.resultNode = node;
             this.endSearch();
         }
         // If result is not null (thus T[])
-        else if (result != null) {
+        else if (result !== null) {
             this.queue = this.queue.concat(result);
         }
     }
@@ -167,33 +165,25 @@ export class QueueSearch<T> {
         if (!this.staccatoSearch)
             return;
 
-        // Configure update limits
-        let times;
-        let duration;
+        let maxLoop = options?.repeat;
+        let maxTime = options?.duration;
 
-        if (options) {
-            times = (options.repeat != undefined) ? options.repeat : times;
-            duration = (options.duration != undefined) ? options.duration : duration;
-        }
+        // Default staccato limit
+        if (!maxLoop && !maxTime)
+            maxLoop = 100;
 
-        // No given options default case
-        if (times == undefined && duration == undefined)
-            times = 100;
-
-        // Duration counters
-        let count = 0;
-        let start = Date.now();
+        let loopCount = 0;
+        let startTime = Date.now();
 
         // Update until either limit reached
-        while (duration == undefined || Date.now() - start < duration) {
-            // Prevent CPU hogging when there's no work to do.
-            if (this.finished) break;
+        while (true) {
+            const timedOut = (maxTime && Date.now() - startTime >= maxTime);
+            const loopFinish = (maxLoop && loopCount >= maxLoop);
+            if (this.finished || timedOut || loopFinish)
+                break;
 
-            if (times == undefined || count < times) {
-                this.handleNextNode();
-                ++count;
-            }
-            else break;
+            this.handleNextNode();
+            loopCount++;
         }
     }
 

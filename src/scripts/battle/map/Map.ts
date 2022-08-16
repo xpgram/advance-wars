@@ -468,12 +468,15 @@ export class Map {
                     .filter( p => {
                         if (!this.validPoint(p))
                             return false;
+
                         const square = this.squareAt(p);
                         const notVisited = (!square.visited);
+                        square.visited = true;
+
                         const sameType = (square.terrain.type === target);
                         const notBuilding = (!square.terrain.building);
                         const sameFaction = (square.terrain.faction === targetFaction);
-                        square.visited = true;
+                        
                         return notVisited && sameType && (notBuilding || sameFaction);
                     });
             }

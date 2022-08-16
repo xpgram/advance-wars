@@ -29,7 +29,6 @@ export const TerrainProperties = {
 export module Terrain {
 
     export class Void extends TerrainObject {
-        // Not for nothin', but these properties are all technically condensible into one 64-bit value.
         get type() { return Void; }
         static readonly serial = Serial.next().value;
         get landTile() { return false; }
@@ -67,14 +66,16 @@ export module Terrain {
         get type() { return Plain; }
         static readonly serial = Serial.next().value;
         get illustration(): PIXI.Sprite {
-            if (this.variation == 1)
-                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-meteor-landscape.png'] );
-            else if (this.variation == 2)
-                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-plasma-landscape.png'] );
-            else
-                return new PIXI.Sprite( TerrainProperties.infoPortraitSheet.textures['plain-landscape.png'] );
+
+            const serialMap = <Record<number, string | undefined>>{
+                [Meteor.serial]: 'plain-meteor-landscape.png',
+                [Plasma.serial]: 'plain-plasma-landscape.png',
+            };
+
+            const texName = serialMap[this.prevTileType?.serial ?? 0];
+            const { textures } = TerrainProperties.infoPortraitSheet;
+            return new PIXI.Sprite( textures[texName ?? 'plain-landscape.png'] );
         }
-        private variation = 0;
 
         get name() { return "Plain"; }
         get shortName() { return "Plain"; }
@@ -97,20 +98,21 @@ export module Terrain {
 
         constructor(prevTile?: TerrainObject, noPrevTileCosmetics?: boolean) {
             super();
-            // First: Allow invokers to suppress prev-tile variantation
+
             if (noPrevTileCosmetics)
                 return;
-            // Second: Keep craters and scorch effects intact in case of tile reorientation.
-            else if (prevTile && prevTile.type === Terrain.Plain)
-                this._prevTileType = (prevTile as Terrain.Plain).prevTileType;
-            // Default: assume the type of the previous tile.
-            else
-                this._prevTileType = prevTile?.type;
+
+            this._prevTileType = prevTile?.type;
+
+            if (this.prevTileType === Plain)
+                this._prevTileType = (prevTile as Plain).prevTileType;
         }
 
         exportDataBlob() {
+            const matchTypes = [Plasma, Meteor] as TerrainType[];
             const t = this.prevTileType;
-            if (!t || !([Plasma, Meteor] as TerrainType[]).includes(t))
+
+            if (!t || !matchTypes.includes(t))
                 return;
 
             return {prevTileSerial: t.serial};
@@ -118,6 +120,7 @@ export module Terrain {
 
         importDataBlob(data: {prevTileSerial: number}) {
             const t = Object.values(Terrain).find( t => t.serial === data.prevTileSerial );
+
             if (!t) {
                 Debug.log('PlainTile', 'ImportData', {
                     message: `Skipping data import.`,
@@ -167,8 +170,7 @@ export module Terrain {
         
             // Road
             let variant = TerrainMethods.fourDirectionalVariant(neighbors,  // The rest are tiles we want to connect to.
-                Terrain.Road, Terrain.Bridge, Terrain.HQ, Terrain.City, Terrain.Factory, Terrain.Airport,
-                Terrain.Port, Terrain.Radar, Terrain.ComTower, Terrain.Silo, Terrain.TempAirpt, Terrain.TempPort);
+                Road, Bridge, HQ, City, Factory, Airport, Port, Radar, ComTower, Silo, TempAirpt, TempPort);
             sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`road-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
@@ -205,7 +207,7 @@ export module Terrain {
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Wood
-            let variant = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Wood);
+            let variant = TerrainMethods.lineDirectionalVariant(neighbors, Wood);
             sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`wood-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
@@ -241,7 +243,7 @@ export module Terrain {
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         
             // Mountain
-            this._shapeSerial = TerrainMethods.lineDirectionalVariant(neighbors, Terrain.Mountain);
+            this._shapeSerial = TerrainMethods.lineDirectionalVariant(neighbors, Mountain);
             sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`mountain-${this._shapeSerial}.png`]);
             this.layers.push({object: sprite, key: ['top', 'row', 'static'], maskShape: true});
 
@@ -372,7 +374,7 @@ export module Terrain {
         orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             if (this.landTile) {
                 // River
-                let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
+                let variant = TerrainMethods.fourDirectionalVariant(neighbors, River, Bridge);
                 let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`river-${variant}.png`]);
                 this.layers.push({object: sprite, key: ['bottom', 'static']});
             } else {
@@ -382,15 +384,15 @@ export module Terrain {
             }
 
             // Bridge
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Bridge, Terrain.Port, Terrain.TempPort);
+            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Bridge, Port, TempPort);
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`bridge-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>): boolean {
-            return (neighbors.center.type == Terrain.Sea ||
-                    neighbors.center.type == Terrain.River ||
-                    neighbors.center.type == Terrain.Bridge);
+            return (neighbors.center.type == Sea ||
+                    neighbors.center.type == River ||
+                    neighbors.center.type == Bridge);
         }
     }
 
@@ -429,7 +431,7 @@ export module Terrain {
 
         orient(neighbors: NeighborMatrix<TerrainObject>, loc: Point) {
             // River TODO They don't connect to each other
-            let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.River, Terrain.Bridge);
+            let variant = TerrainMethods.fourDirectionalVariant(neighbors, River, Bridge);
             let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`river-${variant}.png`]);
             this.layers.push({object: sprite, key: ['bottom', 'static']});
         }
@@ -797,7 +799,7 @@ export module Terrain {
             }
             
             // Meteor
-            this._shapeSerial = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
+            this._shapeSerial = TerrainMethods.fourDirectionalVariant(neighbors, Plasma);
             this._shapeSerial = '0' + this._shapeSerial.slice(1);   // Up is always 'false' graphically
             let anim = new PIXI.AnimatedSprite(TerrainProperties.sheet.animations[`meteor-${this._shapeSerial}`]);
             anim.animationSpeed = 0.2;
@@ -865,7 +867,7 @@ export module Terrain {
                 this.layers.push({object: sprite, key: ['bottom', 'static']});
 
                 // Not until plasma is destroyed; otherwise, plasma has a brown halo and it looks weird.
-                // let variant = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma);
+                // let variant = TerrainMethods.fourDirectionalVariant(neighbors, Plasma);
                 // let sprite = new PIXI.Sprite(TerrainProperties.sheet.textures[`plain-${variant}.png`]);
             } else {
                 // Sea
@@ -874,7 +876,7 @@ export module Terrain {
             }
 
             // Plasma
-            this._shapeSerial = TerrainMethods.fourDirectionalVariant(neighbors, Terrain.Plasma, Terrain.Meteor);
+            this._shapeSerial = TerrainMethods.fourDirectionalVariant(neighbors, Plasma, Meteor);
             let anim = new PIXI.AnimatedSprite(TerrainProperties.sheet.animations[`plasma-${this._shapeSerial}`]);
             anim.animationSpeed = 0.25;
             anim.play();
@@ -962,7 +964,7 @@ export module Terrain {
         }
 
         legalPlacement(neighbors: NeighborMatrix<TerrainObject>) {
-            // neighbors.center.type == Terrain.Pipe &&
+            // neighbors.center.type == Pipe &&
             // neighbors.center.direction == 0101 || 1010 // a straight line necessarily connected to other pipes.
             return false;
         }
