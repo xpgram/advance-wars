@@ -40,6 +40,20 @@ interface CharRenderData {
  * [ ] .setPageText(str) changes the text and rebuilds the typewriter effect
  * [ ] .advance() moves the paused page to the next line
  * [ ] .skip() shows all chars now, up to the next line pause
+ * 
+ * 2nd Refactor:
+ * [ ] Turn all letters into CharContainers
+ *   [ ] fontcode: FontData
+ *   [ ] charcode: CharData
+ *   [ ] placement: Point
+ *   [ ] style: {}
+ *     [ ] placementOffset?: n => Point   // motion behavior
+ *   Methods:
+ *    // Given the cursor position, places itself, then returns a new caret position.
+ *    // This can be sequentially recalled on all chars during a textbox 'resize' event.
+ *   [ ] place(caret: Point): Point
+ * [-] Turn all style script into adjustments to the interpreter
+ * [ ] 
  */
 export class TypewriterText extends UiComponent {
 
