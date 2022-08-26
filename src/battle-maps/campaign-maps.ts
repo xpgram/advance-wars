@@ -2,6 +2,45 @@ import { MapData } from "./MapData";
 
 export const maps = <MapData[]>[
   {
+    "name": "How to Play 01",
+    "size": { "width": 15, "height": 8 },
+    "players": 2,
+    "map": [
+      [ 3, 3, 3, 3, 3, 0,20, 0, 8, 0, 4, 4, 0, 0, 0],
+      [ 3, 3, 3, 2, 0, 1, 1, 1, 6, 4, 1, 3, 4, 0, 0],
+      [ 3, 2, 2, 0, 0, 1, 0, 0, 8, 8, 3, 2, 0,19, 0],
+      [ 2, 0,19, 0, 0, 1, 2, 1, 1, 6, 3, 5, 0, 0, 0],
+      [ 0,23, 1, 1, 1, 1, 2,24, 0, 8,12, 3, 0, 0, 0],
+      [ 0, 0, 0, 0, 0,10,10, 0, 0,12,12, 3, 4, 0, 0],
+      [ 0, 0, 0, 0, 9, 9, 9,10,10, 9,12,12, 3, 4, 0],
+      [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    ],
+    "owners": [
+      {"location": {"x":  2, "y":  3}, "player": 0},
+      {"location": {"x":  6, "y":  0}, "player": 1},
+      {"location": {"x": 13, "y":  2}, "player": 1},
+    ],
+    "predeploy": [
+      {"location": {"x":  5, "y":  4}, "serial":  0, "player": 0},
+      {"location": {"x":  4, "y":  1}, "serial": 13, "player": 0},
+      {"location": {"x":  2, "y":  3}, "serial":  1, "player": 0},
+      {"location": {"x":  1, "y":  3}, "serial": 20, "player": 0},
+      {"location": {"x":  5, "y":  2}, "serial":  9, "player": 0},
+      {"location": {"x":  6, "y":  1}, "serial":  6, "player": 0},
+      {"location": {"x": 10, "y":  0}, "serial":  1, "player": 1},
+      {"location": {"x":  9, "y":  1}, "serial":  6, "player": 1},
+      {"location": {"x": 14, "y":  4}, "serial": 11, "player": 1},
+      {"location": {"x": 14, "y":  3}, "serial":  7, "player": 1},
+      {"location": {"x": 13, "y":  4}, "serial":  7, "player": 1},
+      {"location": {"x": 14, "y":  5}, "serial":  7, "player": 1},
+    ],
+    "tileData": [
+      {"location": {"x":  1, "y": 4}, "data": {"used":false}},
+      {"location": {"x":  8, "y": 1}, "data": {"landTile":true}},
+      {"location": {"x":  9, "y": 3}, "data": {"landTile":true}},
+    ],
+  },
+  {
     "name": "C12: History of Hate",
     "size": { "width": 20, "height": 14 },
     "players": 3,
