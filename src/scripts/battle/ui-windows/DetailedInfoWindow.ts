@@ -339,7 +339,7 @@ class Illustration {
     const landscape = (airUnit && showAirUnit) ? skyLandscape : terrain.illustration;
 
     const nullIllustration = new PIXI.Container();
-    const unitIllustration = (airUnit && !showAirUnit) ? nullIllustration : unit?.illustration || nullIllustration;
+    const unitIllustration = (unit || airUnit && showAirUnit) ? unit.illustration : nullIllustration;
 
     // TODO Remove; assets aren't complete, I just wanted to see them as they'd sorta eventually look.
     if (unitIllustration !== nullIllustration) {
