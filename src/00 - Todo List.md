@@ -14,15 +14,21 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
-- I think there is slim hope of extending BitmapText to do what I want. Unless I look at the source. Eh. Maybe.
-[ ] ColoredBitmapText is a wrapper class which
-  [ ] splits the given string by the tint-code escape char
-  [ ] creates a bitmaptext object for each string that is tinted according to the letter code at string[0]
-  [ ] merges each object into lines
-    - How do we accomplish line-wrap with separate text objects?
-    [ ] This means text has to be split along inserted newline characters, too.
-This colored-words bit is a big job. Let's focus on the textbox itself for now.
-I may have to write my own typewrite-text class, but we'll do that later.
+- TypewriterText needs more work, but it's functional.
+[ ] Integrate it into a TextBox class
+  - TextBox accepts scripts of:
+    [ ] Strings for dialogue
+      [ ] Text
+      [ ] Speaker data
+        [ ] name: string
+        [ ] face shot: texture              // Different textboxes will need different
+        [ ] full-body portrait: texture     // portrait assets.
+        [ ] CO data?: CommandingOfficer       // Helpful for checks and matching
+    [ ] Functions for scripted actions
+    [ ] Timers for delays (and scripted actions)
+- Then,
+[ ] MapData accepts StagePlay data which describes textbox scripts, style (eventually), and triggers for when these events play.
+[ ] This infrastructure is used to create one or several tutorial maps whereby I can explain how to play.
 
 
 [ ] PIXI.BitmapFont.from("fontname", {options})
