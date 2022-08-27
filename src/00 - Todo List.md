@@ -121,16 +121,8 @@ In Progress:
   - [ ] I first need to figure out what "MoveCamera" means in a pointer context, though.
   - [ ] MoveUnit is cancellable by clicking on MapCursor when MapCursor is over a non-highlighted tile. This is fine, but feels a little quirky. Add a clickable HUD button that signals a cancel intent.
 
-- [ ] Map.changeTerrain(pos: Point, terrain: TerrainType)
-  This should handle the specifics.
 - [ ] Map.changeTileset(mode: 'normal' | 'snow' | 'desert' | 'wasteland')
 However, Bridge -> DestroyedBridge should probably be a tile variant option. I could let the server record mutations to the map you're playing on, but that sounds complicated.
-
-- [ ] Map serial interpreter makes room for a variant number.
-  - [ ] Use number packing to let one address carry both a 30-bit terrain serial and a 2-bit variant number.
-  - This is probably the simplest way to save and construct-from-data Bridge tiles without weird, duplicate classes.
-  - [ ] Figure out a way for `new Terrain.Bridge()` to accept the variant number.
-    - I think I have to build-in the requirement that *all* TerrainTypes require their variant number for deliberation even though only a few types actually use it.
 
 - [ ] Sight Map caching
   - [ ] What layer are they added to? Can they be simply frozen like other MapLayers?
