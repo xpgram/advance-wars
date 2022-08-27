@@ -29,6 +29,9 @@ export class TitleScreen extends Scene {
 
   loadStep(): void {
     this.linker.push({name: 'TitleScreenSheet', url: 'assets/sheets/title-screen.json'});
+
+    this.linker.push({name: 'font-label', url: 'assets/font-label.xml'});
+    this.linker.push({name: 'font-script', url: 'assets/font-script.xml'});
   }
 
   setupStep(): void {
@@ -101,10 +104,17 @@ export class TitleScreen extends Scene {
     
     // REMOVE Typewriter text class demo
     const text = [
-      'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eum laudantium inventore sed officia. Eum laboriosam eveniet dolores numquam cum dignissimos explicabo aut fugiat temporibus.',
+      '  Lorem, ipsum dolor sit amet [look]consectetur[/r] adipisicing elit. [s5]Eum[/r] laudantium inventore sed officia. Eum laboriosam eveniet dolores numquam cum dignissimos explicabo aut fugiat temporibus.',
       '',
-      'HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH hello',
-      'HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH-hello',
+      '',
+      'HHHHHHHHHH',
+      'HHHHHHHHHH',
+      'HHHHgggggg',
+      'HHHHHHHHHH',
+      '',
+      'HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH hello',
+      '',
+      'HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH-hello',
     ].join('\n');
 
     // TODO This shows that " hello" on the next line is incorrectly indented.
@@ -112,9 +122,9 @@ export class TitleScreen extends Scene {
     const gtext = new TypewriterText({
       componentName: 'TitleScreenTest',
       text,
-      font: fonts.tectac,
+      font: fonts.script,
       lines: 2,
-      // lineSpacing: 8,
+      lineSpacing: -2,
       maxWidth: 256,
     });
     const overlap_marker = new PIXI.Graphics();

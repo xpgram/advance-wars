@@ -40,6 +40,20 @@ interface CharRenderData {
  * [ ] .setPageText(str) changes the text and rebuilds the typewriter effect
  * [ ] .advance() moves the paused page to the next line
  * [ ] .skip() shows all chars now, up to the next line pause
+ * 
+ * 2nd Refactor:
+ * [ ] Turn all letters into CharContainers
+ *   [ ] fontcode: FontData
+ *   [ ] charcode: CharData
+ *   [ ] placement: Point
+ *   [ ] style: {}
+ *     [ ] placementOffset?: n => Point   // motion behavior
+ *   Methods:
+ *    // Given the cursor position, places itself, then returns a new caret position.
+ *    // This can be sequentially recalled on all chars during a textbox 'resize' event.
+ *   [ ] place(caret: Point): Point
+ * [-] Turn all style script into adjustments to the interpreter
+ * [ ] 
  */
 export class TypewriterText extends UiComponent {
 
@@ -108,6 +122,7 @@ export class TypewriterText extends UiComponent {
   xFFF  : Condensed hex color for proceeding text.
   s1–5  : Change text size
   w1–9  : Wait-point with length of some logarithmic measure
+          A short wait-point is always given after a '\n'
 
     // These should be named for their semantic meaning, like [look]
     // 'Frantic' is fine. I dunno what sine should be. Sine kinda makes me think of a car salesman, though.
@@ -130,16 +145,16 @@ export class TypewriterText extends UiComponent {
    * [x] Clear last build
    * [x] Examine next char
    * [x] If char is ' ' or some other delimiter, update the break point idx
-   * [ ] If char is '[', begin style interpreter
-   *   [ ] first, confirm a matching ']' exists, else end
-   *   [ ] find a cmd whose text begins the substr
-   *   [ ] grab the rest of the string as a value input
-   *   [ ] modify the text-styler module according to new rules
-   *   [ ] remove style tag from stack
-   *   [ ] loop back to examine char
+   * [x] If char is '[', begin style interpreter
+   *   [x] first, confirm a matching ']' exists, else end
+   *   [x] find a cmd whose text begins the substr
+   *   [x] grab the rest of the string as a value input
+   *   [x] modify the text-styler module according to new rules
+   *   [x] remove style tag from stack
+   *   [x] loop back to examine char
    * [x] turn char into sprite
-   * [-] style text according to current rules
-   *   [ ] Test existing; expand applicables
+   * [x] style text according to current rules
+   *   [x] Test existing; expand applicables
    * [x] loop back
    * 
    * So far, it works. Fantastic.
@@ -165,10 +180,7 @@ export class TypewriterText extends UiComponent {
 
     const err_messages = new Set<string>();
 
-    const style = {
-      color: Palette.white,
-      scale: 1,
-    }
+    const style: Record<string, number | undefined> = {}
 
     /** Resets kerning and safe-line-break rememberance.  
      * The caret or draw-position is considered separate. */
@@ -177,14 +189,68 @@ export class TypewriterText extends UiComponent {
       lastCharData = undefined;
     }
 
+
+    // Infinite loop protection var.
+    let loopCount = 0;
+    const loopLimit = 5000;
     
     // Iterate over the page string.
     for (let i = 0; i < page.length; i++) {
+      // Inf loop protection
+      loopCount++;
+      if (loopCount > loopLimit) {
+        err_messages.add(`Inf loop detected.`);
+        break;
+      }
+
       const char = page.charAt(i);
       const charCode = page.charCodeAt(i);
       let line = lines.at(-1) as PIXI.Container;
 
-      // consider '[' — we'll de this last
+      // consider '[', the beginning of a style tag
+      if (char === '[') {
+        const tagStart = i;
+        const closingIdx = page.indexOf(']', i);  // -1 isn't falsey?
+        const tagEnd = (closingIdx > 0) ? closingIdx : page.length;
+
+        // Skip tag in stream, whether we end up doing anything or not.
+        i = tagEnd;
+
+        if (tagEnd == page.length) {
+          err_messages.add(`Missing ']' to match '[' at i=${tagStart}`);
+          continue;
+        }
+
+        // Parse tag contents for cmd and value data
+        const tag = page.slice(tagStart, tagEnd+1);
+        const tagContents = tag.slice(1,-1);
+
+        const isCloseTag = tagContents.startsWith('/');
+        const substr = tagContents.slice(isCloseTag ? 1 : 0);
+
+        // get and apply the rule data for what was parsed
+        const rule = Object.values(styleRules).find( rule => substr.startsWith(rule.cmd) );
+
+        if (!rule) {
+          err_messages.add(`Could not find style rule for tag '${tag}'`);
+          continue;
+        }
+
+        const value = substr.slice(rule.cmd.length);
+        let msg;
+
+        if (!isCloseTag)
+          msg = rule.apply(style, value);
+        else
+          msg = rule.remove(style);
+
+        // Report any mishaps
+        if (msg)
+          err_messages.add(msg);
+
+        // tags are never rendered, so skip
+        continue;
+      }
 
       // Skip ' ' (etc.) on line-breaks.
       if (line.children.length === 0 && whitespaceChars.includes(char))
@@ -193,12 +259,13 @@ export class TypewriterText extends UiComponent {
       // handle '\n'
       if (char === '\n') {
         lines.push(new PIXI.Container());
-          // TODO The way lines are aligned later, '\n\n' cannot create a double line-break.
-          // Should this be considered a feature instead of a design flaw?
         caret = 0;
         resetContinuityVars();
+        // TODO Add a low-value pause
+        continue;
       }
 
+      // TODO Extract this process to a function (so line-arrangement can use it)
       // gather char and font data
       const typefaceCode = 0; // TODO Expand to allow for multiple font choices
       const typefaceData = this.typeface.at(typefaceCode);
@@ -220,7 +287,7 @@ export class TypewriterText extends UiComponent {
       }
 
       // calc draw properties
-      const scale = typefaceData.fontSize / typeface.size * style.scale;
+      const scale = typefaceData.fontSize / typeface.size * (style.scale ?? 1);
 
       // Adjust caret by kerning
       caret += lastCharData?.kerning[charCode] ?? 0;
@@ -228,7 +295,7 @@ export class TypewriterText extends UiComponent {
 
       // build graphical object, apply style rules
       const gchar = new PIXI.Sprite(charData.texture);
-      gchar.tint = style.color;
+      gchar.tint = style.color ?? Palette.white;
         // TODO Other style behaviors
 
       // build positional container
@@ -261,13 +328,11 @@ export class TypewriterText extends UiComponent {
       caret += charData.xAdvance * scale;
 
       // apply word-wrap
-      if (caret > this.options.maxWidth) {
-        // if (whitespaceChars.includes(char))
-        //   continue;
-        // ^ except ' ' has already been added by this point, so it need to be unadded. *sigh*.
+      const overWidthBudget = (line.width > this.options.maxWidth);
+      const visibleChar = (!whitespaceChars.includes(char));
 
+      if (visibleChar && overWidthBudget) {
         // use the safe break-point, or if none just this last offending char
-          // FIXME I expect this will have odd behavior if ' ' is the last offending char
         const breakIndex = (wordBreakIndex > 0) ? wordBreakIndex : line.children.length - 1;
 
         const newline = new PIXI.Container();
@@ -295,6 +360,15 @@ export class TypewriterText extends UiComponent {
       line.y = yCaret;
       yCaret += this.options.strictLineDistance ?? line.height;
       yCaret += this.options.lineSpacing ?? 0;
+      // TODO This should use typeface.lineHeight, but that means I need to remember for each line the
+      // largest lineheight I encountered, but then I need to *undo* that rememberance if I find that
+      // a word is too long and needs to be moved to the next line. Gahhh! 
+      //
+      // This is kind of a non-issue for now, though. All char textures that I use are nearly-uniform
+      // boxes, so H and g are the same height to the line container even if g has an underhang H doesn't.
+
+      // REMOVE for getFont(0).lineHeight instead
+      yCaret += (line.children.length === 0) ? this.typeface[0].fontSize : 0;
 
       // hide chars for typewriter effect
       for (const cont of line.children)
@@ -305,8 +379,15 @@ export class TypewriterText extends UiComponent {
     this.container.addChild(...lines);
 
     // post error messages
+    const PROCESS = "BuildPage";
+    if (err_messages.size > 0) {
+      Debug.log(this.DOMAIN, PROCESS, {
+        message: `Proceeding logs from text beginning with:\n${page.slice(0,100)}`,
+        warn: Game.developmentMode,
+      })
+    }
     for (const message of err_messages) {
-      Debug.log(this.DOMAIN, "BuildPage", {
+      Debug.log(this.DOMAIN, PROCESS, {
         message,
         warn: Game.developmentMode,
       })
@@ -485,3 +566,78 @@ export class TypewriterText extends UiComponent {
   }
 
 }
+
+
+type StyleObject = Record<string, number | undefined>;
+
+interface StyleRule {
+  cmd: string;
+  apply:   (styleObj: StyleObject, value: string) => void | string;
+  remove: (styleObj: StyleObject) => void | string;
+};
+
+const styleRules: StyleRule[] = [
+  { // Reset all (when /r, r does nothing)
+    cmd: 'r',
+    apply(style,value) {},
+    remove(style) {
+      Object.keys(style).forEach( key => delete style[key] );
+    },
+  },
+  { // Special-interest text with positive connotations
+    cmd: 'look',
+    apply(style, value) {
+      style['color'] = Palette.caribbean_green;
+    },
+    remove(style) {
+      delete style['color'];
+    },
+  },
+  { // Special-interest text with negative connotations
+    cmd: 'req',
+    apply(style, value) {
+      style['color'] = Palette.boerewors;
+    },
+    remove(style) {
+      delete style['color'];
+    },
+  },
+  { // Apply a 3 or 6-char hexadecimal color to subsequent text
+    cmd: 'x',
+    apply(style, value) {
+      let hexStr = value;
+
+      if (hexStr.length === 3)
+        hexStr = `${Array.from(hexStr).map( c => c.repeat(2) ).join('')}` // Double every char
+
+      if (hexStr.length !== 6)
+        return `Color code '${value}' wasn't a 3 or 6 digit hex number.`;
+
+      const hex = Number(`0x${hexStr}`);
+
+      if (isNaN(hex))
+        return `Hex code '0x${hexStr}' was not a hexadecimal number.`;
+      
+      style['color'] = hex;
+    },
+    remove(style) {
+      delete style['color'];
+    },
+  },
+  {
+    cmd: 's',
+    apply(style, value) {
+      const rawIdx = Number(value);
+
+      if (isNaN(rawIdx))
+        return `Size '${value}' wasn't a number.`;
+
+      const scales = [0.4, 0.7, 1.0, 1.3, 1.8];
+      const i = Common.clamp(rawIdx, 0, scales.length-1);
+      style['scale'] = scales[i];
+    },
+    remove(style) {
+      delete style['scale'];
+    }
+  }
+];

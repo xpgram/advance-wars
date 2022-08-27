@@ -37,8 +37,6 @@ export class MainMenuScene extends Scene {
     this.linker.push({name: 'font-table-header', url: 'assets/font-table-header.xml'});
     this.linker.push({name: 'font-title', url: 'assets/font-title.xml'});
     this.linker.push({name: 'font-label', url: 'assets/font-label.xml'});
-    this.linker.push({name: 'font-day-ui', url: 'assets/font-day-ui.xml'});
-    this.linker.push({name: 'font-player-splash', url: 'assets/font-player-splash.xml'});
 
     // FIXME Not part of spritesheet
     this.linker.push({name: 'mainmenu-bg1', url: 'assets/tmp-nonbundled/mainmenu-bg1.png'})
