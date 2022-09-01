@@ -131,3 +131,6 @@ export enum Instruction {
   Silo,
   EndTurn,
 }
+// TODO When these get serialized into the Db, they'll be numbers dependent on the ordering
+// of these enums here. Should there be a text-to-value conversion function so the Db may store
+// human-readable cmds like 'Wait' and 'Capture' instead of '0' and '2'?
