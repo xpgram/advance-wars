@@ -29,6 +29,9 @@ export class TextCutscene extends TurnState {
       `I can script the movement of scene assets.`,
       `Of course, this only works if the assets are accessible, so...\nwhere this script data is kept is something I'll have to think about.`,
     )
+
+    // TODO Remove; We're testing online now, not textboxes.
+    this.advance();
   }
 
   update(): void {

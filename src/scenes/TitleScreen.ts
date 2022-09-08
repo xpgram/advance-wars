@@ -103,6 +103,7 @@ export class TitleScreen extends Scene {
 
     
     // REMOVE Typewriter text class demo
+    return;
     const text = [
       '  Lorem, ipsum dolor sit amet [look]consectetur[/r] adipisicing elit. [s5]Eum[/r] laudantium inventore sed officia. Eum laboriosam eveniet dolores numquam cum dignissimos explicabo aut fugiat temporibus.',
       '',
