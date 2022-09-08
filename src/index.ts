@@ -1,3 +1,4 @@
+import { io } from "socket.io-client";
 import { PIXI, PixiFilters } from './constants';
 import { Scene, SceneType } from './scenes/Scene';
 import { DiagnosticLayer } from './scripts/DiagnosticLayer';
@@ -264,6 +265,10 @@ class App {
 
   /** System asset loader equivalent to app.loader. */
   readonly loader = new PIXI.Loader();
+
+  /** Online services socket connection */
+  readonly online = io("http://localhost:3001");
+    // TODO What do this do. Do it work? I'm trying to connect to awsrv.
 
   /** Game initializer. Adds canvas to given DOM element, and sets up the game loop. */
   init() {
