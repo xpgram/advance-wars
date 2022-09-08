@@ -83,10 +83,10 @@ export module instructionData {
     d.seed = seed;
     d.action = action;
     d.which = which;
-    d.place = place;
+    d.place = new Point(place);
     d.path = path;
-    d.drop = drop;
-    d.focal = focal;
+    d.drop = drop.map( d => ({which: d.which, where: new Point(d.where)}) );  // FIXME Make nicer
+    d.focal = new Point(focal);
 
     // Inferables
     if (d.place) {
