@@ -25,7 +25,17 @@ module.exports = {
         static: {
             directory: 'dist',
         },
-        port: 3000
+        port: 3000,
+        proxy: {
+            '/': {
+                target: 'ws://localhost:3001',
+                ws: true,
+                secure: false,
+                changeOrigin: true,
+                logLevel: 'debug',
+            },
+            // '/api': 'http://localhost:3002',
+        }
     },
     devtool: 'inline-source-map',
     plugins: [
