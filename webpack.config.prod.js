@@ -34,7 +34,10 @@ module.exports = {
         proxy: {
             '/': {
                 target: 'ws://localhost:3001',
-                ws: true,
+                // ws: true,
+                    // TODO Enable? Don't I want websocket=true?
+                secure: false,
+                changeOrigin: true,
             },
             '/api': 'http://localhost:3002',
         }

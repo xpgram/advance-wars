@@ -1,4 +1,3 @@
-import { io } from "socket.io-client";
 import { PIXI, PixiFilters } from './constants';
 import { Scene, SceneType } from './scenes/Scene';
 import { DiagnosticLayer } from './scripts/DiagnosticLayer';
@@ -11,6 +10,7 @@ import { Keys } from './scripts/controls/KeyboardObserver';
 import { TitleScreen } from './scenes/TitleScreen';
 import { SceneTransitionEffect } from './scenes/scene-transitions/SceneTransitionEffect';
 import { SceneTransition } from './scenes/scene-transitions/SceneTransition';
+import { SocketMaster } from "./scripts/system/online/SocketMaster";
 
 
 const DOMAIN = "Game";
@@ -266,9 +266,8 @@ class App {
   /** System asset loader equivalent to app.loader. */
   readonly loader = new PIXI.Loader();
 
-  /** Online services socket connection */
-  readonly online = io("ws://localhost:3000/");
-    // TODO This needs to create an instance of OnlineService, when it is written.
+  /** Global handle for online services. */
+  readonly online = new SocketMaster();
 
   /** Game initializer. Adds canvas to given DOM element, and sets up the game loop. */
   init() {

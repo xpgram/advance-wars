@@ -4,6 +4,7 @@ import { Command } from "../Command";
 import { AnimateEvents } from "./AnimateEvents";
 import { SpendActorEvent } from "../../map/tile-effects/SpendActorEvent";
 import { CommandHelpers } from "../Command.helpers";
+import { Game } from "../../../..";
 
 export class RatifyIssuedOrder extends TurnState {
   get type() { return RatifyIssuedOrder; }
@@ -18,6 +19,9 @@ export class RatifyIssuedOrder extends TurnState {
   protected configureScene(): void {
     const { instruction, map, boardEvents } = this.assets;
     const { action, placeTile } = this.data;
+
+      // TODO Sophisticate
+    Game.online.io.emit('troop order', instruction);  // Online test
 
     map.clearMovementMap();           // Clean up leftovers from UX ingress.
     placeTile.hideUnit = false;       // Another leftover by TrackCar implementation.
