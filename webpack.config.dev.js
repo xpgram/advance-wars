@@ -22,15 +22,19 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js', '.json'],
     },
     devServer: {
-        contentBase: 'dist',
+        static: {
+            directory: 'dist',
+        },
         port: 3000
     },
     devtool: 'inline-source-map',
     plugins: [
-        new CopyWebpackPlugin([{
-            from: 'build/assets',
-            to: 'assets'
-        }]),
+        new CopyWebpackPlugin({
+            patterns: [{
+                from: "build/assets",
+                to: "assets"
+            }],
+        }),
         new HTMLWebpackPlugin({
             template: 'build/index.html',
             filename: 'index.html'
