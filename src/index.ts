@@ -268,7 +268,7 @@ class App {
 
   /** Online services socket connection */
   readonly online = io("http://localhost:3001");
-    // TODO What do this do. Do it work? I'm trying to connect to awsrv.
+    // TODO This needs to create an instance of OnlineService, when it is written.
 
   /** Game initializer. Adds canvas to given DOM element, and sets up the game loop. */
   init() {
