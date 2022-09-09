@@ -14,8 +14,12 @@ export class RatifyIssuedOrder extends TurnState {
 
 
   protected configureScene(): void {
-    const { instruction, map, boardEvents } = this.assets;
+    const { instruction, map, boardEvents, players } = this.assets;
     const { action, placeTile } = this.data;
+
+    if (players.perspectivesTurn) {
+      Game.online.io.emit('troop order', instruction);
+    }
 
     map.clearMovementMap();           // Clean up leftovers from UX ingress.
     placeTile.hideUnit = false;       // Another leftover by TrackCar implementation.

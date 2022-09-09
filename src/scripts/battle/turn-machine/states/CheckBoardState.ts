@@ -9,6 +9,7 @@ import { GameLose } from "./GameLose";
 import { GameWin } from "./GameWin";
 import { IssueOrderStart } from "./IssueOrderStart";
 import { TurnEnd } from "./TurnEnd";
+import { WaitForNextInstruction } from "./WaitForNextInstruction";
 
 /** A TurnState which confirms player loss/win state.
  * It splits logical order between the beginning of a new IssueOrder and 
@@ -78,9 +79,10 @@ export class CheckBoardState extends TurnState {
 
     // PlayerDefeated event where DestructEvents will be handled but
     // a 'Player Defeated' card is also shown and properties are uncaptured.
-    if (!players.current.defeated)
-      this.advance(AnimateEvents, IssueOrderStart);
-    else
+    if (!players.current.defeated) {
+      const IdleState = (players.perspectivesTurn) ? IssueOrderStart : WaitForNextInstruction;
+      this.advance(AnimateEvents, IdleState);
+    } else
       this.advance(TurnEnd);
   }
 

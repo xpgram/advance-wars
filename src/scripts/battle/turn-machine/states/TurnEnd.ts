@@ -1,3 +1,4 @@
+import { Game } from "../../../..";
 import { Point } from "../../../Common/Point";
 import { TurnState } from "../TurnState";
 import { TurnChange } from "./TurnChange";
@@ -9,8 +10,13 @@ export class TurnEnd extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { mapCursor } = this.assets;
-    const player = this.assets.players.current;
+    const { mapCursor, players } = this.assets;
+    const player = players.current;
+
+    // Emit turn-change signal if this is the client who issued it.
+    if (players.perspectivesTurn) {
+      Game.online.io.emit('turn change', undefined);
+    }
 
     player.units.forEach(u => {
       u.spent = false;

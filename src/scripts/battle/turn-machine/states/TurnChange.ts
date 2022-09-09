@@ -11,13 +11,6 @@ export class TurnChange extends TurnState {
   configureScene() {
     const { players, uiSystem } = this.assets;
 
-    // FIXME Temp. This should stop re-emission of the signal, but I don't like that it could.
-    // The signal, actually, I guess could be emitted from the FieldMenu.
-    if (!Game.online.turnSignal)
-      Game.online.io.emit('turn change');
-    else
-      Game.online.turnSignal = false;
-
     // Find the next active player — do not loop infinitely; include a hard limit
     for (let i = 0; i < players.all.length; i++) {
       players.increment();

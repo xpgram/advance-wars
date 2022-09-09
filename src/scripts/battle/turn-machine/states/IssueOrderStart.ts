@@ -13,8 +13,6 @@ import { ShowMinimap } from "./ShowMinimap";
 import { Terrain } from "../../map/Terrain";
 import { Common } from "../../../CommonUtils";
 import { DevMapEditor } from "./DevMapEditor";
-import { EmitEvents } from "./EmitEvents";
-import { TurnEnd } from "./TurnEnd";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -77,29 +75,6 @@ export class IssueOrderStart extends TurnState {
     const { players, map, mapCursor, instruction, gamepad, scenario, stagePointer } = this.assets;
     const { stagePointerInterface: pointer } = this.assets.scripts;
 
-    // TODO Move this block into a new OnlineListener turnstate.
-    const hasPlayerNumber = Game.online.playerNumber !== undefined;
-    const playerNumDoesntMatch = players.current.playerNumber !== Game.online.playerNumber;
-
-    if (hasPlayerNumber && playerNumDoesntMatch) {
-      const m_instruction = Game.online.instructionQueue.shift();
-      
-      if (m_instruction) {
-        // TODO Verify type
-        this.assets.instruction = m_instruction;
-        this.advance(RatifyIssuedOrder);
-        return;
-      }
-
-      if (Game.online.turnSignal) {
-        this.advance(TurnEnd);
-        return;
-      }
-
-      return;
-    }
-    //// /block
-
     
     const player = players.current;
     const { A, B, start, select } = gamepad.button;
@@ -124,13 +99,13 @@ export class IssueOrderStart extends TurnState {
       const examinableEnemy = (unit?.faction !== player.faction);
       if (unit && (orderableAlly || (visible && examinableEnemy))) {
         instruction.place = unit.boardLocation;
-        this.advance(MoveUnit, EmitEvents, RatifyIssuedOrder);
+        this.advance(MoveUnit, RatifyIssuedOrder);
       }
 
       // Empty, allied factory tile to build
       else if (!unit && scenario.spawnMap.some(dict => dict.type === square.terrain.type && square.terrain.faction === player.faction)) {
         if (player.faction === square.terrain.faction)
-          this.advance(FactoryMenu, EmitEvents, RatifyIssuedOrder);
+          this.advance(FactoryMenu, RatifyIssuedOrder);
       }
 
       // The tile has no particular function — open the Field Menu.

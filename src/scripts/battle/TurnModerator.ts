@@ -1,3 +1,4 @@
+import { Game } from "../..";
 import { Slider } from "../Common/Slider";
 import { BoardPlayer } from "./BoardPlayer";
 
@@ -34,9 +35,14 @@ export class TurnModerator {
     return this.players[this.currentIdx.output];
   }
 
+  /** Returns the player object who is determined to be the eyes of our game view.
+   * This is relevant for online or against-AI play, where the other player's secrets
+   * should be protected. */
   get perspective() {
-    // TODO Obviously this will differentiate between 'me' and 'internet'
-    return this.players[this.currentIdx.output];
+    // This check differentiates between 'me' and 'internet'
+    // TODO Allow multiple local players by introducing a 'null' perspective between them.
+    const playerNum = Game.online.playerNumber ?? this.currentIdx.output;
+    return this.players[playerNum];
   }
 
   /** A reference to the perspective player when it is their turn, otherwise undefined.
