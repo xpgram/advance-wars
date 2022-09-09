@@ -14,6 +14,12 @@ But anyway, yeah. There is constant state checking because his system never just
 - One failure of my design, I just realized, is that for online play it is incredibly easy to cheat. I'm not sure *how* but I know it's possible. Units hidden by fog should be unknown to the player, but the client knows always. If a hacker could get the game to log the objects of the map, I can't stop them. Ideally this would be information known to the server and shared only when necessary. Oh well. But anyway, good essay detail. Proves I think.
 
 
+Do these:
+  [ ] Clients signal turn changes, and other clients obey
+  [ ] Deploy the system to a remote server
+And theoretically my friend and I could actually play a game.
+
+
 [ ] Player Cards in war matches should display a client's username somewhere.
 
 
