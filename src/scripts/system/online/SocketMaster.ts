@@ -5,6 +5,9 @@ import { Debug } from "../../DebugUtils";
 
 
 const DOMAIN = "WebsocketMaster";
+const PROCEDURE = {
+  MSG_RECEIVED: "MessageReceived_Test",
+} as const;
 
 // TODO Library for Events; A segmented library for Events specific to a Scene
 
@@ -20,6 +23,7 @@ export class SocketMaster {
 
   // TODO Move to a BattleScene-specific object
   instructionQueue: CommandInstruction[] = [];
+  turnSignal = false;
 
   // TODO Client ID, User Auth, and ultimately PlayerNumber matching for a GameSession
 
@@ -27,11 +31,18 @@ export class SocketMaster {
   constructor() {
 
     this.io.on('troop order', data => {
-      Debug.log(DOMAIN, "MessageReceived_Test", {
+      Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
         message: JSON.stringify(data),
         warn: Game.developmentMode,
       })
       this.instructionQueue.push(data);
+    })
+
+    this.io.on('turn change', () => {
+      Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
+        message: `Signaled turn change.`,
+      })
+      this.turnSignal = true;
     })
 
     this.io.on('game session data', plNum => {

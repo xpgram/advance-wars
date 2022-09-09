@@ -14,6 +14,7 @@ import { Terrain } from "../../map/Terrain";
 import { Common } from "../../../CommonUtils";
 import { DevMapEditor } from "./DevMapEditor";
 import { EmitEvents } from "./EmitEvents";
+import { TurnEnd } from "./TurnEnd";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -76,19 +77,28 @@ export class IssueOrderStart extends TurnState {
     const { players, map, mapCursor, instruction, gamepad, scenario, stagePointer } = this.assets;
     const { stagePointerInterface: pointer } = this.assets.scripts;
 
-    // TODO Reimplement; This disabled control during multiplayer. Kinda.
+    // TODO Move this block into a new OnlineListener turnstate.
     const hasPlayerNumber = Game.online.playerNumber !== undefined;
     const playerNumDoesntMatch = players.current.playerNumber !== Game.online.playerNumber;
 
     if (hasPlayerNumber && playerNumDoesntMatch) {
       const m_instruction = Game.online.instructionQueue.shift();
+      
       if (m_instruction) {
         // TODO Verify type
         this.assets.instruction = m_instruction;
         this.advance(RatifyIssuedOrder);
+        return;
       }
+
+      if (Game.online.turnSignal) {
+        this.advance(TurnEnd);
+        return;
+      }
+
       return;
     }
+    //// /block
 
     
     const player = players.current;
