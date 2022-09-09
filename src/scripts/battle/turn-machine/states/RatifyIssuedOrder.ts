@@ -12,16 +12,10 @@ export class RatifyIssuedOrder extends TurnState {
   get revertible(): boolean { return false; }
   get skipOnUndo(): boolean { return false; }
 
-  protected advanceStates = {
-    checkBoardState: { state: CheckBoardState, pre: () => { } },
-  }
 
   protected configureScene(): void {
     const { instruction, map, boardEvents } = this.assets;
     const { action, placeTile } = this.data;
-
-      // TODO Sophisticate
-    Game.online.io.emit('troop order', instruction);  // Online test
 
     map.clearMovementMap();           // Clean up leftovers from UX ingress.
     placeTile.hideUnit = false;       // Another leftover by TrackCar implementation.
