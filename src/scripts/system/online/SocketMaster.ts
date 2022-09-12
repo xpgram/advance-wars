@@ -50,6 +50,36 @@ export class SocketMaster {
       console.log(`Assigned player ${this._playerNumber} to this client`);
     });
 
+
+    // REMOVE Db demo code
+    this.io.on('db test', data => {
+      console.log(data);
+    })
+    this.test_db();
+  }
+
+  // REMOVE Db demo code
+  async test_db() {
+    async function sendRequest(url: string) {
+      const data = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      console.log(`from ${url}`);
+      console.log(data);
+    }
+
+    [
+      // 'http://localhost:3000/api/g',
+      // 'http://localhost:3000/api/g/',
+      // 'http://localhost:3002/api/g',
+      'http://localhost:3002/api/g/',
+    ].forEach( url => sendRequest(url) );
   }
 
 }
