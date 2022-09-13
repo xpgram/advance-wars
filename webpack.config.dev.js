@@ -35,12 +35,12 @@ module.exports = {
                 changeOrigin: true,
                 logLevel: 'debug',
             },
-            '/api': {
-                target: 'http://localhost:3002',
-                secure: false,
-                changeOrigin: true,
-                logLevel: 'debug',
-            },
+            // '/api': {
+            //     target: 'http://localhost:3002',
+            //     secure: false,
+            //     changeOrigin: true,
+            //     logLevel: 'debug',
+            // },
         }
     },
     devtool: 'inline-source-map',
