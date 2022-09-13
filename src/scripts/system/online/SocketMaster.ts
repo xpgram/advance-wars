@@ -16,7 +16,8 @@ export class SocketMaster {
 
   /** Reference to the socket client. */
   // TODO This link must change on deployment. I don't know how or to what, though.
-  readonly io = io("ws://localhost:3000/");
+  // readonly io = io("ws://localhost:3000/");
+  readonly io = io("https://truth-fragrant-bill.glitch.me/");
 
   get playerNumber() { return this._playerNumber; }
   private _playerNumber?: number;
