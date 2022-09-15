@@ -9,18 +9,19 @@ const PROCEDURE = {
   MSG_RECEIVED: "MessageReceived_Test",
 } as const;
 
+const URL = {
+  REMOTE: "https://eager-tested-stick.glitch.me/sock",
+  LOCAL_DEV: "ws:localhost:3000/",
+} as const;
+
 // TODO Library for Events; A segmented library for Events specific to a Scene
 
 
 export class SocketMaster {
 
   /** Reference to the socket client. */
-  readonly io = io(
-    (Game.developmentMode)
-      ? "ws:localhost:3000/"
-      : "https://eager-tested-stick.glitch.me/sock"
-    // "https://eager-tested-stick.glitch.me/sock"
-  );
+  // TODO Add .env 'useRemoteServer' boolean to force REMOTE.PUBLIC even in development mode.
+  readonly io = io((!Game.developmentMode) ? URL.REMOTE : URL.LOCAL_DEV);
 
   get playerNumber() { return this._playerNumber; }
   private _playerNumber?: number;
