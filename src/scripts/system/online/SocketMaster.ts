@@ -15,9 +15,12 @@ const PROCEDURE = {
 export class SocketMaster {
 
   /** Reference to the socket client. */
-  // TODO This link must change on deployment. I don't know how or to what, though.
-  // readonly io = io("ws://localhost:3000/");
-  readonly io = io("https://truth-fragrant-bill.glitch.me/");
+  readonly io = io(
+    (Game.developmentMode)
+      ? "ws:localhost:3000/"
+      : "https://eager-tested-stick.glitch.me/sock"
+    // "https://eager-tested-stick.glitch.me/sock"
+  );
 
   get playerNumber() { return this._playerNumber; }
   private _playerNumber?: number;

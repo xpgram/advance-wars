@@ -267,7 +267,8 @@ class App {
   readonly loader = new PIXI.Loader();
 
   /** Global handle for online services. */
-  readonly online = new SocketMaster();
+  get online(): SocketMaster { return this._socketmaster; }
+  private _socketmaster!: SocketMaster;
 
   /** Game initializer. Adds canvas to given DOM element, and sets up the game loop. */
   init() {
@@ -307,6 +308,9 @@ class App {
 
     // const filter = new PixiFilters.;
     // this.container.filters = [filter];
+
+    // Setup online system
+    this._socketmaster = new SocketMaster();
 
     // Preload game-wide resources, start the game on completion.
     this.preload(() => {
