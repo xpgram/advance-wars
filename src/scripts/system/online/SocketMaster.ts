@@ -19,7 +19,10 @@ const URL_DOMAIN = {
 
 export class SocketMaster {
 
+  /** The url string we intend to use for server communication. */
   private readonly serverUrl = (!Game.developmentMode) ? URL_DOMAIN.REMOTE : URL_DOMAIN.LOCAL_DEV;
+  // private readonly serverUrl = URL_DOMAIN.REMOTE;
+
   /** Reference to the socket client. */
   // TODO Add .env 'useRemoteServer' boolean to force REMOTE.PUBLIC even in development mode.
   readonly io = io(this.serverUrl, { path: "/sock" });
@@ -44,13 +47,13 @@ export class SocketMaster {
 
     // Get info from server
     this.io.emit('request player number', null);
-    
-    this.io.on('game session data', plNum => {
+
+    this.io.on('game session data', plnum => {
       Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
-        message: `Assigned player ${this._playerNumber} to this client`,
+        message: `Assigned player ${plnum} to this client`,
         warn: Game.developmentMode,
       });
-      this._playerNumber = plNum;
+      this._playerNumber = plnum;
     });
 
     // Define message handlers
