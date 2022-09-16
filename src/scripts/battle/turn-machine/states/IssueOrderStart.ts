@@ -244,14 +244,4 @@ const devControls: {key: number, run: (assets: BattleSceneControllers, state: Is
       state.advance(DevMapEditor);
     }
   },
-  {
-    key: Keys.Space,
-    run: (assets, state) => {
-      console.log('Sending test message');
-      const raw = "Yuh. One two three four five, six seven eight, nine ten eleven twelve thirteen fourteen.";
-      const n = Math.floor(Math.random()*raw.length);
-      const text = raw.slice(-n);
-      Game.online.io.emit('chat message', text)
-    }
-  }
 ]
