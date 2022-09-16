@@ -27,8 +27,8 @@ module.exports = {
         },
         port: 3000,
         proxy: {
-            '/': {
-                target: 'http://localhost:3001',
+            '/sock': {
+                target: 'http://localhost:3001/sock',
                 // ws: true,
                     // TODO Enable? Don't I want websocket=true?
                 secure: false,

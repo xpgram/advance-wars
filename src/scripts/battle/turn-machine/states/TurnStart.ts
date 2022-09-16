@@ -4,6 +4,8 @@ import { ResetPerspective } from "./ResetPerspective";
 import { PlayerCard } from "./PlayerCard";
 import { StandbyPhase } from "./StandbyPhase";
 import { ConfirmPlayerPresence } from "./ConfirmPlayerPresence";
+import { Common } from "../../../CommonUtils";
+import { TextCutscene } from "./TextCutscene";
 
 /** Handles player beginning-of-turn asset configurations and schedules
  * pre-turn phases. */
@@ -27,7 +29,12 @@ export class TurnStart extends TurnState {
   update() {
     // update() waits for camera, then this advances
     this.advance(
-      ConfirmPlayerPresence, ResetPerspective, PlayerCard, StandbyPhase, CheckBoardState
+      ConfirmPlayerPresence,
+      ResetPerspective,
+      PlayerCard,
+      StandbyPhase,
+      TextCutscene, // TODO This handles dev-to-client chat messages right now; refactor later.
+      CheckBoardState
     );
   }
 

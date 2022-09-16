@@ -14,7 +14,7 @@ export class GameStart extends TurnState {
     if (scenario.fogOfWar)
       map.hideSightMap();
 
-    this.advance(TextCutscene, TurnStart);
+    this.advance(TurnStart);
   }
 
 }

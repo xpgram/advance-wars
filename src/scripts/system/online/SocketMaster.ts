@@ -6,12 +6,12 @@ import { Debug } from "../../DebugUtils";
 
 const DOMAIN = "WebsocketMaster";
 const PROCEDURE = {
-  MSG_RECEIVED: "MessageReceived_Test",
+  MSG_RECEIVED: "MessageReceived",
 } as const;
 
-const URL = {
-  REMOTE: "https://eager-tested-stick.glitch.me/sock",
-  LOCAL_DEV: "ws:localhost:3000/",
+const URL_DOMAIN = {
+  REMOTE: "https://eager-tested-stick.glitch.me",
+  LOCAL_DEV: "ws://localhost:3001",
 } as const;
 
 // TODO Library for Events; A segmented library for Events specific to a Scene
@@ -19,9 +19,10 @@ const URL = {
 
 export class SocketMaster {
 
+  private readonly serverUrl = (!Game.developmentMode) ? URL_DOMAIN.REMOTE : URL_DOMAIN.LOCAL_DEV;
   /** Reference to the socket client. */
   // TODO Add .env 'useRemoteServer' boolean to force REMOTE.PUBLIC even in development mode.
-  readonly io = io((!Game.developmentMode) ? URL.REMOTE : URL.LOCAL_DEV);
+  readonly io = io(this.serverUrl, { path: "/sock" });
 
   get playerNumber() { return this._playerNumber; }
   private _playerNumber?: number;
@@ -29,11 +30,17 @@ export class SocketMaster {
   // TODO Move to a BattleScene-specific object
   instructionQueue: CommandInstruction[] = [];
   turnSignal = false;
+  messageQueue: string[] = [];    // This is to mess with Jaden, but I might repurpose it into something later.
 
   // TODO Client ID, User Auth, and ultimately PlayerNumber matching for a GameSession
 
 
   constructor() {
+
+    Debug.log(DOMAIN, "Constructor", {
+      message: `Using: ${this.serverUrl}`,
+      warn: Game.developmentMode,
+    });
 
     this.io.on('troop order', data => {
       Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
@@ -41,50 +48,31 @@ export class SocketMaster {
         warn: Game.developmentMode,
       })
       this.instructionQueue.push(data);
-    })
+    });
 
     this.io.on('turn change', () => {
       Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
         message: `Signaled turn change.`,
       })
       this.turnSignal = true;
-    })
-
-    this.io.on('game session data', plNum => {
-      this._playerNumber = plNum;
-      console.log(`Assigned player ${this._playerNumber} to this client`);
     });
 
-
-    // REMOVE Db demo code
-    this.io.on('db test', data => {
-      console.log(data);
-    })
-    this.test_db();
-  }
-
-  // REMOVE Db demo code
-  async test_db() {
-    async function sendRequest(url: string) {
-      const data = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
+    this.io.on('game session data', plNum => {
+      Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
+        message: `Assigned player ${this._playerNumber} to this client`,
+        warn: Game.developmentMode,
       });
-
-      console.log(`from ${url}`);
-      console.log(data);
-    }
-
-    [
-      // 'http://localhost:3000/api/g',
-      // 'http://localhost:3000/api/g/',
-      // 'http://localhost:3002/api/g',
-      'http://localhost:3002/api/g/',
-    ].forEach( url => sendRequest(url) );
+      this._playerNumber = plNum;
+    });
+    
+    this.io.on('chat message', msg => {
+      const preview = (msg.length > 10) ? `${msg.slice(0, 10)}...` : msg;
+      Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
+        message: `received chat: ${preview}`,
+      });
+      this.messageQueue.push(msg);
+    });
+    
   }
 
 }
