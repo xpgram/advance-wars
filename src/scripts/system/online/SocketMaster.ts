@@ -42,6 +42,18 @@ export class SocketMaster {
       warn: Game.developmentMode,
     });
 
+    // Get info from server
+    this.io.emit('request player number', null);
+    
+    this.io.on('game session data', plNum => {
+      Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
+        message: `Assigned player ${this._playerNumber} to this client`,
+        warn: Game.developmentMode,
+      });
+      this._playerNumber = plNum;
+    });
+
+    // Define message handlers
     this.io.on('troop order', data => {
       Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
         message: JSON.stringify(data),
@@ -55,14 +67,6 @@ export class SocketMaster {
         message: `Signaled turn change.`,
       })
       this.turnSignal = true;
-    });
-
-    this.io.on('game session data', plNum => {
-      Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
-        message: `Assigned player ${this._playerNumber} to this client`,
-        warn: Game.developmentMode,
-      });
-      this._playerNumber = plNum;
     });
     
     this.io.on('chat message', msg => {
