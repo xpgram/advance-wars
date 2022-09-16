@@ -66,7 +66,8 @@ export class SocketMaster {
     });
     
     this.io.on('chat message', msg => {
-      const preview = (msg.length > 10) ? `${msg.slice(0, 10)}...` : msg;
+      const maxc = 20;
+      const preview = (msg.length > maxc) ? `${msg.slice(0, maxc)}...` : msg;
       Debug.log(DOMAIN, PROCEDURE.MSG_RECEIVED, {
         message: `received chat: ${preview}`,
       });
