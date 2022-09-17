@@ -26,22 +26,6 @@ module.exports = {
             directory: 'dist',
         },
         port: 3000,
-        proxy: {
-            '/sock': {
-                target: 'http://localhost:3001/sock',
-                // ws: true,
-                    // TODO Enable? Don't I want websocket=true?
-                secure: false,
-                changeOrigin: true,
-                logLevel: 'debug',
-            },
-            // '/api': {
-            //     target: 'http://localhost:3002',
-            //     secure: false,
-            //     changeOrigin: true,
-            //     logLevel: 'debug',
-            // },
-        }
     },
     devtool: 'inline-source-map',
     plugins: [
