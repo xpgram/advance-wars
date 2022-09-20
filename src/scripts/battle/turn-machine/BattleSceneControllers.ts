@@ -1,3 +1,4 @@
+import "../../../../../awsrv/src/types/ClientClientTypes";
 import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { Map } from "../map/Map";
@@ -8,7 +9,7 @@ import { InfoWindowSystem } from "../ui-windows/InfoWindowSystem";
 import { TrackCar } from "../TrackCar";
 import { MapLayer, MapLayerFunctions } from "../map/MapLayers";
 import { UnitObject } from "../UnitObject";
-import { ImmutablePointPrimitive, Point } from "../../Common/Point";
+import { Point } from "../../Common/Point";
 import { CameraZoom } from "../control-scripts/cameraZoom";
 import { ControlScript } from "../../ControlScript";
 import { CommandInstruction } from "./CommandInstruction";
@@ -34,6 +35,7 @@ import { CameraTravelMethod } from "../../camera/TravelAlgorithms";
 import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
 import { MiniMap } from "../map/MiniMap";
 import { Debug } from "../../DebugUtils";
+
 
 const DOMAIN = "BattleSceneAssetController";
 
@@ -139,7 +141,8 @@ export class BattleSceneControllers {
   trackCar: TrackCar;
 
   /** A container for an instruction to be given to some location on the game board. */
-  instruction!: CommandInstruction;
+  get instruction() { return this._instruction; }
+  private _instruction: CommandInstruction = { drop: [] };
 
   /** A collection of scripts which, when enabled, control various systems of the battlefield. */
   scripts: Record<string, ControlScript> & {
@@ -162,8 +165,6 @@ export class BattleSceneControllers {
 
     const tileSize = Game.display.standardLength;
 
-    //@ts-expect-error  // Build the instruction literal
-    this.instruction = {};
     this.resetCommandInstruction();
 
     this.scenario = { ...Default_Scenario, ...options };
@@ -362,12 +363,7 @@ export class BattleSceneControllers {
 
   /** Empties the command instruction container. */
   resetCommandInstruction() {
-    this.instruction.action = undefined;
-    this.instruction.which = undefined;
-    this.instruction.place = undefined;
-    this.instruction.path = undefined;
-    this.instruction.focal = undefined;
-    this.instruction.drop = [];
+    this._instruction = { drop: [] };
   }
 
   /** Iterates through all control scripts and runs their update methods. */
