@@ -14,4 +14,7 @@
     "include": [
         "src"
     ],
+    "references": [
+        { "path": "../awsrv" }
+    ]
 }
