@@ -24,23 +24,22 @@ module.exports = {
     },
     optimization: {
         minimize: true,
-        minimizer: [new TerserPlugin()],
+        minimizer: [new TerserPlugin({
+            extractComments: false,
+            terserOptions: {
+                compress: true,
+                mangle: true,
+                keep_classnames: false,
+                keep_fnames: false,
+                sourceMap: false,
+            }
+        })],
     },
     devServer: {
         static: {
             directory: 'dist',
         },
         port: 3000,
-        proxy: {
-            '/': {
-                target: 'ws://localhost:3001',
-                // ws: true,
-                    // TODO Enable? Don't I want websocket=true?
-                secure: false,
-                changeOrigin: true,
-            },
-            '/api': 'http://localhost:3002',
-        }
     },
     devtool: 'inline-source-map',
     plugins: [
