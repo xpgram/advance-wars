@@ -14,11 +14,11 @@ export class RatifyIssuedOrder extends TurnState {
 
 
   protected configureScene(): void {
-    const { instruction, map, boardEvents, players } = this.assets;
+    const { instruction, map, boardEvents, players, multiplayer } = this.assets;
     const { action, placeTile } = this.data;
 
     if (players.perspectivesTurn) {
-      Game.online.io.emit('troop order', instruction);
+      multiplayer.io.emit('TroopOrder', instruction);
     }
 
     map.clearMovementMap();           // Clean up leftovers from UX ingress.

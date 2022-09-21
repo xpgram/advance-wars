@@ -15,27 +15,14 @@ export class TextCutscene extends TurnState {
   textbox?: TextBox;
 
   protected configureScene(): void {
-    const { gamepad, mapCursor } = this.assets;
+    const { gamepad, mapCursor, multiplayer } = this.assets;
 
-    // REMOVE This is a test cutscene demonstrating script and scripted-actions
-    // this.textbox = new (Fadable(TextBox))(gamepad, Game.scene.visualLayers.hud,
-    //   `Hello.`,
-    //   `This is a test of the cutscene feature.`,
-    //   `Currently, I can't modify the script. The state-machine that controls the battle system is less sophisticated than the generic one I wrote.`,
-    //   `I haven't even started the migration yet. But I think this feature will require it.`,
-    //   `Also, check this out:`,
-    //   () => {
-    //     mapCursor.teleportTo(new Point(0,0))
-    //   },
-    //   `I can script the movement of scene assets.`,
-    //   `Of course, this only works if the assets are accessible, so...\nwhere this script data is kept is something I'll have to think about.`,
-    // )
+    const messages = multiplayer.getMessages();
 
-    if (Game.online.messageQueue.length > 0) {
+    if (messages.length > 0) {
       this.textbox = new (Fadable(TextBox))(gamepad, Game.scene.visualLayers.hud,
-        ...Game.online.messageQueue
+        ...messages
       );
-      Game.online.messageQueue = [];  // Clear the queue.
     }
     else  // If no messages, just move on
       this.advance();

@@ -1,4 +1,3 @@
-import "../../../../../awsrv/src/types/ClientClientTypes";
 import { PIXI } from "../../../constants";
 import { Game } from "../../..";
 import { Map } from "../map/Map";
@@ -35,6 +34,7 @@ import { CameraTravelMethod } from "../../camera/TravelAlgorithms";
 import { StagePointerInterface } from "../control-scripts/stagePointerInterface";
 import { MiniMap } from "../map/MiniMap";
 import { Debug } from "../../DebugUtils";
+import { MultiplayerService } from "../MultiplayerService";
 
 
 const DOMAIN = "BattleSceneAssetController";
@@ -137,12 +137,12 @@ export class BattleSceneControllers {
   shopMenu: UnitShopMenuGUI<number>;
   fieldMenu: CommandMenuGUI<number>;
   boardEvents = new BoardEventSchedule();
+  multiplayer = new MultiplayerService();
 
   trackCar: TrackCar;
 
   /** A container for an instruction to be given to some location on the game board. */
-  get instruction() { return this._instruction; }
-  private _instruction: CommandInstruction = { drop: [] };
+  instruction: CommandInstruction = { drop: [] };
 
   /** A collection of scripts which, when enabled, control various systems of the battlefield. */
   scripts: Record<string, ControlScript> & {
@@ -202,7 +202,7 @@ export class BattleSceneControllers {
       });
       playerObjects.push(boardPlayer);
     }
-    this.players = new TurnModerator(playerObjects);
+    this.players = new TurnModerator(playerObjects, this.multiplayer);
 
     // Position MapCursor on board / prepare starting camera position
     const cursorStartLoc = this.players.current.lastCursorPosition;
@@ -363,7 +363,12 @@ export class BattleSceneControllers {
 
   /** Empties the command instruction container. */
   resetCommandInstruction() {
-    this._instruction = { drop: [] };
+    const { trunc, random } = Math;
+    
+    this.instruction = {
+      seed: trunc(random() * Number.MAX_SAFE_INTEGER),
+      drop: [],
+    };
   }
 
   /** Iterates through all control scripts and runs their update methods. */

@@ -28,17 +28,18 @@ export class WaitForNextInstruction extends TurnState {
   }
 
   update() {
+    const { multiplayer } = this.assets;
 
-    const troopEvent = Game.online.instructionQueue.shift();
-    if (troopEvent) {
-      this.assets.instruction = troopEvent;
-      this.advance(RatifyIssuedOrder);
+    const troopEvent = multiplayer.getNextInstruction();
+
+    if (troopEvent === 'EndTurn') {
+      this.advance(TurnEnd);
       return;
     }
 
-    if (Game.online.turnSignal) {
-      Game.online.turnSignal = false; // consume message
-      this.advance(TurnEnd);
+    if (troopEvent) {
+      this.assets.instruction = troopEvent;
+      this.advance(RatifyIssuedOrder);
       return;
     }
 

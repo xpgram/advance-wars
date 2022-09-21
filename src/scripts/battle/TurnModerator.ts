@@ -1,16 +1,19 @@
 import { Game } from "../..";
 import { Slider } from "../Common/Slider";
 import { BoardPlayer } from "./BoardPlayer";
+import { MultiplayerService } from "./MultiplayerService";
 
 /** Keeps track of the current turn-player and the turn-taking order.
  * Useful as a current-player proxy for scripts and objects which need to know. * */
 export class TurnModerator {
 
+  private readonly multiplayer: MultiplayerService;
   private readonly players: BoardPlayer[];
   private currentIdx: Slider;
   private _day: number = 1;
 
-  constructor(players: BoardPlayer[]) {
+  constructor(players: BoardPlayer[], multiplayer: MultiplayerService) {
+    this.multiplayer = multiplayer;
     this.players = players;
     this.currentIdx = new Slider({
       max: this.players.length,
@@ -41,7 +44,7 @@ export class TurnModerator {
   get perspective() {
     // This check differentiates between 'me' and 'internet'
     // TODO Allow multiple local players by introducing a 'null' perspective between them.
-    const playerNum = Game.online.playerNumber ?? this.currentIdx.output;
+    const playerNum = this.multiplayer.playerNumber ?? this.currentIdx.output;
     return this.players[playerNum];
   }
 

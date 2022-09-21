@@ -54,7 +54,6 @@ export class IssueOrderStart extends TurnState {
 
     // Reset command instruction to new.
     this.assets.resetCommandInstruction();
-    instruction.seed = Math.random() * Number.MAX_SAFE_INTEGER;
 
     // Activate control scripts.
     scripts.nextOrderableUnit.enable();

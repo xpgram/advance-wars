@@ -10,12 +10,12 @@ export class TurnEnd extends TurnState {
   get skipOnUndo() { return false; }
 
   configureScene() {
-    const { mapCursor, players } = this.assets;
+    const { mapCursor, players, multiplayer } = this.assets;
     const player = players.current;
 
     // Emit turn-change signal if this is the client who issued it.
     if (players.perspectivesTurn) {
-      Game.online.io.emit('turn change', undefined);
+      multiplayer.io.emit('EndTurn');
     }
 
     player.units.forEach(u => {
