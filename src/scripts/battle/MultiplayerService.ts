@@ -77,14 +77,14 @@ export class MultiplayerService {
 
   constructor() {
     Game.online.addListeners(this.events);
-
-    // Inform the server what we're connecting to.
-    Game.online.io.emit('RequestPlayerNumber',
-      /* { mapname: '', } */
-    )
+  }
+  
+  joinGame(mapname: string) {
+    Game.online.io.emit('RequestPlayerNumber', mapname);
   }
 
   destroy() {
+    Game.online.io.emit('LeaveGame');
     Game.online.removeListeners(this.events);
   }
 

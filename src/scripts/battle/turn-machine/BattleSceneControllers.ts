@@ -179,6 +179,9 @@ export class BattleSceneControllers {
     this.map = new Map(mapdata);
     this.mapCursor = new MapCursor(this.map, this.gamepad);
 
+    // Setup online connection
+    this.multiplayer.joinGame(this.map.name);
+
     // Setup Players
     const playerObjects = [];
     for (let i = 0; i < mapdata.players; i++) {
