@@ -9,25 +9,25 @@ export type CommandDropInstruction = {
 }
 
 /** Represents a discrete unit turn-instruction in its most basic terms. */
-export type CommandInstruction = {
+export class CommandInstruction {
     /** The place with which to give the order; usually contains an actor. */
-    place?: Point,
+    place?: Point;
 
     /** The actor's movement path. */
-    path?: CardinalDirection[],
+    path?: CardinalDirection[];
 
     /** The codified contextual action to be taken. */
-    action?: Instruction,
+    action?: Instruction;
 
     /** The action's codified variation. */
-    which?: number,
+    which?: number;
 
     /** The action's point of execution. */
-    focal?: Point,
+    focal?: Point;
 
     /** The seed for any random nummber generation. */
-    seed?: number,
+    seed: number = Math.trunc(Math.random() * Number.MAX_SAFE_INTEGER);
 
     /** A list of of the actor's held units to drop onto the map. */
-    drop: CommandDropInstruction[],
+    drop: CommandDropInstruction[] = [];
 }

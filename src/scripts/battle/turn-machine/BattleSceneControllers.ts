@@ -142,7 +142,7 @@ export class BattleSceneControllers {
   trackCar: TrackCar;
 
   /** A container for an instruction to be given to some location on the game board. */
-  instruction: CommandInstruction = { drop: [] };
+  instruction = new CommandInstruction();
 
   /** A collection of scripts which, when enabled, control various systems of the battlefield. */
   scripts: Record<string, ControlScript> & {
@@ -164,8 +164,6 @@ export class BattleSceneControllers {
     // Then it is to start the turn engine.
 
     const tileSize = Game.display.standardLength;
-
-    this.resetCommandInstruction();
 
     this.scenario = { ...Default_Scenario, ...options };
 
@@ -362,16 +360,6 @@ export class BattleSceneControllers {
     this.camera.algorithms.displacement = undefined;
     // this.camera.algorithms.destinationCorrection ..?
     // this.camera.algorithms.focalCorrection ..?
-  }
-
-  /** Empties the command instruction container. */
-  resetCommandInstruction() {
-    const { trunc, random } = Math;
-    
-    this.instruction = {
-      seed: trunc(random() * Number.MAX_SAFE_INTEGER),
-      drop: [],
-    };
   }
 
   /** Iterates through all control scripts and runs their update methods. */

@@ -1,4 +1,5 @@
 import { Game } from "../../../..";
+import { CommandInstruction } from "../CommandInstruction";
 import { TurnState } from "../TurnState";
 import { RatifyIssuedOrder } from "./RatifyIssuedOrder";
 import { TurnEnd } from "./TurnEnd";
@@ -15,7 +16,7 @@ export class WaitForNextInstruction extends TurnState {
     const { mapCursor, uiSystem, players, scripts } = this.assets;
 
     // Blank the instruction. Probably not necessary, but good sanity insurance.
-    this.assets.resetCommandInstruction();
+    this.assets.instruction = new CommandInstruction();
 
     players.all.forEach(player => player.scanCapturedProperties());
     

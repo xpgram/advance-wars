@@ -13,6 +13,7 @@ import { ShowMinimap } from "./ShowMinimap";
 import { Terrain } from "../../map/Terrain";
 import { Common } from "../../../CommonUtils";
 import { DevMapEditor } from "./DevMapEditor";
+import { CommandInstruction } from "../CommandInstruction";
 
 export class IssueOrderStart extends TurnState {
   get type() { return IssueOrderStart; }
@@ -53,7 +54,7 @@ export class IssueOrderStart extends TurnState {
     camera.focalTarget = this.assets.mapCursor;
 
     // Reset command instruction to new.
-    this.assets.resetCommandInstruction();
+    this.assets.instruction = new CommandInstruction();
 
     // Activate control scripts.
     scripts.nextOrderableUnit.enable();
