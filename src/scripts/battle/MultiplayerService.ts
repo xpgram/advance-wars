@@ -16,6 +16,10 @@ enum Procedure {
 
 export class MultiplayerService {
 
+  /** True if the multiplayer service is active.
+   * @readonly */
+  get live() { return this._playerNumber !== undefined; }
+
   get playerNumber() { return this._playerNumber; }
   private _playerNumber?: number;
 
