@@ -349,9 +349,11 @@ export class StateMaster<T extends StateAssets> {
    * Be wary that the state stack frequently culls low-relevancy states when debugging. */
   getState<State extends StateObject<T>>(target: Type<State>): State | undefined {
     let i = this.stack.length;
-    while (i --> 0)
+    while (i --> 0) {
+      console.log(`checking ${i}: ${this.stack[i].name}`);
       if (this.stack[i].type === target)
         return this.stack[i] as State;
+    }
   }
 
   /** Reduces the stack length by removing low-relevancy states below non-revertible break points. */

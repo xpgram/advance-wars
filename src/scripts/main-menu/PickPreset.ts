@@ -1,10 +1,10 @@
-import { Game } from "../..";
-import { MapData } from "../../battle-maps/MapData";
-import { BattleScene } from "../../scenes/BattleScene";
+import { Scenario } from "../battle/turn-machine/Scenario";
 import { Type } from "../CommonTypes";
+import { Debug } from "../DebugUtils";
 import { StateObject } from "../system/state-management/StateObject";
 import { MainMenuAssets } from "./MainMenuAssets";
 import { PickMap } from "./PickMap";
+import { PickMultiplayer } from "./PickMultiplayer";
 
 
 export class PickPreset extends StateObject<MainMenuAssets> {
@@ -12,6 +12,8 @@ export class PickPreset extends StateObject<MainMenuAssets> {
   get name(): string { return `PickPreset`; }
   get revertible(): boolean { return true; }
   get skipOnUndo(): boolean { return false; }
+
+  chosenScenario?: Partial<Scenario>;
 
   protected configure(): void {
     const { battleSettingsMenu, userPrompt } = this.assets;
@@ -25,15 +27,8 @@ export class PickPreset extends StateObject<MainMenuAssets> {
     const { A, B } = gamepad.button;
 
     if (A.pressed || battleSettingsMenu.menuPointer.clicked()) {
-      const mapdata = this.machine.getState(PickMap)?.chosenMap;
-      const scenario = battleSettingsMenu.menu.selectedValue;
-
-      if (!mapdata) {  // TODO This process needs to be streamlined
-        this.machine.failToPreviousState(this);
-        return;
-      }
-      
-      Game.transitionToSceneWithData(BattleScene, {mapdata, scenario});
+      this.chosenScenario = battleSettingsMenu.menu.selectedValue;
+      this.advance(PickMultiplayer);
     }
 
     else if (B.pressed || stagePointer.clicked()) {

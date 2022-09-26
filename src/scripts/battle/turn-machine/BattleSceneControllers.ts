@@ -19,7 +19,6 @@ import { NextOrderableUnit } from "../control-scripts/nextOrderableUnit";
 import { TurnModerator } from "../TurnModerator";
 import { ListMenu } from "../../system/gui-menu-components/ListMenu";
 import { CommandMenuGUI } from "../../system/gui-menu-components/CommandMenuGUI";
-import { defaultUnitSpawnMap, UnitSpawnMap } from "../UnitSpawnMap";
 import { CommandHelpers } from "./Command.helpers";
 import { IconTitle, ShopItemTitle } from "../../system/gui-menu-components/ListMenuTitleTypes";
 import { UnitShopMenuGUI } from "../../system/gui-menu-components/UnitShopMenuGUI";
@@ -35,93 +34,15 @@ import { StagePointerInterface } from "../control-scripts/stagePointerInterface"
 import { MiniMap } from "../map/MiniMap";
 import { Debug } from "../../DebugUtils";
 import { MultiplayerService } from "../MultiplayerService";
+import { defaultScenario, Scenario } from "./Scenario";
 
 
 const DOMAIN = "BattleSceneAssetController";
 
 type CommandObject = CommandHelpers.CommandObject;
 
-// TODO Extract ScenarioOptions to another file.
 
-/** Scenario options for constructing the battle scene. */
-export type ScenarioOptions = {
-  /** Whether tiles will be hidden unless inside the vision range of an allied unit. @default False */
-  fogOfWar?: boolean,
-  /** Which weather conditions the battle will rage in. Weather has deleterious effects on units. @default Clear */
-  weather?: Weather,
-  /** Which graphics set to use. I need Snow for Olaf, but otherwise I don't actually care about this one. @default Normal */
-  terrainGraphics?: TerrainTileSet,
-  /** How many days (turns) the battle will go on for before it is decided by player
-   * standing. Set to < 1 for infinite. @default -1 */
-  dayLimit?: number,
-  /** How many properties a player can capture to win the game. Set to < 1 for infinite. @default -1 */
-  propertiesToWin?: number,
-  /** Funds granted to each player on their first turn. @default 0 */
-  startingFunds?: number,
-  /** Funds granted per fungible captured property on turn start. @default 1000 */
-  incomePerTaxableProperty?: number,
-  /** AI play style: aggressive, defensive, balanced, etc. @default Balanced */
-  // aiPlaystyle?: AIPlayStyle,
-  /** Whether units get more powerful/experienced after defeating another unit. @default True */
-  rankUp?: boolean,
-
-  /** Whether an HQ tile remains an HQ on capture or becomes a City tile. @default False */
-  acquireHqOnCapture?: boolean,
-  /** Whether allied players share FoW vision ranges. */
-  sharedSightMap?: boolean,
-  /** The maximum number of deployed units a player may have on the board. @default 50 */
-  unitLimit?: number,
-  /** How much HP a unit will restore when starting a turn on a repairing tile. @default 20 */
-  repairHp?: number,
-}
-
-/** Settings for the game. */
-export type Scenario = {
-  fogOfWar: boolean,
-  weather: Weather,
-  terrainGraphics: TerrainTileSet,
-  dayLimit: number,           // How many days happen before the leading player wins.
-  propertiesToWin: number,    // How many captured properties will win the game.
-  startingFunds: number,
-  incomePerTaxableProperty: number,
-  // aiPlaystyle: AIPlayStyle,
-  rankUp: boolean,
-
-  unitLimit: number,      // TODO Why are there defaults if these aren't optional?
-  repairHp: number,
-  acquireHqOnCapture: boolean,
-  sharedSightMap: boolean,
-  CoUnits: boolean,
-  CoPowers: boolean,
-  CoLoadableFromHQ: boolean,
-  resuppliersInfiniteGas: boolean,
-
-  spawnMap: UnitSpawnMap[],
-}
-
-const Default_Scenario: Scenario = {
-  fogOfWar: false,
-  weather: Weather.Clear,
-  terrainGraphics: TerrainTileSet.Normal,
-  dayLimit: -1,
-  propertiesToWin: -1,
-  startingFunds: 0,
-  incomePerTaxableProperty: 1000,
-  // aiPlaystyle: AIPlayStyle.Balanced,
-  rankUp: true,
-
-  unitLimit: 50,
-  repairHp: 20,
-  acquireHqOnCapture: false,
-  sharedSightMap: false,
-  CoUnits: true,
-  CoPowers: true,
-  CoLoadableFromHQ: true,
-  resuppliersInfiniteGas: true,
-
-  spawnMap: defaultUnitSpawnMap,
-}
-
+/** A single-reference-point maintaining instances for all the war game's big asset modules. */
 export class BattleSceneControllers {
 
   scenario: Scenario;
@@ -159,13 +80,13 @@ export class BattleSceneControllers {
   /** Keeps track of players, turn order and current turn player. */
   players: TurnModerator;
 
-  constructor(mapdata: MapData, options?: ScenarioOptions) {
+  constructor(mapdata: MapData, options?: Partial<Scenario>) {
     // The objective here is to build a complete battle scene given scenario options.
     // Then it is to start the turn engine.
 
     const tileSize = Game.display.standardLength;
 
-    this.scenario = { ...Default_Scenario, ...options };
+    this.scenario = { ...defaultScenario, ...options };
 
     /* Instantiate */
 
@@ -178,7 +99,8 @@ export class BattleSceneControllers {
     this.mapCursor = new MapCursor(this.map, this.gamepad);
 
     // Setup online connection
-    this.multiplayer.joinGame(this.map.name);
+    if (this.scenario.remoteMultiplayerMatch)
+      this.multiplayer.joinGame(this.map.name);
 
     // Setup Players
     const playerObjects = [];

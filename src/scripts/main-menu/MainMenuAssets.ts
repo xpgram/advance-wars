@@ -2,10 +2,9 @@ import { Game } from "../..";
 import { MapData } from "../../battle-maps/MapData";
 import { MapsCollection } from "../../battle-maps/maps-collection";
 import { PIXI } from "../../constants";
-import { ScenarioOptions } from "../battle/turn-machine/BattleSceneControllers";
+import { Scenario } from "../battle/turn-machine/Scenario";
 import { fonts } from "../battle/ui-windows/DisplayInfo";
 import { Point } from "../Common/Point";
-import { Common } from "../CommonUtils";
 import { ClickableContainer } from "../controls/MouseInputWrapper";
 import { VirtualGamepad } from "../controls/VirtualGamepad";
 import { CommandMenuGUI } from "../system/gui-menu-components/CommandMenuGUI";
@@ -19,8 +18,10 @@ export class MainMenuAssets implements StateAssets {
   gamepad: VirtualGamepad;
   stagePointer: ClickableContainer<PIXI.Container>;
 
+  // TODO Three menus? Can we not reuse one, or do something more on-demand?
   mapMenu: CommandMenuGUI<MapData>;
-  battleSettingsMenu: CommandMenuGUI<ScenarioOptions>;
+  battleSettingsMenu: CommandMenuGUI<Partial<Scenario>>;
+  remoteMultiplayerMenu: CommandMenuGUI<Pick<Scenario, 'remoteMultiplayerMatch'>>;
 
   userPrompt = new PIXI.BitmapText('', fonts.list);
 
@@ -59,7 +60,7 @@ export class MainMenuAssets implements StateAssets {
 
 
     // Quick battle presets
-    const battlePresets: ([string, ScenarioOptions])[] = [
+    const battlePresets: Array<[string, Partial<Scenario>]> = [
       ['Normal Battle', {
         // None
       }],
@@ -80,6 +81,26 @@ export class MainMenuAssets implements StateAssets {
       Game.display.renderWidth/2 - this.battleSettingsMenu.graphicalWidth/2,
       Game.display.renderHeight/2 - this.battleSettingsMenu.graphicalHeight/2,
     ))
+
+
+    // Multiplayer presets
+    const onlinePresets: Array<[string, Pick<Scenario, 'remoteMultiplayerMatch'>]> = [
+      ['Local Multiplayer', { remoteMultiplayerMatch: false }],
+      ['Remote Online', { remoteMultiplayerMatch: true }],
+    ];
+
+    // Build menu for multiplayer settings
+    this.remoteMultiplayerMenu = new CommandMenuGUI(
+      new ListMenu(this.gamepad, {
+        listItems: onlinePresets.map( ([title, data]) => new ListMenuOption({title}, data)),
+        pageLength: 8,
+      }),
+      Game.scene.visualLayers.hud
+    );
+    this.remoteMultiplayerMenu.setPosition(new Point(
+      Game.display.renderWidth/2 - this.remoteMultiplayerMenu.graphicalWidth/2,
+      Game.display.renderHeight/2 - this.remoteMultiplayerMenu.graphicalHeight/2,
+    ));
   }
 
   update() {
@@ -103,12 +124,14 @@ export class MainMenuAssets implements StateAssets {
   resetAssets(): void {
     this.mapMenu.hide();
     this.battleSettingsMenu.hide();
+    this.remoteMultiplayerMenu.hide();
     this.userPrompt.text = '';
   }
 
   destroy(): void {
     this.mapMenu.destroy();
     this.battleSettingsMenu.destroy();
+    this.remoteMultiplayerMenu.destroy();
     this.stagePointer.destroy();
   }
 }
