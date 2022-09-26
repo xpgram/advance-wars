@@ -85,8 +85,8 @@ export class MainMenuAssets implements StateAssets {
 
     // Multiplayer presets
     const onlinePresets: Array<[string, Pick<Scenario, 'remoteMultiplayerMatch'>]> = [
-      ['Local Multiplayer', { remoteMultiplayerMatch: false }],
-      ['Remote Online', { remoteMultiplayerMatch: true }],
+      ['Local', { remoteMultiplayerMatch: false }],
+      ['Online', { remoteMultiplayerMatch: true }],
     ];
 
     // Build menu for multiplayer settings
