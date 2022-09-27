@@ -20,6 +20,13 @@ Other gamepads are not guaranteed to work yet, but you sure can try.
 Oh, I should mention.  
 This project is not necessarily for the public. I know Nintendo is litigation-happy. One of the key objectives here is just to demonstrate my skill, the rest are, you know, private fun with private people.
 
+### Currently working on:
+
+[x] Online play using socket.io
+[x] Fixing the "player 2 can't play locally" issue I instroduced on purpose.
+[ ] User-accounts database, and other tables.
+[ ] UI-code refactor, and then a user login widget.
+
 # Features:
 
 <img src="" width="100%" height="1.0rem">
@@ -154,5 +161,6 @@ It's not, or won't be, just battling all the time. The game is already written t
 
 # Known Issues
 
-- When the camera zoom level is 2 (the middle one), sometimes the wait-for-camera system waits indefinitely and never begins the next board event. You can work around this by simply pressing the zoom button again.
-- Mouse controls are.. finicky. Sometimes you double, triple, quadruple click, sometimes it gets stuck in mouse-down state. These are usually navigable by clicking around in different places to reset the behavior system, but it's pretty annoying, yeah.
+- **Player 2 can't play.** This isn't actually an issue. It's waiting for another browser client to issue commands. An update I'm pushing soon requires the online mode to be deliberately invoked, so it'll stop being a problem. Really, this is a product of me rushing things out so my friend and I could play.
+- **Camera, zoom level 2 gets stuck** because the wait-for-camera system is waiting indefinitely for the camera to move into position, even though it has, and never begins the next board event. You can work around this by simply pressing the zoom button again.
+- **Finicky mouse controls.** Sometimes you double, triple, quadruple click, sometimes it gets stuck in mouse-down state. These are usually navigable by clicking around in different places to reset the behavior system, but it's pretty annoying, yeah.
