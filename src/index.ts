@@ -11,6 +11,7 @@ import { TitleScreen } from './scenes/TitleScreen';
 import { SceneTransitionEffect } from './scenes/scene-transitions/SceneTransitionEffect';
 import { SceneTransition } from './scenes/scene-transitions/SceneTransition';
 import { SocketMaster } from "./scripts/system/online/SocketMaster";
+import { Point } from './scripts/Common/Point';
 
 
 const DOMAIN = "Game";
@@ -188,11 +189,17 @@ class App {
     /** The height of the game's screen internally. */
     get renderHeight(): number { return this.standardLength * 12; },
 
+    /** The width/height of the game's screen internally as a Point object. */
+    get renderDimensions(): Point { return new Point(this.renderWidth, this.renderHeight); },
+
     /** The real width of the game window in pixels. */
     get width(): number { return this.renderWidth * this.scale; },
 
     /** The real height of the game window in pixels. */
     get height(): number { return this.renderHeight * this.scale; },
+
+    /** The real width/height of the game window in pixels as a Point object. */
+    get dimensions(): Point { return new Point(this.width, this.height); },
 
     /** The ratio between internal render dimensions to on-screen window dimensions. */
     scale: 1,
