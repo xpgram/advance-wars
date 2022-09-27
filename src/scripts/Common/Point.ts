@@ -185,7 +185,7 @@ export class Point {
     return this.abs().sumCoords();
   }
 
-  /** Returns an identity vector in the same direction as this.
+  /** Returns a vector with magnitude 1 in the same direction as this.
    * If this vector has no length, the returned vector will be the origin <0,0>. */
   unit(): Point {
     const mag = this.magnitude();
@@ -251,14 +251,28 @@ export class Point {
   static get Origin(): Point { return new Point(0, 0); }
   /** Alias for Point.Origin: the additive identity vector. */
   static get Zero(): Point { return Point.Origin; }
-  /** Identity vector pointing conventionally up. */
+  /** Unit vector pointing conventionally up. */
   static get Up(): Point { return new Point(0, -1); }
-  /** Identity vector pointing conventionally down. */
+  /** Unit vector pointing conventionally down. */
   static get Down(): Point { return new Point(0, 1); }
-  /** Identity vector pointing conventionally left. */
+  /** Unit vector pointing conventionally left. */
   static get Left(): Point { return new Point(-1, 0); }
-  /** Identity vector pointing conventionally right. */
+  /** Unit vector pointing conventionally right. */
   static get Right(): Point { return new Point(1, 0); }
+
+  /** Points representing normalized alignment values in 0-to-1,
+   * top-left to bottom-right space. */
+  static readonly Normals = {
+    get TopLeft():      Point { return new Point(0   , 0  ); },
+    get MiddleLeft():   Point { return new Point(0   , 0.5); },
+    get BottomLeft():   Point { return new Point(0   , 1  ); },
+    get TopRight():     Point { return new Point(1   , 0  ); },
+    get MiddleRight():  Point { return new Point(1   , 0.5); },
+    get BottomRight():  Point { return new Point(1   , 1  ); },
+    get Center():       Point { return new Point(0.5 , 0.5); },
+    get TopCenter():    Point { return new Point(0.5 , 0  ); },
+    get BottomCenter(): Point { return new Point(0.5 , 1  ); },
+  }
 
   /** All point vectors describing an axis direction. */
   static get Cardinals(): Point[] {
