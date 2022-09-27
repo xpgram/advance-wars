@@ -92,8 +92,8 @@ export abstract class StateObject<T extends StateAssets> {
       this.queueChange = 0;
       this.assets.resetAssets();
       (!fromRegress)
-        ? this.onAdvance()
-        : this.onRegress();
+        ? this.onWakeFromAdvance()
+        : this.onWakeFromRegress();
       this.configure();
     } catch (err) {
       Debug.log(this.DOMAIN, "Wake", {
@@ -120,15 +120,26 @@ export abstract class StateObject<T extends StateAssets> {
    * Raising an error of any kind in this step will be caught and reported by the
    * StateMaster, and control will be auto-reverted to the last stable game state. */
   protected abstract configure(): void;
+  
+  /** Function called before configuration only when this state is advanced to. */
+  protected onWakeFromAdvance() {};
+  
+  /** Function called before configuration only when this state is regressed to. */
+  protected onWakeFromRegress() {};
+  
+  /** Function called when this state is about to yield control to another state. */
+  protected onClose() {};
+
+  /** Function called when this state is about to yield control to a state next-in-queue.
+   * Called before onClose(). */
+  protected onAdvance() {};
+
+  /** Function called when this state is about to yield control to a previous state.
+   * Called before onClose(). */
+  protected onRegress() {};
 
   /** Function called during destruction of the TurnState object. */
   protected onDestroy() {};
-
-  /** Function called before configuration only when this state is advanced to. */
-  protected onAdvance() {};
-
-  /** Function called before configuration only when this state is regressed to. */
-  protected onRegress() {};
   
   /** Frame-by-frame processing step for this state object.
    * This method is called before update() and is never suspended by higher-order systems. This method is intended
@@ -141,29 +152,39 @@ export abstract class StateObject<T extends StateAssets> {
   updateInput() {};
 
   /** Generic close procedure called during any state transition. */
-  close() {};
-
-  /** Any to-dos before regressing to previous state.
-   * This should perform a complete 'undo' of whatever variables this state was trying to affect. */
-  prev() {};
+  close({willRegress = false} = {}) {
+    try {
+      (willRegress)
+        ? this.onRegress()
+        : this.onAdvance();
+      this.onClose();
+    } catch (err) {
+      Debug.log(this.DOMAIN, "Close", {
+        message: `${err}`,
+        error: true,
+      });
+      this.machine.failToPreviousState(this);
+      Debug.print(this.machine.getStackTrace());
+    }
+  };
 
   /** Pushes a request to the state master to direct the flow of control to the next state in queue,
    * or to the first of the states given here as a subroutine-style operation. */
-  advance(...next: StateConcatable<T>[]) {
+  protected advance(...next: StateConcatable<T>[]) {
     const accepted = this.machine.advance(this, ...next);
     if (accepted)
       this.queueChange = next.length;
   }
 
   /** Pushes a request to the battle system manager to revert state to the one previous. */
-  regress() {
+  protected regress() {
     this.machine.regress(this);
   }
 
   /** Pushes a request to the state machine to revert state to a specific state or class of state object.
    * Returns `true` if such a state exists to regress to (and the system has initiated the request), and
    * `false` if no such regress request is satisfiable. */
-  regressTo(target: StateObject<T> | Type<StateObject<T>>): boolean {
+  protected regressTo(target: StateObject<T> | Type<StateObject<T>>): boolean {
     return this.machine.regressTo(this, target);
   }
 }

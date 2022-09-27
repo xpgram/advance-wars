@@ -195,8 +195,7 @@ export class StateMaster<T extends StateAssets> {
 
         // Transition procedure
         if (this.transitionIntent === TransitionTo.Previous) {
-          oldState.close();      // Runs generic close procedure
-          oldState.prev();       // Ctrl+Z Undo for smooth backwards transition
+          oldState.close({willRegress: true});
           this.log('↩', `${oldState.name}`, oldState.exit);
         } else if (this.transitionIntent === TransitionTo.PreviousOnFail) {
           this.log('🛑', `${oldState.name}`, oldState.exit);

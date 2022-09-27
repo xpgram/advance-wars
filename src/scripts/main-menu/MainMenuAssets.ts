@@ -4,6 +4,7 @@ import { MapsCollection } from "../../battle-maps/maps-collection";
 import { PIXI } from "../../constants";
 import { Scenario } from "../battle/turn-machine/Scenario";
 import { fonts } from "../battle/ui-windows/DisplayInfo";
+import { BoxContainerProperties } from "../Common/BoxContainerProperties";
 import { Point } from "../Common/Point";
 import { ClickableContainer } from "../controls/MouseInputWrapper";
 import { VirtualGamepad } from "../controls/VirtualGamepad";
@@ -17,11 +18,6 @@ export class MainMenuAssets implements StateAssets {
 
   gamepad: VirtualGamepad;
   stagePointer: ClickableContainer<PIXI.Container>;
-
-  // TODO Three menus? Can we not reuse one, or do something more on-demand?
-  mapMenu: CommandMenuGUI<MapData>;
-  battleSettingsMenu: CommandMenuGUI<Partial<Scenario>>;
-  remoteMultiplayerMenu: CommandMenuGUI<Pick<Scenario, 'remoteMultiplayerMatch'>>;
 
   userPrompt = new PIXI.BitmapText('', fonts.list);
 
@@ -38,69 +34,17 @@ export class MainMenuAssets implements StateAssets {
     clickableObj.height = Game.display.renderHeight;
     Game.scene.visualLayers.stage.addChild(clickableObj);
 
-    // Add above-menu text
+    // Positioning variable
+    const screenCenter = new Point(
+      Game.display.renderWidth/2,
+      Game.display.renderHeight/2,
+    );
+
+    // Add above-menu, prompt text
     this.userPrompt.anchor.set(.5, 0);
-    this.userPrompt.x = Game.display.renderWidth/2;
+    this.userPrompt.x = screenCenter.x;
     this.userPrompt.y = 4;
     Game.scene.visualLayers.hud.addChild(this.userPrompt);
-    
-    // Build menu for map pick
-    this.mapMenu = new CommandMenuGUI(
-      new ListMenu(this.gamepad, {
-        listItems: MapsCollection.fromCriteria()
-          .map( data => new ListMenuOption({title: data.name}, data)),
-        pageLength: 8,
-      }),
-      Game.scene.visualLayers.hud
-    );
-    this.mapMenu.setPosition(new Point(
-      Game.display.renderWidth/2 - this.mapMenu.graphicalWidth/2,
-      Game.display.renderHeight/2 - this.mapMenu.graphicalHeight/2,
-    ));
-
-
-    // Quick battle presets
-    const battlePresets: Array<[string, Partial<Scenario>]> = [
-      ['Normal Battle', {
-        // None
-      }],
-      ['Fog of War Battle', {
-        fogOfWar: true,
-      }],
-    ];
-
-    // Build menu for quick battle settings
-    this.battleSettingsMenu = new CommandMenuGUI(
-      new ListMenu(this.gamepad, {
-        listItems: battlePresets.map( ([title, data]) => new ListMenuOption({title}, data)),
-        pageLength: 8,
-      }),
-      Game.scene.visualLayers.hud
-    );
-    this.battleSettingsMenu.setPosition(new Point(
-      Game.display.renderWidth/2 - this.battleSettingsMenu.graphicalWidth/2,
-      Game.display.renderHeight/2 - this.battleSettingsMenu.graphicalHeight/2,
-    ))
-
-
-    // Multiplayer presets
-    const onlinePresets: Array<[string, Pick<Scenario, 'remoteMultiplayerMatch'>]> = [
-      ['Local', { remoteMultiplayerMatch: false }],
-      ['Online', { remoteMultiplayerMatch: true }],
-    ];
-
-    // Build menu for multiplayer settings
-    this.remoteMultiplayerMenu = new CommandMenuGUI(
-      new ListMenu(this.gamepad, {
-        listItems: onlinePresets.map( ([title, data]) => new ListMenuOption({title}, data)),
-        pageLength: 8,
-      }),
-      Game.scene.visualLayers.hud
-    );
-    this.remoteMultiplayerMenu.setPosition(new Point(
-      Game.display.renderWidth/2 - this.remoteMultiplayerMenu.graphicalWidth/2,
-      Game.display.renderHeight/2 - this.remoteMultiplayerMenu.graphicalHeight/2,
-    ));
   }
 
   update() {
@@ -122,16 +66,10 @@ export class MainMenuAssets implements StateAssets {
   }
 
   resetAssets(): void {
-    this.mapMenu.hide();
-    this.battleSettingsMenu.hide();
-    this.remoteMultiplayerMenu.hide();
     this.userPrompt.text = '';
   }
 
   destroy(): void {
-    this.mapMenu.destroy();
-    this.battleSettingsMenu.destroy();
-    this.remoteMultiplayerMenu.destroy();
     this.stagePointer.destroy();
   }
 }
