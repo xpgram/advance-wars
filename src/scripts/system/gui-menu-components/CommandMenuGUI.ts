@@ -181,7 +181,14 @@ export class CommandMenuGUI<Y> {
   }
 
   /** Changes the GUI coordinate location so that its top-left corner is p. */
-  setPosition(p: Point) {
+  setPosition(p: Point, origin = Point.Normals.TopLeft) {
+    // TODO The UI refactor base components should have pos and origin settings, standard stuff
+    // They'll make use of the master Pixi.Container's pivot
+    // This impl. requires us to redefine the origin every time we move the menu.
+    this.gui.pivot.set(
+      this.graphicalWidth * origin.x,
+      this.graphicalHeight * origin.y
+    );
     this.gui.position.set(p.x, p.y);
   }
 
