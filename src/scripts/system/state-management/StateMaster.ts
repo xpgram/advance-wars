@@ -349,7 +349,6 @@ export class StateMaster<T extends StateAssets> {
   getState<State extends StateObject<T>>(target: Type<State>): State | undefined {
     let i = this.stack.length;
     while (i --> 0) {
-      console.log(`checking ${i}: ${this.stack[i].name}`);
       if (this.stack[i].type === target)
         return this.stack[i] as State;
     }
