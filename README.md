@@ -11,14 +11,14 @@ It was chosen because it's a really good game, and because I won't have to draw 
 You can play the current public build[→here.](https://xpgram.github.io/armed-revolt/game.html)  
 Be wary of [these issues](#known-issues), though.
 
-The controls are listed below the game window, but I don't have button prompts in the UI yet, so they may be confusing.  
-I'm working on fixing that. Uh, just press Z and X a bunch and you'll do things.
+The controls are listed below the game window, but I don't have button prompts in the UI yet, so it may still be confusing. I'm working on fixing that.  
+Uh, just press Z and X a bunch and you'll do things.
 
 You can also play with a PS4/5 remote.  
 Other gamepads are not guaranteed to work yet, but you sure can try.
 
 Oh, I should mention.  
-This project is not necessarily for the public. I know Nintendo is litigation-happy. One of the key objectives here is just to demonstrate my skill, the rest are, you know, private fun with private people.
+This project is not necessarily for the public. One of the key objectives here is just to demonstrate my skill, the rest are, you know, private fun with private people.
 
 ### Currently working on:
 
@@ -149,14 +149,6 @@ Currently dev-only, but it's mostly just missing UI. And a place to store the da
 This is actually accessible in the middle of any battle if in a dev build, and in no battles whatsoever when in a public build. I'm all about dev tyranny. I can't wait to program in my own cheat codes.
 
 ![](/docs/demo-reels/map-design.gif)
-
-
-<!------------------------------------------------------------------------------------------------->
-## Scene Pattern
-
-It's not, or won't be, just battling all the time. The game is already written to enable different modes whenever they're built, each working independently and requiring only the assets unique to their function. Such as this title screen.
-
-![](/docs/demo-reels/title-screen-10s.gif)
 
 
 # Known Issues
