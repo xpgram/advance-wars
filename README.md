@@ -22,10 +22,10 @@ This project is not necessarily for the public. I know Nintendo is litigation-ha
 
 ### Currently working on:
 
-[x] Online play using socket.io
-[x] Fixing the "player 2 can't play locally" issue I introduced on purpose.
-[ ] User-accounts database, and other tables.
-[ ] UI-code refactor, and then a user login widget.
+- [x] Online play using socket.io
+- [x] Fixing the "player 2 can't play locally" issue I introduced on purpose
+- [ ] User-accounts database, and other tables
+- [ ] UI-code refactor, and then a user login widget
 
 # Features:
 
