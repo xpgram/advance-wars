@@ -1,4 +1,4 @@
-import { PIXI, PixiFilters } from "../constants";
+import { PIXI, PixiAudio, PixiFilters } from "../constants";
 import { Game } from "..";
 import { Color } from "../scripts/color/Color";
 import { Ease } from "../scripts/Common/EaseMethod";
@@ -32,9 +32,14 @@ export class TitleScreen extends Scene {
 
     this.linker.push({name: 'font-label', url: 'assets/font-label.xml'});
     this.linker.push({name: 'font-script', url: 'assets/font-script.xml'});
+
+    PixiAudio.sound.add('mus-title-screen', 'assets/audio/music/title-screen_tmp.mp3');
   }
 
   setupStep(): void {
+    // TODO Formalize, refactor, etc.
+    PixiAudio.sound.play('mus-title-screen');
+
     this.gamepad = new VirtualGamepad();
     this.clickable = new ClickableContainer(this.visualLayers.stage);
 
