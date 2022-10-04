@@ -1,4 +1,3 @@
-import { StringDictionary } from "../CommonTypes";
 import { Button } from "./Button";
 import { ButtonMap } from "./ButtonMap";
 import { KeyboardObserver, Keys } from "./KeyboardObserver";
@@ -31,7 +30,7 @@ export class DevController {
   private enabled: boolean;
 
   /** Dictionary of keyboard keys and their states. */
-  button: StringDictionary<Button> = {};
+  button: Record<string, Button> = {};
 
   /** Callbacks for on-press events. */
   private onPressEvents: DevControllerEvent[] = [];
@@ -44,7 +43,7 @@ export class DevController {
 
   constructor(options?: {enable?: boolean}) {
     this.enabled = options?.enable || false;
-    const KeyMap = Keys as StringDictionary<number>;
+    const KeyMap = Keys as Record<string, number>;
     for (const key in KeyMap) {
       const keyVal = (this.enabled) ? KeyMap[key] : null;
       const buttonMap = new ButtonMap(null, null, keyVal, null);
@@ -56,7 +55,7 @@ export class DevController {
   /** Reset button state. */
   reset() {
     for (const button in this.button) {
-        (this.button as StringDictionary<Button>)[button].reset();
+        (this.button as Record<string, Button>)[button].reset();
     }
   }
 
