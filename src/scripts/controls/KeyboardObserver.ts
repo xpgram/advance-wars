@@ -1,5 +1,4 @@
 import { Common } from "../CommonUtils";
-import { NumericDictionary, StringDictionary } from "../CommonTypes";
 import { Game } from "../..";
 
 const JS_NUMBER_BITS = 32;
@@ -7,7 +6,7 @@ const KEYCODE_BIT_FLAGS = 256;
 
 // Keeps track of all keycode pressed/unpressed boolean states in so many 32-bit numbers.
 // Keycodes are not different, this script is a convenient proxy between the browser and the game.
-const keypressMatrix: NumericDictionary<number> = {};
+const keypressMatrix: Record<number, number> = {};
 for (let i = 0; (i*JS_NUMBER_BITS) < KEYCODE_BIT_FLAGS; i++) {
     keypressMatrix[i] = 0;
 }
@@ -15,7 +14,7 @@ for (let i = 0; (i*JS_NUMBER_BITS) < KEYCODE_BIT_FLAGS; i++) {
 
 // Returns true if the keyboard event should be ignored.
 function refuseListen(event: KeyboardEvent): boolean {
-    const notFocused = (document.activeElement !== Game.contextElement);
+    const notFocused = (!Game.hasFocus);
     const specialKey = (event.keyCode === Keys.Tab);    // Tab is important for non-mouse context switching.
     return notFocused || specialKey;
 }

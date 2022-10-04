@@ -1,10 +1,10 @@
 import { Button } from "./Button";
-import { StringDictionary } from "../CommonTypes";
 import { KeyboardObserver } from "./KeyboardObserver";
 import { Axis2D } from "./Axis";
 import { ButtonMap } from "./ButtonMap";
 import { Point } from "../Common/Point";
 import { Debug } from "../DebugUtils";
+import { Game } from "../..";
 
 /**
  * @author Dei Valko
@@ -64,7 +64,7 @@ export class VirtualGamepad {
         this.axis.rightStick.reset();
         this.axis.dpad.reset();
         for (let button in this.button) {
-            (this.button as StringDictionary<Button>)[button].reset();
+            (this.button as Record<string, Button>)[button].reset();
         }
     }
 
@@ -74,8 +74,15 @@ export class VirtualGamepad {
 
         // Update all virtual buttons
         for (const buttonProp in this.button) {
-            const button = (this.button as StringDictionary<Button>)[buttonProp];
+            const button = (this.button as Record<string, Button>)[buttonProp];
             let down = false; // False unless any of the button's mappable inputs can be considered 'down'
+
+            // Prevent interaction while the game is not focused.
+            if (!Game.hasFocus) {
+                if (button.down)
+                    button.update(false);
+                continue;
+            }
 
             // If either mapped gamepad button is down
             if (gamepad) {

@@ -6,7 +6,7 @@ import { Debug } from './scripts/DebugUtils';
 import { WorkOrderHandler } from './scripts/system/WorkOrderHandler';
 import { TextureLibrary } from './scripts/system/TextureLibrary';
 import { DevController } from './scripts/controls/DevController';
-import { Keys } from './scripts/controls/KeyboardObserver';
+import { KeyboardObserver, Keys } from './scripts/controls/KeyboardObserver';
 import { TitleScreen } from './scenes/TitleScreen';
 import { SceneTransitionEffect } from './scenes/scene-transitions/SceneTransitionEffect';
 import { SceneTransition } from './scenes/scene-transitions/SceneTransition';
@@ -30,7 +30,10 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;    // Eliminates upscaling 
  */
 class App {
   /** The page element assumed as the game's canvas. */
-  readonly contextElement!: any;
+  readonly contextElement!: HTMLElement;
+
+  /** True if the game context element currently has the browser's focus. */
+  get hasFocus() { return document.activeElement === Game.contextElement; }
 
   /** True if this app is being run in a development environment. */
   readonly developmentMode = process.env.NODE_ENV === 'development';
@@ -123,6 +126,29 @@ class App {
       // const stream = canvas.captureStream();
       // const recorder = new MediaRecorder(stream, {mimeType: 'video/webm'});
       // const data = [];
+    },
+    function forceWebGlLoseContext() {
+      const dc = Game.devController;
+      if (!dc.pressed(Keys.iRow0, 'Ctrl'))
+        return;
+
+      console.warn(`forcing webgl_lose_context`);
+
+      // TODO This probably isn't comprehensive. What does Pixi default to when gl or gl2 fail?
+      // TODO Iterate over list of contextId strings; it's written as it is because of Typescript.
+
+      function report(contextId: string, exists: boolean) {
+        const found = (exists) ? 'found' : 'not found';
+        console.warn(`'${contextId}' ${found}`);
+      }
+
+      const gl = Game.renderer.view.getContext('webgl');
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
+      report('webgl', Boolean(gl));
+
+      const gl2 = Game.renderer.view.getContext('webgl2');
+      gl2?.getExtension('WEBGL_lose_context')?.loseContext();
+      report('webgl2', Boolean(gl2));
     },
   ];
 
@@ -283,12 +309,26 @@ class App {
     this.contextElement = document.querySelector('#gameframe');    // TODO Allow init() to accept different frame ID's?
     if (this.contextElement) {
       this.contextElement.appendChild(this.renderer.view);
-      this.contextElement.tabIndex = '0';
+      this.contextElement.tabIndex = 0;
+
+      // On focus lost, nullify all keyboard inputs.
+      this.contextElement.addEventListener('focusout', () => {
+        KeyboardObserver.reset();
+      });
     }
     else {
       // TODO I don't know what should happen. This will stop the program, in any case.
       throw new Error(`No context for game renderer.`)
     }
+
+    // Assign canvas error-event handlers
+    // TODO If the list gets any longer, migrate this to a dedicated file
+    this.renderer.view.addEventListener('webglcontextlost', event => {
+      Debug.exportLogToConsole();
+    });
+    this.renderer.view.addEventListener('webglcontextrestored', event => {
+      console.log(`WebGl context restored, but did not attempt to rebuild resources.`);
+    });
 
     // First screen resize + add a listener to update on window resize.
     this.display.resize(this.renderer, this.visualRoot);
@@ -368,6 +408,10 @@ class App {
       this.devSettings.suspendBypass = false;
 
       // TODO Give non-development users a way to post the log file.
+        // KeyboardObserver doesn't have press detection
+        // devController doesn't exist in user builds
+        // The simplest... I can think of is to modify how devController ignores events on user builds.
+        // It seems silly to rewrite the structures devController has in KeyboardObserver
       if (this.devController.pressed(Keys.P, 'Shift'))
         Debug.exportLogToConsole();
     }
