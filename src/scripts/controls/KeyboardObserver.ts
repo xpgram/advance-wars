@@ -1,6 +1,5 @@
 import { Game } from "../..";
 import { BitIO } from "../Common/BitIncrementer";
-import { Common } from "../CommonUtils";
 
 const JS_NUMBER_BITS = 31;
 const KEYCODE_BIT_FLAGS = 256;  // The total number of keycodes to consider, I believe.
@@ -64,7 +63,7 @@ export const KeyboardObserver = {
 /** A dictionary of all standard keyboard keys and their keycodes.
  * Be aware that it is not strictly true that all browsers share all keycodes in this list,
  * though most of them do. */
-export const Keys = Common.freezeObject({
+export const Keys = {
     Backspace: 8,
     Tab: 9,
     Enter: 13,
@@ -164,4 +163,4 @@ export const Keys = Common.freezeObject({
     BackSlash: 220,
     CloseBraket: 221,
     SingleQuote: 222
-});
+} as const;
