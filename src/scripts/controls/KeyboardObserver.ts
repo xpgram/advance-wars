@@ -1,8 +1,9 @@
-import { Common } from "../CommonUtils";
 import { Game } from "../..";
+import { BitIO } from "../Common/BitIncrementer";
+import { Common } from "../CommonUtils";
 
-const JS_NUMBER_BITS = 32;
-const KEYCODE_BIT_FLAGS = 256;
+const JS_NUMBER_BITS = 31;
+const KEYCODE_BIT_FLAGS = 256;  // The total number of keycodes to consider, I believe.
 
 // Keeps track of all keycode pressed/unpressed boolean states in so many 32-bit numbers.
 // Keycodes are not different, this script is a convenient proxy between the browser and the game.
@@ -24,10 +25,10 @@ window.addEventListener('keydown', (event) => {
     if (refuseListen(event))
         return;
 
-    let key = event.keyCode;
-    let keyset = Math.floor(key / JS_NUMBER_BITS);
-    let keyindex = key % JS_NUMBER_BITS;
-    keypressMatrix[keyset] = Common.writeBits(keypressMatrix[keyset], 1, 1, keyindex);
+    const key = event.keyCode;
+    const keyset = Math.floor(key / JS_NUMBER_BITS);
+    const keyindex = key % JS_NUMBER_BITS;
+    keypressMatrix[keyset] = BitIO.WriteBits(keypressMatrix[keyset], 1, {width: 1, shift: keyindex});
     event.preventDefault();
 });
 
@@ -36,25 +37,25 @@ window.addEventListener('keyup', (event) => {
     if (refuseListen(event))
         return;
 
-    let key = event.keyCode;
-    let keyset = Math.floor(key / JS_NUMBER_BITS);
-    let keyindex = key % JS_NUMBER_BITS;
-    keypressMatrix[keyset] = Common.writeBits(keypressMatrix[keyset], 0, 1, keyindex);
+    const key = event.keyCode;
+    const keyset = Math.floor(key / JS_NUMBER_BITS);
+    const keyindex = key % JS_NUMBER_BITS;
+    keypressMatrix[keyset] = BitIO.WriteBits(keypressMatrix[keyset], 0, {width: 1, shift: keyindex});
     event.preventDefault();
 });
 
 /** An observer object which relays keyboard key up/down state. */
 export const KeyboardObserver = {
     /** Given a keycode, returns true if that key is down. */
-    keyDown: (keycode: number): boolean => {
-        let keyset = Math.floor(keycode / JS_NUMBER_BITS);
-        let keyindex = keycode % JS_NUMBER_BITS;
-        let n = Common.readBits(keypressMatrix[keyset], 1, keyindex);
-        return (n == 1);
+    keyDown(keycode: number): boolean {
+        const keyset = Math.floor(keycode / JS_NUMBER_BITS);
+        const keyindex = keycode % JS_NUMBER_BITS;
+        const n = BitIO.ReadBits(keypressMatrix[keyset], {width: 1, shift: keyindex});
+        return (n === 1);
     },
 
     /** Resets all state information to key-up only. */
-    reset: () => {
+    reset() {
         for (let i in keypressMatrix)
             keypressMatrix[i] = 0;
     }
@@ -63,7 +64,7 @@ export const KeyboardObserver = {
 /** A dictionary of all standard keyboard keys and their keycodes.
  * Be aware that it is not strictly true that all browsers share all keycodes in this list,
  * though most of them do. */
-export const Keys = {
+export const Keys = Common.freezeObject({
     Backspace: 8,
     Tab: 9,
     Enter: 13,
@@ -163,4 +164,4 @@ export const Keys = {
     BackSlash: 220,
     CloseBraket: 221,
     SingleQuote: 222
-}
+});
