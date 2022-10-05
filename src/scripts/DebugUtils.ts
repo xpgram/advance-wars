@@ -110,6 +110,11 @@ export const Debug = {
         console.groupCollapsed(`System Log (${Debug._logData.length})`);
         console.log(Debug._logData.join('\n'));
         console.groupEnd();
+
+        return; // TODO Implement system resource measurements
+        console.groupCollapsed(`System Metrics`);
+        console.log();
+        console.groupEnd();
     },
 
     // An accessible list of all (this application's) error classes.
