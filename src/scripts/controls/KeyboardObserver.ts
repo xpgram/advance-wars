@@ -44,17 +44,17 @@ window.addEventListener('keyup', (event) => {
 });
 
 /** An observer object which relays keyboard key up/down state. */
-export const KeyboardObserver = {
+export module KeyboardObserver {
     /** Given a keycode, returns true if that key is down. */
-    keyDown(keycode: number): boolean {
+    export function keyDown(keycode: number): boolean {
         const keyset = Math.floor(keycode / JS_NUMBER_BITS);
         const keyindex = keycode % JS_NUMBER_BITS;
         const n = BitIO.ReadBits(keypressMatrix[keyset], {width: 1, shift: keyindex});
         return (n === 1);
-    },
+    }
 
     /** Resets all state information to key-up only. */
-    reset() {
+    export function reset() {
         for (let i in keypressMatrix)
             keypressMatrix[i] = 0;
     }
