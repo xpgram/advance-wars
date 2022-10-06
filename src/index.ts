@@ -407,12 +407,8 @@ class App {
       // Unset bypass for next frame.
       this.devSettings.suspendBypass = false;
 
-      // TODO Give non-development users a way to post the log file.
-        // KeyboardObserver doesn't have press detection
-        // devController doesn't exist in user builds
-        // The simplest... I can think of is to modify how devController ignores events on user builds.
-        // It seems silly to rewrite the structures devController has in KeyboardObserver
-      if (this.devController.pressed(Keys.P, 'Shift'))
+      // Post logs to the console on request
+      if (this.devController.pressed(Keys.P, 'Shift', {allowEndUser: true}))
         Debug.exportLogToConsole();
     }
     catch (err) {
