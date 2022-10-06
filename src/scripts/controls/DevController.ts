@@ -41,6 +41,7 @@ export class DevController {
   /** Callbacks for while-down events. */
   private whileDownEvents: DevControllerEvent[] = [];
 
+  
   constructor(options?: {enable?: boolean}) {
     this.enabled = options?.enable || false;
     const KeyMap = Keys as Record<string, number>;
@@ -61,19 +62,19 @@ export class DevController {
 
   /** Accessor method which returns a Button according to the Key value it's associated with.
    * Usage: devController.get(Keys.A), where Keys is the ID map obtained from KeyboardObserver. */
-  get(keyId: number): Button {
-    let button = Object.values(this.button).find( button => button.map.key1 === keyId );
+  getKey(keyId: number): Button {
+    const button = Object.values(this.button).find( button => button.map.key1 === keyId );
     return (button !== undefined) ? button : DevController.default_button;
   }
 
-  getKeyModifier(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt') {
-    const button = this.get(keyId);
+  /** Accessor method which extends this.get() to also return the associated alt-modifier button. */
+  private getModifier(altMode?: 'Shift' | 'Ctrl' | 'Alt') {
     let modifier: Button | undefined;
     if (altMode) {
       const modId = {'Shift': Keys.Shift, 'Ctrl': Keys.Ctrl, 'Alt': Keys.Alt}[altMode];
       modifier = Object.values(this.button).find( button => button.map.key1 === modId );
     }
-    return {button, modifier};
+    return modifier;
   }
 
   // TODO C, Shift+C and Shift+Ctrl+C are distinct. Create a method getAltState()
@@ -82,14 +83,16 @@ export class DevController {
   /** Returns true if the given keyId was pressed this frame.
    * If altMode is provided, only returns true given the keyId if the specified alt key is also down. */
   pressed(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt'): boolean {
-    const { button, modifier } = this.getKeyModifier(keyId, altMode);
+    const button = this.getKey(keyId);
+    const modifier = this.getModifier(altMode);
     return button.pressed && (!modifier || modifier.down);
   }
 
   /** Returns true if the given keyId is down this frame.
    * If altMode is provided, only returns true given the keyId if the specified alt key is also down. */
   down(keyId: number, altMode?: 'Shift' | 'Ctrl' | 'Alt'): boolean {
-    const { button, modifier } = this.getKeyModifier(keyId, altMode);
+    const button = this.getKey(keyId);
+    const modifier = this.getModifier(altMode);
     return button.down && (!modifier || modifier.down);
   }
 
