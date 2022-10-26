@@ -153,6 +153,6 @@ This is actually accessible in the middle of any battle if in a dev build, and i
 
 # Known Issues
 
-- **Player 2 can't play.** This isn't actually an issue. It's waiting for another browser client to issue commands. An update I'm pushing soon requires the online mode to be deliberately invoked, so it'll stop being a problem. Really, this is a product of me rushing things out so my friend and I could play.
+- **Online-players desync.** I do not yet have a backend system for saving the player-action history, so if a player closes the browser, they have essentially removed themselves from the match. The game currently does not recognize this, so on their next turn the game will wait for a non-existing player indefinitely.
 - **Camera, zoom level 2 gets stuck** because the wait-for-camera system is waiting indefinitely for the camera to move into position, even though it has, and never begins the next board event. You can work around this by simply pressing the zoom button again.
 - **Finicky mouse controls.** Sometimes you double, triple, quadruple click, sometimes it gets stuck in mouse-down state. These are usually navigable by clicking around in different places to reset the behavior system, but it's pretty annoying, yeah.
