@@ -210,7 +210,8 @@ class Dispatcher<UserEvents extends EventsMap> {
 const dispatcher = new Dispatcher<TestD>();
 dispatcher.emit(Commands.UI.DetailsWindow.UpdateInfo, 'hello', 'what do you do', 2);
 dispatcher.on(Commands.UI.DetailsWindow.UpdateVisibleTab, (n) => { })
-dispatcher.emit(Commands.UI.Map.MoveFieldCursor, new Point(1,10));
+const { MoveFieldCursor } = Commands.UI.Map;
+dispatcher.emit(MoveFieldCursor, new Point(1,10));
 dispatcher.emit('Commands-UI-Map-MoveFieldCursor', new Point(2,20));
 
 // Oh my god, that is so satisfying.
