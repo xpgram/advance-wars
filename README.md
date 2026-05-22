@@ -45,7 +45,7 @@ I wrote a [python script](/src/scripts/battle/map/TerrainWriter.py) that is defi
 <!------------------------------------------------------------------------------------------------->
 ## Terrain Info Panel
 
-Every terrain type (and troop type) has its metadata hooked up to the UI panels to answer your burning questions about wheat fields and rock in ocean.
+Every terrain type (and troop type) has its metadata hooked up to the UI panels to answer your burning questions about wheat fields and rock-in-ocean.
 
 You can open the detailed panel with right-trigger or Shift.
 
